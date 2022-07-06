@@ -256,6 +256,41 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path, bool bSilent ) {
 	return pDrumkit;
 }
 
+	
+std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {
+	if ( ! bSilent ) {
+		WARNINGLOG( "Using back compatibility code to load instrument component" );
+	}
+
+	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
+
+	if ( ! Filesystem::file_exists( sFilename ) && ! sDrumkitPath.isEmpty() ) {
+		sFilename = sDrumkitPath + "/" + sFilename;
+	}
+	
+	auto pSample = Sample::load( sFilename, drumkitLicense );
+	if ( pSample == nullptr ) {
+		// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
+		// Se fallisce provo a caricare il corrispettivo file in
+		// formato flac
+		if ( ! bSilent ) {
+			WARNINGLOG( "[readSong] Error loading sample: " +
+						sFilename + " not found. Trying to load a flac..." );
+		}
+		sFilename = sFilename.left( sFilename.length() - 4 );
+		sFilename += ".flac";
+		pSample = Sample::load( sFilename, drumkitLicense );
+	}
+	if ( pSample == nullptr && ! bSilent ) {
+		ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+	}
+	
+	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+	pCompo->set_layer( pLayer, 0 );
+	return pCompo;
+}
+
 Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* pInstrumentList ) {
 	Pattern* pPattern = nullptr;
 	if ( version_older_than( 0, 9, 8 ) ) {
@@ -432,6 +467,48 @@ Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 		WARNINGLOG( "Songs node not found" );
 	}
 	return pPlaylist;
+}
+
+std::vector<PatternList*>* Legacy::loadPatternGroupVector( XMLNode* pNode, PatternList* pPatternList, bool bSilent ) {;
+
+	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+
+	if ( ! bSilent ) {
+		WARNINGLOG( "Using old pattern group vector code for back compatibility" );
+	}
+	
+	XMLNode pPatternIDNode = pNode->firstChildElement( "patternID" );
+	while ( ! pPatternIDNode.isNull() ) {
+	
+		PatternList* pPatternSequence = new PatternList();
+		QString sPatId = pPatternIDNode.firstChildElement().text();
+
+		Pattern* pPattern = nullptr;
+		for ( const auto& ppPat : *pPatternList ) {
+			if ( ppPat != nullptr ) {
+				if ( ppPat->get_name() == sPatId ) {
+					pPattern = ppPat;
+					break;
+				}
+			}
+		}
+		
+		if ( pPattern == nullptr ) {
+			if ( ! bSilent ) {
+				WARNINGLOG( QString( "Pattern [%1] not found in patternList." )
+							.arg( sPatId ) );
+			}
+			delete pPatternSequence;
+		}
+		else {
+			pPatternSequence->add( pPattern );
+			pPatternGroupVector->push_back( pPatternSequence );
+		}
+
+		pPatternIDNode = pPatternIDNode.nextSiblingElement( "patternID" );
+	}
+
+	return pPatternGroupVector;
 }
 
 bool Legacy::checkTinyXMLCompatMode( QFile* pFile, bool bSilent ) {

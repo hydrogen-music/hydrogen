@@ -24,13 +24,18 @@
 #define H2C_LEGACY_H
 
 #include <core/Object.h>
+#include <memory>
 
 namespace H2Core {
 
 class Drumkit;
 class Playlist;
 class Pattern;
+class PatternList;
+class InstrumentComponent;
 class InstrumentList;
+class License;
+class XMLNode;
 
 /**
  * Legacy is a container for legacy code which should be once removed
@@ -48,6 +53,12 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \return a Drumkit on success, 0 otherwise
 		 */
 		static Drumkit* load_drumkit( const QString& dk_path, bool bSilent = false );
+	/** Backward compatibility code to load an #InstrumentComponent
+	 *	from an #Instrument which itself did not contain one yet.
+	 *
+	 * This code was used to load a #Song of version <= 0.9.0.
+	 */
+	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent = false );
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file
@@ -62,6 +73,8 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \return a Playlist on success, 0 otherwise
 		 */
 		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
+
+	static std::vector<PatternList*>* loadPatternGroupVector( XMLNode* pNode, PatternList* pPatternList, bool bSilent = false );
 
 	/**
 	 *	Check if filename was created with TinyXml or QtXml

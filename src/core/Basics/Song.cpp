@@ -43,6 +43,7 @@
 #include <core/Basics/AutomationPath.h>
 #include <core/AutomationPathSerializer.h>
 #include <core/Hydrogen.h>
+#include <core/Helpers/Legacy.h>
 #include <core/Sampler/Sampler.h>
 
 #ifdef H2CORE_HAVE_OSC
@@ -232,17 +233,21 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	
-	float fBpm = pRootNode->read_float( "bpm", 120, false, false );
-	float fVolume = pRootNode->read_float( "volume", 0.5, false, false );
-	QString sName( pRootNode->read_string( "name", "Untitled Song", false, false ) );
-	QString sAuthor( pRootNode->read_string( "author", "Unknown Author", false, false ) );
+	float fBpm = pRootNode->read_float( "bpm", 120, false, false, bSilent );
+	float fVolume = pRootNode->read_float( "volume", 0.5, false, false, bSilent );
+	QString sName( pRootNode->read_string( "name", "Untitled Song",
+										   false, false, bSilent ) );
+	QString sAuthor( pRootNode->read_string( "author", "Unknown Author",
+											 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 
-	pSong->setMetronomeVolume( pRootNode->read_float( "metronomeVolume", 0.5, false, false ) );
-	pSong->setNotes( pRootNode->read_string( "notes", "...", false, false ) );
-	pSong->setLicense( License( pRootNode->read_string( "license", "", false, false ), sAuthor ) );
-	if ( pRootNode->read_bool( "loopEnabled", false, false, false ) ) {
+	pSong->setMetronomeVolume( pRootNode->read_float( "metronomeVolume", 0.5,
+													  false, false, bSilent ) );
+	pSong->setNotes( pRootNode->read_string( "notes", "...", false, false, bSilent ) );
+	pSong->setLicense( License( pRootNode->read_string( "license", "",
+														false, false, bSilent ), sAuthor ) );
+	if ( pRootNode->read_bool( "loopEnabled", false, false, false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -250,19 +255,20 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	
 	if ( pRootNode->read_bool( "patternModeMode",
 							   static_cast<bool>(Song::PatternMode::Selected),
-							   false, false ) ) {
+							   false, false, bSilent ) ) {
 		pSong->setPatternMode( Song::PatternMode::Selected );
 	} else {
 		pSong->setPatternMode( Song::PatternMode::Stacked );
 	}
 
-	if ( pRootNode->read_string( "mode", "pattern", false, false ) == "song" ) {
+	if ( pRootNode->read_string( "mode", "pattern", false, false, bSilent ) == "song" ) {
 		pSong->setMode( Song::Mode::Song );
 	} else {
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
-	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "", false, false ) );
+	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
+													false, false, bSilent ) );
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&
@@ -274,21 +280,27 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
-	pSong->setPlaybackTrackEnabled( pRootNode->read_bool( "playbackTrackEnabled", false, false, false ) );
-	pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0, false, false ) );
+	pSong->setPlaybackTrackEnabled( pRootNode->read_bool( "playbackTrackEnabled", false,
+														  false, false, bSilent ) );
+	pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0,
+														  false, false, bSilent ) );
 	
-	pSong->setHumanizeTimeValue( pRootNode->read_float( "humanize_time", 0.0, false, false ) );
-	pSong->setHumanizeVelocityValue( pRootNode->read_float( "humanize_velocity", 0.0, false, false ) );
-	pSong->setSwingFactor( pRootNode->read_float( "swing_factor", 0.0, false, false ) );
+	pSong->setHumanizeTimeValue( pRootNode->read_float( "humanize_time", 0.0,
+														false, false, bSilent ) );
+	pSong->setHumanizeVelocityValue( pRootNode->read_float( "humanize_velocity", 0.0,
+															false, false, bSilent ) );
+	pSong->setSwingFactor( pRootNode->read_float( "swing_factor", 0.0, false, false, bSilent ) );
 	pSong->setActionMode( static_cast<Song::ActionMode>(
 		pRootNode->read_int( "action_mode",
-							 static_cast<int>( Song::ActionMode::selectMode ), false, false ) ) );
-	pSong->setIsPatternEditorLocked( pRootNode->read_bool( "isPatternEditorLocked", false, false, false ) );
+							 static_cast<int>( Song::ActionMode::selectMode ),
+							 false, false, bSilent ) ) );
+	pSong->setIsPatternEditorLocked( pRootNode->read_bool( "isPatternEditorLocked",
+														   false, false, false, bSilent ) );
 
 	bool bContainsIsTimelineActivated;
 	bool bIsTimelineActivated =
 		pRootNode->read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, false, false );
+							  &bContainsIsTimelineActivated, false, false, bSilent );
 	if ( ! bContainsIsTimelineActivated ) {
 		// .h2song file was created in an older version of
 		// Hydrogen. Using the Timeline state in the
@@ -300,7 +312,9 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law
-	QString sPanLawType( pRootNode->read_string( "pan_law_type", "RATIO_STRAIGHT_POLYGONAL", false, false ) );
+	QString sPanLawType( pRootNode->read_string( "pan_law_type",
+												 "RATIO_STRAIGHT_POLYGONAL",
+												 false, false, bSilent ) );
 	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
 		pSong->setPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL );
 	} else if ( sPanLawType == "RATIO_CONST_POWER" ) {
@@ -340,7 +354,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		}
 	}
 
-	float fPanLawKNorm = pRootNode->read_float( "pan_law_k_norm", Sampler::K_NORM_DEFAULT, false, false );
+	float fPanLawKNorm = pRootNode->read_float( "pan_law_k_norm", Sampler::K_NORM_DEFAULT,
+												false, false, bSilent );
 	if ( fPanLawKNorm <= 0.0 ) {
 		if ( ! bSilent ) {
 			WARNINGLOG( QString( "Invalid pan law k in import song [%1] (<= 0). Set default k." )
@@ -354,384 +369,48 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ( ! componentListNode.isNull()  ) ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			int id = componentNode.read_int( "id", -1, false, false );			// instrument id
-			QString sName = componentNode.read_string( "name", "", false, false );		// name
-			
-			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
-			pDrumkitComponent->set_volume( componentNode.read_float( "volume", 1.0, false, false ) );
-
-			pSong->getComponents()->push_back(pDrumkitComponent);
+			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			if ( pDrumkitComponent != nullptr ) {
+				pSong->getComponents()->push_back( pDrumkitComponent );
+			}
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
-	} else {
+	}
+	else {
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-		pSong->getComponents()->push_back(pDrumkitComponent);
+		pSong->getComponents()->push_back( pDrumkitComponent );
 	}
 
 	//  Instrument List
-	InstrumentList* pInstrList = new InstrumentList();
-
 	XMLNode instrumentListNode = pRootNode->firstChildElement( "instrumentList" );
-	if ( ( ! instrumentListNode.isNull()  ) ) {
-		// INSTRUMENT NODE
-		int instrumentList_count = 0;
-		XMLNode instrumentNode = instrumentListNode.firstChildElement( "instrument" );
-		while ( ! instrumentNode.isNull()  ) {
-			instrumentList_count++;
+	if ( ! instrumentListNode.isNull() ) {
+		// By supplying no drumkit path and name the individual
+		// drumkit meta infos stored in the 'instrument' nodes will be
+		// used.
+		auto pInstrumentList = InstrumentList::load_from( &instrumentListNode,
+														  "", // sDrumkitPath
+														  "", // sDrumkitName
+														  bSilent );
+		pSong->setInstrumentList( pInstrumentList );
 
-			int id = instrumentNode.read_int( "id", -1, false, false );			// instrument id
-			if ( id == -1 ) {
-				if ( ! bSilent ) {
-					ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
-				}
-				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
-				continue;
+		if ( pInstrumentList->size() == 0 ) {
+			if ( ! bSilent ) {
+				ERRORLOG( "Loaded instrument list does not contain a single instrument. Aborting." );
 			}
-
-			QString sDrumkit = instrumentNode.read_string( "drumkit", "", false, false );	// drumkit
-			pSong->setCurrentDrumkitName( sDrumkit );
-			int iLookup = instrumentNode.read_int( "drumkitLookup", -1, false, false );	// drumkit
-			if ( iLookup == -1 ) {
-				// Song was created with an older version of the
-				// Hydrogen and we just have the name of the drumkit
-				// and no information whether it is found at user- or
-				// system-level.
-
-				if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::user, true ).isEmpty() ) {
-					iLookup = 1;
-					if ( ! bSilent ) {
-						WARNINGLOG( QString( "Missing drumkitLookup for kit [%1]: user-level determined" )
-									.arg( sDrumkit ) );
-					}
-				}
-				else if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::system, true ).isEmpty() ) {
-					iLookup = 2;
-					if ( ! bSilent ) {
-						WARNINGLOG( QString( "Missing drumkitLookup for kit [%1]: system-level determined" )
-									.arg( sDrumkit ) );
-					}
-				}
-				else {
-					iLookup = 2;
-					if ( ! bSilent ) {
-						ERRORLOG( QString( "Missing drumkitLookup for kit [%1]: drumkit could not be found. system-level will be set as a fallback" )
-									.arg( sDrumkit ) );
-					}
-				}
-			}	
-			pSong->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
-			
-			QString sName = instrumentNode.read_string( "name", "", false, false );
-			int fAttack = instrumentNode.read_int( "Attack", 0, true, false );
-			int fDecay = instrumentNode.read_int( "Decay", 0, true, false );
-			float fSustain = instrumentNode.read_float( "Sustain", 1.0, true, false );
-			int fRelease = instrumentNode.read_float( "Release", 1000.0, true, false );
-
-			auto pInstrument = std::make_shared<Instrument>( id, sName, std::make_shared<ADSR>( fAttack, fDecay, fSustain, fRelease ) );
-
-			pInstrument->set_volume( instrumentNode.read_float( "volume", 1.0, false, false ) );
-			pInstrument->set_muted( instrumentNode.read_bool( "isMuted", false, false, false ) );
-			pInstrument->set_soloed( instrumentNode.read_bool( "isSoloed", false, false, false ) );
-			
-			bool bFound, bFound2;
-			float fPan = instrumentNode.read_float( "pan", 0.f, &bFound, true, false );
-			if ( !bFound ) {
-				// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
-				float fPanL = instrumentNode.read_float( "pan_L", 1.f, &bFound, false, false );
-				float fPanR = instrumentNode.read_float( "pan_R", 1.f, &bFound2, false, false );
-				if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
-					fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
-				}
-			}
-			pInstrument->setPan( fPan );
-			
-			pInstrument->set_drumkit_name( sDrumkit );
-			pInstrument->set_drumkit_lookup( static_cast<Filesystem::Lookup>( iLookup ) );
-			pInstrument->set_apply_velocity( instrumentNode.read_bool( "applyVelocity", true, false, false ) );
-			pInstrument->set_fx_level( instrumentNode.read_float( "FX1Level", 0.0, false, false ), 0 );
-			pInstrument->set_fx_level( instrumentNode.read_float( "FX2Level", 0.0, false, false ), 1 );
-			pInstrument->set_fx_level( instrumentNode.read_float( "FX3Level", 0.0, false, false ), 2 );
-			pInstrument->set_fx_level( instrumentNode.read_float( "FX4Level", 0.0, false, false ), 3 );
-			pInstrument->set_pitch_offset( instrumentNode.read_float( "pitchOffset", 0.0f, true, false ) );
-			pInstrument->set_random_pitch_factor( instrumentNode.read_float( "randomPitchFactor", 0.0f, true, false ) );
-			pInstrument->set_filter_active( instrumentNode.read_bool( "filterActive", false, false, false ) );
-			pInstrument->set_filter_cutoff( instrumentNode.read_float( "filterCutoff", 1.0f, false, false ) );
-			pInstrument->set_filter_resonance( instrumentNode.read_float( "filterResonance", 0.0f, false, false ) );
-			pInstrument->set_gain( instrumentNode.read_float( "gain", 1.0, true, false ) );
-
-			// create a new instrument
-			pInstrument->set_mute_group( instrumentNode.read_string( "muteGroup", "-1", false, false ).toInt() );
-			pInstrument->set_stop_notes( instrumentNode.read_bool( "isStopNote", false, false, false ) );
-			pInstrument->set_hihat_grp( instrumentNode.read_int( "isHihat", -1, false, true ) );
-			pInstrument->set_lower_cc( instrumentNode.read_int( "lower_cc", 0, false, true ) );
-			pInstrument->set_higher_cc( instrumentNode.read_int( "higher_cc", 127, false, true ) );
-
-			QString sRead_sample_select_algo = instrumentNode.read_string( "sampleSelectionAlgo", "VELOCITY", false, false );
-			if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
-				pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-			} else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
-				pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-			} else if ( sRead_sample_select_algo.compare("RANDOM") == 0 ) {
-				pInstrument->set_sample_selection_alg( Instrument::RANDOM );
-			}
-			pInstrument->set_midi_out_channel( instrumentNode.read_string( "midiOutChannel", "-1", true, false ).toInt() );
-			pInstrument->set_midi_out_note( instrumentNode.read_string( "midiOutNote", "60", true, false ).toInt() );
-
-			QString drumkitPath;
-			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
-				drumkitPath = Filesystem::drumkit_path_search( sDrumkit );
-			} else if ( ! bSilent ) {
-				ERRORLOG( "Missing drumkit path" );
-			}
-
-			// Get license used by drumkit.
-			License drumkitLicense = Drumkit::loadLicenseFrom( drumkitPath );
-
-			XMLNode sFilenameNode = instrumentNode.firstChildElement( "filename" );
-
-			// back compatibility code ( song version <= 0.9.0 )
-			if ( ! sFilenameNode.isNull() ) {
-				if ( ! bSilent ) {
-					WARNINGLOG( "Using back compatibility code. sFilename node found" );
-				}
-				QString sFilename = instrumentNode.read_string( "filename", "", false, false );
-
-				if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
-					sFilename = drumkitPath + "/" + sFilename;
-				}
-				auto pSample = Sample::load( sFilename, drumkitLicense );
-				if ( pSample == nullptr ) {
-					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
-					// Se fallisce provo a caricare il corrispettivo file in formato flac
-//					warningLog( "[readSong] Error loading sample: " + sFilename + " not found. Trying to load a flac..." );
-					sFilename = sFilename.left( sFilename.length() - 4 );
-					sFilename += ".flac";
-					pSample = Sample::load( sFilename, drumkitLicense );
-				}
-				if ( pSample == nullptr ) {
-					if ( ! bSilent ) {
-						ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-					}
-					pInstrument->set_muted( true );
-					pInstrument->set_missing_samples( true );
-				}
-				auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-				auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-				pCompo->set_layer( pLayer, 0 );
-				pInstrument->get_components()->push_back( pCompo );
-			}
-			//~ back compatibility code
-			else {
-				bool bFoundAtLeastOneComponent = false;
-				XMLNode componentNode = instrumentNode.firstChildElement( "instrumentComponent" );
-				while ( ! componentNode.isNull()  ) {
-					bFoundAtLeastOneComponent = true;
-					auto pCompo = std::make_shared<InstrumentComponent>(
-						componentNode.read_int( "component_id", 0, false, false ) );
-					pCompo->set_gain( componentNode.read_float( "gain", 1.0, false, false ) );
-
-					unsigned nLayer = 0;
-					XMLNode layerNode = componentNode.firstChildElement( "layer" );
-					while ( ! layerNode.isNull()  ) {
-						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							if ( ! bSilent ) {
-								ERRORLOG( QString( "nLayer (%1) > m_nMaxLayers (%2)" )
-										  .arg( nLayer )
-										  .arg( InstrumentComponent::getMaxLayers() ) );
-							}
-							continue;
-						}
-						//bool sIsModified = false;
-						QString sFilename = layerNode.read_string( "filename", "", false, false );
-						bool sIsModified = layerNode.read_bool( "ismodified", false, false, false );
-						Sample::Loops lo;
-						lo.mode = Sample::parse_loop_mode( layerNode.read_string( "smode", "forward", false, false ) );
-						lo.start_frame = layerNode.read_int( "startframe", 0, false, false );
-						lo.loop_frame = layerNode.read_int( "loopframe", 0, false, false );
-						lo.count = layerNode.read_int( "loops", 0, false, false );
-						lo.end_frame = layerNode.read_int( "endframe", 0, false, false );
-						Sample::Rubberband ro;
-						ro.use = layerNode.read_int( "userubber", 0, false, false );
-						ro.divider = layerNode.read_float( "rubberdivider", 0.0, false, false );
-						ro.c_settings = layerNode.read_int( "rubberCsettings", 1, false, false);
-						ro.pitch = layerNode.read_float( "rubberPitch", 0.0, false, false );
-
-						float fMin = layerNode.read_float( "min", 0.0, false, false );
-						float fMax = layerNode.read_float( "max", 1.0, false, false );
-						float fGain = layerNode.read_float( "gain", 1.0, false, false );
-						float fPitch = layerNode.read_float( "pitch", 0.0, true, false );
-
-						if ( ! QFile( sFilename ).exists() &&
-							 ! drumkitPath.isEmpty() &&
-							 ! sFilename.startsWith( "/" ) ) {
-							sFilename = drumkitPath + "/" + sFilename;
-						}
-
-						QString program = pPreferences->m_rubberBandCLIexecutable;
-						//test the path. if test fails, disable rubberband
-						if ( QFile( program ).exists() == false ) {
-							ro.use = false;
-						}
-
-						std::shared_ptr<Sample> pSample;
-						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename, drumkitLicense );
-						} else {
-							// FIXME, kill EnvelopePoint, create Envelope class
-							EnvelopePoint pt;
-
-							Sample::VelocityEnvelope velocity;
-							XMLNode volumeNode = layerNode.firstChildElement( "volume" );
-							while ( ! volumeNode.isNull()  ) {
-								pt.frame = volumeNode.read_int( "volume-position", 0, false, false );
-								pt.value = volumeNode.read_int( "volume-value", 0, false, false );
-								velocity.push_back( pt );
-								volumeNode = volumeNode.nextSiblingElement( "volume" );
-								//ERRORLOG( QString("volume-posi %1").arg(volumeNode.read_int( "volume-position", 0)) );
-							}
-
-							Sample::VelocityEnvelope pan;
-							XMLNode panNode = layerNode.firstChildElement( "pan" );
-							while ( ! panNode.isNull()  ) {
-								pt.frame = panNode.read_int( "pan-position", 0, false, false );
-								pt.value = panNode.read_int( "pan-value", 0, false, false );
-								pan.push_back( pt );
-								panNode = panNode.nextSiblingElement( "pan" );
-							}
-
-							pSample = Sample::load( sFilename, lo, ro, velocity,
-													pan, fBpm, drumkitLicense );
-						}
-						if ( pSample == nullptr ) {
-							if ( ! bSilent ) {
-								ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-							}
-							pInstrument->set_muted( true );
-							pInstrument->set_missing_samples( true );
-						}
-						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-						pLayer->set_start_velocity( fMin );
-						pLayer->set_end_velocity( fMax );
-						pLayer->set_gain( fGain );
-						pLayer->set_pitch( fPitch );
-						pCompo->set_layer( pLayer, nLayer );
-						nLayer++;
-
-						layerNode = layerNode.nextSiblingElement( "layer" );
-					}
-
-					pInstrument->get_components()->push_back( pCompo );
-					componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
-				}
-				
-				if( ! bFoundAtLeastOneComponent ) {
-					auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-					pCompo->set_gain( componentNode.read_float( "gain", 1.0, false, false ) );
-
-					unsigned nLayer = 0;
-					XMLNode layerNode = instrumentNode.firstChildElement( "layer" );
-					while (  ! layerNode.isNull()  ) {
-						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							if ( ! bSilent ) {
-								ERRORLOG( QString( "nLayer (%1) > m_nMaxLayers (%2)" )
-										  .arg( nLayer )
-										  .arg( InstrumentComponent::getMaxLayers() ) );
-							}
-							continue;
-						}
-						QString sFilename = layerNode.read_string( "filename", "", false, false );
-						bool sIsModified = layerNode.read_bool( "ismodified", false, false, false );
-						Sample::Loops lo;
-						lo.mode = Sample::parse_loop_mode( layerNode.read_string( "smode", "forward", false, false ) );
-						lo.start_frame = layerNode.read_int( "startframe", 0, false, false );
-						lo.loop_frame = layerNode.read_int( "loopframe", 0, false, false );
-						lo.count = layerNode.read_int( "loops", 0, false, false );
-						lo.end_frame = layerNode.read_int( "endframe", 0, false, false );
-						Sample::Rubberband ro;
-						ro.use = layerNode.read_int( "userubber", 0, false, false );
-						ro.divider = layerNode.read_float( "rubberdivider", 0.0, false, false );
-						ro.c_settings = layerNode.read_int( "rubberCsettings", 1, false, false );
-						ro.pitch = layerNode.read_float( "rubberPitch", 0.0, false, false );
-
-						float fMin = layerNode.read_float( "min", 0.0, false, false );
-						float fMax = layerNode.read_float( "max", 1.0, false, false );
-						float fGain = layerNode.read_float( "gain", 1.0, false, false );
-						float fPitch = layerNode.read_float( "pitch", 0.0, true, false );
-
-						if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
-							sFilename = drumkitPath + "/" + sFilename;
-						}
-
-						QString program = pPreferences->m_rubberBandCLIexecutable;
-						//test the path. if test fails, disable rubberband
-						if ( QFile( program ).exists() == false ) {
-							ro.use = false;
-						}
-
-						std::shared_ptr<Sample> pSample = nullptr;
-						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename );
-						} else {
-							EnvelopePoint pt;
-
-							Sample::VelocityEnvelope velocity;
-							XMLNode volumeNode = layerNode.firstChildElement( "volume" );
-							while (  ! volumeNode.isNull()  ) {
-								pt.frame = volumeNode.read_int( "volume-position", 0, false, false );
-								pt.value = volumeNode.read_int( "volume-value", 0, false, false );
-								velocity.push_back( pt );
-								volumeNode = volumeNode.nextSiblingElement( "volume" );
-								//ERRORLOG( QString("volume-posi %1").arg(volumeNode.read_int( "volume-position", 0)) );
-							}
-
-							Sample::VelocityEnvelope pan;
-							XMLNode  panNode = layerNode.firstChildElement( "pan" );
-							while (  ! panNode.isNull()  ) {
-								pt.frame = panNode.read_int( "pan-position", 0, false, false );
-								pt.value = panNode.read_int( "pan-value", 0, false, false );
-								pan.push_back( pt );
-								panNode = panNode.nextSiblingElement( "pan" );
-							}
-
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
-						}
-						if ( pSample == nullptr ) {
-							if ( ! bSilent ) {
-								ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-							}
-							pInstrument->set_muted( true );
-							pInstrument->set_missing_samples( true );
-						}
-						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-						pLayer->set_start_velocity( fMin );
-						pLayer->set_end_velocity( fMax );
-						pLayer->set_gain( fGain );
-						pLayer->set_pitch( fPitch );
-						pCompo->set_layer( pLayer, nLayer );
-						nLayer++;
-
-						layerNode = layerNode.nextSiblingElement( "layer" );
-					}
-					pInstrument->get_components()->push_back( pCompo );
-				}
-			}
-			pInstrList->add( pInstrument );
-			instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
+			return nullptr;
 		}
-
-		if ( instrumentList_count == 0 && ! bSilent ) {
-			WARNINGLOG( "0 instruments?" );
-		}
-		pSong->setInstrumentList( pInstrList );
 	}
 	else {
 		if ( ! bSilent ) {
-			ERRORLOG( "Error reading song: instrumentList node not found" );
+			ERRORLOG( "Error reading song: instrumentList node not found. Aborting" );
 		}
-		delete pInstrList;
 		return nullptr;
 	}
+
+	// TODO: fix me by providing a top-level drumkit path 
+	pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
+	pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
 
 	// Pattern list
 	XMLNode patterns = pRootNode->firstChildElement( "patternList" );
@@ -742,7 +421,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	XMLNode patternNode =  patterns.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		pattern_count++;
-		Pattern* pPattern = Pattern::load_from( &patternNode, pInstrList );
+		Pattern* pPattern = Pattern::load_from( &patternNode, pSong->getInstrumentList() );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -766,7 +445,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ! virtualPatternNode.isNull() ) {
 
 		while ( ! virtualPatternNode.isNull() ) {
-			QString sName = virtualPatternNode.read_string( "name", sName, false, false );
+			QString sName = virtualPatternNode.read_string( "name", sName, false, false, bSilent );
 
 			Pattern* pCurPattern = nullptr;
 			unsigned nPatterns = pPatternList->size();
@@ -814,77 +493,47 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	// Pattern sequence
     XMLNode patternSequenceNode = pRootNode->firstChildElement( "patternSequence" );
 
-	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-
-	// back-compatibility code..
-	XMLNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
-	while ( ! pPatternIDNode.isNull()  ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( "Using old patternSequence code for back compatibility" );
-		}
-		PatternList* pPatternSequence = new PatternList();
-		QString patId = pPatternIDNode.firstChildElement().text();
-
-		Pattern* pPattern = nullptr;
-		for ( unsigned i = 0; i < pPatternList->size(); i++ ) {
-			Pattern* pTmpPattern = pPatternList->get( i );
-			if ( pTmpPattern != nullptr ) {
-				if ( pTmpPattern->get_name() == patId ) {
-					pPattern = pTmpPattern;
-					break;
-				}
-			}
-		}
-		if ( pPattern == nullptr ) {
-			if ( ! bSilent ) {
-				WARNINGLOG( "patternid not found in patternSequence" );
-			}
-			pPatternIDNode = pPatternIDNode.nextSiblingElement( "patternID" );
-			
-			delete pPatternSequence;
-			
-			continue;
-		}
-		pPatternSequence->add( pPattern );
-
-		pPatternGroupVector->push_back( pPatternSequence );
-
-		pPatternIDNode = pPatternIDNode.nextSiblingElement( "patternID" );
+	if ( ! patternSequenceNode.firstChildElement( "patternID" ).isNull() ) {
+		// back-compatibility code..
+		pSong->setPatternGroupVector( Legacy::loadPatternGroupVector( &patternSequenceNode,
+																	  pSong->getPatternList(),
+																	  bSilent ) );
 	}
+	else {
+		// current format
+		std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+		
+		XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
+		while ( ! groupNode.isNull() ) {
+			PatternList* patternSequence = new PatternList();
+			XMLNode patternId = groupNode.firstChildElement( "patternID" );
+			while ( ! patternId.isNull() ) {
+				QString sPatId = patternId.firstChild().nodeValue();
 
-    XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
-	while ( ! groupNode.isNull() ) {
-		PatternList* patternSequence = new PatternList();
-		XMLNode patternId = groupNode.firstChildElement( "patternID" );
-		while ( ! patternId.isNull() ) {
-			QString patId = patternId.firstChild().nodeValue();
-
-			Pattern* pPattern = nullptr;
-			for ( unsigned i = 0; i < pPatternList->size(); i++ ) {
-				Pattern* pTmpPattern = pPatternList->get( i );
-				if ( pTmpPattern != nullptr ) {
-					if ( pTmpPattern->get_name() == patId ) {
-						pPattern = pTmpPattern;
-						break;
+				Pattern* pPattern = nullptr;
+				for ( const auto& ppPat : *pPatternList ) {
+					if ( ppPat != nullptr ) {
+						if ( ppPat->get_name() == sPatId ) {
+							pPattern = ppPat;
+							break;
+						}
 					}
 				}
-			}
-			if ( pPattern == nullptr ) {
-				if ( ! bSilent ) {
+				
+				if ( pPattern != nullptr ) {
+					patternSequence->add( pPattern );
+				} else if ( ! bSilent ) {
 					WARNINGLOG( "patternid not found in patternSequence" );
 				}
+
 				patternId = patternId.nextSiblingElement( "patternID" );
-				continue;
 			}
-			patternSequence->add( pPattern );
-			patternId = patternId.nextSiblingElement( "patternID" );
+			pPatternGroupVector->push_back( patternSequence );
+
+			groupNode = groupNode.nextSiblingElement( "group" );
 		}
-		pPatternGroupVector->push_back( patternSequence );
-
-		groupNode = groupNode.nextSiblingElement( "group" );
+		pSong->setPatternGroupVector( pPatternGroupVector );
 	}
-
-	pSong->setPatternGroupVector( pPatternGroupVector );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// reset FX
@@ -901,21 +550,21 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		int nFX = 0;
 		XMLNode fxNode = ladspaNode.firstChildElement( "fx" );
 		while ( ! fxNode.isNull() ) {
-			QString sName = fxNode.read_string( "name", "", false, false );
+			QString sName = fxNode.read_string( "name", "", false, false, bSilent );
 
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
-				LadspaFX* pFX = LadspaFX::load( fxNode.read_string( "filename", "", false, false ),
+				LadspaFX* pFX = LadspaFX::load( fxNode.read_string( "filename", "", false, false, bSilent ),
 												sName, 44100 );
 				Effects::get_instance()->setLadspaFX( pFX, nFX );
 				if ( pFX != nullptr ) {
-					pFX->setEnabled( fxNode.read_bool( "enabled", false, false, false ) );
-					pFX->setVolume( fxNode.read_float( "volume", 1.0, false, false ) );
+					pFX->setEnabled( fxNode.read_bool( "enabled", false, false, false, bSilent ) );
+					pFX->setVolume( fxNode.read_float( "volume", 1.0, false, false, bSilent ) );
 					XMLNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
 					while ( ! inputControlNode.isNull() ) {
-						QString sName = inputControlNode.read_string( "name", "", false, false );
-						float fValue = inputControlNode.read_float( "value", 0.0, false, false );
+						QString sName = inputControlNode.read_string( "name", "", false, false, bSilent );
+						float fValue = inputControlNode.read_float( "value", 0.0, false, false, bSilent );
 
 						for ( unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++ ) {
 							LadspaControlPort* port = pFX->inputControlPorts[ nPort ];
@@ -940,8 +589,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ! bpmTimeLineNode.isNull() ) {
 		XMLNode newBPMNode = bpmTimeLineNode.firstChildElement( "newBPM" );
 		while ( ! newBPMNode.isNull() ) {
-			pTimeline->addTempoMarker( newBPMNode.read_int( "BAR", 0, false, false ),
-									   newBPMNode.read_float( "BPM", 120.0, false, false ) );
+			pTimeline->addTempoMarker( newBPMNode.read_int( "BAR", 0, false, false, bSilent ),
+									   newBPMNode.read_float( "BPM", 120.0, false, false, bSilent ) );
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	} else if ( ! bSilent ) {
@@ -952,8 +601,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ! timeLineTagNode.isNull() ) {
 		XMLNode newTAGNode = timeLineTagNode.firstChildElement( "newTAG" );
 		while ( ! newTAGNode.isNull() ) {
-			pTimeline->addTag( newTAGNode.read_int( "BAR", 0, false, false ),
-							   newTAGNode.read_string( "TAG", "", false, false ) );
+			pTimeline->addTag( newTAGNode.read_int( "BAR", 0, false, false, bSilent ),
+							   newTAGNode.read_string( "TAG", "", false, false, bSilent ) );
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
 		}
 	} else if ( ! bSilent ) {
@@ -968,7 +617,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 		XMLNode pathNode = automationPathsNode.firstChildElement( "path" );
 		while ( ! pathNode.isNull()) {
-			QString sAdjust = pathNode.read_attribute( "adjust", "velocity", false, false );
+			QString sAdjust = pathNode.read_attribute( "adjust", "velocity", false, false, bSilent );
 
 			// Select automation path to be read based on "adjust" attribute
 			AutomationPath *pPath = nullptr;
@@ -1067,8 +716,6 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		pRootNode->write_string( "mode", QString( "pattern" ) );
 	}
 
-	Sampler* pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
-	
 	QString sPanLawType; // prepare the pan law string to write
 	if ( m_nPanLawType == Sampler::RATIO_STRAIGHT_POLYGONAL ) {
 		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
@@ -1116,176 +763,27 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	pRootNode->write_float( "swing_factor", m_fSwingFactor );
 
-	// component List
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
 	for ( const auto& pComponent : *m_pComponents ) {
-		XMLNode componentNode = componentListNode.createNode( "drumkitComponent" );
-
-		componentNode.write_int( "id", pComponent->get_id() );
-		componentNode.write_string( "name", pComponent->get_name() );
-		componentNode.write_float( "volume", pComponent->get_volume() );
+		if ( pComponent != nullptr ) {
+			pComponent->save_to( &componentListNode );
+		}
 	}
 
-	// instrument list
 	XMLNode instrumentListNode = pRootNode->createNode( "instrumentList" );
-	unsigned nInstrument = getInstrumentList()->size();
-
-	// INSTRUMENT NODE
-	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		auto pInstr = getInstrumentList()->get( i );
-		if ( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument [%1]" ).arg( i ) );
-			continue;
-		} else if ( pInstr->get_adsr() == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve ADSR of instrument [%1]" ).arg( i ) );
-			continue;
-		}
-
-		XMLNode instrumentNode = instrumentListNode.createNode( "instrument" );
-
-		instrumentNode.write_int( "id", pInstr->get_id() );
-		instrumentNode.write_string( "name", pInstr->get_name() );
-		instrumentNode.write_string( "drumkit", pInstr->get_drumkit_name() );
-		instrumentNode.write_int( "drumkitLookup", static_cast<int>( pInstr->get_drumkit_lookup() ));
-		instrumentNode.write_float( "volume", pInstr->get_volume() );
-		instrumentNode.write_bool( "isMuted", pInstr->is_muted() );
-		instrumentNode.write_bool( "isSoloed", pInstr->is_soloed() );
-		instrumentNode.write_float( "pan", pInstr->getPan() );
-		instrumentNode.write_float( "gain", pInstr->get_gain() );
-		instrumentNode.write_bool( "applyVelocity", pInstr->get_apply_velocity() );
-
-		instrumentNode.write_bool( "filterActive", pInstr->is_filter_active() );
-		instrumentNode.write_float( "filterCutoff", pInstr->get_filter_cutoff() );
-		instrumentNode.write_float( "filterResonance", pInstr->get_filter_resonance() );
-
-		instrumentNode.write_float( "FX1Level", pInstr->get_fx_level( 0 ) );
-		instrumentNode.write_float( "FX2Level", pInstr->get_fx_level( 1 ) );
-		instrumentNode.write_float( "FX3Level", pInstr->get_fx_level( 2 ) );
-		instrumentNode.write_float( "FX4Level", pInstr->get_fx_level( 3 ) );
-
-		instrumentNode.write_int( "Attack", pInstr->get_adsr()->get_attack() );
-		instrumentNode.write_int( "Decay", pInstr->get_adsr()->get_decay() );
-		instrumentNode.write_float( "Sustain", pInstr->get_adsr()->get_sustain() );
-		instrumentNode.write_int( "Release", pInstr->get_adsr()->get_release() );
-		instrumentNode.write_float( "pitchOffset", pInstr->get_pitch_offset() );
-		instrumentNode.write_float( "randomPitchFactor", pInstr->get_random_pitch_factor() );
-
-		instrumentNode.write_int( "muteGroup", pInstr->get_mute_group() );
-		instrumentNode.write_bool( "isStopNote", pInstr->is_stop_notes() );
-		switch ( pInstr->sample_selection_alg() ) {
-			case Instrument::VELOCITY:
-				instrumentNode.write_string( "sampleSelectionAlgo", "VELOCITY" );
-				break;
-			case Instrument::RANDOM:
-				instrumentNode.write_string( "sampleSelectionAlgo", "RANDOM" );
-				break;
-			case Instrument::ROUND_ROBIN:
-				instrumentNode.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
-				break;
-		}
-
-		instrumentNode.write_int( "midiOutChannel", pInstr->get_midi_out_channel() );
-		instrumentNode.write_int( "midiOutNote", pInstr->get_midi_out_note() );
-		instrumentNode.write_int( "isHihat", pInstr->get_hihat_grp() );
-		instrumentNode.write_int( "lower_cc", pInstr->get_lower_cc() );
-		instrumentNode.write_int( "higher_cc", pInstr->get_higher_cc() );
-
-		for ( const auto& pComponent : *pInstr->get_components() ) {
-
-			XMLNode componentNode = instrumentNode.createNode( "instrumentComponent" );
-
-			componentNode.write_int( "component_id", pComponent->get_drumkit_componentID() );
-			componentNode.write_float( "gain", pComponent->get_gain() );
-
-			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				auto pLayer = pComponent->get_layer( nLayer );
-				if ( pLayer == nullptr ) {
-					continue;
-				}
-				
-				auto pSample = pLayer->get_sample();
-				if ( pSample == nullptr ) {
-					continue;
-				}
-
-				bool sIsModified = pSample->get_is_modified();
-				Sample::Loops lo = pSample->get_loops();
-				Sample::Rubberband ro = pSample->get_rubberband();
-				QString sMode = pSample->get_loop_mode_string();
-
-				XMLNode layerNode = componentNode.createNode( "layer" );
-				layerNode.write_string( "filename", Filesystem::prepare_sample_path( pSample->get_filepath() ) );
-				layerNode.write_bool( "ismodified", sIsModified);
-				layerNode.write_string( "smode", pSample->get_loop_mode_string() );
-				layerNode.write_int( "startframe", lo.start_frame );
-				layerNode.write_int( "loopframe", lo.loop_frame );
-				layerNode.write_int( "loops", lo.count );
-				layerNode.write_int( "endframe", lo.end_frame );
-				layerNode.write_int( "userubber", static_cast<int>(ro.use) );
-				layerNode.write_float( "rubberdivider", ro.divider );
-				layerNode.write_int( "rubberCsettings", ro.c_settings );
-				layerNode.write_float( "rubberPitch", ro.pitch );
-				layerNode.write_float( "min", pLayer->get_start_velocity() );
-				layerNode.write_float( "max", pLayer->get_end_velocity() );
-				layerNode.write_float( "gain", pLayer->get_gain() );
-				layerNode.write_float( "pitch", pLayer->get_pitch() );
-
-				Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
-				for (int y = 0; y < velocity->size(); y++){
-					XMLNode volumeNode = layerNode.createNode( "volume" );
-					volumeNode.write_int( "volume-position", velocity->at(y).frame );
-					volumeNode.write_int( "volume-value", velocity->at(y).value );
-				}
-
-				Sample::PanEnvelope* pan = pSample->get_pan_envelope();
-				for (int y = 0; y < pan->size(); y++){
-					XMLNode panNode = layerNode.createNode( "pan" );
-					panNode.write_int( "pan-position", pan->at(y).frame );
-					panNode.write_int( "pan-value", pan->at(y).value );
-				}
-			}
+	for ( const auto& pInstrument : *m_pInstrumentList ) {
+		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
+			pInstrument->save_to( &instrumentListNode, -1, true, true );
 		}
 	}
 
-	// pattern list
 	XMLNode patternListNode = pRootNode->createNode( "patternList" );
-
 	for ( const auto& pPattern : *m_pPatternList ) {
-		// pattern
-		XMLNode patternNode = patternListNode.createNode( "pattern" );
-		patternNode.write_string( "name", pPattern->get_name() );
-		patternNode.write_string( "category", pPattern->get_category() );
-		patternNode.write_int( "size", pPattern->get_length() );
-		patternNode.write_int( "denominator", pPattern->get_denominator() );
-		patternNode.write_string( "info", pPattern->get_info() );
-
-		XMLNode noteListNode = patternNode.createNode( "noteList" );
-		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-			Note *pNote = it->second;
-			if ( pNote == nullptr ) {
-				ERRORLOG( QString( "Unable to handle note [%1] of pattern [%2]"  )
-						  .arg( it->first ).arg( pPattern->get_name() ) );
-				continue;
-			}
-
-			XMLNode noteNode = noteListNode.createNode( "note" );
-			noteNode.write_int( "position", pNote->get_position() );
-			noteNode.write_float( "leadlag", pNote->get_lead_lag() );
-			noteNode.write_float( "velocity", pNote->get_velocity() );
-			noteNode.write_float( "pan", pNote->getPan() );
-			noteNode.write_float( "pitch", pNote->get_pitch() );
-			noteNode.write_float( "probability", pNote->get_probability() );
-			noteNode.write_string( "key", pNote->key_to_string() );
-			noteNode.write_int( "length", pNote->get_length() );
-			noteNode.write_int( "instrument", pNote->get_instrument()->get_id() );
-			noteNode.write_bool( "note_off", pNote->get_note_off() );
-		}
+		pPattern->save_to( &patternListNode, nullptr );
 	}
 
 	XMLNode virtualPatternListNode = pRootNode->createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
-		// pattern
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
 			XMLNode patternNode = virtualPatternListNode.createNode( "pattern" );
 			patternNode.write_string( "name", pPattern->get_name() );
@@ -1296,11 +794,8 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		}
 	}
 
-	// pattern sequence
 	XMLNode patternSequenceNode = pRootNode->createNode( "patternSequence" );
-
-	unsigned nPatternGroups = getPatternGroupVector()->size();
-	for ( unsigned i = 0; i < nPatternGroups; i++ ) {
+	for ( unsigned i = 0; i < getPatternGroupVector()->size(); i++ ) {
 		XMLNode groupNode = patternSequenceNode.createNode( "group" );
 
 		for ( const auto& pPattern : *(m_pPatternGroupSequence->at( i )) ) {
@@ -1308,9 +803,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		}
 	}
 
-	// LADSPA FX
 	XMLNode ladspaFxNode = pRootNode->createNode( "ladspa" );
-
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
 
@@ -1350,10 +843,8 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	//bpm time line
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 
-	XMLNode bpmTimeLineNode = pRootNode->createNode( "BPMTimeLine" );
-
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
-	
+	XMLNode bpmTimeLineNode = pRootNode->createNode( "BPMTimeLine" );
 	if ( tempoMarkerVector.size() >= 1 ){
 		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
 			if ( tt == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
@@ -1366,10 +857,8 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	}
 
 	//time line tag
-	XMLNode timeLineTagNode = pRootNode->createNode( "timeLineTag" );
-
 	auto tagVector = pTimeline->getAllTags();
-	
+	XMLNode timeLineTagNode = pRootNode->createNode( "timeLineTag" );
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			XMLNode newTAGNode = timeLineTagNode.createNode( "newTAG" );

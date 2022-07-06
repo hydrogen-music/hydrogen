@@ -132,14 +132,13 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& l
 	
 	if( !Filesystem::file_readable( sFilepath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( sFilepath ) );
-		return pSample;
+		return nullptr;
 	}
 
 	pSample = std::make_shared<Sample>( sFilepath, license );
 		
 	if( !pSample->load() ) {
-		pSample.reset();
-		return pSample;
+		return nullptr;
 	}
 	
 	return pSample;
@@ -149,7 +148,7 @@ std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loop
 {
 	auto pSample = Sample::load( filepath, license );
 	
-	if( pSample ){
+	if ( pSample != nullptr ) {
 		pSample->apply( loops, rubber, velocity, pan, fBpm );
 	}
 

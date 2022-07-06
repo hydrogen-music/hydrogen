@@ -74,8 +74,9 @@ class Sample : public H2Core::Object<Sample>
 		/** define the type used to store velocity envelope points */
 		using VelocityEnvelope = std::vector<EnvelopePoint>;
 		/** set of loop configuration flags */
-		class Loops
+		class Loops : public H2Core::Object<Loops>
 		{
+			H2_OBJECT(Loops)
 			public:
 				/** possible sample editing loop mode */
 				enum LoopMode {
@@ -106,8 +107,9 @@ class Sample : public H2Core::Object<Sample>
 		};
 
 		/** set of rubberband configuration flags */
-		class Rubberband
+		class Rubberband : public H2Core::Object<Rubberband>
 		{
+			H2_OBJECT(Rubberband)
 			public:
 				bool use;               ///< is rubberband enabled
 				float divider;          ///< TODO should be ratio : desired time ratio
@@ -316,6 +318,10 @@ class Sample : public H2Core::Object<Sample>
 		Loops get_loops() const;
 		/** \return #__rubberband parameters */
 		Rubberband get_rubberband() const;
+	void set_pan_envelope( PanEnvelope envelope );
+	void set_velocity_envelope( VelocityEnvelope envelope );
+	void set_loops( Loops loops );
+	void set_rubberband( Rubberband rubberband );
 
 	License getLicense() const;
 	void setLicense( const License& license );
@@ -471,6 +477,18 @@ inline Sample::Loops Sample::get_loops() const
 inline Sample::Rubberband Sample::get_rubberband() const
 {
 	return __rubberband;
+}
+inline void Sample::set_pan_envelope( PanEnvelope envelope ) {
+	__pan_envelope = envelope;
+}
+inline void Sample::set_velocity_envelope( VelocityEnvelope envelope ) {
+	__velocity_envelope = envelope;
+}
+inline void Sample::set_loops( Loops loops ) {
+	__loops = loops;
+}
+inline void Sample::set_rubberband( Rubberband rubberband ) {
+	__rubberband = rubberband;
 }
 
 inline License Sample::getLicense() const {

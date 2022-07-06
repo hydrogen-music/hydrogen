@@ -66,34 +66,46 @@ void InstrumentList::unload_samples()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
+InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, bool bSilent )
 {
-	InstrumentList* instruments = new InstrumentList();
-	XMLNode instrument_node = node->firstChildElement( "instrument" );
-	int count = 0;
+	InstrumentList* pInstrumentList = new InstrumentList();
+	XMLNode instrument_node = pNode->firstChildElement( "instrument" );
+	int nCount = 0;
 	while ( !instrument_node.isNull() ) {
-		count++;
-		if ( count > MAX_INSTRUMENTS ) {
-			ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
+		nCount++;
+		if ( nCount > MAX_INSTRUMENTS ) {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "instrument nCount >= %1 (MAX_INSTRUMENTS), stop reading instruments" )
+						  .arg( MAX_INSTRUMENTS ) );
+			}
 			break;
 		}
-		auto instrument = Instrument::load_from( &instrument_node, dk_path, dk_name, bSilent );
-		if( instrument ) {
-			( *instruments ) << instrument;
-		} else {
-			ERRORLOG( QString( "Empty ID for instrument %1. The drumkit is corrupted. Skipping instrument" ).arg( count ) );
-			count--;
+		
+		auto pInstrument = Instrument::load_from( &instrument_node, sDrumkitPath,
+												  sDrumkitName, bSilent );
+		if ( pInstrument != nullptr ) {
+			( *pInstrumentList ) << pInstrument;
+		}
+		else {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "Unable to load instrument [%1]. The drumkit is corrupted. Skipping instrument" )
+						  .arg( nCount ) );
+			}
+			nCount--;
 		}
 		instrument_node = instrument_node.nextSiblingElement( "instrument" );
 	}
-	return instruments;
+	return pInstrumentList;
 }
 
-	void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion )
+void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
-	for ( int i = 0; i < size(); i++ ) {
-		( *this )[i]->save_to( &instruments_node, component_id, bRecentVersion );
+	for ( int ii = 0; ii < size(); ii++ ) {
+		auto pInstrument = get( ii );
+		if ( pInstrument != nullptr ) {
+			pInstrument->save_to( &instruments_node, component_id, bRecentVersion );
+		}
 	}
 }
 

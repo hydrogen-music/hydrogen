@@ -28,6 +28,7 @@
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
@@ -90,35 +91,41 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
 {
-	int id = node->read_int( "component_id", EMPTY_INSTR_ID,
-							 false, false, bSilent );
-	if ( id==EMPTY_INSTR_ID ) {
+	int nId = pNode->read_int( "component_id", EMPTY_INSTR_ID,
+							  false, false, bSilent );
+	if ( nId == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( id );
-	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f,
+	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( nId );
+	pInstrumentComponent->set_gain( pNode->read_float( "gain", 1.0f,
 													  true, false, bSilent ) );
-	XMLNode layer_node = node->firstChildElement( "layer" );
-	int n = 0;
-	while ( !layer_node.isNull() ) {
-		if ( n >= m_nMaxLayers ) {
-			ERRORLOG( QString( "n (%1) >= m_nMaxLayers (%2)" ).arg( n ).arg( m_nMaxLayers ) );
+	XMLNode layer_node = pNode->firstChildElement( "layer" );
+	int nLayer = 0;
+	while ( ! layer_node.isNull() ) {
+		if ( nLayer >= m_nMaxLayers ) {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "Layer #%1 >= m_nMaxLayers (%2). This as well as all further layers will be omitted." )
+						  .arg( nLayer ).arg( m_nMaxLayers ) );
+			}
 			break;
 		}
+
 		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node,
-																	 dk_path,
+																	 sDrumkitPath,
+																	 drumkitLicense,
 																	 bSilent ),
-										 n );
-		n++;
+										 nLayer );
+		nLayer++;
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
+	
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecentVersion )
+void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
 {
 	XMLNode component_node;
 	if ( bRecentVersion ) {
@@ -130,9 +137,9 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecent
 		auto pLayer = get_layer( n );
 		if( pLayer != nullptr ) {
 			if( bRecentVersion ) {
-				pLayer->save_to( &component_node );
+				pLayer->save_to( &component_node, bFull );
 			} else {
-				pLayer->save_to( node );
+				pLayer->save_to( node, bFull );
 			}
 		}
 	}
