@@ -393,6 +393,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 														  "", // sDrumkitName
 														  License(), // per-instrument licenses
 														  bSilent );
+		pInstrumentList->load_samples( fBpm );
 		pSong->setInstrumentList( pInstrumentList );
 
 		if ( pInstrumentList->size() == 0 ) {

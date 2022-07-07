@@ -88,7 +88,7 @@ namespace H2Core
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #__sample.
 		 */
-		void load_sample();
+		void load_sample( float fBpm = 120 );
 		/*
 		 * unload sample and replace it with an empty one
 		 */

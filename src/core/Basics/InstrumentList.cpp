@@ -52,10 +52,10 @@ InstrumentList::~InstrumentList()
 {
 }
 
-void InstrumentList::load_samples()
+void InstrumentList::load_samples( float fBpm )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->load_samples();
+		__instruments[i]->load_samples( fBpm );
 	}
 }
 

@@ -163,7 +163,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/** Calls the Instrument::load_samples() member
 		 * function of all Instruments in #__instruments.
 		 */
-		void load_samples();
+		void load_samples( float fBpm = 120 );
 		/** Calls the Instrument::unload_samples() member
 		 * function of all Instruments in #__instruments.
 		 */

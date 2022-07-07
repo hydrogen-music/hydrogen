@@ -1449,15 +1449,9 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 								auto pSample = pLayer->get_sample();
 								if ( pSample != nullptr ) {
 									if( pSample->get_rubberband().use ) {
-										auto pNewSample = Sample::load(
-																	   pSample->get_filepath(),
-																	   pSample->get_loops(),
-																	   pSample->get_rubberband(),
-																	   *pSample->get_velocity_envelope(),
-																	   *pSample->get_pan_envelope(),
-																	   fBpm
-																	   );
-										if( pNewSample == nullptr ){
+										auto pNewSample = std::make_shared<Sample>( pSample );
+										
+										if ( ! pNewSample->load( fBpm ) ){
 											continue;
 										}
 								

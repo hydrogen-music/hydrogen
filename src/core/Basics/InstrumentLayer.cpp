@@ -67,16 +67,16 @@ void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
 	__sample = sample;
 }
 
-void InstrumentLayer::load_sample()
+void InstrumentLayer::load_sample( float fBpm )
 {
-	if( __sample ) {
-		__sample->load();
+	if ( __sample != nullptr ) {
+		__sample->load( fBpm );
 	}
 }
 
 void InstrumentLayer::unload_sample()
 {
-	if( __sample ) {
+	if ( __sample != nullptr ) {
 		__sample->unload();
 	}
 }
@@ -89,71 +89,63 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 		sFilename = sDrumkitPath + "/" + sFilename;
 	}
 
-	bool bFound;
-	bool bIsModified = pNode->read_bool( "ismodified", false, &bFound, true, false, true );
-	
-	std::shared_ptr<Sample> pSample;
-	if ( ! bFound ) {
-		// TODO: move loading out of here.
-		// InstrumentLayer was stored as part of a drumkit. All the
-		// additional Sample info, like Loops, envelopes etc., were
-		// not written to disk and we won't load the sample.
-		pSample = std::make_shared<Sample>( sFilename );
-	}
-	else if ( ! bIsModified ) {
-		pSample = Sample::load( sFilename, drumkitLicense );
-	}
-	else {
-	
-		Sample::Loops lo;
-		lo.mode = Sample::parse_loop_mode( pNode->read_string( "smode", "forward", false, false, bSilent ) );
-		lo.start_frame = pNode->read_int( "startframe", 0, false, false, bSilent );
-		lo.loop_frame = pNode->read_int( "loopframe", 0, false, false, bSilent );
-		lo.count = pNode->read_int( "loops", 0, false, false, bSilent );
-		lo.end_frame = pNode->read_int( "endframe", 0, false, false, bSilent );
-	
-		Sample::Rubberband ro;
-		ro.use = pNode->read_int( "userubber", 0, false, false, bSilent );
-		ro.divider = pNode->read_float( "rubberdivider", 0.0, false, false, bSilent );
-		ro.c_settings = pNode->read_int( "rubberCsettings", 1, false, false, bSilent );
-		ro.pitch = pNode->read_float( "rubberPitch", 0.0, false, false, bSilent );
+	std::shared_ptr<Sample> pSample = nullptr;
+	if ( Filesystem::file_exists( sFilename, true ) ) {
+		pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
 
-		// Check whether the rubberband executable is present.
-		if ( ! Filesystem::file_exists( Preferences::get_instance()->
-										m_rubberBandCLIexecutable ) ) {
-			ro.use = false;
-		}
-	
-		// FIXME, kill EnvelopePoint, create Envelope class
-		EnvelopePoint pt;
-
-		Sample::VelocityEnvelope velocity;
-		XMLNode volumeNode = pNode->firstChildElement( "volume" );
-		while ( ! volumeNode.isNull()  ) {
-			pt.frame = volumeNode.read_int( "volume-position", 0, false, false, bSilent );
-			pt.value = volumeNode.read_int( "volume-value", 0, false, false , bSilent);
-			velocity.push_back( pt );
-			volumeNode = volumeNode.nextSiblingElement( "volume" );
-		}
-
-		Sample::VelocityEnvelope pan;
-		XMLNode panNode = pNode->firstChildElement( "pan" );
-		while ( ! panNode.isNull()  ) {
-			pt.frame = panNode.read_int( "pan-position", 0, false, false, bSilent );
-			pt.value = panNode.read_int( "pan-value", 0, false, false, bSilent );
-			pan.push_back( pt );
-			panNode = panNode.nextSiblingElement( "pan" );
-		}
-
-		// TODO: placeholder. fBpm is only required when applying
-		// stuff, which shouldn't be done here anyway.
-		float fBpm = 120;
-		pSample = Sample::load( sFilename, lo, ro, velocity,
-								pan, fBpm, drumkitLicense );
-	}
-
-	if ( pSample != nullptr ) {
+		// If 'ismodified' is not present, InstrumentLayer was stored as
+		// part of a drumkit. All the additional Sample info, like Loops,
+		// envelopes etc., were not written to disk and we won't load the
+		// sample.
+		bool bIsModified = pNode->read_bool( "ismodified", false, true, false, true );
 		pSample->set_is_modified( bIsModified );
+	
+		if ( bIsModified ) {
+		
+			Sample::Loops loops;
+			loops.mode = Sample::parse_loop_mode( pNode->read_string( "smode", "forward", false, false, bSilent ) );
+			loops.start_frame = pNode->read_int( "startframe", 0, false, false, bSilent );
+			loops.loop_frame = pNode->read_int( "loopframe", 0, false, false, bSilent );
+			loops.count = pNode->read_int( "loops", 0, false, false, bSilent );
+			loops.end_frame = pNode->read_int( "endframe", 0, false, false, bSilent );
+			pSample->set_loops( loops );
+	
+			Sample::Rubberband rubberband;
+			rubberband.use = pNode->read_int( "userubber", 0, false, false, bSilent );
+			rubberband.divider = pNode->read_float( "rubberdivider", 0.0, false, false, bSilent );
+			rubberband.c_settings = pNode->read_int( "rubberCsettings", 1, false, false, bSilent );
+			rubberband.pitch = pNode->read_float( "rubberPitch", 0.0, false, false, bSilent );
+
+			// Check whether the rubberband executable is present.
+			if ( ! Filesystem::file_exists( Preferences::get_instance()->
+											m_rubberBandCLIexecutable ) ) {
+				rubberband.use = false;
+			}
+			pSample->set_rubberband( rubberband );
+	
+			// FIXME, kill EnvelopePoint, create Envelope class
+			EnvelopePoint pt;
+
+			Sample::VelocityEnvelope velocityEnvelope;
+			XMLNode volumeNode = pNode->firstChildElement( "volume" );
+			while ( ! volumeNode.isNull()  ) {
+				pt.frame = volumeNode.read_int( "volume-position", 0, false, false, bSilent );
+				pt.value = volumeNode.read_int( "volume-value", 0, false, false , bSilent);
+				velocityEnvelope.push_back( pt );
+				volumeNode = volumeNode.nextSiblingElement( "volume" );
+			}
+			pSample->set_velocity_envelope( velocityEnvelope );
+
+			Sample::VelocityEnvelope panEnvelope;
+			XMLNode panNode = pNode->firstChildElement( "pan" );
+			while ( ! panNode.isNull()  ) {
+				pt.frame = panNode.read_int( "pan-position", 0, false, false, bSilent );
+				pt.value = panNode.read_int( "pan-value", 0, false, false, bSilent );
+				panEnvelope.push_back( pt );
+				panNode = panNode.nextSiblingElement( "pan" );
+			}
+			pSample->set_pan_envelope( panEnvelope );
+		}
 	}
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );

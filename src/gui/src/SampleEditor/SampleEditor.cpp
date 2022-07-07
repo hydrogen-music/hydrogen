@@ -172,11 +172,32 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 	}
 }
 
+std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
+	
+	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return nullptr;
+	}
+
+	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
+	if ( pCompo == nullptr ) {
+		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
+		return nullptr;
+	}
+
+	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
+		return nullptr;
+	}
+
+	return pLayer->get_sample();
+}
+	
 void SampleEditor::getAllFrameInfos()
 {
-	std::shared_ptr<Sample> pSample;
-	
 	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	if ( pInstrument == nullptr ) {
@@ -185,16 +206,25 @@ void SampleEditor::getAllFrameInfos()
 	}
 
 	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
-	assert( pCompo );
+	if ( pCompo == nullptr ) {
+		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
+		return;
+	}
 
 	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
-	if ( pLayer ) {
-		pSample = pLayer->get_sample();
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
+		return;
 	}
-	
-	assert( pSample );
 
-//this values are needed if we restore a sample from disk if a new song with sample changes will load
+	auto pSample = pLayer->get_sample();
+	if ( pSample == nullptr ) {
+		ERRORLOG( "Unable to retrieve sample" );
+		return;
+	}
+
+	// this values are needed if we restore a sample from disk if a
+	// new song with sample changes will load
 	m_bSampleIsModified = pSample->get_is_modified();
 	m_nSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();
@@ -379,18 +409,22 @@ void SampleEditor::createNewLayer()
 	if ( !m_bSampleEditorClean ){
 
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
-		auto pEditSample = Sample::load( m_sSampleName,
-										 __loops,
-										 __rubberband,
-										 *m_pTargetSampleView->get_velocity(),
-										 *m_pTargetSampleView->get_pan(),
-										 pHydrogen->getAudioEngine()->getBpm() );
+		auto pAudioEngine = pHydrogen->getAudioEngine();
+		auto pOldSample = retrieveSample();
+		
+		auto pEditSample = std::make_shared<Sample>( m_sSampleName,
+													 pOldSample->getLicense() );
+		pEditSample->set_loops( __loops );
+		pEditSample->set_rubberband( __rubberband );
+		pEditSample->set_velocity_envelope( *m_pTargetSampleView->get_velocity() );
+		pEditSample->set_pan_envelope( *m_pTargetSampleView->get_pan() );
 
-		if( pEditSample == nullptr ){
+		if( ! pEditSample->load( pAudioEngine->getBpm() ) ){
+			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
 
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+		pAudioEngine->lock( RIGHT_HERE );
 
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 		auto pSong = pHydrogen->getSong();
@@ -410,16 +444,16 @@ void SampleEditor::createNewLayer()
 		}
 		
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
-		if( pInstrument ) {
+		if( pInstrument != nullptr ) {
 			pLayer = pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
 			pLayer->set_sample( pEditSample );
 		}
 
-		pHydrogen->getAudioEngine()->unlock();
+		pAudioEngine->unlock();
 
-		if( pLayer ) {
+		if ( pLayer != nullptr ) {
 			m_pTargetSampleView->updateDisplay( pLayer );
 		}
 	}

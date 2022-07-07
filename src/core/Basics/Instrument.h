@@ -106,7 +106,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * function of all layers of each component of the
 		 * Instrument.
 		 */
-		void load_samples();
+		void load_samples( float fBpm = 120 );
 		/**
 		 * Calls the InstrumentLayer::unload_sample() member
 		 * function of all layers of each component of the

@@ -136,7 +136,9 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& l
 	}
 
 	pSample = std::make_shared<Sample>( sFilepath, license );
-		
+
+	// Samples loaded this way have no loops, rubberband, or envelopes
+	// set. Therefore, we do not have to pass a tempo in here.
 	if( !pSample->load() ) {
 		return nullptr;
 	}
@@ -144,30 +146,7 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& l
 	return pSample;
 }
 
-std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm, const License& license )
-{
-	auto pSample = Sample::load( filepath, license );
-	
-	if ( pSample != nullptr ) {
-		pSample->apply( loops, rubber, velocity, pan, fBpm );
-	}
-
-	return pSample;
-}
-
-void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm )
-{
-	apply_loops( loops );
-	apply_velocity( velocity );
-	apply_pan( pan );
-#ifdef H2CORE_HAVE_RUBBERBAND
-	apply_rubberband( rubber, fBpm );
-#else
-	exec_rubberband_cli( rubber, fBpm );
-#endif
-}
-
-bool Sample::load()
+bool Sample::load( float fBpm )
 {
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info = {0};
@@ -235,88 +214,106 @@ bool Sample::load()
 	}
 	delete[] buffer;
 
+	// Apply modifiers (if present/altered).
+	if ( ! apply_loops() ) {
+		WARNINGLOG( "Unable to apply loops" );
+	}
+	apply_velocity();
+	apply_pan();
+#ifdef H2CORE_HAVE_RUBBERBAND
+	apply_rubberband( fBpm );
+#else
+	if ( ! exec_rubberband_cli( fBpm ) ) {
+		WARNINGLOG( "Unable to apply rubberband" );
+	}
+#endif
+
 	return true;
 }
 
-bool Sample::apply_loops( const Loops& lo )
+bool Sample::apply_loops()
 {
-	if( __loops == lo ) {
+	if( __loops.start_frame == 0 && __loops.loop_frame == 0 &&
+		__loops.end_frame == 0 && __loops.count == 0 ) {
+		// Default parameters. No looping was set by the
+		// user. Skipping.
 		return true;
 	}
-	if( lo.start_frame<0 ) {
-		ERRORLOG( QString( "start_frame %1 < 0 is not allowed" ).arg( lo.start_frame ) );
+	
+	if( __loops.start_frame<0 ) {
+		ERRORLOG( QString( "start_frame %1 < 0 is not allowed" ).arg( __loops.start_frame ) );
 		return false;
 	}
-	if( lo.loop_frame<lo.start_frame ) {
-		ERRORLOG( QString( "loop_frame %1 < start_frame %2 is not allowed" ).arg( lo.loop_frame ).arg( lo.start_frame ) );
+	if( __loops.loop_frame<__loops.start_frame ) {
+		ERRORLOG( QString( "loop_frame %1 < start_frame %2 is not allowed" ).arg( __loops.loop_frame ).arg( __loops.start_frame ) );
 		return false;
 	}
-	if( lo.end_frame<lo.loop_frame ) {
-		ERRORLOG( QString( "end_frame %1 < loop_frame %2 is not allowed" ).arg( lo.end_frame ).arg( lo.loop_frame ) );
+	if( __loops.end_frame<__loops.loop_frame ) {
+		ERRORLOG( QString( "end_frame %1 < loop_frame %2 is not allowed" ).arg( __loops.end_frame ).arg( __loops.loop_frame ) );
 		return false;
 	}
-	if( lo.end_frame>__frames ) {
-		ERRORLOG( QString( "end_frame %1 > __frames %2 is not allowed" ).arg( lo.end_frame ).arg( __frames ) );
+	if( __loops.end_frame>__frames ) {
+		ERRORLOG( QString( "end_frame %1 > __frames %2 is not allowed" ).arg( __loops.end_frame ).arg( __frames ) );
 		return false;
 	}
-	if( lo.count<0 ) {
-		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
+	if( __loops.count<0 ) {
+		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( __loops.count ) );
 		return false;
 	}
 	//if( lo == __loops ) return true;
 
-	bool full_loop = lo.start_frame==lo.loop_frame;
-	int full_length =  lo.end_frame - lo.start_frame;
-	int loop_length =  lo.end_frame - lo.loop_frame;
-	int new_length = full_length + loop_length * lo.count;
+	bool full_loop = __loops.start_frame==__loops.loop_frame;
+	int full_length =  __loops.end_frame - __loops.start_frame;
+	int loop_length =  __loops.end_frame - __loops.loop_frame;
+	int new_length = full_length + loop_length * __loops.count;
 
 	float* new_data_l = new float[ new_length ];
 	float* new_data_r = new float[ new_length ];
 
 	// copy full_length frames to new_data
-	if ( lo.mode==Loops::REVERSE && ( lo.count==0 || full_loop ) ) {
+	if ( __loops.mode==Loops::REVERSE && ( __loops.count==0 || full_loop ) ) {
 		if( full_loop ) {
 			// copy end => start
-			for( int i=0, j=lo.end_frame; i<full_length; i++, j-- ) {
+			for( int i=0, j=__loops.end_frame; i<full_length; i++, j-- ) {
 				new_data_l[i]=__data_l[j];
 			}
-			for( int i=0, j=lo.end_frame; i<full_length; i++, j-- ) {
+			for( int i=0, j=__loops.end_frame; i<full_length; i++, j-- ) {
 				new_data_r[i]=__data_r[j];
 			}
 		} else {
 			// copy start => loop
-			int to_loop = lo.loop_frame - lo.start_frame;
-			memcpy( new_data_l, __data_l+lo.start_frame, sizeof( float )*to_loop );
-			memcpy( new_data_r, __data_r+lo.start_frame, sizeof( float )*to_loop );
+			int to_loop = __loops.loop_frame - __loops.start_frame;
+			memcpy( new_data_l, __data_l+__loops.start_frame, sizeof( float )*to_loop );
+			memcpy( new_data_r, __data_r+__loops.start_frame, sizeof( float )*to_loop );
 			// copy end => loop
-			for( int i=to_loop, j=lo.end_frame; i<full_length; i++, j-- ) {
+			for( int i=to_loop, j=__loops.end_frame; i<full_length; i++, j-- ) {
 				new_data_l[i]=__data_l[j];
 			}
-			for( int i=to_loop, j=lo.end_frame; i<full_length; i++, j-- ) {
+			for( int i=to_loop, j=__loops.end_frame; i<full_length; i++, j-- ) {
 				new_data_r[i]=__data_r[j];
 			}
 		}
 	} else {
 		// copy start => end
-		memcpy( new_data_l, __data_l+lo.start_frame, sizeof( float )*full_length );
-		memcpy( new_data_r, __data_r+lo.start_frame, sizeof( float )*full_length );
+		memcpy( new_data_l, __data_l+__loops.start_frame, sizeof( float )*full_length );
+		memcpy( new_data_r, __data_r+__loops.start_frame, sizeof( float )*full_length );
 	}
 	// copy the loops
-	if( lo.count>0 ) {
+	if( __loops.count>0 ) {
 		int x = full_length;
-		bool forward = ( lo.mode==Loops::FORWARD );
-		bool ping_pong = ( lo.mode==Loops::PINGPONG );
-		for( int i=0; i<lo.count; i++ ) {
+		bool forward = ( __loops.mode==Loops::FORWARD );
+		bool ping_pong = ( __loops.mode==Loops::PINGPONG );
+		for( int i=0; i<__loops.count; i++ ) {
 			if ( forward ) {
 				// copy loop => end
-				memcpy( &new_data_l[x], __data_l+lo.loop_frame, sizeof( float )*loop_length );
-				memcpy( &new_data_r[x], __data_r+lo.loop_frame, sizeof( float )*loop_length );
+				memcpy( &new_data_l[x], __data_l+__loops.loop_frame, sizeof( float )*loop_length );
+				memcpy( &new_data_r[x], __data_r+__loops.loop_frame, sizeof( float )*loop_length );
 			} else {
 				// copy end => loop
-				for( int i=lo.end_frame, y=x; i>lo.loop_frame; i--, y++ ) {
+				for( int i=__loops.end_frame, y=x; i>__loops.loop_frame; i--, y++ ) {
 					new_data_l[y]=__data_l[i];
 				}
-				for( int i=lo.end_frame, y=x; i>lo.loop_frame; i--, y++ ) {
+				for( int i=__loops.end_frame, y=x; i>__loops.loop_frame; i--, y++ ) {
 					new_data_r[y]=__data_r[i];
 				}
 			}
@@ -327,111 +324,99 @@ bool Sample::apply_loops( const Loops& lo )
 		}
 		assert( x==new_length );
 	}
-	__loops = lo;
 	delete[] __data_l;
 	delete[] __data_r;
 	__data_l = new_data_l;
 	__data_r = new_data_r;
 	__frames = new_length;
 	__is_modified = true;
+	
 	return true;
 }
 
-void Sample::apply_velocity( const VelocityEnvelope& v )
+void Sample::apply_velocity()
 {
 	// TODO frame width (841) and height (91) should go out of here
 	// the VelocityEnvelope should be processed within TargetWaveDisplay
 	// so that we here have ( int frame_idx, float scale ) points
 	// but that will break the xml storage
-	if( v.empty() && __velocity_envelope.empty() ) 
-	{
+	if ( __velocity_envelope.size() == 0 ) {
 		return;
 	}
 	
-	__velocity_envelope.clear();
-	if ( v.size() > 0 ) {
-		float inv_resolution = __frames / 841.0F;
-		for ( int i = 1; i < v.size(); i++ ) {
-			float y = ( 91 - v[i - 1].value ) / 91.0F;
-			float k = ( 91 - v[i].value ) / 91.0F;
-			int start_frame = v[i - 1].frame * inv_resolution;
-			int end_frame = v[i].frame * inv_resolution;
-			if ( i == v.size() -1 ) {
-				end_frame = __frames;
-			}
-			int length = end_frame - start_frame ;
-			float step = ( y - k ) / length;;
-			for ( int z = start_frame ; z < end_frame; z++ ) {
-				__data_l[z] = __data_l[z] * y;
-				__data_r[z] = __data_r[z] * y;
-				y-=step;
-			}
+	float inv_resolution = __frames / 841.0F;
+	for ( int i = 1; i < __velocity_envelope.size(); i++ ) {
+		float y = ( 91 - __velocity_envelope[i - 1].value ) / 91.0F;
+		float k = ( 91 - __velocity_envelope[i].value ) / 91.0F;
+		int start_frame = __velocity_envelope[i - 1].frame * inv_resolution;
+		int end_frame = __velocity_envelope[i].frame * inv_resolution;
+		if ( i == __velocity_envelope.size() -1 ) {
+			end_frame = __frames;
 		}
-		
-		for(auto& pEnvPt : v){
-			__velocity_envelope.emplace_back( pEnvPt );
+		int length = end_frame - start_frame ;
+		float step = ( y - k ) / length;;
+		for ( int z = start_frame ; z < end_frame; z++ ) {
+			__data_l[z] = __data_l[z] * y;
+			__data_r[z] = __data_r[z] * y;
+			y-=step;
 		}
 	}
+
 	__is_modified = true;
 }
 
-void Sample::apply_pan( const PanEnvelope& p )
+void Sample::apply_pan()
 {
-	// TODO see apply_velocity
-	if( p.empty() && __pan_envelope.empty() )
-	{
+	if( __pan_envelope.size() == 0 ) {
 		return;
 	}
 	
-	__pan_envelope.clear();
-	if ( p.size() > 0 ) {
-		float inv_resolution = __frames / 841.0F;
-		for ( int i = 1; i < p.size(); i++ ) {
-			float y = ( 45 - p[i - 1].value ) / 45.0F;
-			float k = ( 45 - p[i].value ) / 45.0F;
-			int start_frame = p[i - 1].frame * inv_resolution;
-			int end_frame = p[i].frame * inv_resolution;
-			if ( i == p.size() -1 ) {
-				end_frame = __frames;
-			}
-			int length = end_frame - start_frame ;
-			float step = ( y - k ) / length;;
-			for ( int z = start_frame ; z < end_frame; z++ ) {
-				// seems wrong to modify only one channel ?!?!
-				if( y < 0 ) {
-					float k = 1 + y;
-					__data_l[z] = __data_l[z] * k;
-					__data_r[z] = __data_r[z];
-				} else if ( y > 0 ) {
-					float k = 1 - y;
-					__data_l[z] = __data_l[z];
-					__data_r[z] = __data_r[z] * k;
-				} else if( y==0 ) {
-					__data_l[z] = __data_l[z];
-					__data_r[z] = __data_r[z];
-				}
-				y-=step;
-			}
+	float inv_resolution = __frames / 841.0F;
+	for ( int i = 1; i < __pan_envelope.size(); i++ ) {
+		float y = ( 45 - __pan_envelope[i - 1].value ) / 45.0F;
+		float k = ( 45 - __pan_envelope[i].value ) / 45.0F;
+		int start_frame = __pan_envelope[i - 1].frame * inv_resolution;
+		int end_frame = __pan_envelope[i].frame * inv_resolution;
+		if ( i == __pan_envelope.size() -1 ) {
+			end_frame = __frames;
 		}
-		
-		for(auto& pEnvPt : p){
-			__pan_envelope.emplace_back( pEnvPt );
+		int length = end_frame - start_frame ;
+		float step = ( y - k ) / length;;
+		for ( int z = start_frame ; z < end_frame; z++ ) {
+			// seems wrong to modify only one channel ?!?!
+			if( y < 0 ) {
+				float k = 1 + y;
+				__data_l[z] = __data_l[z] * k;
+				__data_r[z] = __data_r[z];
+			} else if ( y > 0 ) {
+				float k = 1 - y;
+				__data_l[z] = __data_l[z];
+				__data_r[z] = __data_r[z] * k;
+			} else if( y==0 ) {
+				__data_l[z] = __data_l[z];
+				__data_r[z] = __data_r[z];
+			}
+			y-=step;
 		}
 	}
+
 	__is_modified = true;
 }
 
-void Sample::apply_rubberband( const Rubberband& rb, float fBpm ) {
+void Sample::apply_rubberband( float fBpm ) {
 	// TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
-	if( !rb.use ){
+	if( ! __rubberband.use ){
+		// Default behavior
 		return;
 	}
+	
 	// compute rubberband options
-	double output_duration = 60.0 / fBpm * rb.divider;
+	double output_duration = 60.0 / fBpm * __rubberband.divider;
 	double time_ratio = output_duration / get_sample_duration();
-	RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
-	double pitch_scale = compute_pitch_scale( rb );
+	RubberBand::RubberBandStretcher::Options options =
+		compute_rubberband_options( __rubberband );
+	double pitch_scale = compute_pitch_scale( __rubberband );
 	// output buffer
 	//
 	// Sometimes the Rubber Band result is _way_ larger than expected,
@@ -581,89 +566,91 @@ void Sample::apply_rubberband( const Rubberband& rb, float fBpm ) {
 	delete [] out_data_r;
 
 	// update sample
-	__rubberband = rb;
 	__frames = retrieved;
 	__is_modified = true;
 #endif
 }
 
-bool Sample::exec_rubberband_cli( const Rubberband& rb, float fBpm )
+bool Sample::exec_rubberband_cli( float fBpm )
 {
+	if ( ! __rubberband.use ) {
+		// Default behavior
+		return true;
+	}
+	
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
 	//test the path. if test fails return NULL
-	if ( QFile( program ).exists() == false && rb.use ) {
+	if ( QFile( program ).exists() == false && __rubberband.use ) {
 		ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
 		return false;
 	}
 
-	if( rb.use ) {
-		QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
-		if( !write( outfilePath ) ) {
-			ERRORLOG( "unable to write sample" );
-			return false;
-		};
+	QString outfilePath =  QDir::tempPath() + "/tmp_rb_outfile.wav";
+	if( !write( outfilePath ) ) {
+		ERRORLOG( "unable to write sample" );
+		return false;
+	};
 
-		unsigned rubberoutframes = 0;
-		double ratio = 1.0;
-		double durationtime = 60.0 / fBpm * rb.divider/*beats*/;
-		double induration = get_sample_duration();
-		if ( induration != 0.0 ) {
-			ratio = durationtime / induration;
-		}
-
-		rubberoutframes = int( __frames * ratio + 0.1 );
-		_INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
-
-		QObject*	pParent = nullptr;
-		QProcess*	pRubberbandProc = new QProcess( pParent );
-
-		QStringList arguments;
-		QString rCs = QString( " %1" ).arg( rb.c_settings );
-		float fFrequency = Note::pitchToFrequency( ( double )rb.pitch );
-		QString rFs = QString( " %1" ).arg( fFrequency );
-		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
-
-		arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
-		          << "--threads"					//assume multi-CPU even if only one CPU is identified
-		          << "-P"						//aim for minimal time distortion
-		          << "-f" << rFs					//frequency
-		          << "-c" << rCs					//"crispness" levels
-		          << outfilePath 					//infile
-		          << rubberResultPath;					//outfile
-
-		pRubberbandProc->start( program, arguments );
-
-		while( pRubberbandProc->state() != QProcess::NotRunning 
-			   && !pRubberbandProc->waitForFinished() ) {
-			//_ERRORLOG( QString( "processing" ));
-		}
-
-		delete pRubberbandProc;
-		if ( QFile( rubberResultPath ).exists() == false ) {
-			_ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
-			return false;
-		}
-
-		auto p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
-		if( p_Rubberbanded == nullptr ) {
-			return false;
-		}
-
-		QFile( outfilePath ).remove();
-
-		QFile( rubberResultPath ).remove();
-
-		__frames = p_Rubberbanded->get_frames();
-
-		__data_l = p_Rubberbanded->get_data_l();
-		__data_r = p_Rubberbanded->get_data_r();
-		p_Rubberbanded->__data_l = nullptr;
-		p_Rubberbanded->__data_r = nullptr;
-
-		__is_modified = true;
-		__rubberband = rb;
+	unsigned rubberoutframes = 0;
+	double ratio = 1.0;
+	double durationtime = 60.0 / fBpm * __rubberband.divider/*beats*/;
+	double induration = get_sample_duration();
+	if ( induration != 0.0 ) {
+		ratio = durationtime / induration;
 	}
+
+	rubberoutframes = int( __frames * ratio + 0.1 );
+	_INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
+
+	QObject*	pParent = nullptr;
+	QProcess*	pRubberbandProc = new QProcess( pParent );
+
+	QStringList arguments;
+	QString rCs = QString( " %1" ).arg( __rubberband.c_settings );
+	float fFrequency = Note::pitchToFrequency( ( double )__rubberband.pitch );
+	QString rFs = QString( " %1" ).arg( fFrequency );
+	QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
+
+	arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
+			  << "--threads"					//assume multi-CPU even if only one CPU is identified
+			  << "-P"						//aim for minimal time distortion
+			  << "-f" << rFs					//frequency
+			  << "-c" << rCs					//"crispness" levels
+			  << outfilePath 					//infile
+			  << rubberResultPath;					//outfile
+
+	pRubberbandProc->start( program, arguments );
+
+	while( pRubberbandProc->state() != QProcess::NotRunning 
+		   && !pRubberbandProc->waitForFinished() ) {
+		//_ERRORLOG( QString( "processing" ));
+	}
+
+	delete pRubberbandProc;
+	if ( QFile( rubberResultPath ).exists() == false ) {
+		_ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
+		return false;
+	}
+
+	auto p_Rubberbanded = Sample::load( rubberResultPath );
+	if( p_Rubberbanded == nullptr ) {
+		return false;
+	}
+
+	QFile( outfilePath ).remove();
+
+	QFile( rubberResultPath ).remove();
+
+	__frames = p_Rubberbanded->get_frames();
+
+	__data_l = p_Rubberbanded->get_data_l();
+	__data_r = p_Rubberbanded->get_data_r();
+	p_Rubberbanded->__data_l = nullptr;
+	p_Rubberbanded->__data_r = nullptr;
+
+	__is_modified = true;
+	
 	return true;
 }
 

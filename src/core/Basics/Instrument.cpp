@@ -170,15 +170,24 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 
 			if( src_layer == nullptr ) {
 				pMyComponent->set_layer( nullptr, i );
-			} else {
-				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-				auto pSample = Sample::load( sample_path );
+			}
+			else {
+				std::shared_ptr<Sample> pSample = nullptr;
+				QString sSamplePath;
+				
+				if ( src_layer->get_sample() != nullptr ) {
+					QString sSamplePath = pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
+					pSample = Sample::load( sSamplePath );
+				}
+				
 				if ( pSample == nullptr ) {
-					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
+					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." )
+							   .arg( sSamplePath ) );
 					set_missing_samples( true );
 					pMyComponent->set_layer( nullptr, i );
 
-				} else {
+				}
+				else {
 					pSample->setLicense( pDrumkit->get_license() );
 					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
 				}
@@ -422,13 +431,13 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	return pInstrument;
 }
 
-void Instrument::load_samples()
+void Instrument::load_samples( float fBpm )
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pLayer = pComponent->get_layer( i );
-			if( pLayer ) {
-				pLayer->load_sample();
+			if ( pLayer != nullptr ) {
+				pLayer->load_sample( fBpm );
 			}
 		}
 	}

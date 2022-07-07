@@ -169,26 +169,6 @@ class Sample : public H2Core::Object<Sample>
 		 * \fn load(const QString& filepath)
 		 */
 	static std::shared_ptr<Sample> load( const QString& filepath, const License& license = License() );
-	
-		/**
-		 * Load a sample from a file and apply the
-		 * transformations to the sample data.
-		 *
-		 * \param filepath the file to load audio data from
-		 * \param loops transformation parameters
-		 * \param rubber band transformation parameters
-		 * \param velocity envelope points
-		 * \param pan envelope points
-		 * \param fBpm tempo the Rubberband transformation will target
-		 * \param license associated with the sample
-		 *
-		 * \return Pointer to the newly initialized Sample. If
-		 * the provided @a filepath is not readable, a nullptr
-		 * is returned instead.
-		 *
-		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
-		 */
-		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm, const License& license = License() );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -211,63 +191,18 @@ class Sample : public H2Core::Object<Sample>
 		 * truncated and a warning log message will be
 		 * displayed.
 		 *
+		 * After successfully loading, the function applies all loop,
+		 * rubberband, and envelope modifications in case they were
+		 * set by the user.
+		 *
 		 * \fn load()
 		 */
-		bool load();
+		bool load( float fBpm = 120 );
 		/**
 		 * Flush the current content of the left and right
 		 * channel and the current metadata.
 		 */
 		void unload();
-
-		/**
-		 * Apply transformations to the sample data.
-		 *
-		 * The function is a wrapper around a specific apply_*
-		 * functions.
-		 *
-		 * \param loops Loops transformation parameters handed
-		 * over to apply_loops().
-		 * \param rubber Rubber Band transformation parameters
-		 * handed over to apply_rubberband() in case Hydrogen
-		 * was compiled to use the Rubber Band library for
-		 * audio time-stretching and pitch-shifting
-		 * (#H2CORE_HAVE_RUBBERBAND) or exec_rubberband_cli()
-		 * if is wasn't.
-		 * \param velocity Velocity envelope points handed
-		 * over to apply_velocity().
-		 * \param pan Pan envelope points handed over to
-		 * \param fBpm tempo the Rubberband transformation will target
-		 * apply_pan().
-		 */
-		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
-		/**
-		 * apply loop transformation to the sample
-		 * \param lo loops parameters
-		 */
-		bool apply_loops( const Loops& lo );
-		/**
-		 * apply velocity transformation to the sample
-		 * \param v the velocity vector
-		 */
-		void apply_velocity( const VelocityEnvelope& v );
-		/**
-		 * apply velocity transformation to the sample
-		 * \param p the pan vector
-		 */
-		void apply_pan( const PanEnvelope& p );
-		/**
-		 * apply rubberband transformation to the sample
-		 * \param rb rubberband parameters
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		void apply_rubberband( const Rubberband& rb, float fBpm );
-		/**
-		 * call rubberband cli to modify the sample
-		 * \param rb rubberband parameters
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		bool exec_rubberband_cli( const Rubberband& rb, float fBpm );
 
 		/** \return true if both data channels are null pointers */
 		bool is_empty() const;
@@ -341,6 +276,30 @@ class Sample : public H2Core::Object<Sample>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	private:
+		/**
+		 * apply #__loops transformation to the sample
+		 */
+		bool apply_loops();
+		/**
+		 * apply #__velocity_envelope transformation to the sample
+		 */
+		void apply_velocity();
+		/**
+		 * apply #__pan_envelope transformation to the sample
+		 * \param p the pan vector
+		 */
+		void apply_pan();
+		/**
+		 * apply #__rubberband transformation to the sample
+		 * \param fBpm tempo the Rubberband transformation will target
+		 */
+		void apply_rubberband( float fBpm );
+		/**
+		 * call rubberband cli to modify the sample using #__rubberband
+		 * \param fBpm tempo the Rubberband transformation will target
+		 */
+		bool exec_rubberband_cli( float fBpm );
+	
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample
 		int					__sample_rate;       ///< samplerate for this sample
