@@ -233,7 +233,7 @@ void Instrument::load_from( const QString& sDrumkitName, const QString& sInstrum
 	delete pDrumkit;
 }
 
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
 	int nId = pNode->read_int( "id", EMPTY_INSTR_ID, false, false, bSilent );
 	if ( nId == EMPTY_INSTR_ID ) {
@@ -349,21 +349,33 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		sInstrumentDrumkitPath = sDrumkitPath;
 	}
 
-	// This license will be applied to all samples contained in this instrument.
-	License drumkitLicense = Drumkit::loadLicenseFrom( sInstrumentDrumkitPath );
+	// This license will be applied to all samples contained in this
+	// instrument.
+	License instrumentLicense;
+	if ( license == License() ) {
+		// No/empty license supplied. We will use the license stored
+		// in the drumkit.xml file found at
+		// sInstrumentDrumkitPath. But since loading it from file is a
+		// rather expensive action, we will query a buffer maintained
+		// in the Hydrogen class instead. If the license is not
+		// present yet, it will be loaded internally.
+		instrumentLicense = Hydrogen::get_instance()->getLicenseFromDrumkit( sInstrumentDrumkitPath );
+	} else {
+		instrumentLicense = license;
+	}
 
 	if ( ! pNode->firstChildElement( "filename" ).isNull() ) {
 		// back compatibility code ( song version <= 0.9.0 )
 		pInstrument->get_components()->push_back(
 			Legacy::loadInstrumentComponent( pNode, sInstrumentDrumkitPath,
-											 drumkitLicense, bSilent ) );
+											 instrumentLicense, bSilent ) );
 	}
 	else {
 		XMLNode componentNode = pNode->firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
 			pInstrument->get_components()->push_back(
 			    InstrumentComponent::load_from( &componentNode, sInstrumentDrumkitPath,
-												drumkitLicense, bSilent ) );
+												instrumentLicense, bSilent ) );
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
 		}
 	}

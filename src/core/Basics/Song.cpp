@@ -391,6 +391,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		auto pInstrumentList = InstrumentList::load_from( &instrumentListNode,
 														  "", // sDrumkitPath
 														  "", // sDrumkitName
+														  License(), // per-instrument licenses
 														  bSilent );
 		pSong->setInstrumentList( pInstrumentList );
 

@@ -184,13 +184,18 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param dk_path the directory holding the drumkit
 		 * data
 		 * \param dk_name
+		 * \param license
+		 * \param license License assigned to all Samples that will be
+		 * loaded. If empty, the license will be read from @a dk_path.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return a new InstrumentList instance
 		 */
 	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
-									  const QString& dk_name, bool bSilent = false );
+									  const QString& dk_name,
+									  const License& license = License(),
+									  bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.

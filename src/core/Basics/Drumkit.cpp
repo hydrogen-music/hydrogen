@@ -44,6 +44,8 @@
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Legacy.h>
 
+#include <core/Hydrogen.h>
+
 namespace H2Core
 {
 
@@ -171,6 +173,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	}
 	
 	Drumkit* pDrumkit = new Drumkit();
+
 	pDrumkit->__path = dk_path;
 	pDrumkit->__name = drumkit_name;
 	pDrumkit->__author = node->read_string( "author", "undefined author",
@@ -181,6 +184,10 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	License license( node->read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->__author );
+	// Store license in cache of Hydrogen class in order to allow
+	// reuse it faster.
+	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, dk_path );
+	
 	pDrumkit->set_license( license );
 	pDrumkit->__image = node->read_string( "image", "",
 										   true, true, true  );
@@ -216,7 +223,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
 	} else {
-		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
+		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, license, bSilent ) );
 	}
 
 	// propagate drumkit lookup
@@ -230,7 +237,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	// passing the license down to each sample, we will make the
 	// drumkit assign its license to each sample in here.
 	pDrumkit->propagateLicense();
-	
+
 	return pDrumkit;
 
 }

@@ -74,9 +74,8 @@ class Sample : public H2Core::Object<Sample>
 		/** define the type used to store velocity envelope points */
 		using VelocityEnvelope = std::vector<EnvelopePoint>;
 		/** set of loop configuration flags */
-		class Loops : public H2Core::Object<Loops>
+	class Loops
 		{
-			H2_OBJECT(Loops)
 			public:
 				/** possible sample editing loop mode */
 				enum LoopMode {
@@ -107,9 +106,8 @@ class Sample : public H2Core::Object<Sample>
 		};
 
 		/** set of rubberband configuration flags */
-		class Rubberband : public H2Core::Object<Rubberband>
+	class Rubberband
 		{
-			H2_OBJECT(Rubberband)
 			public:
 				bool use;               ///< is rubberband enabled
 				float divider;          ///< TODO should be ratio : desired time ratio

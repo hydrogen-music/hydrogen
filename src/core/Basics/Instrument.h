@@ -29,6 +29,7 @@
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -134,6 +135,9 @@ class Instrument : public H2Core::Object<Instrument>
 		 * data. If empty, it will be derived from @a sDrumkitName.
 		 * \param sDrumkitName the name of the drumkit. If empty, it
 		 * will be read from @a pNode.
+		 * \param license License assigned to all Samples that will be
+		 * loaded. If empty, the license will be read from @a
+		 * sDrumkitPath.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
@@ -142,6 +146,7 @@ class Instrument : public H2Core::Object<Instrument>
 		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
+													  const License& license = License(),
 													  bool bSilent = false );
 
 		///< set the name of the instrument
