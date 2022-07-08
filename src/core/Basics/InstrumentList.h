@@ -176,8 +176,12 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param bRecentVersion Whether the drumkit format should be
 		 * supported by Hydrogen 0.9.7 or higher (whether it should be
 		 * composed of DrumkitComponents).
+		 * \param bFull Whether to write all parameters of the
+		 * contained #Sample as well. This will be done when storing
+		 * an #Instrument as part of a #Song but not when storing
+		 * as part of a #Drumkit.
 		 */
-	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
+	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from

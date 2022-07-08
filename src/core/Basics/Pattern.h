@@ -81,10 +81,13 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param instruments the current instrument list to search instrument into
+		 * \param instruments the current instrument list to search
+		 * instrument into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 * be logged.
 		 * \return a new Pattern instance
 		 */
-		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
+	static Pattern* load_from( XMLNode* node, InstrumentList* instruments, bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param drumkit_name the name of the drumkit it is supposed to play with

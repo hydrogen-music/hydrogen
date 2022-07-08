@@ -419,15 +419,15 @@ void Note::save_to( XMLNode* node )
 	node->write_float( "probability", __probability );
 }
 
-Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
+Note* Note::load_from( XMLNode* node, InstrumentList* instruments, bool bSilent )
 {
 	bool bFound, bFound2;
-	float fPan = node->read_float( "pan", 0.f, &bFound );
+	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, bSilent );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
-		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
-		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
 		if ( bFound && bFound2 ) {
 			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
 		}
@@ -435,18 +435,18 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 
 	Note* note = new Note(
 		nullptr,
-		node->read_int( "position", 0, false, false ),
-		node->read_float( "velocity", 0.8f, false, false ),
+		node->read_int( "position", 0, false, false, bSilent ),
+		node->read_float( "velocity", 0.8f, false, false, bSilent ),
 		fPan,
-		node->read_int( "length", -1, true ),
-		node->read_float( "pitch", 0.0f, false, false )
+		node->read_int( "length", -1, true, false, bSilent ),
+		node->read_float( "pitch", 0.0f, false, false, bSilent )
 	);
-	note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
-	note->set_key_octave( node->read_string( "key", "C0", false, false ) );
-	note->set_note_off( node->read_bool( "note_off", false, false, false ) );
-	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID, false, false ) );
+	note->set_lead_lag( node->read_float( "leadlag", 0, false, false, bSilent ) );
+	note->set_key_octave( node->read_string( "key", "C0", false, false, bSilent ) );
+	note->set_note_off( node->read_bool( "note_off", false, false, false, bSilent ) );
+	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
 	note->map_instrument( instruments );
-	note->set_probability( node->read_float( "probability", 1.0f, false, false ));
+	note->set_probability( node->read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
 }

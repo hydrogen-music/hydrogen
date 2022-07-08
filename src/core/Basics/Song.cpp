@@ -382,160 +382,37 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		pSong->getComponents()->push_back( pDrumkitComponent );
 	}
 
-	//  Instrument List
-	XMLNode instrumentListNode = pRootNode->firstChildElement( "instrumentList" );
-	if ( ! instrumentListNode.isNull() ) {
-		// By supplying no drumkit path and name the individual
-		// drumkit meta infos stored in the 'instrument' nodes will be
-		// used.
-		auto pInstrumentList = InstrumentList::load_from( &instrumentListNode,
-														  "", // sDrumkitPath
-														  "", // sDrumkitName
-														  License(), // per-instrument licenses
-														  bSilent );
-		pInstrumentList->load_samples( fBpm );
-		pSong->setInstrumentList( pInstrumentList );
-
-		if ( pInstrumentList->size() == 0 ) {
-			if ( ! bSilent ) {
-				ERRORLOG( "Loaded instrument list does not contain a single instrument. Aborting." );
-			}
-			return nullptr;
-		}
-	}
-	else {
-		if ( ! bSilent ) {
-			ERRORLOG( "Error reading song: instrumentList node not found. Aborting" );
-		}
+	// Instrument List
+	//
+	// By supplying no drumkit path and name the individual
+	// drumkit meta infos stored in the 'instrument' nodes will be
+	// used.
+	auto pInstrumentList = InstrumentList::load_from( pRootNode,
+													  "", // sDrumkitPath
+													  "", // sDrumkitName
+													  License(), // per-instrument licenses
+													  bSilent );
+	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
+
+	pInstrumentList->load_samples( fBpm );
+	pSong->setInstrumentList( pInstrumentList );
 
 	// TODO: fix me by providing a top-level drumkit path 
 	pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
 	pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
 
 	// Pattern list
-	XMLNode patterns = pRootNode->firstChildElement( "patternList" );
-
-	PatternList* pPatternList = new PatternList();
-	int pattern_count = 0;
-
-	XMLNode patternNode =  patterns.firstChildElement( "pattern" );
-	while ( !patternNode.isNull()  ) {
-		pattern_count++;
-		Pattern* pPattern = Pattern::load_from( &patternNode, pSong->getInstrumentList() );
-		if ( pPattern != nullptr ) {
-			pPatternList->add( pPattern );
-		}
-		else {
-			if ( ! bSilent ) {
-				ERRORLOG( "Error loading pattern" );
-			}
-			delete pPatternList;
-			return nullptr;
-		}
-		patternNode = patternNode.nextSiblingElement( "pattern" );
-	}
-	if ( pattern_count == 0 && ! bSilent ) {
-		WARNINGLOG( "0 patterns?" );
-	}
-	pSong->setPatternList( pPatternList );
+	pSong->setPatternList( PatternList::load_from( pRootNode,
+												   pSong->getInstrumentList(),
+												   bSilent ) );
 
 	// Virtual Patterns
-	XMLNode virtualPatternListNode = pRootNode->firstChildElement( "virtualPatternList" );
-	XMLNode virtualPatternNode = virtualPatternListNode.firstChildElement( "pattern" );
-	if ( ! virtualPatternNode.isNull() ) {
-
-		while ( ! virtualPatternNode.isNull() ) {
-			QString sName = virtualPatternNode.read_string( "name", sName, false, false, bSilent );
-
-			Pattern* pCurPattern = nullptr;
-			unsigned nPatterns = pPatternList->size();
-			for ( unsigned i = 0; i < nPatterns; i++ ) {
-				Pattern* pPattern = pPatternList->get( i );
-
-				if ( pPattern->get_name() == sName ) {
-					pCurPattern = pPattern;
-					break;
-				}
-			}
-
-			if ( pCurPattern != nullptr ) {
-				XMLNode virtualNode = virtualPatternNode.firstChildElement( "virtual" );
-				while ( !virtualNode.isNull() ) {
-					QString virtName = virtualNode.firstChild().nodeValue();
-
-					Pattern* virtPattern = nullptr;
-					for ( unsigned i = 0; i < nPatterns; i++ ) {
-						Pattern* pat = pPatternList->get( i );
-
-						if ( pat->get_name() == virtName ) {
-							virtPattern = pat;
-							break;
-						}
-					}
-
-					if ( virtPattern != nullptr ) {
-						pCurPattern->virtual_patterns_add( virtPattern );
-					}
-					else if ( ! bSilent ) {
-						ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
-					}
-					virtualNode = virtualNode.nextSiblingElement( "virtual" );
-				}
-			} else if ( ! bSilent ) {
-				ERRORLOG( "Song had invalid virtual pattern list data (name)" );
-			}
-			virtualPatternNode = virtualPatternNode.nextSiblingElement( "pattern" );
-		}
-	}
-
-	pPatternList->flattened_virtual_patterns_compute();
+	pSong->loadVirtualPatternsFrom( pRootNode, bSilent );
 
 	// Pattern sequence
-    XMLNode patternSequenceNode = pRootNode->firstChildElement( "patternSequence" );
-
-	if ( ! patternSequenceNode.firstChildElement( "patternID" ).isNull() ) {
-		// back-compatibility code..
-		pSong->setPatternGroupVector( Legacy::loadPatternGroupVector( &patternSequenceNode,
-																	  pSong->getPatternList(),
-																	  bSilent ) );
-	}
-	else {
-		// current format
-		std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-		
-		XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
-		while ( ! groupNode.isNull() ) {
-			PatternList* patternSequence = new PatternList();
-			XMLNode patternId = groupNode.firstChildElement( "patternID" );
-			while ( ! patternId.isNull() ) {
-				QString sPatId = patternId.firstChild().nodeValue();
-
-				Pattern* pPattern = nullptr;
-				for ( const auto& ppPat : *pPatternList ) {
-					if ( ppPat != nullptr ) {
-						if ( ppPat->get_name() == sPatId ) {
-							pPattern = ppPat;
-							break;
-						}
-					}
-				}
-				
-				if ( pPattern != nullptr ) {
-					patternSequence->add( pPattern );
-				} else if ( ! bSilent ) {
-					WARNINGLOG( "patternid not found in patternSequence" );
-				}
-
-				patternId = patternId.nextSiblingElement( "patternID" );
-			}
-			pPatternGroupVector->push_back( patternSequence );
-
-			groupNode = groupNode.nextSiblingElement( "group" );
-		}
-		pSong->setPatternGroupVector( pPatternGroupVector );
-	}
+	pSong->loadPatternGroupVectorFrom( pRootNode, bSilent );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// reset FX
@@ -687,6 +564,144 @@ bool Song::save( const QString& sFilename, bool bSilent )
 	return true;
 }
 
+void Song::loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent ) {
+
+	XMLNode virtualPatternListNode = pNode->firstChildElement( "virtualPatternList" );
+	if ( virtualPatternListNode.isNull() ) {
+		if ( ! bSilent ) {
+			ERRORLOG( "'virtualPatternList' node not found. Aborting." );
+		}
+		return;
+	}
+
+	XMLNode virtualPatternNode = virtualPatternListNode.firstChildElement( "pattern" );
+	while ( ! virtualPatternNode.isNull() ) {
+		QString sName = virtualPatternNode.read_string( "name", sName, false, false, bSilent );
+
+		Pattern* pCurPattern = nullptr;
+		for ( const auto& pPattern : *m_pPatternList ) {
+			if ( pPattern->get_name() == sName ) {
+				pCurPattern = pPattern;
+				break;
+			}
+		}
+
+		if ( pCurPattern != nullptr ) {
+			XMLNode virtualNode = virtualPatternNode.firstChildElement( "virtual" );
+			while ( !virtualNode.isNull() ) {
+				QString sVirtualPatternName = virtualNode.firstChild().nodeValue();
+
+				Pattern* pVirtualPattern = nullptr;
+				for ( const auto& pPattern : *m_pPatternList ) {
+					if ( pPattern != nullptr &&
+						 pPattern->get_name() == sVirtualPatternName ) {
+						pVirtualPattern = pPattern;
+						break;
+					}
+				}
+
+				if ( pVirtualPattern != nullptr ) {
+					pCurPattern->virtual_patterns_add( pVirtualPattern );
+				}
+				else if ( ! bSilent ) {
+					ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
+				}
+				virtualNode = virtualNode.nextSiblingElement( "virtual" );
+			}
+		}
+		else if ( ! bSilent ) {
+			ERRORLOG( "Song had invalid virtual pattern list data (name)" );
+		}
+		virtualPatternNode = virtualPatternNode.nextSiblingElement( "pattern" );
+	}
+
+	m_pPatternList->flattened_virtual_patterns_compute();
+}
+
+void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
+    XMLNode patternSequenceNode = pNode->firstChildElement( "patternSequence" );
+	if ( patternSequenceNode.isNull() ) {
+		if ( ! bSilent ) {
+			ERRORLOG( "'patternSequence' node not found. Aborting." );
+		}
+		return;
+	}
+
+	if ( ! patternSequenceNode.firstChildElement( "patternID" ).isNull() ) {
+		// back-compatibility code..
+		m_pPatternGroupSequence = Legacy::loadPatternGroupVector( &patternSequenceNode,
+																  m_pPatternList,
+																  bSilent );
+	}
+	else {
+		// current format
+		if ( m_pPatternGroupSequence == nullptr ) {
+			m_pPatternGroupSequence = new std::vector<PatternList*>;
+		} else {
+			m_pPatternGroupSequence->clear();
+		}
+		
+		XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
+		while ( ! groupNode.isNull() ) {
+			PatternList* patternSequence = new PatternList();
+			XMLNode patternIdNode = groupNode.firstChildElement( "patternID" );
+			while ( ! patternIdNode.isNull() ) {
+				QString sPatternName = patternIdNode.firstChild().nodeValue();
+
+				Pattern* pPattern = nullptr;
+				for ( const auto& ppPat : *m_pPatternList ) {
+					if ( ppPat != nullptr ) {
+						if ( ppPat->get_name() == sPatternName ) {
+							pPattern = ppPat;
+							break;
+						}
+					}
+				}
+				
+				if ( pPattern != nullptr ) {
+					patternSequence->add( pPattern );
+				} else if ( ! bSilent ) {
+					WARNINGLOG( "patternid not found in patternSequence" );
+				}
+
+				patternIdNode = patternIdNode.nextSiblingElement( "patternID" );
+			}
+			m_pPatternGroupSequence->push_back( patternSequence );
+
+			groupNode = groupNode.nextSiblingElement( "group" );
+		}
+	}
+}
+
+void Song::writeVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
+	XMLNode virtualPatternListNode = pNode->createNode( "virtualPatternList" );
+	for ( const auto& pPattern : *m_pPatternList ) {
+		if ( ! pPattern->get_virtual_patterns()->empty() ) {
+			XMLNode patternNode = virtualPatternListNode.createNode( "pattern" );
+			patternNode.write_string( "name", pPattern->get_name() );
+
+			for ( const auto& pVirtualPattern : *( pPattern->get_virtual_patterns() ) ) {
+				patternNode.write_string( "virtual", pVirtualPattern->get_name() );
+			}
+		}
+	}
+}
+
+void Song::writePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
+	XMLNode patternSequenceNode = pNode->createNode( "patternSequence" );
+	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
+		if ( pPatternList != nullptr ) {
+			XMLNode groupNode = patternSequenceNode.createNode( "group" );
+
+			for ( const auto& pPattern : *pPatternList ) {
+				if ( pPattern != nullptr ) {
+					groupNode.write_string( "patternID", pPattern->get_name() );
+				}
+			}
+		}
+	}
+}
+	
 void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_string( "version", QString( get_version().c_str() ) );
 	pRootNode->write_float( "bpm", m_fBpm );
@@ -772,38 +787,13 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		}
 	}
 
-	XMLNode instrumentListNode = pRootNode->createNode( "instrumentList" );
-	for ( const auto& pInstrument : *m_pInstrumentList ) {
-		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( &instrumentListNode, -1, true, true );
-		}
-	}
+	m_pInstrumentList->save_to( pRootNode, -1, true, true );
+	
+	m_pPatternList->save_to( pRootNode, nullptr );
 
-	XMLNode patternListNode = pRootNode->createNode( "patternList" );
-	for ( const auto& pPattern : *m_pPatternList ) {
-		pPattern->save_to( &patternListNode, nullptr );
-	}
-
-	XMLNode virtualPatternListNode = pRootNode->createNode( "virtualPatternList" );
-	for ( const auto& pPattern : *m_pPatternList ) {
-		if ( ! pPattern->get_virtual_patterns()->empty() ) {
-			XMLNode patternNode = virtualPatternListNode.createNode( "pattern" );
-			patternNode.write_string( "name", pPattern->get_name() );
-
-			for ( const auto& pVirtualPattern : *( pPattern->get_virtual_patterns() ) ) {
-				patternNode.write_string( "virtual", pVirtualPattern->get_name() );
-			}
-		}
-	}
-
-	XMLNode patternSequenceNode = pRootNode->createNode( "patternSequence" );
-	for ( unsigned i = 0; i < getPatternGroupVector()->size(); i++ ) {
-		XMLNode groupNode = patternSequenceNode.createNode( "group" );
-
-		for ( const auto& pPattern : *(m_pPatternGroupSequence->at( i )) ) {
-			groupNode.write_string( "patternID", pPattern->get_name() );
-		}
-	}
+	writeVirtualPatternsTo( pRootNode, bSilent );
+	
+	writePatternGroupVectorTo( pRootNode, bSilent );
 
 	XMLNode ladspaFxNode = pRootNode->createNode( "ladspa" );
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
@@ -1017,81 +1007,8 @@ void Song::readTempPatternList( const QString& sFilename )
 		return;
 	}
 
-	XMLNode virtualsNode = root.firstChildElement( "virtuals" );
-	if ( !virtualsNode.isNull() ) {
-		XMLNode virtualNode = virtualsNode.firstChildElement( "virtual" );
-		while ( !virtualNode.isNull() ) {
-			QString patternName = virtualNode.read_attribute( "pattern", nullptr, true, false );
-			XMLNode patternNode = virtualNode.firstChildElement( "pattern" );
-			Pattern* pPattern = nullptr;
-			while ( !patternName.isEmpty() && !patternNode.isNull() ) {
-				QString virtualName = patternNode.read_text( false );
-				if ( !virtualName.isEmpty() ) {
-					Pattern* pVirtualPattern = nullptr;
-					for ( unsigned i = 0; i < getPatternList()->size(); i++ ) {
-						Pattern* pat = getPatternList()->get( i );
-						if ( pPattern == nullptr && pat->get_name() == patternName ) {
-							pPattern = pat;
-						}
-						if ( pVirtualPattern == nullptr && pat->get_name() == virtualName ) {
-							pVirtualPattern = pat;
-						}
-						if ( pPattern != nullptr && pVirtualPattern != nullptr) {
-							break;
-						}
-					}
-					if ( pPattern == nullptr ) {
-						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
-					}
-					if ( pVirtualPattern == nullptr ) {
-						ERRORLOG( QString( "Invalid virtual pattern name %1" ).arg( virtualName ) );
-					}
-					if ( pPattern != nullptr && pVirtualPattern != nullptr ) {
-						pPattern->virtual_patterns_add( pVirtualPattern );
-					}
-				}
-				patternNode = patternNode.nextSiblingElement( "pattern" );
-			}
-			virtualNode = virtualNode.nextSiblingElement( "virtual" );
-		}
-	} else {
-		WARNINGLOG( "no virtuals node not found" );
-	}
-
-	getPatternList()->flattened_virtual_patterns_compute();
-	getPatternGroupVector()->clear();
-
-	XMLNode sequenceNode = root.firstChildElement( "groups" );
-	if ( !sequenceNode.isNull() ) {
-		XMLNode groupNode = sequenceNode.firstChildElement( "group" );
-		while ( !groupNode.isNull() ) {
-			PatternList* patternSequence = new PatternList();
-			XMLNode patternNode = groupNode.firstChildElement( "pattern" );
-			while ( !patternNode.isNull() ) {
-				QString patternName = patternNode.read_text( false );
-				if( !patternName.isEmpty() ) {
-					Pattern* p = nullptr;
-					for ( unsigned i = 0; i < getPatternList()->size(); i++ ) {
-						Pattern* pat = getPatternList()->get( i );
-						if ( pat->get_name() == patternName ) {
-							p = pat;
-							break;
-						}
-					}
-					if ( p == nullptr ) {
-						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
-					} else {
-						patternSequence->add( p );
-					}
-				}
-				patternNode = patternNode.nextSiblingElement( "pattern" );
-			}
-			getPatternGroupVector()->push_back( patternSequence );
-			groupNode = groupNode.nextSiblingElement( "group" );
-		}
-	} else {
-		WARNINGLOG( "no sequence node not found" );
-	}
+	loadVirtualPatternsFrom( &root, false );
+	loadPatternGroupVectorFrom( &root, false );
 }
 
 bool Song::writeTempPatternList( const QString& sFilename )
@@ -1099,95 +1016,33 @@ bool Song::writeTempPatternList( const QString& sFilename )
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "sequence" );
 
-	XMLNode virtualPatternListNode = root.createNode( "virtuals" );
-	for ( unsigned i = 0; i < getPatternList()->size(); i++ ) {
-		Pattern *pPattern = getPatternList()->get( i );
-		if ( !pPattern->get_virtual_patterns()->empty() ) {
-			XMLNode node = virtualPatternListNode.createNode( "virtual" );
-			node.write_attribute( "pattern", pPattern->get_name() );
-			for ( Pattern::virtual_patterns_it_t virtIter = pPattern->get_virtual_patterns()->begin(); virtIter != pPattern->get_virtual_patterns()->end(); ++virtIter ) {
-				node.write_string( "pattern", (*virtIter)->get_name() );
-			}
-		}
-	}
-
-	XMLNode patternSequenceNode = root.createNode( "groups" );
-	for ( unsigned i = 0; i < getPatternGroupVector()->size(); i++ ) {
-		XMLNode node = patternSequenceNode.createNode( "group" );
-		PatternList *pList = ( *getPatternGroupVector() )[i];
-		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pPattern = pList->get( j );
-			node.write_string( "pattern", pPattern->get_name() );
-		}
-	}
+	writeVirtualPatternsTo( &root, false );
+	writePatternGroupVectorTo( &root, false );
 
 	return doc.write( sFilename );
 }
 
-QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedInstrument )
+QString Song::copyInstrumentLineToString( int nSelectedInstrument )
 {
-	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
-	assert( pInstr );
+	auto pInstrument = getInstrumentList()->get( nSelectedInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( nSelectedInstrument ) );
+		return QString();
+	}
 
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "instrument_line" );
 	rootNode.write_string( "author", getAuthor() );
 	rootNode.write_string( "license", getLicense().getLicenseString() );
 
-	XMLNode patternListNode = rootNode.createNode( "patternList" );
+	m_pPatternList->save_to( &rootNode, pInstrument );
 
-	unsigned nPatterns = getPatternList()->size();
-	for ( unsigned i = 0; i < nPatterns; i++ )
-	{
-		if (( nSelectedPattern >= 0 ) && ( nSelectedPattern != i ) ) {
-			continue;
-		}
-
-		// Export pattern
-		Pattern *pPattern = getPatternList()->get( i );
-		if ( pPattern == nullptr ) {
-			continue;
-		}
-
-		XMLNode patternNode = patternListNode.createNode( "pattern" );
-		patternNode.write_string( "pattern_name", pPattern->get_name() );
-
-		QString category;
-		if ( pPattern->get_category().isEmpty() ) {
-			category = "No category";
-		} else {
-			category = pPattern->get_category();
-		}
-
-		patternNode.write_string( "info", pPattern->get_info() );
-		patternNode.write_string( "category", category  );
-		patternNode.write_int( "size", pPattern->get_length() );
-		patternNode.write_int( "denominator", pPattern->get_denominator() );
-		XMLNode noteListNode = patternNode.createNode( "noteList" );
-		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it)
-		{
-			Note *pNote = it->second;
-			if ( pNote == nullptr ) {
-				ERRORLOG( QString( "Unable to handle note [%1] of pattern [%2]"  )
-						  .arg( it->first ).arg( pPattern->get_name() ) );
-				continue;
-			}
-
-			// Export only specified instrument
-			if (pNote->get_instrument() == pInstr)
-			{
-				XMLNode noteNode = noteListNode.createNode( "note" );
-				pNote->save_to( &noteNode );
-			}
-		}
-	}
-
-	// Serialize document & return
+	// Serialize document
 	return doc.toString();
 }
 
-bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedPattern, int nSelectedInstrument, std::list<Pattern *>& pPatterns )
+bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns )
 {
 	XMLDoc doc;
 	if ( ! doc.setContent( sSerialized ) ) {
@@ -1204,7 +1059,6 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 
 	// Get pattern list
 	PatternList *pList = getPatternList();
-	Pattern *pSelected = ( nSelectedPattern >= 0 ) ? pList->get( nSelectedPattern ) : nullptr;
 	XMLNode patternNode;
 	bool bIsNoteSelection = false;
 	bool is_single = true;
@@ -1240,7 +1094,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 
 	while ( ! patternNode.isNull() )
 	{
-		QString patternName( patternNode.read_string( "pattern_name", "", false, false ) );
+		QString patternName( patternNode.read_string( "name", "", false, false ) );
 
 		// Check if pattern name specified
 		if ( patternName.length() > 0 || bIsNoteSelection ) {
@@ -1251,19 +1105,13 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 			// If there is only one pattern, we always add it to list
 			// If there is no selected pattern, we add all existing patterns to list (match by name)
 			// Otherwise we add only existing selected pattern to list (match by name)
-			if ( is_single ||
-				 ( pat != nullptr &&
-				   ( nSelectedPattern < 0 || pat == pSelected ) ) ) {
-				
-				// Change name of pattern to selected pattern
-				if ( pSelected != nullptr ) {
-					patternName = pSelected->get_name();
-				}
+			if ( is_single || pat != nullptr ) {
 
 				pat = new Pattern( patternName,
 								   patternNode.read_string( "info", "", true, false ),
-								   patternNode.read_string( "category", "", true, false ),
-								   patternNode.read_int( "size", -1, true, false ) );
+								   patternNode.read_string( "category", "unknown", true, false ),
+								   patternNode.read_int( "size", -1, true, false ),
+								   patternNode.read_int( "denominator", 4, true, false ) );
 
 				// Parse pattern data
 				XMLNode pNoteListNode = patternNode.firstChildElement( "noteList" );
@@ -1286,7 +1134,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 				}
 
 				// Add loaded pattern to apply-list
-				pPatterns.push_back(pat);
+				patterns.push_back(pat);
 			}
 		}
 

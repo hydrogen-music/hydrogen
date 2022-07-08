@@ -68,10 +68,16 @@ void InstrumentList::unload_samples()
 
 InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
+	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
+	if ( instrumentListNode.isNull() ) {
+		ERRORLOG( "'instrumentList' node not found. Unable to load instrument list." );
+		return nullptr;
+	}
+
 	InstrumentList* pInstrumentList = new InstrumentList();
-	XMLNode instrument_node = pNode->firstChildElement( "instrument" );
+	XMLNode instrumentNode = instrumentListNode.firstChildElement( "instrument" );
 	int nCount = 0;
-	while ( !instrument_node.isNull() ) {
+	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		if ( nCount > MAX_INSTRUMENTS ) {
 			if ( ! bSilent ) {
@@ -81,7 +87,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 			break;
 		}
 
-		auto pInstrument = Instrument::load_from( &instrument_node, sDrumkitPath,
+		auto pInstrument = Instrument::load_from( &instrumentNode, sDrumkitPath,
 												  sDrumkitName, license, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
@@ -93,18 +99,27 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 			}
 			nCount--;
 		}
-		instrument_node = instrument_node.nextSiblingElement( "instrument" );
+		instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
 	}
+
+	if ( nCount == 0 ) {
+		if ( ! bSilent ) {
+			ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
+		}
+
+		delete pInstrumentList;
+		return nullptr;
+	}
+	
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion )
+void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
-	for ( int ii = 0; ii < size(); ii++ ) {
-		auto pInstrument = get( ii );
-		if ( pInstrument != nullptr ) {
-			pInstrument->save_to( &instruments_node, component_id, bRecentVersion );
+	for ( const auto& pInstrument : __instruments ) {
+		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
+			pInstrument->save_to( &instruments_node, component_id, bRecentVersion, bFull );
 		}
 	}
 }

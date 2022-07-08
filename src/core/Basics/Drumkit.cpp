@@ -200,16 +200,10 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			int id = componentNode.read_int( "id", -1,
-											 true, true, bSilent  );			// instrument id
-			QString sName = componentNode.read_string( "name", "",
-													   true, true, bSilent  );		// name
-			float fVolume = componentNode.read_float( "volume", 1.0,
-													  true, true, bSilent  );	// volume
-			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
-			pDrumkitComponent->set_volume( fVolume );
-
-			pDrumkit->get_components()->push_back(pDrumkitComponent);
+			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			if ( pDrumkitComponent != nullptr ) {
+				pDrumkit->get_components()->push_back(pDrumkitComponent);
+			}
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
@@ -219,12 +213,16 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
 
-	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
-	if ( instruments_node.isNull() ) {
-		WARNINGLOG( "instrumentList node not found" );
-	} else {
-		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, license, bSilent ) );
+	auto pInstrumentList = InstrumentList::load_from( node,
+													  dk_path,
+													  drumkit_name,
+													  license, false );
+	if ( pInstrumentList == nullptr ) {
+		delete pDrumkit;
+		return nullptr;
 	}
+		
+	pDrumkit->set_instruments( pInstrumentList );
 
 	// propagate drumkit lookup
 	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
@@ -532,7 +530,7 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	}
 
 	if ( __instruments != nullptr && __instruments->size() > 0 ) {
-		__instruments->save_to( node, component_id, bRecentVersion );
+		__instruments->save_to( node, component_id, bRecentVersion, false );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();

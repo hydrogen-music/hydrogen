@@ -449,35 +449,44 @@ void InstrumentLine::functionClearNotes()
 
 void InstrumentLine::functionCopyAllInstrumentPatterns()
 {
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-	assert(song);
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song present" );
+		return;
+	}
 
 	// Serialize & put to clipboard
-	QString serialized = song->copyInstrumentLineToString( -1, m_nInstrumentNumber );
+	QString sSerialized = pSong->copyInstrumentLineToString( m_nInstrumentNumber );
+	if ( sSerialized.isEmpty() ) {
+		ERRORLOG( QString( "Unable to serialize instrument line [%1]" )
+				  .arg( m_nInstrumentNumber ) );
+		return;
+	}
+	
 	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText(serialized);
+	clipboard->setText( sSerialized );
 }
 
 
 void InstrumentLine::functionPasteAllInstrumentPatterns()
 {
-	functionPasteInstrumentPatternExec(-1);
-}
-
-void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
-{
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-	assert(song);
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song present" );
+		return;
+	}
 
 	// This is a note list for pasted notes collection
-	std::list< Pattern* > patternList;
+	std::list<Pattern*> patternList;
 
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
-	QString serialized = clipboard->text();
-	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) ) {
+	QString sSerialized = clipboard->text();
+	if ( ! pSong->pasteInstrumentLineFromString( sSerialized,
+												 m_nInstrumentNumber,
+												 patternList ) ) {
 		return;
 	}
 

@@ -171,8 +171,10 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
 		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
 
 		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+		// Try legacy format fist.
 		setName( patternNode.read_string( "pattern_name", "", false, false ) );
 		if ( getName().isEmpty() ) {
+			// Try current format.
 			setName( patternNode.read_string( "name", "", false, false ) );
 		}
 		setInfo( patternNode.read_string( "info", "No information available.", false, false ) );

@@ -118,7 +118,7 @@ Pattern* Pattern::load_file( const QString& sPatternPath, InstrumentList* pInstr
 	return load_from( &pattern_node, pInstrumentList );
 }
 
-Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList )
+Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList, bool bSilent )
 {
 	Pattern* pPattern = new Pattern(
 	    node->read_string( "name", nullptr, false, false ),
@@ -129,7 +129,9 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList )
 	);
 
 	if ( pInstrumentList == nullptr ) {
-		ERRORLOG( "Invalid instrument list provided" );
+		if ( ! bSilent ) {
+			ERRORLOG( "Invalid instrument list provided" );
+		}
 		return pPattern;
 	}
 	
@@ -137,7 +139,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList )
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* pNote = Note::load_from( &note_node, pInstrumentList );
+			Note* pNote = Note::load_from( &note_node, pInstrumentList, bSilent );
 			if ( pNote != nullptr ) {
 				pPattern->insert_note( pNote );
 			}
@@ -165,7 +167,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> instrumentOnly ) const
+void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> pInstrumentOnly ) const
 {
 	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
@@ -173,13 +175,17 @@ void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> instrume
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	pattern_node.write_int( "denominator", __denominator );
+	
+	int nId = ( pInstrumentOnly == nullptr ? -1 : pInstrumentOnly->get_id() );
+	
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
-	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
-	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
-		Note* note = it->second;
-		if( note && ( instrumentOnly == nullptr || note->get_instrument()->get_id() == id ) ) {
+	for( auto it = __notes.cbegin(); it != __notes.cend(); ++it ) {
+		auto pNote = it->second;
+		if ( pNote != nullptr &&
+			 ( pInstrumentOnly == nullptr ||
+			   pNote->get_instrument()->get_id() == nId ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
-			note->save_to( &note_node );
+			pNote->save_to( &note_node );
 		}
 	}
 }

@@ -244,8 +244,11 @@ void Instrument::load_from( const QString& sDrumkitName, const QString& sInstrum
 
 std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
-	int nId = pNode->read_int( "id", EMPTY_INSTR_ID, false, false, bSilent );
-	if ( nId == EMPTY_INSTR_ID ) {
+	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
+	// empty instruments as well (e.g. during unit tests or as part of
+	// dummy kits)
+	int nId = pNode->read_int( "id", -2, false, false, bSilent );
+	if ( nId == -2 ) {
 		return nullptr;
 	}
 
