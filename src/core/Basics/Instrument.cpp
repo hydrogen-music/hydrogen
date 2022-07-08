@@ -275,7 +275,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			static_cast<Filesystem::Lookup>(
 				pNode->read_int( "drumkitLookup",
 								static_cast<int>(Filesystem::Lookup::stacked),
-								false, false, bSilent )) );
+								true, false, bSilent )) );
 	}
 	else {
 		sInstrumentDrumkitName = sDrumkitName;
@@ -376,13 +376,8 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		instrumentLicense = license;
 	}
 
-	if ( ! pNode->firstChildElement( "filename" ).isNull() ) {
-		// back compatibility code ( song version <= 0.9.0 )
-		pInstrument->get_components()->push_back(
-			Legacy::loadInstrumentComponent( pNode, sInstrumentDrumkitPath,
-											 instrumentLicense, bSilent ) );
-	}
-	else {
+	if ( ! pNode->firstChildElement( "instrumentComponent" ).isNull() ) {
+		// current format
 		XMLNode componentNode = pNode->firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
 			pInstrument->get_components()->push_back(
@@ -390,6 +385,17 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 												instrumentLicense, bSilent ) );
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
 		}
+	}
+	else {
+		// back compatibility code
+		auto pCompo = Legacy::loadInstrumentComponent( pNode, sInstrumentDrumkitPath,
+													   instrumentLicense, bSilent );
+		if ( pCompo == nullptr ) {
+			ERRORLOG( "Unable to load component. Aborting." );
+			return nullptr;
+		}
+
+		pInstrument->get_components()->push_back( pCompo );
 	}
 
 	// Sanity checks

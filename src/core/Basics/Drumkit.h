@@ -98,16 +98,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**
 		 * Load a Drumkit from a file.
 		 *
-		 * If the drumkit in @a dk_name can not be validated
-		 * against the current XML Schema definition in
-		 * Filesystem::drumkit_xsd_path(), it will be loaded
-		 * using Legacy::load_drumkit() and, if successful,
-		 * saved again using save_file() to update the drumkit
-		 * file to the newest version. If, instead, the
-		 * Drumkit is valid, it is loaded using load_from()
-		 * and load_samples() is triggered if @a load_samples
-		 * is true.
-		 *
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set
 		 * to true

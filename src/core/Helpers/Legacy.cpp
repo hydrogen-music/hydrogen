@@ -46,249 +46,57 @@
 
 namespace H2Core {
 
-
-Drumkit* Legacy::load_drumkit( const QString& dk_path, bool bSilent ) {
-	WARNINGLOG( QString( "loading drumkit with legacy code" ) );
-	
-	XMLDoc doc;
-	if( !doc.read( dk_path, nullptr, bSilent ) ) {
-		return nullptr;
-	}
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	if ( root.isNull() ) {
-		ERRORLOG( "drumkit_info node not found" );
-		return nullptr;
-	}
-	QString drumkit_name = root.read_string( "name", "", false, false, bSilent );
-	if ( drumkit_name.isEmpty() ) {
-		ERRORLOG( "Drumkit has no name, abort" );
-		return nullptr;
-	}
-	Drumkit* pDrumkit = new Drumkit();
-	pDrumkit->set_path( dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-	pDrumkit->set_name( drumkit_name );
-	pDrumkit->set_author( root.read_string( "author", "undefined author",
-											false, false, bSilent ) );
-	pDrumkit->set_info( root.read_string( "info", "defaultInfo",
-											false, false, bSilent ) );
-	License license( root.read_string( "license", "undefined license",
-									   false, false, bSilent ) );
-	pDrumkit->set_license( license );
-	pDrumkit->set_image( root.read_string( "image", "",
-											false, false, bSilent ) );
-	License imageLicense( root.read_string( "imageLicense", "undefined license",
-											false, false, bSilent ) );
-	pDrumkit->set_image_license( imageLicense );
-
-	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
-	if ( instruments_node.isNull() ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( "instrumentList node not found" );
-		}
-		pDrumkit->set_instruments( new InstrumentList() );
-	} else {
-		InstrumentList* pInstruments = new InstrumentList();
-		XMLNode instrument_node = instruments_node.firstChildElement( "instrument" );
-		int count = 0;
-		while ( !instrument_node.isNull() ) {
-			count++;
-			if ( count > MAX_INSTRUMENTS ) {
-				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" )
-						  .arg( MAX_INSTRUMENTS ) );
-				break;
-			}
-			std::shared_ptr<Instrument> pInstrument = nullptr;
-			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
-			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument =
-					std::make_shared<Instrument>( id, instrument_node.read_string( "name", "",
-																				   false, false,
-																				   bSilent  ),
-												  nullptr );
-				pInstrument->set_drumkit_name( drumkit_name );
-				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f,
-																	 true, true, bSilent ) );
-				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false,
-																   true, true, bSilent ) );
-				float fPanL = instrument_node.read_float( "pan_L", 1.f,
-														  true, true, bSilent );
-				float fPanR = instrument_node.read_float( "pan_R", 1.f,
-														  true, true, bSilent );
-				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter				
-				pInstrument->setPan( fPan );
-
-				// may not exist, but can't be empty
-				pInstrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true,
-																			false, true, bSilent ) );
-				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true,
-																		   false, true, bSilent ) );
-				pInstrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f,
-																			true, false, bSilent ) );
-				pInstrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f,
-																			   true, false, bSilent ) );
-				pInstrument->set_random_pitch_factor( instrument_node.read_float( "randomPitchFactor", 0.0f,
-																				  true, false, bSilent ) );
-				float attack = instrument_node.read_float( "Attack", 0.0f,
-														   true, false, bSilent );
-				float decay = instrument_node.read_float( "Decay", 0.0f,
-														  true, false, bSilent  );
-				float sustain = instrument_node.read_float( "Sustain", 1.0f,
-															true, false, bSilent );
-				float release = instrument_node.read_float( "Release", 1000.0f,
-															true, false, bSilent );
-				pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
-				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f,
-																   true, false, bSilent ) );
-				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1,
-																	   true, false, bSilent ) );
-				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1,
-																			 true, false, bSilent ) );
-				pInstrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C,
-																		  true, false, bSilent ) );
-				pInstrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true,
-																		false, true, bSilent ) );
-				QString read_sample_select_algo = instrument_node.read_string( "sampleSelectionAlgo", "VELOCITY",
-																			   true, true, bSilent );
-				
-				if ( read_sample_select_algo.compare("VELOCITY") == 0) {
-					pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-				} else if ( read_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
-					pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-				} else if ( read_sample_select_algo.compare("RANDOM") == 0 ) {
-					pInstrument->set_sample_selection_alg( Instrument::RANDOM );
-				}
-				
-				pInstrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1,
-																	  true, true, bSilent ) );
-				pInstrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0,
-																	 true, true, bSilent ) );
-				pInstrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127,
-																	  true, true, bSilent ) );
-				for ( int i=0; i<MAX_FX; i++ ) {
-					pInstrument->set_fx_level( instrument_node.read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0,
-																		   true, true, bSilent ), i );
-				}
-				QDomNode filename_node = instrument_node.firstChildElement( "filename" );
-				if ( !filename_node.isNull() ) {
-					if ( ! bSilent ) {
-						DEBUGLOG( "Using back compatibility code. filename node found" );
-					}
-					QString sFilename = instrument_node.read_string( "filename", "",
-																	 true, true, bSilent);
-					if( sFilename.isEmpty() ) {
-						ERRORLOG( "filename back compatibility node is empty" );
-					} else {
-
-						auto pSample = std::make_shared<Sample>( dk_path+"/"+sFilename );
-
-						bool bFoundMainCompo = false;
-						for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
-							DrumkitComponent* pExistingComponent = *it;
-							if( pExistingComponent->get_name().compare("Main") == 0) {
-								bFoundMainCompo = true;
-								break;
-							}
-						}
-						
-						if ( !bFoundMainCompo ) {
-							DrumkitComponent* pDrumkitCompo = new DrumkitComponent( 0, "Main" );
-							pDrumkit->get_components()->push_back( pDrumkitCompo );
-						}
-						
-						auto pComponent = std::make_shared<InstrumentComponent>( 0 );
-						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-						pComponent->set_layer( pLayer, 0 );
-						pInstrument->get_components()->push_back( pComponent );
-						
-					}
-				} else {
-					int n = 0;
-					bool bFoundMainCompo = false;
-					for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
-						DrumkitComponent* pExistingComponent = *it;
-						if( pExistingComponent->get_name().compare("Main") == 0) {
-							bFoundMainCompo = true;
-							break;
-						}
-					}
-					
-					if ( !bFoundMainCompo ) {
-						DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-						pDrumkit->get_components()->push_back(pDrumkitComponent);
-					}
-					auto pComponent = std::make_shared<InstrumentComponent>( 0 );
-
-					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
-					while ( !layer_node.isNull() ) {
-						if ( n >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "n (%1) > m_nMaxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
-							break;
-						}
-						auto pSample = std::make_shared<Sample>( dk_path + "/" +
-																 layer_node.read_string( "filename", "",
-																						 true, true, bSilent ) );
-						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0,
-																		   true, true, bSilent ) );
-						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0,
-																		 true, true, bSilent ) );
-						pLayer->set_gain( layer_node.read_float( "gain", 1.0,
-																 true, false, bSilent ) );
-						pLayer->set_pitch( layer_node.read_float( "pitch", 0.0,
-																  true, false, bSilent ) );
-						pComponent->set_layer( pLayer, n );
-						n++;
-						layer_node = layer_node.nextSiblingElement( "layer" );
-					}
-					pInstrument->get_components()->push_back( pComponent );
-				}
-			}
-			if( pInstrument ) {
-				( *pInstruments ) << pInstrument;
-			} else {
-				ERRORLOG( QString( "Empty ID for instrument %1. The drumkit is corrupted. Skipping instrument" ).arg( count ) );
-				count--;
-			}
-			instrument_node = instrument_node.nextSiblingElement( "instrument" );
-		}
-		pDrumkit->set_instruments( pInstruments );
-	}
-	return pDrumkit;
-}
-
-	
 std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
 	}
 
-	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
-
-	if ( ! Filesystem::file_exists( sFilename ) && ! sDrumkitPath.isEmpty() ) {
-		sFilename = sDrumkitPath + "/" + sFilename;
-	}
-	
-	auto pSample = Sample::load( sFilename, drumkitLicense );
-	if ( pSample == nullptr ) {
-		// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
-		// Se fallisce provo a caricare il corrispettivo file in
-		// formato flac
-		if ( ! bSilent ) {
-			WARNINGLOG( "[readSong] Error loading sample: " +
-						sFilename + " not found. Trying to load a flac..." );
+	if ( pNode->firstChildElement( "filename" ).isNull() ) {
+		// not that old but no component yet.
+		XMLNode layerNode = pNode->firstChildElement( "layer" );
+		if ( layerNode.isNull() ) {
+			ERRORLOG( "Unable to load instrument component. Neither 'filename', 'instrumentComponent', nor 'layer' node found. Aborting." );
+			return nullptr;
 		}
-		sFilename = sFilename.left( sFilename.length() - 4 );
-		sFilename += ".flac";
-		pSample = Sample::load( sFilename, drumkitLicense );
+		
+		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		pCompo->set_layer( InstrumentLayer::load_from( pNode,
+													   sDrumkitPath,
+													   drumkitLicense,
+													   bSilent ),
+						   0 );
+		return pCompo;
 	}
-	if ( pSample == nullptr && ! bSilent ) {
-		ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-	}
+	else {
+		// back compatibility code ( song version <= 0.9.0 )
+		QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
+
+		if ( ! Filesystem::file_exists( sFilename ) && ! sDrumkitPath.isEmpty() ) {
+			sFilename = sDrumkitPath + "/" + sFilename;
+		}
 	
-	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-	pCompo->set_layer( pLayer, 0 );
-	return pCompo;
+		auto pSample = Sample::load( sFilename, drumkitLicense );
+		if ( pSample == nullptr ) {
+			// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
+			// Se fallisce provo a caricare il corrispettivo file in
+			// formato flac
+			if ( ! bSilent ) {
+				WARNINGLOG( "[readSong] Error loading sample: " +
+							sFilename + " not found. Trying to load a flac..." );
+			}
+			sFilename = sFilename.left( sFilename.length() - 4 );
+			sFilename += ".flac";
+			pSample = Sample::load( sFilename, drumkitLicense );
+		}
+		if ( pSample == nullptr && ! bSilent ) {
+			ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+		}
+	
+		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+		pCompo->set_layer( pLayer, 0 );
+		return pCompo;
+	}
 }
 
 Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* pInstrumentList ) {
