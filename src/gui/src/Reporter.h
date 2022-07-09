@@ -59,11 +59,11 @@ class Reporter : public QObject
 {
 	Q_OBJECT
 
-	QProcess *child;
-	std::deque< QString > lines;
+	QProcess *m_pChild;
+	std::deque< QString > m_lines;
 
-	static QString sPrefix;
-	QString sContext;
+	static QString m_sPrefix;
+	QString m_sContext;
 
 	void addLine( QString s );
 

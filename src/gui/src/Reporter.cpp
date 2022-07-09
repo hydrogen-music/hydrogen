@@ -25,54 +25,54 @@
 #include "Reporter.h"
 
 
-QString Reporter::sPrefix = "Fatal error in: ";
+QString Reporter::m_sPrefix = "Fatal error in: ";
 
 using namespace H2Core;
 
 void Reporter::addLine( QString s )
 {
 	// Keep only a few lines of the output
-	while ( lines.size() > 128 ) {
+	while ( m_lines.size() > 128 ) {
 		// Record context
-		if ( lines[0].startsWith( sPrefix )) {
-			sContext = lines[0];
-			Logger::setCrashContext( &sContext );
+		if ( m_lines[0].startsWith( m_sPrefix )) {
+			m_sContext = m_lines[0];
+			Logger::setCrashContext( &m_sContext );
 		}
-		lines.pop_front();
+		m_lines.pop_front();
 	}
-	if ( lines.size() == 0 ) {
-		lines.push_back( QString( "" ) );
+	if ( m_lines.size() == 0 ) {
+		m_lines.push_back( QString( "" ) );
 	}
 	
 	QStringList parts = s.split( "\n" );
-	QString sLastLine = lines.back();
-	lines.pop_back();
+	QString sLastLine = m_lines.back();
+	m_lines.pop_back();
 	// Append the first part to the last line
 	sLastLine += parts.takeFirst();
-	lines.push_back( sLastLine );
+	m_lines.push_back( sLastLine );
 	for ( auto &s : parts ) {
-		lines.push_back( s );
+		m_lines.push_back( s );
 	}
 }
 
-Reporter::Reporter( QProcess *child )
+Reporter::Reporter( QProcess *pChild )
 {
-	assert( child != nullptr );
-	this->child = child;
+	assert( pChild != nullptr );
+	this->m_pChild = pChild;
 
-	connect( child, &QProcess::readyReadStandardOutput,
+	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
-	connect( child, &QProcess::readyReadStandardError,
+	connect( pChild, &QProcess::readyReadStandardError,
 			 this, &Reporter::on_readyReadStandardError );
-	connect( child, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+	connect( pChild, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			 this, &Reporter::on_finished );
 }
 
 void Reporter::waitForFinished()
 {
-	assert( child );
-	while ( child->state() != QProcess::NotRunning ) {
-		child->waitForFinished();
+	assert( m_pChild );
+	while ( m_pChild->state() != QProcess::NotRunning ) {
+		m_pChild->waitForFinished();
 	}
 }
 
@@ -83,7 +83,7 @@ void Reporter::report( void )
 	std::cout.flush();
 	QString *pContext = Logger::getCrashContext();
 	if ( pContext != nullptr ) {
-		std::cerr << sPrefix.toStdString() << pContext->toStdString()
+		std::cerr << m_sPrefix.toStdString() << pContext->toStdString()
 				  << std::endl;
 		std::cerr.flush();
 	}
@@ -92,14 +92,14 @@ void Reporter::report( void )
 
 void Reporter::on_readyReadStandardError( void )
 {
-	std::string s = child->readAllStandardError().toStdString();
+	std::string s = m_pChild->readAllStandardError().toStdString();
 	std::cerr << s.c_str();
 	addLine( s.c_str() );
 }
 
 void Reporter::on_readyReadStandardOutput( void )
 {
-	std::string s = child->readAllStandardOutput().toStdString();
+	std::string s = m_pChild->readAllStandardOutput().toStdString();
 	std::cout << s.c_str();
 	addLine( s.c_str() );
 }
@@ -115,7 +115,7 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 	on_readyReadStandardError();
 	on_readyReadStandardOutput();
 
-	if ( child->exitStatus() != QProcess::NormalExit ) {
+	if ( m_pChild->exitStatus() != QProcess::NormalExit ) {
 
 		char *argv[] = { (char *)"-" };
 		int argc = 1;
@@ -123,7 +123,7 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 		app.setApplicationName( "Hydrogen" );
 
 		QString sDetails;
-		for ( QString &s : lines ) {
+		for ( QString &s : m_lines ) {
 			// Filter out escape sequences
 			s.remove( "\e[0m" );
 			s.remove( "\e[31m" );
@@ -132,8 +132,8 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 			s.remove( "\e[35;1m" );
 			s.remove( "\e[36m" );
 			sDetails += s + "\n";
-			if ( s.startsWith( sPrefix ) ) {
-				sContext = s;
+			if ( s.startsWith( m_sPrefix ) ) {
+				m_sContext = s;
 			}
 		}
 
@@ -141,8 +141,8 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 		msgBox.setText( tr( "Hydrogen exited abnormally" ) );
 
 		QString sInformative;
-		if ( !sContext.isNull() ) {
-			sInformative = sContext + "\n\n";
+		if ( !m_sContext.isNull() ) {
+			sInformative = m_sContext + "\n\n";
 		}
 		sInformative += tr( "You can check the Hydrogen issue tracker on Github to see if this issue "
 							"is already known about. "
