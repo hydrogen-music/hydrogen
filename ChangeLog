@@ -150,6 +150,9 @@
 		  the song even if transport was already looped at least once
 		- relocation of the playhead use JACK is now also support in case
 		  transport is not rolling
+	* Crash reporting
+		- Fatal errors will now show a GUI report including details to report
+		  and potential hints about the cause
 
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1

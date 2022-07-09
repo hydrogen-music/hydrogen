@@ -90,7 +90,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	
+
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
 
@@ -449,6 +449,8 @@ void MainForm::createMenuBar()
 		
 		m_pDebugMenu->addAction( tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile()) );
 		
+		m_pDebugMenu->addAction( tr( "Crash 1" ), this, SLOT( action_crash1()) );
+		m_pDebugMenu->addAction( tr( "Crash 2" ), this, SLOT( action_crash2()) );
 		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
@@ -1074,6 +1076,16 @@ void MainForm::update_mixer_checkbox()
 {
 	bool isVisible = HydrogenApp::get_instance()->getMixer()->isVisible();
 	m_pViewMixerAction->setChecked( isVisible );
+}
+
+void MainForm::action_crash1() {
+	assert(false);
+}
+
+void MainForm::action_crash2() {
+	Logger::CrashContext c( "Provoking crash" );
+	*(int *)0 = 0;
+	assert(false);
 }
 
 void MainForm::action_debug_showAudioEngineInfo()

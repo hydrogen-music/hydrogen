@@ -209,6 +209,9 @@ public slots:
 		void action_inputMode_instrument();
 		void action_inputMode_drumkit();
 
+		void action_crash1();
+		void action_crash2();
+
 		void handleSigUsr1();
 		/** Wrapper around savePreferences() and quit() method of
 			#m_pQApp.*/
