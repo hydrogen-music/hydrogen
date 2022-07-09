@@ -3081,7 +3081,7 @@ void SongEditorPositionRuler::updatePosition()
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
 	m_nColumn = std::max( m_pAudioEngine->getColumn(), 0 );
 
-	if ( pPatternGroupVector->size() >= m_nColumn &&
+	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
 		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
