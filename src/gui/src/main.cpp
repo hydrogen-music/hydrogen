@@ -118,9 +118,9 @@ static int setup_unix_signal_handlers()
 
 #endif
 
-	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGTRAP, SIGABRT,
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGABRT,
 #ifndef WIN32
-						 SIGBUS
+						 SIGBUS, SIGTRAP
 #endif
 		} ) {
 		signal( nSignal, handleFatalSignal );
