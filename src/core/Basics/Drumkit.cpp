@@ -112,7 +112,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 
 	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
 							   bUpgrade, bSilent, lookup );
-	if ( pDrumkit == nullptr && ! bSilent ) {
+	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
 	}
 	else if ( ! bSilent ) {
@@ -277,10 +277,8 @@ License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 		QString sLicenseString = root.read_string( "license", "undefined license",
 												   false, true, bSilent  );
 		if ( sLicenseString.isNull() ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
-						  .arg( sDrumkitDir ) );
-			}
+			ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
+					  .arg( sDrumkitDir ) );
 			return std::move( License() );
 		}
 
@@ -305,9 +303,7 @@ QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
 bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {
 
 	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
-		}
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
 		return false;
 	}
 
@@ -320,20 +316,16 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 		}
 		
 		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
-						  .arg( sDrumkitPath ) );
-			}
+			ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
+					  .arg( sDrumkitPath ) );
 			return false;
 		}
 	}
 	
 	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )
-					  .arg( sDrumkitPath ) );
-		}
+		ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )
+				  .arg( sDrumkitPath ) );
 		return false;
 	}
 

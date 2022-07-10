@@ -80,10 +80,8 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		if ( nCount > MAX_INSTRUMENTS ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "instrument nCount >= %1 (MAX_INSTRUMENTS), stop reading instruments" )
-						  .arg( MAX_INSTRUMENTS ) );
-			}
+			ERRORLOG( QString( "instrument nCount >= %1 (MAX_INSTRUMENTS), stop reading instruments" )
+					  .arg( MAX_INSTRUMENTS ) );
 			break;
 		}
 
@@ -93,20 +91,15 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 			( *pInstrumentList ) << pInstrument;
 		}
 		else {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to load instrument [%1]. The drumkit is corrupted. Skipping instrument" )
-						  .arg( nCount ) );
-			}
+			ERRORLOG( QString( "Unable to load instrument [%1]. The drumkit is corrupted. Skipping instrument" )
+					  .arg( nCount ) );
 			nCount--;
 		}
 		instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
 	}
 
 	if ( nCount == 0 ) {
-		if ( ! bSilent ) {
-			ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
-		}
-
+		ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
 		delete pInstrumentList;
 		return nullptr;
 	}

@@ -71,9 +71,7 @@ PatternList* PatternList::load_from( XMLNode* pNode, InstrumentList* pInstrument
 			pPatternList->add( pPattern );
 		}
 		else {
-			if ( ! bSilent ) {
-				ERRORLOG( "Error loading pattern" );
-			}
+			ERRORLOG( "Error loading pattern" );
 			delete pPatternList;
 			return nullptr;
 		}

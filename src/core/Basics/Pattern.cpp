@@ -73,15 +73,15 @@ bool Pattern::loadDoc( const QString& sPatternPath, InstrumentList* pInstrumentL
 	
 	if ( ! pDoc->read( sPatternPath, Filesystem::pattern_xsd_path() ) ) {
 		if ( ! pDoc->read( sPatternPath, nullptr ) ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to read pattern [%1]" )
-						  .arg( sPatternPath ) );
-				return false;
-			}
+			ERRORLOG( QString( "Unable to read pattern [%1]" )
+					  .arg( sPatternPath ) );
+			return false;
 		}
-		else if ( ! bSilent ) {
-			WARNINGLOG( QString( "Pattern [%1] does not validate the current pattern schema. Loading might fail." )
-						.arg( sPatternPath ) );
+		else {
+			if ( ! bSilent ) {
+				WARNINGLOG( QString( "Pattern [%1] does not validate the current pattern schema. Loading might fail." )
+							.arg( sPatternPath ) );
+			}
 			bReadingSuccessful = false;
 		}
 	}
@@ -129,9 +129,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList, boo
 	);
 
 	if ( pInstrumentList == nullptr ) {
-		if ( ! bSilent ) {
-			ERRORLOG( "Invalid instrument list provided" );
-		}
+		ERRORLOG( "Invalid instrument list provided" );
 		return pPattern;
 	}
 	

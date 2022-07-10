@@ -106,10 +106,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
 		if ( nLayer >= m_nMaxLayers ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Layer #%1 >= m_nMaxLayers (%2). This as well as all further layers will be omitted." )
-						  .arg( nLayer ).arg( m_nMaxLayers ) );
-			}
+			ERRORLOG( QString( "Layer #%1 >= m_nMaxLayers (%2). This as well as all further layers will be omitted." )
+					  .arg( nLayer ).arg( m_nMaxLayers ) );
 			break;
 		}
 

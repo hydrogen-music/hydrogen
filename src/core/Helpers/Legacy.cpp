@@ -88,7 +88,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 			sFilename += ".flac";
 			pSample = Sample::load( sFilename, drumkitLicense );
 		}
-		if ( pSample == nullptr && ! bSilent ) {
+		if ( pSample == nullptr ) {
 			ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 		}
 	
@@ -325,7 +325,7 @@ bool Legacy::checkTinyXMLCompatMode( QFile* pFile, bool bSilent ) {
 		return false;
 	}
 	
-	if ( ! pFile->seek( 0 ) && ! bSilent ) {
+	if ( ! pFile->seek( 0 ) ) {
 		ERRORLOG( QString( "Unable to move to the beginning of file [%1]. Compatibility check mmight fail." )
 				  .arg( pFile->fileName() ) );
 	}
@@ -347,7 +347,7 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 		return QByteArray();
 	}
 	
-	if ( ! pFile->seek( 0 ) && ! bSilent ) {
+	if ( ! pFile->seek( 0 ) ) {
 		ERRORLOG( QString( "Unable to move to the beginning of file [%1]. Converting mmight fail." )
 				  .arg( pFile->fileName() ) );
 	}

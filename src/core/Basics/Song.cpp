@@ -205,9 +205,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	XMLNode songNode = doc.firstChildElement( "song" );
 
 	if ( songNode.isNull() ) {
-		if ( ! bSilent ) {
-			ERRORLOG( "Error reading song: 'song' node not found" );
-		}
+		ERRORLOG( "Error reading song: 'song' node not found" );
 		return nullptr;
 	}
 
@@ -273,10 +271,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&
 		 ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
-					  .arg( sPlaybackTrack ) );
-		}
+		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
+				  .arg( sPlaybackTrack ) );
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
@@ -525,10 +521,8 @@ bool Song::save( const QString& sFilename, bool bSilent )
 		   ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) ) {
 		// In case a read-only file is loaded by Hydrogen. Beware:
 		// .isWritable() will return false if the song does not exist.
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
-					  .arg( sFilename ) );
-		}
+		ERRORLOG( QString( "Unable to save song to [%1]. Path is not writable!" )
+				  .arg( sFilename ) );
 		return false;
 	}
 
@@ -551,9 +545,7 @@ bool Song::save( const QString& sFilename, bool bSilent )
 	setIsModified( false );
 
 	if ( ! doc.write( sFilename ) ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFilename ) );
-		}
+		ERRORLOG( QString( "Error writing song to [%1]" ).arg( sFilename ) );
 		return false;
 	}
 
@@ -568,9 +560,7 @@ void Song::loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent ) {
 
 	XMLNode virtualPatternListNode = pNode->firstChildElement( "virtualPatternList" );
 	if ( virtualPatternListNode.isNull() ) {
-		if ( ! bSilent ) {
-			ERRORLOG( "'virtualPatternList' node not found. Aborting." );
-		}
+		ERRORLOG( "'virtualPatternList' node not found. Aborting." );
 		return;
 	}
 
