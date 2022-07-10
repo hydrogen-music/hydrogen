@@ -70,10 +70,8 @@ XMLNode XMLNode::createNode( const QString& name )
 QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok, bool bSilent )
 {
 	if( isNull() ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "try to read %1 XML node from an empty parent %2." )
-					  .arg( node ).arg( nodeName() ) );
-		}
+		ERRORLOG( QString( "try to read %1 XML node from an empty parent %2." )
+				  .arg( node ).arg( nodeName() ) );
 		return nullptr;
 	}
 	QDomElement el = firstChildElement( node );
@@ -94,17 +92,17 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
 	return el.text();
 }
 
-QString XMLNode::read_string( const QString& node, const QString& default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+QString XMLNode::read_string( const QString& node, const QString& sDefaultValue, bool inexistent_ok, bool empty_ok, bool bSilent )
 {
-	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
-	if( ret.isNull() ) {
+	QString sText = read_child_node( node, inexistent_ok, empty_ok, bSilent );
+	if ( sText.isNull() && ! sDefaultValue.isEmpty() ) {
 		if ( ! bSilent ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
-						.arg( default_value ).arg( node ) );
+						.arg( sDefaultValue ).arg( node ) );
 		}
-		return default_value;
+		return sDefaultValue;
 	}
-	return ret;
+	return sText;
 }
 QColor XMLNode::read_color( const QString& node, const QColor& default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
 {
@@ -300,10 +298,8 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bS
 	
 	QFile file( sFilePath );
 	if ( !file.open( QIODevice::ReadOnly ) ) {
-		if ( ! bSilent ) {
-			ERRORLOG( QString( "Unable to open [%1] for reading" )
-					  .arg( sFilePath ) );
-		}
+		ERRORLOG( QString( "Unable to open [%1] for reading" )
+				  .arg( sFilePath ) );
 		return false;
 	}
 	
@@ -316,16 +312,14 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bS
 	if ( ! sSchemaPath.isEmpty() ) {
 		QFile file( sSchemaPath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to open XML schema [%1] for reading." )
-						  .arg( sSchemaPath ) );
-			}
+			ERRORLOG( QString( "Unable to open XML schema [%1] for reading." )
+					  .arg( sSchemaPath ) );
 		} else {
 			schema.load( &file, QUrl::fromLocalFile( file.fileName() ) );
 			file.close();
 			if ( schema.isValid() ) {
 				bSchemaUsable = true;
-			} else if ( ! bSilent ) {
+			} else {
 				ERRORLOG( QString( "XML schema [%1] is not valid. File [%2] will not be validated" )
 						  .arg( sSchemaPath ).arg( sFilePath ) );
 			}
@@ -353,10 +347,8 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bS
 		// Document was created using TinyXML and not using QtXML. We
 		// need to convert it first.
 		if ( ! setContent( Legacy::convertFromTinyXML( &file ) ) ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to read conversion result document [%1]" )
-						  .arg( sFilePath ) );
-			}
+			ERRORLOG( QString( "Unable to read conversion result document [%1]" )
+					  .arg( sFilePath ) );
 			file.close();
 			return false;
 		}
@@ -364,10 +356,8 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bS
 	else  {
 		// File was written using current format.
 		if ( ! setContent( &file ) ) {
-			if ( ! bSilent ) {
-				ERRORLOG( QString( "Unable to read XML document [%1]" )
-						  .arg( sFilePath ) );
-			}
+			ERRORLOG( QString( "Unable to read XML document [%1]" )
+					  .arg( sFilePath ) );
 			file.close();
 			return false;
 		}

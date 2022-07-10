@@ -268,7 +268,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	}
 
 	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
-													false, false, bSilent ) );
+													false, true, bSilent ) );
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&

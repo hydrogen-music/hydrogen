@@ -122,7 +122,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList, boo
 {
 	Pattern* pPattern = new Pattern(
 	    node->read_string( "name", nullptr, false, false ),
-	    node->read_string( "info", "", false, false ),
+	    node->read_string( "info", "", false, true ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false ),
 	    node->read_int( "denominator", 4, false, false )

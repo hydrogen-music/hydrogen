@@ -331,7 +331,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
-			m_sPreferredLanguage = rootNode.read_string( "preferredLanguage", QString(), false, false );
+			m_sPreferredLanguage = rootNode.read_string( "preferredLanguage", m_sPreferredLanguage, false, "" );
 			__playselectedinstrument = rootNode.read_bool( "instrumentInputMode", __playselectedinstrument, false, false );
 			m_bShowDevelWarning = rootNode.read_bool( "showDevelWarning", m_bShowDevelWarning, false, false );
 			m_bShowNoteOverwriteWarning = rootNode.read_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning, false, false );
@@ -457,8 +457,8 @@ void Preferences::loadPreferences( bool bGlobal )
 					WARNINGLOG( "portaudio_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sPortAudioDevice = portAudioDriverNode.read_string( "portAudioDevice", m_sPortAudioDevice, false, false );
-					m_sPortAudioHostAPI = portAudioDriverNode.read_string( "portAudioHostAPI", m_sPortAudioHostAPI, false, false );
+					m_sPortAudioDevice = portAudioDriverNode.read_string( "portAudioDevice", m_sPortAudioDevice, false, true );
+					m_sPortAudioHostAPI = portAudioDriverNode.read_string( "portAudioHostAPI", m_sPortAudioHostAPI, false, true );
 					m_nLatencyTarget = portAudioDriverNode.read_int( "latencyTarget", m_nLatencyTarget, false, false );
 				}
 
@@ -468,7 +468,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					WARNINGLOG( "coreaudio_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sCoreAudioDevice = coreAudioDriverNode.read_string( "coreAudioDevice", m_sCoreAudioDevice, false, false );
+					m_sCoreAudioDevice = coreAudioDriverNode.read_string( "coreAudioDevice", m_sCoreAudioDevice, false, true );
 				}
 
 				//// JACK DRIVER ////
@@ -626,22 +626,22 @@ void Preferences::loadPreferences( bool bGlobal )
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 				// last used file dialog folders
-				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), false, false );
-				m_sLastExportSongDirectory = guiNode.read_string( "lastExportSongDirectory", QDir::homePath(), false, false );
-				m_sLastSaveSongAsDirectory = guiNode.read_string( "lastSaveSongAsDirectory", QDir::homePath(), false, false );
-				m_sLastOpenSongDirectory = guiNode.read_string( "lastOpenSongDirectory", Filesystem::songs_dir(), false, false );
-				m_sLastOpenPatternDirectory = guiNode.read_string( "lastOpenPatternDirectory", Filesystem::patterns_dir(), false, false );
-				m_sLastExportLilypondDirectory = guiNode.read_string( "lastExportLilypondDirectory", QDir::homePath(), false, false );
-				m_sLastExportMidiDirectory = guiNode.read_string( "lastExportMidiDirectory", QDir::homePath(), false, false );
-				m_sLastImportDrumkitDirectory = guiNode.read_string( "lastImportDrumkitDirectory", QDir::homePath(), false, false );
-				m_sLastExportDrumkitDirectory = guiNode.read_string( "lastExportDrumkitDirectory", QDir::homePath(), false, false );
-				m_sLastOpenLayerDirectory = guiNode.read_string( "lastOpenLayerDirectory", QDir::homePath(), false, false );
-				m_sLastOpenPlaybackTrackDirectory = guiNode.read_string( "lastOpenPlaybackTrackDirectory", QDir::homePath(), false, false );
-				m_sLastAddSongToPlaylistDirectory = guiNode.read_string( "lastAddSongToPlaylistDirectory", Filesystem::songs_dir(), false, false );
-				m_sLastPlaylistDirectory = guiNode.read_string( "lastPlaylistDirectory", Filesystem::playlists_dir(), false, false );
-				m_sLastPlaylistScriptDirectory = guiNode.read_string( "lastPlaylistScriptDirectory", Filesystem::scripts_dir(), false, false );
-				m_sLastImportThemeDirectory = guiNode.read_string( "lastImportThemeDirectory", QDir::homePath(), false, false );
-				m_sLastExportThemeDirectory = guiNode.read_string( "lastExportThemeDirectory", QDir::homePath(), false, false );
+				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportSongDirectory = guiNode.read_string( "lastExportSongDirectory", QDir::homePath(), true, false, true );
+				m_sLastSaveSongAsDirectory = guiNode.read_string( "lastSaveSongAsDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenSongDirectory = guiNode.read_string( "lastOpenSongDirectory", Filesystem::songs_dir(), true, false, true );
+				m_sLastOpenPatternDirectory = guiNode.read_string( "lastOpenPatternDirectory", Filesystem::patterns_dir(), true, false, true );
+				m_sLastExportLilypondDirectory = guiNode.read_string( "lastExportLilypondDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportMidiDirectory = guiNode.read_string( "lastExportMidiDirectory", QDir::homePath(), true, false, true );
+				m_sLastImportDrumkitDirectory = guiNode.read_string( "lastImportDrumkitDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportDrumkitDirectory = guiNode.read_string( "lastExportDrumkitDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenLayerDirectory = guiNode.read_string( "lastOpenLayerDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenPlaybackTrackDirectory = guiNode.read_string( "lastOpenPlaybackTrackDirectory", QDir::homePath(), true, false, true );
+				m_sLastAddSongToPlaylistDirectory = guiNode.read_string( "lastAddSongToPlaylistDirectory", Filesystem::songs_dir(), true, false, true );
+				m_sLastPlaylistDirectory = guiNode.read_string( "lastPlaylistDirectory", Filesystem::playlists_dir(), true, false, true );
+				m_sLastPlaylistScriptDirectory = guiNode.read_string( "lastPlaylistScriptDirectory", Filesystem::scripts_dir(), true, false, true );
+				m_sLastImportThemeDirectory = guiNode.read_string( "lastImportThemeDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportThemeDirectory = guiNode.read_string( "lastExportThemeDirectory", QDir::homePath(), true, false, true );
 
 				//export dialog properties
 				m_nExportTemplateIdx = guiNode.read_int( "exportDialogTemplate", 0, false, false );
@@ -1232,7 +1232,7 @@ WindowProperties Preferences::readWindowProperties( XMLNode parent, const QStrin
 		prop.width = windowPropNode.read_int( "width", prop.width, false, false );
 		prop.height = windowPropNode.read_int( "height", prop.height, false, false );
 		prop.m_geometry = QByteArray::fromBase64( windowPropNode.read_string( "geometry",
-																			  prop.m_geometry.toBase64(), false, false )
+																			  prop.m_geometry.toBase64(), false, true )
 												  .toUtf8() );
 	}
 

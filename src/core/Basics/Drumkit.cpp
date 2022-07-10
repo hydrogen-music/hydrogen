@@ -105,16 +105,23 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 
 Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
-	if ( ! bSilent ) {
-		INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
-	}
-	
-	if( !Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
+	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent,
-					  lookup);
+
+	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
+							   bUpgrade, bSilent, lookup );
+	if ( pDrumkit == nullptr && ! bSilent ) {
+		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
+	}
+	else if ( ! bSilent ) {
+		INFOLOG( QString( "[%1] loaded from [%2]" )
+				 .arg( pDrumkit->get_name() )
+				 .arg( dk_dir ) );
+	}
+
+	return pDrumkit;
 }
 
 Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
@@ -184,8 +191,12 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, dk_path );
 	
 	pDrumkit->set_license( license );
+
+	// As of 2022 we have no drumkits featuring an image in
+	// stock. Thus, verbosity of this one will be turned of in order
+	// to make to log more concise.
 	pDrumkit->set_image( node->read_string( "image", "",
-											true, true, bSilent ) );
+											true, true, true ) );
 	License imageLicense( node->read_string( "imageLicense", "undefined license",
 											 true, true, bSilent  ),
 						  pDrumkit->__author );
