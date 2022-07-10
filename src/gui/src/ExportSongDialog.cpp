@@ -138,7 +138,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 ExportSongDialog::~ExportSongDialog()
 {
-	HydrogenApp::get_instance()->removeEventListener( this );
+	if ( auto pH2App = HydrogenApp::get_instance() ) {
+		pH2App->removeEventListener( this );
+	}
 }
 
 QString ExportSongDialog::createDefaultFilename()

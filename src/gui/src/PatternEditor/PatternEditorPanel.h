@@ -107,6 +107,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void selectInstrumentNotes( int nInstrument );
 
+		void updatePatternInfo();
+
 		void updateEditors( bool bPatternOnly = false );
 
 	void patternSizeChangedAction( int nLength, double fDenominator,
