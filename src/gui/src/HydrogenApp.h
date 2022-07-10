@@ -260,6 +260,11 @@ private slots:
 };
 
 
+/// Return an HydrogenApp m_pInstance
+inline HydrogenApp* HydrogenApp::get_instance() {
+	return m_pInstance;
+}
+
 inline Mixer* HydrogenApp::getMixer()
 {
 	return m_pMixer;	

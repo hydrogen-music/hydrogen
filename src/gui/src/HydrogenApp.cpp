@@ -221,18 +221,9 @@ HydrogenApp::~HydrogenApp()
 	}
 	#endif
 
+	m_pInstance = nullptr;
+
 }
-
-
-
-/// Return an HydrogenApp m_pInstance
-HydrogenApp* HydrogenApp::get_instance() {
-	if (m_pInstance == nullptr) {
-		std::cerr << "Error! HydrogenApp::get_instance (m_pInstance = NULL)" << std::endl;
-	}
-	return m_pInstance;
-}
-
 
 
 
