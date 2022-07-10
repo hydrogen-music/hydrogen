@@ -209,17 +209,17 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if (pHydrogen) {
-		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete pHydrogen;
-	}
-
 	#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		delete m_pLadspaFXProperties[nFX];
 	}
 	#endif
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if (pHydrogen) {
+		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
+		delete pHydrogen;
+	}
 
 	m_pInstance = nullptr;
 
