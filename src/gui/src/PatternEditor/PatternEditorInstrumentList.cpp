@@ -452,6 +452,7 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		assert( pSong );
 		ERRORLOG( "No song present" );
 		return;
 	}
@@ -474,6 +475,7 @@ void InstrumentLine::functionPasteAllInstrumentPatterns()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		assert( pSong );
 		ERRORLOG( "No song present" );
 		return;
 	}

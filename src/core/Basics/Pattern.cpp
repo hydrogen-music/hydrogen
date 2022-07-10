@@ -138,6 +138,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList, boo
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
 			Note* pNote = Note::load_from( &note_node, pInstrumentList, bSilent );
+			assert( pNote );
 			if ( pNote != nullptr ) {
 				pPattern->insert_note( pNote );
 			}

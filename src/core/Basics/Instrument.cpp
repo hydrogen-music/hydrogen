@@ -152,6 +152,12 @@ std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_
 
 void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, Filesystem::Lookup lookup )
 {
+	assert( pDrumkit );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit supplied" );
+		return;
+	}
+	
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	this->get_components()->clear();
@@ -224,6 +230,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 void Instrument::load_from( const QString& sDrumkitName, const QString& sInstrumentName, Filesystem::Lookup lookup )
 {
 	Drumkit* pDrumkit = Drumkit::load_by_name( sDrumkitName, false, lookup );
+	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )
 				  .arg( sDrumkitName ) );

@@ -184,12 +184,14 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
+		assert( pCompo );
 		return nullptr;
 	}
 
 	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 	if ( pLayer == nullptr ) {
 		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
+		assert( pLayer );
 		return nullptr;
 	}
 
@@ -208,18 +210,21 @@ void SampleEditor::getAllFrameInfos()
 	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
+		assert( pCompo );
 		return;
 	}
 
 	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 	if ( pLayer == nullptr ) {
 		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
+		assert( pLayer );
 		return;
 	}
 
 	auto pSample = pLayer->get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to retrieve sample" );
+		assert( pSample );
 		return;
 	}
 
@@ -411,6 +416,11 @@ void SampleEditor::createNewLayer()
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		auto pAudioEngine = pHydrogen->getAudioEngine();
 		auto pOldSample = retrieveSample();
+		if ( pOldSample == nullptr ) {
+			ERRORLOG( "Unable to retrieve sample" );
+			assert( pOldSample );
+			return;
+		}
 		
 		auto pEditSample = std::make_shared<Sample>( m_sSampleName,
 													 pOldSample->getLicense() );

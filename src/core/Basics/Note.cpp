@@ -153,6 +153,7 @@ void Note::setPan( float val ) {
 void Note::map_instrument( InstrumentList* pInstrumentList )
 {
 	if ( pInstrumentList == nullptr ) {
+		assert( pInstrumentList );
 		ERRORLOG( "Invalid instrument list" );
 		return;
 	}

@@ -1016,6 +1016,7 @@ QString Song::copyInstrumentLineToString( int nSelectedInstrument )
 {
 	auto pInstrument = getInstrumentList()->get( nSelectedInstrument );
 	if ( pInstrument == nullptr ) {
+		assert( pInstrument );
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
 		return QString();
@@ -1041,6 +1042,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 
 	// Get current instrument
 	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
+	assert( pInstr );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to find instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
@@ -1146,6 +1148,11 @@ void Song::setPanLawKNorm( float fKNorm ) {
 
 void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
 	assert ( pDrumkit );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit supplied" );
+		return;
+	}
+	
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	m_sCurrentDrumkitName = pDrumkit->get_name();
