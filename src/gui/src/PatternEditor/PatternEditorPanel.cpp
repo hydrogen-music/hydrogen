@@ -906,8 +906,24 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
+void PatternEditorPanel::updatePatternInfo() {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	m_pPattern = nullptr;
+	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+
+	if ( pSong != nullptr ) {
+		PatternList *pPatternList = pSong->getPatternList();
+		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
+			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		}
+	}
+}
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+
+	updatePatternInfo();
 
 	// Changes of pattern may leave the cursor out of bounds.
 	setCursorPosition( getCursorPosition() );
