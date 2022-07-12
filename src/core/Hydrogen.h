@@ -238,14 +238,10 @@ public:
 		/** Delete an #Instrument.*/
 		void			removeInstrument( int nInstrumentNumber );
 
-		/** \return m_sCurrentDrumkitName */
-		QString	getCurrentDrumkitName() const;
-		/** \param sName sets m_sCurrentDrumkitName */
-		void			setCurrentDrumkitName( const QString& sName );
-		/** \return m_currentDrumkitLookup */
-		Filesystem::Lookup	getCurrentDrumkitLookup() const;
-		/** \param lookup sets m_currentDrumkitLookup */
-		void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
+		/** \return m_sLastLoadedDrumkitName */
+		QString	getLastLoadedDrumkitName() const;
+		/** \return m_sLastLoadedDrumkitPath */
+		QString	getLastLoadedDrumkitPath() const;
 
 		void			raiseError( unsigned nErrorCode );
 

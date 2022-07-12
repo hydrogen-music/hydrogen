@@ -1898,15 +1898,15 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 	updateEditor();
 }
 
-void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString sInstrumentName, QString sDrumkitName )
+void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString sInstrumentName, QString sDrumkitPath )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	std::shared_ptr<Instrument> pNewInstrument;
-	if( sDrumkitName == "" ){
+	if( sDrumkitPath == "" ){
 		pNewInstrument = std::make_shared<Instrument>( pSong->getInstrumentList()->size() -1, sInstrumentName );
 	} else {
-		pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
+		pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
 	}
 	if( pNewInstrument == nullptr ) {
 		return;

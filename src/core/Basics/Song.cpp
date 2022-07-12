@@ -90,7 +90,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
-	, m_currentDrumkitLookup( Filesystem::Lookup::stacked )
+	, m_sLastLoadedDrumkitName( "" )
+	, m_sLastLoadedDrumkitPath( "" )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
@@ -393,9 +394,48 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	pInstrumentList->load_samples( fBpm );
 	pSong->setInstrumentList( pInstrumentList );
 
-	// TODO: fix me by providing a top-level drumkit path 
-	// pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
-	// pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
+	QString sLastLoadedDrumkitPath =
+		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );
+	QString sLastLoadedDrumkitName = 
+		pRootNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+	
+	if ( sLastLoadedDrumkitPath.isEmpty() ) {
+		// Prior to version 1.2.0 the last loaded drumkit was read
+		// from the last instrument loaded and was not written to disk
+		// explicitly. This caused problems the moment the user put an
+		// instrument from a different drumkit at the end of the
+		// instrument list. To nevertheless retrieve the last loaded
+		// drumkit we will use a heuristic by taking the majority vote
+		// among the loaded instruments.
+		std::map<QString,int> loadedDrumkits;
+		for ( const auto& pInstrument : *pSong->getInstrumentList() ) {
+			if ( loadedDrumkits.find( pInstrument->get_drumkit_path() ) !=
+				 loadedDrumkits.end() ) {
+				loadedDrumkits[ pInstrument->get_drumkit_path() ] += 1;
+			}
+			else {
+				loadedDrumkits[ pInstrument->get_drumkit_path() ] = 1;
+			}
+		}
+
+		QString sMostCommonDrumkit;
+		int nMax = -1;
+		for ( const auto& xx : loadedDrumkits ) {
+			if ( xx.second > nMax ) {
+				sMostCommonDrumkit = xx.first;
+				nMax = xx.second;
+			}
+		}
+
+		sLastLoadedDrumkitPath = sMostCommonDrumkit;
+	}
+	
+	if ( sLastLoadedDrumkitName.isEmpty() ) {
+		sLastLoadedDrumkitName = Drumkit::loadNameFrom( sLastLoadedDrumkitPath,
+														bSilent );
+	}
+	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
+	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( pRootNode,
@@ -767,6 +807,9 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_float( "humanize_time", m_fHumanizeTimeValue );
 	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	pRootNode->write_float( "swing_factor", m_fSwingFactor );
+
+	pRootNode->write_string( "last_loaded_drumkit", m_sLastLoadedDrumkitPath );
+	pRootNode->write_string( "last_loaded_drumkit_name", m_sLastLoadedDrumkitName );
 
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
 	for ( const auto& pComponent : *m_pComponents ) {
@@ -1153,13 +1196,8 @@ void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
 	
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	m_sCurrentDrumkitName = pDrumkit->get_name();
-	if ( pDrumkit->isUserDrumkit() ) {
-		m_currentDrumkitLookup = Filesystem::Lookup::user;
-	} else {
-		m_currentDrumkitLookup = Filesystem::Lookup::system;
-	}
-
+	m_sLastLoadedDrumkitName = pDrumkit->get_name();
+	m_sLastLoadedDrumkitPath = pDrumkit->get_path();
 
 	// Load DrumkitComponents 
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
@@ -1420,8 +1458,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
+		sOutput.append( QString( "%1%2m_sLastLoadedDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitName ) )
+			.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitPath ) );;
 	} else {
 		
 		sOutput = QString( "[Song]" )
@@ -1474,8 +1512,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}
-		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
+		sOutput.append( QString( ", m_sLastLoadedDrumkitName: %1" ).arg( m_sLastLoadedDrumkitName ) )
+			.append( QString( ", m_sLastLoadedDrumkitPath: %1" ).arg( m_sLastLoadedDrumkitPath ) );
 			
 	}
 	

@@ -431,7 +431,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//check pre loaded drumkit name  and reload the old drumkit
 	if ( m_pPreDrumkitInfo != nullptr && m_pDrumkitInfo != nullptr){
-		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getCurrentDrumkitName() ||
+		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getLastLoadedDrumkitName() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
 			Hydrogen::get_instance()->loadDrumkit( m_pPreDrumkitInfo );
 		}

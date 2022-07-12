@@ -1879,7 +1879,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString prevPatternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   pHydrogen->getCurrentDrumkitName() );
+							   pHydrogen->getLastLoadedDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
@@ -1922,7 +1922,7 @@ void SongEditorPatternList::patternPopup_save()
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
-										   pSong, pHydrogen->getCurrentDrumkitName() );
+										   pSong, pHydrogen->getLastLoadedDrumkitName() );
 	if ( sPath.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
 									   pCommonStrings->getButtonOk(),
@@ -1932,7 +1932,7 @@ void SongEditorPatternList::patternPopup_save()
 			return;
 		}
 		sPath = Files::savePatternOver( pPattern->get_name(), pPattern,
-										pSong, pHydrogen->getCurrentDrumkitName() );
+										pSong, pHydrogen->getLastLoadedDrumkitName() );
 	}
 
 	if ( sPath.isEmpty() ) {
@@ -2017,7 +2017,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 	QString patternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   m_pHydrogen->getCurrentDrumkitName() );
+							   m_pHydrogen->getLastLoadedDrumkitName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
@@ -2053,7 +2053,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		QString filePath = Files::savePatternTmp( pNewPattern->get_name(),
 												  pNewPattern, pSong,
-												  m_pHydrogen->getCurrentDrumkitName() );
+												  m_pHydrogen->getLastLoadedDrumkitName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			setRowSelection( RowSelection::None );

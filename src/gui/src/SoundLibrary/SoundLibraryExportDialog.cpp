@@ -51,10 +51,9 @@
 
 using namespace H2Core;
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup )
+SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit )
 	: QDialog( pParent )
 	, m_sPreselectedKit( sSelectedKit )
-	, m_preselectedKitLookup( lookup )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	// updating the drumkit list might take a while. Therefore, we
@@ -281,14 +280,6 @@ void SoundLibraryExportDialog::updateDrumkitList()
 			}
 			m_kit_components[info->get_name()] = p_components;
 		}
-	}
-
-	/*
-	 * If the export dialog was called from the soundlibrary panel via right click on
-	 * a soundlibrary, the variable preselectedKit holds the name of the selected drumkit
-	 */
-	if ( m_preselectedKitLookup == Filesystem::Lookup::system ) {
-		m_sPreselectedKit.append( m_sSysDrumkitSuffix );
 	}
 
 	int index = drumkitList->findText( m_sPreselectedKit );

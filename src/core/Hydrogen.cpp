@@ -1487,44 +1487,22 @@ bool Hydrogen::getIsModified() const {
 	return false;
 }
 
-void Hydrogen::setCurrentDrumkitName( const QString& sName ) {
+QString Hydrogen::getLastLoadedDrumkitPath() const {
 	if ( getSong() != nullptr ) {
-		if ( getSong()->getCurrentDrumkitName() != sName ) {
-			 getSong()->setCurrentDrumkitName( sName );
-			 getSong()->setIsModified( true );
-		}
-	} else {
-		ERRORLOG( "no song set yet" );
-	}
-}
-
-QString Hydrogen::getCurrentDrumkitName() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getCurrentDrumkitName();
+		return getSong()->getLastLoadedDrumkitPath();
 	}
 	ERRORLOG( "no song set yet" );
 
 	return "";
 }
 
-void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup ) {
+QString Hydrogen::getLastLoadedDrumkitName() const {
 	if ( getSong() != nullptr ) {
-		if ( getSong()->getCurrentDrumkitLookup() != lookup ) {
-			 getSong()->setCurrentDrumkitLookup( lookup );
-			 getSong()->setIsModified( true );
-		}
-	} else {
-		ERRORLOG( "no song set yet" );
-	}
-}
-
-Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getCurrentDrumkitLookup();
+		return getSong()->getLastLoadedDrumkitName();
 	}
 	ERRORLOG( "no song set yet" );
 
-	return Filesystem::Lookup::stacked;
+	return "";
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {

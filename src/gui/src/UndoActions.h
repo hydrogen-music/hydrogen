@@ -1079,7 +1079,7 @@ private:
 class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
-	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString sDrumkitName, QString sInstrumentName, int nSelectedInstrument ){
+	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString sDrumkitPath, QString sInstrumentName, int nSelectedInstrument ){
 		setText( QObject::tr( "Delete instrument " ) );
 
 		std::list < H2Core::Note *>::iterator pos;
@@ -1089,7 +1089,7 @@ public:
 			assert( pNote );
 			__noteList.push_back( pNote );
 		}
-		__drumkitName = sDrumkitName;
+		__drumkitPath = sDrumkitPath;
 		__instrumentName = sInstrumentName;
 		__nSelectedInstrument = nSelectedInstrument;
 	}
@@ -1107,7 +1107,7 @@ public:
 	{
 		//qDebug() << "delete Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDeleteInstrumentUndoAction( __noteList, __nSelectedInstrument, __instrumentName, __drumkitName );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDeleteInstrumentUndoAction( __noteList, __nSelectedInstrument, __instrumentName, __drumkitPath );
 	}
 	virtual void redo()
 	{
@@ -1119,7 +1119,7 @@ public:
 private:
 	std::list< H2Core::Note* > __noteList;
 	QString __instrumentName;
-	QString __drumkitName;
+	QString __drumkitPath;
 	int __nSelectedInstrument;
 };
 

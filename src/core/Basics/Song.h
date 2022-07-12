@@ -282,10 +282,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	QString makeComponentNameUnique( const QString& sComponentName ) const;
 
 
-	const QString& getCurrentDrumkitName() const;
-	void setCurrentDrumkitName( const QString& sName );
-	Filesystem::Lookup	getCurrentDrumkitLookup() const;
-	void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
+	const QString& getLastLoadedDrumkitName() const;
+	void setLastLoadedDrumkitName( const QString& sName );
+	const QString& getLastLoadedDrumkitPath() const;
+	void setLastLoadedDrumkitPath( const QString& sPath );
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -409,8 +409,24 @@ private:
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 	std::shared_ptr<Timeline> m_pTimeline;
 
-	QString m_sCurrentDrumkitName;
-	Filesystem::Lookup m_currentDrumkitLookup;
+	/** Unique identifier of the drumkit last loaded.
+	 *
+	 * As the instruments and corresponding samples use their own
+	 * drumkits stored within them, this variable only serves for
+	 * references when storing patterns, highlighting in the GUI, and
+	 * other helper purposes.
+	 *
+	 * It's only semi-useful to associate the last loaded drumkit with
+	 * a song as the user is free to remove instruments and add an
+	 * arbitrary number of instruments from other drumkits. But the
+	 * most common use case of Hydrogen is probably with a stack or
+	 * custom drumkit loaded and not altering the associated
+	 * instrument list.
+	 */
+	QString m_sLastLoadedDrumkitPath;
+	/** Convenience variable holding the name of the drumkit last
+	 * loaded. */
+	QString m_sLastLoadedDrumkitName;
 
 };
 
@@ -707,21 +723,21 @@ inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
 }
 
-inline const QString& Song::getCurrentDrumkitName() const
+inline const QString& Song::getLastLoadedDrumkitName() const
 {
-	return m_sCurrentDrumkitName;
+	return m_sLastLoadedDrumkitName;
 }
-inline void Song::setCurrentDrumkitName( const QString& sName )
+inline void Song::setLastLoadedDrumkitName( const QString& sName )
 {
-	m_sCurrentDrumkitName = sName;
+	m_sLastLoadedDrumkitName = sName;
 }
-inline Filesystem::Lookup Song::getCurrentDrumkitLookup() const
+inline const QString& Song::getLastLoadedDrumkitPath() const
 {
-	return m_currentDrumkitLookup;
+	return m_sLastLoadedDrumkitPath;
 }
-inline void Song::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
+inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
 {
-	m_currentDrumkitLookup = lookup;
+	m_sLastLoadedDrumkitPath = sPath;
 }
 };
 

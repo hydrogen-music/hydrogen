@@ -716,7 +716,7 @@ void InstrumentLine::functionDeleteInstrument()
 	std::list< Note* > noteList;
 
 	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
+	QString sDrumkitPath = pHydrogen->getLastLoadedDrumkitPath();
 
 	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
 		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -730,7 +730,7 @@ void InstrumentLine::functionDeleteInstrument()
 			}
 		}
 	}
-	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, sDrumkitName, sInstrumentName, m_nInstrumentNumber );
+	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, sDrumkitPath, sInstrumentName, m_nInstrumentNumber );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 

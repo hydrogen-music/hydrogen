@@ -687,8 +687,10 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	setStatusBarMessage( tr( "Drumkit loaded: [%1]" )
-						 .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ), 2000 );
+	setStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitName() )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitPath() ) ),
+						 2000 );
 }
 
 void HydrogenApp::songModifiedEvent()
