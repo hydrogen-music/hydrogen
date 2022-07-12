@@ -643,28 +643,31 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	QString sDrumkitName = pSelectedInstrument->get_drumkit_name();
-	Filesystem::Lookup lookup = pSelectedInstrument->get_drumkit_lookup();
+	// TODO: fix me
+	//
+	// auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	// QString sDrumkitName = pSelectedInstrument->get_drumkit_name();
+	// Filesystem::Lookup lookup = pSelectedInstrument->get_drumkit_lookup();
+	// Qstring sDrumkitPath = H2Core::Filesystem::load_by_name( sDrumkitName, lookup );
 
-	if ( lookup == Filesystem::Lookup::system ||
-		 lookup == Filesystem::Lookup::stacked ) {
-		for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-			if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitName ){
-				( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				return;
-			}
-		}
-	}
-	if ( lookup == Filesystem::Lookup::user ||
-		 lookup == Filesystem::Lookup::stacked ) {
-		for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-			if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitName ){
-				( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				break;
-			}
-		}
-	}
+	// if ( lookup == Filesystem::Lookup::system ||
+	// 	 lookup == Filesystem::Lookup::stacked ) {
+	// 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
+	// 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitName ){
+	// 			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+	// 			return;
+	// 		}
+	// 	}
+	// }
+	// if ( lookup == Filesystem::Lookup::user ||
+	// 	 lookup == Filesystem::Lookup::stacked ) {
+	// 	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
+	// 		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitName ){
+	// 			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+	// 			break;
+	// 		}
+	// 	}
+	// }
 }
 
 

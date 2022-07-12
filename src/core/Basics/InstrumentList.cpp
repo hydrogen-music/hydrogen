@@ -66,7 +66,7 @@ void InstrumentList::unload_samples()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& license, bool bSilent )
 {
 	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
@@ -86,7 +86,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 		}
 
 		auto pInstrument = Instrument::load_from( &instrumentNode, sDrumkitPath,
-												  sDrumkitName, license, bSilent );
+												  license, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
 		}

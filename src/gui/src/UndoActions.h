@@ -1040,13 +1040,12 @@ private:
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
-	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, H2Core::Filesystem::Lookup lookup ){
+	SE_dragInstrumentAction( QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument ){
 		setText( QObject::tr( "Drop instrument" ) );
-		__sDrumkitName = sDrumkitName;
+		__sDrumkitPath = sDrumkitPath;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
 		__addedComponents = new std::vector<int>();
-		m_lookup = lookup;
 	}
 
 	~SE_dragInstrumentAction()
@@ -1065,15 +1064,14 @@ public:
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents, m_lookup );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitPath, __sInstrumentName, __nTargetInstrument, __addedComponents );
 	}
 
 private:
-	QString __sDrumkitName;
+	QString __sDrumkitPath;
 	QString __sInstrumentName;
 	int __nTargetInstrument;
 	std::vector<int>* __addedComponents;
-	H2Core::Filesystem::Lookup m_lookup;
 };
 
 

@@ -661,7 +661,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
 	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
 	*/
-	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
+	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_path(), pInstr->get_name() );
 	auto pNewSample = Sample::load( pInstr->get_component( m_nSelectedComponent )->get_layer( selectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample != nullptr ){

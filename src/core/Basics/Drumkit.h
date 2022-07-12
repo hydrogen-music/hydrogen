@@ -67,16 +67,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * with the current XSD file.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load( const QString& dk_dir,
 							  const bool load_samples = false,
 							  bool bUpgrade = true,
-							  bool bSilent = false,
-							  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+							  bool bSilent = false );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -106,16 +103,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * with the current XSD file.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load_file( const QString& dk_path,
 								   const bool load_samples = false,
 								   bool bUpgrade = true,
-								   bool bSilent = true,
-								   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+								   bool bSilent = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -293,6 +287,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
+		 *
+		 * \param sDrumkitDir Path to #Drumkit
+		 * \return true on success
+		 */
+		static bool remove( const QString& sDrumkitDir );
+		/**
+		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
@@ -396,13 +397,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param dk_path the directory holding the drumkit data
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 */
 	static Drumkit* load_from( XMLNode* node,
 							   const QString& dk_path,
-							   bool bSilent = false,
-							   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+							   bool bSilent = false );
 
 	/**
 	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and

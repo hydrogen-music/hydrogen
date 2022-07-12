@@ -380,12 +380,10 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 	// Instrument List
 	//
-	// By supplying no drumkit path and name the individual
-	// drumkit meta infos stored in the 'instrument' nodes will be
-	// used.
+	// By supplying no drumkit path the individual drumkit meta infos
+	// stored in the 'instrument' nodes will be used.
 	auto pInstrumentList = InstrumentList::load_from( pRootNode,
 													  "", // sDrumkitPath
-													  "", // sDrumkitName
 													  License(), // per-instrument licenses
 													  bSilent );
 	if ( pInstrumentList == nullptr ) {
@@ -396,8 +394,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	pSong->setInstrumentList( pInstrumentList );
 
 	// TODO: fix me by providing a top-level drumkit path 
-	pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
-	pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
+	// pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
+	// pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( pRootNode,

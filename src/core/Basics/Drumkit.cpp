@@ -100,10 +100,10 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 		return nullptr;
 	}
 	
-	return load( sDrumkitPath, load_samples, true, false, lookup );
+	return load( sDrumkitPath, load_samples, true, false );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
@@ -111,7 +111,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 	}
 
 	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
-							   bUpgrade, bSilent, lookup );
+							   bUpgrade, bSilent );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
 	}
@@ -124,7 +124,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
 {
 	bool bReadingSuccessful = true;
 	
@@ -148,7 +148,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 
 	Drumkit* pDrumkit =
 		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
-							bSilent, lookup );
+							bSilent );
 	
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( dk_path ) );
@@ -166,7 +166,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent, Filesystem::Lookup lookup )
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
 {
 	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
 	if ( drumkit_name.isEmpty() ) {
@@ -221,7 +221,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 
 	auto pInstrumentList = InstrumentList::load_from( node,
 													  dk_path,
-													  drumkit_name,
 													  license, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
@@ -230,13 +229,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	}
 		
 	pDrumkit->set_instruments( pInstrumentList );
-
-	// propagate drumkit lookup
-	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
-		if ( ppInstrument != nullptr ) {
-			ppInstrument->set_drumkit_lookup( lookup );
-		}
-	}
 
 	// Instead of making the *::load_from() functions more complex by
 	// passing the license down to each sample, we will make the
@@ -654,18 +646,25 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 
 bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
 {
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
-	if( !Filesystem::drumkit_valid( sDrumkitDir ) ) {
+	return Drumkit::remove( Filesystem::drumkit_path_search( sDrumkitName, lookup ) );
+}
+
+bool Drumkit::remove( const QString& sDrumkitDir )
+{
+	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( sDrumkitDir ) );
 		return false;
 	}
-	_INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
-	if( !Filesystem::rm( sDrumkitDir, true ) ) {
-		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
+	
+	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	if ( ! Filesystem::rm( sDrumkitDir, true ) ) {
+		ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
 		return false;
 	}
 	return true;
 }
+
+
 
 void Drumkit::dump()
 {

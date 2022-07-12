@@ -993,8 +993,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		} else {
 			lookup = H2Core::Filesystem::Lookup::user;
 		}
+		QString sDrumkitPath =
+			H2Core::Filesystem::drumkit_path_search( sDrumkitName, lookup );
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, lookup );
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitPath, sInstrumentName, nTargetInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
