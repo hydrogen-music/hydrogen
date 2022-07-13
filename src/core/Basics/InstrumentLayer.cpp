@@ -221,15 +221,25 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2start_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __start_velocity ) )
-			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) )
-			.append( QString( "%1" ).arg( __sample->toQString( sPrefix + s, bShort ) ) );
-	} else {
+			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) );
+		if ( __sample != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( __sample->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2sample: nullptr\n" ).arg( sPrefix ).arg( s ) );
+		}
+	}
+	else {
 		sOutput = QString( "[InstrumentLayer]" )
 			.append( QString( " gain: %1" ).arg( __gain ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", start_velocity: %1" ).arg( __start_velocity ) )
-			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) )
-			.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
+			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) );
+		if ( __sample != nullptr ) { 
+			sOutput.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
+		} else {
+			sOutput.append( QString( ", sample: nullptr\n" ) );
+		}
 	}
 	
 	return sOutput;

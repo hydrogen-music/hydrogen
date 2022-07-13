@@ -466,13 +466,11 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			pInstrument->set_missing_samples( true );
 			break;
 		}
-		
+
 		for ( const auto& pLayer : *pComponent ) {
 			if ( pLayer == nullptr ) {
-				// ERRORLOG( "Invalid layer. Something went wrong loading the instrument" );
-				// pInstrument->set_muted( true );
-				// pInstrument->set_missing_samples( true );
-				// return pInstrument;
+				// The component is filled with nullptr up to
+				// InstrumentComponent::m_nMaxLayers.
 				continue;
 			}
 
