@@ -126,6 +126,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples(other->has_missing_samples())
 	, __drumkit_path( other->get_drumkit_path() )
+	, __drumkit_name( other->__drumkit_name )
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );
@@ -204,6 +205,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_id( pInstrument->get_id() );
 	this->set_name( pInstrument->get_name() );
 	this->set_drumkit_path( pDrumkit->get_path() );
+	this->__drumkit_name = pDrumkit->get_name();
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
 	this->setPan( pInstrument->getPan() );
@@ -251,7 +253,7 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 	delete pDrumkit;
 }
 
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& license, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
@@ -270,58 +272,75 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 									pNode->read_float( "Sustain", 1.0f, true, false, bSilent ),
 									pNode->read_int( "Release", 1000, true, false, bSilent ) ) );
 
-	QString sInstrumentDrumkitPath;
-	if ( sDrumkitPath.isEmpty() ) {
+	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
+	if ( sDrumkitPath.isEmpty() || sDrumkitName.isEmpty() ) {
 		// Instrument is not read as part of a Drumkit but as part of
 		// a Song. The drumkit meta info will be read from disk.
+		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
+													 false, bSilent );
 		
 		if ( ! pNode->firstChildElement( "drumkitPath" ).isNull() ) {
 			// Current format
 			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
 														 false, false, bSilent  );
+
+			// Check whether corresponding drumkit exist.
+			// When tweaking or assembling drumkits locally their
+			// absolute paths serve as unique identifiers to keep them
+			// apart. But in terms of portability (and to assure
+			// backward compatibility) paths are bad and we will use
+			// the drumkit name and check whether we can find the kit
+			// on the local system.
+			if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
+				WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
+							.arg( sInstrumentDrumkitPath )
+							.arg( sInstrumentDrumkitName ) );
+				sInstrumentDrumkitPath = "";
+			}
 		}
-		else if ( ! pNode->firstChildElement( "drumkitLookup" ).isNull() ) {
-			// Format introduced in #1f2a06b and used in (at least)
-			// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
-			//
-			// Using the additional lookup variable two drumkits holding
-			// the same name but one of the residing in user-space and
-			// the other one in system-space can be distinguished.
-			QString sDrumkitName = pNode->read_string( "drumkit", "", false,
-													   false, bSilent );
-			Filesystem::Lookup lookup =
-				static_cast<Filesystem::Lookup>(
-					pNode->read_int( "drumkitLookup",
-									 static_cast<int>(Filesystem::Lookup::stacked),
-									 false, false, bSilent ) );
+
+		if ( sInstrumentDrumkitPath.isEmpty() ) {
+			if ( ! pNode->firstChildElement( "drumkitLookup" ).isNull() ) {
+				// Format introduced in #1f2a06b and used in (at least)
+				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
+				//
+				// Using the additional lookup variable two drumkits holding
+				// the same name but one of the residing in user-space and
+				// the other one in system-space can be distinguished.
+				Filesystem::Lookup lookup =
+					static_cast<Filesystem::Lookup>(
+													pNode->read_int( "drumkitLookup",
+																	 static_cast<int>(Filesystem::Lookup::stacked),
+																	 false, false, bSilent ) );
 			
-			sInstrumentDrumkitPath =
-				Filesystem::drumkit_path_search( sDrumkitName, lookup, bSilent );
-		}
-		else if ( ! pNode->firstChildElement( "drumkit" ).isNull() ) {
-			// Format used from version 0.9.7 till 1.1.0.
-			//
-			// It features just the name of the drumkit an relies on
-			// it being unique throught the entire search path.
-			QString sDrumkitName = pNode->read_string( "drumkit", "", false,
-													   false, bSilent );
-			
-			sInstrumentDrumkitPath =
-				Filesystem::drumkit_path_search( sDrumkitName,
-												 Filesystem::Lookup::stacked,
-												 bSilent );
-		}
-		else {
-			// Format used prior to 0.9.7 which worked with absolute
-			// paths for the samples instead of relative ones.
-			sInstrumentDrumkitPath = "";
+				sInstrumentDrumkitPath =
+					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
+													 lookup, bSilent );
+			}
+			else if ( ! pNode->firstChildElement( "drumkit" ).isNull() ) {
+				// Format used from version 0.9.7 till 1.1.0.
+				//
+				// It features just the name of the drumkit an relies on
+				// it being unique throught the entire search path.
+				sInstrumentDrumkitPath =
+					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
+													 Filesystem::Lookup::stacked,
+													 bSilent );
+			}
+			else {
+				// Format used prior to 0.9.7 which worked with absolute
+				// paths for the samples instead of relative ones.
+				sInstrumentDrumkitPath = "";
+			}
 		}
 	}
 	else {
 		sInstrumentDrumkitPath = sDrumkitPath;
+		sInstrumentDrumkitName = sDrumkitName;
 	}
 	
 	pInstrument->set_drumkit_path( sInstrumentDrumkitPath );
+	pInstrument->__drumkit_name = sInstrumentDrumkitName;
 
 	
 	pInstrument->set_volume( pNode->read_float( "volume", 1.0f,
@@ -504,6 +523,7 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 
 	if ( bFull ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
+		InstrumentNode.write_string( "drumkit", __drumkit_name );
 	}
 	
 	InstrumentNode.write_float( "volume", __volume );
@@ -592,6 +612,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
 			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_path ) )
+			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
 			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
@@ -637,6 +658,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( " id: %1" ).arg( __id ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
 			.append( QString( ", drumkit_path: %1" ).arg( __drumkit_path ) )
+			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
 			.append( QString( ", volume: %1" ).arg( __volume ) )
 			.append( QString( ", pan: %1" ).arg( m_fPan ) )

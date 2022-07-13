@@ -166,18 +166,18 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
 {
-	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
-	if ( drumkit_name.isEmpty() ) {
+	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
+	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
 	}
 	
 	Drumkit* pDrumkit = new Drumkit();
 
-	pDrumkit->__path = dk_path;
-	pDrumkit->__name = drumkit_name;
+	pDrumkit->__path = sDrumkitPath;
+	pDrumkit->__name = sDrumkitName;
 	pDrumkit->__author = node->read_string( "author", "undefined author",
 											true, true, bSilent );
 	pDrumkit->__info = node->read_string( "info", "No information available.",
@@ -188,7 +188,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 					 pDrumkit->__author );
 	// Store license in cache of Hydrogen class in order to allow
 	// reuse it faster.
-	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, dk_path );
+	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, sDrumkitPath );
 	
 	pDrumkit->set_license( license );
 
@@ -220,7 +220,8 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	}
 
 	auto pInstrumentList = InstrumentList::load_from( node,
-													  dk_path,
+													  sDrumkitPath,
+													  sDrumkitName,
 													  license, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {

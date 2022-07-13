@@ -385,6 +385,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	// stored in the 'instrument' nodes will be used.
 	auto pInstrumentList = InstrumentList::load_from( pRootNode,
 													  "", // sDrumkitPath
+													  "", // sDrumkitName
 													  License(), // per-instrument licenses
 													  bSilent );
 	if ( pInstrumentList == nullptr ) {

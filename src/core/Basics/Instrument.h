@@ -129,7 +129,9 @@ class Instrument : public H2Core::Object<Instrument>
 		 * load an instrument from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit
-		 * data. If empty, it will be derived from @a sDrumkitName.
+		 * data. If empty, it will be read from @a pNode.
+		 * \param sDrumkitName Name of the drumkit found in @a
+		 * sDrumkitPath.
 		 * \param license License assigned to all Samples that will be
 		 * loaded. If empty, the license will be read from @a
 		 * sDrumkitPath.
@@ -140,6 +142,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 */
 		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
 													  const QString& sDrumkitPath = "",
+													  const QString& sDrumkitName = "",
 													  const License& license = License(),
 													  bool bSilent = false );
 
@@ -318,14 +321,22 @@ class Instrument : public H2Core::Object<Instrument>
 	        /** Name of the Instrument. It is set by set_name()
 		    and accessed via get_name().*/
 		QString					__name;
-	/** Path of the drumkit this instrument belongs to.
+	/** Path of the #Drumkit this #Instrument belongs to.
 	 *
-	 * An instrument belonging to a drumkit uses relative paths for
+	 * An instrument belonging to a #Drumkit uses relative paths for
 	 * its #Sample. Therefore we have to take care of mapping them to
 	 * absolute paths ourselves in case instruments of several
 	 * drumkits are mixed in one #Song.
 	 */
-		QString					__drumkit_path;
+	QString					__drumkit_path;
+	/** Name of the #Drumkit found at @a __drumkit_path.
+	 *
+	 * This helper variable should only be used during #Instrument
+	 * loading. It ensures portability of songs as absolute paths only
+	 * serve for unique identifiers locally and also ensures backward
+	 * compatibility.
+	 */
+	QString					__drumkit_name;
 	float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
 		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws

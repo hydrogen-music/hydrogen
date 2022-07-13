@@ -185,8 +185,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit
-		 * data
+		 * \param sDrumkitPath the directory holding the #Drumkit
+		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
 		 * \param license License assigned to all Samples that will be
 		 * loaded. If empty, the license will be read from @a dk_path.
 		 * \param bSilent if set to true, all log messages except of
@@ -194,7 +194,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
+	static InstrumentList* load_from( XMLNode* node,
+									  const QString& sDrumkitPath,
+									  const QString& sDrumkitName,
 									  const License& license = License(),
 									  bool bSilent = false );
 	/**
