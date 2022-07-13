@@ -20,7 +20,6 @@
  *
  */
 
-#include "SoundLibraryDatastructures.h"
 #include "SoundLibraryImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
@@ -33,7 +32,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Helpers/Filesystem.h>
-
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QTreeWidget>
 #include <QDomDocument>
@@ -264,7 +263,7 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 
 			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" || drumkitNode.toElement().tagName() == "pattern" ) {
 
-				SoundLibraryInfo soundLibInfo;
+				H2Core::SoundLibraryInfo soundLibInfo;
 
 				if ( drumkitNode.toElement().tagName() =="song" ) {
 					soundLibInfo.setType( "song" );
@@ -427,7 +426,7 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 
 
 /// Is the SoundLibrary already installed?
-bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo )
+bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo )
 {
 	// check if the filename matches with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
@@ -444,7 +443,8 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
-		return SoundLibraryDatabase::get_instance()->isPatternInstalled( sInfo.getName() );
+		return H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()
+			->isPatternInstalled( sInfo.getName() );
 	}
 
 	if ( sInfo.getType() == "song" ) {
@@ -498,7 +498,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 		QString selected = current->text(0);
 		for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 			if ( m_soundLibraryList[ i ].getName() == selected ) {
-				SoundLibraryInfo info = m_soundLibraryList[ i ];
+				H2Core::SoundLibraryInfo info = m_soundLibraryList[ i ];
 
 				//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
 
@@ -678,7 +678,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			}
 
 			// update the drumkit list
-			SoundLibraryDatabase::get_instance()->update();
+			H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 			updateSoundLibraryList();
@@ -727,7 +727,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 	try {
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
 		// update the drumkit list
-		SoundLibraryDatabase::get_instance()->update();
+		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 		QApplication::restoreOverrideCursor();

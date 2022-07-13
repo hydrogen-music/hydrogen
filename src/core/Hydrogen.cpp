@@ -64,6 +64,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/FX/LadspaFX.h>
 #include <core/FX/Effects.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -143,6 +144,8 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
+
+	m_pSoundLibraryDatabase = new SoundLibraryDatabase();
 }
 
 Hydrogen::~Hydrogen()
@@ -165,6 +168,7 @@ Hydrogen::~Hydrogen()
 	
 	__kill_instruments();
 
+	delete m_pSoundLibraryDatabase;
 	delete m_pCoreActionController;
 	delete m_pAudioEngine;
 

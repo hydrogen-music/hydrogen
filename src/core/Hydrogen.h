@@ -45,6 +45,8 @@ namespace H2Core
 {
 	class CoreActionController;
 	class AudioEngine;
+	class SoundLibraryDatabase;
+
 ///
 /// Hydrogen Audio Engine.
 ///
@@ -81,15 +83,18 @@ public:
 	 */
 	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
 
-	/*
-	 * return central instance of the audio engine
-	 */
-	AudioEngine*		getAudioEngine() const;
-
 	/**
 	 * Destructor taking care of most of the clean up.
 	 */
 	~Hydrogen();
+
+	/*
+	 * return central instance of the audio engine
+	 */
+	AudioEngine*		getAudioEngine() const;
+	SoundLibraryDatabase* getSoundLibraryDatabase() const {
+		return m_pSoundLibraryDatabase;
+	}
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -591,6 +596,8 @@ private:
 	 * expensive, this object will be used for caching.
 	 */
 	std::map<QString, License> m_licenseMap;
+
+	SoundLibraryDatabase* m_pSoundLibraryDatabase;
 
 	/** 
 	 * Constructor, entry point, and initialization of the

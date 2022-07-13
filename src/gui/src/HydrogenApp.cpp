@@ -47,8 +47,6 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "SoundLibrary/SoundLibraryDatastructures.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -95,7 +93,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pPreferencesUpdateTimer->setSingleShot( true );
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
-	SoundLibraryDatabase::create_instance();
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	//setup the undo stack
@@ -206,8 +203,6 @@ HydrogenApp::~HydrogenApp()
 	delete m_pPlaylistDialog;
 	delete m_pDirector;
 	delete m_pSampleEditor;
-
-	delete SoundLibraryDatabase::get_instance();
 
 	#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {

@@ -25,7 +25,6 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "SoundLibraryDatastructures.h"
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"
 
@@ -55,6 +54,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
 
@@ -158,13 +158,14 @@ void SoundLibraryPanel::updateDrumkitList()
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldFont.setBold( true );
 
-	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( childFont );
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
@@ -258,9 +259,10 @@ void SoundLibraryPanel::updateDrumkitList()
 			__pattern_item->setExpanded( __expand_pattern_list );
 			__pattern_item->setFont( 0, boldFont );
 		
-			SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
-			soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
-			QStringList allCategoryNameList = db->getAllPatternCategories();
+			soundLibraryInfoVector* allPatternDirList =
+				pHydrogen->getSoundLibraryDatabase()->getAllPatternInfos();
+			QStringList allCategoryNameList =
+				pHydrogen->getSoundLibraryDatabase()->getAllPatternCategories();
 
 			//now sorting via category
 
@@ -843,7 +845,7 @@ void SoundLibraryPanel::on_patternDeleteAction()
 		ERRORLOG( "Error removing the pattern" );
 	}
 
-	SoundLibraryDatabase::get_instance()->updatePatterns();
+	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns();
 	test_expandedItems();
 	updateDrumkitList();
 }

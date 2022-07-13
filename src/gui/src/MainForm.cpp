@@ -34,6 +34,7 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
@@ -907,7 +908,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	h2app->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
 	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
-		SoundLibraryDatabase::get_instance()->updatePatterns();
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 
