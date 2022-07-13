@@ -27,20 +27,11 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <vector>
-
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
 #include "../EventListener.h"
-
-namespace H2Core
-{
-	class Song;
-	class Drumkit;
-	class SoundLibrary;
-}
 
 class SoundLibraryTree;
 class ToggleButton;
@@ -100,12 +91,22 @@ private:
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
 
-	std::vector<H2Core::Drumkit*> __system_drumkit_info_list;
-	std::vector<H2Core::Drumkit*> __user_drumkit_info_list;
 	bool __expand_pattern_list;
 	bool __expand_songs_list;
 	void restore_background_color();
 	void change_background_color();
+
+	/**
+	 * Used to uniquely identify the drumkit corresponding to an item
+	 * in the tree. It maps the name used as label (key) to the
+	 * absolute path of the drumkit (value) also used as unique ID in
+	 * H2Core::Hydrogen::SoundLibraryDatabase::m_drumkitDatabase.
+	 */
+	std::map<QString,QString> m_drumkitRegister;
+	/** List of all labels used for drumkits in the tree.
+	 *
+	 * Used to ensure uniqueness.*/
+	QStringList m_drumkitLabels;
 
 	/** Whether the dialog was constructed via a click in the MainForm
 	 * or as part of the GUI.

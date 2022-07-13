@@ -32,6 +32,7 @@ SoundLibraryDatabase::SoundLibraryDatabase()
 {
 	
 	m_patternInfoVector = new soundLibraryInfoVector();
+	updateDrumkits();
 	updatePatterns();
 }
 
@@ -42,6 +43,10 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 		delete pPatternInfo;
 	}
 
+	for ( auto drumkitEntry : m_drumkitDatabase ) {
+		delete drumkitEntry.second;
+	}
+	
 	delete m_patternInfoVector;
 }
 
@@ -70,7 +75,39 @@ void SoundLibraryDatabase::update()
 {
 	updatePatterns();
 	//updateSongs();
-	//updateDrumkits();
+	updateDrumkits();
+}
+
+void SoundLibraryDatabase::updateDrumkits() {
+	m_drumkitDatabase.clear();
+
+	QStringList drumkitPaths;
+	for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
+		drumkitPaths << 
+			Filesystem::absolute_path( Filesystem::sys_drumkits_dir() + sDrumkitName );
+	}
+	for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
+		drumkitPaths <<
+			Filesystem::absolute_path( Filesystem::usr_drumkits_dir() + sDrumkitName );
+	}
+
+	for ( const auto& sDrumkitPath : drumkitPaths ) {
+		Drumkit* pDrumkit = Drumkit::load( sDrumkitPath, false );
+		if ( pDrumkit != nullptr ) {
+			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
+				 m_drumkitDatabase.end() ) {
+				ERRORLOG( QString( "A drumkit was already loaded from [%1]. Something went wrong." )
+						  .arg( sDrumkitPath ) );
+				continue;
+			}
+
+			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+		}
+	}
+}
+
+Drumkit* SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
+	return m_drumkitDatabase.at( Filesystem::absolute_path( sDrumkitPath ) );
 }
 
 void SoundLibraryDatabase::updatePatterns()

@@ -23,14 +23,14 @@
 #ifndef SOUNDLIBRARYDATASTRUCTURES_H
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
-
+#include <core/Basics/Drumkit.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
+#include <map>
 #include <vector>
 
 namespace H2Core
 {
-
 /**
 * @class SoundLibraryDatabase
 *
@@ -49,25 +49,34 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
 	H2_OBJECT(SoundLibraryDatabase)
 	public:
-		SoundLibraryDatabase();
-		~SoundLibraryDatabase();
+	SoundLibraryDatabase();
+	~SoundLibraryDatabase();
 
 	soundLibraryInfoVector* getAllPatternInfos() const {
 		return m_patternInfoVector;
 	}
-		QStringList getAllPatternCategories() const {
-			return m_patternCategories;
-		}
+	QStringList getAllPatternCategories() const {
+		return m_patternCategories;
+	}
 
-		void update();
-		void updatePatterns();
-		void printPatterns() const;
-		void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
-		bool isPatternInstalled( const QString& sPatternName) const;
+	void update();
 
-	private:
-		soundLibraryInfoVector* m_patternInfoVector;
-		QStringList m_patternCategories;
+	void updateDrumkits();
+	Drumkit* getDrumkit( const QString& sDrumkitPath ) const;
+	std::map<QString,Drumkit*> getDrumkitDatabase() const {
+		return m_drumkitDatabase;
+	}
+	
+	void updatePatterns();
+	void printPatterns() const;
+	void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
+	bool isPatternInstalled( const QString& sPatternName) const;
+
+private:
+	std::map<QString,Drumkit*> m_drumkitDatabase;
+	
+	soundLibraryInfoVector* m_patternInfoVector;
+	QStringList m_patternCategories;
 };
 }; // namespace H2Core
 
