@@ -410,6 +410,10 @@ CommonStrings::CommonStrings(){
 	m_sLicenseStringToolTip = tr( "License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license" );
 
 	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
+	
+	/*: Suffix appended to a drumkit, song, or pattern name in case it
+	 * is found on system-level and is read-only. */
+	m_sSoundLibrarySystemSuffix = tr( "system" );
 }
 
 CommonStrings::~CommonStrings(){

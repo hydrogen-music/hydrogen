@@ -149,6 +149,7 @@ void SoundLibraryPanel::updateTree()
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	__sound_library_tree->clear();
 
@@ -170,11 +171,22 @@ void SoundLibraryPanel::updateTree()
 
 	// drumkit list
 	m_drumkitRegister.clear();
+	m_drumkitLabels.clear();
 	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
 		Drumkit* pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
-			// Ensure uniqueness of the label.
 			QString sItemLabel = pDrumkit->get_name();
+
+			QTreeWidgetItem* pDrumkitItem;
+			if ( pDrumkit->isUserDrumkit() ) {
+				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
+			} else {
+				pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
+				sItemLabel.append( QString( " (%1)" )
+								   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
+			}
+
+			// Ensure uniqueness of the label.
 			int nCount = 1;
 			while ( m_drumkitLabels.contains( sItemLabel ) ) {
 				sItemLabel = QString( "%1 (%2)" )
@@ -184,13 +196,6 @@ void SoundLibraryPanel::updateTree()
 
 			m_drumkitLabels << sItemLabel;
 			m_drumkitRegister[ sItemLabel ] = pDrumkitEntry.first;
-
-			QTreeWidgetItem* pDrumkitItem;
-			if ( pDrumkit->isUserDrumkit() ) {
-				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
-			} else {
-				pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
-			}
 			
 			pDrumkitItem->setText( 0, sItemLabel );
 			if ( ! m_bInItsOwnDialog ) {
