@@ -21,8 +21,10 @@
  */
 
 #include "SoundLibraryExportDialog.h"
+#include "SoundLibraryPanel.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../InstrumentRack.h"
 
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
@@ -35,6 +37,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/DrumkitComponent.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QFileDialog>
 #include <QtGui>
@@ -51,28 +54,24 @@
 
 using namespace H2Core;
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit )
+SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
+													const QString& sSelectedDrumkitPath )
 	: QDialog( pParent )
-	, m_sPreselectedKit( sSelectedKit )
+	, m_sSelectedDrumkitPath( sSelectedDrumkitPath )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	// updating the drumkit list might take a while. Therefore, we
-	// show the user that this is expected behavior by showing a wait cursor.
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
 	setupUi( this );
+
+	updateDrumkitList();
 
 	exportBtn->setText( tr( "&Export" ) );
 	cancelBtn->setText( pCommonStrings->getButtonCancel() );
 	
 	setWindowTitle( tr( "Export Sound Library" ) );
-	m_sSysDrumkitSuffix = " (system)";
-	updateDrumkitList();
 	adjustSize();
 	setFixedSize( width(), height() );
 	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );
-	
-	QApplication::restoreOverrideCursor();
 }
 
 
@@ -80,13 +79,6 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 
 SoundLibraryExportDialog::~SoundLibraryExportDialog()
 {
-	INFOLOG( "DESTROY" );
-
-	for (uint i = 0; i < m_pDrumkitInfoList.size(); i++ ) {
-		Drumkit* info = m_pDrumkitInfoList[i];
-		delete info;
-	}
-	m_pDrumkitInfoList.clear();
 }
 
 
@@ -95,33 +87,12 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 
-	// The name of the drumkit is not something well defined within
-	// Hydrogen. Drumkit::load_by_name is expecting the name of the
-	// drumkit folder containing both the samples and drumkit.xml
-	// files. However, the name property stored in the latter, which
-	// is also used as Drumkit::__name can differ (and they actually
-	// do for a number of kits we host at SourceForge). Therefore,
-	// it's important to retrieve the kit from the list of drumkits
-	// used to create the different choices presented in the GUI.
-	Drumkit* pDrumkit = nullptr;
-	for ( const auto& ppKit : m_pDrumkitInfoList ) {
-		if ( ppKit->isUserDrumkit() ) {
-			if ( ppKit->get_name().compare( drumkitList->currentText() ) == 0 ) {
-				pDrumkit = ppKit;
-				break;
-			}
-		} else {
-			QString	sChosenName = drumkitList->currentText();
-			if ( sChosenName.contains( m_sSysDrumkitSuffix ) ) {
-				sChosenName.replace( m_sSysDrumkitSuffix, "" );
-				if ( ppKit->get_name().compare( sChosenName ) == 0 ) {
-					pDrumkit = ppKit;
-					break;
-				}
-			}
-		}
-	}
+	QString sDrumkitLabel = drumkitListComboBox->currentText();
+	QString sDrumkitPath = HydrogenApp::get_instance()->getInstrumentRack()
+		->getSoundLibraryPanel()->getDrumkitPath( sDrumkitLabel );
 
+	Drumkit* pDrumkit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+		->getDrumkit( sDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		QMessageBox::critical( this, "Hydrogen",
 							   tr("Unable to retrieve drumkit from sound library" ) );
@@ -210,7 +181,7 @@ void SoundLibraryExportDialog::on_cancelBtn_clicked()
 	accept();
 }
 
-void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
+void SoundLibraryExportDialog::on_drumkitListComboBox_currentIndexChanged( QString str )
 {
 	componentList->clear();
 
@@ -234,62 +205,40 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 
 void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
+	on_drumkitListComboBox_currentIndexChanged( drumkitListComboBox->currentText() );
 }
 
 void SoundLibraryExportDialog::updateDrumkitList()
 {
-	INFOLOG( "[updateDrumkitList]" );
+	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pSoundLibraryPanel = HydrogenApp::get_instance()->getInstrumentRack()
+		->getSoundLibraryPanel();
 
-	drumkitList->clear();
+	drumkitListComboBox->clear();
 
-	for ( auto pDrumkitInfo : m_pDrumkitInfoList ) {
-		delete pDrumkitInfo;
-	}
-	m_pDrumkitInfoList.clear();
+	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+		Drumkit* pDrumkit = pDrumkitEntry.second;
+		QString sDrumkitLabel = pSoundLibraryPanel->getDrumkitLabel( pDrumkitEntry.first );
 
-	QStringList sysDrumkits = Filesystem::sys_drumkit_list();
-	QString sDrumkitName;
-	for (int i = 0; i < sysDrumkits.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + sysDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath, false );
-		if (info) {
-			m_pDrumkitInfoList.push_back( info );
-			sDrumkitName = info->get_name() + m_sSysDrumkitSuffix;
-			drumkitList->addItem( sDrumkitName );
-			QStringList p_components;
-			for ( auto pComponent : *(info->get_components() ) ) {
-				p_components.append( pComponent->get_name() );
+		DEBUGLOG( QString( "first: %1, label: %2" ).arg( pDrumkitEntry.first ).arg( sDrumkitLabel ) );
+		if ( pDrumkit != nullptr && ! sDrumkitLabel.isEmpty() ) {
+			drumkitListComboBox->addItem( sDrumkitLabel );
+			QStringList components;
+			for ( auto pComponent : *(pDrumkit->get_components() ) ) {
+				components.append( pComponent->get_name() );
 			}
-			m_kit_components[ sDrumkitName ] = p_components;
+			m_kit_components[ sDrumkitLabel ] = components;
 		}
 	}
 
-	drumkitList->insertSeparator( drumkitList->count() );
-
-	QStringList userDrumkits = Filesystem::usr_drumkit_list();
-	for (int i = 0; i < userDrumkits.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + userDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath, false );
-		if (info) {
-			m_pDrumkitInfoList.push_back( info );
-			drumkitList->addItem( info->get_name() );
-			QStringList p_components;
-			for ( auto pComponent : *(info->get_components() ) ) {
-				p_components.append(pComponent->get_name());
-			}
-			m_kit_components[info->get_name()] = p_components;
-		}
-	}
-
-	int index = drumkitList->findText( m_sPreselectedKit );
-	if ( index >= 0) {
-		drumkitList->setCurrentIndex( index );
+	int nIndex = drumkitListComboBox->findText( m_sSelectedDrumkitPath );
+	if ( nIndex >= 0 ) {
+		drumkitListComboBox->setCurrentIndex( nIndex );
 	}
 	else {
-		drumkitList->setCurrentIndex( 0 );
+		drumkitListComboBox->setCurrentIndex( 0 );
 	}
 
-	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
+	on_drumkitListComboBox_currentIndexChanged( drumkitListComboBox->currentText() );
 	on_versionList_currentIndexChanged( 0 );
 }

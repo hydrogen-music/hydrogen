@@ -642,8 +642,6 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->openSong( pSong );
-	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	h2app->getSongEditorPanel()->updatePositionRuler();
 }
 
 
@@ -1250,7 +1248,7 @@ void MainForm::action_instruments_exportLibrary() {
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	SoundLibraryExportDialog exportDialog( this,
-										   pHydrogen->getLastLoadedDrumkitName() );
+										   pHydrogen->getLastLoadedDrumkitPath() );
 	exportDialog.exec();
 }
 
@@ -1276,8 +1274,9 @@ void MainForm::action_instruments_saveLibrary()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
-	Drumkit* pDrumkit = Drumkit::load( pHydrogen->getLastLoadedDrumkitPath(),
-									   false );
+	Drumkit* pDrumkit = pHydrogen->getSoundLibraryDatabase()->
+		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
+	
 	if ( pDrumkit != nullptr ){
 		if ( ! H2Core::Drumkit::save( pDrumkit->get_name(),
 									  pDrumkit->get_author(),
@@ -1289,7 +1288,6 @@ void MainForm::action_instruments_saveLibrary()
 									  pSong->getComponents(),
 									  true ) ) {
 			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
-			delete pDrumkit;
 			return;
 		}
 
@@ -1298,10 +1296,6 @@ void MainForm::action_instruments_saveLibrary()
 	else {
 		action_instruments_saveAsLibrary();
 	}
-
-	// Cleaning up the last pInfo we did not deleted due to the break
-	// statement.
-	delete pDrumkit;
 }
 
 
@@ -2300,8 +2294,9 @@ void MainForm::action_banks_properties()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	Drumkit* pDrumkit = Drumkit::load( pHydrogen->getLastLoadedDrumkitPath(),
-									   false );
+	Drumkit* pDrumkit = pHydrogen->getSoundLibraryDatabase()
+		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
+	
 	if ( pDrumkit != nullptr ){
 		SoundLibraryPropertiesDialog dialog( this, pDrumkit, pDrumkit, true );
 		dialog.exec();

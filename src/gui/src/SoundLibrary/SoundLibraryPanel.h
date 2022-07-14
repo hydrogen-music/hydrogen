@@ -45,9 +45,9 @@ public:
 	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );
 	~SoundLibraryPanel();
 
-	void updateTree();
-	void test_expandedItems();
-	void update_background_color();
+	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
+	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
+	
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void selectedInstrumentChangedEvent() override;
@@ -76,6 +76,10 @@ signals:
 	void item_changed(bool bDrumkitSelected);
 
 private:
+	void updateTree();
+	void test_expandedItems();
+	void update_background_color();
+	
 	SoundLibraryTree *__sound_library_tree;
 	//FileBrowser *m_pFileBrowser;
 

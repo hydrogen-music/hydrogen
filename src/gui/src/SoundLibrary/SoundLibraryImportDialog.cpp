@@ -31,6 +31,7 @@
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -526,49 +527,42 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				drumkitImageLabel->setPixmap( QPixmap() );
 				drumkitImageLabel->setText( info.getImage() );
 
-				if ( info.getImage().length() > 0 )
-				{
-					if ( isSoundLibraryItemAlreadyInstalled( info ) )
-					{
+				if ( info.getImage().length() > 0 ) {
+					if ( isSoundLibraryItemAlreadyInstalled( info ) ) {
 						// get image file from local disk
 						QString sName = QFileInfo( info.getUrl() ).fileName();
 						sName = sName.left( sName.lastIndexOf( "." ) );
 
-						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
-						if ( drumkitInfo )
-						{
+						H2Core::Drumkit* pDrumkit = H2Core::Hydrogen::get_instance()
+							->getSoundLibraryDatabase()->getDrumkit( info.getPath() );
+						if ( pDrumkit != nullptr ) {
 							// get the image from the local filesystem
-							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
-							INFOLOG("Loaded image " + drumkitInfo->get_image() + " from local filesystem");
+							QPixmap pixmap ( pDrumkit->get_path() + "/" + pDrumkit->get_image() );
+							INFOLOG("Loaded image " + pDrumkit->get_image() + " from local filesystem");
 							showImage( pixmap );
 						}
-						else
-						{
+						else {
 							___ERRORLOG ( "Error loading the drumkit" );
 						}
 
 					}
-					else
-					{
+					else {
 						// Try from the cache
 						QString cachedFile = readCachedImage( info.getImage() );
 						
-						if ( cachedFile.length() > 0 )
-						{
+						if ( cachedFile.length() > 0 ) {
 							QPixmap pixmap ( cachedFile );
 							showImage( pixmap );
 							INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
 						}
-						else
-						{
+						else {
 							// Get the drumkit's directory name from URL
 							//
 							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php
 							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
 							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-							if ( info.getImage().length() > 0 )
-							{
+							if ( info.getImage().length() > 0 ) {
 								QString sImageUrl;
 								QString sLocalFile;
 								
@@ -584,11 +578,6 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 							}
 						}
 					}
-				}
-				else
-				{
-					// no image file specified in drumkit.xml
-					INFOLOG( "No image for this kit specified in drumkit.xml on remote server" );
 				}
 				
 				DownloadBtn->setEnabled( true );

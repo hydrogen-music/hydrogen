@@ -33,6 +33,7 @@
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
 #include <core/Helpers/Xml.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/MidiOutput.h>
@@ -1174,6 +1175,16 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
 
 	Drumkit* pDrumkit = nullptr;
+
+	// Check whether Drumkit was already loaded and present in cache.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+		if ( pDrumkit != nullptr ) {
+			return pDrumkit;
+		}
+	}
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";

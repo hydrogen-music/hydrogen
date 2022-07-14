@@ -752,6 +752,8 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 		timelineActivationEvent();
 		selectedPatternChangedEvent();
 		updatePlaybackTrackIfNecessary();
+
+		updatePositionRuler();
 	}
 }
 

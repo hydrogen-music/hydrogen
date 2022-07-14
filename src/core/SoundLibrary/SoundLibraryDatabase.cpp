@@ -113,7 +113,13 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 }
 
 Drumkit* SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
-	return m_drumkitDatabase.at( Filesystem::absolute_path( sDrumkitPath ) );
+	QString sAbsoluteDrumkitPath = Filesystem::absolute_path( sDrumkitPath );
+	if ( m_drumkitDatabase.find( sAbsoluteDrumkitPath ) ==
+		 m_drumkitDatabase.end() ) {
+		return nullptr;
+	}
+	
+	return m_drumkitDatabase.at( sAbsoluteDrumkitPath );
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )

@@ -645,8 +645,32 @@ QStringList Filesystem::drumkit_list( const QString& path )
 	return ok;
 }
 QString Filesystem::drumkit_default_kit() {
-	return DRUMKIT_DEFAULT_KIT;
+	QString sDefaultPath = sys_drumkits_dir() + DRUMKIT_DEFAULT_KIT;
+
+	// GMRockKit does not exist at system-level? Let's pick another
+	// one.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::sys_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::sys_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	// There is no drumkit at system-level? Let's pick one from user-space.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::usr_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::usr_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	return sDefaultPath;
 }
+
 QStringList Filesystem::sys_drumkit_list( )
 {
 	return drumkit_list( sys_drumkits_dir() ) ;

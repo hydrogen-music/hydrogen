@@ -591,35 +591,43 @@ void SoundLibraryPanel::restore_background_color()
 	}
 }
 
+QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const {
+	for ( const auto& entry : m_drumkitRegister ) {
+		if ( entry.second == sDrumkitPath ) {
+			return entry.first;
+		}
+	}
 
+	return "";
+}
+QString SoundLibraryPanel::getDrumkitPath( const QString& sDrumkitLabel ) const {
+	return m_drumkitRegister.at( sDrumkitLabel );
+}
 
 void SoundLibraryPanel::change_background_color()
 {
-	// TODO: fix me
-	//
-	// auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	// QString sDrumkitName = pSelectedInstrument->get_drumkit_name();
-	// Filesystem::Lookup lookup = pSelectedInstrument->get_drumkit_lookup();
-	// Qstring sDrumkitPath = H2Core::Filesystem::load_by_name( sDrumkitName, lookup );
+	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
+	QString sDrumkitLabel = getDrumkitLabel( sDrumkitPath );
 
-	// if ( lookup == Filesystem::Lookup::system ||
-	// 	 lookup == Filesystem::Lookup::stacked ) {
-	// 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-	// 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitName ){
-	// 			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-	// 			return;
-	// 		}
-	// 	}
-	// }
-	// if ( lookup == Filesystem::Lookup::user ||
-	// 	 lookup == Filesystem::Lookup::stacked ) {
-	// 	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-	// 		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitName ){
-	// 			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-	// 			break;
-	// 		}
-	// 	}
-	// }
+	if ( sDrumkitLabel.isEmpty() ) {
+		ERRORLOG( QString( "Unable to find label corresponding to drumkit [%1]. No highlighting applied" )
+				  .arg( sDrumkitPath ) );
+		return;
+	}
+	
+	for ( int i = 0; i < __system_drumkits_item->childCount() ; i++){
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitLabel ){
+			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+			return;
+		}
+	}
+	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitLabel ){
+			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+			break;
+		}
+	}
 }
 
 
@@ -652,11 +660,9 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	bool success = Drumkit::remove( pItem->text(0), Filesystem::Lookup::user );
-	test_expandedItems();
-	updateTree();
+	bool bSuccess = Drumkit::remove( m_drumkitRegister[ pItem->text(0) ] );
 	QApplication::restoreOverrideCursor();
-	if ( !success) {
+	if ( ! bSuccess ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
 	}
 }
@@ -666,7 +672,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 void SoundLibraryPanel::on_drumkitExportAction()
 {
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	SoundLibraryExportDialog exportDialog( this, sDrumkitName );
+	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+	SoundLibraryExportDialog exportDialog( this, sDrumkitPath );
 	exportDialog.exec();
 }
 

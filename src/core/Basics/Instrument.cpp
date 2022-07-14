@@ -230,11 +230,24 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 
 void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrumentName )
 {
-	Drumkit* pDrumkit = Drumkit::load( sDrumkitPath,
-									   false, // load_samples
-									   true, // upgrade
-									   false // bSilent
-									   );
+	Drumkit* pDrumkit;
+	bool bDrumkitLoaded = false;
+	
+	// Try to retrieve the name from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+	}
+
+	if ( pDrumkit == nullptr ) {
+		pDrumkit = Drumkit::load( sDrumkitPath,
+								  false, // load_samples
+								  true, // upgrade
+								  false // bSilent
+								  );
+		bDrumkitLoaded = true;
+	}
+	
 	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )
@@ -250,8 +263,10 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 		ERRORLOG( QString( "Unable to load instrument: instrument [%1] could not be found in drumkit [%2]" )
 				  .arg( sInstrumentName ).arg( sDrumkitPath ) );
 	}
-	
-	delete pDrumkit;
+
+	if ( bDrumkitLoaded ) {
+		delete pDrumkit;
+	}
 }
 
 std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )

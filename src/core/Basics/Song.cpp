@@ -45,6 +45,7 @@
 #include <core/Hydrogen.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Sampler/Sampler.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -947,13 +948,28 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	pSong->setFilename( Filesystem::empty_song_path() );
 
-	auto pDrumkit = H2Core::Drumkit::load_by_name( Filesystem::drumkit_default_kit(), true );
+	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+	QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unabled to load default Drumkit [%1]" )
-				  .arg( Filesystem::drumkit_default_kit() ) );
-	} else {
+		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+			if ( pEntry.second != nullptr ) {
+				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
+							.arg( sDefaultDrumkitPath )
+							.arg( pEntry.first ) );
+				pDrumkit = pEntry.second;
+				break;
+			}
+		}
+	}
+
+	if ( pDrumkit != nullptr ) {
+		pDrumkit->get_instruments()->load_samples( pSong->getBpm() );
 		pSong->loadDrumkit( pDrumkit, true );
-		delete pDrumkit;
+	}
+	else {
+		ERRORLOG( "Unable to load drumkit" );
 	}
 	
 	pSong->setIsModified( false );

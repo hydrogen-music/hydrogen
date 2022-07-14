@@ -40,6 +40,7 @@
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
@@ -1810,6 +1811,8 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents)
 {
 	auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	
 	auto pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
 	if ( pNewInstrument == nullptr ||
@@ -1820,14 +1823,13 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		return;
 	}
 
-	Drumkit* pNewDrumkit = Drumkit::load( sDrumkitPath, false );
+	Drumkit* pNewDrumkit =
+		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	if( pNewDrumkit == nullptr ){
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitPath ) );
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
@@ -1871,7 +1873,6 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		
 	pOldInstrumentComponents->clear();
 	delete pOldInstrumentComponents;
-	delete pNewDrumkit;
 		
 	// create a new valid ID for this instrument
 	int nID = -1;

@@ -130,20 +130,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
 	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
-	/**
-	 * Simple wrapper for loadLicense() used with the drumkit's
-	 * name instead of its directory.
-	 *
-	 * Uses Filesystem::drumkit_path_search() to determine
-	 * the directory of the Drumkit from @a sDrumkitName.
-	 *
-	 * \param sDrumkitName Name of the Drumkit.
-	 * \param lookup Where to search (system/user folder or both)
-	 * for the drumkit.
-	 */
-	static License loadLicenseByNameFrom( const QString& sDrumkitName,
-										  Filesystem::Lookup lookup = Filesystem::Lookup::stacked,
-										  bool bSilent = false );
 
 	/**
 	 * Retrieve the name of a drumkit stored in @a sDrumkitDir.
@@ -292,14 +278,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return true on success
 		 */
 		static bool remove( const QString& sDrumkitDir );
-		/**
-		 * remove a drumkit from the disk
-		 * \param dk_name the drumkit name
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 * \return true on success
-		 */
-		static bool remove( const QString& dk_name, Filesystem::Lookup lookup );
 
 		/** set __instruments, delete existing one */
 		void set_instruments( InstrumentList* instruments );

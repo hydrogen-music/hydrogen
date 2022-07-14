@@ -45,6 +45,7 @@
 #include <core/Helpers/Legacy.h>
 
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -245,18 +246,18 @@ void Drumkit::load_samples()
 	}
 }
 
-License Drumkit::loadLicenseByNameFrom( const QString& sDrumkitName, Filesystem::Lookup lookup, bool bSilent )
-{
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup, bSilent );
-	if ( sDrumkitDir.isEmpty() ) {
-		return License();
-	}
-	
-	return loadLicenseFrom( sDrumkitDir, bSilent );
-}
-
 License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 {
+	// Try to retrieve the license from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
+		if ( pDrumkit != nullptr ) {
+			return pDrumkit->get_license();
+		}
+	}
+
 	XMLDoc doc;
 	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -279,6 +280,17 @@ License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 
 QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
 
+	// Try to retrieve the name from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
+		if ( pDrumkit != nullptr ) {
+			return pDrumkit->get_name();
+		}
+	}
+
+	// No entry in cache found. Loading it from disk
 	XMLDoc doc;
 	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -641,11 +653,6 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 	return __instruments->summarizeContent( __components );
 }
 
-bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
-{
-	return Drumkit::remove( Filesystem::drumkit_path_search( sDrumkitName, lookup ) );
-}
-
 bool Drumkit::remove( const QString& sDrumkitDir )
 {
 	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
@@ -658,6 +665,8 @@ bool Drumkit::remove( const QString& sDrumkitDir )
 		ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
 		return false;
 	}
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	return true;
 }
 
