@@ -24,6 +24,7 @@
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
+#include "../CommonStrings.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -1808,12 +1809,14 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 
 void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents)
 {
+	auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
+	
 	auto pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
 	if ( pNewInstrument == nullptr ||
 		 ( pNewInstrument->get_name() == "Empty Instrument" &&
 		   pNewInstrument->get_drumkit_path().isEmpty() ) ){
 		// Under normal circumstances this should not been reached.
-		QMessageBox::critical( this, "Hydrogen", tr( "Unable to load instrument" ) );
+		QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
 		return;
 	}
 

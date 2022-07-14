@@ -136,6 +136,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
 	
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
+	const QString& getInstrumentLoadError() const { return m_sInstrumentLoadError; }
 
 	const QString& getStatusOn() const { return m_sStatusOn; }
 	const QString& getStatusOff() const { return m_sStatusOff; }
@@ -265,6 +266,7 @@ private:
 	QString m_sMidiSenseUnavailable;
 
 	QString m_sPatternLoadError;
+	QString m_sInstrumentLoadError;
 	
 	QString m_sStatusOn;
 	QString m_sStatusOff;

@@ -914,9 +914,11 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		event->ignore();
 		return;
 	}
-	
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->size();
+
+	auto pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pInstrumentList = pSong->getInstrumentList();
+	int nInstruments = pInstrumentList->size();
 	if ( nInstruments >= MAX_INSTRUMENTS ) {
 		event->ignore();
 		QMessageBox::critical( this, "Hydrogen", tr( "Unable to insert further instruments. Maximum possible number" ) +
@@ -936,7 +938,6 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 	if (sText.startsWith("move instrument:")) {
 
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 		// Starting point for instument list is 50 lower than
@@ -946,8 +947,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		int nTargetInstrument = pos_y / m_nGridHeight;
 
-		if( nTargetInstrument >= pHydrogen->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = pHydrogen->getSong()->getInstrumentList()->size() - 1;
+		if( nTargetInstrument >= pInstrumentList->size() ){
+			nTargetInstrument = pInstrumentList->size() - 1;
 		}
 
 		if ( nSourceInstrument == nTargetInstrument ) {
@@ -966,9 +967,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
-		QString sDrumkitScope = tokens.at( 0 );
-		QString sDrumkitName = tokens.at( 1 );
-		QString sInstrumentName = tokens.at( 2 );
+		QString sDrumkitPath = tokens.at( 0 );
+		QString sInstrumentName = tokens.at( 1 );
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
@@ -980,21 +980,16 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 		}
 
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		if( nTargetInstrument > pHydrogen->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = pHydrogen->getSong()->getInstrumentList()->size();
+		if( nTargetInstrument > pInstrumentList->size() ){
+			nTargetInstrument = pInstrumentList->size();
 		}
 
-		// Check whether the drumkit was chosen amongst the system's
-		// or user's set.
-		H2Core::Filesystem::Lookup lookup;
-	  	if ( sDrumkitScope == "system" ) {
-			lookup = H2Core::Filesystem::Lookup::system;
-		} else {
-			lookup = H2Core::Filesystem::Lookup::user;
+		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
+		
+		if ( sDrumkitPath.isEmpty() ) {
+			QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
+			return;
 		}
-		QString sDrumkitPath =
-			H2Core::Filesystem::drumkit_path_search( sDrumkitName, lookup );
 
 		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitPath, sInstrumentName, nTargetInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );

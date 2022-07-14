@@ -332,6 +332,7 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
 	/*: Displayed within a status message when activating a widget.*/
 	m_sStatusOn = tr( "on" );
