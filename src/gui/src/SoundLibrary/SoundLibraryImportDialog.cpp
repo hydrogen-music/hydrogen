@@ -84,8 +84,9 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 
 SoundLibraryImportDialog::~SoundLibraryImportDialog()
 {
-	INFOLOG( "DESTROY" );
-
+	if ( auto pH2App = HydrogenApp::get_instance() ) {
+		pH2App->removeEventListener( this );
+	}
 }
 
 //update combo box
@@ -422,7 +423,9 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 
 }
 
-
+void SoundLibraryImportDialog::soundLibraryChangedEvent() {
+	updateSoundLibraryList();
+}
 
 
 /// Is the SoundLibrary already installed?
@@ -679,9 +682,6 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 			// update the drumkit list
 			H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
-			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-			HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
-			updateSoundLibraryList();
 			QApplication::restoreOverrideCursor();
 			return;
 		}
@@ -728,10 +728,10 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
 		// update the drumkit list
 		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 		QApplication::restoreOverrideCursor();
-		QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
+		QMessageBox::information( this, "Hydrogen",
+								  QString( tr( "SoundLibrary imported in %1" )
+										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();

@@ -61,13 +61,13 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 
 	void update();
 
-	void updateDrumkits();
+	void updateDrumkits( bool bTriggerEvent = true );
 	Drumkit* getDrumkit( const QString& sDrumkitPath ) const;
 	std::map<QString,Drumkit*> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 	
-	void updatePatterns();
+	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
 	void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
 	bool isPatternInstalled( const QString& sPatternName) const;

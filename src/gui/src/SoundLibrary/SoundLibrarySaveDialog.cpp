@@ -23,6 +23,7 @@
 #include "SoundLibrarySaveDialog.h"
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
@@ -110,9 +111,12 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 		return;
 	}
 
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
 	bool Overwrite = false;
 
-	if(H2Core::Drumkit::user_drumkit_exists( nameTxt->text() )){
+	if( H2Core::Drumkit::user_drumkit_exists( nameTxt->text() ) ){
 		QMessageBox msgBox;
 		msgBox.setText(tr("A library with the same name already exists. Do you want to overwrite the existing library?"));
 		msgBox.setIcon(QMessageBox::Warning);
@@ -135,12 +139,14 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 								licenseTxt->text(),
 								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
 								imageLicenseText->text(),
-								H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
-								H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
+								pSong->getInstrumentList(),
+								pSong->getComponents(),
 								Overwrite ) ) {
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		return;
 	}
+	
+	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 
 	accept();
 }

@@ -45,12 +45,13 @@ public:
 	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );
 	~SoundLibraryPanel();
 
-	void updateDrumkitList();
+	void updateTree();
 	void test_expandedItems();
 	void update_background_color();
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void selectedInstrumentChangedEvent() override;
+	virtual void soundLibraryChangedEvent() override;
 
 public slots:
 	void on_drumkitLoadAction();

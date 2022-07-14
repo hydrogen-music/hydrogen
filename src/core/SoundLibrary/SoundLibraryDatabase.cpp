@@ -23,6 +23,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 
 namespace H2Core
@@ -32,8 +33,7 @@ SoundLibraryDatabase::SoundLibraryDatabase()
 {
 	
 	m_patternInfoVector = new soundLibraryInfoVector();
-	updateDrumkits();
-	updatePatterns();
+	update();
 }
 
 SoundLibraryDatabase::~SoundLibraryDatabase()
@@ -73,12 +73,14 @@ bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName ) con
 
 void SoundLibraryDatabase::update()
 {
-	updatePatterns();
+	updatePatterns( false );
 	//updateSongs();
-	updateDrumkits();
+	updateDrumkits( false );
+	
+	EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
 }
 
-void SoundLibraryDatabase::updateDrumkits() {
+void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	m_drumkitDatabase.clear();
 
 	QStringList drumkitPaths;
@@ -104,13 +106,17 @@ void SoundLibraryDatabase::updateDrumkits() {
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
 	}
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+	}
 }
 
 Drumkit* SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
 	return m_drumkitDatabase.at( Filesystem::absolute_path( sDrumkitPath ) );
 }
 
-void SoundLibraryDatabase::updatePatterns()
+void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 {
 	for ( auto ppPattern : *m_patternInfoVector ) {
 		delete ppPattern;
@@ -124,6 +130,10 @@ void SoundLibraryDatabase::updatePatterns()
 	}
 	// search patterns user directory
 	getPatternFromDirectory( Filesystem::patterns_dir(), m_patternInfoVector);
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+	}
 }
 
 void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* m_patternInfoVector )

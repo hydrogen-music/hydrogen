@@ -32,6 +32,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -305,6 +306,8 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	bool reload = false;
@@ -359,7 +362,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkitInfo != nullptr && ( !saveChanges_checkBox->isChecked() ) ){
 		if ( m_pPreDrumkitInfo->get_name() != m_pDrumkitInfo->get_name() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ){
-			Hydrogen::get_instance()->loadDrumkit( m_pDrumkitInfo );
+			pHydrogen->loadDrumkit( m_pDrumkitInfo );
 		}
 	}
 
@@ -421,8 +424,8 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 									m_pDrumkitInfo->get_license(),
 									m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image(),
 									m_pDrumkitInfo->get_image_license(),
-									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
-									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
+									pSong->getInstrumentList(),
+									pSong->getComponents(),
 									true ) ) {
 			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 			ERRORLOG( "Saving of this drumkit failed." );
@@ -431,16 +434,15 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//check pre loaded drumkit name  and reload the old drumkit
 	if ( m_pPreDrumkitInfo != nullptr && m_pDrumkitInfo != nullptr){
-		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getLastLoadedDrumkitName() ||
+		if ( m_pPreDrumkitInfo->get_name() != pHydrogen->getLastLoadedDrumkitName() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
-			Hydrogen::get_instance()->loadDrumkit( m_pPreDrumkitInfo );
+			pHydrogen->loadDrumkit( m_pPreDrumkitInfo );
 		}
 	}
 
 	//reload if necessary
 	if ( reload == true ){
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 	}
 
 	accept();

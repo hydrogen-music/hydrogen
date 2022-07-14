@@ -1944,8 +1944,6 @@ void SongEditorPatternList::patternPopup_save()
 	pHydrogenApp->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
 	pHydrogen->getSoundLibraryDatabase()->updatePatterns();
-	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 	
 	setRowSelection( RowSelection::None );
 }

@@ -26,6 +26,7 @@
 
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <QNetworkReply>
+#include "../EventListener.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -35,13 +36,18 @@
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
 /** \ingroup docGUI*/
-class SoundLibraryImportDialog :  public QDialog, public Ui_SoundLibraryImportDialog_UI,  public H2Core::Object<SoundLibraryImportDialog>
+class SoundLibraryImportDialog :  public QDialog,
+								  public Ui_SoundLibraryImportDialog_UI,
+								  public H2Core::Object<SoundLibraryImportDialog>,
+								  public EventListener
 {
     H2_OBJECT(SoundLibraryImportDialog)
 	Q_OBJECT
 	public:
 		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );
 		~SoundLibraryImportDialog();
+
+	virtual void soundLibraryChangedEvent() override;
 
 	signals:
 

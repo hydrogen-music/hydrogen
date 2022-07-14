@@ -909,8 +909,6 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
 		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 
 	}
 }
@@ -1281,23 +1279,25 @@ void MainForm::action_instruments_saveLibrary()
 	Drumkit* pDrumkit = Drumkit::load( pHydrogen->getLastLoadedDrumkitPath(),
 									   false );
 	if ( pDrumkit != nullptr ){
-		if ( !H2Core::Drumkit::save( pDrumkit->get_name(),
-									 pDrumkit->get_author(),
-									 pDrumkit->get_info(),
-									 pDrumkit->get_license(),
-									 pDrumkit->get_image(),
-									 pDrumkit->get_image_license(),
-									 pSong->getInstrumentList(),
-									 pSong->getComponents(),
-									 true ) ) {
+		if ( ! H2Core::Drumkit::save( pDrumkit->get_name(),
+									  pDrumkit->get_author(),
+									  pDrumkit->get_info(),
+									  pDrumkit->get_license(),
+									  pDrumkit->get_image(),
+									  pDrumkit->get_image_license(),
+									  pSong->getInstrumentList(),
+									  pSong->getComponents(),
+									  true ) ) {
 			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
+			delete pDrumkit;
+			return;
 		}
+
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 	}
 	else {
 		action_instruments_saveAsLibrary();
 	}
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 
 	// Cleaning up the last pInfo we did not deleted due to the break
 	// statement.
@@ -1309,8 +1309,6 @@ void MainForm::action_instruments_saveAsLibrary()
 {
 	SoundLibrarySaveDialog dialog( this );
 	dialog.exec();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
 

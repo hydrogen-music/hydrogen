@@ -28,7 +28,6 @@
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"
 
-#include "SoundLibrarySaveDialog.h"
 #include "SoundLibraryPropertiesDialog.h"
 #include "SoundLibraryExportDialog.h"
 
@@ -128,7 +127,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
-	updateDrumkitList();
+	updateTree();
 	
 	HydrogenApp::get_instance()->addEventListener(this);
 }
@@ -144,7 +143,7 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 
 
-void SoundLibraryPanel::updateDrumkitList()
+void SoundLibraryPanel::updateTree()
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -655,7 +654,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	bool success = Drumkit::remove( pItem->text(0), Filesystem::Lookup::user );
 	test_expandedItems();
-	updateDrumkitList();
+	updateTree();
 	QApplication::restoreOverrideCursor();
 	if ( !success) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
@@ -751,10 +750,12 @@ void SoundLibraryPanel::on_patternDeleteAction()
 	}
 
 	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns();
-	test_expandedItems();
-	updateDrumkitList();
 }
 
+void SoundLibraryPanel::soundLibraryChangedEvent() {
+	test_expandedItems();
+	updateTree();
+}
 
 void SoundLibraryPanel::test_expandedItems()
 {
