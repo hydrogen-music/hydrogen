@@ -37,7 +37,7 @@
 namespace H2Core
 {
 
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumkit, bool bCurrentDrumkit )
+SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkitInfo, std::shared_ptr<Drumkit> pPreDrumkit, bool bCurrentDrumkit )
  : QDialog( pParent )
  , m_pDrumkitInfo( pDrumkitInfo )
  , m_pPreDrumkitInfo( pPreDrumkit )

@@ -745,7 +745,7 @@ MidiOutput* Hydrogen::getMidiOutput() const
 }
 
 
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
+int Hydrogen::loadDrumkit( std::shared_ptr<Drumkit> pDrumkitInfo, bool bConditional )
 {
 	assert ( pDrumkitInfo );
 	auto pSong = getSong();

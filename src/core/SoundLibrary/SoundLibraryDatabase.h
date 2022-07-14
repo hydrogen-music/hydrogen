@@ -62,8 +62,8 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	void update();
 
 	void updateDrumkits( bool bTriggerEvent = true );
-	Drumkit* getDrumkit( const QString& sDrumkitPath ) const;
-	const std::map<QString,Drumkit*> getDrumkitDatabase() const {
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath ) const;
+	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 	
@@ -73,7 +73,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	bool isPatternInstalled( const QString& sPatternName) const;
 
 private:
-	std::map<QString,Drumkit*> m_drumkitDatabase;
+	std::map<QString,std::shared_ptr<Drumkit>> m_drumkitDatabase;
 	
 	soundLibraryInfoVector* m_patternInfoVector;
 	QStringList m_patternCategories;

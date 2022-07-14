@@ -62,7 +62,7 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 	__instruments = new InstrumentList();
 }
 
-Drumkit::Drumkit( Drumkit* other ) :
+Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	Object(),
 	__path( other->get_path() ),
 	__name( other->get_name() ),
@@ -94,7 +94,7 @@ Drumkit::~Drumkit()
 	}
 }
 
-Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
+std::shared_ptr<Drumkit> Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
 {
 	QString sDrumkitPath = Filesystem::drumkit_path_search( dk_name, lookup );
 	if ( sDrumkitPath.isEmpty() ) {
@@ -104,7 +104,7 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 	return load( sDrumkitPath, load_samples, true, false );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
@@ -125,7 +125,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
 {
 	bool bReadingSuccessful = true;
 	
@@ -147,7 +147,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 		return nullptr;
 	}
 
-	Drumkit* pDrumkit =
+	auto pDrumkit =
 		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
 							bSilent );
 	
@@ -167,7 +167,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
 {
 	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
@@ -175,7 +175,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bS
 		return nullptr;
 	}
 	
-	Drumkit* pDrumkit = new Drumkit();
+	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
 	pDrumkit->__path = sDrumkitPath;
 	pDrumkit->__name = sDrumkitName;
@@ -333,7 +333,7 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 	return true;
 }
 	
-void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )
+void Drumkit::upgrade_drumkit(std::shared_ptr<Drumkit> pDrumkit, const QString& dk_path, bool bSilent )
 {
 	if( pDrumkit != nullptr ) {
 		if ( ! Filesystem::file_exists( dk_path, true ) ) {
@@ -395,7 +395,7 @@ bool Drumkit::save( const QString&					sName,
                     std::vector<DrumkitComponent*>* pComponents,
                     bool 							bOverwrite )
 {
-	Drumkit* pDrumkit = new Drumkit();
+	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 	pDrumkit->set_name( sName );
 	pDrumkit->set_author( sAuthor );
 	pDrumkit->set_info( sInfo );
@@ -420,7 +420,6 @@ bool Drumkit::save( const QString&					sName,
 	pDrumkit->set_components( pCopiedVector );
 	
 	bool bRet = pDrumkit->save( bOverwrite );
-	delete pDrumkit;
 
 	return bRet;
 }

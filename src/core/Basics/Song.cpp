@@ -1204,7 +1204,7 @@ void Song::setPanLawKNorm( float fKNorm ) {
 	}
 }
 
-void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
+void Song::loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );

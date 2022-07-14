@@ -42,10 +42,6 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 	for ( auto pPatternInfo : *m_patternInfoVector ) {
 		delete pPatternInfo;
 	}
-
-	for ( auto drumkitEntry : m_drumkitDatabase ) {
-		delete drumkitEntry.second;
-	}
 	
 	delete m_patternInfoVector;
 }
@@ -94,7 +90,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	}
 
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		Drumkit* pDrumkit = Drumkit::load( sDrumkitPath, false );
+		auto pDrumkit = Drumkit::load( sDrumkitPath, false );
 		if ( pDrumkit != nullptr ) {
 			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
 				 m_drumkitDatabase.end() ) {
@@ -112,7 +108,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	}
 }
 
-Drumkit* SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
 	QString sAbsoluteDrumkitPath = Filesystem::absolute_path( sDrumkitPath );
 	if ( m_drumkitDatabase.find( sAbsoluteDrumkitPath ) ==
 		 m_drumkitDatabase.end() ) {

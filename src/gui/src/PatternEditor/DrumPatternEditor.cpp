@@ -1823,7 +1823,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		return;
 	}
 
-	Drumkit* pNewDrumkit =
+	auto pNewDrumkit =
 		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	if( pNewDrumkit == nullptr ){
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitPath ) );

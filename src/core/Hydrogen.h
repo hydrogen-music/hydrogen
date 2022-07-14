@@ -23,6 +23,7 @@
 #define HYDROGEN_H
 
 #include <core/config.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>
 #include <core/Object.h>
@@ -31,7 +32,6 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Timehelper.h>
 
@@ -234,7 +234,7 @@ public:
 		 *
 		 * \returns 0 on success.
 		 */
-		int			loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
+		int			loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
 
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/

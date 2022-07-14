@@ -173,7 +173,7 @@ void SoundLibraryPanel::updateTree()
 	m_drumkitRegister.clear();
 	m_drumkitLabels.clear();
 	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
-		Drumkit* pDrumkit = pDrumkitEntry.second;
+		auto pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
 			QString sItemLabel = pDrumkit->get_name();
 
@@ -482,7 +482,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-	Drumkit* pDrumkit =
+	auto pDrumkit =
 		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	
 	if ( pDrumkit == nullptr ) {
@@ -686,7 +686,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-	Drumkit* pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
 	
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
@@ -694,7 +694,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		return;
 	}
 
-	Drumkit* pPreDrumkit =
+	auto pPreDrumkit =
 		pSoundLibraryDatabase->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
 
 	if ( pPreDrumkit == nullptr ){

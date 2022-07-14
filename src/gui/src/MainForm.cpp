@@ -1274,7 +1274,7 @@ void MainForm::action_instruments_saveLibrary()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
-	Drumkit* pDrumkit = pHydrogen->getSoundLibraryDatabase()->
+	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->
 		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
 	
 	if ( pDrumkit != nullptr ){
@@ -2294,7 +2294,7 @@ void MainForm::action_banks_properties()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	Drumkit* pDrumkit = pHydrogen->getSoundLibraryDatabase()
+	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
 		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
 	
 	if ( pDrumkit != nullptr ){
@@ -2303,7 +2303,6 @@ void MainForm::action_banks_properties()
 
 		// Cleaning up the last ppKit we did not deleted due to the break
 		// statement.
-		delete pDrumkit;
 	}
 	else {
 		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")

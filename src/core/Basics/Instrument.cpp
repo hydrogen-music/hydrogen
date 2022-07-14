@@ -151,7 +151,7 @@ std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument )
+void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<Instrument> pInstrument )
 {
 	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
@@ -230,8 +230,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 
 void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrumentName )
 {
-	Drumkit* pDrumkit;
-	bool bDrumkitLoaded = false;
+	std::shared_ptr<Drumkit> pDrumkit;
 	
 	// Try to retrieve the name from cache first.
 	auto pHydrogen = Hydrogen::get_instance();
@@ -245,7 +244,6 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 								  true, // upgrade
 								  false // bSilent
 								  );
-		bDrumkitLoaded = true;
 	}
 	
 	assert( pDrumkit );
@@ -262,10 +260,6 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 	else {
 		ERRORLOG( QString( "Unable to load instrument: instrument [%1] could not be found in drumkit [%2]" )
 				  .arg( sInstrumentName ).arg( sDrumkitPath ) );
-	}
-
-	if ( bDrumkitLoaded ) {
-		delete pDrumkit;
 	}
 }
 

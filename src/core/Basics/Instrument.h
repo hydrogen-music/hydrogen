@@ -96,7 +96,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument );
+		void load_from( std::shared_ptr<Drumkit> drumkit, std::shared_ptr<Instrument> instrument );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member

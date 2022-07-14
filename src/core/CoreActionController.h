@@ -24,6 +24,7 @@
 #define CORE_ACTION_CONTROLLER_H
 
 #include <vector>
+#include <memory>
 
 #include <core/Object.h>
 #include <core/Basics/Song.h>
@@ -273,7 +274,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * \param bConditional Whether to remove all redundant
 	 * H2Core::Instrument regardless of their content.
 	 */
-	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
+	bool loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
 	/** 
 	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
 	 *
@@ -402,8 +403,8 @@ private:
 	 * containing the extracted drumkit in case @a sDrumkitPath
 	 * pointed to a compressed .h2drumkit file.
 	 */
-	Drumkit* retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
-							  QString* sDrumkitDir, QString* sTemporaryFolder );
+	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
+											  QString* sDrumkitDir, QString* sTemporaryFolder );
 	/**
 	 * Add @a sFilename to the list of recent songs in
 	 * Preferences::m_recentFiles.

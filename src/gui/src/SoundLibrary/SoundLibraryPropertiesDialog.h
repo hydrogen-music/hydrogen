@@ -24,15 +24,15 @@
 #define SOUND_LIBRARY_PROPERTIES_DIALOG_H
 
 #include "ui_SoundLibraryPropertiesDialog_UI.h"
-#include <core/Object.h>
 #include "../Widgets/WidgetWithLicenseProperty.h"
+
+#include <core/Basics/Drumkit.h>
+#include <core/Object.h>
 
 ///
 ///
 namespace H2Core
 {
-
-class Drumkit;
 
 /** \ingroup docGUI*/
 class SoundLibraryPropertiesDialog :  public QDialog,
@@ -44,8 +44,8 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	Q_OBJECT
 	public:
 		SoundLibraryPropertiesDialog( QWidget* pParent,
-									  Drumkit* pDrumkit,
-									  Drumkit* pPreDrumKit,
+									  std::shared_ptr<Drumkit> pDrumkit,
+									  std::shared_ptr<Drumkit> pPreDrumKit,
 									  bool bCurrentDrumkit );
 		~SoundLibraryPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
@@ -60,14 +60,14 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	void updateLicenseTable();
 		void updateImage( QString& filename );
 		/** The one selected by the user */
-		Drumkit* m_pDrumkitInfo;
+		std::shared_ptr<Drumkit> m_pDrumkitInfo;
 		/** The one currently loaded in Hydrogen.
 		 *
 		 * Since changes to a drumkit can only the saved correctly
 		 * when first loading it, we need to keep a pointer to the
 		 * current one in order to restore it.
 		 */
-		Drumkit* m_pPreDrumkitInfo;
+		std::shared_ptr<Drumkit> m_pPreDrumkitInfo;
 
 	/**
 	 * Specifies whether the dialog was invoked for drumkit that

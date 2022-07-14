@@ -23,6 +23,8 @@
 #ifndef H2C_DRUMKIT_H
 #define H2C_DRUMKIT_H
 
+#include <memory>
+
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
@@ -46,7 +48,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
-		Drumkit( Drumkit* other );
+		Drumkit( std::shared_ptr<Drumkit> other );
 		/** drumkit destructor, delete #__instruments */
 		~Drumkit();
 
@@ -70,10 +72,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir,
-							  const bool load_samples = false,
-							  bool bUpgrade = true,
-							  bool bSilent = false );
+		static std::shared_ptr<Drumkit> load( const QString& dk_dir,
+											  const bool load_samples = false,
+											  bool bUpgrade = true,
+											  bool bSilent = false );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -89,9 +91,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name,
-									  const bool load_samples = false,
-									  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static std::shared_ptr<Drumkit> load_by_name( const QString& dk_name,
+													  const bool load_samples = false,
+													  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/**
 		 * Load a Drumkit from a file.
 		 *
@@ -106,10 +108,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path,
-								   const bool load_samples = false,
-								   bool bUpgrade = true,
-								   bool bSilent = true );
+		static std::shared_ptr<Drumkit> load_file( const QString& dk_path,
+												   const bool load_samples = false,
+												   bool bUpgrade = true,
+												   bool bSilent = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -168,7 +170,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * This is used when the drumkit did not comply to 
 		 * our xml schema.
 		 */
-		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path, bool bSilent = false );
+		static void upgrade_drumkit( std::shared_ptr<Drumkit> pDrumkit,
+									 const QString& dk_path,
+									 bool bSilent = false );
 
 		/**
 		 * check if a user drumkit with the given name
@@ -376,9 +380,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
-	static Drumkit* load_from( XMLNode* node,
-							   const QString& dk_path,
-							   bool bSilent = false );
+	static std::shared_ptr<Drumkit> load_from( XMLNode* node,
+											   const QString& dk_path,
+											   bool bSilent = false );
 
 	/**
 	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and

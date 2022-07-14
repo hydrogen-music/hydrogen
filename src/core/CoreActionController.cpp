@@ -966,12 +966,11 @@ bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bCondi
 	}
 
 	int nRet = loadDrumkit( pDrumkit, bConditional );
-	delete pDrumkit;
 
 	return nRet;
 }
 
-bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
+bool CoreActionController::loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 
 	if ( pDrumkit != nullptr ) {
 		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
@@ -1067,7 +1066,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 				ERRORLOG( QString( "Unable to backup source drumkit XML file from [%1] to [%2]. We abort instead of overwriting things." )
 						  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
 						  .arg( sBackupPath ) );
-				delete pDrumkit;
 				return false;
 			}
 		} else {
@@ -1075,7 +1073,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 			if ( ! Filesystem::file_copy( sDrumkitPath, sBackupPath, true, true ) ) {
 				ERRORLOG( QString( "Unable to backup source .h2drumkit file from [%1] to [%2]. We abort instead of overwriting things." )
 						  .arg( sDrumkitPath ).arg( sBackupPath ) );
-				delete pDrumkit;
 				return false;
 			}
 		}
@@ -1087,7 +1084,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 								true, -1, true, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
 				  .arg( sPath ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1104,7 +1100,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 		if ( ! pDrumkit->exportTo( sExportPath, "", true, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
-			delete pDrumkit;
 			return false;
 		}
 
@@ -1120,8 +1115,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 
 	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
 			 .arg( sDrumkitPath ) );
-
-	delete pDrumkit;
 
 	return true;
 }
@@ -1145,7 +1138,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "Something went wrong in the drumkit retrieval of [%1]. Unable to load from [%2]" )
 				  .arg( sDrumkitPath ).arg( sDrumkitDir ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1154,7 +1146,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 					Filesystem::drumkit_xsd_path(), true ) ) {
 		ERRORLOG( QString( "Drumkit file [%1] does not comply with the current XSD definition" )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-		delete pDrumkit;
 		return false;
 	}
 	
@@ -1162,7 +1153,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1172,9 +1162,9 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	return true;
 }
 
-Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
+std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
 
-	Drumkit* pDrumkit = nullptr;
+	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 
 	// Check whether Drumkit was already loaded and present in cache.
 	auto pHydrogen = Hydrogen::get_instance();

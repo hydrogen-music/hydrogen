@@ -91,7 +91,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString sDrumkitPath = HydrogenApp::get_instance()->getInstrumentRack()
 		->getSoundLibraryPanel()->getDrumkitPath( sDrumkitLabel );
 
-	Drumkit* pDrumkit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+	auto pDrumkit = Hydrogen::get_instance()->getSoundLibraryDatabase()
 		->getDrumkit( sDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		QMessageBox::critical( this, "Hydrogen",
@@ -217,7 +217,7 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	drumkitListComboBox->clear();
 
 	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
-		Drumkit* pDrumkit = pDrumkitEntry.second;
+		auto pDrumkit = pDrumkitEntry.second;
 		QString sDrumkitLabel = pSoundLibraryPanel->getDrumkitLabel( pDrumkitEntry.first );
 
 		DEBUGLOG( QString( "first: %1, label: %2" ).arg( pDrumkitEntry.first ).arg( sDrumkitLabel ) );
