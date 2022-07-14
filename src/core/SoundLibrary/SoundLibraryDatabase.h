@@ -63,7 +63,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 
 	void updateDrumkits( bool bTriggerEvent = true );
 	Drumkit* getDrumkit( const QString& sDrumkitPath ) const;
-	std::map<QString,Drumkit*> getDrumkitDatabase() const {
+	const std::map<QString,Drumkit*> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 	

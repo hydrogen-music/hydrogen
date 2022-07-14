@@ -38,6 +38,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Sampler/Sampler.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -419,10 +420,25 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		// No/empty license supplied. We will use the license stored
 		// in the drumkit.xml file found at
 		// sInstrumentDrumkitPath. But since loading it from file is a
-		// rather expensive action, we will query a buffer maintained
-		// in the Hydrogen class instead. If the license is not
-		// present yet, it will be loaded internally.
-		instrumentLicense = Hydrogen::get_instance()->getLicenseFromDrumkit( sInstrumentDrumkitPath );
+		// rather expensive action, we will query it from the Drumkit
+		// database. If, for some reasons, the drumkit is not present
+		// yet, the License will be loaded directly.
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sInstrumentDrumkitPath );
+			if ( pDrumkit != nullptr ) {
+				instrumentLicense = pDrumkit->get_license();
+			}
+		}
+
+		if ( instrumentLicense == License() ) {
+			if ( ! bSilent ) {
+				WARNINGLOG( QString( "No license could be retrieved from drumkit [%1] in database. Loading directly." )
+							.arg( sInstrumentDrumkitPath ) );
+			}
+			
+			instrumentLicense = Drumkit::loadLicenseFrom( sInstrumentDrumkitPath );
+		}
 	} else {
 		instrumentLicense = license;
 	}

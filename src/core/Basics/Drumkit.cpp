@@ -186,10 +186,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bS
 	License license( node->read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->__author );
-	// Store license in cache of Hydrogen class in order to allow
-	// reuse it faster.
-	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, sDrumkitPath );
-	
 	pDrumkit->set_license( license );
 
 	// As of 2022 we have no drumkits featuring an image in
