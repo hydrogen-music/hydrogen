@@ -211,31 +211,6 @@ public:
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
 
-		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
-		 * the current session.
-		 *
-		 * During loading all H2Core::Instrument of the current
-		 * drumkit will be replaced by the ones in @a pDrumkitInfo top
-		 * to bottom. If the latter contains less instruments, the
-		 * superfluous ones will be stripped from the
-		 * bottom. Depending on the choice of @a bConditional all
-		 * instruments will be strip or just those which do not
-		 * contain any notes.
-		 *
-		 * When under session management (see
-		 * NsmClient::m_bUnderSessionManagement) the function will
-		 * create a symlink to the loaded H2Core::Drumkit using the
-		 * name "drumkit" in the folder
-		 * NsmClient::m_sSessionFolderPath.
-		 *
-		 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
-		 * \param bConditional Whether to remove all redundant
-		 * H2Core::Instrument regardless of their content.
-		 *
-		 * \returns 0 on success.
-		 */
-		int			loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
-
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
 		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );

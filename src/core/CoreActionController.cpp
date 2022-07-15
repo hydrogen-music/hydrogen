@@ -957,29 +957,65 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bConditional ) {
-	auto pDrumkit = H2Core::Drumkit::load_by_name( sDrumkitName, true );
+bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditional ) {
+
+	auto pDrumkit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+		->getDrumkit( sDrumkit );
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Drumkit [%1] could not be loaded" )
-				  .arg( sDrumkitName ) );
+		ERRORLOG( QString( "Drumkit [%1] could not be loaded." )
+				  .arg( sDrumkit ) );
 		return false;
 	}
 
-	int nRet = loadDrumkit( pDrumkit, bConditional );
-
-	return nRet;
+	return setDrumkit( pDrumkit, bConditional );
 }
 
-bool CoreActionController::loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 
 	if ( pDrumkit != nullptr ) {
-		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
+
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
+
+			INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+					 .arg( pDrumkit->get_name() )
+					 .arg( pDrumkit->get_path() ) );
+
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+		
+			pSong->setDrumkit( pDrumkit, bConditional );
+			
+			if ( pHydrogen->getSelectedInstrumentNumber() >=
+				 pSong->getInstrumentList()->size() ) {
+				pHydrogen->setSelectedInstrumentNumber(
+					std::max( 0, pSong->getInstrumentList()->size() -1 ) );
+			}
+
+			pHydrogen->renameJackPorts( pSong );
+			
+			pHydrogen->getAudioEngine()->unlock();
+	
+			initExternalControlInterfaces();
+
+			pHydrogen->setIsModified( true );
+	
+			// Create a symbolic link in the session folder when under session
+			// management.
+			if ( pHydrogen->isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
+				NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
+#endif
+			}
+
 			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
-		} else {
-			ERRORLOG( "Unable to load drumkit" );
+		}
+		else {
+			ERRORLOG( "No song set yet" );
 			return false;
 		}
-	} else {
+	}
+	else {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
@@ -1166,15 +1202,10 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 
-	// Check whether Drumkit was already loaded and present in cache.
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		pDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-		if ( pDrumkit != nullptr ) {
-			return pDrumkit;
-		}
-	}
+	// We do not attempt to retrieve the drumkit from disk since this
+	// function is intended to be used for validating or upgrading
+	// drumkits via CLI or OSC command. It should always refer to the
+	// latest copy found on disk.
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
@@ -1193,7 +1224,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
-		pDrumkit = Drumkit::load_file( sDrumkitPath, false, false, true );
+		QString sDrumkitDirPath = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+		pDrumkit = Drumkit::load( sDrumkitDirPath, false, false, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
 	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&

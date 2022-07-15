@@ -94,49 +94,25 @@ Drumkit::~Drumkit()
 	}
 }
 
-std::shared_ptr<Drumkit> Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, const bool load_samples, bool bUpgrade, bool bSilent )
 {
-	QString sDrumkitPath = Filesystem::drumkit_path_search( dk_name, lookup );
-	if ( sDrumkitPath.isEmpty() ) {
+	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitPath ) );
 		return nullptr;
 	}
+
+	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
-	return load( sDrumkitPath, load_samples, true, false );
-}
-
-std::shared_ptr<Drumkit> Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
-{
-	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
-		return nullptr;
-	}
-
-	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
-							   bUpgrade, bSilent );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
-	}
-	else if ( ! bSilent ) {
-		INFOLOG( QString( "[%1] loaded from [%2]" )
-				 .arg( pDrumkit->get_name() )
-				 .arg( dk_dir ) );
-	}
-
-	return pDrumkit;
-}
-
-std::shared_ptr<Drumkit> Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
-{
 	bool bReadingSuccessful = true;
 	
 	XMLDoc doc;
-	if ( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), true ) ) {
+	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
 		// Drumkit does not comply with the XSD schema
 		// definition. It's probably an old one. load_from() will try
 		// to handle it regardlessly but we should upgrade it in order
 		// to avoid this in future loads.
 		
-		doc.read( dk_path, nullptr, bSilent );
+		doc.read( sDrumkitFile, nullptr, bSilent );
 		
 		bReadingSuccessful = false;
 	}
@@ -148,20 +124,26 @@ std::shared_ptr<Drumkit> Drumkit::load_file( const QString& dk_path, const bool 
 	}
 
 	auto pDrumkit =
-		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
+		Drumkit::load_from( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
 							bSilent );
 	
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( dk_path ) );
+		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
 	}
 	
 	if ( ! bReadingSuccessful && bUpgrade ) {
-		upgrade_drumkit( pDrumkit, dk_path );
+		upgrade_drumkit( pDrumkit, sDrumkitFile );
 	}
 	
 	if ( load_samples ){
 		pDrumkit->load_samples();
+	}
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "[%1] loaded from [%2]" )
+				 .arg( pDrumkit->get_name() )
+				 .arg( sDrumkitPath ) );
 	}
 	
 	return pDrumkit;

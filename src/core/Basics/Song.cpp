@@ -966,7 +966,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	if ( pDrumkit != nullptr ) {
 		pDrumkit->get_instruments()->load_samples( pSong->getBpm() );
-		pSong->loadDrumkit( pDrumkit, true );
+		pSong->setDrumkit( pDrumkit, true );
 	}
 	else {
 		ERRORLOG( "Unable to load drumkit" );
@@ -1204,14 +1204,12 @@ void Song::setPanLawKNorm( float fKNorm ) {
 	}
 }
 
-void Song::loadDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
+void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );
 		return;
 	}
-	
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	m_sLastLoadedDrumkitName = pDrumkit->get_name();
 	m_sLastLoadedDrumkitPath = pDrumkit->get_path();

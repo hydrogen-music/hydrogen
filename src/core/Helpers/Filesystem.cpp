@@ -781,7 +781,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	}
 
 	if ( ! bSilent ) {
-		ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
+		ERRORLOG( QString( "drumkit [%1] not found using lookup type [%2]" )
 				  .arg( dk_name )
 				  .arg( static_cast<int>(lookup)));
 	}

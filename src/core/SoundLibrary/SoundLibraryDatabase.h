@@ -62,7 +62,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	void update();
 
 	void updateDrumkits( bool bTriggerEvent = true );
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath ) const;
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
 	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
@@ -77,6 +77,15 @@ private:
 	
 	soundLibraryInfoVector* m_patternInfoVector;
 	QStringList m_patternCategories;
+
+	/**
+	 * List of drumkits the user supplied via CLI or OSC command but
+	 * couldn't be found in either the system's or user's drumkit
+	 * folders. This drumkit might still be present an valid. But it
+	 * would be lost upon updating when just checking the
+	 * aforementioned folders.
+	 */
+	QStringList m_customDrumkitPaths;
 };
 }; // namespace H2Core
 

@@ -145,7 +145,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	// Test copy constructors using real-live instead of new objects.
-	auto pDrumkitProper = H2Core::Drumkit::load_by_name( "GMRockKit", true, H2Core::Filesystem::Lookup::system );
+	auto pDrumkitProper = H2Core::Drumkit::load(
+		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
+												 H2Core::Filesystem::Lookup::system,
+												 true ), true );
 	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
 	CPPUNIT_ASSERT( pDrumkitProper->get_instruments()->get( 0 )->get_component( 0 )->get_layer( 0 )->get_sample() != nullptr );
 	auto pSongProper = H2Core::Song::load( H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song" );
@@ -243,6 +246,9 @@ void MemoryLeakageTest::testLoading() {
 
 	auto mapSnapshot = H2Core::Base::getObjectMap();
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
+	
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	QString sDrumkitPath =
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
@@ -258,7 +264,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pDrumkit = H2Core::Drumkit::load_file( H2TEST_FILE( "drumkits/baseKit/drumkit.xml" ), true );
+		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ), true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -415,7 +421,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		H2Core::Hydrogen::get_instance()->getSong()->setPlaybackTrackFilename( H2TEST_FILE( "drumkits/baseKit/kick.wav" ) );
+		pHydrogen->getSong()->setPlaybackTrackFilename( H2TEST_FILE( "drumkits/baseKit/kick.wav" ) );
 		auto pSampler = new H2Core::Sampler();
 		pSampler->reinitializePlaybackTrack();
 		delete pSampler;
@@ -442,14 +448,17 @@ void MemoryLeakageTest::testLoading() {
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ), true );
-		auto pDrumkit2 = H2Core::Drumkit::load_by_name( "GMRockKit", true, H2Core::Filesystem::Lookup::system );
+		auto pDrumkit2 = H2Core::Drumkit::load(
+			H2Core::Filesystem::drumkit_path_search( "GMRockKit",
+													 H2Core::Filesystem::Lookup::system,
+													 true ), true );
 	
-		H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+		pCoreActionController->setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
-		H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+		pCoreActionController->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
-		H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit2 );
-		H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+		pCoreActionController->setDrumkit( pDrumkit2 );
+		pCoreActionController->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 }

@@ -744,47 +744,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-
-int Hydrogen::loadDrumkit( std::shared_ptr<Drumkit> pDrumkitInfo, bool bConditional )
-{
-	assert ( pDrumkitInfo );
-	auto pSong = getSong();
-	int nReturnValue = 0;
-	
-	if ( pSong != nullptr ) {
-
-		INFOLOG( pDrumkitInfo->get_name() );
-
-		m_pAudioEngine->lock( RIGHT_HERE );
-		
-		pSong->loadDrumkit( pDrumkitInfo, bConditional );
-		if ( m_nSelectedInstrumentNumber >=
-			 pSong->getInstrumentList()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() -1 ) );
-		}
-
-		renameJackPorts( getSong() );
-		m_pAudioEngine->unlock();
-	
-		m_pCoreActionController->initExternalControlInterfaces();
-
-		setIsModified( true );
-	
-		// Create a symbolic link in the session folder when under session
-		// management.
-		if ( isUnderSessionManagement() ) {
-#ifdef H2CORE_HAVE_OSC
-			NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
-#endif
-		}
-	} else {
-		ERRORLOG( "No song loaded yet!" );
-		nReturnValue = -1;
-	}
-
-	return nReturnValue;
-}
-
 // This will check if an instrument has any notes
 bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {

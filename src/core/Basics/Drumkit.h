@@ -55,10 +55,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * This function is a wrapper around load_file(). The
-		 * provided drumkit directory @a dk_dir is converted
-		 * by Filesystem::drumkit_file() internally.
-		 *
 		 * \param dk_dir A directory containing a drumkit,
 		 * like those returned by
 		 * Filesystem::drumkit_dir_search().
@@ -76,42 +72,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 											  const bool load_samples = false,
 											  bool bUpgrade = true,
 											  bool bSilent = false );
-		/**
-		 * Simple wrapper for load() used with the drumkit's
-		 * name instead of its directory.
-		 *
-		 * Uses Filesystem::drumkit_path_search() to determine
-		 * the directory of the Drumkit from @a dk_name.
-		 *
-		 * \param dk_name Name of the Drumkit.
-		 * \param load_samples Automatically load sample data
-		 * if set to true.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 *
-		 * \return A Drumkit on success, nullptr otherwise.
-		 */
-		static std::shared_ptr<Drumkit> load_by_name( const QString& dk_name,
-													  const bool load_samples = false,
-													  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
-		/**
-		 * Load a Drumkit from a file.
-		 *
-		 * \param dk_path is a path to an xml file
-		 * \param load_samples automatically load sample data if set
-		 * to true
-		 * \param bUpgrade Whether the loaded drumkit should be
-		 * upgraded using upgrade_drumkit() in case it did not comply
-		 * with the current XSD file.
-		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
-		 *
-		 * \return A Drumkit on success, nullptr otherwise.
-		 */
-		static std::shared_ptr<Drumkit> load_file( const QString& dk_path,
-												   const bool load_samples = false,
-												   bool bUpgrade = true,
-												   bool bSilent = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -124,10 +84,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	/**
 	 * Loads the license information of a drumkit contained in
 	 * directory @a sDrumkitDir.
-	 *
-	 * This function is a wrapper around load_file(). The
-	 * provided drumkit directory @a dk_dir is converted
-	 * by Filesystem::drumkit_file() internally.
 	 *
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */

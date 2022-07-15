@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			pHydrogen->getCoreActionController()->loadDrumkit( drumkitToLoad, true );
+			pHydrogen->getCoreActionController()->setDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();

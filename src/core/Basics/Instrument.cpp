@@ -238,14 +238,6 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 		pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	}
 
-	if ( pDrumkit == nullptr ) {
-		pDrumkit = Drumkit::load( sDrumkitPath,
-								  false, // load_samples
-								  true, // upgrade
-								  false // bSilent
-								  );
-	}
-	
 	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )

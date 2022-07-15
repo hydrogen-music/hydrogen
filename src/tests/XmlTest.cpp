@@ -129,7 +129,7 @@ void XmlTest::testDrumkit()
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
 	// load file
-	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
 	
 	// copy constructor
@@ -147,7 +147,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitNew->save_file( sDrumkitPath+"/drumkit.xml", true ) );
 	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
-	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup

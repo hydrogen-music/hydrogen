@@ -309,6 +309,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	bool reload = false;
     
@@ -362,7 +363,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkitInfo != nullptr && ( !saveChanges_checkBox->isChecked() ) ){
 		if ( m_pPreDrumkitInfo->get_name() != m_pDrumkitInfo->get_name() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ){
-			pHydrogen->loadDrumkit( m_pDrumkitInfo );
+			pCoreActionController->setDrumkit( m_pDrumkitInfo );
 		}
 	}
 
@@ -436,7 +437,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pPreDrumkitInfo != nullptr && m_pDrumkitInfo != nullptr){
 		if ( m_pPreDrumkitInfo->get_name() != pHydrogen->getLastLoadedDrumkitName() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
-			pHydrogen->loadDrumkit( m_pPreDrumkitInfo );
+			pCoreActionController->setDrumkit( m_pPreDrumkitInfo );
 		}
 	}
 

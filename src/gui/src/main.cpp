@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
 
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			pHydrogen->getCoreActionController()->loadDrumkit( sDrumkitToLoad );
+			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );
 		}
 
 		// Write the changes in the Preferences to disk to make them

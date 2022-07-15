@@ -80,13 +80,21 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	m_drumkitDatabase.clear();
 
 	QStringList drumkitPaths;
+	// system drumkits
 	for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
 		drumkitPaths << 
 			Filesystem::absolute_path( Filesystem::sys_drumkits_dir() + sDrumkitName );
 	}
+	// user drumkits
 	for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
 		drumkitPaths <<
 			Filesystem::absolute_path( Filesystem::usr_drumkits_dir() + sDrumkitName );
+	}
+	// custom drumkits added by the user
+	for ( const auto& sDrumkitPath : m_customDrumkitPaths ) {
+		if ( ! drumkitPaths.contains( sDrumkitPath ) ) {
+			drumkitPaths << sDrumkitPath;
+		}
 	}
 
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
@@ -108,14 +116,51 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	}
 }
 
-std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath ) const {
-	QString sAbsoluteDrumkitPath = Filesystem::absolute_path( sDrumkitPath );
-	if ( m_drumkitDatabase.find( sAbsoluteDrumkitPath ) ==
-		 m_drumkitDatabase.end() ) {
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkit ) {
+
+	// Convert supplied path or drumkit name into absolute path used
+	// either as ID to retrieve the drumkit from cache or for loading
+	// it from disk in case it is not present yet.
+
+	QString sDrumkitPath;
+	if ( sDrumkit.contains( "/" ) || sDrumkit.contains( "\\" ) ) {
+		// Supplied string is a path to a drumkit
+		sDrumkitPath = sDrumkit;
+	}
+	else {
+		// Supplied string it the name of a drumkit
+		sDrumkitPath = Filesystem::drumkit_path_search( sDrumkit,
+														Filesystem::Lookup::stacked,
+														false );
+	}
+	sDrumkitPath = Filesystem::absolute_path( sDrumkitPath );
+
+	if ( sDrumkitPath.isEmpty() ) {
+		ERRORLOG( QString( "Unable determine drumkit path based on supplied string [%1]" )
+				  .arg( sDrumkit ) );
 		return nullptr;
 	}
+
+	if ( m_drumkitDatabase.find( sDrumkitPath ) ==
+		 m_drumkitDatabase.end() ) {
+
+		// Drumkit is not present in database yet. We attempt to load
+		// and add it.
+		auto pDrumkit = Drumkit::load( sDrumkitPath,
+								  false, // load_samples
+								  true, // upgrade
+								  false // bSilent
+								  );
+		if ( pDrumkit == nullptr ) {
+			return nullptr;
+		}
+
+		m_customDrumkitPaths << sDrumkitPath;
+		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+		return pDrumkit;
+	}
 	
-	return m_drumkitDatabase.at( sAbsoluteDrumkitPath );
+	return m_drumkitDatabase.at( sDrumkitPath );
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )

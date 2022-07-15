@@ -559,7 +559,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkit, conditionalLoad );
+	pHydrogen->getCoreActionController()->setDrumkit( pDrumkit, conditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }
