@@ -98,7 +98,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	}
 
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		auto pDrumkit = Drumkit::load( sDrumkitPath, false );
+		auto pDrumkit = Drumkit::load( sDrumkitPath );
 		if ( pDrumkit != nullptr ) {
 			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
 				 m_drumkitDatabase.end() ) {
@@ -147,10 +147,9 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		// Drumkit is not present in database yet. We attempt to load
 		// and add it.
 		auto pDrumkit = Drumkit::load( sDrumkitPath,
-								  false, // load_samples
-								  true, // upgrade
-								  false // bSilent
-								  );
+									   true, // upgrade
+									   false // bSilent
+									   );
 		if ( pDrumkit == nullptr ) {
 			return nullptr;
 		}

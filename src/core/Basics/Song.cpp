@@ -965,7 +965,6 @@ std::shared_ptr<Song> Song::getEmptySong()
 	}
 
 	if ( pDrumkit != nullptr ) {
-		pDrumkit->get_instruments()->load_samples( pSong->getBpm() );
 		pSong->setDrumkit( pDrumkit, true );
 	}
 	else {
@@ -1284,6 +1283,10 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 							  bConditional );
 		}
 	}
+
+	// Load samples of all instruments.
+	m_pInstrumentList->load_samples(
+		Hydrogen::get_instance()->getAudioEngine()->getBpm() );
 }
 
 void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {

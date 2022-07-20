@@ -1216,7 +1216,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	if ( Filesystem::dir_readable( sDrumkitPath, true ) ) {
 
 		// Providing the folder containing the drumkit
-		pDrumkit = Drumkit::load( sDrumkitPath, false, false, true );
+		pDrumkit = Drumkit::load( sDrumkitPath, false, true );
 		*sDrumkitDir = sDrumkitPath;
 		
 	} else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() &&
@@ -1225,7 +1225,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
 		QString sDrumkitDirPath = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
-		pDrumkit = Drumkit::load( sDrumkitDirPath, false, false, true );
+		pDrumkit = Drumkit::load( sDrumkitDirPath, false, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
 	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&
@@ -1279,7 +1279,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
 		
-		pDrumkit = Drumkit::load( *sDrumkitDir, false, false, true );
+		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
 		
 	} else {
 		ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )

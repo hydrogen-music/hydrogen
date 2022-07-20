@@ -83,7 +83,8 @@ public:
 		// auto pPatternList = pSong->getPatternList();
 		// auto pPattern = pPatternList->get( 0 );
 		// auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
-		// auto pDrumkit = Drumkit::load( sDrumkitFile, true );
+		// auto pDrumkit = Drumkit::load( sDrumkitFile );
+		// pDrumkit->load_samples();
 		// auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
 		// auto pPlaylist = Playlist::get_instance();
 		// auto entry = Playlist::Entry{ "/tmp", true, "/usr/", false };

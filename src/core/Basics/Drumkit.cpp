@@ -94,7 +94,7 @@ Drumkit::~Drumkit()
 	}
 }
 
-std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, const bool load_samples, bool bUpgrade, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitPath ) );
@@ -134,10 +134,6 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, const bool 
 	
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, sDrumkitFile );
-	}
-	
-	if ( load_samples ){
-		pDrumkit->load_samples();
 	}
 
 	if ( ! bSilent ) {

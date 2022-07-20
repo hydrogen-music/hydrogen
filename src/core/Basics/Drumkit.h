@@ -58,8 +58,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param dk_dir A directory containing a drumkit,
 		 * like those returned by
 		 * Filesystem::drumkit_dir_search().
-		 * \param load_samples Automatically load sample data
-		 * if set to true.
 		 * \param bUpgrade Whether the loaded drumkit should be
 		 * upgraded using upgrade_drumkit() in case it did not comply
 		 * with the current XSD file.
@@ -69,7 +67,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static std::shared_ptr<Drumkit> load( const QString& dk_dir,
-											  const bool load_samples = false,
 											  bool bUpgrade = true,
 											  bool bSilent = false );
 		/** Calls the InstrumentList::load_samples() member

@@ -148,8 +148,11 @@ void MemoryLeakageTest::testConstructors() {
 	auto pDrumkitProper = H2Core::Drumkit::load(
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 												 H2Core::Filesystem::Lookup::system,
-												 true ), true );
+												 true ) );
 	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
+	
+	pDrumkitProper->load_samples();
+	
 	CPPUNIT_ASSERT( pDrumkitProper->get_instruments()->get( 0 )->get_component( 0 )->get_layer( 0 )->get_sample() != nullptr );
 	auto pSongProper = H2Core::Song::load( H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song" );
 	CPPUNIT_ASSERT( pSongProper != nullptr );
@@ -264,8 +267,11 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ), true );
+		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ) );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
+
+		pDrumkit->load_samples();
+		
 		pDrumkit = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
@@ -447,11 +453,13 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ), true );
+		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ) );
+		pDrumkit->load_samples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
 			H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 													 H2Core::Filesystem::Lookup::system,
-													 true ), true );
+													 true ) );
+		pDrumkit2->load_samples();
 	
 		pCoreActionController->setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
