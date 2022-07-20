@@ -127,7 +127,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
 	// load file
@@ -139,15 +139,15 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitCopied!=nullptr );
 	// save file
 	pDrumkitCopied->set_name( "COPY" );
-	CPPUNIT_ASSERT( pDrumkitCopied->save_file( sDrumkitPath+"/drumkit.xml", true ) );
+	CPPUNIT_ASSERT( pDrumkitCopied->save( sDrumkitPath ) );
 
 	pDrumkitReloaded = nullptr;
 
 	// Check whether blank drumkits are valid.
 	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
-	CPPUNIT_ASSERT( pDrumkitNew->save_file( sDrumkitPath+"/drumkit.xml", true ) );
-	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );

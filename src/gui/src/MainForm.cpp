@@ -1278,15 +1278,11 @@ void MainForm::action_instruments_saveLibrary()
 		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
 	
 	if ( pDrumkit != nullptr ){
-		if ( ! H2Core::Drumkit::save( pDrumkit->get_name(),
-									  pDrumkit->get_author(),
-									  pDrumkit->get_info(),
-									  pDrumkit->get_license(),
-									  pDrumkit->get_image(),
-									  pDrumkit->get_image_license(),
-									  pSong->getInstrumentList(),
-									  pSong->getComponents(),
-									  true ) ) {
+		auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
+		pNewDrumkit->set_components( pSong->getComponents() );
+		
+		if ( ! pNewDrumkit->save() ) {
 			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
 			return;
 		}
@@ -2293,12 +2289,18 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 void MainForm::action_banks_properties()
 {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
 		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
 	
 	if ( pDrumkit != nullptr ){
-		SoundLibraryPropertiesDialog dialog( this, pDrumkit, pDrumkit, true );
+
+		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
+		pNewDrumkit->set_components( pSong->getComponents() );
+		
+		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, pDrumkit, true );
 		dialog.exec();
 
 		// Cleaning up the last ppKit we did not deleted due to the break

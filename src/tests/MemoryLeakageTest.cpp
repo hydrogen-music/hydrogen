@@ -328,30 +328,6 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		// Yes, saving creates a new Drumkit as well.
-		doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) );
-		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
-		doc.read( H2TEST_FILE( "/memoryLeakage/drumkitComponent.xml" ) );
-		node = doc.firstChildElement( "drumkitComponent" );
-		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( &node );
-		std::vector<H2Core::DrumkitComponent*> pDrumkitComponents { pDrumkitComponent };
-		H2Core::License license("");
-		CPPUNIT_ASSERT( H2Core::Drumkit::save( "testKitLadida",
-											   "ladida",
-											   "ladida",
-											   license,
-											   "ladida",
-											   license,
-											   pInstrumentList,
-											   &pDrumkitComponents,
-											   true ) );
-		delete pInstrumentList;
-		delete pDrumkitComponent;
-		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
-	}
-
-	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );

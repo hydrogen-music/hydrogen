@@ -60,7 +60,7 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	void updateLicenseTable();
 		void updateImage( QString& filename );
 		/** The one selected by the user */
-		std::shared_ptr<Drumkit> m_pDrumkitInfo;
+	std::shared_ptr<Drumkit> m_pDrumkit;
 		/** The one currently loaded in Hydrogen.
 		 *
 		 * Since changes to a drumkit can only the saved correctly

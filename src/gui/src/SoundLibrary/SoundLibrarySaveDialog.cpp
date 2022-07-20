@@ -116,7 +116,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 
 	bool Overwrite = false;
 
-	if( H2Core::Drumkit::user_drumkit_exists( nameTxt->text() ) ){
+	if( H2Core::Filesystem::file_exists( H2Core::Filesystem::drumkit_file( H2Core::Filesystem::usr_drumkits_dir() + nameTxt->text() ), true /*silent*/ ) ){
 		QMessageBox msgBox;
 		msgBox.setText(tr("A library with the same name already exists. Do you want to overwrite the existing library?"));
 		msgBox.setIcon(QMessageBox::Warning);
@@ -132,19 +132,20 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 		}
 	}
 
+	// This whole thing will be dropped soon anyway.
 	// Note: use full path for image - Drumkit->save() will handle copying it if need be
-	if( !H2Core::Drumkit::save( nameTxt->text(),
-								authorTxt->text(),
-								infoTxt->toHtml(),
-								licenseTxt->text(),
-								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
-								imageLicenseText->text(),
-								pSong->getInstrumentList(),
-								pSong->getComponents(),
-								Overwrite ) ) {
-		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
-		return;
-	}
+	// if( !H2Core::Drumkit::save( nameTxt->text(),
+	// 							authorTxt->text(),
+	// 							infoTxt->toHtml(),
+	// 							licenseTxt->text(),
+	// 							H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
+	// 							imageLicenseText->text(),
+	// 							pSong->getInstrumentList(),
+	// 							pSong->getComponents(),
+	// 							Overwrite ) ) {
+	// 	QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
+	// 	return;
+	// }
 	
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 

@@ -1116,8 +1116,7 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 		sPath = sDrumkitDir;
 	}
 
-	if ( ! pDrumkit->save_file( Filesystem::drumkit_file( sPath ),
-								true, -1, true, true ) ) {
+	if ( ! pDrumkit->save( sPath, -1, true, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
 				  .arg( sPath ) );
 		return false;

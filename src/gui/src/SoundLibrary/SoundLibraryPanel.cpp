@@ -704,8 +704,11 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		return;
 	}
 	
-	//open the soundlibrary save dialog
-	SoundLibraryPropertiesDialog dialog( this, pDrumkit, pPreDrumkit, false );
+	// We provide a copy of the recent drumkit to ensure the drumkit
+	// is not getting dirty upon saving (in case new properties are
+	// stored in the kit but writing it to disk fails).
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, pPreDrumkit, false );
 	dialog.exec();
 }
 

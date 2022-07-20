@@ -128,70 +128,26 @@ class Drumkit : public H2Core::Object<Drumkit>
 									 bool bSilent = false );
 
 		/**
-		 * check if a user drumkit with the given name
-		 * already exists
-		 * \param dk_path Drumkit path
-		 * \return true on success
-		 */
-		static bool user_drumkit_exists( const QString& dk_path );
-
-		/**
-		 * save a drumkit, xml file and samples
-		 * \param overwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		bool save( bool overwrite=false );
-		/**
-		 * save a drumkit, xml file and samples
-		 * neither #__path nor #__name are updated
-		 * \param dk_dir the directory to save the drumkit into
-		 * \param overwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		bool save( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save a drumkit into an xml file
-		 * \param dk_path the path to save the drumkit into
-		 * \param overwrite allows to write over existing drumkit file
-		 * \param component_id to chose the component to save or -1 for all
+		 * Save a drumkit to disk.
+		 *
+		 * It takes care of writing all parameters etc. into a
+		 * drumkit.xml file as well as copying both associated samples
+		 * and images.
+		 *
+		 * \param sDrumkitPath the path (folder) to save the #Drumkit
+		 * into. If left empty, the path stored in #__path will be
+		 * used instead.
+		 * \param nComponentID to chose the component to save or -1 for all
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false,
-						int component_id=-1, bool bRecentVersion = true,
-						bool bSilent = false ) const;
-		/**
-		 * save a drumkit instruments samples into a directory
-		 * \param dk_dir the directory to save the samples into
-		 * \param overwrite allows to write over existing drumkit samples files
-		 * \return true on success
-		 */
-		bool save_samples( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save the drumkit image into the new directory
-		 * \param dk_dir the directory to save the image into
-		 * \param overwrite allows to write over existing drumkit image file
-		 * \return true on success
-		 */
-		bool save_image( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save a drumkit using given parameters and an instrument list
-		 * \param sName the name of the drumkit
-		 * \param sAuthor the author of the drumkit
-		 * \param sInfo the info of the drumkit
-		 * \param license the license of the drumkit
-		 * \param sImage the image filename (with full path) of
-		   the drumkit
-		 * \param imageLicense license of the supplied image
-		 * \param pInstruments the instruments to be saved
-		   within the drumkit
-		 * \param pComponents
-		 * \param bOverwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const License& license, const QString& sImage, const License& imageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
+		bool save( const QString& sDrumkitPath = "",
+				   int nComponentID = -1,
+				   bool bRecentVersion = true,
+				   bool bSilent = false ) const;
+
 		/**
 		 * Extract a .h2drumkit file.
 		 *
@@ -272,8 +228,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
-		void dump();
-
 		/**
 		 * \return Whether the associated files are located in the
 		 * user or the systems drumkit folder.
@@ -317,6 +271,22 @@ class Drumkit : public H2Core::Object<Drumkit>
 		InstrumentList* __instruments;  ///< the list of instruments
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 
+		/**
+		 * save the drumkit image into the new directory
+		 * \param dk_dir the directory to save the image into
+		 * \param bSilent Whether to suppress info and warning log
+		 * level messages.
+		 * \return true on success
+		 */
+	bool save_image( const QString& dk_dir, bool bSilent = false ) const;
+		/**
+		 * save a drumkit instruments samples into a directory
+		 * \param dk_dir the directory to save the samples into
+		 * \param bSilent Whether to suppress info and warning log
+		 * level messages.
+		 * \return true on success
+		 */
+	bool save_samples( const QString& dk_dir, bool bSilent = false ) const;
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
@@ -325,7 +295,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * supported by Hydrogen 0.9.7 or higher (whether it should be
 		 * composed of DrumkitComponents).
 		 */
-	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true ) const;
+	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true, bool bSilent = false ) const;
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
