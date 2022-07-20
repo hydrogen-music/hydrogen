@@ -693,22 +693,12 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 				  .arg( sDrumkitName ).arg( sDrumkitPath ) );
 		return;
 	}
-
-	auto pPreDrumkit =
-		pSoundLibraryDatabase->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
-
-	if ( pPreDrumkit == nullptr ){
-		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
-							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
-							  .arg( pHydrogen->getLastLoadedDrumkitName() ) );
-		return;
-	}
 	
 	// We provide a copy of the recent drumkit to ensure the drumkit
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, pPreDrumkit, false );
+	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, true );
 	dialog.exec();
 }
 

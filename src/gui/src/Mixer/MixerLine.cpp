@@ -161,7 +161,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -438,7 +438,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	//m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -606,7 +606,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ), false, false );
 	m_pPeakLCD->move( 22, 51 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -894,7 +894,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	connect( m_pEditBtn, SIGNAL( clicked() ), this, SLOT( editBtnClicked() ) );
 
 	// instrument name widget
-	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ) );
+	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ), false, false );
 	m_pNameLCD->move( 11, 9 );
 	m_pNameLCD->setText( "No name" );
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );

@@ -59,7 +59,6 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
-#include "SoundLibrary/SoundLibrarySaveDialog.h"
 #include "SoundLibrary/SoundLibraryOpenDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
 #include "SoundLibrary/SoundLibraryPropertiesDialog.h"
@@ -1297,8 +1296,7 @@ void MainForm::action_instruments_saveLibrary()
 
 void MainForm::action_instruments_saveAsLibrary()
 {
-	SoundLibrarySaveDialog dialog( this );
-	dialog.exec();
+	editDrumkitProperties( false );
 }
 
 
@@ -2286,7 +2284,11 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 	return true;
 }
 
-void MainForm::action_banks_properties()
+void MainForm::action_banks_properties() {
+	editDrumkitProperties( true );
+}
+
+void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -2300,7 +2302,7 @@ void MainForm::action_banks_properties()
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
 		
-		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, pDrumkit, true );
+		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
 		dialog.exec();
 
 		// Cleaning up the last ppKit we did not deleted due to the break

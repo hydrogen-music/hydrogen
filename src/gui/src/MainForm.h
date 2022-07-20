@@ -239,6 +239,7 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
+	void editDrumkitProperties( bool bDrumkitNameLocked );
 		void updateRecentUsedSongList();
 
 		HydrogenApp*	h2app;

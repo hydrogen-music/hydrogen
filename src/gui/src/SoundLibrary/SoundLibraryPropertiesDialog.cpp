@@ -37,11 +37,10 @@
 namespace H2Core
 {
 
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkitInfo, std::shared_ptr<Drumkit> pPreDrumkit, bool bCurrentDrumkit )
+SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkit, bool bDrumkitNameLocked )
  : QDialog( pParent )
- , m_pDrumkit( pDrumkitInfo )
- , m_pPreDrumkitInfo( pPreDrumkit )
- , m_bCurrentDrumkit( bCurrentDrumkit )
+ , m_pDrumkit( pDrumkit )
+ , m_bDrumkitNameLocked( bDrumkitNameLocked )
 {
 	setupUi( this );
 	
@@ -59,18 +58,24 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
 
 	//display the current drumkit infos into the qlineedit
-	if ( pDrumkitInfo != nullptr ){
-		nameTxt->setText( QString( pDrumkitInfo->get_name() ) );
-		authorTxt->setText( QString( pDrumkitInfo->get_author() ) );
-		infoTxt->append( QString( pDrumkitInfo->get_info() ) );
+	if ( pDrumkit != nullptr ){
+		nameTxt->setText( QString( pDrumkit->get_name() ) );
 
-		License license = pDrumkitInfo->get_license();
+		if ( bDrumkitNameLocked ) {
+			nameTxt->setIsActive( false );
+			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven't done so already) using right click > load and select Drumkits > Save As in the main menu" ) );
+		}
+		
+		authorTxt->setText( QString( pDrumkit->get_author() ) );
+		infoTxt->append( QString( pDrumkit->get_info() ) );
+
+		License license = pDrumkit->get_license();
 		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
 		licenseStringTxt->setText( license.getLicenseString() );
 	
-		imageText->setText( QString( pDrumkitInfo->get_image() ) );
+		imageText->setText( QString( pDrumkit->get_image() ) );
 
-		License imageLicense = pDrumkitInfo->get_image_license();
+		License imageLicense = pDrumkit->get_image_license();
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
 		imageLicenseStringTxt->setText( imageLicense.getLicenseString() );
 	}
@@ -136,13 +141,7 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 		return;
 	}
 
-	std::vector<std::shared_ptr<InstrumentList::Content>> contentVector;
-	if ( m_bCurrentDrumkit ) {
-		contentVector = pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
-	}
-	else {
-		contentVector = m_pDrumkit->summarizeContent();
-	}
+	auto contentVector = m_pDrumkit->summarizeContent();
 
 	if ( contentVector.size() > 0 ) {
 		contentTable->show();
@@ -306,12 +305,13 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
+	if ( m_pDrumkit == nullptr ) {
+		return;
+	}
+	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
-
-	bool reload = false;
     
 	// Sanity checks.
 	//
@@ -346,105 +346,73 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			return;
 		}
 	}
-
-	if ( m_pDrumkit != nullptr && saveChanges_checkBox->isChecked() ){
-		//test if the drumkit is loaded
-		if ( m_pDrumkit->get_name() != m_pPreDrumkitInfo->get_name() ||
-			 m_pDrumkit->isUserDrumkit() != m_pPreDrumkitInfo->isUserDrumkit() ){
-			QMessageBox::information( this, "Hydrogen", tr ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
-			saveChanges_checkBox->setChecked( false );
-			ERRORLOG( "Only changes applied to the currently loaded drumkit can be stored" );
-			return;
-		}
-		reload = true;
-	}
-
-	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded
-	if ( m_pDrumkit != nullptr && ( !saveChanges_checkBox->isChecked() ) ){
-		if ( m_pPreDrumkitInfo->get_name() != m_pDrumkit->get_name() ||
-			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkit->isUserDrumkit() ){
-			pCoreActionController->setDrumkit( m_pDrumkit );
-		}
+	
+	//check the name and set the drumkitinfo to current drumkit
+	if ( nameTxt->text().isEmpty() ){
+		QMessageBox::warning( this, "Hydrogen", tr( "The name of the drumkit must not be left empty" ) );
+		return;
 	}
 
 	// Check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
-	if ( m_pDrumkit != nullptr && nameTxt->text() != m_pDrumkit->get_name()  ){
-		int res = QMessageBox::information( this, "Hydrogen",
+	if ( nameTxt->text() != m_pDrumkit->get_name()  ){
+		int nRes = QMessageBox::information( this, "Hydrogen",
 											tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"),
 											pCommonStrings->getButtonOk(),
 											pCommonStrings->getButtonCancel(),
 											nullptr, 1 );
-		if ( res == 1 ) {
+		if ( nRes == 1 ) {
 			WARNINGLOG( "Abort, as saving would result in the creation of a new drumkit" );
 			return;
 		}
-		else {
-			reload = true;
-		}
 	}
-	
-	//check the name and set the drumkitinfo to current drumkit
-	if ( m_pDrumkit != nullptr && !nameTxt->text().isEmpty() ){
 
-		QString sNewLicenseString( licenseStringTxt->text() );
-		if ( licenseComboBox->currentIndex() ==
-			 static_cast<int>(License::Unspecified) ) {
-			sNewLicenseString = "";
-		}
-		License newLicense( sNewLicenseString );
-		newLicense.setCopyrightHolder( m_pDrumkit->get_author() );
+	QString sNewLicenseString( licenseStringTxt->text() );
+	if ( licenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Unspecified) ) {
+		sNewLicenseString = "";
+	}
+	License newLicense( sNewLicenseString );
+	newLicense.setCopyrightHolder( m_pDrumkit->get_author() );
 
-		QString sNewImageLicenseString( imageLicenseStringTxt->text() );
-		if ( imageLicenseComboBox->currentIndex() ==
-			 static_cast<int>(License::Unspecified) ) {
-			sNewImageLicenseString = "";
-		}
-		License newImageLicense( sNewImageLicenseString );
-		newImageLicense.setCopyrightHolder( m_pDrumkit->get_author() );
+	QString sNewImageLicenseString( imageLicenseStringTxt->text() );
+	if ( imageLicenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Unspecified) ) {
+		sNewImageLicenseString = "";
+	}
+	License newImageLicense( sNewImageLicenseString );
+	newImageLicense.setCopyrightHolder( m_pDrumkit->get_author() );
 
 		
-		if ( m_pDrumkit->get_name() != nameTxt->text() ) {
-			m_pDrumkit->set_name( nameTxt->text() );
-			m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() + "/" +
-								   nameTxt->text() );
-		}
-		m_pDrumkit->set_author( authorTxt->text() );
-		m_pDrumkit->set_info( infoTxt->toHtml() );
+	if ( m_pDrumkit->get_name() != nameTxt->text() ) {
+		m_pDrumkit->set_name( nameTxt->text() );
+		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() + "/" +
+							  nameTxt->text() );
+	}
+	m_pDrumkit->set_author( authorTxt->text() );
+	m_pDrumkit->set_info( infoTxt->toHtml() );
 		
-		// Only update the license in case it changed (in order to not
-		// overwrite an attribution).
-		if ( m_pDrumkit->get_license() != newLicense ) {
-			m_pDrumkit->set_license( newLicense );
+	// Only update the license in case it changed (in order to not
+	// overwrite an attribution).
+	if ( m_pDrumkit->get_license() != newLicense ) {
+		m_pDrumkit->set_license( newLicense );
 
-			// Assign the new license to all samples contained in this
-			// drumkit as well.
-			m_pDrumkit->propagateLicense();
-		}
+		// Assign the new license to all samples contained in this
+		// drumkit as well.
+		m_pDrumkit->propagateLicense();
+	}
 		
-		m_pDrumkit->set_image( imageText->text() );
-		if ( m_pDrumkit->get_image_license() != newImageLicense ) {
-			m_pDrumkit->set_image_license( newImageLicense );
-		}
+	m_pDrumkit->set_image( imageText->text() );
+	if ( m_pDrumkit->get_image_license() != newImageLicense ) {
+		m_pDrumkit->set_image_license( newImageLicense );
+	}
 			
-		if ( ! m_pDrumkit->save() ) {
-			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
-			ERRORLOG( "Saving of this drumkit failed." );
-			return;
-		}
+	if ( ! m_pDrumkit->save() ) {
+		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+		ERRORLOG( "Saving of this drumkit failed." );
+		return;
 	}
 
-	//check pre loaded drumkit name  and reload the old drumkit
-	if ( m_pPreDrumkitInfo != nullptr && m_pDrumkit != nullptr){
-		if ( m_pPreDrumkitInfo->get_name() != pHydrogen->getLastLoadedDrumkitName() ||
-			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkit->isUserDrumkit() ) {
-			pCoreActionController->setDrumkit( m_pPreDrumkitInfo );
-		}
-	}
-
-	//reload if necessary
-	if ( reload == true ){
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
-	}
+	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 
 	accept();
 

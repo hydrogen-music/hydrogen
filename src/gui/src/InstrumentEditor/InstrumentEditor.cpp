@@ -141,7 +141,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
 			 this, SLOT( labelClicked(ClickableLabel*) ) );
 	
-	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ) );
+	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ), false, false );
 	m_pPitchLCD->move( 24, 213 );
 	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ),
 									  pCommonStrings->getPitchLabel() );
@@ -247,7 +247,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ ADSR
 
 	// instrument gain
-	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ) );
+	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ), false, false );
 	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
 									tr( "Instrument gain" ), false, 0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
@@ -392,7 +392,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
 			 this, SLOT( showSampleEditor() ) );
 	// Layer gain
-	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ), false, false );
 	m_pLayerGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal,
 									 tr( "Layer gain" ), false , 0.0, 5.0);
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
@@ -402,7 +402,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  pCommonStrings->getLayerGainLabel() );
 	m_pLayerGainLbl->move( 50, 360 );
 
-	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ), false, false );
 	m_pCompoGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal,
 									 tr( "Component volume" ), false, 0.0, 5.0 );
 	m_pCompoGainRotary->setDefaultValue ( 1.0 );
@@ -412,8 +412,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  pCommonStrings->getComponentGainLabel() );
 	m_pCompoGainLbl->move( 147, 360 );
 
-	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
-	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
+	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ), false, false );
+	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ), false, false );
 	m_pLayerPitchLbl = new ClickableLabel( m_pLayerProp, QSize( 45, 10 ),
 										   pCommonStrings->getPitchLabel() );
 	m_pLayerPitchLbl->move( 17, 412 );

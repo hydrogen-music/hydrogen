@@ -45,8 +45,7 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	public:
 		SoundLibraryPropertiesDialog( QWidget* pParent,
 									  std::shared_ptr<Drumkit> pDrumkit,
-									  std::shared_ptr<Drumkit> pPreDrumKit,
-									  bool bCurrentDrumkit );
+									  bool bDrumkitNameLocked );
 		~SoundLibraryPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -58,26 +57,24 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 
 	private:
 	void updateLicenseTable();
-		void updateImage( QString& filename );
-		/** The one selected by the user */
-	std::shared_ptr<Drumkit> m_pDrumkit;
-		/** The one currently loaded in Hydrogen.
-		 *
-		 * Since changes to a drumkit can only the saved correctly
-		 * when first loading it, we need to keep a pointer to the
-		 * current one in order to restore it.
-		 */
-		std::shared_ptr<Drumkit> m_pPreDrumkitInfo;
+	void updateImage( QString& filename );
 
+	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
-	 * Specifies whether the dialog was invoked for drumkit that
-	 * can be found on disk (via the SoundLibrary tree) or for the one
-	 * currently loaded in the Song (via the main menu). For the
-	 * latter #m_pDrumkitInfo holds all the associated
-	 * DrumkitComponent but the instrument list is stored in the
-	 * current #Song.
+	 * This dialog can be accessed both via SoundLibrary/MainForm >
+	 * Drumkits -> Properties and MainForm > Drumkits -> Save
+	 * As. Historically they were two distinct dialogs featuring
+	 * pretty much exactly the same fields.
+	 *
+	 * In order to keep the general menu structure both choices are
+	 * still supported but a small tweak was introduced to make them
+	 * work slightly differently. When accessed via "Properties" this
+	 * variable is set to true and it is not possible to create new
+	 * drumkits by altering the name of an existing one. If, on the
+	 * other hand, it's opened via "Save As" anything goes.
 	 */
-	bool m_bCurrentDrumkit;
+	bool m_bDrumkitNameLocked;
+	
 };
 
 }
