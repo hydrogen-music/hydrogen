@@ -1290,8 +1290,10 @@ void MainForm::action_instruments_saveLibrary()
 	
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->
 		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
-	
-	if ( pDrumkit != nullptr ){
+
+	// In case the user does not have write access to the folder of
+	// pDrumkit, the save as dialog will be opened.
+	if ( pDrumkit != nullptr && pDrumkit->isUserDrumkit() ) {
 		auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
@@ -2318,7 +2320,16 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		pNewDrumkit->set_components( pSong->getComponents() );
 		
 		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
-		dialog.exec();
+		if ( dialog.exec() == QDialog::Accepted ) {
+			// Saving was successful.
+
+			if ( pNewDrumkit->get_path() != pDrumkit->get_path() ) {
+				// A new drumkit was created based on the original
+				// one. We call the drumkit setter to ensure
+				// everything in the Song and GUI is still in sync.
+				pHydrogen->getCoreActionController()->setDrumkit( pNewDrumkit, false );
+			}
+		}
 	}
 	else {
 		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")

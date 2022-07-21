@@ -313,7 +313,16 @@ void			previewSample( Sample *pSample );
 	void updateSelectedPattern( bool bNeedsLock = true );
 
 	int				getSelectedInstrumentNumber() const;
-	void			setSelectedInstrumentNumber( int nInstrument );
+	/**
+	 * \param nInstrument #Instrument about to be selected
+	 * \param bTriggerEvent Whether #EVENT_SELECTED_INSTRUMENT_CHANGED
+	 * should be queued. When e.g. changing the selected instrument as
+	 * part of loading a different drumkit, it's important to only
+	 * trigger a single event after the loading is done and to not
+	 * fire some premature ones making the GUI act on a core that
+	 * might be in an unclean state.
+	 */
+	void			setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent = true );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
 	/**

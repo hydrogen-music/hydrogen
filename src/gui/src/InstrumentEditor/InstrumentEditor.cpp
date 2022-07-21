@@ -514,8 +514,13 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	}
 }
 
+void InstrumentEditor::drumkitLoadedEvent() {
+	selectedInstrumentChangedEvent();
+}
+
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
+	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	

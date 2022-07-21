@@ -64,9 +64,9 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 
 		bIsUserDrumkit = pDrumkit->isUserDrumkit();
 
-		nameTxt->setText( QString( pDrumkit->get_name() ) );
+		nameTxt->setText( pDrumkit->get_name() );
 
-		if ( bDrumkitNameLocked || ! bIsUserDrumkit ) {
+		if ( bDrumkitNameLocked ) {
 			nameTxt->setIsActive( false );
 			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven't done so already) using right click > load and select Drumkits > Save As in the main menu" ) );
 		}
@@ -101,19 +101,32 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	imageLicenseStringLbl->setText( pCommonStrings->getLicenseStringLbl() );
 	imageLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
 
-	if ( ! bIsUserDrumkit ) {
+	// In case the drumkit name is not locked/the dialog is used as
+	// "Save As" nothing needs to be disabled.
+	if ( ! bIsUserDrumkit && bDrumkitNameLocked ) {
+		QString sToolTip = tr( "The current drumkit is read-only. Please use Drumkits > Save As in the main menu to create a new one first." );
+		
 		// The drumkit is read-only. Thus we won't support altering
 		// any of its properties.
 		authorTxt->setIsActive( false );
+		authorTxt->setToolTip( sToolTip );
 		infoTxt->setEnabled( false );
 		infoTxt->setReadOnly( true );
+		infoTxt->setToolTip( sToolTip );
 		licenseComboBox->setIsActive( false );
+		licenseComboBox->setToolTip( sToolTip );
 		licenseStringTxt->setIsActive( false );
+		licenseStringTxt->setToolTip( sToolTip );
 		imageText->setIsActive( false );
+		imageText->setToolTip( sToolTip );
 		imageLicenseComboBox->setIsActive( false );
+		imageLicenseComboBox->setToolTip( sToolTip );
 		imageLicenseStringTxt->setIsActive( false );
+		imageLicenseStringTxt->setToolTip( sToolTip );
 		saveBtn->setIsActive( false );
+		saveBtn->setToolTip( sToolTip );
 		imageBrowsePushButton->setIsActive( false );
+		imageBrowsePushButton->setToolTip( sToolTip );
 
 		// Rather dirty fix to align the design of the QTextEdit to
 		// the coloring of our custom QLineEdits.
@@ -394,19 +407,6 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		return;
 	}
 
-	// Check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
-	if ( nameTxt->text() != m_pDrumkit->get_name()  ){
-		int nRes = QMessageBox::information( this, "Hydrogen",
-											tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"),
-											pCommonStrings->getButtonOk(),
-											pCommonStrings->getButtonCancel(),
-											nullptr, 1 );
-		if ( nRes == 1 ) {
-			WARNINGLOG( "Abort, as saving would result in the creation of a new drumkit" );
-			return;
-		}
-	}
-
 	QString sNewLicenseString( licenseStringTxt->text() );
 	if ( licenseComboBox->currentIndex() ==
 		 static_cast<int>(License::Unspecified) ) {
@@ -426,7 +426,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		
 	if ( m_pDrumkit->get_name() != nameTxt->text() ) {
 		m_pDrumkit->set_name( nameTxt->text() );
-		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() + "/" +
+		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() +
 							  nameTxt->text() );
 	}
 	m_pDrumkit->set_author( authorTxt->text() );
@@ -446,14 +446,19 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->get_image_license() != newImageLicense ) {
 		m_pDrumkit->set_image_license( newImageLicense );
 	}
+	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 			
 	if ( ! m_pDrumkit->save() ) {
+		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
 		return;
 	}
 
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
+			
+	QApplication::restoreOverrideCursor();
 
 	accept();
 

@@ -255,6 +255,10 @@ bool Filesystem::file_executable( const QString& path, bool silent )
 {
 	return check_permissions( path, is_file|is_executable, silent );
 }
+bool Filesystem::dir_exists(  const QString& path, bool silent )
+{
+	return check_permissions( path, is_dir, silent );
+}
 bool Filesystem::dir_readable(  const QString& path, bool silent )
 {
 	return check_permissions( path, is_dir|is_readable|is_executable, silent );

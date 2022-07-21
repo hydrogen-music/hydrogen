@@ -109,6 +109,8 @@ Song::~Song()
 	 * Following the current design, the caller has to care for the lock.
 	 */
 
+	delete m_pPatternList;
+	
 	if ( m_pPatternGroupSequence ) {
 		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
 			PatternList* pPatternList = ( *m_pPatternGroupSequence )[i];
@@ -1207,15 +1209,16 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	// Load DrumkitComponents 
 	auto pDrumkitCompoList = pDrumkit->get_components();
 
-	m_pComponents->clear();
+	auto pNewComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	
 	for ( const auto& pSrcComponent : *pDrumkitCompoList ) {
 		auto pNewComponent = std::make_shared<DrumkitComponent>( pSrcComponent->get_id(),
 																 pSrcComponent->get_name() );
 		pNewComponent->load_from( pSrcComponent );
 
-		m_pComponents->push_back( pNewComponent );
+		pNewComponents->push_back( pNewComponent );
 	}
+	m_pComponents = pNewComponents;
 
 	//////
 	// Load InstrumentList
@@ -1228,6 +1231,14 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	 * new instrumentlist
 	 */
 	auto pDrumkitInstrList = pDrumkit->get_instruments();
+
+	if ( pDrumkitInstrList == m_pInstrumentList ) {
+		// This occurs when saving a Drumkit based on the instrument
+		// list of the current song using a different name. It stores
+		// just a pointer to the instrument and component list of the
+		// current song and will be set afterwards.
+		return;
+	}
 	
 	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
 	int nMaxID = -1;
@@ -1275,6 +1286,7 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	// Load samples of all instruments.
 	m_pInstrumentList->load_samples(
 		Hydrogen::get_instance()->getAudioEngine()->getBpm() );
+
 }
 
 void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
@@ -1290,7 +1302,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 		// the instrument will be kept instead of discarded.
 		for ( const auto& pPattern : *m_pPatternList ) {
 			if ( pPattern->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
+				INFOLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
 				return;
 			}
 		}
@@ -1310,7 +1322,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 				pCompo->set_layer( nullptr, nLayer );
 			}
 		}
-		DEBUGLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
+		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
 		return;
 	}
 	

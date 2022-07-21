@@ -283,6 +283,10 @@ class Instrument : public H2Core::Object<Instrument>
 		void set_drumkit_path( const QString& sPath );
 		///< get the path of the related drumkits
 		const QString& get_drumkit_path() const;
+		///< set the name of the related drumkit
+		void set_drumkit_name( const QString& sName );
+		///< get the name of the related drumkits
+		const QString& get_drumkit_name() const;
 
 		/** Mark the instrument as hydrogen's preview instrument */
 		void set_is_preview_instrument(bool isPreview);
@@ -667,6 +671,16 @@ inline void Instrument::set_drumkit_path( const QString& sPath )
 inline const QString& Instrument::get_drumkit_path() const
 {
 	return __drumkit_path;
+}
+
+inline void Instrument::set_drumkit_name( const QString& sName )
+{
+	__drumkit_name = sName;
+}
+
+inline const QString& Instrument::get_drumkit_name() const
+{
+	return __drumkit_name;
 }
 
 inline bool Instrument::is_preview_instrument() const

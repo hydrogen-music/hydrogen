@@ -1966,12 +1966,19 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 {
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->removeInstrument( pHydrogen->getSong()->getInstrumentList()->size() -1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+	
+	pHydrogen->removeInstrument( pSong->getInstrumentList()->size() -1 );
 
 	if ( pHydrogen->hasJackAudioDriver() ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		pHydrogen->renameJackPorts( pHydrogen->getSong() );
+		pHydrogen->renameJackPorts( pSong );
 		m_pAudioEngine->unlock();
 	}
 	
@@ -1983,10 +1990,17 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 
 void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 {
-	m_pAudioEngine->lock( RIGHT_HERE );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+	
 	auto pList = pSong->getInstrumentList();
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 
 	// create a new valid ID for this instrument
 	int nID = -1;
@@ -2000,6 +2014,9 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	++nID;
 
 	auto pNewInstr = std::make_shared<Instrument>( nID, "New instrument");
+	pNewInstr->set_drumkit_path( pSong->getLastLoadedDrumkitPath() );
+	pNewInstr->set_drumkit_name( pSong->getLastLoadedDrumkitName() );
+	
 	pList->add( pNewInstr );
 
 	pHydrogen->renameJackPorts( pSong );

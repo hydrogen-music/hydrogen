@@ -971,7 +971,6 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditiona
 }
 
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
-
 	if ( pDrumkit != nullptr ) {
 
 		auto pHydrogen = Hydrogen::get_instance();
@@ -989,7 +988,8 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 			if ( pHydrogen->getSelectedInstrumentNumber() >=
 				 pSong->getInstrumentList()->size() ) {
 				pHydrogen->setSelectedInstrumentNumber(
-					std::max( 0, pSong->getInstrumentList()->size() -1 ) );
+					std::max( 0, pSong->getInstrumentList()->size() -1 ),
+					false );
 			}
 
 			pHydrogen->renameJackPorts( pSong );
@@ -1019,7 +1019,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1346,8 +1346,8 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-					  .arg( nTotalTick ) );
+			INFOLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+					 .arg( nTotalTick ) );
 			return false;
 		} else {
 			// In case of Pattern mode this is not a problem and we

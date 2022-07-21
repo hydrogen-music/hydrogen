@@ -21,27 +21,12 @@
  */
 
 #include "SoundLibraryExportDialog.h"
-#include "SoundLibraryPanel.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
-#include "../InstrumentRack.h"
 
-#include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
-#include <core/H2Exception.h>
-#include <core/Basics/Adsr.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/DrumkitComponent.h>
-#include <core/SoundLibrary/SoundLibraryDatabase.h>
-
-#include <QFileDialog>
-#include <QtGui>
-#include <QtWidgets>
 
 using namespace H2Core;
 

@@ -361,14 +361,14 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 		sDrumkitFolder = __path;
 	}
 	
-	if ( ! Filesystem::file_exists( sDrumkitFolder, bSilent ) &&
+	if ( ! Filesystem::dir_exists( sDrumkitFolder, true ) &&
 		 ! Filesystem::mkdir( sDrumkitFolder ) ) {
 		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Could not create drumkit folder." )
 			 .arg( __name ).arg( sDrumkitFolder ) );
 		return false;
 	}
 
-	if ( Filesystem::file_exists( sDrumkitFolder, bSilent ) &&
+	if ( Filesystem::dir_exists( sDrumkitFolder, bSilent ) &&
 		 ! Filesystem::dir_writable( sDrumkitFolder, bSilent ) ) {
 		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Drumkit folder not writable." )
 			 .arg( __name ).arg( sDrumkitFolder ) );
@@ -400,7 +400,7 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 	// In order to comply with the GPL license we have to add a
 	// license notice to the file.
 	if ( __license.getType() == License::GPL ) {
-		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
+		root.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
 	}
 	
 	save_to( &root, nComponentID, bRecentVersion, bSilent );

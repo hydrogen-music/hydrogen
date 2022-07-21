@@ -922,14 +922,17 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
-void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
+void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent )
 {
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		return;
 	}
 
 	m_nSelectedInstrumentNumber = nInstrument;
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	}
 }
 
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )

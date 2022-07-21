@@ -128,6 +128,34 @@ void InstrumentList::operator<<( std::shared_ptr<Instrument> instrument )
 	}
 	__instruments.push_back( instrument );
 }
+	
+bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const {
+	if ( pOther != nullptr && size() == pOther->size() ) {
+		for ( int ii = 0; ii < size(); ++ii ) {
+			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool InstrumentList::operator!=( std::shared_ptr<InstrumentList> pOther ) const {
+	if ( pOther != nullptr && size() == pOther->size() ) {
+		for ( int ii = 0; ii < size(); ++ii ) {
+			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	return true;
+}
 
 void InstrumentList::add( std::shared_ptr<Instrument> instrument )
 {
@@ -168,14 +196,14 @@ bool InstrumentList::is_valid_index( int idx ) const
 	return is_valid_index;
 }
 
-std::shared_ptr<Instrument> InstrumentList::get( int idx )
+std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 {
-	if ( !is_valid_index( idx ) ) {
+	if ( ! is_valid_index( idx ) ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
 	}
 	assert( idx >= 0 && idx < __instruments.size() );
-	return __instruments[idx];
+	return __instruments.at( idx );
 }
 
 int InstrumentList::index( std::shared_ptr<Instrument> instr )

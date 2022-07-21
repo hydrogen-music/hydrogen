@@ -109,6 +109,7 @@ public slots:
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 	virtual void enterEvent( QEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 	virtual void paintEvent( QPaintEvent* ev ) override;

@@ -77,6 +77,7 @@ void SoundLibraryDatabase::update()
 }
 
 void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
+
 	m_drumkitDatabase.clear();
 
 	QStringList drumkitPaths;

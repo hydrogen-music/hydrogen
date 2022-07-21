@@ -395,7 +395,9 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	PixmapWidget::mousePressEvent(ev);
 }
 
-
+void InstrumentLine::mouseDoubleClickEvent( QMouseEvent* ev ) {
+	functionRenameInstrument();
+}
 
 H2Core::Pattern* InstrumentLine::getCurrentPattern()
 {
@@ -856,8 +858,6 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 ///
 void PatternEditorInstrumentList::updateInstrumentLines()
 {
-	//INFOLOG( "Update lines" );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pInstrList = pSong->getInstrumentList();

@@ -88,6 +88,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param idx the index to get the instrument from
 		 */
 		std::shared_ptr<Instrument> operator[]( int idx );
+	/**
+	 * Superficial comparison check. If it succeeds, both objects are
+	 * identical. If it fails, however, they are not guarantued to be
+	 * not identical.
+	 */
+	bool operator==( std::shared_ptr<InstrumentList> pOther ) const;
+	bool operator!=( std::shared_ptr<InstrumentList> pOther ) const;
 		/**
 		 * add an instrument to the list
 		 * \param instrument a pointer to the instrument to add
@@ -110,7 +117,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
-		std::shared_ptr<Instrument> get( int idx );
+		std::shared_ptr<Instrument> get( int idx ) const;
 		/**
 		 * remove the instrument at a given index, does not delete it
 		 * \param idx the index

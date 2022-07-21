@@ -23,13 +23,13 @@
 #ifndef SOUND_LIBRARY_EXPORT_DIALOG_H
 #define SOUND_LIBRARY_EXPORT_DIALOG_H
 
+#include <QtGui>
+#include <QtWidgets>
+
 #include "ui_SoundLibraryExportDialog_UI.h"
 
 #include <core/Object.h>
-#include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
-
-#include <vector>
 
 ///
 ///

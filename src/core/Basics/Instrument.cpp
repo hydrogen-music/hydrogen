@@ -206,7 +206,7 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 	this->set_id( pInstrument->get_id() );
 	this->set_name( pInstrument->get_name() );
 	this->set_drumkit_path( pDrumkit->get_path() );
-	this->__drumkit_name = pDrumkit->get_name();
+	this->set_drumkit_name( pDrumkit->get_name() );
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
 	this->setPan( pInstrument->getPan() );
@@ -216,16 +216,22 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 	this->set_filter_resonance( pInstrument->get_filter_resonance() );
 	this->set_pitch_offset( pInstrument->get_pitch_offset() );
 	this->set_random_pitch_factor( pInstrument->get_random_pitch_factor() );
-	this->set_muted( pInstrument->is_muted() );
 	this->set_mute_group( pInstrument->get_mute_group() );
 	this->set_midi_out_channel( pInstrument->get_midi_out_channel() );
 	this->set_midi_out_note( pInstrument->get_midi_out_note() );
 	this->set_stop_notes( pInstrument->is_stop_notes() );
 	this->set_sample_selection_alg( pInstrument->sample_selection_alg() );
+	this->set_active( pInstrument->is_active() );
+	this->set_soloed( pInstrument->is_soloed() );
+	this->set_muted( pInstrument->is_muted() );
 	this->set_hihat_grp( pInstrument->get_hihat_grp() );
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
+
+	for ( int ii = 0; ii < MAX_FX; ++ii ) {
+		this->set_fx_level( pInstrument->get_fx_level( ii ), ii );
+	}
 }
 
 void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrumentName )
