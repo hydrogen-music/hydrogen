@@ -214,11 +214,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			getIsModified() const;
 		void			setIsModified( bool bIsModified);
 
-	std::vector<DrumkitComponent*>* getComponents() const;
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
 
 		AutomationPath *	getVelocityAutomationPath() const;
 
-		DrumkitComponent*	getComponent( int nID ) const;
+		std::shared_ptr<DrumkitComponent>	getComponent( int nID ) const;
 
 		void			readTempPatternList( const QString& sFilename );
 		bool			writeTempPatternList( const QString& sFilename );
@@ -339,7 +339,7 @@ private:
 		///< Instrument list
 		InstrumentList*	       	m_pInstrumentList;
 		///< list of drumkit component
-		std::vector<DrumkitComponent*>*	m_pComponents;				
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;				
 		QString			m_sFilename;
 
 		/**
@@ -642,7 +642,7 @@ inline void Song::setMode( Song::Mode mode )
 	m_mode = mode;
 }
 
-inline std::vector<DrumkitComponent*>* Song::getComponents() const
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Song::getComponents() const
 {
 	return m_pComponents;
 }

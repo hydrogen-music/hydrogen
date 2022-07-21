@@ -465,10 +465,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
-	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
-		DrumkitComponent* pComponent = *it;
-		if( !itemsCompo.contains( pComponent->get_name() ) ) {
+	auto pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	for ( const auto& pComponent : *pComponentList ) {
+		if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
 			itemsCompo.append( pComponent->get_name() );
 		}
 	}
@@ -595,11 +594,10 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
 
 		itemsCompo.clear();
-		std::vector<DrumkitComponent*>* compoList = pSong->getComponents();
-		for (auto& it : *pSong->getComponents() ) {
-			DrumkitComponent* pDrumkitComponent = it;
-			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) ) {
-				itemsCompo.append( pDrumkitComponent->get_name() );
+		auto compoList = pSong->getComponents();
+		for ( const auto& pComponent : *pSong->getComponents() ) {
+			if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
+				itemsCompo.append( pComponent->get_name() );
 			}
 		}
 		itemsCompo.append("--sep--");
@@ -610,8 +608,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		update();
 
 		bool bFound = false;
-		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-			DrumkitComponent* pComponent = *it;
+		for ( const auto& pComponent : *compoList ) {
 			if ( pComponent->get_id() == m_nSelectedComponent ) {
 				bFound = true;
 				break;
@@ -621,7 +618,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = compoList->front()->get_id();
 		}
 
-		DrumkitComponent* pTmpComponent = pSong->getComponent( m_nSelectedComponent );
+		auto pTmpComponent = pSong->getComponent( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
@@ -1091,7 +1088,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
+	auto pComponent = pSong->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
 		return;
 	}
@@ -1316,10 +1313,9 @@ void InstrumentEditor::update()
 int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 {
 	bool bFoundFreeSlot = true;
-	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponentList->begin() ; it != pDrumkitComponentList->end(); ++it) {
-		DrumkitComponent* pDrumkitComponent = *it;
-		if( pDrumkitComponent->get_id() == startingPoint ) {
+	auto pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	for ( const auto& pComponent : *pDrumkitComponentList ) {
+		if ( pComponent->get_id() == startingPoint ) {
 			bFoundFreeSlot = false;
 			break;
 		}
@@ -1343,7 +1339,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			bool bIsOkPressed;
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
-				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
+				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( findFreeDrumkitComponentId(), sNewName );
 				pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 				//auto instrument_component = std::make_shared<InstrumentComponent>( dm_component->get_id() );
@@ -1368,20 +1364,20 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
+		auto pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pHydrogen->getSong()->getInstrumentList();
+		auto pInstruments = pHydrogen->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
-				auto  pInstrumentComponent = pInstrument->get_components()->at( o );
+				auto pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
 					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;
@@ -1390,7 +1386,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 
 		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
-			DrumkitComponent* pTmpDrumkitComponent = pDrumkitComponents->at( n );
+			auto pTmpDrumkitComponent = pDrumkitComponents->at( n );
 			if( pTmpDrumkitComponent->get_id() == pDrumkitComponent->get_id() ) {
 				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
 				break;
@@ -1399,7 +1395,6 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 		m_nSelectedComponent = pDrumkitComponents->front()->get_id();
 
-		delete pDrumkitComponent;
 
 		selectedInstrumentChangedEvent();
 		// this will force an update...
@@ -1410,12 +1405,11 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
-		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
-			DrumkitComponent* pDrumkitComponent = *it;
-			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
-				m_nSelectedComponent = pDrumkitComponent->get_id();
-				m_pCompoNameLbl->setText( pDrumkitComponent->get_name() );
+		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		for ( const auto& pComponent : *pDrumkitComponents ) {
+			if ( pComponent->get_name().compare( sSelectedAction ) == 0) {
+				m_nSelectedComponent = pComponent->get_id();
+				m_pCompoNameLbl->setText( pComponent->get_name() );
 				break;
 			}
 		}

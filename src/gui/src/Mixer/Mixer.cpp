@@ -222,7 +222,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isMuteClicked = ref->isMuteClicked();
 
-	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -244,7 +244,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	float newVolume = ref->getVolume();
 
-	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -404,8 +404,8 @@ void Mixer::updateMixer()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
-	std::vector<DrumkitComponent*>* pDrumkitComponentList = pSong->getComponents();
+	auto pInstrList = pSong->getInstrumentList();
+	auto pDrumkitComponentList = pSong->getComponents();
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -579,14 +579,13 @@ void Mixer::updateMixer()
 		for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
 
 			bool bFoundExistingRelatedComponent = false;
-			for ( std::vector<DrumkitComponent*>::iterator it2 = pDrumkitComponentList->begin() ; it2 != pDrumkitComponentList->end(); ++it2 ) {
-				DrumkitComponent* pComponent = *it2;
-				if( pComponent->get_id() == it->first ) {
+			for ( const auto& pComponent : *pDrumkitComponentList ) {
+				if ( pComponent->get_id() == it->first ) {
 					bFoundExistingRelatedComponent = true;
 					break;
 				}
 			}
-			if( !bFoundExistingRelatedComponent ) {
+			if ( !bFoundExistingRelatedComponent ) {
 				IdsToDelete.push_back( it->first ) ;
 			}
 		}

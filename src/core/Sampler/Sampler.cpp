@@ -537,7 +537,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 	for ( const auto& pCompo : *components ) {
 		nReturnValues[nReturnValueIndex] = false;
-		DrumkitComponent* pMainCompo = nullptr;
+		std::shared_ptr<DrumkitComponent> pMainCompo = nullptr;
 
 		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
 			nReturnValueIndex++;
@@ -872,7 +872,7 @@ bool Sampler::renderNoteNoResample(
 	Note *pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
-	DrumkitComponent *pDrumCompo,
+	std::shared_ptr<DrumkitComponent> pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
 	float cost_L,
@@ -1067,7 +1067,7 @@ bool Sampler::renderNoteResample(
 	Note *pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
-	DrumkitComponent *pDrumCompo,
+	std::shared_ptr<DrumkitComponent> pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
 	float cost_L,

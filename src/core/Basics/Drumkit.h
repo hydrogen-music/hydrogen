@@ -234,8 +234,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 		bool isUserDrumkit() const;
 
-		std::vector<DrumkitComponent*>* get_components();
-		void set_components( std::vector<DrumkitComponent*>* components );
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
+	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 
 	/**
 	 * Assign the license stored in #m_license to all samples
@@ -269,7 +269,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
-		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> __components;  ///< list of drumkit component
 
 		/**
 		 * save the drumkit image into the new directory
@@ -401,7 +401,7 @@ inline const bool Drumkit::samples_loaded() const
 	return __samples_loaded;
 }
 
-inline std::vector<DrumkitComponent*>* Drumkit::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::get_components()
 {
 	return __components;
 }

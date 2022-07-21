@@ -96,7 +96,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
-	m_pComponents = new std::vector<DrumkitComponent*> ();
+	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 
 	m_pTimeline = std::make_shared<Timeline>();
@@ -110,11 +110,6 @@ Song::~Song()
 	 */
 	
 	delete m_pPatternList;
-
-	for (std::vector<DrumkitComponent*>::iterator it = m_pComponents->begin() ; it != m_pComponents->end(); ++it) {
-		delete *it;
-	}
-	delete m_pComponents;
 
 	if ( m_pPatternGroupSequence ) {
 		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
@@ -367,7 +362,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ( ! componentListNode.isNull()  ) ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pSong->getComponents()->push_back( pDrumkitComponent );
 			}
@@ -376,7 +371,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		}
 	}
 	else {
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pSong->getComponents()->push_back( pDrumkitComponent );
 	}
 
@@ -977,11 +972,11 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 }
 
-DrumkitComponent* Song::getComponent( int nID ) const
+std::shared_ptr<DrumkitComponent> Song::getComponent( int nID ) const
 {
-	for (std::vector<DrumkitComponent*>::iterator it = m_pComponents->begin() ; it != m_pComponents->end(); ++it) {
-		if( (*it)->get_id() == nID ) {
-			return *it;
+	for ( auto pComponent : *m_pComponents ) {
+		if ( pComponent->get_id() == nID ) {
+			return pComponent;
 		}
 	}
 
@@ -1214,16 +1209,13 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	m_sLastLoadedDrumkitPath = pDrumkit->get_path();
 
 	// Load DrumkitComponents 
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
-	
-	for( auto &pComponent : *m_pComponents ){
-		delete pComponent;
-	}
+	auto pDrumkitCompoList = pDrumkit->get_components();
+
 	m_pComponents->clear();
 	
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-		DrumkitComponent* pSrcComponent = *it;
-		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+	for ( const auto& pSrcComponent : *pDrumkitCompoList ) {
+		auto pNewComponent = std::make_shared<DrumkitComponent>( pSrcComponent->get_id(),
+																 pSrcComponent->get_name() );
 		pNewComponent->load_from( pSrcComponent );
 
 		m_pComponents->push_back( pNewComponent );

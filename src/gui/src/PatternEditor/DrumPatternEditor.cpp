@@ -1784,14 +1784,13 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->removeInstrument( nTargetInstrument );
 
-	std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
+	auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
-	for (std::vector<int>::iterator it = AddedComponents->begin() ; it != AddedComponents->end(); ++it) {
-		int p_compoID = *it;
+	for ( const auto& nComponent : *AddedComponents ) {
 
 		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
-			DrumkitComponent* pTmpDrumkitComponent = pDrumkitComponents->at( n );
-			if( pTmpDrumkitComponent->get_id() == p_compoID ) {
+			auto pTmpDrumkitComponent = pDrumkitComponents->at( n );
+			if ( pTmpDrumkitComponent->get_id() == nComponent ) {
 				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
 				break;
 			}
@@ -1857,7 +1856,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 
 			pComponent->set_id( nNewID );
 			pComponent->set_name( pSong->makeComponentNameUnique( pComponent->get_name() ) );
-			DrumkitComponent* pNewComponent = new DrumkitComponent( pComponent );
+			auto pNewComponent = std::make_shared<DrumkitComponent>( pComponent );
 			pSong->getComponents()->push_back( pNewComponent );
 		}
 

@@ -252,7 +252,7 @@ void InstrumentList::move( int idx_a, int idx_b )
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }
 
-std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const {
+std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const {
 	std::vector<std::shared_ptr<InstrumentList::Content>> results;
 
 	for ( const auto& ppInstrument : __instruments ) {

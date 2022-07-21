@@ -53,10 +53,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto DrumkitComponent = new H2Core::DrumkitComponent( 0, "ladida" );
-		auto DrumkitComponent2 = new H2Core::DrumkitComponent( DrumkitComponent );
-		delete DrumkitComponent;
-		delete DrumkitComponent2;
+		auto pDrumkitComponent = std::make_shared<H2Core::DrumkitComponent>( 0, "ladida" );
+		auto pDrumkitComponent2 = std::make_shared<H2Core::DrumkitComponent>( pDrumkitComponent );
+		pDrumkitComponent = nullptr;
+		pDrumkitComponent2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -197,9 +197,9 @@ void MemoryLeakageTest::testConstructors() {
 
 	{
 		auto pDrumkitComponents = pSongProper->getComponents();
-		auto pDrumkitComponent = new H2Core::DrumkitComponent( (*pDrumkitComponents)[0] );
+		auto pDrumkitComponent = std::make_shared<H2Core::DrumkitComponent>( (*pDrumkitComponents)[0] );
 		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
-		delete pDrumkitComponent;
+		pDrumkitComponent = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -262,7 +262,7 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "drumkitComponent" );
 		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( &node );
 		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
-		delete pDrumkitComponent;
+		pDrumkitComponent = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 

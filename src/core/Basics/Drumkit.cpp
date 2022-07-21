@@ -58,7 +58,7 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __license( License() ),
 					 __imageLicense( License() )
 {
-	__components = new std::vector<DrumkitComponent*> ();
+	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	__instruments = new InstrumentList();
 }
 
@@ -71,23 +71,18 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	__license( other->get_license() ),
 	__image( other->get_image() ),
 	__imageLicense( other->get_image_license() ),
-	__samples_loaded( other->samples_loaded() ),
-	__components( nullptr )
+	__samples_loaded( other->samples_loaded() )
 {
 	__instruments = new InstrumentList( other->get_instruments() );
 
-	__components = new std::vector<DrumkitComponent*> ();
-	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
-		__components->push_back(new DrumkitComponent(*it));
+	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	for ( const auto& pComponent : *other->get_components() ) {
+		__components->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
 }
 
 Drumkit::~Drumkit()
 {
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		delete *it;
-	}
-	delete __components;
 
 	if( __instruments ) {
 		delete __instruments;
@@ -181,7 +176,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pDrumkit->get_components()->push_back(pDrumkitComponent);
 			}
@@ -190,7 +185,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 		}
 	} else {
 		WARNINGLOG( "componentList node not found" );
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
 
@@ -431,21 +426,16 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion, boo
 	// layers corresponding to component_id will be exported.
 	if ( bRecentVersion ) {
 		XMLNode components_node = node->createNode( "componentList" );
-		if( component_id == -1 && __components->size() > 0 ) {
-			for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it){
-				DrumkitComponent* pComponent = *it;
+		if ( component_id == -1 && __components->size() > 0 ) {
+			for ( const auto& pComponent : *__components ){
 				pComponent->save_to( &components_node );
 			}
-		} else {
-		
+		}
+		else {
 			bool bComponentFound = false;
 
 			if ( component_id != -1 ) {
-				DrumkitComponent* pComponent;
-				for ( std::vector<DrumkitComponent*>::iterator it = __components->begin();
-					  it != __components->end();
-					  ++it ){
-					pComponent = *it;
+				for ( const auto& pComponent : *__components ){
 					if ( pComponent != nullptr &&
 						 pComponent->get_id() == component_id ) {
 						bComponentFound = true;
@@ -461,9 +451,8 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion, boo
 					ERRORLOG( QString( "Unable to retrieve DrumkitComponent [%1]. Storing an empty one as fallback." )
 							  .arg( component_id ) );
 				}
-				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 				pDrumkitComponent->save_to( &components_node );
-				delete pDrumkitComponent;
 			}
 		}
 	} else {
@@ -551,13 +540,8 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 	__instruments = instruments;
 }
 
-void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
+void Drumkit::set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components )
 {
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		delete *it;
-	}
-	
-	delete __components;
 	__components = components;
 }
 

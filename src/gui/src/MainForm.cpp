@@ -1159,7 +1159,7 @@ void MainForm::action_instruments_addComponent()
 	if ( bIsOkPressed  ) {
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
 		pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 		selectedInstrumentChangedEvent();

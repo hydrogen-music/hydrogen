@@ -203,7 +203,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<std::shared_ptr<Content>> summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const;
+	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".
