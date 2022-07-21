@@ -40,7 +40,7 @@ class SoundLibraryExportDialog :  public QDialog, public Ui_SoundLibraryExportDi
 	H2_OBJECT(SoundLibraryExportDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryExportDialog( QWidget* pParent, const QString& sSelectedDrumkitPath );
+	SoundLibraryExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
 		~SoundLibraryExportDialog();
 
 private slots:
@@ -48,13 +48,12 @@ private slots:
 	void on_browseBtn_clicked();
 	void on_cancelBtn_clicked();
 	void on_versionList_currentIndexChanged( int index );
-	void on_drumkitListComboBox_currentIndexChanged( QString str );
 	void on_drumkitPathTxt_textChanged( QString str );
 	
 private:
-	void updateDrumkitList();
-	QString m_sSelectedDrumkitPath;
-	QHash<QString, QStringList> m_kit_components;
+	void updateComponentList();
+	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
+	QStringList m_components;
 };
 
 

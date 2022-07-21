@@ -682,9 +682,14 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 void SoundLibraryPanel::on_drumkitExportAction()
 {
+	auto pSoundLibraryDatabase =
+		Hydrogen::get_instance()->getSoundLibraryDatabase();
+	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-	SoundLibraryExportDialog exportDialog( this, sDrumkitPath );
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+	
+	SoundLibraryExportDialog exportDialog( this, pDrumkit );
 	exportDialog.exec();
 }
 

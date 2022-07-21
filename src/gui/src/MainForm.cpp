@@ -1246,9 +1246,24 @@ void MainForm::functionDeleteInstrument(int instrument)
 void MainForm::action_instruments_exportLibrary() {
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	SoundLibraryExportDialog exportDialog( this,
-										   pHydrogen->getLastLoadedDrumkitPath() );
-	exportDialog.exec();
+	auto pSong = pHydrogen->getSong();
+	
+	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
+		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
+	
+	if ( pDrumkit != nullptr ){
+
+		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
+		pNewDrumkit->set_components( pSong->getComponents() );
+		SoundLibraryExportDialog exportDialog( this, pNewDrumkit );
+		exportDialog.exec();
+	}
+	else {
+		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
+							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
+							  .arg( pHydrogen->getLastLoadedDrumkitPath() ) );
+	}		
 }
 
 
@@ -2304,9 +2319,6 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		
 		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
 		dialog.exec();
-
-		// Cleaning up the last ppKit we did not deleted due to the break
-		// statement.
 	}
 	else {
 		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
