@@ -321,21 +321,25 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 	if ( item->parent() == __system_drumkits_item ||
 		 item->parent() == __user_drumkits_item  ) {
-		// e' stato selezionato un drumkit
+		// Double clicking a drumkit
 	}
 	else {
+		// Double clicking an instrument
+		QString sSelectedName = item->text(0);
 
-		// e' stato selezionato uno strumento
-		QString selectedName = item->text(0);
-		if( item->text(0) == "Patterns" ){
+		QString sInstrName = sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
+		QString sDrumkitName = item->parent()->text(0);
+		QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
+				 .arg( sInstrName ).arg( sDrumkitName ).arg( sDrumkitPath ) );
+
+		auto pInstrument = Instrument::load_instrument( sDrumkitPath, sInstrName );
+
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( "Unable to load instrument. Abort" );
 			return;
 		}
-
-		QString sInstrName = selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 );
-		QString sDrumkitName = item->parent()->text(0);
-		INFOLOG( QString(sDrumkitName) + ", instr:" + sInstrName );
-
-		auto pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
+		
 		pInstrument->set_muted( false );
 
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pInstrument );

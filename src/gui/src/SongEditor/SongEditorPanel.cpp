@@ -105,14 +105,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// down button
 	m_pDownBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
 							 "down.svg", "", false, QSize( 7, 7 ),
-							 tr("Move the selected pattern down"), false, true, "2" );
+							 tr("Move the selected pattern down"), false, true, 2 );
 	m_pDownBtn->move( 90, 36 );
 	connect( m_pDownBtn, SIGNAL( clicked() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
 	m_pUpBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
 						   "up.svg", "", false, QSize( 7, 7 ),
-						   tr("Move the selected pattern up"), false, true, "2" );
+						   tr("Move the selected pattern up"), false, true, 2 );
 	m_pUpBtn->move( 90, 25 );
 	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( upBtnClicked() ) );
 

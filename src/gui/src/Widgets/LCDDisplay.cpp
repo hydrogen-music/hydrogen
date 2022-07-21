@@ -36,7 +36,9 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIs
 {
 	setReadOnly( ! bIsActive );
 	setEnabled( bIsActive );
-	setFocusPolicy( Qt::NoFocus );
+	if ( ! bIsActive ) {
+		setFocusPolicy( Qt::NoFocus );
+	}
 	setAlignment( Qt::AlignCenter );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 
@@ -90,6 +92,13 @@ void LCDDisplay::setIsActive( bool bIsActive ) {
 
 	setReadOnly( ! bIsActive );
 	setEnabled( bIsActive );
+	
+	if ( ! bIsActive ) {
+		setFocusPolicy( Qt::NoFocus );
+	}
+	else {
+		setFocusPolicy( Qt::StrongFocus );
+	}
 }
 
 void LCDDisplay::updateFont() {

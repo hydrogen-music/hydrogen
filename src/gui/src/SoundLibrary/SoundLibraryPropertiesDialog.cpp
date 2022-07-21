@@ -106,6 +106,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 		// any of its properties.
 		authorTxt->setIsActive( false );
 		infoTxt->setEnabled( false );
+		infoTxt->setReadOnly( true );
 		licenseComboBox->setIsActive( false );
 		licenseStringTxt->setIsActive( false );
 		imageText->setIsActive( false );
@@ -125,6 +126,16 @@ QTextEdit { \
 								.arg( pPref->getColorTheme()->m_windowColor.name() ) );
 										
 	}
+
+	saveBtn->setFixedFontSize( 12 );
+	saveBtn->setSize( QSize( 70, 23 ) );
+	saveBtn->setBorderRadius( 3 );
+	m_cancelBtn->setFixedFontSize( 12 );
+	m_cancelBtn->setSize( QSize( 70, 23 ) );
+	m_cancelBtn->setBorderRadius( 3 );
+	imageBrowsePushButton->setFixedFontSize( 12 );
+	imageBrowsePushButton->setBorderRadius( 3 );
+	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
 	
 	contentTable->setColumnCount( 4 );
 	contentTable->setHorizontalHeaderLabels( QStringList() <<
@@ -138,7 +149,7 @@ QTextEdit { \
 	contentTable->setColumnWidth( 0, 160 );
 	contentTable->setColumnWidth( 1, 80 );
 	contentTable->setColumnWidth( 2, 210 );
-		
+
 	updateLicenseTable();
 }
 
