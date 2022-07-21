@@ -173,7 +173,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="imageBrowsePushButton">
+      <widget class="Button" name="imageBrowsePushButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -327,14 +327,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="saveBtn">
+      <widget class="Button" name="saveBtn">
        <property name="text">
         <string>Save </string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="m_cancelBtn">
+      <widget class="Button" name="m_cancelBtn">
        <property name="text">
         <string>Cancel</string>
        </property>
@@ -355,6 +355,12 @@
    <class>LCDCombo</class>
    <extends>QComboBox</extends>
    <header location="global">../src/Widgets/LCDCombo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

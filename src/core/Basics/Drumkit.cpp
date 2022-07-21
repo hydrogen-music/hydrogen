@@ -605,7 +605,10 @@ bool Drumkit::remove( const QString& sDrumkitDir )
 bool Drumkit::isUserDrumkit() const {
 	if ( __path.contains( Filesystem::sys_drumkits_dir() ) ) {
 		return false;
-	} 
+	} else if ( ! Filesystem::dir_writable( __path ) ) {
+		return false;
+	}
+	
 	return true;
 }
 	

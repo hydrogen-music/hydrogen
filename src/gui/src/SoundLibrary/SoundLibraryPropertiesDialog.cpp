@@ -43,7 +43,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
  , m_bDrumkitNameLocked( bDrumkitNameLocked )
 {
 	setupUi( this );
-	
+
+	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	setWindowTitle( tr( "SoundLibrary Properties" ) );
@@ -57,11 +58,15 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	connect( imageLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
 
+	bool bIsUserDrumkit = false;
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
+
+		bIsUserDrumkit = pDrumkit->isUserDrumkit();
+
 		nameTxt->setText( QString( pDrumkit->get_name() ) );
 
-		if ( bDrumkitNameLocked ) {
+		if ( bDrumkitNameLocked || ! bIsUserDrumkit ) {
 			nameTxt->setIsActive( false );
 			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven't done so already) using right click > load and select Drumkits > Save As in the main menu" ) );
 		}
@@ -95,6 +100,31 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	imageLicenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	imageLicenseStringLbl->setText( pCommonStrings->getLicenseStringLbl() );
 	imageLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+
+	if ( ! bIsUserDrumkit ) {
+		// The drumkit is read-only. Thus we won't support altering
+		// any of its properties.
+		authorTxt->setIsActive( false );
+		infoTxt->setEnabled( false );
+		licenseComboBox->setIsActive( false );
+		licenseStringTxt->setIsActive( false );
+		imageText->setIsActive( false );
+		imageLicenseComboBox->setIsActive( false );
+		imageLicenseStringTxt->setIsActive( false );
+		saveBtn->setIsActive( false );
+		imageBrowsePushButton->setIsActive( false );
+
+		// Rather dirty fix to align the design of the QTextEdit to
+		// the coloring of our custom QLineEdits.
+		infoTxt->setStyleSheet( QString( "\
+QTextEdit { \
+    color: %1; \
+    background-color: %2; \
+}" )
+								.arg( pPref->getColorTheme()->m_windowTextColor.name() )
+								.arg( pPref->getColorTheme()->m_windowColor.name() ) );
+										
+	}
 	
 	contentTable->setColumnCount( 4 );
 	contentTable->setHorizontalHeaderLabels( QStringList() <<
