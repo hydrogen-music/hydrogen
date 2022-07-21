@@ -74,7 +74,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * copy constructor
 		 * \param other
 		 */
-		InstrumentList( InstrumentList* other );
+		InstrumentList( std::shared_ptr<InstrumentList> other );
 
 		/** returns the numbers of instruments */
 		int size() const;
@@ -194,7 +194,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static InstrumentList* load_from( XMLNode* node,
+	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
 									  const QString& sDrumkitPath,
 									  const QString& sDrumkitName,
 									  const License& license = License(),

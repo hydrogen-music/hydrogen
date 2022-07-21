@@ -302,7 +302,7 @@ void InstrumentLine::muteClicked()
 		return;
 	}
 	
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
@@ -327,7 +327,7 @@ void InstrumentLine::soloClicked()
 		return;
 	}
 	
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
@@ -821,7 +821,7 @@ void PatternEditorInstrumentList::drumkitLoadedEvent() {
 void PatternEditorInstrumentList::repaintInstrumentLines() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
@@ -836,7 +836,7 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -860,7 +860,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 

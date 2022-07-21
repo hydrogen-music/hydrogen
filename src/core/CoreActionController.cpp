@@ -484,7 +484,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	sendMasterVolumeFeedback();
 	
 	//PER-INSTRUMENT/STRIP STATES
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	for ( int ii = 0; ii < pInstrList->size(); ii++){
 		auto pInstr = pInstrList->get( ii );
 		if ( pInstr != nullptr ) {

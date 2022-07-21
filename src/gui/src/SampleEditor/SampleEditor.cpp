@@ -439,7 +439,7 @@ void SampleEditor::createNewLayer()
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr ) {
-			InstrumentList *pInstrList = pSong->getInstrumentList();
+			auto pInstrList = pSong->getInstrumentList();
 			int nInstr = pHydrogen->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;

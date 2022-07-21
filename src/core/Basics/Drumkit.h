@@ -193,9 +193,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static bool remove( const QString& sDrumkitDir );
 
 		/** set __instruments, delete existing one */
-		void set_instruments( InstrumentList* instruments );
+		void set_instruments( std::shared_ptr<InstrumentList> instruments );
 		/**  returns #__instruments */
-		InstrumentList* get_instruments() const;
+		std::shared_ptr<InstrumentList> get_instruments() const;
 
 		/** #__path setter */
 		void set_path( const QString& path );
@@ -268,7 +268,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License __imageLicense;			///< drumkit image license
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
-		InstrumentList* __instruments;  ///< the list of instruments
+		std::shared_ptr<InstrumentList> __instruments;  ///< the list of instruments
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> __components;  ///< list of drumkit component
 
 		/**
@@ -319,7 +319,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 // DEFINITIONS
 
-inline InstrumentList* Drumkit::get_instruments() const
+inline std::shared_ptr<InstrumentList> Drumkit::get_instruments() const
 {
 	return __instruments;
 }

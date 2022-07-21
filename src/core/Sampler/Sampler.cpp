@@ -1405,7 +1405,7 @@ bool Sampler::isAnyInstrumentSoloed() const
 {
 	Hydrogen*		pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> 			pSong = pHydrogen->getSong();
-	InstrumentList* pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	bool			bAnyInstrumentIsSoloed = false;
 	
 	for(int i=0; i < pInstrList->size(); i++) {

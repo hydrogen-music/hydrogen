@@ -305,7 +305,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 
 	// License related export warnings
 	if ( pPref->m_bShowExportSongLicenseWarning ) {
@@ -484,7 +484,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 void ExportSongDialog::exportTracks()
 {
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -795,7 +795,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->getInstrumentList();
+		auto pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			auto pInstr = pSongInstrList->get( nInstr );

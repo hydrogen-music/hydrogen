@@ -51,7 +51,7 @@ class NoteTest : public CppUnit::TestCase {
 		QDomElement root = doc.createElement("note");
 		XMLNode node(root);
 
-		InstrumentList *instruments = new InstrumentList();
+		auto instruments = std::make_shared<InstrumentList>();
 		auto snare = std::make_shared<Instrument>( 1, "Snare", nullptr );
 		instruments->add( snare );
 
@@ -69,13 +69,8 @@ class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL(in->get_pitch(), out->get_pitch());
 		CPPUNIT_ASSERT_EQUAL(in->get_probability(), out->get_probability());
 
-		/*
-		FIXME: this causes double free
 		delete in;
 		delete out;
-		delete instruments;
-		delete snare;
-		*/
 	}
 };
 

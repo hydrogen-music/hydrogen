@@ -177,8 +177,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
 
-		InstrumentList*		getInstrumentList() const;
-		void			setInstrumentList( InstrumentList* pList );
+		std::shared_ptr<InstrumentList>		getInstrumentList() const;
+		void			setInstrumentList( std::shared_ptr<InstrumentList> pList );
 
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
@@ -337,7 +337,7 @@ private:
 		///< Sequence of pattern groups
 		std::vector<PatternList*>* m_pPatternGroupSequence;
 		///< Instrument list
-		InstrumentList*	       	m_pInstrumentList;
+		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
 		///< list of drumkit component
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;				
 		QString			m_sFilename;
@@ -509,12 +509,12 @@ inline bool Song::getIsModified() const
 	return m_bIsModified;
 }
 
-inline InstrumentList* Song::getInstrumentList() const
+inline std::shared_ptr<InstrumentList> Song::getInstrumentList() const
 {
 	return m_pInstrumentList;
 }
 
-inline void Song::setInstrumentList( InstrumentList* pList )
+inline void Song::setInstrumentList( std::shared_ptr<InstrumentList> pList )
 {
 	m_pInstrumentList = pList;
 }

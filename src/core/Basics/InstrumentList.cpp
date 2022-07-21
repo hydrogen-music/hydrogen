@@ -39,7 +39,7 @@ InstrumentList::InstrumentList()
 {
 }
 
-InstrumentList::InstrumentList( InstrumentList* other ) : Object( *other )
+InstrumentList::InstrumentList( std::shared_ptr<InstrumentList> other ) : Object( *other )
 {
 	assert( other );
 	assert( __instruments.size() == 0 );
@@ -66,7 +66,7 @@ void InstrumentList::unload_samples()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
 	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
@@ -74,7 +74,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 		return nullptr;
 	}
 
-	InstrumentList* pInstrumentList = new InstrumentList();
+	auto pInstrumentList = std::make_shared<InstrumentList>();
 	XMLNode instrumentNode = instrumentListNode.firstChildElement( "instrument" );
 	int nCount = 0;
 	while ( !instrumentNode.isNull() ) {
@@ -102,7 +102,6 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 
 	if ( nCount == 0 ) {
 		ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
-		delete pInstrumentList;
 		return nullptr;
 	}
 	

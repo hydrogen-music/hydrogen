@@ -81,10 +81,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto InstrumentList = new H2Core::InstrumentList();
-		auto InstrumentList2 = new H2Core::InstrumentList( InstrumentList );
-		delete InstrumentList;
-		delete InstrumentList2;
+		auto pInstrumentList = std::make_shared<H2Core::InstrumentList>();
+		auto pInstrumentList2 = std::shared_ptr<H2Core::InstrumentList>( pInstrumentList );
+		pInstrumentList = nullptr;
+		pInstrumentList2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -167,9 +167,9 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pInstrumentList = new H2Core::InstrumentList( pSongProper->getInstrumentList() );
+		auto pInstrumentList = std::make_shared<H2Core::InstrumentList>( pSongProper->getInstrumentList() );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -323,7 +323,7 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -337,7 +337,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pNote = H2Core::Note::load_from( &node, pInstrumentList );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -351,7 +351,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pNote = H2Core::Note::load_from( &node, pInstrumentList );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -363,7 +363,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pPattern = H2Core::Pattern::load_file( H2TEST_FILE( "pattern/pat.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -424,7 +424,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pPattern = H2Core::Legacy::load_drumkit_pattern( H2TEST_FILE( "pattern/legacy_pattern.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
-		delete pInstrumentList;
+		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 

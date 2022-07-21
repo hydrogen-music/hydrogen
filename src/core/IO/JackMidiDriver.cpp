@@ -519,7 +519,7 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 
 void JackMidiDriver::handleQueueAllNoteOff()
 {
-	InstrumentList *	pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument>		pCurInstr;
 	unsigned int numInstruments = pInstrList->size();
 	unsigned int i = 0;

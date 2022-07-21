@@ -59,7 +59,7 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __imageLicense( License() )
 {
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	__instruments = new InstrumentList();
+	__instruments = std::make_shared<InstrumentList>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
@@ -73,7 +73,7 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	__imageLicense( other->get_image_license() ),
 	__samples_loaded( other->samples_loaded() )
 {
-	__instruments = new InstrumentList( other->get_instruments() );
+	__instruments = std::make_shared<InstrumentList>( other->get_instruments() );
 
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	for ( const auto& pComponent : *other->get_components() ) {
@@ -83,10 +83,6 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 
 Drumkit::~Drumkit()
 {
-
-	if( __instruments ) {
-		delete __instruments;
-	}
 }
 
 std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
@@ -196,7 +192,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
-		pInstrumentList = new InstrumentList();
+		pInstrumentList = std::make_shared<InstrumentList>();
 	}
 		
 	pDrumkit->set_instruments( pInstrumentList );
@@ -467,11 +463,10 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion, boo
 		__instruments->save_to( node, component_id, bRecentVersion, false );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
-		InstrumentList* pInstrumentList = new InstrumentList();
+		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id, bRecentVersion );
-		delete pInstrumentList;
 	}
 }
 
@@ -482,7 +477,7 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 				 .arg( __name ).arg( sDrumkitFolder ) );
 	}
 
-	InstrumentList* pInstrList = get_instruments();
+	auto pInstrList = get_instruments();
 	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
@@ -531,12 +526,8 @@ bool Drumkit::save_image( const QString& dk_dir, bool bSilent ) const
 	return true;
 }
 
-void Drumkit::set_instruments( InstrumentList* instruments )
+void Drumkit::set_instruments( std::shared_ptr<InstrumentList> instruments )
 {
-	if( __instruments != nullptr ) {
-		delete __instruments;
-	}
-	
 	__instruments = instruments;
 }
 

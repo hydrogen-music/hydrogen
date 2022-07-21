@@ -56,7 +56,7 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \param instrList
 		 * \return a Pattern on success, 0 otherwise
 		 */
-		static Pattern* load_drumkit_pattern( const QString& pattern_path, InstrumentList* instrList );
+		static Pattern* load_drumkit_pattern( const QString& pattern_path, std::shared_ptr<InstrumentList> instrList );
 		/**
 		 * load playlist from a file
 		 * \param pl the playlist to feed

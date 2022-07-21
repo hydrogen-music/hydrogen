@@ -72,8 +72,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_sNotes( "" )
 	, m_pPatternList( nullptr )
 	, m_pPatternGroupSequence( nullptr )
-	, m_pInstrumentList( nullptr )
-	, m_pComponents( nullptr )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
@@ -96,7 +94,9 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
+	m_pInstrumentList = std::make_shared<InstrumentList>();
 	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 
 	m_pTimeline = std::make_shared<Timeline>();
@@ -108,8 +108,6 @@ Song::~Song()
 	 * Warning: it is not safe to delete a song without having a lock on the audio engine.
 	 * Following the current design, the caller has to care for the lock.
 	 */
-	
-	delete m_pPatternList;
 
 	if ( m_pPatternGroupSequence ) {
 		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
@@ -119,8 +117,6 @@ Song::~Song()
 		}
 		delete m_pPatternGroupSequence;
 	}
-
-	delete m_pInstrumentList;
 
 	delete m_pVelocityAutomationPath;
 
@@ -914,7 +910,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 	pSong->setHumanizeVelocityValue( 0.0 );
 	pSong->setSwingFactor( 0.0 );
 
-	InstrumentList* pInstrList = new InstrumentList();
+	auto pInstrList = std::make_shared<InstrumentList>();
 	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID, "New instrument" );
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
@@ -1021,7 +1017,7 @@ void Song::setIsModified( bool bIsModified )
 
 bool Song::hasMissingSamples() const
 {
-	InstrumentList *pInstrumentList = getInstrumentList();
+	auto pInstrumentList = getInstrumentList();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		if ( pInstrumentList->get( i )->has_missing_samples() ) {
 			return true;
@@ -1031,7 +1027,7 @@ bool Song::hasMissingSamples() const
 }
 
 void Song::clearMissingSamples() {
-	InstrumentList *pInstrumentList = getInstrumentList();
+	auto pInstrumentList = getInstrumentList();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get( i )->set_missing_samples( false );
 	}
@@ -1231,7 +1227,7 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	 * pos > pDrumkitInstrList->size() stay in the
 	 * new instrumentlist
 	 */
-	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
+	auto pDrumkitInstrList = pDrumkit->get_instruments();
 	
 	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
 	int nMaxID = -1;

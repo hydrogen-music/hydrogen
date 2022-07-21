@@ -99,7 +99,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 	}
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* pInstrumentList ) {
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_ptr<InstrumentList> pInstrumentList ) {
 	Pattern* pPattern = nullptr;
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );

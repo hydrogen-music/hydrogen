@@ -1205,7 +1205,7 @@ void MainForm::action_instruments_clearAll()
 
 	// Remove all instruments
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	InstrumentList* pList = pSong->getInstrumentList();
+	auto pList = pSong->getInstrumentList();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
 	}

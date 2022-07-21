@@ -48,7 +48,7 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 {
 	int count = 0;
 	H2Core::InstrumentComponent::setMaxLayers( 16 );
-	H2Core::InstrumentList* instruments = dk->get_instruments();
+	auto instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		auto pInstr = ( *instruments )[i];
@@ -182,7 +182,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
-	H2Core::InstrumentList* pInstruments = pDrumkit->get_instruments();
+	auto pInstruments = pDrumkit->get_instruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	
 	auto pFirstInstrument = pInstruments->get(0);
@@ -332,7 +332,7 @@ void XmlTest::testPattern()
 	H2Core::Pattern* pPatternCopied = nullptr;
 	H2Core::Pattern* pPatternNew = nullptr;
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
-	H2Core::InstrumentList* pInstrumentList = nullptr;
+	std::shared_ptr<H2Core::InstrumentList> pInstrumentList = nullptr;
 	H2Core::XMLDoc doc;
 
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );

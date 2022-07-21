@@ -255,7 +255,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);

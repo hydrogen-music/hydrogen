@@ -199,7 +199,7 @@ void SoundLibraryPanel::updateTree()
 			
 			pDrumkitItem->setText( 0, sItemLabel );
 			if ( ! m_bInItsOwnDialog ) {
-				InstrumentList *pInstrList = pDrumkit->get_instruments();
+				auto pInstrList = pDrumkit->get_instruments();
 				for ( const auto& pInstrument : *pDrumkit->get_instruments() ) {
 					if ( pInstrument != nullptr ) {
 						QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
@@ -491,8 +491,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	InstrumentList *pSongInstrList = pHydrogen->getSong()->getInstrumentList();
-	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
+	auto pSongInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pDrumkitInstrList = pDrumkit->get_instruments();
 
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();

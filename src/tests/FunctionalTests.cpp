@@ -267,7 +267,7 @@ private:
 	
 		pHydrogen->setSong( pSong );
 
-		InstrumentList *pInstrumentList = pSong->getInstrumentList();
+		auto pInstrumentList = pSong->getInstrumentList();
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
