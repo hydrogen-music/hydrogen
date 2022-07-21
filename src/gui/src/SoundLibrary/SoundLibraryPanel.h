@@ -85,6 +85,7 @@ private:
 
 	QPoint __start_drag_position;
 	QMenu* __drumkit_menu;
+	QMenu* __drumkit_menu_system;
 	QMenu* __instrument_menu;
 	QMenu* __song_menu;
 	QMenu* __pattern_menu;

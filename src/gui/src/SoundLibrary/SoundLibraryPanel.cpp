@@ -76,13 +76,18 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 	
-	//
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	__drumkit_menu->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
 	__drumkit_menu->addSeparator();
 	__drumkit_menu->addAction( tr( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
+
+	// A version with reduced functionality for read-only drumkits
+	__drumkit_menu_system = new QMenu( this );
+	__drumkit_menu_system->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu_system->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
+	__drumkit_menu_system->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
 
 	__instrument_menu = new QMenu( this );
 	__instrument_menu->addSeparator();
@@ -377,10 +382,12 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	
 
 	if ( __sound_library_tree->currentItem()->parent() == __system_drumkits_item ) {
-		__drumkit_menu->popup( pos );
+		__drumkit_menu_system->popup( pos );
 	}
 	else if ( __sound_library_tree->currentItem()->parent()->parent() == __system_drumkits_item ) {
-		__instrument_menu->popup( pos );
+		// No popup here because the drumkits are read-only and the
+		// user has not sufficient permissions to delete instruments.
+		// __instrument_menu->popup( pos );
 	}
 }
 
