@@ -1213,20 +1213,24 @@ void MainForm::action_instruments_clearAll()
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
-void MainForm::functionDeleteInstrument(int instrument)
+void MainForm::functionDeleteInstrument( int nInstrument )
 {
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nInstrument );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	std::list< Note* > noteList;
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
-	QString instrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitPath = pHydrogen->getLastLoadedDrumkitPath();
+	QString sInstrumentName =  pSelectedInstrument->get_name();
+	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
 
 	for ( int i = 0; i < pPatternList->size(); i++ ) {
-		const H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
+		const H2Core::Pattern *pPattern = pPatternList->get(i);
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -1238,7 +1242,9 @@ void MainForm::functionDeleteInstrument(int instrument)
 		}
 	}
 	
-	SE_deleteInstrumentAction *pAction = new SE_deleteInstrumentAction( noteList, sDrumkitPath, instrumentName, instrument );
+	SE_deleteInstrumentAction *pAction =
+		new SE_deleteInstrumentAction( noteList, sDrumkitPath,
+									   sInstrumentName, nInstrument );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 

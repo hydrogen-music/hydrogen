@@ -66,7 +66,6 @@ private slots:
 	void on_drumkitDeleteAction();
 	void on_drumkitPropertiesAction();
 	void on_drumkitExportAction();
-	void on_instrumentDeleteAction();
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
@@ -86,7 +85,6 @@ private:
 	QPoint __start_drag_position;
 	QMenu* __drumkit_menu;
 	QMenu* __drumkit_menu_system;
-	QMenu* __instrument_menu;
 	QMenu* __song_menu;
 	QMenu* __pattern_menu;
 	QMenu* __pattern_menu_list;

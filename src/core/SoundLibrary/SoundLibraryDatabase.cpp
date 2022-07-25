@@ -157,6 +157,9 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 		m_customDrumkitPaths << sDrumkitPath;
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+
+		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+		
 		return pDrumkit;
 	}
 	

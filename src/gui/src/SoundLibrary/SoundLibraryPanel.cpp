@@ -64,7 +64,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
  , __sound_library_tree( nullptr )
  , __drumkit_menu( nullptr )
- , __instrument_menu( nullptr )
  , __song_menu( nullptr )
  , __pattern_menu( nullptr )
  , __pattern_menu_list( nullptr )
@@ -88,10 +87,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu_system->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	__drumkit_menu_system->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu_system->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
-
-	__instrument_menu = new QMenu( this );
-	__instrument_menu->addSeparator();
-	__instrument_menu->addAction( tr( "Delete" ), this, SLOT( on_instrumentDeleteAction() ) );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
@@ -376,22 +371,12 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	if ( __sound_library_tree->currentItem()->parent() == __user_drumkits_item ) {
 		__drumkit_menu->popup( pos );
 	}
-	else if ( __sound_library_tree->currentItem()->parent()->parent() == __user_drumkits_item ) {
-		__instrument_menu->popup( pos );
-	}
-	//else if ( __sound_library_tree->currentItem()->parent()->parent()->parent() ==  __pattern_item_list ) {
-	//	__pattern_menu_list->popup( pos );
-	//}
 	
 
 	if ( __sound_library_tree->currentItem()->parent() == __system_drumkits_item ) {
 		__drumkit_menu_system->popup( pos );
 	}
-	else if ( __sound_library_tree->currentItem()->parent()->parent() == __system_drumkits_item ) {
-		// No popup here because the drumkits are read-only and the
-		// user has not sufficient permissions to delete instruments.
-		// __instrument_menu->popup( pos );
-	}
+
 }
 
 
@@ -715,14 +700,6 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, true );
 	dialog.exec();
-}
-
-
-
-void SoundLibraryPanel::on_instrumentDeleteAction()
-{
-	QMessageBox::warning( this, "Hydrogen", tr( "Not implemented yet.") );
-	ERRORLOG( "[on_instrumentDeleteAction] not implemented yet" );
 }
 
 void SoundLibraryPanel::on_songLoadAction()

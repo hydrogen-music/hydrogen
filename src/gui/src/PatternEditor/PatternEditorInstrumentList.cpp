@@ -39,6 +39,7 @@ using namespace H2Core;
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "../Widgets/Button.h"
 #include "../Skin.h"
 
@@ -129,7 +130,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
+	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, [=](){
+		HydrogenApp::get_instance()->getMainForm()->
+			functionDeleteInstrument( m_nInstrumentNumber );} );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 		// Reset the clicked row once the popup is closed by clicking at
@@ -702,38 +705,6 @@ void InstrumentLine::functionRenameInstrument()
 	}
 	
 	setRowSelection( RowSelection::None );
-}
-
-void InstrumentLine::functionDeleteInstrument()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-		
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( m_nInstrumentNumber );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-	
-	std::list< Note* > noteList;
-
-	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitPath = pHydrogen->getLastLoadedDrumkitPath();
-
-	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
-		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
-		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pNote->set_pattern_idx( i );
-				noteList.push_back( pNote );
-			}
-		}
-	}
-	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, sDrumkitPath, sInstrumentName, m_nInstrumentNumber );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
