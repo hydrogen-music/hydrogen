@@ -146,7 +146,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		bool save( const QString& sDrumkitPath = "",
 				   int nComponentID = -1,
 				   bool bRecentVersion = true,
-				   bool bSilent = false ) const;
+				   bool bSilent = false );
 
 		/**
 		 * Extract a .h2drumkit file.

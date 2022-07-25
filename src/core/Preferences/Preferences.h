@@ -641,6 +641,9 @@ public:
     void			setMidiExportMode(int nExportMode);
 
 	bool			m_bShowExportSongLicenseWarning;
+	bool			m_bShowExportDrumkitLicenseWarning;
+	bool			m_bShowExportDrumkitCopyleftWarning;
+	bool			m_bShowExportDrumkitAttributionWarning;
 
 	/** Returns #m_sPreferencesOverwritePath
 	 * \return #m_sPreferencesOverwritePath */

@@ -436,10 +436,11 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	// overwrite an attribution).
 	if ( m_pDrumkit->get_license() != newLicense ) {
 		m_pDrumkit->set_license( newLicense );
+	}
 
-		// Assign the new license to all samples contained in this
-		// drumkit as well.
-		m_pDrumkit->propagateLicense();
+	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
+		ERRORLOG( "User cancelled dialog due to licensing issues." );
+		return;
 	}
 		
 	m_pDrumkit->set_image( imageText->text() );

@@ -119,6 +119,9 @@ Preferences::Preferences()
 	m_nExportSampleRateIdx = 0;
 	m_nExportSampleDepthIdx = 0;
 	m_bShowExportSongLicenseWarning = true;
+	m_bShowExportDrumkitLicenseWarning = true;
+	m_bShowExportDrumkitCopyleftWarning = true;
+	m_bShowExportDrumkitAttributionWarning = true;
 
 	//export midi dialog
 	m_nMidiExportMode = 0;
@@ -648,7 +651,19 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_nExportModeIdx = guiNode.read_int( "exportDialogMode", 0, false, false );
 				m_nExportSampleRateIdx = guiNode.read_int( "exportDialogSampleRate", 0, false, false );
 				m_nExportSampleDepthIdx = guiNode.read_int( "exportDialogSampleDepth", 0, false, false );
-				m_bShowExportSongLicenseWarning = guiNode.read_bool( "showExportSongLicenseWarning", true, false, false );
+				m_bShowExportSongLicenseWarning =
+					guiNode.read_bool( "showExportSongLicenseWarning", true,
+									   true, false );
+				
+				m_bShowExportDrumkitLicenseWarning =
+					guiNode.read_bool( "showExportDrumkitLicenseWarning", true,
+									   true, false );
+				m_bShowExportDrumkitCopyleftWarning =
+					guiNode.read_bool( "showExportDrumkitCopyleftWarning", true,
+									   true, false );
+				m_bShowExportDrumkitAttributionWarning =
+					guiNode.read_bool( "showExportDrumkitAttributionWarning", true,
+									   true, false );
 				
 				m_bFollowPlayhead = guiNode.read_bool( "followPlayhead", true, false, false );
 
@@ -1082,6 +1097,9 @@ bool Preferences::savePreferences()
 		guiNode.write_int( "exportDialogSampleRate",  m_nExportSampleRateIdx );
 		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
 		guiNode.write_bool( "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
+		guiNode.write_bool( "showExportDrumkitLicenseWarning", m_bShowExportDrumkitLicenseWarning );
+		guiNode.write_bool( "showExportDrumkitCopyleftWarning", m_bShowExportDrumkitCopyleftWarning );
+		guiNode.write_bool( "showExportDrumkitAttributionWarning", m_bShowExportDrumkitAttributionWarning );
 
 		guiNode.write_bool( "followPlayhead", m_bFollowPlayhead );
 

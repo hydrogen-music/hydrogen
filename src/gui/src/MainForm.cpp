@@ -1298,6 +1298,12 @@ void MainForm::action_instruments_saveLibrary()
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
 		
+		
+		if ( ! HydrogenApp::checkDrumkitLicense( pNewDrumkit ) ) {
+			ERRORLOG( "User cancelled dialog due to licensing issues." );
+			return;
+		}
+		
 		if ( ! pNewDrumkit->save() ) {
 			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
 			return;

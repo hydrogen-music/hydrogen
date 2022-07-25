@@ -70,6 +70,12 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
+
+	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
+		ERRORLOG( "User cancelled dialog due to licensing issues." );
+		return;
+	}
+		
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 
 	QString sTargetComponent;

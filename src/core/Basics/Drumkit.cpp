@@ -354,7 +354,7 @@ QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersi
 	return sExportName;
 }
 
-bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentVersion, bool bSilent ) const
+bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentVersion, bool bSilent )
 {
 	QString sDrumkitFolder( sDrumkitPath );
 	if ( sDrumkitPath.isEmpty() ) {
@@ -392,6 +392,12 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 				  .arg( __name ).arg( sDrumkitFolder ) );
 		return false;
 	}
+
+	// Ensure all instruments and associated samples will hold the
+	// same license as the overall drumkit and are associated to
+	// it. (Not important for saving itself but for consistency and
+	// using the drumkit later on).
+	propagateLicense();
 
 	// Save drumkit.xml
 	XMLDoc doc;
@@ -536,10 +542,13 @@ void Drumkit::set_components( std::shared_ptr<std::vector<std::shared_ptr<Drumki
 	__components = components;
 }
 
-void Drumkit::propagateLicense() {
+void Drumkit::propagateLicense(){
 
 	for ( const auto& ppInstrument : *__instruments ) {
 		if ( ppInstrument != nullptr ) {
+
+			ppInstrument->set_drumkit_path( __path );
+			ppInstrument->set_drumkit_name( __name );
 			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
