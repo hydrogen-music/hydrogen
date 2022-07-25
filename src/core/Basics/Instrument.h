@@ -29,6 +29,7 @@
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -105,7 +106,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * function of all layers of each component of the
 		 * Instrument.
 		 */
-		void load_samples();
+		void load_samples( float fBpm = 120 );
 		/**
 		 * Calls the InstrumentLayer::unload_sample() member
 		 * function of all layers of each component of the
@@ -121,21 +122,31 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param bRecentVersion Whether the drumkit format should be
 		 * supported by Hydrogen 0.9.7 or higher (whether it should be
 		 * composed of DrumkitComponents).
+		 * \param bFull Whether to write all parameters of the
+		 * contained #Sample as well. This will be done when storing
+		 * an #Instrument as part of a #Song but not when storing
+		 * as part of a #Drumkit.
 		 */
-		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
+	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
 		/**
 		 * load an instrument from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit data
-		 * \param dk_name the name of the drumkit
+		 * \param pNode the XMLDode to read from
+		 * \param sDrumkitPath the directory holding the drumkit
+		 * data. If empty, it will be derived from @a sDrumkitName.
+		 * \param sDrumkitName the name of the drumkit. If empty, it
+		 * will be read from @a pNode.
+		 * \param license License assigned to all Samples that will be
+		 * loaded. If empty, the license will be read from @a
+		 * sDrumkitPath.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( XMLNode* node,
-													  const QString& dk_path,
-													  const QString& dk_name,
+		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
+													  const QString& sDrumkitPath = "",
+													  const QString& sDrumkitName = "",
+													  const License& license = License(),
 													  bool bSilent = false );
 
 		///< set the name of the instrument

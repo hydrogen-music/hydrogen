@@ -28,16 +28,15 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <core/LocalFileMng.h>
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 
 #include "SoundLibraryDatastructures.h"
 
 #include <core/Object.h>
-#include <core/LocalFileMng.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
 
@@ -148,30 +147,38 @@ SoundLibraryInfo::SoundLibraryInfo()
 	//default constructor
 }
 
-SoundLibraryInfo::SoundLibraryInfo(const QString &path)
+SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
 {
 	/*
 	 *Use the provided file instantiate this object with the corresponding meta
 	 *data from either a drumkit, a pattern or a song.
 	 */
+	
+	setPath( sPath );
 
-	QDomDocument doc  = LocalFileMng::openXmlDocument( path );
-	setPath( path );
+	XMLDoc doc;
+	if ( ! doc.read( sPath, nullptr, true ) ) {
+		ERRORLOG( QString( "Unable to load SoundLibraryInfo from [%1]" )
+				  .arg( sPath ) );
+		return;
+	}
 
-	QDomNode rootNode =  doc.firstChildElement( "drumkit_pattern" );
+	XMLNode rootNode =  doc.firstChildElement( "drumkit_pattern" );
 	if ( !rootNode.isNull() )
 	{
 		setType( "pattern" );
-		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
+		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
+		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
 
-		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
-		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+		// Try legacy format fist.
+		setName( patternNode.read_string( "pattern_name", "", false, false ) );
 		if ( getName().isEmpty() ) {
-			setName( LocalFileMng::readXmlString( patternNode,"name", "" ) );
+			// Try current format.
+			setName( patternNode.read_string( "name", "", false, false ) );
 		}
-		setInfo( LocalFileMng::readXmlString( patternNode,"info", "No information available." ) );
-		setCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
+		setInfo( patternNode.read_string( "info", "No information available.", false, false ) );
+		setCategory( patternNode.read_string( "category", "", false, false ) );
 	}
 
 
@@ -180,14 +187,14 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 	if ( !rootNode.isNull() )
 	{
 		setType( "drumkit" );
-		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
-		setName( LocalFileMng::readXmlString( rootNode,"name", "" ) );
-		setInfo( LocalFileMng::readXmlString( rootNode,"info", "No information available." ) );
-		setImage( LocalFileMng::readXmlString( rootNode,"image", "" ) );
-		setImageLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"imageLicense", "" ) ) );
+		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
+		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
+		setName( rootNode.read_string( "name", "", false, false ) );
+		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
+		setImage( rootNode.read_string( "image", "", false, false ) );
+		setImageLicense( H2Core::License( rootNode.read_string( "imageLicense", "", false, false ) ) );
 
-		//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );
+		//setCategory( rootNode.read_string( "category", "" ) );
 	}
 
 	//Songs
@@ -195,11 +202,11 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 	if ( !rootNode.isNull() )
 	{
 		setType( "song" );
-		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
-		setName( LocalFileMng::readXmlString( rootNode,"name", "" ) );
-		setInfo( LocalFileMng::readXmlString( rootNode,"info", "No information available." ) );
-		//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );
+		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
+		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
+		setName( rootNode.read_string( "name", "", false, false ) );
+		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
+		//setCategory( rootNode.read_string( "category", "" ) );
 	}
 }
 

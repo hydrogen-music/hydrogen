@@ -85,7 +85,6 @@ public slots:
 		void functionFillNotes( int every );
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteAllInstrumentPatterns();
-		void functionPasteInstrumentPatternExec(int patternID);
 		void functionDeleteNotesAllPatterns();
 		void functionCutNotesAllPatterns();
 

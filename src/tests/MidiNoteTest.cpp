@@ -63,11 +63,10 @@ class MidiNoteTest : public CppUnit::TestCase {
 		 * instruments sequential numbers starting from 36,
 		 * preserving legacy behavior. */
 
-		SongReader reader;
-		auto song = reader.readSong( H2TEST_FILE( "song/test_song_0.9.6.h2song" ) );
-		CPPUNIT_ASSERT( song != nullptr );
+		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/test_song_0.9.6.h2song" ) );
+		CPPUNIT_ASSERT( pSong != nullptr );
 
-		auto instruments = song->getInstrumentList();
+		auto instruments = pSong->getInstrumentList();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 16, instruments->size() );
 
@@ -84,11 +83,10 @@ class MidiNoteTest : public CppUnit::TestCase {
 		 * MIDI notes. Check that loading that song does not
 		 * change that mapping */
 
-		SongReader reader;
-		auto song = reader.readSong( H2TEST_FILE( "song/test_song_0.9.7.h2song" ) );
-		CPPUNIT_ASSERT( song != nullptr );
+		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/test_song_0.9.7.h2song" ) );
+		CPPUNIT_ASSERT( pSong != nullptr );
 
-		auto instruments = song->getInstrumentList();
+		auto instruments = pSong->getInstrumentList();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 4, instruments->size() );
 

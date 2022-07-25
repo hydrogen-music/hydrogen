@@ -28,6 +28,13 @@
 #include <cstdlib>
 #include <typeinfo>
 
+#ifdef WIN32
+#    include "core/Timehelper.h"
+#else
+#    include <unistd.h>
+#    include <sys/time.h>
+#endif
+
 /**
 * @class Object
 *
@@ -49,6 +56,7 @@ std::atomic<int> Base::__objects_count(0);
 pthread_mutex_t Base::__mutex;
 object_internal_map_t Base::__objects_map;
 QString Base::sPrintIndention = "  ";
+timeval Base::__last_clock = { 0, 0 };
 
 int Base::bootstrap( Logger* logger, bool count ) {
 	if( __logger==nullptr && logger!=nullptr ) {
@@ -168,6 +176,44 @@ QString Base::toQString( const QString& sPrefix, bool bShort ) const {
 
 void Base::Print( bool bShort ) const {
 	DEBUGLOG( toQString( "", bShort ) );
+}
+
+QString Base::base_clock_in( const QString& sMsg )
+{
+	struct timeval now;
+	gettimeofday( &now, nullptr );
+	__last_clock = now;
+
+	QString sResult( "Start clocking" );
+	if ( ! sMsg.isEmpty() ) {
+		sResult = QString( "%1: %2" ).arg( sMsg ).arg( sResult );
+	}
+
+	return std::move( sResult );
+}
+
+QString Base::base_clock( const QString& sMsg )
+{
+	struct timeval now;
+	gettimeofday( &now, nullptr );
+
+	QString sResult;
+	if ( __last_clock.tv_sec == 0 && __last_clock.tv_usec == 0 ) {
+		// Clock is invoked for the first time.
+		sResult = "Start clocking";
+	} else {
+		sResult =  QString( "elapsed [%1]s" )
+			.arg( ( now.tv_sec - __last_clock.tv_sec ) * 1000.0 +
+				  ( now.tv_usec - __last_clock.tv_usec ) / 1000.0 );
+	}
+
+	__last_clock = now;
+
+	if ( ! sMsg.isEmpty() ) {
+		sResult = QString( "%1: %2" ).arg( sMsg ).arg( sResult );
+	}
+
+	return std::move( sResult );
 }
 
 std::ostream& operator<<( std::ostream& os, const Base& object ) {

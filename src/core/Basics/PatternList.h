@@ -32,6 +32,8 @@ namespace H2Core
 
 class Pattern;
 class AudioEngineLocking;
+class InstrumentList;
+class XMLNode;
 
 /**
  * PatternList is a collection of patterns
@@ -50,6 +52,17 @@ class AudioEngineLocking;
 		 * \param other
 		 */
 		PatternList( PatternList* other );
+	
+		/**
+		 * load a #PatternList from an XMLNode
+		 * \param pNode the XMLDode to read from
+		 * \param pInstrumentList the current instrument list to search instrument into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 * be logged.
+		 * \return a new Pattern instance
+		 */
+	static PatternList* load_from( XMLNode* pNode, InstrumentList* pInstrumentList, bool bSilent = false );
+	void save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
 
 		/** returns the numbers of patterns */
 		int size() const;

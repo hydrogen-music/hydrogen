@@ -23,7 +23,8 @@
 #include <algorithm>
 #include <core/Basics/PatternList.h>
 
-//#include <core/Helpers/Xml.h>
+#include <core/Helpers/Xml.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -52,6 +53,47 @@ PatternList::~PatternList()
 	}
 }
 
+PatternList* PatternList::load_from( XMLNode* pNode, InstrumentList* pInstrumentList, bool bSilent ) {
+	XMLNode patternsNode = pNode->firstChildElement( "patternList" );
+	if ( patternsNode.isNull() ) {
+		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
+		return nullptr;
+	}
+
+	PatternList* pPatternList = new PatternList();
+	int nPatternCount = 0;
+
+	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
+	while ( !patternNode.isNull()  ) {
+		nPatternCount++;
+		Pattern* pPattern = Pattern::load_from( &patternNode, pInstrumentList, bSilent );
+		if ( pPattern != nullptr ) {
+			pPatternList->add( pPattern );
+		}
+		else {
+			ERRORLOG( "Error loading pattern" );
+			delete pPatternList;
+			return nullptr;
+		}
+		patternNode = patternNode.nextSiblingElement( "pattern" );
+	}
+	if ( nPatternCount == 0 && ! bSilent ) {
+		WARNINGLOG( "0 patterns?" );
+	}
+
+	return pPatternList;
+}
+
+void PatternList::save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
+	XMLNode patternListNode = pNode->createNode( "patternList" );
+	
+	for ( const auto& pPattern : __patterns ) {
+		if ( pPattern != nullptr ) {
+			pPattern->save_to( &patternListNode, pInstrumentOnly );
+		}
+	}
+}
+	
 void PatternList::add( Pattern* pPattern )
 {
 	assertAudioEngineLocked();

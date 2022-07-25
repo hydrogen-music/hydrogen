@@ -113,9 +113,11 @@ class Note : public H2Core::Object<Note>
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param instruments the current instrument list to search instrument into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 * be logged.
 		 * \return a new Note instance
 		 */
-		static Note* load_from( XMLNode* node, InstrumentList* instruments );
+	static Note* load_from( XMLNode* node, InstrumentList* instruments, bool bSilent = false );
 
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument

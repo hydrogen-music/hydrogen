@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <QtCore/QString>
+#include <QColor>
 #include <QtXml/QDomDocument>
 
 namespace H2Core
@@ -71,6 +72,17 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 */
 		bool read_bool( const QString& node, bool default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
 		/**
+		 * reads a boolean stored into a child node
+		 * \param node the name of the child node to read into
+		 * \param default_value the value returned if something goes wrong
+		 * \param pFound Indicates whether the node was found.
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
+		 * \param bSilent Whether debug and info messages should be logged
+		 * when anomalies are encountered while reading the XML nodes.
+		 */
+	bool read_bool( const QString& node, bool default_value, bool* pFound, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+		/**
 		 * reads a float stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong
@@ -91,6 +103,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
 		QString read_string( const QString& node, const QString& default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+	QColor read_color( const QString& node, const QColor& defaultValue = QColor( 97, 167, 251 ), bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
 
 		/**
 		 * reads an attribute from the node
@@ -135,6 +148,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param value the value to write
 		 */
 		void write_string( const QString& node, const QString& value );
+	void write_color( const QString& node, const QColor& color );
 
 		/**
 		 * write a string as an attribute of the node

@@ -104,14 +104,15 @@ void DrumkitComponent::load_from( DrumkitComponent* component )
 	this->set_volume( component->get_volume() );
 }
 
-DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_path )
+DrumkitComponent* DrumkitComponent::load_from( XMLNode* node )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, node->read_string( "name", "" ) );
+	DrumkitComponent* pDrumkitComponent =
+		new DrumkitComponent( id, node->read_string( "name", "", false, false ) );
 	pDrumkitComponent->set_volume( node->read_float( "volume", 1.0f, true, false ) );
 
 	return pDrumkitComponent;

@@ -22,8 +22,11 @@
 
 #include <core/Basics/InstrumentLayer.h>
 
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Basics/Sample.h>
+#include <core/License.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -64,45 +67,150 @@ void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
 	__sample = sample;
 }
 
-void InstrumentLayer::load_sample()
+void InstrumentLayer::load_sample( float fBpm )
 {
-	if( __sample ) {
-		__sample->load();
+	if ( __sample != nullptr ) {
+		__sample->load( fBpm );
 	}
 }
 
 void InstrumentLayer::unload_sample()
 {
-	if( __sample ) {
+	if ( __sample != nullptr ) {
 		__sample->unload();
 	}
 }
 
-std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
+std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
 {
-	auto pSample = std::make_shared<Sample>( dk_path + "/" +
-											 node->read_string( "filename", "",
-																true, true, bSilent  ) );
+	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
+	if ( ! Filesystem::file_exists( sFilename, true ) && ! sDrumkitPath.isEmpty() &&
+		 ! sFilename.startsWith( "/" ) ) {
+		sFilename = sDrumkitPath + "/" + sFilename;
+	}
+
+	std::shared_ptr<Sample> pSample = nullptr;
+	if ( Filesystem::file_exists( sFilename, true ) ) {
+		pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
+
+		// If 'ismodified' is not present, InstrumentLayer was stored as
+		// part of a drumkit. All the additional Sample info, like Loops,
+		// envelopes etc., were not written to disk and we won't load the
+		// sample.
+		bool bIsModified = pNode->read_bool( "ismodified", false, true, false, true );
+		pSample->set_is_modified( bIsModified );
+	
+		if ( bIsModified ) {
+		
+			Sample::Loops loops;
+			loops.mode = Sample::parse_loop_mode( pNode->read_string( "smode", "forward", false, false, bSilent ) );
+			loops.start_frame = pNode->read_int( "startframe", 0, false, false, bSilent );
+			loops.loop_frame = pNode->read_int( "loopframe", 0, false, false, bSilent );
+			loops.count = pNode->read_int( "loops", 0, false, false, bSilent );
+			loops.end_frame = pNode->read_int( "endframe", 0, false, false, bSilent );
+			pSample->set_loops( loops );
+	
+			Sample::Rubberband rubberband;
+			rubberband.use = pNode->read_int( "userubber", 0, false, false, bSilent );
+			rubberband.divider = pNode->read_float( "rubberdivider", 0.0, false, false, bSilent );
+			rubberband.c_settings = pNode->read_int( "rubberCsettings", 1, false, false, bSilent );
+			rubberband.pitch = pNode->read_float( "rubberPitch", 0.0, false, false, bSilent );
+
+			// Check whether the rubberband executable is present.
+			if ( ! Filesystem::file_exists( Preferences::get_instance()->
+											m_rubberBandCLIexecutable ) ) {
+				rubberband.use = false;
+			}
+			pSample->set_rubberband( rubberband );
+	
+			// FIXME, kill EnvelopePoint, create Envelope class
+			EnvelopePoint pt;
+
+			Sample::VelocityEnvelope velocityEnvelope;
+			XMLNode volumeNode = pNode->firstChildElement( "volume" );
+			while ( ! volumeNode.isNull()  ) {
+				pt.frame = volumeNode.read_int( "volume-position", 0, false, false, bSilent );
+				pt.value = volumeNode.read_int( "volume-value", 0, false, false , bSilent);
+				velocityEnvelope.push_back( pt );
+				volumeNode = volumeNode.nextSiblingElement( "volume" );
+			}
+			pSample->set_velocity_envelope( velocityEnvelope );
+
+			Sample::VelocityEnvelope panEnvelope;
+			XMLNode panNode = pNode->firstChildElement( "pan" );
+			while ( ! panNode.isNull()  ) {
+				pt.frame = panNode.read_int( "pan-position", 0, false, false, bSilent );
+				pt.value = panNode.read_int( "pan-value", 0, false, false, bSilent );
+				panEnvelope.push_back( pt );
+				panNode = panNode.nextSiblingElement( "pan" );
+			}
+			pSample->set_pan_envelope( panEnvelope );
+		}
+	}
+	
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-	pLayer->set_start_velocity( node->read_float( "min", 0.0,
-												  true, true, bSilent  ) );
-	pLayer->set_end_velocity( node->read_float( "max", 1.0,
-												true, true, bSilent ) );
-	pLayer->set_gain( node->read_float( "gain", 1.0,
-										true, false, bSilent ) );
-	pLayer->set_pitch( node->read_float( "pitch", 0.0,
+	pLayer->set_start_velocity( pNode->read_float( "min", 0.0,
+												   true, true, bSilent  ) );
+	pLayer->set_end_velocity( pNode->read_float( "max", 1.0,
+												 true, true, bSilent ) );
+	pLayer->set_gain( pNode->read_float( "gain", 1.0,
 										 true, false, bSilent ) );
+	pLayer->set_pitch( pNode->read_float( "pitch", 0.0,
+										  true, false, bSilent ) );
 	return pLayer;
 }
 
-void InstrumentLayer::save_to( XMLNode* node )
+void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 {
+	auto pSample = get_sample();
+	if ( pSample == nullptr ) {
+		ERRORLOG( "No sample associated with layer. Skipping it" );
+		return;
+	}
+	
 	XMLNode layer_node = node->createNode( "layer" );
-	layer_node.write_string( "filename", get_sample()->get_filename() );
+
+	QString sFilename;
+	if ( bFull ) {
+		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+	} else {
+		sFilename = get_sample()->get_filename();
+	}
+	
+	layer_node.write_string( "filename", sFilename );
 	layer_node.write_float( "min", __start_velocity );
 	layer_node.write_float( "max", __end_velocity );
 	layer_node.write_float( "gain", __gain );
 	layer_node.write_float( "pitch", __pitch );
+
+	if ( bFull ) {
+		layer_node.write_bool( "ismodified", pSample->get_is_modified() );
+		layer_node.write_string( "smode", pSample->get_loop_mode_string() );
+
+		Sample::Loops loops = pSample->get_loops();
+		layer_node.write_int( "startframe", loops.start_frame );
+		layer_node.write_int( "loopframe", loops.loop_frame );
+		layer_node.write_int( "loops", loops.count );
+		layer_node.write_int( "endframe", loops.end_frame );
+
+		Sample::Rubberband rubberband = pSample->get_rubberband();
+		layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
+		layer_node.write_float( "rubberdivider", rubberband.divider );
+		layer_node.write_int( "rubberCsettings", rubberband.c_settings );
+		layer_node.write_float( "rubberPitch", rubberband.pitch );
+
+		for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
+			XMLNode volumeNode = layer_node.createNode( "volume" );
+			volumeNode.write_int( "volume-position", velocity.frame );
+			volumeNode.write_int( "volume-value", velocity.value );
+		}
+
+		for ( const auto& pan : *pSample->get_pan_envelope() ) {
+			XMLNode panNode = layer_node.createNode( "pan" );
+			panNode.write_int( "pan-position", pan.frame );
+			panNode.write_int( "pan-value", pan.value );
+		}
+	}
 }
 
 QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const {

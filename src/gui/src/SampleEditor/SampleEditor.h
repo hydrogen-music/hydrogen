@@ -82,6 +82,8 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 
 	private:
 
+	std::shared_ptr<H2Core::Sample> retrieveSample() const;
+
 		void openDisplays();
 		void getAllFrameInfos();
 		void getAllLocalFrameInfos();

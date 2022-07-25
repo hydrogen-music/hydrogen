@@ -90,13 +90,10 @@ public:
 	void setType( LicenseType license );
 
 	bool operator==( const License& other ) const {
-		if ( m_license == other.m_license ) {
+		if ( m_license == other.m_license &&
+			 m_sCopyrightHolder == other.m_sCopyrightHolder ) {
 			if ( m_license == License::Other &&
 				 m_sLicenseString != other.m_sLicenseString ) {
-				return false;
-			}
-			else if ( hasAttribution() &&
-					  m_sCopyrightHolder != other.m_sCopyrightHolder ) {
 				return false;
 			}
 			else {
@@ -108,7 +105,8 @@ public:
 	}
 
 	bool operator!=( const License& other ) const {
-		if ( m_license == other.m_license ) {
+		if ( m_license == other.m_license &&
+			 m_sCopyrightHolder == other.m_sCopyrightHolder ) {
 			if ( m_license == License::Other &&
 				 m_sLicenseString != other.m_sLicenseString ) {
 				return true;
