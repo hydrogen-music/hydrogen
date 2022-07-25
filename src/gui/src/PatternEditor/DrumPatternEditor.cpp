@@ -103,11 +103,19 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
 		m_nActiveWidth = m_nEditorWidth;
 	}
-	resize( m_nEditorWidth, height() );
+
+	auto pSong = pHydrogen->getSong();
+	int nInstruments = pSong->getInstrumentList()->size();
+
+	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
+		// the number of instruments is changed...recreate all
+		m_nEditorHeight = m_nGridHeight * nInstruments;
+	}
+	resize( m_nEditorWidth, m_nEditorHeight );
 
 	// redraw all
 	createBackground();
-	update( 0, 0, width(), height() );
+	update();
 }
 
 
@@ -1194,16 +1202,10 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	int nInstruments = pSong->getInstrumentList()->size();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
-		// the number of instruments is changed...recreate all
-		m_nEditorHeight = m_nGridHeight * nInstruments;
-		resize( width(), m_nEditorHeight );
-	}
+	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
+	// p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
+	// 		   backgroundInactiveColor);
 
-	p.fillRect(0, 0, m_nActiveWidth, height(), backgroundColor);
-	p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, height(),
-			   backgroundInactiveColor);
-	
 	for ( int ii = 0; ii < nInstruments; ii++ ) {
 		int y = static_cast<int>(m_nGridHeight) * ii;
 		if ( ii == nSelectedInstrument ) {
@@ -1391,6 +1393,10 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 
 void DrumPatternEditor::selectedPatternChangedEvent()
 {
+	updateEditor();
+}
+
+void DrumPatternEditor::drumkitLoadedEvent() {
 	updateEditor();
 }
 

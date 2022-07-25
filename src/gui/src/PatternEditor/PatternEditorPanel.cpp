@@ -609,8 +609,6 @@ PatternEditorPanel::~PatternEditorPanel()
 
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
-	getDrumPatternEditor()->updateEditor();
-	
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
