@@ -569,19 +569,16 @@ void HydrogenApp::showPreferencesDialog()
 
 
 
-void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
+void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& sCaller )
 {
-	auto pPlayerControl = getPlayerControl();
-	if ( pPlayerControl != nullptr ) {
-		pPlayerControl->resetStatusLabel();
-		pPlayerControl->showMessage( msg, msec );
+	if ( m_pPlayerControl != nullptr ) {
+		m_pPlayerControl->showStatusBarMessage( sMessage, sCaller );
 	}
 }
 
 void HydrogenApp::XRunEvent() {
-	setStatusBarMessage( QString( "XRUNS [%1]!!!" )
-						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ),
-						 5000 );
+	showStatusBarMessage( QString( "XRUNS [%1]!!!" )
+						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ) );
 }
 
 void HydrogenApp::updateWindowTitle()
@@ -628,12 +625,6 @@ void HydrogenApp::updateWindowTitle()
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) +
 								   QString( " - " ) + sTitle ) );
 }
-
-void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
-{
-	getPlayerControl()->showScrollMessage( msg, msec , test);
-}
-
 
 
 void HydrogenApp::showAudioEngineInfoForm()
@@ -687,8 +678,8 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	setStatusBarMessage( tr( "Drumkit loaded: [%1]" )
-						 .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ), 2000 );
+	showStatusBarMessage( tr( "Drumkit loaded: [%1]" )
+						  .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ) );
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -957,9 +948,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	}
 		
 	if ( nValue == 0 ) {
-		setScrollStatusBarMessage( tr("Preferences saved.") + 
-								   QString(" Into: ") + 
-								   sPreferencesFilename, 2000 );
+		showStatusBarMessage( tr("Preferences saved.") + 
+							  QString(" Into: ") + sPreferencesFilename );
 	} else if ( nValue == 1 ) {
 		
 		// Since the Preferences have changed, we also have to reflect
@@ -1008,9 +998,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 #endif
 
 		// Inform the user about which file was loaded.
-		setScrollStatusBarMessage( tr("Preferences loaded.") + 
-								   QString(" From: ") + 
-								   sPreferencesFilename, 2000 );
+		showStatusBarMessage( tr("Preferences loaded.") + 
+							  QString(" From: ") + sPreferencesFilename );
 
 	
 	} else {
@@ -1041,7 +1030,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		QString sFilename = pSong->getFilename();
 		
 		// Song was saved.
-		setScrollStatusBarMessage( tr("Song saved as: ") + sFilename, 2000 );
+		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
 	} else if ( nValue == 2 ) {

@@ -146,7 +146,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	checkMissingSamples();
 	checkNecessaryDirectories();
 
-	h2app->setStatusBarMessage( tr("Hydrogen Ready."), 10000 );
+	h2app->showStatusBarMessage( tr("Hydrogen Ready.") );
 
 	initKeyInstMap();
 
@@ -714,9 +714,9 @@ void MainForm::action_file_save_as()
 		// provided by the NSM server has to be preserved.
 		if ( bUnderSessionManagement ) {
 			pSong->setFilename( lastFilename );
-			h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
+			h2app->showStatusBarMessage( tr("Song exported as: ") + defaultFilename );
 		} else {
-			h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
+			h2app->showStatusBarMessage( tr("Song saved as: ") + defaultFilename );
 		}
 	
 		h2app->updateWindowTitle();
@@ -777,8 +777,8 @@ void MainForm::action_file_save( const QString& sNewFilename )
 	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-		h2app->setScrollStatusBarMessage( tr("Song saved into") + QString(": ") +
-										  sFilename, 2000 );
+		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
+									 sFilename );
 	}
 }
 
@@ -904,7 +904,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	h2app->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+	h2app->showStatusBarMessage( tr( "Pattern saved." ) );
 
 	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
 		SoundLibraryDatabase::get_instance()->updatePatterns();
@@ -2023,7 +2023,8 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 	
 	pPlaylist->activateSong( nIndex );
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
+	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Playlist: Set song No. %1" )
+													   .arg( nIndex +1 ) );
 }
 
 void MainForm::jacksessionEvent( int nEvent )
@@ -2185,7 +2186,7 @@ void MainForm::onPlaylistDisplayTimer()
 		songname = Hydrogen::get_instance()->getSong()->getName();
 	}
 	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->getAuthor();
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( message, 2000 );
+	HydrogenApp::get_instance()->showStatusBarMessage( message );
 }
 
 // Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
@@ -2441,6 +2442,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
-		pApp->setStatusBarMessage(tr("Playing."), 5000);
+		pApp->showStatusBarMessage( tr("Playing.") );
 	}
 }

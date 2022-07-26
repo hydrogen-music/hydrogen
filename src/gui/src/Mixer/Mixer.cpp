@@ -726,8 +726,17 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	}
 
 	pSelectedInstrument->set_fx_level( ref->getFXLevel(nKnob), nKnob );
-	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
-	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
+	
+	QString sMessage = tr( "Set FX %1 level [%2] of instrument" )
+		.arg( nKnob )
+		.arg( ref->getFXLevel(nKnob), 0, 'f', 2 );
+	sMessage.append( QString( " [%1]" )
+					 .arg( ref->getName() ) );
+	QString sCaller = QString( "%1:knobChanged:%2" )
+		.arg( class_name() ).arg( ref->getName() );
+	
+	( HydrogenApp::get_instance() )->
+		showStatusBarMessage( sMessage, sCaller );
 
 	pHydrogen->setIsModified( true );
 }
@@ -772,10 +781,10 @@ void Mixer::showPeaksBtnClicked()
 
 	if ( m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = On"), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Show instrument peaks = On") );
 	} else {
 		pPref->setInstrumentPeaks( false );
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = Off"), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Show instrument peaks = Off") );
 	}
 }
 
@@ -818,26 +827,30 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 #endif
 }
 
-
-
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
 #ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
-			if (pFX) {
+			if ( pFX != nullptr ) {
 				pFX->setVolume( ref->getVolume() );
-				QString sInfo = tr( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName() ) );
-				HydrogenApp::get_instance()->setStatusBarMessage( sInfo+ QString( " [%1]" ).arg( ref->getVolume(), 0, 'f', 2 ), 2000 );
+
+				QString sMessage = tr( "Set volume [%1] of FX" )
+					.arg( ref->getVolume(), 0, 'f', 2 );
+				sMessage.append( QString( " [%1]" ).arg( pFX->getPluginName() ) );
+				QString sCaller = QString( "%1:rotaryChanged:%2" )
+					.arg( class_name() ).arg( pFX->getPluginName() );
+	
+				HydrogenApp::get_instance()->
+					showStatusBarMessage( sMessage, sCaller );
+
+				Hydrogen::get_instance()->setIsModified( true );
 			}
 		}
 	}
 #endif
 }
-
-
-
 
 void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R )
 {

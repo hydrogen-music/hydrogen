@@ -774,7 +774,7 @@ void PlaylistDialog::nodePlayBTN()
 	}
 	else {
 		pHydrogen->sequencer_stop();
-		pH2App->setStatusBarMessage(tr("Pause."), 5000);
+		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
 }
 
@@ -818,7 +818,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	pH2App->openSong( sFilename );
 
-	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
+	pH2App->showStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ) );
 
 ///exec script
 ///this is very very simple and only an experiment

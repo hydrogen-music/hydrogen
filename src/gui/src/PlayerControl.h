@@ -45,6 +45,7 @@ class PixmapWidget;
 class LED;
 class MetronomeLED;
 class ClickableLabel;
+class StatusMessageDisplay;
 
 /** \ingroup docGUI*/
 class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl> {
@@ -54,9 +55,7 @@ public:
 	explicit PlayerControl(QWidget *parent);
 	~PlayerControl();
 
-	void showMessage( const QString& msg, int msec );
-	void showScrollMessage( const QString& msg, int msec, bool test );
-	void resetStatusLabel();
+	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
 	virtual void timelineActivationEvent() override;
 	virtual void tempoChangedEvent( int nValue ) override;
@@ -89,8 +88,6 @@ private slots:
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
-	void onStatusTimerEvent();
-	void onScrollTimerEvent();
 	void showMixerButtonClicked();
 	void showInstrumentRackButtonClicked();
 
@@ -176,10 +173,7 @@ private:
 	Button *m_pShowMixerBtn;
 	Button *m_pShowInstrumentRackBtn;
 
-	LCDDisplay *m_pStatusLabel;
-	QTimer *m_pStatusTimer;
-	QTimer *m_pScrollTimer;
-	QString m_pScrollMessage;
+	StatusMessageDisplay *m_pStatusLabel;
 	/** Used to turn off the LED #m_pMidiActivityLED indicating an
 		incoming MIDI event after #m_midiActivityTimeout
 		milliseconds.*/ 

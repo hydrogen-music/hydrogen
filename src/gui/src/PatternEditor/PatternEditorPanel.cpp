@@ -734,9 +734,9 @@ void PatternEditorPanel::hearNotesBtnClick()
 	pref->setHearNewNotes( m_pHearNotesBtn->isChecked() );
 
 	if ( m_pHearNotesBtn->isChecked() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = On" ) );
 	} else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = Off" ) );
 	}
 }
 
@@ -746,9 +746,9 @@ void PatternEditorPanel::quantizeEventsBtnClick()
 	pref->setQuantizeEvents( m_pQuantizeEventsBtn->isChecked() );
 
 	if ( m_pQuantizeEventsBtn->isChecked() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),	2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
 	} else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ) );
 	}
 }
 

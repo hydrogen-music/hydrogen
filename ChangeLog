@@ -69,6 +69,8 @@
 		    action are shown.
 		  - Rows can be removed by unsetting both the Event and Action
 		    combo box.
+		- Clicking the widget showing the status messages does now open a
+		  dropdown menu displaying the last 100 messages.
 	* Audio processing
 		- Set CoreAudio (macOS) buffer size to control latency
 		- New fast exponential ADSR envelope processing

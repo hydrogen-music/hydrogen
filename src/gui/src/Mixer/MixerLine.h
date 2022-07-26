@@ -311,7 +311,7 @@ public slots:
 signals:
 	void bypassBtnClicked( LadspaFXMixerLine *ref );
 	void editBtnClicked( LadspaFXMixerLine *ref );
-	void volumeChanged( LadspaFXMixerLine *ref);
+	void volumeChanged( LadspaFXMixerLine *ref );
 
 private:
 	float			m_fMaxPeak;
