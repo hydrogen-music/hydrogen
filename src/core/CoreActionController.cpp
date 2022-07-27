@@ -704,12 +704,10 @@ bool CoreActionController::savePreferences() {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_PREFERENCES, 0 );
-	} else {
-		Preferences::get_instance()->savePreferences();
+		return true;
 	}
 	
-	return true;
-
+	return Preferences::get_instance()->savePreferences();
 }
 bool CoreActionController::quit() {
 

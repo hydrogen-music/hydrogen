@@ -44,6 +44,8 @@
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Legacy.h>
 
+#include <core/Hydrogen.h>
+
 namespace H2Core
 {
 
@@ -103,16 +105,23 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 
 Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
-	if ( ! bSilent ) {
-		INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
-	}
-	
-	if( !Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
+	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent,
-					  lookup);
+
+	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
+							   bUpgrade, bSilent, lookup );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
+	}
+	else if ( ! bSilent ) {
+		INFOLOG( QString( "[%1] loaded from [%2]" )
+				 .arg( pDrumkit->get_name() )
+				 .arg( dk_dir ) );
+	}
+
+	return pDrumkit;
 }
 
 Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
@@ -120,30 +129,17 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	bool bReadingSuccessful = true;
 	
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), true ) ) {
-		//Something went wrong. Lets see how old this drumkit is..
+	if ( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), true ) ) {
+		// Drumkit does not comply with the XSD schema
+		// definition. It's probably an old one. load_from() will try
+		// to handle it regardlessly but we should upgrade it in order
+		// to avoid this in future loads.
 		
-		//Do we have any components? 
 		doc.read( dk_path, nullptr, bSilent );
-		auto nodeList = doc.elementsByTagName( "instrumentComponent" );
-		if( nodeList.size() == 0 )
-		{
-			//No components. That drumkit seems to be quite old. Use legacy code..
-			
-			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path, bSilent );
-			if ( bUpgrade ) {
-				upgrade_drumkit(pDrumkit, dk_path);
-			}
-			
-			return pDrumkit;
-		} else {
-			//If the drumkit does not comply with the current xsd, but
-			// has components, it may suffer from problems with
-			// invalid values (for example float ADSR values, see
-			// #658). Lets try to load it with our current drumkit.
-			bReadingSuccessful = false;
-		}
+		
+		bReadingSuccessful = false;
 	}
+	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
@@ -153,12 +149,20 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	Drumkit* pDrumkit =
 		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
 							bSilent, lookup );
+	
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( dk_path ) );
+		return nullptr;
+	}
+	
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, dk_path );
 	}
-	if( load_samples ){
+	
+	if ( load_samples ){
 		pDrumkit->load_samples();
 	}
+	
 	return pDrumkit;
 }
 
@@ -171,6 +175,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	}
 	
 	Drumkit* pDrumkit = new Drumkit();
+
 	pDrumkit->__path = dk_path;
 	pDrumkit->__name = drumkit_name;
 	pDrumkit->__author = node->read_string( "author", "undefined author",
@@ -181,9 +186,17 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	License license( node->read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->__author );
+	// Store license in cache of Hydrogen class in order to allow
+	// reuse it faster.
+	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, dk_path );
+	
 	pDrumkit->set_license( license );
-	pDrumkit->__image = node->read_string( "image", "",
-										   true, true, true  );
+
+	// As of 2022 we have no drumkits featuring an image in
+	// stock. Thus, verbosity of this one will be turned of in order
+	// to make to log more concise.
+	pDrumkit->set_image( node->read_string( "image", "",
+											true, true, true ) );
 	License imageLicense( node->read_string( "imageLicense", "undefined license",
 											 true, true, bSilent  ),
 						  pDrumkit->__author );
@@ -193,16 +206,10 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			int id = componentNode.read_int( "id", -1,
-											 true, true, bSilent  );			// instrument id
-			QString sName = componentNode.read_string( "name", "",
-													   true, true, bSilent  );		// name
-			float fVolume = componentNode.read_float( "volume", 1.0,
-													  true, true, bSilent  );	// volume
-			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
-			pDrumkitComponent->set_volume( fVolume );
-
-			pDrumkit->get_components()->push_back(pDrumkitComponent);
+			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			if ( pDrumkitComponent != nullptr ) {
+				pDrumkit->get_components()->push_back(pDrumkitComponent);
+			}
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
@@ -212,12 +219,17 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
 
-	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
-	if ( instruments_node.isNull() ) {
-		WARNINGLOG( "instrumentList node not found" );
-	} else {
-		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
+	auto pInstrumentList = InstrumentList::load_from( node,
+													  dk_path,
+													  drumkit_name,
+													  license, false );
+	// Required to assure backward compatibility.
+	if ( pInstrumentList == nullptr ) {
+		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
+		pInstrumentList = new InstrumentList();
 	}
+		
+	pDrumkit->set_instruments( pInstrumentList );
 
 	// propagate drumkit lookup
 	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
@@ -230,7 +242,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	// passing the license down to each sample, we will make the
 	// drumkit assign its license to each sample in here.
 	pDrumkit->propagateLicense();
-	
+
 	return pDrumkit;
 
 }
@@ -244,45 +256,80 @@ void Drumkit::load_samples()
 	}
 }
 
-License Drumkit::loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup )
+License Drumkit::loadLicenseByNameFrom( const QString& sDrumkitName, Filesystem::Lookup lookup, bool bSilent )
 {
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
+	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup, bSilent );
 	if ( sDrumkitDir.isEmpty() ) {
 		return License();
 	}
 	
-	return loadLicense( sDrumkitDir );
+	return loadLicenseFrom( sDrumkitDir, bSilent );
 }
 
-License Drumkit::loadLicense( const QString& sDrumkitDir )
+License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 {
-	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
+	XMLDoc doc;
+	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+
+		QString sAuthor = root.read_string( "author", "undefined author",
+											true, true, bSilent );
+		QString sLicenseString = root.read_string( "license", "undefined license",
+												   false, true, bSilent  );
+		if ( sLicenseString.isNull() ) {
+			ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
+					  .arg( sDrumkitDir ) );
+			return std::move( License() );
+		}
+
+		return std::move( License( sLicenseString, sAuthor ) );
+	}
+
+	return std::move( License() );
+}
+
+QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
+
+	XMLDoc doc;
+	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+
+		return( root.read_string( "name", "", true, true, bSilent ) );
+	}
+
+	return "";
+}
+
+bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {
+
+	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
-		return License();
+		return false;
 	}
 
 	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
 
-	XMLDoc doc;
-	doc.read( sDrumkitPath, nullptr, true );
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if( ! pDoc->read( sDrumkitPath, Filesystem::drumkit_xsd_path(), true ) ) {
+		if ( ! bSilent ) {
+			WARNINGLOG( QString( "[%1] does not validate against drumkit schema. Trying to retrieve its name nevertheless.")
+						.arg( sDrumkitPath ) );
+		}
+		
+		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
+			ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
+					  .arg( sDrumkitPath ) );
+			return false;
+		}
+	}
+	
+	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
-		ERRORLOG( QString( "drumkit_info node not found in [%1]. This does not seem to be a Hydrogen drumkit." )
+		ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )
 				  .arg( sDrumkitPath ) );
-		return License();
+		return false;
 	}
 
-	QString sAuthor = root.read_string( "author", "undefined author",
-										 true, true, false );
-	QString sLicenseString = root.read_string( "license", "undefined license",
-											   false, true, false  );
-	if ( sLicenseString.isNull() ) {
-		ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
-				  .arg( sDrumkitPath ) );
-		return License();
-	}
-
-	return std::move( License( sLicenseString, sAuthor ) );
+	return true;
 }
 	
 void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )
@@ -409,8 +456,8 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
 	}
-	XMLDoc doc;
 	
+	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	
 	// In order to comply with the GPL license we have to add a
@@ -482,7 +529,7 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	}
 
 	if ( __instruments != nullptr && __instruments->size() > 0 ) {
-		__instruments->save_to( node, component_id, bRecentVersion );
+		__instruments->save_to( node, component_id, bRecentVersion, false );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();
@@ -507,7 +554,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pComponent->get_layer( n );
-				if( pLayer ) {
+				if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
 					QString src = pLayer->get_sample()->get_filepath();
 					QString dst = dk_dir + "/" + pLayer->get_sample()->get_filename();
 
@@ -949,7 +996,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 							   pComponent->get_drumkit_componentID() == nComponentID ) ) {
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 								const auto pLayer = pComponent->get_layer( n );
-								if( pLayer != nullptr ) {
+								if( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
 									if( pLayer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
 										filesUsed << sourceDir.filePath( ssFile );
 										bSampleFound = true;

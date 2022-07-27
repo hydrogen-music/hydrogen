@@ -2263,13 +2263,13 @@ void PreferencesDialog::exportTheme() {
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 
-	if ( sSelectedPath.isEmpty() ) {
+	if ( sSelectedPath.isEmpty() ||
+		 ! Theme::exportTheme( sSelectedPath, m_pCurrentTheme ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme can not be exported.") );
 		return;
 	}
 
 	H2Core::Preferences::get_instance()->setLastExportThemeDirectory( fd.directory().absolutePath() );
-	Theme::exportTheme( sSelectedPath, m_pCurrentTheme );
 
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme exported to " ) + sSelectedPath, 1200 );
 	

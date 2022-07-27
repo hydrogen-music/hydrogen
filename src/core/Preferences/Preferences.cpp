@@ -23,8 +23,6 @@
 #include <stdlib.h>
 #include <core/Preferences/Preferences.h>
 
-#include <core/LocalFileMng.h>
-
 #ifndef WIN32
 #include <pwd.h>
 #include <unistd.h>
@@ -42,6 +40,7 @@
 #include <core/MidiMap.h>
 #include <core/Version.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
 
 #include <QDir>
@@ -298,112 +297,121 @@ void Preferences::loadPreferences( bool bGlobal )
 	if ( sPreferencesOverwritePath.isEmpty() ) {
 			sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
 			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
-	} else {
+	}
+	else {
 		sPreferencesFilename = sPreferencesOverwritePath;
 		INFOLOG( QString( "Loading preferences file [%1]" ).arg( sPreferencesFilename ) );
 	}
 	
 	if ( ! Filesystem::file_readable( sPreferencesFilename, true ) ) {
-		ERRORLOG( QString( "Preferences file [%1] is not readable!" )
-				  .arg( sPreferencesFilename ) );
-		bRecreate = true;
+		if ( bGlobal ) {
+			ERRORLOG( QString( "Global preferences file [%1] is not readable!" )
+					  .arg( sPreferencesFilename ) );
+			return;
+		}
+		else {
+			WARNINGLOG( QString( "User-level preferences file [%1] is not readable! It will be recreated." )
+						.arg( sPreferencesFilename ) );
+			bRecreate = true;
+		}
 	}
+	else {
+		// Preferences is readable.
 
-	// pref file exists?
-	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
-	if ( input ) {
-
-		// read preferences file
-		QDomDocument doc = LocalFileMng::openXmlDocument( sPreferencesFilename );
-		QDomNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
+		XMLDoc doc;
+		doc.read( sPreferencesFilename, nullptr, false );
+		XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
 
 		if ( !rootNode.isNull() ) {
 
 			// version
-			QString version = LocalFileMng::readXmlString( rootNode, "version", "" );
+			QString version = rootNode.read_string( "version", "", false, false );
 			if ( version.isEmpty() ) {
 				bRecreate = true;
 			}
 
 			//////// GENERAL ///////////
-			m_sPreferredLanguage = LocalFileMng::readXmlString( rootNode, "preferredLanguage", QString() );
-			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
-			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
-			m_bShowNoteOverwriteWarning = LocalFileMng::readXmlBool( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
-			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
-			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
-			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
-			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
-			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
-			setDefaultUILayout( static_cast<InterfaceTheme::Layout>(LocalFileMng::readXmlInt( rootNode, "defaultUILayout",
-																							  static_cast<int>(InterfaceTheme::Layout::SinglePane) )) );
-			setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller) )) );
-			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
-			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
-			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
+			m_sPreferredLanguage = rootNode.read_string( "preferredLanguage", m_sPreferredLanguage, false, "" );
+			__playselectedinstrument = rootNode.read_bool( "instrumentInputMode", __playselectedinstrument, false, false );
+			m_bShowDevelWarning = rootNode.read_bool( "showDevelWarning", m_bShowDevelWarning, false, false );
+			m_bShowNoteOverwriteWarning = rootNode.read_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning, false, false );
+			m_brestoreLastSong = rootNode.read_bool( "restoreLastSong", m_brestoreLastSong, false, false );
+			m_brestoreLastPlaylist = rootNode.read_bool( "restoreLastPlaylist", m_brestoreLastPlaylist, false, false );
+			m_bUseLash = rootNode.read_bool( "useLash", false, false, false );
+			__useTimelineBpm = rootNode.read_bool( "useTimeLine", __useTimelineBpm, false, false );
+			m_nMaxBars = rootNode.read_int( "maxBars", 400, false, false );
+			m_nMaxLayers = rootNode.read_int( "maxLayers", 16, false, false );
+			setDefaultUILayout( static_cast<InterfaceTheme::Layout>(
+				rootNode.read_int( "defaultUILayout",
+								   static_cast<int>(InterfaceTheme::Layout::SinglePane), false, false )) );
+			setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(
+				rootNode.read_int( "uiScalingPolicy",
+								   static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller), false, false )) );
+			m_nLastOpenTab = rootNode.read_int( "lastOpenTab", 0, false, false );
+			m_bUseRelativeFilenamesForPlaylists = rootNode.read_bool( "useRelativeFilenamesForPlaylists", false, false, false );
+			m_bHideKeyboardCursor = rootNode.read_bool( "hideKeyboardCursorWhenUnused", false, false, false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
-			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
+			m_useTheRubberbandBpmChangeEvent = rootNode.read_bool( "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent, false, false );
 
-			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
-			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
+			hearNewNotes = rootNode.read_bool( "hearNewNotes", hearNewNotes, false, false );
+			quantizeEvents = rootNode.read_bool( "quantizeEvents", quantizeEvents, false, false );
 
 			//rubberband
 			if( readPrefFileforotherplaces ){
 				//this scond test will check individual user settings
-				QString test = LocalFileMng::readXmlString( rootNode, "path_to_rubberband", "");
+				QString test = rootNode.read_string( "path_to_rubberband", "", false, false );
 				if ( QFile( test ).exists() == true ){
 					m_rubberBandCLIexecutable = test;
 				}else
-				{
-					m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
-				}
+					{
+						m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
+					}
 			}
 
-			QDomNode pRecentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
-			if ( !pRecentUsedSongsNode.isNull() ) {
-				QDomElement pSongElement = pRecentUsedSongsNode.firstChildElement( "song" );
-				while( !pSongElement.isNull() && !pSongElement.text().isEmpty() ){
-					m_recentFiles.push_back( pSongElement.text() );
-					pSongElement = pSongElement.nextSiblingElement( "song" );
+			XMLNode recentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
+			if ( ! recentUsedSongsNode.isNull() ) {
+				QDomElement songElement = recentUsedSongsNode.firstChildElement( "song" );
+				while( !songElement.isNull() && ! songElement.text().isEmpty() ){
+					m_recentFiles.push_back( songElement.text() );
+					songElement = songElement.nextSiblingElement( "song" );
 				}
 
 			} else {
 				WARNINGLOG( "recentUsedSongs node not found" );
 			}
 
-			QDomNode pRecentFXNode = rootNode.firstChildElement( "recentlyUsedEffects" );
-			if ( ! pRecentFXNode.isNull() ) {
-				QDomElement pFXElement = pRecentFXNode.firstChildElement( "FX" );
-				while ( !pFXElement.isNull()  && ! pFXElement.text().isEmpty()) {
-					m_recentFX.push_back( pFXElement.text() );
-					pFXElement = pFXElement.nextSiblingElement( "FX" );
+			XMLNode recentFXNode = rootNode.firstChildElement( "recentlyUsedEffects" );
+			if ( ! recentFXNode.isNull() ) {
+				QDomElement fxElement = recentFXNode.firstChildElement( "FX" );
+				while ( !fxElement.isNull()  && ! fxElement.text().isEmpty()) {
+					m_recentFX.push_back( fxElement.text() );
+					fxElement = fxElement.nextSiblingElement( "FX" );
 				}
 			} else {
 				WARNINGLOG( "recentlyUsedEffects node not found" );
 			}
 
 			sServerList.clear();
-			QDomNode pServerListNode = rootNode.firstChildElement( "serverList" );
-			if ( !pServerListNode.isNull() ) {
-				QDomElement pServerElement = pServerListNode.firstChildElement( "server" );
-				while ( !pServerElement.isNull() && !pServerElement.text().isEmpty() ) {
-					sServerList.push_back( pServerElement.text() );
-					pServerElement = pServerElement.nextSiblingElement( "server" );
+			XMLNode serverListNode = rootNode.firstChildElement( "serverList" );
+			if ( ! serverListNode.isNull() ) {
+				QDomElement serverElement = serverListNode.firstChildElement( "server" );
+				while ( !serverElement.isNull() && !serverElement.text().isEmpty() ) {
+					sServerList.push_back( serverElement.text() );
+					serverElement = serverElement.nextSiblingElement( "server" );
 				}
 			} else {
 				WARNINGLOG( "serverList node not found" );
 			}
 
 			m_patternCategories.clear();
-			QDomNode pPatternCategoriesNode = rootNode.firstChildElement( "patternCategories" );
-			if ( !pPatternCategoriesNode.isNull() ) {
-				QDomElement pPatternCategoriesElement = pPatternCategoriesNode.firstChildElement( "categories" );
-				while ( !pPatternCategoriesElement.isNull() && !pPatternCategoriesElement.text().isEmpty() ) {
-					m_patternCategories.push_back( pPatternCategoriesElement.text() );
-					pPatternCategoriesElement = pPatternCategoriesElement.nextSiblingElement( "categories" );
+			XMLNode patternCategoriesNode = rootNode.firstChildElement( "patternCategories" );
+			if ( ! patternCategoriesNode.isNull() ) {
+				QDomElement patternCategoriesElement = patternCategoriesNode.firstChildElement( "categories" );
+				while ( !patternCategoriesElement.isNull() && !patternCategoriesElement.text().isEmpty() ) {
+					m_patternCategories.push_back( patternCategoriesElement.text() );
+					patternCategoriesElement = patternCategoriesElement.nextSiblingElement( "categories" );
 				}
 			} else {
 				WARNINGLOG( "patternCategories node not found" );
@@ -411,12 +419,12 @@ void Preferences::loadPreferences( bool bGlobal )
 
 
 			/////////////// AUDIO ENGINE //////////////
-			QDomNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
+			XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
 			if ( audioEngineNode.isNull() ) {
 				WARNINGLOG( "audio_engine node not found" );
 				bRecreate = true;
 			} else {
-				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
+				m_sAudioDriver = audioEngineNode.read_string( "audio_driver", m_sAudioDriver, false, false );
 				// Ensure compatibility will older versions of the
 				// files after capitalization in the GUI
 				// (2021-02-05). This can be dropped in releases >=
@@ -428,50 +436,50 @@ void Preferences::loadPreferences( bool bGlobal )
 				} else if ( m_sAudioDriver == "Alsa" ) {
 					m_sAudioDriver = "ALSA";
 				}
-				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
-				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
-				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
-				m_nBufferSize = LocalFileMng::readXmlInt( audioEngineNode, "buffer_size", m_nBufferSize );
-				m_nSampleRate = LocalFileMng::readXmlInt( audioEngineNode, "samplerate", m_nSampleRate );
+				m_bUseMetronome = audioEngineNode.read_bool( "use_metronome", m_bUseMetronome, false, false );
+				m_fMetronomeVolume = audioEngineNode.read_float( "metronome_volume", 0.5f, false, false );
+				m_nMaxNotes = audioEngineNode.read_int( "maxNotes", m_nMaxNotes, false, false );
+				m_nBufferSize = audioEngineNode.read_int( "buffer_size", m_nBufferSize, false, false );
+				m_nSampleRate = audioEngineNode.read_int( "samplerate", m_nSampleRate, false, false );
 
 				//// OSS DRIVER ////
-				QDomNode ossDriverNode = audioEngineNode.firstChildElement( "oss_driver" );
+				XMLNode ossDriverNode = audioEngineNode.firstChildElement( "oss_driver" );
 				if ( ossDriverNode.isNull()  ) {
 					WARNINGLOG( "oss_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sOSSDevice = LocalFileMng::readXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
+					m_sOSSDevice = ossDriverNode.read_string( "ossDevice", m_sOSSDevice, false, false );
 				}
 
 				//// PORTAUDIO DRIVER ////
-				QDomNode portAudioDriverNode = audioEngineNode.firstChildElement( "portaudio_driver" );
+				XMLNode portAudioDriverNode = audioEngineNode.firstChildElement( "portaudio_driver" );
 				if ( portAudioDriverNode.isNull()  ) {
 					WARNINGLOG( "portaudio_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
-					m_sPortAudioHostAPI = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
-					m_nLatencyTarget = LocalFileMng::readXmlInt( portAudioDriverNode, "latencyTarget", m_nLatencyTarget );
+					m_sPortAudioDevice = portAudioDriverNode.read_string( "portAudioDevice", m_sPortAudioDevice, false, true );
+					m_sPortAudioHostAPI = portAudioDriverNode.read_string( "portAudioHostAPI", m_sPortAudioHostAPI, false, true );
+					m_nLatencyTarget = portAudioDriverNode.read_int( "latencyTarget", m_nLatencyTarget, false, false );
 				}
 
 				//// COREAUDIO DRIVER ////
-				QDomNode coreAudioDriverNode = audioEngineNode.firstChildElement( "coreaudio_driver" );
+				XMLNode coreAudioDriverNode = audioEngineNode.firstChildElement( "coreaudio_driver" );
 				if ( coreAudioDriverNode.isNull()  ) {
 					WARNINGLOG( "coreaudio_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sCoreAudioDevice = LocalFileMng::readXmlString( coreAudioDriverNode, "coreAudioDevice", m_sCoreAudioDevice );
+					m_sCoreAudioDevice = coreAudioDriverNode.read_string( "coreAudioDevice", m_sCoreAudioDevice, false, true );
 				}
 
 				//// JACK DRIVER ////
-				QDomNode jackDriverNode = audioEngineNode.firstChildElement( "jack_driver" );
+				XMLNode jackDriverNode = audioEngineNode.firstChildElement( "jack_driver" );
 				if ( jackDriverNode.isNull() ) {
 					WARNINGLOG( "jack_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sJackPortName1 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_1", m_sJackPortName1 );
-					m_sJackPortName2 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_2", m_sJackPortName2 );
-					QString sMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode", "NO_JACK_TRANSPORT" );
+					m_sJackPortName1 = jackDriverNode.read_string( "jack_port_name_1", m_sJackPortName1, false, false );
+					m_sJackPortName2 = jackDriverNode.read_string( "jack_port_name_2", m_sJackPortName2, false, false );
+					QString sMode = jackDriverNode.read_string( "jack_transport_mode", "NO_JACK_TRANSPORT", false, false );
 					if ( sMode == "NO_JACK_TRANSPORT" ) {
 						m_bJackTransportMode = NO_JACK_TRANSPORT;
 					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
@@ -479,30 +487,30 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
-					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", false );
-					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
+					m_bJackTimebaseEnabled = jackDriverNode.read_bool( "jack_timebase_enabled", false, false, false );
+					QString tmMode = jackDriverNode.read_string( "jack_transport_mode_master", "NO_JACK_TIME_MASTER", false, false );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
 					} else if ( tmMode == "USE_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = USE_JACK_TIME_MASTER;
 					}
 
-					int nBBTSync = LocalFileMng::readXmlInt( jackDriverNode, "jack_bbt_sync", 0 );
+					int nBBTSync = jackDriverNode.read_int( "jack_bbt_sync", 0, false, false );
 					if ( nBBTSync == 0 ){
 						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 					} else if ( nBBTSync == 1 ) {
 						m_JackBBTSync = JackBBTSyncMethod::identicalBars;
 					} else {
 						WARNINGLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
-								  .arg( nBBTSync ) );
+									.arg( nBBTSync ) );
 						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 					}
 					//~ jack time master
 
-					m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
-					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
+					m_bJackTrackOuts = jackDriverNode.read_bool( "jack_track_outs", m_bJackTrackOuts, false, false );
+					m_bJackConnectDefaults = jackDriverNode.read_bool( "jack_connect_defaults", m_bJackConnectDefaults, false, false );
 
-					int nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", 0 );
+					int nJackTrackOutputMode = jackDriverNode.read_int( "jack_track_output_mode", 0, false, false );
 					switch ( nJackTrackOutputMode ) {
 					case 0:
 						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
@@ -512,28 +520,28 @@ void Preferences::loadPreferences( bool bGlobal )
 						break;
 					default:
 						WARNINGLOG( QString( "Unknown jack_track_output_mode value [%1]. Using JackTrackOutputMode::postFader instead." )
-								  .arg( nJackTrackOutputMode ) );
+									.arg( nJackTrackOutputMode ) );
 						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 					}
 				}
 
 
 				/// ALSA AUDIO DRIVER ///
-				QDomNode alsaAudioDriverNode = audioEngineNode.firstChildElement( "alsa_audio_driver" );
+				XMLNode alsaAudioDriverNode = audioEngineNode.firstChildElement( "alsa_audio_driver" );
 				if ( alsaAudioDriverNode.isNull() ) {
 					WARNINGLOG( "alsa_audio_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sAlsaAudioDevice = LocalFileMng::readXmlString( alsaAudioDriverNode, "alsa_audio_device", m_sAlsaAudioDevice );
+					m_sAlsaAudioDevice = alsaAudioDriverNode.read_string( "alsa_audio_device", m_sAlsaAudioDevice, false, false );
 				}
 
 				/// MIDI DRIVER ///
-				QDomNode midiDriverNode = audioEngineNode.firstChildElement( "midi_driver" );
+				XMLNode midiDriverNode = audioEngineNode.firstChildElement( "midi_driver" );
 				if ( midiDriverNode.isNull() ) {
 					WARNINGLOG( "midi_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
+					m_sMidiDriver = midiDriverNode.read_string( "driverName", "ALSA", false, false );
 					// Ensure compatibility will older versions of the
 					// files after capitalization in the GUI
 					// (2021-02-05). This can be dropped in releases
@@ -543,70 +551,71 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( m_sAudioDriver == "CoreMidi" ) {
 						m_sAudioDriver = "CoreMIDI";
 					}
-					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
-					m_sMidiOutputPortName = LocalFileMng::readXmlString( midiDriverNode, "output_port_name", "None" );
-					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
-					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
-					m_bMidiDiscardNoteAfterAction = LocalFileMng::readXmlBool( midiDriverNode, "discard_note_after_action", true);
-					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
-					m_bEnableMidiFeedback = LocalFileMng::readXmlBool( midiDriverNode, "enable_midi_feedback", false, true );
+					m_sMidiPortName = midiDriverNode.read_string( "port_name", "None", false, false );
+					m_sMidiOutputPortName = midiDriverNode.read_string( "output_port_name", "None", false, false );
+					m_nMidiChannelFilter = midiDriverNode.read_int( "channel_filter", -1, false, false );
+					m_bMidiNoteOffIgnore = midiDriverNode.read_bool( "ignore_note_off", true, false, false );
+					m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool( "discard_note_after_action", true, false, false );
+					m_bMidiFixedMapping = midiDriverNode.read_bool( "fixed_mapping", false, false, true );
+					m_bEnableMidiFeedback = midiDriverNode.read_bool( "enable_midi_feedback", false, false, true );
 				}
 
 				/// OSC ///
-				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
+				XMLNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
 				if ( oscServerNode.isNull() ) {
 					WARNINGLOG( "osc_configuration node not found" );
 					bRecreate = true;
 				} else {
-					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
-					m_bOscFeedbackEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscFeedbackEnabled", true );
-					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
+					m_bOscServerEnabled = oscServerNode.read_bool( "oscEnabled", false, false, false );
+					m_bOscFeedbackEnabled = oscServerNode.read_bool( "oscFeedbackEnabled", true, false, false );
+					m_nOscServerPort = oscServerNode.read_int( "oscServerPort", 9000, false, false );
 				}
 			}
 
 			/////////////// GUI //////////////
-			QDomNode guiNode = rootNode.firstChildElement( "gui" );
+			XMLNode guiNode = rootNode.firstChildElement( "gui" );
 			if ( guiNode.isNull() ) {
 				WARNINGLOG( "gui node not found" );
 				bRecreate = true;
 			} else {
 				// QT Style
-				setQTStyle( LocalFileMng::readXmlString( guiNode, "QTStyle", "Fusion", true ) );
+				setQTStyle( guiNode.read_string( "QTStyle", "Fusion", false, true ) );
 
 				if ( getQTStyle() == "Plastique" ){
 					setQTStyle( "Fusion" );
 				}
 
 				// Font fun
-				setApplicationFontFamily( LocalFileMng::readXmlString( guiNode, "application_font_family", getApplicationFontFamily() ) );
+				setApplicationFontFamily( guiNode.read_string( "application_font_family", getApplicationFontFamily(), false, false ) );
 				// The value defaults to m_sApplicationFontFamily on
 				// purpose to provide backward compatibility.
-				setLevel2FontFamily( LocalFileMng::readXmlString( guiNode, "level2_font_family", getLevel2FontFamily() ) );
-				setLevel3FontFamily( LocalFileMng::readXmlString( guiNode, "level3_font_family", getLevel3FontFamily() ) );
-				setFontSize( static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size",
-																			  static_cast<int>(FontTheme::FontSize::Medium) ) ) );
+				setLevel2FontFamily( guiNode.read_string( "level2_font_family", getLevel2FontFamily(), false, false ) );
+				setLevel3FontFamily( guiNode.read_string( "level3_font_family", getLevel3FontFamily(), false, false ) );
+				setFontSize( static_cast<FontTheme::FontSize>(
+					guiNode.read_int( "font_size",
+									  static_cast<int>(FontTheme::FontSize::Medium), false, false ) ) );
 
 				// Mixer falloff speed
-				setMixerFalloffSpeed( LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed",
-																  InterfaceTheme::FALLOFF_NORMAL ) );
+				setMixerFalloffSpeed( guiNode.read_float( "mixer_falloff_speed",
+														 InterfaceTheme::FALLOFF_NORMAL, false, false ) );
 
 				// pattern editor grid resolution
-				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
-				m_bPatternEditorUsingTriplets = LocalFileMng::readXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+				m_nPatternEditorGridResolution = guiNode.read_int( "patternEditorGridResolution", m_nPatternEditorGridResolution, false, false );
+				m_bPatternEditorUsingTriplets = guiNode.read_bool( "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets, false, false );
 				
-				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
-				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
-				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
-				m_bShowPlaybackTrack = LocalFileMng::readXmlBool( guiNode, "showPlaybackTrack", m_bShowPlaybackTrack );
+				m_bShowInstrumentPeaks = guiNode.read_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks, false, false );
+				m_bIsFXTabVisible = guiNode.read_bool( "isFXTabVisible", m_bIsFXTabVisible, false, false );
+				m_bShowAutomationArea = guiNode.read_bool( "showAutomationArea", m_bShowAutomationArea, false, false );
+				m_bShowPlaybackTrack = guiNode.read_bool( "showPlaybackTrack", m_bShowPlaybackTrack, false, false );
 
 
 				// pattern editor grid geometry
-				m_nPatternEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "patternEditorGridHeight", m_nPatternEditorGridHeight );
-				m_nPatternEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "patternEditorGridWidth", m_nPatternEditorGridWidth );
+				m_nPatternEditorGridHeight = guiNode.read_int( "patternEditorGridHeight", m_nPatternEditorGridHeight, false, false );
+				m_nPatternEditorGridWidth = guiNode.read_int( "patternEditorGridWidth", m_nPatternEditorGridWidth, false, false );
 
 				// song editor grid geometry
-				m_nSongEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "songEditorGridHeight", m_nSongEditorGridHeight );
-				m_nSongEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "songEditorGridWidth", m_nSongEditorGridWidth );
+				m_nSongEditorGridHeight = guiNode.read_int( "songEditorGridHeight", m_nSongEditorGridHeight, false, false );
+				m_nSongEditorGridWidth = guiNode.read_int( "songEditorGridWidth", m_nSongEditorGridWidth, false, false );
 
 				// mainForm window properties
 				setMainFormProperties( readWindowProperties( guiNode, "mainForm_properties", mainFormProperties ) );
@@ -617,68 +626,68 @@ void Preferences::loadPreferences( bool bGlobal )
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 				// last used file dialog folders
-				m_sLastExportPatternAsDirectory = LocalFileMng::readXmlString( guiNode, "lastExportPatternAsDirectory", QDir::homePath() );
-				m_sLastExportSongDirectory = LocalFileMng::readXmlString( guiNode, "lastExportSongDirectory", QDir::homePath() );
-				m_sLastSaveSongAsDirectory = LocalFileMng::readXmlString( guiNode, "lastSaveSongAsDirectory", QDir::homePath() );
-				m_sLastOpenSongDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenSongDirectory", Filesystem::songs_dir() );
-				m_sLastOpenPatternDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenPatternDirectory", Filesystem::patterns_dir() );
-				m_sLastExportLilypondDirectory = LocalFileMng::readXmlString( guiNode, "lastExportLilypondDirectory", QDir::homePath() );
-				m_sLastExportMidiDirectory = LocalFileMng::readXmlString( guiNode, "lastExportMidiDirectory", QDir::homePath() );
-				m_sLastImportDrumkitDirectory = LocalFileMng::readXmlString( guiNode, "lastImportDrumkitDirectory", QDir::homePath() );
-				m_sLastExportDrumkitDirectory = LocalFileMng::readXmlString( guiNode, "lastExportDrumkitDirectory", QDir::homePath() );
-				m_sLastOpenLayerDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenLayerDirectory", QDir::homePath() );
-				m_sLastOpenPlaybackTrackDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenPlaybackTrackDirectory", QDir::homePath() );
-				m_sLastAddSongToPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastAddSongToPlaylistDirectory", Filesystem::songs_dir() );
-				m_sLastPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistDirectory", Filesystem::playlists_dir() );
-				m_sLastPlaylistScriptDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistScriptDirectory", Filesystem::scripts_dir() );
-				m_sLastImportThemeDirectory = LocalFileMng::readXmlString( guiNode, "lastImportThemeDirectory", QDir::homePath() );
-				m_sLastExportThemeDirectory = LocalFileMng::readXmlString( guiNode, "lastExportThemeDirectory", QDir::homePath() );
+				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportSongDirectory = guiNode.read_string( "lastExportSongDirectory", QDir::homePath(), true, false, true );
+				m_sLastSaveSongAsDirectory = guiNode.read_string( "lastSaveSongAsDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenSongDirectory = guiNode.read_string( "lastOpenSongDirectory", Filesystem::songs_dir(), true, false, true );
+				m_sLastOpenPatternDirectory = guiNode.read_string( "lastOpenPatternDirectory", Filesystem::patterns_dir(), true, false, true );
+				m_sLastExportLilypondDirectory = guiNode.read_string( "lastExportLilypondDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportMidiDirectory = guiNode.read_string( "lastExportMidiDirectory", QDir::homePath(), true, false, true );
+				m_sLastImportDrumkitDirectory = guiNode.read_string( "lastImportDrumkitDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportDrumkitDirectory = guiNode.read_string( "lastExportDrumkitDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenLayerDirectory = guiNode.read_string( "lastOpenLayerDirectory", QDir::homePath(), true, false, true );
+				m_sLastOpenPlaybackTrackDirectory = guiNode.read_string( "lastOpenPlaybackTrackDirectory", QDir::homePath(), true, false, true );
+				m_sLastAddSongToPlaylistDirectory = guiNode.read_string( "lastAddSongToPlaylistDirectory", Filesystem::songs_dir(), true, false, true );
+				m_sLastPlaylistDirectory = guiNode.read_string( "lastPlaylistDirectory", Filesystem::playlists_dir(), true, false, true );
+				m_sLastPlaylistScriptDirectory = guiNode.read_string( "lastPlaylistScriptDirectory", Filesystem::scripts_dir(), true, false, true );
+				m_sLastImportThemeDirectory = guiNode.read_string( "lastImportThemeDirectory", QDir::homePath(), true, false, true );
+				m_sLastExportThemeDirectory = guiNode.read_string( "lastExportThemeDirectory", QDir::homePath(), true, false, true );
 
 				//export dialog properties
-				m_nExportTemplateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
-				m_nExportModeIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
-				m_nExportSampleRateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 0 );
-				m_nExportSampleDepthIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
-				m_bShowExportSongLicenseWarning = LocalFileMng::readXmlBool( guiNode, "showExportSongLicenseWarning", true );
+				m_nExportTemplateIdx = guiNode.read_int( "exportDialogTemplate", 0, false, false );
+				m_nExportModeIdx = guiNode.read_int( "exportDialogMode", 0, false, false );
+				m_nExportSampleRateIdx = guiNode.read_int( "exportDialogSampleRate", 0, false, false );
+				m_nExportSampleDepthIdx = guiNode.read_int( "exportDialogSampleDepth", 0, false, false );
+				m_bShowExportSongLicenseWarning = guiNode.read_bool( "showExportSongLicenseWarning", true, false, false );
 				
-				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
+				m_bFollowPlayhead = guiNode.read_bool( "followPlayhead", true, false, false );
 
 				// midi export dialog properties
-				m_nMidiExportMode = LocalFileMng::readXmlInt( guiNode, "midiExportDialogMode", 0 );
+				m_nMidiExportMode = guiNode.read_int( "midiExportDialogMode", 0, false, false );
 				
 				//beatcounter
-				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
-					if ( bcMode == "BC_OFF" ) {
-						m_bbc = BC_OFF;
-					} else if ( bcMode == "BC_ON" ) {
-						m_bbc = BC_ON;
-					}
+				QString bcMode = guiNode.read_string( "bc", "BC_OFF", false, false );
+				if ( bcMode == "BC_OFF" ) {
+					m_bbc = BC_OFF;
+				} else if ( bcMode == "BC_ON" ) {
+					m_bbc = BC_ON;
+				}
 
 
-				QString setPlay = LocalFileMng::readXmlString( guiNode, "setplay", "SET_PLAY_OFF" );
-					if ( setPlay == "SET_PLAY_OFF" ) {
-						m_mmcsetplay = SET_PLAY_OFF;
-					} else if ( setPlay == "SET_PLAY_ON" ) {
-						m_mmcsetplay = SET_PLAY_ON;
-					}
+				QString setPlay = guiNode.read_string( "setplay", "SET_PLAY_OFF", false, false );
+				if ( setPlay == "SET_PLAY_OFF" ) {
+					m_mmcsetplay = SET_PLAY_OFF;
+				} else if ( setPlay == "SET_PLAY_ON" ) {
+					m_mmcsetplay = SET_PLAY_ON;
+				}
 
-				m_countOffset = LocalFileMng::readXmlInt( guiNode, "countoffset", 0 );
-				m_startOffset = LocalFileMng::readXmlInt( guiNode, "playoffset", 0 );
+				m_countOffset = guiNode.read_int( "countoffset", 0, false, false );
+				m_startOffset = guiNode.read_int( "playoffset", 0, false, false );
 
 				//~ beatcounter
 
-				m_nAutosavesPerHour = LocalFileMng::readXmlInt( guiNode, "autosavesPerHour", 60 );
+				m_nAutosavesPerHour = guiNode.read_int( "autosavesPerHour", 60, false, false );
 				
 				//SoundLibraryPanel expand items
-				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem );
-				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
+				__expandSongItem = guiNode.read_bool( "expandSongItem", __expandSongItem, false, false );
+				__expandPatternItem = guiNode.read_bool( "expandPatternItem", __expandPatternItem, false, false );
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 					QString sNodeName = QString("ladspaFX_properties%1").arg( nFX );
 					setLadspaProperties( nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
 				}
 
-				QDomNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
+				XMLNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
 				if ( !pColorThemeNode.isNull() ) {
 					Theme::readColorTheme( pColorThemeNode, m_pTheme );
 				} else {
@@ -687,16 +696,16 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				setColoringMethod( static_cast<InterfaceTheme::ColoringMethod>(LocalFileMng::readXmlInt( guiNode,
-																										 "SongEditor_ColoringMethod",
-																										 static_cast<int>(InterfaceTheme::ColoringMethod::Custom) )) );
+				setColoringMethod( static_cast<InterfaceTheme::ColoringMethod>(
+					guiNode.read_int("SongEditor_ColoringMethod",
+									 static_cast<int>(InterfaceTheme::ColoringMethod::Custom), false, false )) );
 				std::vector<QColor> colors( getMaxPatternColors() );
 				for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
-					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-															   m_pTheme->getColorTheme()->m_accentColor );
+					colors[ ii ] = guiNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
+													   m_pTheme->getColorTheme()->m_accentColor, false, false );
 				}
 				setPatternColors( colors );
-				setVisiblePatternColors( LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 ) );
+				setVisiblePatternColors( guiNode.read_int( "SongEditor_visible_pattern_colors", 1, false, false ) );
 				if ( getVisiblePatternColors() > 50 ) {
 					setVisiblePatternColors( 50 );
 				} else if ( getVisiblePatternColors() < 0 ) {
@@ -705,24 +714,24 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			/////////////// FILES //////////////
-			QDomNode filesNode = rootNode.firstChildElement( "files" );
+			XMLNode filesNode = rootNode.firstChildElement( "files" );
 			if ( filesNode.isNull() ) {
 				WARNINGLOG( "files node not found" );
 				bRecreate = true;
 			} else {
 				// last used song
-				m_lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", m_lastSongFilename, true );
-				m_lastPlaylistFilename = LocalFileMng::readXmlString( filesNode, "lastPlaylistFilename", m_lastPlaylistFilename, true );
-				m_sDefaultEditor = LocalFileMng::readXmlString( filesNode, "defaulteditor", m_sDefaultEditor, true );
+				m_lastSongFilename = filesNode.read_string( "lastSongFilename", m_lastSongFilename, false, true );
+				m_lastPlaylistFilename = filesNode.read_string( "lastPlaylistFilename", m_lastPlaylistFilename, false, true );
+				m_sDefaultEditor = filesNode.read_string( "defaulteditor", m_sDefaultEditor, false, true );
 			}
 
 			MidiMap::reset_instance();
 			MidiMap* mM = MidiMap::get_instance();
 
 
-			QDomNode pMidiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
+			XMLNode pMidiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
 			if ( !pMidiEventMapNode.isNull() ) {
-				QDomNode pMidiEventNode = pMidiEventMapNode.firstChildElement( "midiEvent" );
+				XMLNode pMidiEventNode = pMidiEventMapNode.firstChildElement( "midiEvent" );
 				while ( !pMidiEventNode.isNull() ) {
 					if( pMidiEventNode.firstChildElement().nodeName() == QString("mmcEvent")){
 						QString event = pMidiEventNode.firstChildElement("mmcEvent").text();
@@ -791,21 +800,13 @@ void Preferences::loadPreferences( bool bGlobal )
 			bRecreate = true;
 		}
 	}
-	else { // input
-		if ( bGlobal ) {
-			WARNINGLOG( "System configuration file not found." );
-		} else {
-			WARNINGLOG( "Configuration file not found." );
-			bRecreate = true;
-		}
-	}
 
 	if ( m_nMaxLayers < 16 ) {
 		m_nMaxLayers = 16;
 	}
 
 	// The preferences file should be recreated?
-	if ( bRecreate == true && !bGlobal ) {
+	if ( bRecreate && ! bGlobal ) {
 		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
 	}
@@ -816,7 +817,7 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 /// Save the preferences file
 ///
-void Preferences::savePreferences()
+bool Preferences::savePreferences()
 {
 	QString sPreferencesFilename;
 	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
@@ -828,142 +829,129 @@ void Preferences::savePreferences()
 
 	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
-	QDomDocument doc;
-	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
-	doc.appendChild( header );
-
-	QDomNode rootNode = doc.createElement( "hydrogen_preferences" );
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( "hydrogen_preferences" );
 
 	// hydrogen version
-	LocalFileMng::writeXmlString( rootNode, "version", QString( get_version().c_str() ) );
+	rootNode.write_string( "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////
-	LocalFileMng::writeXmlString( rootNode, "preferredLanguage", m_sPreferredLanguage );
-	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
-	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
+	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
+	rootNode.write_bool( "restoreLastSong", m_brestoreLastSong );
+	rootNode.write_bool( "restoreLastPlaylist", m_brestoreLastPlaylist );
 
-	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
-	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
+	rootNode.write_bool( "useLash", m_bsetLash );
+	rootNode.write_bool( "useTimeLine", __useTimelineBpm );
 
-	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_nMaxBars ) );
-	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
+	rootNode.write_int( "maxBars", m_nMaxBars );
+	rootNode.write_int( "maxLayers", m_nMaxLayers );
 
-	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( static_cast<int>(getDefaultUILayout()) ) );
-	LocalFileMng::writeXmlString( rootNode, "uiScalingPolicy", QString::number( static_cast<int>(getUIScalingPolicy()) ) );
-	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
+	rootNode.write_int( "defaultUILayout", static_cast<int>(getDefaultUILayout()) );
+	rootNode.write_int( "uiScalingPolicy", static_cast<int>(getUIScalingPolicy()) );
+	rootNode.write_int( "lastOpenTab", m_nLastOpenTab );
 
-	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
+	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
 
-	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
-	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
+	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists );
+	rootNode.write_bool( "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
 	// instrument input mode
-	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
+	rootNode.write_bool( "instrumentInputMode", __playselectedinstrument );
 	
 	//show development version warning
-	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
+	rootNode.write_bool( "showDevelWarning", m_bShowDevelWarning );
 
 	// Warn about overwriting notes
-	LocalFileMng::writeXmlString( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning ? "true" : "false" );
+	rootNode.write_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
 
 	// hear new notes in the pattern editor
-	LocalFileMng::writeXmlString( rootNode, "hearNewNotes", hearNewNotes ? "true": "false" );
+	rootNode.write_bool( "hearNewNotes", hearNewNotes );
 
 	// key/midi event prefs
-	//LocalFileMng::writeXmlString( rootNode, "recordEvents", recordEvents ? "true": "false" );
-	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
+	rootNode.write_bool( "quantizeEvents", quantizeEvents );
 
 	//extern executables
 	if ( !Filesystem::file_executable( m_rubberBandCLIexecutable , true /* silent */) ) {
 		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
-	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
+	rootNode.write_string( "path_to_rubberband", m_rubberBandCLIexecutable );
 
 	// Recent used songs
-	QDomNode recentUsedSongsNode = doc.createElement( "recentUsedSongs" );
+	XMLNode recentUsedSongsNode = rootNode.createNode( "recentUsedSongs" );
 	{
 		unsigned nSongs = 5;
 		if ( m_recentFiles.size() < 5 ) {
 			nSongs = m_recentFiles.size();
 		}
 		for ( unsigned i = 0; i < nSongs; i++ ) {
-			LocalFileMng::writeXmlString( recentUsedSongsNode, "song", m_recentFiles[ i ] );
+			recentUsedSongsNode.write_string( "song", m_recentFiles[ i ] );
 		}
 	}
-	rootNode.appendChild( recentUsedSongsNode );
 
-	QDomNode recentFXNode = doc.createElement( "recentlyUsedEffects" );
+	XMLNode recentFXNode = rootNode.createNode( "recentlyUsedEffects" );
 	{
 		int nFX = 0;
 		QString FXname;
 		foreach( FXname, m_recentFX ) {
-			LocalFileMng::writeXmlString( recentFXNode, "FX", FXname );
+			recentFXNode.write_string( "FX", FXname );
 			if ( ++nFX > 10 ) break;
 		}
 	}
-	rootNode.appendChild( recentFXNode );
 
 
 	std::list<QString>::const_iterator cur_Server;
 
-	QDomNode serverListNode = doc.createElement( "serverList" );
+	XMLNode serverListNode = rootNode.createNode( "serverList" );
 	for( cur_Server = sServerList.begin(); cur_Server != sServerList.end(); ++cur_Server ){
-		LocalFileMng::writeXmlString( serverListNode , QString("server") , QString( *cur_Server ) );
+		serverListNode.write_string( QString("server") , QString( *cur_Server ) );
 	}
-	rootNode.appendChild( serverListNode );
 
 
 	std::list<QString>::const_iterator cur_patternCategories;
 
-	QDomNode patternCategoriesNode = doc.createElement( "patternCategories" );
+	XMLNode patternCategoriesNode = rootNode.createNode( "patternCategories" );
 	for( cur_patternCategories = m_patternCategories.begin(); cur_patternCategories != m_patternCategories.end(); ++cur_patternCategories ){
-		LocalFileMng::writeXmlString( patternCategoriesNode , QString("categories") , QString( *cur_patternCategories ) );
+		patternCategoriesNode.write_string( QString("categories") , QString( *cur_patternCategories ) );
 	}
-	rootNode.appendChild( patternCategoriesNode );
-
-
 
 	//---- AUDIO ENGINE ----
-	QDomNode audioEngineNode = doc.createElement( "audio_engine" );
+	XMLNode audioEngineNode = rootNode.createNode( "audio_engine" );
 	{
 		// audio driver
-		LocalFileMng::writeXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
+		audioEngineNode.write_string( "audio_driver", m_sAudioDriver );
 
 		// use metronome
-		LocalFileMng::writeXmlString( audioEngineNode, "use_metronome", m_bUseMetronome ? "true": "false" );
-		LocalFileMng::writeXmlString( audioEngineNode, "metronome_volume", QString("%1").arg( m_fMetronomeVolume ) );
-		LocalFileMng::writeXmlString( audioEngineNode, "maxNotes", QString("%1").arg( m_nMaxNotes ) );
-		LocalFileMng::writeXmlString( audioEngineNode, "buffer_size", QString("%1").arg( m_nBufferSize ) );
-		LocalFileMng::writeXmlString( audioEngineNode, "samplerate", QString("%1").arg( m_nSampleRate ) );
+		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
+		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
+		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
+		audioEngineNode.write_int( "buffer_size", m_nBufferSize );
+		audioEngineNode.write_int( "samplerate", m_nSampleRate );
 
 		//// OSS DRIVER ////
-		QDomNode ossDriverNode = doc.createElement( "oss_driver" );
+		XMLNode ossDriverNode = audioEngineNode.createNode( "oss_driver" );
 		{
-			LocalFileMng::writeXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
+			ossDriverNode.write_string( "ossDevice", m_sOSSDevice );
 		}
-		audioEngineNode.appendChild( ossDriverNode );
 
 		//// PORTAUDIO DRIVER ////
-		QDomNode portAudioDriverNode = doc.createElement( "portaudio_driver" );
+		XMLNode portAudioDriverNode = audioEngineNode.createNode( "portaudio_driver" );
 		{
-			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
-			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
-			LocalFileMng::writeXmlString( portAudioDriverNode, "latencyTarget", QString("%1").arg( m_nLatencyTarget ) );
+			portAudioDriverNode.write_string( "portAudioDevice", m_sPortAudioDevice );
+			portAudioDriverNode.write_string( "portAudioHostAPI", m_sPortAudioHostAPI );
+			portAudioDriverNode.write_int( "latencyTarget", m_nLatencyTarget );
 		}
-		audioEngineNode.appendChild( portAudioDriverNode );
 
 		//// COREAUDIO DRIVER ////
-		QDomNode coreAudioDriverNode = doc.createElement( "coreaudio_driver" );
+		XMLNode coreAudioDriverNode = audioEngineNode.createNode( "coreaudio_driver" );
 		{
-			LocalFileMng::writeXmlString( coreAudioDriverNode, "coreAudioDevice", m_sCoreAudioDevice );
+			coreAudioDriverNode.write_string( "coreAudioDevice", m_sCoreAudioDevice );
 		}
-		audioEngineNode.appendChild( coreAudioDriverNode );
 
 		//// JACK DRIVER ////
-		QDomNode jackDriverNode = doc.createElement( "jack_driver" );
+		XMLNode jackDriverNode = audioEngineNode.createNode( "jack_driver" );
 		{
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_port_name_1", m_sJackPortName1 );	// jack port name 1
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_port_name_2", m_sJackPortName2 );	// jack port name 2
+			jackDriverNode.write_string( "jack_port_name_1", m_sJackPortName1 );	// jack port name 1
+			jackDriverNode.write_string( "jack_port_name_2", m_sJackPortName2 );	// jack port name 2
 
 			// jack transport slave
 			QString sMode;
@@ -972,17 +960,17 @@ void Preferences::savePreferences()
 			} else if ( m_bJackTransportMode == USE_JACK_TRANSPORT ) {
 				sMode = "USE_JACK_TRANSPORT";
 			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode", sMode );
+			jackDriverNode.write_string( "jack_transport_mode", sMode );
 
 			//jack time master
-			LocalFileMng::writeXmlBool( jackDriverNode, "jack_timebase_enabled", m_bJackTimebaseEnabled );
+			jackDriverNode.write_bool( "jack_timebase_enabled", m_bJackTimebaseEnabled );
 			QString tmMode;
 			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
 				tmMode = "NO_JACK_TIME_MASTER";
 			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
 				tmMode = "USE_JACK_TIME_MASTER";
 			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode_master", tmMode );
+			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
 
 			int nBBTSync = 0;
 			if ( m_JackBBTSync == JackBBTSyncMethod::constMeasure ) {
@@ -990,17 +978,12 @@ void Preferences::savePreferences()
 			} else if ( m_JackBBTSync == JackBBTSyncMethod::identicalBars ) {
 				nBBTSync = 1;
 			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_bbt_sync",
-										  QString::number( nBBTSync ) );
+			jackDriverNode.write_int( "jack_bbt_sync", nBBTSync );
 			
 			//~ jack time master
 
 			// jack default connection
-			QString jackConnectDefaultsString = "false";
-			if ( m_bJackConnectDefaults ) {
-				jackConnectDefaultsString = "true";
-			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_connect_defaults", jackConnectDefaultsString );
+			jackDriverNode.write_bool( "jack_connect_defaults", m_bJackConnectDefaults );
 
 			int nJackTrackOutputMode;
 			if ( m_JackTrackOutputMode == JackTrackOutputMode::postFader ) {
@@ -1008,101 +991,60 @@ void Preferences::savePreferences()
 			} else if ( m_JackTrackOutputMode == JackTrackOutputMode::preFader ) {
 				nJackTrackOutputMode = 1;
 			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_track_output_mode", QString("%1").arg( nJackTrackOutputMode ));
+			jackDriverNode.write_int( "jack_track_output_mode", nJackTrackOutputMode );
 
 			// jack track outs
-			QString jackTrackOutsString = "false";
-			if ( m_bJackTrackOuts ) {
-				jackTrackOutsString = "true";
-			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_track_outs", jackTrackOutsString );
+			jackDriverNode.write_bool( "jack_track_outs", m_bJackTrackOuts );
 		}
-		audioEngineNode.appendChild( jackDriverNode );
 
 		//// ALSA AUDIO DRIVER ////
-		QDomNode alsaAudioDriverNode = doc.createElement( "alsa_audio_driver" );
+		XMLNode alsaAudioDriverNode = audioEngineNode.createNode( "alsa_audio_driver" );
 		{
-			LocalFileMng::writeXmlString( alsaAudioDriverNode, "alsa_audio_device", m_sAlsaAudioDevice );
+			alsaAudioDriverNode.write_string( "alsa_audio_device", m_sAlsaAudioDevice );
 		}
-		audioEngineNode.appendChild( alsaAudioDriverNode );
 
 		/// MIDI DRIVER ///
-		QDomNode midiDriverNode = doc.createElement( "midi_driver" );
+		XMLNode midiDriverNode = audioEngineNode.createNode( "midi_driver" );
 		{
-			LocalFileMng::writeXmlString( midiDriverNode, "driverName", m_sMidiDriver );
-			LocalFileMng::writeXmlString( midiDriverNode, "port_name", m_sMidiPortName );
-			LocalFileMng::writeXmlString( midiDriverNode, "output_port_name", m_sMidiOutputPortName );
-			LocalFileMng::writeXmlString( midiDriverNode, "channel_filter", QString("%1").arg( m_nMidiChannelFilter ) );
-
-			if ( m_bMidiNoteOffIgnore ) {
-				LocalFileMng::writeXmlString( midiDriverNode, "ignore_note_off", "true" );
-			} else {
-				LocalFileMng::writeXmlString( midiDriverNode, "ignore_note_off", "false" );
-			}
-			
-			if ( m_bEnableMidiFeedback ) {
-				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "true" );
-			} else {
-				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "false" );
-			}
-
-			if ( m_bMidiDiscardNoteAfterAction ) {
-				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "true" );
-			} else {
-				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "false" );
-			}
-
-			if ( m_bMidiFixedMapping ) {
-				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "true" );
-				INFOLOG("Saving fixed mapping\n");
-			} else {
-				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "false" );
-				INFOLOG("Saving fixed mapping false\n");
-			}
+			midiDriverNode.write_string( "driverName", m_sMidiDriver );
+			midiDriverNode.write_string( "port_name", m_sMidiPortName );
+			midiDriverNode.write_string( "output_port_name", m_sMidiOutputPortName );
+			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
+			midiDriverNode.write_bool( "ignore_note_off", m_bMidiNoteOffIgnore );
+			midiDriverNode.write_bool( "enable_midi_feedback", m_bEnableMidiFeedback );
+			midiDriverNode.write_bool( "discard_note_after_action", m_bMidiDiscardNoteAfterAction );
+			midiDriverNode.write_bool( "fixed_mapping", m_bMidiFixedMapping );
 		}
-		audioEngineNode.appendChild( midiDriverNode );
 		
 		/// OSC ///
-		QDomNode oscNode = doc.createElement( "osc_configuration" );
+		XMLNode oscNode = audioEngineNode.createNode( "osc_configuration" );
 		{
-			LocalFileMng::writeXmlString( oscNode, "oscServerPort", QString("%1").arg( m_nOscServerPort ) );
-
-			if ( m_bOscServerEnabled ) {
-				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
-			} else {
-				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
-			}
-			
-			if ( m_bOscFeedbackEnabled ) {
-				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "true" );
-			} else {
-				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "false" );
-			}
+			oscNode.write_int( "oscServerPort", m_nOscServerPort );
+			oscNode.write_bool( "oscEnabled", m_bOscServerEnabled );
+			oscNode.write_bool( "oscFeedbackEnabled", m_bOscFeedbackEnabled );
 		}
-		audioEngineNode.appendChild( oscNode );
 		
 	}
-	rootNode.appendChild( audioEngineNode );
 
 	//---- GUI ----
-	QDomNode guiNode = doc.createElement( "gui" );
+	XMLNode guiNode = rootNode.createNode( "gui" );
 	{
-		LocalFileMng::writeXmlString( guiNode, "QTStyle", getQTStyle() );
-		LocalFileMng::writeXmlString( guiNode, "application_font_family", getApplicationFontFamily() );
-		LocalFileMng::writeXmlString( guiNode, "level2_font_family", getLevel2FontFamily() );
-		LocalFileMng::writeXmlString( guiNode, "level3_font_family", getLevel3FontFamily() );
-		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(getFontSize()) ) );
-		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( getMixerFalloffSpeed() ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
-		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
-		LocalFileMng::writeXmlString( guiNode, "songEditorGridHeight", QString("%1").arg( m_nSongEditorGridHeight ) );
-		LocalFileMng::writeXmlString( guiNode, "songEditorGridWidth", QString("%1").arg( m_nSongEditorGridWidth ) );
-		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
-		LocalFileMng::writeXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
-		LocalFileMng::writeXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
-		LocalFileMng::writeXmlBool( guiNode, "showPlaybackTrack", m_bShowPlaybackTrack );
+		guiNode.write_string( "QTStyle", getQTStyle() );
+		guiNode.write_string( "application_font_family", getApplicationFontFamily() );
+		guiNode.write_string( "level2_font_family", getLevel2FontFamily() );
+		guiNode.write_string( "level3_font_family", getLevel3FontFamily() );
+		guiNode.write_int( "font_size", static_cast<int>(getFontSize()) );
+		guiNode.write_float( "mixer_falloff_speed", getMixerFalloffSpeed() );
+		guiNode.write_int( "patternEditorGridResolution", m_nPatternEditorGridResolution );
+		guiNode.write_int( "patternEditorGridHeight", m_nPatternEditorGridHeight );
+		guiNode.write_int( "patternEditorGridWidth", m_nPatternEditorGridWidth );
+		guiNode.write_bool( "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+		guiNode.write_int( "songEditorGridHeight", m_nSongEditorGridHeight );
+		guiNode.write_int( "songEditorGridWidth", m_nSongEditorGridWidth );
+		guiNode.write_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks );
+		guiNode.write_bool( "isFXTabVisible", m_bIsFXTabVisible );
+		guiNode.write_bool( "showAutomationArea", m_bShowAutomationArea );
+		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
 		// MainForm window properties
 		writeWindowProperties( guiNode, "mainForm_properties", mainFormProperties );
@@ -1117,34 +1059,34 @@ void Preferences::savePreferences()
 		}
 		
 		// last used file dialog folders
-		LocalFileMng::writeXmlString( guiNode, "lastExportPatternAsDirectory", m_sLastExportPatternAsDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastExportSongDirectory", m_sLastExportSongDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastSaveSongAsDirectory", m_sLastSaveSongAsDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastOpenSongDirectory", m_sLastOpenSongDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastOpenPatternDirectory", m_sLastOpenPatternDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastExportLilypondDirectory", m_sLastExportLilypondDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastExportMidiDirectory", m_sLastExportMidiDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastImportDrumkitDirectory", m_sLastImportDrumkitDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastExportDrumkitDirectory", m_sLastExportDrumkitDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastOpenLayerDirectory", m_sLastOpenLayerDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastOpenPlaybackTrackDirectory", m_sLastOpenPlaybackTrackDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastAddSongToPlaylistDirectory", m_sLastAddSongToPlaylistDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastPlaylistDirectory", m_sLastPlaylistDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastPlaylistScriptDirectory", m_sLastPlaylistScriptDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastImportThemeDirectory", m_sLastImportThemeDirectory );
-		LocalFileMng::writeXmlString( guiNode, "lastExportThemeDirectory", m_sLastExportThemeDirectory );
+		guiNode.write_string( "lastExportPatternAsDirectory", m_sLastExportPatternAsDirectory );
+		guiNode.write_string( "lastExportSongDirectory", m_sLastExportSongDirectory );
+		guiNode.write_string( "lastSaveSongAsDirectory", m_sLastSaveSongAsDirectory );
+		guiNode.write_string( "lastOpenSongDirectory", m_sLastOpenSongDirectory );
+		guiNode.write_string( "lastOpenPatternDirectory", m_sLastOpenPatternDirectory );
+		guiNode.write_string( "lastExportLilypondDirectory", m_sLastExportLilypondDirectory );
+		guiNode.write_string( "lastExportMidiDirectory", m_sLastExportMidiDirectory );
+		guiNode.write_string( "lastImportDrumkitDirectory", m_sLastImportDrumkitDirectory );
+		guiNode.write_string( "lastExportDrumkitDirectory", m_sLastExportDrumkitDirectory );
+		guiNode.write_string( "lastOpenLayerDirectory", m_sLastOpenLayerDirectory );
+		guiNode.write_string( "lastOpenPlaybackTrackDirectory", m_sLastOpenPlaybackTrackDirectory );
+		guiNode.write_string( "lastAddSongToPlaylistDirectory", m_sLastAddSongToPlaylistDirectory );
+		guiNode.write_string( "lastPlaylistDirectory", m_sLastPlaylistDirectory );
+		guiNode.write_string( "lastPlaylistScriptDirectory", m_sLastPlaylistScriptDirectory );
+		guiNode.write_string( "lastImportThemeDirectory", m_sLastImportThemeDirectory );
+		guiNode.write_string( "lastExportThemeDirectory", m_sLastExportThemeDirectory );
 				
 		//ExportSongDialog
-		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportModeIdx ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplateIdx ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRateIdx ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepthIdx ) );
-		LocalFileMng::writeXmlBool( guiNode, "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
+		guiNode.write_int( "exportDialogMode", m_nExportModeIdx );
+		guiNode.write_int( "exportDialogTemplate", m_nExportTemplateIdx );
+		guiNode.write_int( "exportDialogSampleRate",  m_nExportSampleRateIdx );
+		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
+		guiNode.write_bool( "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
 
-		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
+		guiNode.write_bool( "followPlayhead", m_bFollowPlayhead );
 
 		//ExportMidiDialog
-		LocalFileMng::writeXmlString( guiNode, "midiExportDialogMode", QString("%1").arg( m_nMidiExportMode ) );
+		guiNode.write_int( "midiExportDialogMode", m_nMidiExportMode );
 
 		//beatcounter
 		QString bcMode;
@@ -1154,7 +1096,7 @@ void Preferences::savePreferences()
 		} else if ( m_bbc  == BC_ON ) {
 			bcMode = "BC_ON";
 		}
-		LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
+		guiNode.write_string( "bc", bcMode );
 
 		QString setPlay;
 		if ( m_mmcsetplay == SET_PLAY_OFF ) {
@@ -1162,39 +1104,37 @@ void Preferences::savePreferences()
 		} else if ( m_mmcsetplay == SET_PLAY_ON ) {
 			setPlay = "SET_PLAY_ON";
 		}
-		LocalFileMng::writeXmlString( guiNode, "setplay", setPlay );
+		guiNode.write_string( "setplay", setPlay );
 
-		LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
-		LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
+		guiNode.write_int( "countoffset", m_countOffset );
+		guiNode.write_int( "playoffset", m_startOffset );
 		//~ beatcounter
 
-		LocalFileMng::writeXmlString( guiNode, "autosavesPerHour", QString( "%1" ).arg( m_nAutosavesPerHour ) );
+		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
 
 		//SoundLibraryPanel expand items
-		LocalFileMng::writeXmlString( guiNode, "expandSongItem", __expandSongItem ? "true": "false" );
-		LocalFileMng::writeXmlString( guiNode, "expandPatternItem", __expandPatternItem ? "true": "false" );
+		guiNode.write_bool( "expandSongItem", __expandSongItem );
+		guiNode.write_bool( "expandPatternItem", __expandPatternItem );
 
 		// User interface style
 		Theme::writeColorTheme( &guiNode, m_pTheme );
 
 		//SongEditor coloring method
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( static_cast<int>(getColoringMethod()) ) );
+		guiNode.write_int( "SongEditor_ColoringMethod", static_cast<int>(getColoringMethod()) );
 		for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
-			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), getPatternColors()[ ii ] );
+			guiNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ), getPatternColors()[ ii ] );
 		}
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_visible_pattern_colors", QString::number( getVisiblePatternColors() ) );
+		guiNode.write_int( "SongEditor_visible_pattern_colors", getVisiblePatternColors() );
 	}
-	rootNode.appendChild( guiNode );
 
 	//---- FILES ----
-	QDomNode filesNode = doc.createElement( "files" );
+	XMLNode filesNode = rootNode.createNode( "files" );
 	{
 		// last used song
-		LocalFileMng::writeXmlString( filesNode, "lastSongFilename", m_lastSongFilename );
-		LocalFileMng::writeXmlString( filesNode, "lastPlaylistFilename", m_lastPlaylistFilename );
-		LocalFileMng::writeXmlString( filesNode, "defaulteditor", m_sDefaultEditor );
+		filesNode.write_string( "lastSongFilename", m_lastSongFilename );
+		filesNode.write_string( "lastPlaylistFilename", m_lastPlaylistFilename );
+		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
-	rootNode.appendChild( filesNode );
 
 	// In case the Preferences in both system and user space are
 	// bricked Hydrogen attempts to recreate the Preferences before
@@ -1205,21 +1145,19 @@ void Preferences::savePreferences()
 	auto mmcMap = mM->getMMCActionMap();
 
 	//---- MidiMap ----
-	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
+	XMLNode midiEventMapNode = rootNode.createNode( "midiEventMap" );
 
 	for( const auto& it : mmcMap ){
 		QString event = it.first;
 		auto pAction = it.second;
 		if ( pAction->getType() != "NOTHING" ){
-			QDomNode midiEventNode = doc.createElement( "midiEvent" );
+			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			LocalFileMng::writeXmlString( midiEventNode, "mmcEvent" , event );
-			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType());
-			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
-
-			midiEventMapNode.appendChild( midiEventNode );
+			midiEventNode.write_string( "mmcEvent" , event );
+			midiEventNode.write_string( "action" , pAction->getType());
+			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
 		}
 	}
 
@@ -1227,15 +1165,14 @@ void Preferences::savePreferences()
 		int nNote = it.first;
 		auto pAction = it.second;
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
-			QDomNode midiEventNode = doc.createElement( "midiEvent" );
+			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			LocalFileMng::writeXmlString( midiEventNode, "noteEvent" , QString("NOTE") );
-			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( nNote ) );
-			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
-			midiEventMapNode.appendChild( midiEventNode );
+			midiEventNode.write_string( "noteEvent" , QString("NOTE") );
+			midiEventNode.write_int( "eventParameter" , nNote );
+			midiEventNode.write_string( "action" , pAction->getType() );
+			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
 		}
 	}
 
@@ -1243,44 +1180,30 @@ void Preferences::savePreferences()
 		int nParameter = it.first;
 		auto pAction = it.second;
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
-			QDomNode midiEventNode = doc.createElement( "midiEvent" );
+			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			LocalFileMng::writeXmlString( midiEventNode, "ccEvent" , QString("CC") );
-			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( nParameter ) );
-			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
-			midiEventMapNode.appendChild( midiEventNode );
+			midiEventNode.write_string( "ccEvent" , QString("CC") );
+			midiEventNode.write_int( "eventParameter" , nParameter );
+			midiEventNode.write_string( "action" , pAction->getType() );
+			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
 		}
 	}
 
 	for ( const auto action : mM->getPCActions() ) {
 		if( action != nullptr && action->getType() != "NOTHING") {
-			QDomNode midiEventNode = doc.createElement( "midiEvent" );
+			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );
-			LocalFileMng::writeXmlString( midiEventNode, "action" , action->getType() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter" , action->getParameter1() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , action->getParameter2() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , action->getParameter3() );
-			midiEventMapNode.appendChild( midiEventNode );
+			midiEventNode.write_string( "pcEvent" , QString("PROGRAM_CHANGE") );
+			midiEventNode.write_string( "action" , action->getType() );
+			midiEventNode.write_string( "parameter" , action->getParameter1() );
+			midiEventNode.write_string( "parameter2" , action->getParameter2() );
+			midiEventNode.write_string( "parameter3" , action->getParameter3() );
 		}
 	}
 
-	rootNode.appendChild( midiEventMapNode );
-
-	doc.appendChild( rootNode );
-
-	QFile file( sPreferencesFilename );
-	if ( !file.open(QIODevice::WriteOnly) ) {
-		return;
-	}
-
-	QTextStream TextStream( &file );
-	doc.save( TextStream, 1 );
-
-	file.close();
+	return doc.write( sPreferencesFilename );
 }
 
 void Preferences::setMostRecentFX( QString FX_name )
@@ -1295,21 +1218,21 @@ void Preferences::setMostRecentFX( QString FX_name )
 }
 
 /// Read the xml nodes related to window properties
-WindowProperties Preferences::readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp )
+WindowProperties Preferences::readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp )
 {
 	WindowProperties prop = defaultProp;
 
-	QDomNode windowPropNode  = parent.firstChildElement( windowName );
+	XMLNode windowPropNode  = parent.firstChildElement( windowName );
 	if ( windowPropNode.isNull() ) {
 		WARNINGLOG( "Error reading configuration file: " + windowName + " node not found" );
 	} else {
-		prop.visible = LocalFileMng::readXmlBool( windowPropNode, "visible", true );
-		prop.x = LocalFileMng::readXmlInt( windowPropNode, "x", prop.x );
-		prop.y = LocalFileMng::readXmlInt( windowPropNode, "y", prop.y );
-		prop.width = LocalFileMng::readXmlInt( windowPropNode, "width", prop.width );
-		prop.height = LocalFileMng::readXmlInt( windowPropNode, "height", prop.height );
-		prop.m_geometry = QByteArray::fromBase64( LocalFileMng::readXmlString( windowPropNode, "geometry",
-																			   prop.m_geometry.toBase64() )
+		prop.visible = windowPropNode.read_bool( "visible", true, false, false );
+		prop.x = windowPropNode.read_int( "x", prop.x, false, false );
+		prop.y = windowPropNode.read_int( "y", prop.y, false, false );
+		prop.width = windowPropNode.read_int( "width", prop.width, false, false );
+		prop.height = windowPropNode.read_int( "height", prop.height, false, false );
+		prop.m_geometry = QByteArray::fromBase64( windowPropNode.read_string( "geometry",
+																			  prop.m_geometry.toBase64(), false, true )
 												  .toUtf8() );
 	}
 
@@ -1319,23 +1242,16 @@ WindowProperties Preferences::readWindowProperties( QDomNode parent, const QStri
 
 
 /// Write the xml nodes related to window properties
-void Preferences::writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop )
+void Preferences::writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop )
 {
-	QDomDocument doc;
-	QDomNode windowPropNode = doc.createElement( windowName );
-	if ( prop.visible ) {
-		LocalFileMng::writeXmlString( windowPropNode, "visible", "true" );
-	} else {
-		LocalFileMng::writeXmlString( windowPropNode, "visible", "false" );
-	}
-
-	LocalFileMng::writeXmlString( windowPropNode, "x", QString("%1").arg( prop.x ) );
-	LocalFileMng::writeXmlString( windowPropNode, "y", QString("%1").arg( prop.y ) );
-	LocalFileMng::writeXmlString( windowPropNode, "width", QString("%1").arg( prop.width ) );
-	LocalFileMng::writeXmlString( windowPropNode, "height", QString("%1").arg( prop.height ) );
-	LocalFileMng::writeXmlString( windowPropNode, "geometry", QString( prop.m_geometry.toBase64() ) );
-
-	parent.appendChild( windowPropNode );
+	XMLNode windowPropNode = parent.createNode( windowName );
+	
+	windowPropNode.write_bool( "visible", prop.visible );
+	windowPropNode.write_int( "x", prop.x );
+	windowPropNode.write_int( "y", prop.y );
+	windowPropNode.write_int( "width", prop.width );
+	windowPropNode.write_int( "height", prop.height );
+	windowPropNode.write_string( "geometry", QString( prop.m_geometry.toBase64() ) );
 }
 
 // -----------------------

@@ -44,7 +44,6 @@
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <core/LocalFileMng.h>
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/H2Exception.h>
@@ -160,8 +159,6 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	auto pPref = H2Core::Preferences::get_instance();
 
-	LocalFileMng mng;
-
 	__sound_library_tree->clear();
 
 	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
@@ -261,8 +258,6 @@ void SoundLibraryPanel::updateDrumkitList()
 			__pattern_item->setExpanded( __expand_pattern_list );
 			__pattern_item->setFont( 0, boldFont );
 		
-			//this is the second step to push the mng.function
-			//SoundLibraryDatabase::create_instance();
 			SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
 			soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
 			QStringList allCategoryNameList = db->getAllPatternCategories();
@@ -283,7 +278,7 @@ void SoundLibraryPanel::updateDrumkitList()
 							QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 							pPatternItem->setText( 0, (*mapIterator)->getName());
 							pPatternItem->setText( 1, (*mapIterator)->getPath() );
-							pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( (*mapIterator)->getPath() ));
+							pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( (*mapIterator)->getPath() ));
 							INFOLOG( "Path" +  (*mapIterator)->getPath() );
 						}
 					}

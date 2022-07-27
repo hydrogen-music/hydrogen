@@ -24,13 +24,18 @@
 #define H2C_LEGACY_H
 
 #include <core/Object.h>
+#include <memory>
 
 namespace H2Core {
 
 class Drumkit;
 class Playlist;
 class Pattern;
+class PatternList;
+class InstrumentComponent;
 class InstrumentList;
+class License;
+class XMLNode;
 
 /**
  * Legacy is a container for legacy code which should be once removed
@@ -39,15 +44,12 @@ class InstrumentList;
 class Legacy : public H2Core::Object<Legacy> {
 		H2_OBJECT(Legacy)
 	public:
-		/**
-		 * load drumkit information from a file
-		 * \param dk_path is a path to an xml file
-		 * \param bSilent Whether DEBUGLOG messages should be logged
-		 * when anomalies are encountered while reading the XML nodes.
-		 *
-		 * \return a Drumkit on success, 0 otherwise
-		 */
-		static Drumkit* load_drumkit( const QString& dk_path, bool bSilent = false );
+	/** Backward compatibility code to load an #InstrumentComponent
+	 *	from an #Instrument which itself did not contain one yet.
+	 *
+	 * This code was used to load a #Song of version <= 0.9.0.
+	 */
+	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent = false );
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file
@@ -62,6 +64,22 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \return a Playlist on success, 0 otherwise
 		 */
 		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
+
+	static std::vector<PatternList*>* loadPatternGroupVector( XMLNode* pNode, PatternList* pPatternList, bool bSilent = false );
+
+	/**
+	 *	Check if filename was created with TinyXml or QtXml
+	 *
+	 * \return TinyXML: true, QtXml: false
+	 */
+	static bool checkTinyXMLCompatMode( QFile* pFile, bool bSilent = false );
+	static QByteArray convertFromTinyXML( QFile* pFile, bool bSilent = false );
+
+private:
+	/** Convert (in-place) an XML escape sequence into a literal byte,
+	 * rather than the character it actually refers to.
+	 */
+	static void convertStringFromTinyXML( QByteArray* pString );
 };
 
 };

@@ -391,7 +391,7 @@ public:
 	void			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
-	void			savePreferences();
+	bool			savePreferences();
 
 	const QString&	getDataDirectory();
 
@@ -795,8 +795,8 @@ private:
 	
 	Preferences();
 
-	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
-	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
+	WindowProperties readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp );
+	void writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop );
 };
 
 inline QString			Preferences::getLastExportPatternAsDirectory() const {

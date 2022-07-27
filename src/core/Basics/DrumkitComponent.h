@@ -45,7 +45,7 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 		~DrumkitComponent();
 
 		void						save_to( XMLNode* node );
-		static DrumkitComponent*	load_from( XMLNode* node, const QString& dk_path );
+		static DrumkitComponent*	load_from( XMLNode* node );
 
 		void						load_from( DrumkitComponent* component );
 

@@ -1449,15 +1449,9 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 								auto pSample = pLayer->get_sample();
 								if ( pSample != nullptr ) {
 									if( pSample->get_rubberband().use ) {
-										auto pNewSample = Sample::load(
-																	   pSample->get_filepath(),
-																	   pSample->get_loops(),
-																	   pSample->get_rubberband(),
-																	   *pSample->get_velocity_envelope(),
-																	   *pSample->get_pan_envelope(),
-																	   fBpm
-																	   );
-										if( pNewSample == nullptr ){
+										auto pNewSample = std::make_shared<Sample>( pSample );
+										
+										if ( ! pNewSample->load( fBpm ) ){
 											continue;
 										}
 								
@@ -1727,6 +1721,42 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 	}
 
 	return pInstrument;
+}
+
+License Hydrogen::getLicenseFromDrumkit( const QString& sDrumkitPath ) {
+
+	QString sAbsolutePath = Filesystem::absolute_path( sDrumkitPath );
+
+	if ( sAbsolutePath.isEmpty() ) {
+		ERRORLOG( QString( "Invalid path [%1] (converted to absolute path [%2]). License not added" )
+				  .arg( sDrumkitPath ).arg( sAbsolutePath ) );
+		return License();
+	}
+
+	if ( m_licenseMap.find( sAbsolutePath ) == m_licenseMap.end() ) {
+		// No License present for this path yet.
+
+		if ( ! Filesystem::drumkit_valid( sAbsolutePath ) ) {
+			WARNINGLOG( QString( "Drumkit path [%1] is not valid" )
+						.arg( sDrumkitPath ) );
+		}
+		m_licenseMap[ sAbsolutePath ] = Drumkit::loadLicenseFrom( sAbsolutePath );
+	}
+
+	return m_licenseMap[ sAbsolutePath ];
+}
+
+void Hydrogen::addDrumkitLicenseToCache( const License& license, const QString& sDrumkitPath ) {
+
+	QString sAbsolutePath = Filesystem::absolute_path( sDrumkitPath );
+
+	if ( ! sAbsolutePath.isEmpty() ) {
+		m_licenseMap[ sAbsolutePath ] = license;
+	}
+	else {
+		ERRORLOG( QString( "Invalid path [%1] (converted to absolute path [%2]). License not added" )
+				  .arg( sDrumkitPath ).arg( sAbsolutePath ) );
+	}
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

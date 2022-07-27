@@ -462,6 +462,14 @@ void			previewSample( Sample *pSample );
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
 	/**
+	 * Returns the #License of the drumkit found in @a sDrumkitPath.
+	 *
+	 * It caches the results in m_licenseMap.
+	 */
+	License getLicenseFromDrumkit( const QString& sDrumkitPath );
+	void addDrumkitLicenseToCache( const License& license, const QString& sDrumkitPath );
+
+	/**
 	 * Add @a pInstr to __instrument_death_row and triggers
 	 * __kill_instruments().
 	 *
@@ -578,6 +586,15 @@ private:
 	 * Central instance of the audio engine. 
 	 */
 	AudioEngine*	m_pAudioEngine;
+
+	/**
+	 * Map associating drumkit paths with the license found in the
+	 * corresponding drumkit.xml file.
+	 *
+	 * As retrieving a license based on a drumkit name/path is rather
+	 * expensive, this object will be used for caching.
+	 */
+	std::map<QString, License> m_licenseMap;
 
 	/** 
 	 * Constructor, entry point, and initialization of the
