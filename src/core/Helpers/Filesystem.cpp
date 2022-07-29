@@ -36,6 +36,10 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#if defined(Q_OS_MACX) || defined(WIN32)
+#else
+#include <QStandardPaths>
+#endif
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -102,8 +106,9 @@ const QString Filesystem::sPatternFilter = "Hydrogen Patterns (*.h2pattern)";
 const QString Filesystem::sPlaylistFilter = "Hydrogen Playlists (*.h2playlist)";
 
 QString Filesystem::m_sSystemDataPath;
-QString Filesystem::m_sUserDataPath;
+QString Filesystem::m_sUserCachePath;
 QString Filesystem::m_sUserConfigPath;
+QString Filesystem::m_sUserDataPath;
 
 #ifdef Q_OS_MACX
 QString Filesystem::m_sUserLogPath =
@@ -115,6 +120,7 @@ QString Filesystem::m_sUserLogPath =
 #else
 QString Filesystem::m_sUserLogPath =
 	QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
+bool m_bLogPathInitialized = false;
 #endif
 
 QStringList Filesystem::m_ladspaPaths;
@@ -311,9 +317,27 @@ bool Filesystem::bootstrap(
 #else
 	m_sSystemDataPath = H2_SYS_PATH "/data/";
 #endif
-	m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
-	m_sUserConfigPath =
-		QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	// If the old path exists (e.g. ~/.hydrogen), old path is used; else uses
+	// QStandardPaths to get XDG Paths on Linux.
+	if ( !QFileInfo::exists( QFileInfo( m_sUserConfigPath ).absolutePath() ) ) {
+		m_sUserConfigPath =
+			QStandardPaths::writableLocation( QStandardPaths::AppConfigLocation
+			)
+				.append( "/" USR_CONFIG );
+		m_sUserDataPath = QStandardPaths::writableLocation(
+							  QStandardPaths::AppLocalDataLocation
+		)
+							  .append( "/" );
+		m_sUserCachePath =
+			QStandardPaths::writableLocation( QStandardPaths::CacheLocation )
+				.append( "/" );
+	}
+	else {
+		m_sUserCachePath = m_sUserDataPath + CACHE;
+		m_sUserDataPath = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+		m_sUserConfigPath =
+			QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	}
 #endif
 	if ( !sSysDataPath.isEmpty() ) {
 		INFOLOG( QString( "Using custom system data folder [%1]" )
@@ -801,6 +825,21 @@ QString Filesystem::clickFilePath()
 }
 const QString& Filesystem::logFilePath()
 {
+	// Called within the Reporter prior to the bootstrap of Filesystem itself.
+	// Therefore we need some special treatments.
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+#else
+	if ( !m_bLogPathInitialized ) {
+		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
+			 ) ) {
+			m_sUserLogPath = QStandardPaths::writableLocation(
+								 QStandardPaths::AppLocalDataLocation
+			)
+								 .append( "/" LOG_FILE );
+		}
+		m_bLogPathInitialized = true;
+	}
+#endif
 	return m_sUserLogPath;
 }
 
@@ -867,11 +906,19 @@ QString Filesystem::userPlaylistsDir()
 }
 QString Filesystem::cacheDir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return m_sUserDataPath + CACHE;
+#else
+	return m_sUserCachePath;
+#endif
 }
 QString Filesystem::repositoriesCacheDir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return m_sUserDataPath + CACHE + REPOSITORIES;
+#else
+	return m_sUserCachePath + REPOSITORIES;
+#endif
 }
 QString Filesystem::demosDir()
 {

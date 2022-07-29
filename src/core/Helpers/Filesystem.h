@@ -545,11 +545,13 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	 * LOCAL_DATA_PATH.
 	 */
 	static QString m_sSystemDataPath;  ///< the path to the system files
-	static QString m_sUserDataPath;	   ///< the path to the user files
+	static QString m_sUserCachePath;  ///< the path to the user config file
 	static QString m_sUserConfigPath;  ///< the path to the user config file
+	static QString m_sUserDataPath;	   ///< the path to the user files
 	static QString m_sUserLogPath;	   ///< the path to the log file
 	static QStringList m_ladspaPaths;  ///< paths to laspa plugins
 	static std::vector<AudioFormat> m_supportedAudioFormats;
+	static bool m_bLogPathInitialized;
 };
 
 inline const QString& Filesystem::getPreferencesOverwritePath()
