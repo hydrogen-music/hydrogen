@@ -31,6 +31,10 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QDateTime>
+#if defined(Q_OS_MACX) || defined(WIN32)
+#else
+#include <QStandardPaths>
+#endif
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -100,6 +104,7 @@ const QString Filesystem::playlists_filter_name = "Hydrogen Playlists (*.h2playl
 
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
+QString Filesystem::__usr_cache_path;
 QString Filesystem::__usr_cfg_path;
 
 #ifdef Q_OS_MACX
@@ -107,7 +112,8 @@ QString Filesystem::__usr_cfg_path;
 #elif WIN32
 	QString Filesystem::__usr_log_path = QDir::homePath().append( "/.hydrogen/" LOG_FILE );
 #else
-	QString Filesystem::__usr_log_path = QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE);
+	QString Filesystem::__usr_log_path = QDir::homePath().append( "/" H2_USR_PATH "/" );
+	bool __usr_log_path_initialized = false;
 #endif
 
 
@@ -412,9 +418,36 @@ bool Filesystem::check_sys_paths()
 }
 
 
+#if defined(Q_OS_MACX) || defined(WIN32)
+#else
+void Filesystem::update_usr_paths()
+{
+	// If the old path exists (e.g. ~/.hydrogen), old path is used; else uses
+	// QStandardPaths to get XDG Paths on Linux.
+	if ( !QFileInfo::exists( QFileInfo(__usr_cfg_path).absolutePath() ) )
+	{
+		__usr_cfg_path = QStandardPaths::writableLocation(
+				QStandardPaths::AppConfigLocation).append("/" USR_CONFIG);
+		__usr_data_path = QStandardPaths::writableLocation(
+				QStandardPaths::AppLocalDataLocation).append("/");
+		__usr_cache_path = QStandardPaths::writableLocation(
+				QStandardPaths::CacheLocation).append("/");
+	} else {
+		__usr_cache_path = __usr_data_path + CACHE;
+	}
+}
+#endif
+
+
 bool Filesystem::check_usr_paths()
 {
 	bool ret = true;
+
+#if defined(Q_OS_MACX) || defined(WIN32)
+#else
+	update_usr_paths();
+	if ( !path_usable( QFileInfo(__usr_cfg_path).absolutePath() ) ) ret = false;
+#endif
 	if( !path_usable( tmp_dir() ) ) ret = false;
 	if( !path_usable( __usr_data_path ) ) ret = false;
 	if( !path_usable( cache_dir() ) ) ret = false;
@@ -518,6 +551,20 @@ QString Filesystem::playlist_xsd_path( )
 }
 QString Filesystem::log_file_path()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
+#else
+	if ( !__usr_log_path_initialized )
+	{
+		if ( !QFileInfo::exists( __usr_log_path ) )
+		{
+			__usr_log_path = QStandardPaths::writableLocation(
+					QStandardPaths::AppLocalDataLocation).append( "/" LOG_FILE );
+		} else {
+			__usr_log_path.append( LOG_FILE );
+		}
+		__usr_log_path_initialized = true;
+	}
+#endif
 	return __usr_log_path;
 }
 
@@ -592,11 +639,19 @@ QString Filesystem::playlist_path( const QString& pl_name )
 }
 QString Filesystem::cache_dir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return __usr_data_path + CACHE;
+#else
+	return __usr_cache_path;
+#endif
 }
 QString Filesystem::repositories_cache_dir()
 {
+#if defined(Q_OS_MACX) || defined(WIN32)
 	return __usr_data_path + CACHE + REPOSITORIES;
+#else
+	return __usr_cache_path + REPOSITORIES;
+#endif
 }
 QString Filesystem::demos_dir()
 {
