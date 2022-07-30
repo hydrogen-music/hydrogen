@@ -90,7 +90,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	
+
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
 
@@ -448,7 +448,6 @@ void MainForm::createMenuBar()
 		m_pLogLevelMenu->addAction( tr( "&Debug" ), this, SLOT( action_debug_logLevel_debug() ), QKeySequence( "" ) );
 		
 		m_pDebugMenu->addAction( tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile()) );
-		
 		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
