@@ -123,7 +123,6 @@ void LCDDisplay::updateFont() {
 }
 
 void LCDDisplay::updateStyleSheet() {
-
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	QColor textColor, textColorActive;

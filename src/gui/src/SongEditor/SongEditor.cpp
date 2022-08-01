@@ -1941,7 +1941,7 @@ void SongEditorPatternList::patternPopup_save()
 		return;
 	}
 
-	pHydrogenApp->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+	pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
 
 	pHydrogen->getSoundLibraryDatabase()->updatePatterns();
 	

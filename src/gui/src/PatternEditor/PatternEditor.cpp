@@ -1280,6 +1280,7 @@ QString PatternEditor::modeToQString( Mode mode ) {
 
 void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 	QString s;
+	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
 	float fValue;
 	
@@ -1289,6 +1290,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			s = QString( tr( "Set note velocity" ) )
 				.append( QString( ": [%1]")
 						 .arg( pNote->get_velocity(), 2, 'f', 2 ) );
+			sCaller.append( ":Velocity" );
 		}
 		break;
 		
@@ -1309,6 +1311,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			} else {
 				s = QString( tr( "Note centered" ) );
 			}
+			sCaller.append( ":Pan" );
 		}
 		break;
 		
@@ -1334,6 +1337,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 		else {
 			s = tr( "Note on beat" );
 		}
+		sCaller.append( ":LeadLag" );
 		break;
 
 	case PatternEditor::Mode::NoteKey:
@@ -1341,6 +1345,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
 			.append( tr( "octave" ) )
 			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
+		sCaller.append( ":NoteKey" );
 		break;
 
 	case PatternEditor::Mode::Probability:
@@ -1348,6 +1353,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			s = tr( "Set note probability to" )
 				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
 		}
+		sCaller.append( ":Probability" );
 		break;
 
 	default:
@@ -1355,6 +1361,6 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 	}
 
 	if ( ! s.isEmpty() ) {
-		HydrogenApp::get_instance()->setStatusBarMessage( s, 2000 );
+		HydrogenApp::get_instance()->showStatusBarMessage( s, sCaller );
 	}
 }

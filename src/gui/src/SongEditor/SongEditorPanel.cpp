@@ -1111,7 +1111,7 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 	QString sMessage = QString( "%1 = %2" )
 		.arg( pCommonStrings->getTimelineBigButton() )
 		.arg( bActive ? pCommonStrings->getStatusOn() : pCommonStrings->getStatusOff() );
-	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
 bool SongEditorPanel::getTimelineEnabled() const {
@@ -1136,7 +1136,7 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 		.arg( pCommonStrings->getTimelineBigButton() )
 		.arg( bEnabled ? pCommonStrings->getStatusEnabled() :
 			  pCommonStrings->getStatusDisabled() );
-	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
 void SongEditorPanel::gridCellToggledEvent() {

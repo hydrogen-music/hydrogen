@@ -53,18 +53,19 @@ public:
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
+protected:
+	QSize m_size;
+	virtual void paintEvent( QPaintEvent *ev ) override;
+
 private:
 	void updateFont();
 	void updateStyleSheet();
-	QSize m_size;
 
 	bool m_bFixedFont;
 	bool m_bUseRedFont;
 	bool m_bIsActive;
 
 	std::vector<int> m_fontPointSizes;
-	
-	virtual void paintEvent( QPaintEvent *ev ) override;
 };
 inline bool LCDDisplay::getIsActive() const {
 	return m_bIsActive;

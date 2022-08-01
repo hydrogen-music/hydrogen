@@ -2230,7 +2230,7 @@ void PreferencesDialog::importTheme() {
 	}
 	updateAppearanceTab( m_pCurrentTheme );
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath, 2000 );
+	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath );
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -2271,7 +2271,8 @@ void PreferencesDialog::exportTheme() {
 
 	H2Core::Preferences::get_instance()->setLastExportThemeDirectory( fd.directory().absolutePath() );
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme exported to " ) + sSelectedPath, 1200 );
+	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme exported to " ) +
+													   sSelectedPath );
 	
 }
 
@@ -2282,7 +2283,7 @@ void PreferencesDialog::resetTheme() {
 	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reset" ), 10000 );
+	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme reset" ) );
 }
 
 

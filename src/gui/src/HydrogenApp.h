@@ -129,8 +129,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		QUndoStack*			m_pUndoStack;
 
-		void setStatusBarMessage( const QString& msg, int msec = 0 );
-		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
+	void showStatusBarMessage( const QString& sMessage, const QString& sCaller = "" );
 		void updateWindowTitle();
 
 #ifdef H2CORE_HAVE_LADSPA

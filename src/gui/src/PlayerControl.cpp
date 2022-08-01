@@ -35,6 +35,7 @@ https://www.gnu.org/licenses
 #include "Widgets/Button.h"
 #include "Widgets/CpuLoadWidget.h"
 #include "Widgets/PixmapWidget.h"
+#include "Widgets/StatusMessageDisplay.h"
 
 #include "Mixer/Mixer.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -490,7 +491,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked() ),
 			 this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ), false, false );
+	m_pStatusLabel = new StatusMessageDisplay( pLcdBackGround, QSize( 255, 18 ) );
 	m_pStatusLabel->move( 0, 24 );
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
@@ -498,15 +499,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	QTimer *timer = new QTimer( this );
 	connect(timer, SIGNAL(timeout()), this, SLOT(updatePlayerControl()));
 	timer->start(100);	// update player control at 10 fps
-
-	m_pStatusTimer = new QTimer( this );
-	connect( m_pStatusTimer, SIGNAL( timeout() ), this, SLOT( onStatusTimerEvent() ) );
-
-	m_pScrollTimer = new QTimer( this );
-	connect( m_pScrollTimer, SIGNAL( timeout() ), this, SLOT( onScrollTimerEvent() ) );
-	m_pScrollMessage = "";
-
-	updateStatusLabel();
+	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PlayerControl::onPreferencesChanged );
 }
@@ -644,11 +637,11 @@ void PlayerControl::recBtnClicked() {
 	if ( m_pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecBtn->isChecked() ) {
 			Preferences::get_instance()->setRecordEvents(true);
-			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
+			(HydrogenApp::get_instance())->showStatusBarMessage( tr("Record midi events = On" ) );
 		}
 		else {
 			Preferences::get_instance()->setRecordEvents(false);
-			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = Off" ), 2000 );
+			(HydrogenApp::get_instance())->showStatusBarMessage( tr("Record midi events = Off" ) );
 		}
 	}
 }
@@ -670,11 +663,11 @@ void PlayerControl::playBtnClicked() {
 	
 	if ( m_pPlayBtn->isChecked() ) {
 		m_pHydrogen->sequencer_play();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Playing."), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Playing.") );
 	}
 	else {
 		m_pHydrogen->sequencer_stop();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pause."), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Pause.") );
 	}
 }
 
@@ -699,7 +692,7 @@ void PlayerControl::stopBtnClicked()
 	}
 	m_pHydrogen->sequencer_stop();
 	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
+	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
 }
 
 void PlayerControl::midiActivityEvent() {
@@ -739,7 +732,7 @@ void PlayerControl::songModeActivationEvent()
 
 		m_pSongLoopBtn->setIsActive( true );
 		
-		pHydrogenApp->setStatusBarMessage(tr("Song mode selected."), 5000);
+		pHydrogenApp->showStatusBarMessage( tr("Song mode selected.") );
 	} else {
 		// Pattern mode
 		m_pPatternModeLED->setActivated( true );
@@ -749,7 +742,7 @@ void PlayerControl::songModeActivationEvent()
 
 		m_pSongLoopBtn->setIsActive( false );
 		
-		pHydrogenApp->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+		pHydrogenApp->showStatusBarMessage( tr("Pattern mode selected.") );
 	}
 
 	updateBPMSpinbox();
@@ -782,12 +775,12 @@ void PlayerControl::bcOnOffBtnClicked()
 	Preferences *pPref = Preferences::get_instance();
 	if ( m_pBCOnOffBtn->isChecked() ) {
 		pPref->m_bbc = Preferences::BC_ON;
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" BC Panel on"), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel on") );
 		m_pControlsBCPanel->show();
 	}
 	else {
 		pPref->m_bbc = Preferences::BC_OFF;
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" BC Panel off"), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel off") );
 		m_pControlsBCPanel->hide();
 	}
 }
@@ -798,12 +791,12 @@ void PlayerControl::bcSetPlayBtnClicked()
 	if ( m_pBCSetPlayBtn->text() == HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() ) {
 		pPref->m_mmcsetplay = Preferences::SET_PLAY_ON;
 		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOn() );
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Count BPM and start PLAY"), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count BPM and start PLAY") );
 	}
 	else {
 		pPref->m_mmcsetplay = Preferences::SET_PLAY_OFF;
 		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() );
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Count and set BPM"), 5000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count and set BPM") );
 	}
 }
 
@@ -819,11 +812,11 @@ void PlayerControl::rubberbandButtonToggle()
 		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getBpm() );
 		pHydrogen->getAudioEngine()->unlock();
 		pPref->setRubberBandBatchMode(true);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Recalculate all samples using Rubberband ON"), 2000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Recalculate all samples using Rubberband ON") );
 	}
 	else {
 		pPref->setRubberBandBatchMode(false);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Recalculate all samples using Rubberband OFF"), 2000);
+		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Recalculate all samples using Rubberband OFF") );
 	}
 }
 
@@ -949,11 +942,11 @@ void PlayerControl::loopModeActivationEvent() {
 	if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 
 		m_pSongLoopBtn->setChecked( true );
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
+		HydrogenApp::get_instance()->showStatusBarMessage( tr("Loop song = On") );
 	}
 	else {
 		m_pSongLoopBtn->setChecked( false );
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
+		HydrogenApp::get_instance()->showStatusBarMessage( tr("Loop song = Off") );
 	}
 }
 
@@ -979,67 +972,6 @@ void PlayerControl::showInstrumentRackButtonClicked()
 	pH2App->showInstrumentPanel( isVisible );
 }
 
-void PlayerControl::showMessage( const QString& msg, int msec )
-{
-	if ( m_pScrollTimer->isActive ()) {
-		m_pScrollTimer->stop(); 
-	}
-	m_pStatusLabel->setText( msg );
-
-	if ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width() ) {
-		// Text is too large to fit in the display. Use scrolled
-		// message instead.
-		showScrollMessage( msg, 150, false );
-		return;
-	}
-	
-	m_pStatusTimer->start( msec );
-}
-
-
-
-void PlayerControl::showScrollMessage( const QString& msg, int msec, bool test )
-{
-
-	if ( test == false ){
-		m_pStatusLabel->setText( msg );
-		m_pScrollTimer->start( msec );
-	}else
-	{
-		m_pScrollMessage = msg;
-		m_pStatusLabel->setText( msg );
-		m_pStatusTimer->start( msec );
-		m_pScrollTimer->start( msec );
-	}
-}
-
-void PlayerControl::onScrollTimerEvent()
-{
-	int lwl = 34;
-	int msgLength = m_pScrollMessage.length();
-	if ( msgLength > lwl) {
-		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 ); 
-	}
-	m_pScrollTimer->stop();
-
-	if ( msgLength > lwl){
-		showScrollMessage( m_pScrollMessage, 150, false );
-	}else
-	{
-		showMessage( m_pScrollMessage, 2000 );
-	}
-}
-
-void PlayerControl::onStatusTimerEvent()
-{
-	resetStatusLabel();
-}
-
-void PlayerControl::resetStatusLabel()
-{
-	m_pStatusTimer->stop();
-	m_pStatusLabel->setText( "" );
-}
 
 void PlayerControl::timelineActivationEvent() {
 	updateBPMSpinbox();
@@ -1052,6 +984,10 @@ void PlayerControl::updateBPMSpinbox() {
 	m_pLCDBPMSpinbox->setIsActive( pHydrogen->getTempoSource() ==
 								   H2Core::Hydrogen::Tempo::Song );
 	updateBPMSpinboxToolTip();
+}
+
+void PlayerControl::showStatusBarMessage( const QString& sMessage, const QString& sCaller ) {
+	m_pStatusLabel->showMessage( sMessage, sCaller );
 }
 
 void PlayerControl::updateBPMSpinboxToolTip() {
@@ -1166,7 +1102,7 @@ void PlayerControl::jackTransportActivationEvent( )
 			m_pJackTransportBtn->setChecked( true );
 		}
 
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
+		HydrogenApp::get_instance()->showStatusBarMessage( tr("JACK transport mode = On") );
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
 			m_pJackMasterBtn->setIsActive( true );
@@ -1180,7 +1116,7 @@ void PlayerControl::jackTransportActivationEvent( )
 		}
 		m_pJackMasterBtn->setChecked( false );
 		m_pJackMasterBtn->setIsActive( false );
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
+		HydrogenApp::get_instance()->showStatusBarMessage( tr("JACK transport mode = Off") );
 	}
 }
 
@@ -1232,15 +1168,11 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 
 	updateBeatCounter();
 	updateBPMSpinbox();
-	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000 );
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
 void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
 {
-	if ( changes & H2Core::Preferences::Changes::Font ) {
-		updateStatusLabel();
-	}
-
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		auto pPref = Preferences::get_instance();
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -1260,17 +1192,4 @@ void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
 			m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterDisabledTooltip() );
 		}
 	}
-}
-
-void PlayerControl::updateStatusLabel()
-{
-	QString sLongString( "ThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFonts" );
-	m_pStatusLabel->setMaxLength( 120 );
-	
-	while ( m_pStatusLabel->fontMetrics().size( Qt::TextSingleLine, sLongString ).width() >
-			m_pStatusLabel->width() && ! sLongString.isEmpty() ) {
-		sLongString.chop( 1 );
-	}
-
-	m_pStatusLabel->setMaxLength( sLongString.length() );
 }
