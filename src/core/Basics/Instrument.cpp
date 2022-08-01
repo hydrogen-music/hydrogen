@@ -323,7 +323,37 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			
 				sInstrumentDrumkitPath =
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
-													 lookup, bSilent );
+													 lookup, true );
+
+				if ( sInstrumentDrumkitPath.isEmpty() &&
+					 lookup != Filesystem::Lookup::stacked ) {
+					// Drumkit could not be found.
+					//
+					// It's possible the song was composed with a
+					// custom version of a system-level drumkit stored
+					// in user space. When loaded again in a fresh
+					// installed Hydrogen the custom user-level one
+					// will not be present anymore but it's plausible
+					// to fall back to the system-level one. (The
+					// other way around is also possible but much more
+					// unlikely. Nevertheless we will use the stacked
+					// search in one final effort)
+					sInstrumentDrumkitPath =
+						Filesystem::drumkit_path_search( sInstrumentDrumkitName,
+														 Filesystem::Lookup::stacked,
+														 true );
+
+					if ( sInstrumentDrumkitPath.isEmpty() ) {
+						ERRORLOG( QString( "Drumkit [%1] could neither found at system nor at user level." )
+								  .arg( sInstrumentDrumkitName ) );
+					}
+					else if ( ! bSilent ) {
+						WARNINGLOG( QString( "Drumkit [%1] could not found using lookup type [%2]. Falling back to [%3] found using stacked search" )
+									.arg( sInstrumentDrumkitName )
+									.arg( static_cast<int>(lookup) )
+									.arg( sInstrumentDrumkitPath ) );
+					}
+				}
 			}
 			else if ( ! pNode->firstChildElement( "drumkit" ).isNull() ) {
 				// Format used from version 0.9.7 till 1.1.0.
