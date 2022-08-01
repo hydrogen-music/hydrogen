@@ -21,12 +21,13 @@
  */
 
 #include "StatusMessageDisplay.h"
+#include "../HydrogenApp.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
 StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
-	: LCDDisplay( pParent, size, false )
+	: LCDDisplay( pParent, size, false, false )
 	, m_bEntered( false )
 	, m_nShowTimeout( 5500 )
 	, m_nScrollTimeout( 150 )
@@ -45,6 +46,10 @@ StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
 	m_sScrollMessage = "";
 
 	updateMaxLength();
+	updateStyleSheet();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &StatusMessageDisplay::onPreferencesChanged );
 }
 
 StatusMessageDisplay::~StatusMessageDisplay() {
@@ -52,10 +57,33 @@ StatusMessageDisplay::~StatusMessageDisplay() {
 
 void StatusMessageDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	LCDDisplay::onPreferencesChanged( changes );
+	updateStyleSheet();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		updateMaxLength();
 	}
+}
+
+// We need the widget to be enabled in order to handle mouse
+// clicks. But the line edit itself if read-only and does not nicely
+// integrate into the current GUI design using the active LCDDisplay
+// foreground and background colors.
+void StatusMessageDisplay::updateStyleSheet() {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor textColor = pPref->getColorTheme()->m_windowTextColor;
+	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+
+	QString sStyleSheet = QString( "\
+QLineEdit { \
+    color: %1; \
+    background-color: %2; \
+}" )
+		.arg( textColor.name() )
+		.arg( backgroundColor.name() );
+
+	setStyleSheet( sStyleSheet );
 }
 
 void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {

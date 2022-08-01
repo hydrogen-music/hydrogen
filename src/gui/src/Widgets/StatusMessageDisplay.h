@@ -48,6 +48,7 @@ private slots:
 	void onScrollTimerEvent();
 	
 private:
+	void updateStyleSheet();
 	void reset();
 	void updateMaxLength();
 	void displayMessage( const QString& sMessage );

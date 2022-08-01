@@ -491,7 +491,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked() ),
 			 this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new StatusMessageDisplay( pLcdBackGround, QSize( 255, 18 ), false, false );
+	m_pStatusLabel = new StatusMessageDisplay( pLcdBackGround, QSize( 255, 18 ) );
 	m_pStatusLabel->move( 0, 24 );
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
