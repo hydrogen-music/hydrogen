@@ -74,7 +74,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * copy constructor
 		 * \param other
 		 */
-		InstrumentList( InstrumentList* other );
+		InstrumentList( std::shared_ptr<InstrumentList> other );
 
 		/** returns the numbers of instruments */
 		int size() const;
@@ -88,6 +88,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param idx the index to get the instrument from
 		 */
 		std::shared_ptr<Instrument> operator[]( int idx );
+	/**
+	 * Superficial comparison check. If it succeeds, both objects are
+	 * identical. If it fails, however, they are not guarantued to be
+	 * not identical.
+	 */
+	bool operator==( std::shared_ptr<InstrumentList> pOther ) const;
+	bool operator!=( std::shared_ptr<InstrumentList> pOther ) const;
 		/**
 		 * add an instrument to the list
 		 * \param instrument a pointer to the instrument to add
@@ -110,7 +117,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
-		std::shared_ptr<Instrument> get( int idx );
+		std::shared_ptr<Instrument> get( int idx ) const;
 		/**
 		 * remove the instrument at a given index, does not delete it
 		 * \param idx the index
@@ -185,10 +192,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit
-		 * data
-		 * \param dk_name
-		 * \param license
+		 * \param sDrumkitPath the directory holding the #Drumkit
+		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
 		 * \param license License assigned to all Samples that will be
 		 * loaded. If empty, the license will be read from @a dk_path.
 		 * \param bSilent if set to true, all log messages except of
@@ -196,15 +201,16 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
-									  const QString& dk_name,
+	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
+									  const QString& sDrumkitPath,
+									  const QString& sDrumkitName,
 									  const License& license = License(),
 									  bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<std::shared_ptr<Content>> summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const;
+	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".

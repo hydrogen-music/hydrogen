@@ -42,10 +42,13 @@ class LCDDisplay : public QLineEdit, public H2Core::Object<LCDDisplay>
 	Q_OBJECT
 
 public:
-	LCDDisplay( QWidget* pParent, QSize size, bool bFixedFont = false );
+	LCDDisplay( QWidget* pParent, QSize size = QSize( 0, 0 ), bool bFixedFont = false, bool bIsActive = true );
 	~LCDDisplay();
 
 	void setUseRedFont( bool bUseRedFont );
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -60,8 +63,12 @@ private:
 
 	bool m_bFixedFont;
 	bool m_bUseRedFont;
+	bool m_bIsActive;
 
 	std::vector<int> m_fontPointSizes;
 };
+inline bool LCDDisplay::getIsActive() const {
+	return m_bIsActive;
+}
 
 #endif

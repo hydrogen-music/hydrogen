@@ -38,6 +38,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Sampler/Sampler.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -125,8 +126,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __apply_velocity( other->get_apply_velocity() )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples(other->has_missing_samples())
-	, __drumkit_name( other->get_drumkit_name() )
-	, __drumkit_lookup( other->get_drumkit_lookup() )
+	, __drumkit_path( other->get_drumkit_path() )
+	, __drumkit_name( other->__drumkit_name )
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );
@@ -143,14 +144,14 @@ Instrument::~Instrument()
 	delete __components;
 }
 
-std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
+std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_path, const QString& instrument_name )
 {
 	auto pInstrument = std::make_shared<Instrument>();
-	pInstrument->load_from( drumkit_name, instrument_name, lookup );
+	pInstrument->load_from( drumkit_path, instrument_name );
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, Filesystem::Lookup lookup )
+void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<Instrument> pInstrument )
 {
 	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
@@ -204,8 +205,8 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 
 	this->set_id( pInstrument->get_id() );
 	this->set_name( pInstrument->get_name() );
+	this->set_drumkit_path( pDrumkit->get_path() );
 	this->set_drumkit_name( pDrumkit->get_name() );
-	this->set_drumkit_lookup( lookup );
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
 	this->setPan( pInstrument->getPan() );
@@ -215,38 +216,49 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_filter_resonance( pInstrument->get_filter_resonance() );
 	this->set_pitch_offset( pInstrument->get_pitch_offset() );
 	this->set_random_pitch_factor( pInstrument->get_random_pitch_factor() );
-	this->set_muted( pInstrument->is_muted() );
 	this->set_mute_group( pInstrument->get_mute_group() );
 	this->set_midi_out_channel( pInstrument->get_midi_out_channel() );
 	this->set_midi_out_note( pInstrument->get_midi_out_note() );
 	this->set_stop_notes( pInstrument->is_stop_notes() );
 	this->set_sample_selection_alg( pInstrument->sample_selection_alg() );
+	this->set_active( pInstrument->is_active() );
+	this->set_soloed( pInstrument->is_soloed() );
+	this->set_muted( pInstrument->is_muted() );
 	this->set_hihat_grp( pInstrument->get_hihat_grp() );
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
+
+	for ( int ii = 0; ii < MAX_FX; ++ii ) {
+		this->set_fx_level( pInstrument->get_fx_level( ii ), ii );
+	}
 }
 
-void Instrument::load_from( const QString& sDrumkitName, const QString& sInstrumentName, Filesystem::Lookup lookup )
+void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrumentName )
 {
-	Drumkit* pDrumkit = Drumkit::load_by_name( sDrumkitName, false, lookup );
+	std::shared_ptr<Drumkit> pDrumkit;
+	
+	// Try to retrieve the name from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+	}
+
 	assert( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )
-				  .arg( sDrumkitName ) );
+				  .arg( sDrumkitPath ) );
 		return;
 	}
 
 	auto pInstrument = pDrumkit->get_instruments()->find( sInstrumentName );
 	if ( pInstrument != nullptr ) {
-		load_from( pDrumkit, pInstrument, lookup );
+		load_from( pDrumkit, pInstrument );
 	}
 	else {
 		ERRORLOG( QString( "Unable to load instrument: instrument [%1] could not be found in drumkit [%2]" )
-				  .arg( sInstrumentName ).arg( sDrumkitName ) );
+				  .arg( sInstrumentName ).arg( sDrumkitPath ) );
 	}
-	
-	delete pDrumkit;
 }
 
 std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
@@ -268,28 +280,75 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 									pNode->read_float( "Sustain", 1.0f, true, false, bSilent ),
 									pNode->read_int( "Release", 1000, true, false, bSilent ) ) );
 
-	QString sInstrumentDrumkitName;
-	if ( sDrumkitName.isEmpty() ) {
-		// Additional information wrote out while saving the
-		// instrument list of a song. It is used to uniquely associate
-		// an instrument with a drumkit to determine the correct
-		// sample path. For instruments contained in a .h2drumkit
-		// these nodes are empty and the ones supply as function
-		// argument will be used instead.
-		sInstrumentDrumkitName = pNode->read_string( "drumkit", "",
-													false, false, bSilent  );
-		pInstrument->set_drumkit_lookup(
-			static_cast<Filesystem::Lookup>(
-				pNode->read_int( "drumkitLookup",
-								static_cast<int>(Filesystem::Lookup::stacked),
-								true, false, bSilent )) );
+	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
+	if ( sDrumkitPath.isEmpty() || sDrumkitName.isEmpty() ) {
+		// Instrument is not read as part of a Drumkit but as part of
+		// a Song. The drumkit meta info will be read from disk.
+		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
+													 false, bSilent );
+		
+		if ( ! pNode->firstChildElement( "drumkitPath" ).isNull() ) {
+			// Current format
+			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
+														 false, false, bSilent  );
+
+			// Check whether corresponding drumkit exist.
+			// When tweaking or assembling drumkits locally their
+			// absolute paths serve as unique identifiers to keep them
+			// apart. But in terms of portability (and to assure
+			// backward compatibility) paths are bad and we will use
+			// the drumkit name and check whether we can find the kit
+			// on the local system.
+			if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
+				WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
+							.arg( sInstrumentDrumkitPath )
+							.arg( sInstrumentDrumkitName ) );
+				sInstrumentDrumkitPath = "";
+			}
+		}
+
+		if ( sInstrumentDrumkitPath.isEmpty() ) {
+			if ( ! pNode->firstChildElement( "drumkitLookup" ).isNull() ) {
+				// Format introduced in #1f2a06b and used in (at least)
+				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
+				//
+				// Using the additional lookup variable two drumkits holding
+				// the same name but one of the residing in user-space and
+				// the other one in system-space can be distinguished.
+				Filesystem::Lookup lookup =
+					static_cast<Filesystem::Lookup>(
+													pNode->read_int( "drumkitLookup",
+																	 static_cast<int>(Filesystem::Lookup::stacked),
+																	 false, false, bSilent ) );
+			
+				sInstrumentDrumkitPath =
+					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
+													 lookup, bSilent );
+			}
+			else if ( ! pNode->firstChildElement( "drumkit" ).isNull() ) {
+				// Format used from version 0.9.7 till 1.1.0.
+				//
+				// It features just the name of the drumkit an relies on
+				// it being unique throught the entire search path.
+				sInstrumentDrumkitPath =
+					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
+													 Filesystem::Lookup::stacked,
+													 bSilent );
+			}
+			else {
+				// Format used prior to 0.9.7 which worked with absolute
+				// paths for the samples instead of relative ones.
+				sInstrumentDrumkitPath = "";
+			}
+		}
 	}
 	else {
+		sInstrumentDrumkitPath = sDrumkitPath;
 		sInstrumentDrumkitName = sDrumkitName;
-		// TODO: properly initialize drumkit lookup
 	}
 	
-	pInstrument->set_drumkit_name( sInstrumentDrumkitName );
+	pInstrument->set_drumkit_path( sInstrumentDrumkitPath );
+	pInstrument->__drumkit_name = sInstrumentDrumkitName;
 
 	
 	pInstrument->set_volume( pNode->read_float( "volume", 1.0f,
@@ -361,13 +420,6 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 													 true, true, bSilent ), i );
 	}
 
-	QString sInstrumentDrumkitPath;
-	if ( sDrumkitPath.isEmpty() ) {
-		sInstrumentDrumkitPath = Filesystem::drumkit_path_search( sInstrumentDrumkitName );
-	} else {
-		sInstrumentDrumkitPath = sDrumkitPath;
-	}
-
 	// This license will be applied to all samples contained in this
 	// instrument.
 	License instrumentLicense;
@@ -375,10 +427,25 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		// No/empty license supplied. We will use the license stored
 		// in the drumkit.xml file found at
 		// sInstrumentDrumkitPath. But since loading it from file is a
-		// rather expensive action, we will query a buffer maintained
-		// in the Hydrogen class instead. If the license is not
-		// present yet, it will be loaded internally.
-		instrumentLicense = Hydrogen::get_instance()->getLicenseFromDrumkit( sInstrumentDrumkitPath );
+		// rather expensive action, we will query it from the Drumkit
+		// database. If, for some reasons, the drumkit is not present
+		// yet, the License will be loaded directly.
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sInstrumentDrumkitPath );
+			if ( pDrumkit != nullptr ) {
+				instrumentLicense = pDrumkit->get_license();
+			}
+		}
+
+		if ( instrumentLicense == License() ) {
+			if ( ! bSilent ) {
+				WARNINGLOG( QString( "No license could be retrieved from drumkit [%1] in database. Loading directly." )
+							.arg( sInstrumentDrumkitPath ) );
+			}
+			
+			instrumentLicense = Drumkit::loadLicenseFrom( sInstrumentDrumkitPath );
+		}
 	} else {
 		instrumentLicense = license;
 	}
@@ -422,13 +489,11 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			pInstrument->set_missing_samples( true );
 			break;
 		}
-		
+
 		for ( const auto& pLayer : *pComponent ) {
 			if ( pLayer == nullptr ) {
-				// ERRORLOG( "Invalid layer. Something went wrong loading the instrument" );
-				// pInstrument->set_muted( true );
-				// pInstrument->set_missing_samples( true );
-				// return pInstrument;
+				// The component is filled with nullptr up to
+				// InstrumentComponent::m_nMaxLayers.
 				continue;
 			}
 
@@ -478,8 +543,8 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 	InstrumentNode.write_string( "name", __name );
 
 	if ( bFull ) {
+		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
 		InstrumentNode.write_string( "drumkit", __drumkit_name );
-		InstrumentNode.write_int( "drumkitLookup", static_cast<int>(__drumkit_lookup));
 	}
 	
 	InstrumentNode.write_float( "volume", __volume );
@@ -567,6 +632,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
 			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_path ) )
 			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
@@ -612,6 +678,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Instrument]" )
 			.append( QString( " id: %1" ).arg( __id ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", drumkit_path: %1" ).arg( __drumkit_path ) )
 			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
 			.append( QString( ", volume: %1" ).arg( __volume ) )

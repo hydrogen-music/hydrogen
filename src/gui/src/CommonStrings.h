@@ -136,6 +136,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
 	
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
+	const QString& getInstrumentLoadError() const { return m_sInstrumentLoadError; }
 
 	const QString& getStatusOn() const { return m_sStatusOn; }
 	const QString& getStatusOff() const { return m_sStatusOff; }
@@ -168,8 +169,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
 	const QString& getLicenseComboToolTip() const { return m_sLicenseComboToolTip; }
 	const QString& getLicenseStringToolTip() const { return m_sLicenseStringToolTip; }
+	
+	const QString& getLicenseCopyleftWarning() const { return m_sLicenseCopyleftWarning; }
+	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
+	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
 
 	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
+	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -264,6 +270,7 @@ private:
 	QString m_sMidiSenseUnavailable;
 
 	QString m_sPatternLoadError;
+	QString m_sInstrumentLoadError;
 	
 	QString m_sStatusOn;
 	QString m_sStatusOff;
@@ -298,7 +305,12 @@ private:
 	QString m_sLicenseStringLbl;
 	QString m_sLicenseComboToolTip;
 	QString m_sLicenseStringToolTip;
+
+	QString m_sLicenseCopyleftWarning;
+	QString m_sLicenseAttributionWarning;
+	QString m_sLicenseWarningWindowTitle;
 	
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
+	QString m_sSoundLibrarySystemSuffix;
 };
 #endif

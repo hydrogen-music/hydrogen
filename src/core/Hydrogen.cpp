@@ -64,6 +64,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/FX/LadspaFX.h>
 #include <core/FX/Effects.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -143,6 +144,8 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
+
+	m_pSoundLibraryDatabase = new SoundLibraryDatabase();
 }
 
 Hydrogen::~Hydrogen()
@@ -165,6 +168,7 @@ Hydrogen::~Hydrogen()
 	
 	__kill_instruments();
 
+	delete m_pSoundLibraryDatabase;
 	delete m_pCoreActionController;
 	delete m_pAudioEngine;
 
@@ -740,47 +744,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
-{
-	assert ( pDrumkitInfo );
-	auto pSong = getSong();
-	int nReturnValue = 0;
-	
-	if ( pSong != nullptr ) {
-
-		INFOLOG( pDrumkitInfo->get_name() );
-
-		m_pAudioEngine->lock( RIGHT_HERE );
-		
-		pSong->loadDrumkit( pDrumkitInfo, bConditional );
-		if ( m_nSelectedInstrumentNumber >=
-			 pSong->getInstrumentList()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() -1 ) );
-		}
-
-		renameJackPorts( getSong() );
-		m_pAudioEngine->unlock();
-	
-		m_pCoreActionController->initExternalControlInterfaces();
-
-		setIsModified( true );
-	
-		// Create a symbolic link in the session folder when under session
-		// management.
-		if ( isUnderSessionManagement() ) {
-#ifdef H2CORE_HAVE_OSC
-			NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
-#endif
-		}
-	} else {
-		ERRORLOG( "No song loaded yet!" );
-		nReturnValue = -1;
-	}
-
-	return nReturnValue;
-}
-
 // This will check if an instrument has any notes
 bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {
@@ -959,14 +922,17 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
-void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
+void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent )
 {
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		return;
 	}
 
 	m_nSelectedInstrumentNumber = nInstrument;
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	}
 }
 
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
@@ -1487,44 +1453,22 @@ bool Hydrogen::getIsModified() const {
 	return false;
 }
 
-void Hydrogen::setCurrentDrumkitName( const QString& sName ) {
+QString Hydrogen::getLastLoadedDrumkitPath() const {
 	if ( getSong() != nullptr ) {
-		if ( getSong()->getCurrentDrumkitName() != sName ) {
-			 getSong()->setCurrentDrumkitName( sName );
-			 getSong()->setIsModified( true );
-		}
-	} else {
-		ERRORLOG( "no song set yet" );
-	}
-}
-
-QString Hydrogen::getCurrentDrumkitName() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getCurrentDrumkitName();
+		return getSong()->getLastLoadedDrumkitPath();
 	}
 	ERRORLOG( "no song set yet" );
 
 	return "";
 }
 
-void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup ) {
+QString Hydrogen::getLastLoadedDrumkitName() const {
 	if ( getSong() != nullptr ) {
-		if ( getSong()->getCurrentDrumkitLookup() != lookup ) {
-			 getSong()->setCurrentDrumkitLookup( lookup );
-			 getSong()->setIsModified( true );
-		}
-	} else {
-		ERRORLOG( "no song set yet" );
-	}
-}
-
-Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getCurrentDrumkitLookup();
+		return getSong()->getLastLoadedDrumkitName();
 	}
 	ERRORLOG( "no song set yet" );
 
-	return Filesystem::Lookup::stacked;
+	return "";
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
@@ -1721,42 +1665,6 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 	}
 
 	return pInstrument;
-}
-
-License Hydrogen::getLicenseFromDrumkit( const QString& sDrumkitPath ) {
-
-	QString sAbsolutePath = Filesystem::absolute_path( sDrumkitPath );
-
-	if ( sAbsolutePath.isEmpty() ) {
-		ERRORLOG( QString( "Invalid path [%1] (converted to absolute path [%2]). License not added" )
-				  .arg( sDrumkitPath ).arg( sAbsolutePath ) );
-		return License();
-	}
-
-	if ( m_licenseMap.find( sAbsolutePath ) == m_licenseMap.end() ) {
-		// No License present for this path yet.
-
-		if ( ! Filesystem::drumkit_valid( sAbsolutePath ) ) {
-			WARNINGLOG( QString( "Drumkit path [%1] is not valid" )
-						.arg( sDrumkitPath ) );
-		}
-		m_licenseMap[ sAbsolutePath ] = Drumkit::loadLicenseFrom( sAbsolutePath );
-	}
-
-	return m_licenseMap[ sAbsolutePath ];
-}
-
-void Hydrogen::addDrumkitLicenseToCache( const License& license, const QString& sDrumkitPath ) {
-
-	QString sAbsolutePath = Filesystem::absolute_path( sDrumkitPath );
-
-	if ( ! sAbsolutePath.isEmpty() ) {
-		m_licenseMap[ sAbsolutePath ] = license;
-	}
-	else {
-		ERRORLOG( QString( "Invalid path [%1] (converted to absolute path [%2]). License not added" )
-				  .arg( sDrumkitPath ).arg( sAbsolutePath ) );
-	}
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

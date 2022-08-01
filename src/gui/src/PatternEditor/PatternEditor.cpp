@@ -333,7 +333,7 @@ void PatternEditor::selectNone()
 void PatternEditor::copy()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -391,7 +391,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		return;
 	}
 	
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();

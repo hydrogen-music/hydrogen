@@ -38,6 +38,7 @@ namespace H2Core {
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
+thread_local QString *Logger::pCrashContext = nullptr;
 
 pthread_t loggerThread;
 
@@ -94,6 +95,7 @@ void* loggerThread_func( void* param ) {
 	::FreeConsole();
 #endif
 
+	fflush( stdout );
 	pthread_exit( nullptr );
 	return nullptr;
 }
@@ -265,6 +267,27 @@ int Logger::hextoi( const char* str, long len ) {
 	return res;
 }
 #endif // HAVE_SSCANF
+
+
+Logger::CrashContext::CrashContext( QString *pContext ) {
+	pSavedContext = Logger::pCrashContext;
+	Logger::pCrashContext = pContext;
+	pThisContext = nullptr;
+}
+
+Logger::CrashContext::CrashContext( QString sContext ) {
+	pSavedContext = Logger::pCrashContext;
+	// Copy context string
+	pThisContext = new QString( sContext );
+	Logger::pCrashContext = pThisContext;
+}
+
+Logger::CrashContext::~CrashContext() {
+	Logger::pCrashContext = pSavedContext;
+	if ( pThisContext ) {
+		delete pThisContext;
+	}
+}
 
 };
 

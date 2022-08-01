@@ -125,6 +125,27 @@ class Logger {
 		 */
 		friend void* loggerThread_func( void* param );
 
+		/** @name Crash context management
+		 * Access the crash context string that can be used to report what caused a crash.  The crash-context
+		 * string is a thread-local property, and may be read by a fatal exception handler (which will execute
+		 * in the same thread that caused the crash). This avoids potential contention for locking and
+		 * unlocking of a shared crash context structure.
+		 * @{
+		 */
+		static void setCrashContext( QString *pContext ) { Logger::pCrashContext = pContext; }
+		static QString *getCrashContext() { return Logger::pCrashContext; }
+		/** @} */
+
+		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
+		class CrashContext {
+			QString *pSavedContext;
+			QString *pThisContext;
+		public:
+			CrashContext( QString *pContext );
+			CrashContext( QString sContext );
+			~CrashContext();
+		};
+
 	private:
 		/**
 		 * Object holding the current H2Core::Logger
@@ -140,6 +161,8 @@ class Logger {
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
 		pthread_cond_t __messages_available;
+
+		thread_local static QString *pCrashContext;
 
 		/** constructor */
 		Logger();

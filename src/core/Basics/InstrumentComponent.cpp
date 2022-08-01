@@ -111,12 +111,12 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 			break;
 		}
 
-		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node,
-																	 sDrumkitPath,
-																	 drumkitLicense,
-																	 bSilent ),
-										 nLayer );
-		nLayer++;
+		auto pLayer = InstrumentLayer::load_from( &layer_node, sDrumkitPath,
+												  drumkitLicense, bSilent );
+		if ( pLayer != nullptr ) {
+			pInstrumentComponent->set_layer( pLayer, nLayer );
+			nLayer++;
+		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
 	

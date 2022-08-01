@@ -185,7 +185,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	pHydrogen->setSong( pSong );
 
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

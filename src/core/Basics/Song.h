@@ -177,8 +177,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
 
-		InstrumentList*		getInstrumentList() const;
-		void			setInstrumentList( InstrumentList* pList );
+		std::shared_ptr<InstrumentList>		getInstrumentList() const;
+		void			setInstrumentList( std::shared_ptr<InstrumentList> pList );
 
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
@@ -214,11 +214,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			getIsModified() const;
 		void			setIsModified( bool bIsModified);
 
-	std::vector<DrumkitComponent*>* getComponents() const;
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
 
 		AutomationPath *	getVelocityAutomationPath() const;
 
-		DrumkitComponent*	getComponent( int nID ) const;
+		std::shared_ptr<DrumkitComponent>	getComponent( int nID ) const;
 
 		void			readTempPatternList( const QString& sFilename );
 		bool			writeTempPatternList( const QString& sFilename );
@@ -265,7 +265,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void loadDrumkit( Drumkit* pDrumkit, bool bConditional );
+	void setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional );
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
@@ -282,10 +282,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	QString makeComponentNameUnique( const QString& sComponentName ) const;
 
 
-	const QString& getCurrentDrumkitName() const;
-	void setCurrentDrumkitName( const QString& sName );
-	Filesystem::Lookup	getCurrentDrumkitLookup() const;
-	void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
+	const QString& getLastLoadedDrumkitName() const;
+	void setLastLoadedDrumkitName( const QString& sName );
+	const QString& getLastLoadedDrumkitPath() const;
+	void setLastLoadedDrumkitPath( const QString& sPath );
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -337,9 +337,9 @@ private:
 		///< Sequence of pattern groups
 		std::vector<PatternList*>* m_pPatternGroupSequence;
 		///< Instrument list
-		InstrumentList*	       	m_pInstrumentList;
+		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
 		///< list of drumkit component
-		std::vector<DrumkitComponent*>*	m_pComponents;				
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;				
 		QString			m_sFilename;
 
 		/**
@@ -409,8 +409,24 @@ private:
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 	std::shared_ptr<Timeline> m_pTimeline;
 
-	QString m_sCurrentDrumkitName;
-	Filesystem::Lookup m_currentDrumkitLookup;
+	/** Unique identifier of the drumkit last loaded.
+	 *
+	 * As the instruments and corresponding samples use their own
+	 * drumkits stored within them, this variable only serves for
+	 * references when storing patterns, highlighting in the GUI, and
+	 * other helper purposes.
+	 *
+	 * It's only semi-useful to associate the last loaded drumkit with
+	 * a song as the user is free to remove instruments and add an
+	 * arbitrary number of instruments from other drumkits. But the
+	 * most common use case of Hydrogen is probably with a stack or
+	 * custom drumkit loaded and not altering the associated
+	 * instrument list.
+	 */
+	QString m_sLastLoadedDrumkitPath;
+	/** Convenience variable holding the name of the drumkit last
+	 * loaded. */
+	QString m_sLastLoadedDrumkitName;
 
 };
 
@@ -493,12 +509,12 @@ inline bool Song::getIsModified() const
 	return m_bIsModified;
 }
 
-inline InstrumentList* Song::getInstrumentList() const
+inline std::shared_ptr<InstrumentList> Song::getInstrumentList() const
 {
 	return m_pInstrumentList;
 }
 
-inline void Song::setInstrumentList( InstrumentList* pList )
+inline void Song::setInstrumentList( std::shared_ptr<InstrumentList> pList )
 {
 	m_pInstrumentList = pList;
 }
@@ -626,7 +642,7 @@ inline void Song::setMode( Song::Mode mode )
 	m_mode = mode;
 }
 
-inline std::vector<DrumkitComponent*>* Song::getComponents() const
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Song::getComponents() const
 {
 	return m_pComponents;
 }
@@ -707,21 +723,21 @@ inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
 }
 
-inline const QString& Song::getCurrentDrumkitName() const
+inline const QString& Song::getLastLoadedDrumkitName() const
 {
-	return m_sCurrentDrumkitName;
+	return m_sLastLoadedDrumkitName;
 }
-inline void Song::setCurrentDrumkitName( const QString& sName )
+inline void Song::setLastLoadedDrumkitName( const QString& sName )
 {
-	m_sCurrentDrumkitName = sName;
+	m_sLastLoadedDrumkitName = sName;
 }
-inline Filesystem::Lookup Song::getCurrentDrumkitLookup() const
+inline const QString& Song::getLastLoadedDrumkitPath() const
 {
-	return m_currentDrumkitLookup;
+	return m_sLastLoadedDrumkitPath;
 }
-inline void Song::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
+inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
 {
-	m_currentDrumkitLookup = lookup;
+	m_sLastLoadedDrumkitPath = sPath;
 }
 };
 

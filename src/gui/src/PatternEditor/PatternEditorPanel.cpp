@@ -60,7 +60,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
 }
 
 
@@ -104,7 +104,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//soundlibrary name
 	m_pSLlabel = new QLabel( nullptr );
 	m_pSLlabel->setFont( boldFont );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
 	m_pSLlabel->setFixedSize( 170, 20 );
 	m_pSLlabel->move( 10, 3 );
 	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
@@ -609,8 +609,6 @@ PatternEditorPanel::~PatternEditorPanel()
 
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
-	getDrumPatternEditor()->updateEditor();
-	
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )

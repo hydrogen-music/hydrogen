@@ -366,6 +366,12 @@ namespace H2Core
 		 */
 		static bool file_executable( const QString& path, bool silent=false );
 		/**
+		 * returns true if the given path is a regular directory
+		 * \param path the path to the file to check
+		 * \param silent output not messages if set to true
+		 */
+		static bool dir_exists( const QString& path, bool silent=false );
+		/**
 		 * returns true if the given path is a readable regular directory
 		 * \param path the path to the file to check
 		 * \param silent output not messages if set to true

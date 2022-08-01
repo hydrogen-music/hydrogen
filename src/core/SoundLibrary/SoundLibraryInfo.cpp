@@ -20,126 +20,12 @@
  *
  */
 
-#include "SoundLibraryImportDialog.h"
-#include "SoundLibraryRepositoryDialog.h"
-#include "SoundLibraryPanel.h"
-
-#include "../Widgets/DownloadWidget.h"
-#include "../HydrogenApp.h"
-#include "../InstrumentRack.h"
-
-#include <core/H2Exception.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Helpers/Filesystem.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
 
-#include "SoundLibraryDatastructures.h"
-
-#include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Drumkit.h>
-
-using namespace H2Core;
-
-SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
-
-SoundLibraryDatabase::SoundLibraryDatabase()
+namespace H2Core
 {
-	
-	patternVector = new soundLibraryInfoVector();
-	updatePatterns();
-}
-
-SoundLibraryDatabase::~SoundLibraryDatabase()
-{
-	//Clean up the patterns data structure
-	soundLibraryInfoVector::iterator mapIterator;
-	for( mapIterator=patternVector->begin(); mapIterator != patternVector->end(); mapIterator++ )
-	{
-		delete *mapIterator;
-	}
-
-	delete patternVector;
-}
-
-void SoundLibraryDatabase::create_instance()
-{
-	if ( __instance == nullptr ) {
-		__instance = new SoundLibraryDatabase;
-	}
-}
-
-void SoundLibraryDatabase::printPatterns()
-{
-	soundLibraryInfoVector::iterator mapIterator;
-	for( mapIterator=patternVector->begin(); mapIterator != patternVector->end(); mapIterator++ )
-	{
-		INFOLOG(  QString( "Name: " + (*mapIterator)->getName() ) );
-	}
-
-	for (int i = 0; i < patternCategories.size(); ++i) 
-	{
-		INFOLOG( patternCategories.at(i) )
-	}
-}
-
-bool SoundLibraryDatabase::isPatternInstalled( const QString& patternName)
-{
-
-	soundLibraryInfoVector::iterator mapIterator;
-	for( mapIterator=patternVector->begin(); mapIterator != patternVector->end(); mapIterator++ )
-	{
-		if( (*mapIterator)->getName() == patternName )
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-void SoundLibraryDatabase::update()
-{
-	updatePatterns();
-	//updateSongs();
-	//updateDrumkits();
-}
-
-void SoundLibraryDatabase::updatePatterns()
-{
-	for ( auto ppPattern : *patternVector ) {
-		delete ppPattern;
-	}
-	patternVector->clear();
-	patternCategories = QStringList();
-
-	// search drumkit subdirectories within patterns user directory
-	foreach ( const QString& drumkit, Filesystem::pattern_drumkits() ) {
-		getPatternFromDirectory( Filesystem::patterns_dir( drumkit ), patternVector);
-	}
-	// search patterns user directory
-	getPatternFromDirectory( Filesystem::patterns_dir(), patternVector);
-}
-
-void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
-{
-	foreach ( const QString& fName, Filesystem::pattern_list( sPatternDir ) ) {
-		QString sFile = sPatternDir + fName;
-		SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
-		patternVector->push_back( slInfo );
-		if ( !patternCategories.contains( slInfo->getCategory() ) ) {
-			patternCategories << slInfo->getCategory();
-		}
-	}
-}
-
-
-soundLibraryInfoVector* SoundLibraryDatabase::getAllPatterns() const
-{
-	return patternVector;
-}
-
-
 
 
 SoundLibraryInfo::SoundLibraryInfo()
@@ -147,7 +33,7 @@ SoundLibraryInfo::SoundLibraryInfo()
 	//default constructor
 }
 
-SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
+SoundLibraryInfo::SoundLibraryInfo( const QString& sPath )
 {
 	/*
 	 *Use the provided file instantiate this object with the corresponding meta
@@ -164,7 +50,7 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
 	}
 
 	XMLNode rootNode =  doc.firstChildElement( "drumkit_pattern" );
-	if ( !rootNode.isNull() )
+	if ( ! rootNode.isNull() )
 	{
 		setType( "pattern" );
 		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
@@ -184,7 +70,7 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
 
 	//New drumkits
 	rootNode = doc.firstChildElement( "drumkit_info" );
-	if ( !rootNode.isNull() )
+	if ( ! rootNode.isNull() )
 	{
 		setType( "drumkit" );
 		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
@@ -199,7 +85,7 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath)
 
 	//Songs
 	rootNode = doc.firstChildElement( "song" );
-	if ( !rootNode.isNull() )
+	if ( ! rootNode.isNull() )
 	{
 		setType( "song" );
 		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
@@ -215,6 +101,5 @@ SoundLibraryInfo::~SoundLibraryInfo()
 	//default deconstructor
 }
 
-
-
+}; //namespace H2Core
 

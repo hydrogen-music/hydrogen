@@ -1773,17 +1773,15 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 			m_fMasterPeak_R = val_R;
 		}
 
-		for (std::vector<DrumkitComponent*>::iterator it = pSong->getComponents()->begin() ; it != pSong->getComponents()->end(); ++it) {
-			DrumkitComponent* drumkit_component = *it;
+		for ( auto pComponent : *pSong->getComponents() ) {
+			float compo_val_L = pComponent->get_out_L(i);
+			float compo_val_R = pComponent->get_out_R(i);
 
-			float compo_val_L = drumkit_component->get_out_L(i);
-			float compo_val_R = drumkit_component->get_out_R(i);
-
-			if( compo_val_L > drumkit_component->get_peak_l() ) {
-				drumkit_component->set_peak_l( compo_val_L );
+			if( compo_val_L > pComponent->get_peak_l() ) {
+				pComponent->set_peak_l( compo_val_L );
 			}
-			if( compo_val_R > drumkit_component->get_peak_r() ) {
-				drumkit_component->set_peak_r( compo_val_R );
+			if( compo_val_R > pComponent->get_peak_r() ) {
+				pComponent->set_peak_r( compo_val_R );
 			}
 		}
 	}

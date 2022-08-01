@@ -25,23 +25,29 @@
 
 
 #include "ui_SoundLibraryImportDialog_UI.h"
-#include <core/Object.h>
 #include <QNetworkReply>
+#include "../EventListener.h"
 
+#include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include "SoundLibraryDatastructures.h"
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
 /** \ingroup docGUI*/
-class SoundLibraryImportDialog :  public QDialog, public Ui_SoundLibraryImportDialog_UI,  public H2Core::Object<SoundLibraryImportDialog>
+class SoundLibraryImportDialog :  public QDialog,
+								  public Ui_SoundLibraryImportDialog_UI,
+								  public H2Core::Object<SoundLibraryImportDialog>,
+								  public EventListener
 {
     H2_OBJECT(SoundLibraryImportDialog)
 	Q_OBJECT
 	public:
 		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );
 		~SoundLibraryImportDialog();
+
+	virtual void soundLibraryChangedEvent() override;
 
 	signals:
 
@@ -60,13 +66,13 @@ class SoundLibraryImportDialog :  public QDialog, public Ui_SoundLibraryImportDi
 
 
 	private:
-		std::vector<SoundLibraryInfo> m_soundLibraryList;
+	std::vector<H2Core::SoundLibraryInfo> m_soundLibraryList;
 
 		QTreeWidgetItem* m_pDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;
 		QTreeWidgetItem* m_pPatternItem;
 
-		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
+		bool isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);
 		void writeCachedImage( const QString& imageFile, QPixmap& pixmap );
 		void clearImageCache();

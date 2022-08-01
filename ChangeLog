@@ -26,6 +26,18 @@
 		- The virtual keyboard is now decoupled from the "Hear New Notes"
 		  button in the Pattern Editor and can be used to play back notes in
 		  song mode with playback rolling too.
+		- Mutable warning dialogs are shown when saving/exporting a
+		  drumkit containing samples of mismatching license and when
+		  saving/exporting a drumkit or song containing a copyleft license
+		  or one requiring an attribution.
+		- Drumkit properties dialog does now feature a table listing all
+		  contained samples and associated licenses.
+		- All actions accessible via right-clicking in the SoundLibrary do
+		  affect the stack drumkits and not the instrument list of the
+		  current song.
+		- All actions accessible via the Drumkits tab of the main menu do
+		  affect the loaded drumkit using the current song's custom
+		  instrument and component list.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
@@ -130,6 +142,9 @@
 		- Add `--upgrade` option to upgrade a drumkit
 		- Add `--check` option to validate a drumkit
 		- Add `--extract` option to extract the content of a drumkit
+		- Drumkit supplied using `-k` option can now be either the name of
+		  an install kit or an absolute path to a kit (does not have to be
+		  located in the Hydrogen's drumkit folder).
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
@@ -152,6 +167,13 @@
 		  the song even if transport was already looped at least once
 		- relocation of the playhead use JACK is now also support in case
 		  transport is not rolling
+		- Hydrogen is now able to handle multiple drumkits featuring the
+		  same name in the SoundLibrary. The drumkit's absolute path will be
+		  used as unique handler from now on.
+		- Mixing instruments from different drumkit in one Song works again
+	* Crash reporting
+		- Fatal errors will now show a GUI report including details to report
+		  and potential hints about the cause
 
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1

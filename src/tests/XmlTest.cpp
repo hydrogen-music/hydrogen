@@ -44,11 +44,11 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
-static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
+static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded )
 {
 	int count = 0;
 	H2Core::InstrumentComponent::setMaxLayers( 16 );
-	H2Core::InstrumentList* instruments = dk->get_instruments();
+	auto instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		auto pInstr = ( *instruments )[i];
@@ -80,10 +80,10 @@ void XmlTest::testDrumkit()
 {
 	QString sDrumkitPath = H2Core::Filesystem::tmp_dir()+"dk0";
 
-	H2Core::Drumkit* pDrumkitLoaded = nullptr;
-	H2Core::Drumkit* pDrumkitReloaded = nullptr;
-	H2Core::Drumkit* pDrumkitCopied = nullptr;
-	H2Core::Drumkit* pDrumkitNew = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkitLoaded = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkitReloaded = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkitCopied = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkitNew = nullptr;
 	H2Core::XMLDoc doc;
 
 	// load without samples
@@ -102,12 +102,13 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 
-	delete pDrumkitLoaded;
 	pDrumkitLoaded = nullptr;
 	
 	// load with samples
-	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ), true );
+	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
+
+	pDrumkitLoaded->load_samples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 	
@@ -126,35 +127,30 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
 	// load file
-	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
 	
 	// copy constructor
-	pDrumkitCopied = new H2Core::Drumkit( pDrumkitReloaded );
+	pDrumkitCopied = std::make_shared<H2Core::Drumkit>( pDrumkitReloaded );
 	CPPUNIT_ASSERT( pDrumkitCopied!=nullptr );
 	// save file
 	pDrumkitCopied->set_name( "COPY" );
-	CPPUNIT_ASSERT( pDrumkitCopied->save_file( sDrumkitPath+"/drumkit.xml", true ) );
+	CPPUNIT_ASSERT( pDrumkitCopied->save( sDrumkitPath ) );
 
-	delete pDrumkitReloaded;
+	pDrumkitReloaded = nullptr;
 
 	// Check whether blank drumkits are valid.
-	pDrumkitNew = new H2Core::Drumkit();
+	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
-	CPPUNIT_ASSERT( pDrumkitNew->save_file( sDrumkitPath+"/drumkit.xml", true ) );
-	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
-	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
-	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
-
-	delete pDrumkitLoaded;
-	delete pDrumkitReloaded;
-	delete pDrumkitCopied;
-	delete pDrumkitNew;
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
+	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup
 	H2Core::Filesystem::rm( sDrumkitPath, true );
@@ -179,14 +175,14 @@ void XmlTest::testShippedDrumkits()
 void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 {
 	auto pTestHelper = TestHelper::get_instance();
-	H2Core::Drumkit* pDrumkit = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
 
 	//1. Check, if the drumkit has been loaded
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
-	H2Core::InstrumentList* pInstruments = pDrumkit->get_instruments();
+	auto pInstruments = pDrumkit->get_instruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	
 	auto pFirstInstrument = pInstruments->get(0);
@@ -205,20 +201,12 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
 	CPPUNIT_ASSERT( backupFiles.size() == 1 );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
-		
-	if( pDrumkit ) {
-		delete pDrumkit;
-	}
 
 	//4. Load the drumkit again to assure updated file is valid
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
 	backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( backupFiles.size() == 1 );
-		 
-	if ( pDrumkit ) {
-		delete pDrumkit;
-	}
 	
 	// Cleanup
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_copy( backupFiles[ 0 ],
@@ -343,8 +331,8 @@ void XmlTest::testPattern()
 	H2Core::Pattern* pPatternReloaded = nullptr;
 	H2Core::Pattern* pPatternCopied = nullptr;
 	H2Core::Pattern* pPatternNew = nullptr;
-	H2Core::Drumkit* pDrumkit = nullptr;
-	H2Core::InstrumentList* pInstrumentList = nullptr;
+	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
+	std::shared_ptr<H2Core::InstrumentList> pInstrumentList = nullptr;
 	H2Core::XMLDoc doc;
 
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
@@ -378,7 +366,6 @@ void XmlTest::testPattern()
 	delete pPatternLoaded;
 	delete pPatternCopied;
 	delete pPatternNew;
-	delete pDrumkit;
 }
 
 void XmlTest::checkTestPatterns()

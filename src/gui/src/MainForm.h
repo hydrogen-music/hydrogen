@@ -157,6 +157,8 @@ public slots:
 		void action_instruments_onlineImportLibrary();
 		void action_instruments_addComponent();
 
+		void functionDeleteInstrument( int nInstrument );
+
 		void action_banks_properties();
 		void action_banks_open();
 		
@@ -239,14 +241,13 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
+	void editDrumkitProperties( bool bDrumkitNameLocked );
 		void updateRecentUsedSongList();
 
 		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
-
-		void functionDeleteInstrument(int instrument);
 
 		QMenu *		m_pLogLevelMenu;		
 		QMenu *		m_pInputModeMenu;

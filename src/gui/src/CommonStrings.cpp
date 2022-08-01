@@ -332,6 +332,7 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
 	/*: Displayed within a status message when activating a widget.*/
 	m_sStatusOn = tr( "on" );
@@ -408,8 +409,18 @@ CommonStrings::CommonStrings(){
 	  property dialog to set a predefined license type.*/
 	m_sLicenseComboToolTip = tr( "License parsed from License String. You can use this combo box to overwrite the current license with a predefined one" );
 	m_sLicenseStringToolTip = tr( "License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license" );
-
+	
+	m_sLicenseCopyleftWarning = tr( "You used drumkit samples holding a <b>copyleft license</b>. Be aware that <b>you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.</b>" );
+	m_sLicenseAttributionWarning = tr( "All license containing the letters 'CC BY' <b>require you to give an attribution</b> by naming drumkit, author, as well as the license itself." );
+	/*: Shown as title in dialogs used to inform the user about
+	  license issues and information.*/
+	m_sLicenseWarningWindowTitle = tr( "License Warning" );
+	
 	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
+	
+	/*: Suffix appended to a drumkit, song, or pattern name in case it
+	 * is found on system-level and is read-only. */
+	m_sSoundLibrarySystemSuffix = tr( "system" );
 }
 
 CommonStrings::~CommonStrings(){

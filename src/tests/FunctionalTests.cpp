@@ -83,7 +83,8 @@ public:
 		// auto pPatternList = pSong->getPatternList();
 		// auto pPattern = pPatternList->get( 0 );
 		// auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
-		// auto pDrumkit = Drumkit::load( sDrumkitFile, true );
+		// auto pDrumkit = Drumkit::load( sDrumkitFile );
+		// pDrumkit->load_samples();
 		// auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
 		// auto pPlaylist = Playlist::get_instance();
 		// auto entry = Playlist::Entry{ "/tmp", true, "/usr/", false };
@@ -266,7 +267,7 @@ private:
 	
 		pHydrogen->setSong( pSong );
 
-		InstrumentList *pInstrumentList = pSong->getInstrumentList();
+		auto pInstrumentList = pSong->getInstrumentList();
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}

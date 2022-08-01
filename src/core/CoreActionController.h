@@ -24,6 +24,7 @@
 #define CORE_ACTION_CONTROLLER_H
 
 #include <vector>
+#include <memory>
 
 #include <core/Object.h>
 #include <core/Basics/Song.h>
@@ -259,21 +260,32 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate );
-	/** Wrapper around loadDrumkit() that allows loading drumkits by
-		name. */
-	bool loadDrumkit( const QString& sDrumkitName, bool bConditional = true );
-	/**
-	 * Loads Drumkit @a pDrumkit and stores it unto the current song.
+	/** Wrapper around setDrumkit() that allows loading drumkits by
+	 *	name or path.
 	 *
-	 * The loading is _not_ performed lazily as it also can be used to
-	 * reset the parameters of the current drumkit to its default
-	 * values.
+	 * The function tries to retrieve the #Drumkit from cache
+	 * (#SoundLibraryDatabase) first and loads it from disk in case
+	 * this fails.
 	 *
-	 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
+	 * @param sDrumkit Can be either the name of a #Drumkit or a
+	 * relative or absolute path pointing to it.
 	 * \param bConditional Whether to remove all redundant
 	 * H2Core::Instrument regardless of their content.
 	 */
-	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
+	bool setDrumkit( const QString& sDrumkit, bool bConditional = true );
+	/**
+	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
+	 *
+	 * The loading will overwrite the #InstrumentList of the current
+	 * #Song with the one found in @a pDrumkit (among other things)
+	 * and also can be used to reset the parameters of the current
+	 * drumkit to its default values.
+	 *
+	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
+	 * \param bConditional Whether to remove all redundant
+	 * H2Core::Instrument regardless of their content.
+	 */
+	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
 	/** 
 	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
 	 *
@@ -402,8 +414,8 @@ private:
 	 * containing the extracted drumkit in case @a sDrumkitPath
 	 * pointed to a compressed .h2drumkit file.
 	 */
-	Drumkit* retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
-							  QString* sDrumkitDir, QString* sTemporaryFolder );
+	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
+											  QString* sDrumkitDir, QString* sTemporaryFolder );
 	/**
 	 * Add @a sFilename to the list of recent songs in
 	 * Preferences::m_recentFiles.

@@ -84,7 +84,6 @@ void SoundLibraryOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
 void SoundLibraryOpenDialog::on_open_btn_clicked()
 {
 	m_pSoundLibraryPanel->on_drumkitLoadAction();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	accept();
 }
 

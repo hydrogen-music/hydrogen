@@ -24,15 +24,15 @@
 #define SOUND_LIBRARY_PROPERTIES_DIALOG_H
 
 #include "ui_SoundLibraryPropertiesDialog_UI.h"
-#include <core/Object.h>
 #include "../Widgets/WidgetWithLicenseProperty.h"
+
+#include <core/Basics/Drumkit.h>
+#include <core/Object.h>
 
 ///
 ///
 namespace H2Core
 {
-
-class Drumkit;
 
 /** \ingroup docGUI*/
 class SoundLibraryPropertiesDialog :  public QDialog,
@@ -44,9 +44,8 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	Q_OBJECT
 	public:
 		SoundLibraryPropertiesDialog( QWidget* pParent,
-									  Drumkit* pDrumkit,
-									  Drumkit* pPreDrumKit,
-									  bool bCurrentDrumkit );
+									  std::shared_ptr<Drumkit> pDrumkit,
+									  bool bDrumkitNameLocked );
 		~SoundLibraryPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -58,26 +57,24 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 
 	private:
 	void updateLicenseTable();
-		void updateImage( QString& filename );
-		/** The one selected by the user */
-		Drumkit* m_pDrumkitInfo;
-		/** The one currently loaded in Hydrogen.
-		 *
-		 * Since changes to a drumkit can only the saved correctly
-		 * when first loading it, we need to keep a pointer to the
-		 * current one in order to restore it.
-		 */
-		Drumkit* m_pPreDrumkitInfo;
+	void updateImage( QString& filename );
 
+	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
-	 * Specifies whether the dialog was invoked for drumkit that
-	 * can be found on disk (via the SoundLibrary tree) or for the one
-	 * currently loaded in the Song (via the main menu). For the
-	 * latter #m_pDrumkitInfo holds all the associated
-	 * DrumkitComponent but the instrument list is stored in the
-	 * current #Song.
+	 * This dialog can be accessed both via SoundLibrary/MainForm >
+	 * Drumkits -> Properties and MainForm > Drumkits -> Save
+	 * As. Historically they were two distinct dialogs featuring
+	 * pretty much exactly the same fields.
+	 *
+	 * In order to keep the general menu structure both choices are
+	 * still supported but a small tweak was introduced to make them
+	 * work slightly differently. When accessed via "Properties" this
+	 * variable is set to true and it is not possible to create new
+	 * drumkits by altering the name of an existing one. If, on the
+	 * other hand, it's opened via "Save As" anything goes.
 	 */
-	bool m_bCurrentDrumkit;
+	bool m_bDrumkitNameLocked;
+	
 };
 
 }
