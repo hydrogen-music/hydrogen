@@ -169,6 +169,9 @@
 		  same name in the SoundLibrary. The drumkit's absolute path will be
 		  used as unique handler from now on.
 		- Mixing instruments from different drumkit in one Song works again
+	* Crash reporting
+		- Fatal errors will now show a GUI report including details to report
+		  and potential hints about the cause
 
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1
