@@ -85,7 +85,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		virtual ~HydrogenApp();
 
 		/** 
-		 * \param sFilename Absolute path used to load the next Song.
+		 * \param sFilename Absolute or relative path used to load the next #H2Core::Song.
 		 * \return bool true on success
 		 */
 		static bool openSong( QString sFilename );
