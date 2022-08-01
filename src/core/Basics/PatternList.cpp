@@ -53,7 +53,7 @@ PatternList::~PatternList()
 	}
 }
 
-PatternList* PatternList::load_from( XMLNode* pNode, InstrumentList* pInstrumentList, bool bSilent ) {
+PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent ) {
 	XMLNode patternsNode = pNode->firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );

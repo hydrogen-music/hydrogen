@@ -742,7 +742,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::loadDrumkit().
+		 * Triggers CoreActionController::setDrumkit().
 		 *
 		 * The handler expects the user to provide the drumkit name. 
 		 * (row the pattern resides in within the SongEditor). The

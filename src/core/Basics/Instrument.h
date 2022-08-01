@@ -77,20 +77,17 @@ class Instrument : public H2Core::Object<Instrument>
 		 * creates a new Instrument, loads samples from a given instrument within a given drumkit
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_path, const QString& instrument_name );
 
 		/**
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
-		 * \param drumkit_name the drumkit to search the instrument in
+		 * \param drumkit_path the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void load_from( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		void load_from( const QString& drumkit_path, const QString& instrument_name );
 
 		/**
 		 * loads instrument from a given instrument into a `live` Instrument object.
@@ -99,7 +96,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		void load_from( std::shared_ptr<Drumkit> drumkit, std::shared_ptr<Instrument> instrument );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -132,9 +129,9 @@ class Instrument : public H2Core::Object<Instrument>
 		 * load an instrument from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit
-		 * data. If empty, it will be derived from @a sDrumkitName.
-		 * \param sDrumkitName the name of the drumkit. If empty, it
-		 * will be read from @a pNode.
+		 * data. If empty, it will be read from @a pNode.
+		 * \param sDrumkitName Name of the drumkit found in @a
+		 * sDrumkitPath.
 		 * \param license License assigned to all Samples that will be
 		 * loaded. If empty, the license will be read from @a
 		 * sDrumkitPath.
@@ -282,13 +279,14 @@ class Instrument : public H2Core::Object<Instrument>
 		void set_higher_cc( int message );
 		int get_higher_cc() const;
 
+		///< set the path of the related drumkit
+		void set_drumkit_path( const QString& sPath );
+		///< get the path of the related drumkits
+		const QString& get_drumkit_path() const;
 		///< set the name of the related drumkit
-		void set_drumkit_name( const QString& name );
+		void set_drumkit_name( const QString& sName );
 		///< get the name of the related drumkits
 		const QString& get_drumkit_name() const;
-
-	void set_drumkit_lookup( Filesystem::Lookup lookup );
-	Filesystem::Lookup get_drumkit_lookup() const;
 
 		/** Mark the instrument as hydrogen's preview instrument */
 		void set_is_preview_instrument(bool isPreview);
@@ -327,8 +325,22 @@ class Instrument : public H2Core::Object<Instrument>
 	        /** Name of the Instrument. It is set by set_name()
 		    and accessed via get_name().*/
 		QString					__name;
-		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
-	Filesystem::Lookup			__drumkit_lookup;
+	/** Path of the #Drumkit this #Instrument belongs to.
+	 *
+	 * An instrument belonging to a #Drumkit uses relative paths for
+	 * its #Sample. Therefore we have to take care of mapping them to
+	 * absolute paths ourselves in case instruments of several
+	 * drumkits are mixed in one #Song.
+	 */
+	QString					__drumkit_path;
+	/** Name of the #Drumkit found at @a __drumkit_path.
+	 *
+	 * This helper variable should only be used during #Instrument
+	 * loading. It ensures portability of songs as absolute paths only
+	 * serve for unique identifiers locally and also ensures backward
+	 * compatibility.
+	 */
+	QString					__drumkit_name;
 	float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
 		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws
@@ -651,24 +663,24 @@ inline int Instrument::get_higher_cc() const
 	return __higher_cc;
 }
 
-inline void Instrument::set_drumkit_name( const QString& name )
+inline void Instrument::set_drumkit_path( const QString& sPath )
 {
-	__drumkit_name = name;
+	__drumkit_path = sPath;
+}
+
+inline const QString& Instrument::get_drumkit_path() const
+{
+	return __drumkit_path;
+}
+
+inline void Instrument::set_drumkit_name( const QString& sName )
+{
+	__drumkit_name = sName;
 }
 
 inline const QString& Instrument::get_drumkit_name() const
 {
 	return __drumkit_name;
-}
-
-inline void Instrument::set_drumkit_lookup( const Filesystem::Lookup lookup )
-{
-	__drumkit_lookup = lookup;
-}
-
-inline Filesystem::Lookup Instrument::get_drumkit_lookup() const
-{
-	return __drumkit_lookup;
 }
 
 inline bool Instrument::is_preview_instrument() const

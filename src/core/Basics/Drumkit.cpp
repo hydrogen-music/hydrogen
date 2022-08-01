@@ -45,6 +45,7 @@
 #include <core/Helpers/Legacy.h>
 
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -57,11 +58,11 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __license( License() ),
 					 __imageLicense( License() )
 {
-	__components = new std::vector<DrumkitComponent*> ();
-	__instruments = new InstrumentList();
+	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	__instruments = std::make_shared<InstrumentList>();
 }
 
-Drumkit::Drumkit( Drumkit* other ) :
+Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	Object(),
 	__path( other->get_path() ),
 	__name( other->get_name() ),
@@ -70,72 +71,39 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__license( other->get_license() ),
 	__image( other->get_image() ),
 	__imageLicense( other->get_image_license() ),
-	__samples_loaded( other->samples_loaded() ),
-	__components( nullptr )
+	__samples_loaded( other->samples_loaded() )
 {
-	__instruments = new InstrumentList( other->get_instruments() );
+	__instruments = std::make_shared<InstrumentList>( other->get_instruments() );
 
-	__components = new std::vector<DrumkitComponent*> ();
-	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
-		__components->push_back(new DrumkitComponent(*it));
+	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	for ( const auto& pComponent : *other->get_components() ) {
+		__components->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
 }
 
 Drumkit::~Drumkit()
 {
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		delete *it;
-	}
-	delete __components;
-
-	if( __instruments ) {
-		delete __instruments;
-	}
 }
 
-Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
 {
-	QString sDrumkitPath = Filesystem::drumkit_path_search( dk_name, lookup );
-	if ( sDrumkitPath.isEmpty() ) {
+	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitPath ) );
 		return nullptr;
 	}
+
+	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
-	return load( sDrumkitPath, load_samples, true, false, lookup );
-}
-
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
-{
-	if ( ! Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( dk_dir ) );
-		return nullptr;
-	}
-
-	auto pDrumkit = load_file( Filesystem::drumkit_file( dk_dir ), load_samples,
-							   bUpgrade, bSilent, lookup );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to load drumkit from [%1]" ).arg( dk_dir ) );
-	}
-	else if ( ! bSilent ) {
-		INFOLOG( QString( "[%1] loaded from [%2]" )
-				 .arg( pDrumkit->get_name() )
-				 .arg( dk_dir ) );
-	}
-
-	return pDrumkit;
-}
-
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
-{
 	bool bReadingSuccessful = true;
 	
 	XMLDoc doc;
-	if ( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), true ) ) {
+	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
 		// Drumkit does not comply with the XSD schema
 		// definition. It's probably an old one. load_from() will try
 		// to handle it regardlessly but we should upgrade it in order
 		// to avoid this in future loads.
 		
-		doc.read( dk_path, nullptr, bSilent );
+		doc.read( sDrumkitFile, nullptr, bSilent );
 		
 		bReadingSuccessful = false;
 	}
@@ -146,38 +114,40 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 		return nullptr;
 	}
 
-	Drumkit* pDrumkit =
-		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
-							bSilent, lookup );
+	auto pDrumkit =
+		Drumkit::load_from( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
+							bSilent );
 	
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( dk_path ) );
+		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
 	}
 	
 	if ( ! bReadingSuccessful && bUpgrade ) {
-		upgrade_drumkit( pDrumkit, dk_path );
+		upgrade_drumkit( pDrumkit, sDrumkitFile );
 	}
-	
-	if ( load_samples ){
-		pDrumkit->load_samples();
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "[%1] loaded from [%2]" )
+				 .arg( pDrumkit->get_name() )
+				 .arg( sDrumkitPath ) );
 	}
 	
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent, Filesystem::Lookup lookup )
+std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
 {
-	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
-	if ( drumkit_name.isEmpty() ) {
+	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
+	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
 	}
 	
-	Drumkit* pDrumkit = new Drumkit();
+	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
-	pDrumkit->__path = dk_path;
-	pDrumkit->__name = drumkit_name;
+	pDrumkit->__path = sDrumkitPath;
+	pDrumkit->__name = sDrumkitName;
 	pDrumkit->__author = node->read_string( "author", "undefined author",
 											true, true, bSilent );
 	pDrumkit->__info = node->read_string( "info", "No information available.",
@@ -186,10 +156,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	License license( node->read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->__author );
-	// Store license in cache of Hydrogen class in order to allow
-	// reuse it faster.
-	Hydrogen::get_instance()->addDrumkitLicenseToCache( license, dk_path );
-	
 	pDrumkit->set_license( license );
 
 	// As of 2022 we have no drumkits featuring an image in
@@ -206,7 +172,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pDrumkit->get_components()->push_back(pDrumkitComponent);
 			}
@@ -215,28 +181,21 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 		}
 	} else {
 		WARNINGLOG( "componentList node not found" );
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
 
 	auto pInstrumentList = InstrumentList::load_from( node,
-													  dk_path,
-													  drumkit_name,
+													  sDrumkitPath,
+													  sDrumkitName,
 													  license, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
-		pInstrumentList = new InstrumentList();
+		pInstrumentList = std::make_shared<InstrumentList>();
 	}
 		
 	pDrumkit->set_instruments( pInstrumentList );
-
-	// propagate drumkit lookup
-	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
-		if ( ppInstrument != nullptr ) {
-			ppInstrument->set_drumkit_lookup( lookup );
-		}
-	}
 
 	// Instead of making the *::load_from() functions more complex by
 	// passing the license down to each sample, we will make the
@@ -256,18 +215,18 @@ void Drumkit::load_samples()
 	}
 }
 
-License Drumkit::loadLicenseByNameFrom( const QString& sDrumkitName, Filesystem::Lookup lookup, bool bSilent )
-{
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup, bSilent );
-	if ( sDrumkitDir.isEmpty() ) {
-		return License();
-	}
-	
-	return loadLicenseFrom( sDrumkitDir, bSilent );
-}
-
 License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 {
+	// Try to retrieve the license from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
+		if ( pDrumkit != nullptr ) {
+			return pDrumkit->get_license();
+		}
+	}
+
 	XMLDoc doc;
 	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -290,6 +249,17 @@ License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 
 QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
 
+	// Try to retrieve the name from cache first.
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr ) {
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
+		if ( pDrumkit != nullptr ) {
+			return pDrumkit->get_name();
+		}
+	}
+
+	// No entry in cache found. Loading it from disk
 	XMLDoc doc;
 	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -332,29 +302,29 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 	return true;
 }
 	
-void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )
+void Drumkit::upgrade_drumkit(std::shared_ptr<Drumkit> pDrumkit, const QString& sDrumkitPath, bool bSilent )
 {
-	if( pDrumkit != nullptr ) {
-		if ( ! Filesystem::file_exists( dk_path, true ) ) {
-			ERRORLOG( QString( "No drumkit found at path %1" ).arg( dk_path ) );
+	if ( pDrumkit != nullptr ) {
+		if ( ! Filesystem::file_exists( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "No drumkit found at path %1" ).arg( sDrumkitPath ) );
 			return;
 		}
-		QFileInfo fi( dk_path );
+		QFileInfo fi( sDrumkitPath );
 		if ( ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) {
-			ERRORLOG( QString( "Drumkit %1 is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( dk_path ) );
+			ERRORLOG( QString( "Drumkit %1 is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( sDrumkitPath ) );
 			return;
 		}
 		if ( ! bSilent ) {
-			INFOLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
+			INFOLOG( QString( "Upgrading drumkit %1" ).arg( sDrumkitPath ) );
 		}
 
-		QString sBackupPath = Filesystem::drumkit_backup_path( dk_path );
-		Filesystem::file_copy( dk_path, sBackupPath,
+		QString sBackupPath = Filesystem::drumkit_backup_path( sDrumkitPath );
+		Filesystem::file_copy( sDrumkitPath, sBackupPath,
 		                       false /* do not overwrite existing
 										files */,
 							   bSilent );
 		
-		pDrumkit->save_file( dk_path, true, -1, true, bSilent );
+		pDrumkit->save( sDrumkitPath, -1, true, bSilent );
 	}
 }
 
@@ -384,93 +354,66 @@ QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersi
 	return sExportName;
 }
 
-bool Drumkit::save( const QString&					sName,
-                    const QString&					sAuthor,
-                    const QString&					sInfo,
-                    const License&					license,
-                    const QString& 					sImage,
-                    const License& 					imageLicense,
-                    InstrumentList*					pInstruments,
-                    std::vector<DrumkitComponent*>* pComponents,
-                    bool 							bOverwrite )
+bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentVersion, bool bSilent )
 {
-	Drumkit* pDrumkit = new Drumkit();
-	pDrumkit->set_name( sName );
-	pDrumkit->set_author( sAuthor );
-	pDrumkit->set_info( sInfo );
-	pDrumkit->set_license( license );
-
-	// Before storing the absolute path to the image of the drumkit it
-	// has to be checked whether an actual path was supplied. If not,
-	// the construction of QFileInfo will fail.
-	if ( !sImage.isEmpty() ) {
-		QFileInfo fi( sImage );
-		pDrumkit->set_path( fi.absolutePath() );
-		pDrumkit->set_image( fi.fileName() );
+	QString sDrumkitFolder( sDrumkitPath );
+	if ( sDrumkitPath.isEmpty() ) {
+		sDrumkitFolder = __path;
 	}
-	pDrumkit->set_image_license( imageLicense );
-
-	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	
-	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
-	for ( auto& pSrcComponent : *pComponents ) {
-		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
-	}
-	pDrumkit->set_components( pCopiedVector );
-	
-	bool bRet = pDrumkit->save( bOverwrite );
-	delete pDrumkit;
-
-	return bRet;
-}
-
-bool Drumkit::user_drumkit_exists( const QString& name)
-{
-	return Filesystem::file_exists( Filesystem::drumkit_file( Filesystem::usr_drumkits_dir() + name ), true /*silent*/ );
-}
-
-bool Drumkit::save( bool overwrite )
-{
-	return  save( QString( Filesystem::usr_drumkits_dir() + __name ), overwrite );
-}
-
-bool Drumkit::save( const QString& dk_dir, bool overwrite )
-{
-	INFOLOG( QString( "Saving drumkit %1 into %2" ).arg( __name ).arg( dk_dir ) );
-	if( !Filesystem::mkdir( dk_dir ) ) {
+	if ( ! Filesystem::dir_exists( sDrumkitFolder, true ) &&
+		 ! Filesystem::mkdir( sDrumkitFolder ) ) {
+		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Could not create drumkit folder." )
+			 .arg( __name ).arg( sDrumkitFolder ) );
 		return false;
 	}
-	bool ret = save_samples( dk_dir, overwrite );
-	if ( ret ) {
-		ret = save_file( Filesystem::drumkit_file( dk_dir ), overwrite );
-	}
-	return ret;
-}
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id, bool bRecentVersion, bool bSilent ) const
-{
+	if ( Filesystem::dir_exists( sDrumkitFolder, bSilent ) &&
+		 ! Filesystem::dir_writable( sDrumkitFolder, bSilent ) ) {
+		ERRORLOG( QString( "Unable to export drumkit [%1] to [%2]. Drumkit folder not writable." )
+			 .arg( __name ).arg( sDrumkitFolder ) );
+		return false;
+	}
+
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
+		INFOLOG( QString( "Saving drumkit [%1] into [%2]" )
+				 .arg( __name ).arg( sDrumkitFolder ) );
 	}
-	if( !overwrite && Filesystem::file_exists( dk_path, true ) ) {
-		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
+
+	// Save external files
+	if ( ! save_samples( sDrumkitFolder, bSilent ) ) {
+		ERRORLOG( QString( "Unable to save samples of drumkit [%1] to [%2]. Abort." )
+				  .arg( __name ).arg( sDrumkitFolder ) );
 		return false;
 	}
 	
+	if ( ! save_image( sDrumkitFolder, bSilent ) ) {
+		ERRORLOG( QString( "Unable to save image of drumkit [%1] to [%2]. Abort." )
+				  .arg( __name ).arg( sDrumkitFolder ) );
+		return false;
+	}
+
+	// Ensure all instruments and associated samples will hold the
+	// same license as the overall drumkit and are associated to
+	// it. (Not important for saving itself but for consistency and
+	// using the drumkit later on).
+	propagateLicense();
+
+	// Save drumkit.xml
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	
 	// In order to comply with the GPL license we have to add a
 	// license notice to the file.
 	if ( __license.getType() == License::GPL ) {
-		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
+		root.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
 	}
 	
-	save_to( &root, component_id, bRecentVersion );
-	return doc.write( dk_path );
+	save_to( &root, nComponentID, bRecentVersion, bSilent );
+	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
 }
 
-void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) const
+void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bSilent ) const
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
@@ -485,21 +428,16 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	// layers corresponding to component_id will be exported.
 	if ( bRecentVersion ) {
 		XMLNode components_node = node->createNode( "componentList" );
-		if( component_id == -1 && __components->size() > 0 ) {
-			for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it){
-				DrumkitComponent* pComponent = *it;
+		if ( component_id == -1 && __components->size() > 0 ) {
+			for ( const auto& pComponent : *__components ){
 				pComponent->save_to( &components_node );
 			}
-		} else {
-		
+		}
+		else {
 			bool bComponentFound = false;
 
 			if ( component_id != -1 ) {
-				DrumkitComponent* pComponent;
-				for ( std::vector<DrumkitComponent*>::iterator it = __components->begin();
-					  it != __components->end();
-					  ++it ){
-					pComponent = *it;
+				for ( const auto& pComponent : *__components ){
 					if ( pComponent != nullptr &&
 						 pComponent->get_id() == component_id ) {
 						bComponentFound = true;
@@ -515,9 +453,8 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 					ERRORLOG( QString( "Unable to retrieve DrumkitComponent [%1]. Storing an empty one as fallback." )
 							  .arg( component_id ) );
 				}
-				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 				pDrumkitComponent->save_to( &components_node );
-				delete pDrumkitComponent;
 			}
 		}
 	} else {
@@ -532,23 +469,22 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 		__instruments->save_to( node, component_id, bRecentVersion, false );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
-		InstrumentList* pInstrumentList = new InstrumentList();
+		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id, bRecentVersion );
-		delete pInstrumentList;
 	}
 }
 
-bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
+bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 {
-	INFOLOG( QString( "Saving drumkit %1 samples into %2" ).arg( __name ).arg( dk_dir ) );
-	if( !Filesystem::mkdir( dk_dir ) ) {
-		return false;
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Saving drumkit [%1] samples into [%2]" )
+				 .arg( __name ).arg( sDrumkitFolder ) );
 	}
 
-	InstrumentList* pInstrList = get_instruments();
-	for( int i = 0; i < pInstrList->size(); i++ ) {
+	auto pInstrList = get_instruments();
+	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
 
@@ -556,30 +492,20 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 				auto pLayer = pComponent->get_layer( n );
 				if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
 					QString src = pLayer->get_sample()->get_filepath();
-					QString dst = dk_dir + "/" + pLayer->get_sample()->get_filename();
+					QString dst = sDrumkitFolder + "/" + pLayer->get_sample()->get_filename();
 
-					if( src != dst ) {
+					if ( src != dst ) {
 						QString original_dst = dst;
 
 						// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
 						int insertPosition = original_dst.length();
-						if( original_dst.lastIndexOf(".") > 0 ) {
+						if ( original_dst.lastIndexOf(".") > 0 ) {
 							insertPosition = original_dst.lastIndexOf(".");
-						}
-
-						if(overwrite == false) {
-							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
-							int tries = 0;
-							while( Filesystem::file_exists( dst, true )) {
-								tries++;
-								dst = original_dst;
-								dst.insert( insertPosition, QString("_%1").arg(tries) );
-							}
 						}
 
 						pLayer->get_sample()->set_filename( dst );
 
-						if( !Filesystem::file_copy( src, dst ) ) {
+						if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 							return false;
 						}
 					}
@@ -587,20 +513,17 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 			}
 		}
 	}
-	if ( !save_image( dk_dir, overwrite ) ) {
-		return false;
-	}
 
 	return true;
 }
 
-bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
+bool Drumkit::save_image( const QString& dk_dir, bool bSilent ) const
 {
 	if ( __image.length() > 0 ) {
 		QString src = __path + "/" + __image;
 		QString dst = dk_dir + "/" + __image;
-		if ( Filesystem::file_exists ( src ) ) {
-			if( !Filesystem::file_copy( src, dst ) ) {
+		if ( Filesystem::file_exists( src, bSilent ) ) {
+			if ( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
 				return false;
 			}
@@ -609,29 +532,23 @@ bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 	return true;
 }
 
-void Drumkit::set_instruments( InstrumentList* instruments )
+void Drumkit::set_instruments( std::shared_ptr<InstrumentList> instruments )
 {
-	if( __instruments != nullptr ) {
-		delete __instruments;
-	}
-	
 	__instruments = instruments;
 }
 
-void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
+void Drumkit::set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components )
 {
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		delete *it;
-	}
-	
-	delete __components;
 	__components = components;
 }
 
-void Drumkit::propagateLicense() {
+void Drumkit::propagateLicense(){
 
 	for ( const auto& ppInstrument : *__instruments ) {
 		if ( ppInstrument != nullptr ) {
+
+			ppInstrument->set_drumkit_path( __path );
+			ppInstrument->set_drumkit_name( __name );
 			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
@@ -652,60 +569,30 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 	return __instruments->summarizeContent( __components );
 }
 
-bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
+bool Drumkit::remove( const QString& sDrumkitDir )
 {
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
-	if( !Filesystem::drumkit_valid( sDrumkitDir ) ) {
+	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( sDrumkitDir ) );
 		return false;
 	}
-	_INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
-	if( !Filesystem::rm( sDrumkitDir, true ) ) {
-		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
+	
+	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	if ( ! Filesystem::rm( sDrumkitDir, true ) ) {
+		ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
 		return false;
 	}
+
+	Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	return true;
-}
-
-void Drumkit::dump()
-{
-	DEBUGLOG( "Drumkit dump" );
-	DEBUGLOG( " |- Path = " + __path );
-	DEBUGLOG( " |- Name = " + __name );
-	DEBUGLOG( " |- Author = " + __author );
-	DEBUGLOG( " |- Info = " + __info );
-	DEBUGLOG( " |- License = " + __license.toQString() );
-	DEBUGLOG( " |- Image = " + __image );
-	DEBUGLOG( " |- Image = " + __imageLicense.toQString() );
-
-	DEBUGLOG( " |- Instrument list" );
-	for ( int i=0; i<__instruments->size(); i++ ) {
-		auto instrument = ( *__instruments )[i];
-		DEBUGLOG( QString( "  |- (%1 of %2) Name = %3" )
-		          .arg( i )
-		          .arg( __instruments->size()-1 )
-		          .arg( instrument->get_name() )
-		        );
-		for ( const auto& pComponent : *instrument->get_components() ) {
-			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
-				auto pLayer = pComponent->get_layer( j );
-				if ( pLayer ) {
-					auto pSample = pLayer->get_sample();
-					if ( pSample != nullptr ) {
-						DEBUGLOG( QString( "   |- %1 [%2]" ).arg( pSample->get_filepath() ).arg( pSample->is_empty() ) );
-					} else {
-						DEBUGLOG( "   |- NULL sample" );
-					}
-				}
-			}
-		}
-	}
 }
 
 bool Drumkit::isUserDrumkit() const {
 	if ( __path.contains( Filesystem::sys_drumkits_dir() ) ) {
 		return false;
-	} 
+	} else if ( ! Filesystem::dir_writable( __path ) ) {
+		return false;
+	}
+	
 	return true;
 }
 	
@@ -942,8 +829,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			set_name( sOldDrumkitName );
 			return false;
 		}
-		if ( ! save_file( Filesystem::drumkit_file( tmpFolder.path() ),
-						  true, nComponentID, bRecentVersion, bSilent ) ) {
+		if ( ! save( tmpFolder.path(), nComponentID, bRecentVersion, bSilent ) ) {
 			ERRORLOG( QString( "Unable to save backup drumkit to [%1] using component ID [%2]" )
 					  .arg( tmpFolder.path() ).arg( nComponentID ) );
 		}

@@ -83,7 +83,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
-	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ), true );
+	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ), true, false );
 	m_pTimeDisplay->move( 13, 7 );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
@@ -490,7 +490,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked() ),
 			 this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ) );
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ), false, false );
 	m_pStatusLabel->move( 0, 24 );
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!

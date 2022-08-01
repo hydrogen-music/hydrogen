@@ -308,7 +308,7 @@ bool MidiActionManager::strip_mute_toggle( std::shared_ptr<Action> pAction, Hydr
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
@@ -331,7 +331,7 @@ bool MidiActionManager::strip_solo_toggle( std::shared_ptr<Action> pAction, Hydr
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
@@ -519,7 +519,7 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, 
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr) {
@@ -554,7 +554,7 @@ bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, 
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr) {
@@ -639,7 +639,7 @@ bool MidiActionManager::strip_volume_absolute( std::shared_ptr<Action> pAction, 
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
@@ -673,7 +673,7 @@ bool MidiActionManager::strip_volume_relative( std::shared_ptr<Action> pAction, 
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nLine );
 	
@@ -714,7 +714,7 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nLine );
 	if( pInstr == nullptr ) {
@@ -745,7 +745,7 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
@@ -777,7 +777,7 @@ bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if ( pInstr == nullptr ) {
@@ -815,7 +815,7 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 	int component_id = pAction->getParameter2().toInt(&ok,10);
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nLine );
 	if( pInstr == nullptr ) {
@@ -862,7 +862,7 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 	int component_id = pAction->getParameter2().toInt(&ok,10);
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nLine );
 	if( pInstr == nullptr ) {
@@ -907,7 +907,7 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pA
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
 
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nLine );
 	if( pInstr == nullptr ) {

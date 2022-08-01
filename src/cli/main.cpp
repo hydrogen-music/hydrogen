@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			pHydrogen->getCoreActionController()->loadDrumkit( drumkitToLoad, true );
+			pHydrogen->getCoreActionController()->setDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			InstrumentList *pInstrumentList = pSong->getInstrumentList();
+			auto pInstrumentList = pSong->getInstrumentList();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}

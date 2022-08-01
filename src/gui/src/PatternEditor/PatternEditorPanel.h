@@ -31,7 +31,6 @@
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
-#include "../Widgets/LCDDisplay.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
@@ -39,7 +38,6 @@ class Fader;
 class PatternEditorRuler;
 class PatternEditorInstrumentList;
 class NotePropertiesRuler;
-class LCDCombo;
 class DrumPatternEditor;
 class PianoRollEditor;
 class ClickableLabel;
@@ -162,7 +160,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	bool m_bArmPatternSizeSpinBoxes;
 
 		// Editor top
-		LCDDisplay *			__pattern_size_LCD;
 		LCDCombo *			m_pResolutionCombo;
 		Button *		__show_drum_btn;
 		Button *		__show_piano_btn;

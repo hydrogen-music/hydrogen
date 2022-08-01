@@ -22,19 +22,23 @@
 
 #include "LCDDisplay.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Globals.h>
 #include <core/Preferences/Theme.h>
 
-LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
+LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIsActive )
  : QLineEdit( pParent )
  , m_size( size )
  , m_bFixedFont( bFixedFont )
  , m_bUseRedFont( false )
+ , m_bIsActive( bIsActive )
 {
-	setReadOnly( true );
-	setEnabled( false );
-	setFocusPolicy( Qt::NoFocus );
+	setReadOnly( ! bIsActive );
+	setEnabled( bIsActive );
+	if ( ! bIsActive ) {
+		setFocusPolicy( Qt::NoFocus );
+	}
 	setAlignment( Qt::AlignCenter );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 
@@ -81,6 +85,22 @@ void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
 	}
 }
 
+void LCDDisplay::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	
+	update();
+
+	setReadOnly( ! bIsActive );
+	setEnabled( bIsActive );
+	
+	if ( ! bIsActive ) {
+		setFocusPolicy( Qt::NoFocus );
+	}
+	else {
+		setFocusPolicy( Qt::StrongFocus );
+	}
+}
+
 void LCDDisplay::updateFont() {
 	
 	if ( m_bFixedFont ) {
@@ -106,31 +126,45 @@ void LCDDisplay::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor textColor;
+	QColor textColor, textColorActive;
 	if ( m_bUseRedFont ) {
 		textColor = pPref->getColorTheme()->m_buttonRedColor;
+		textColorActive = pPref->getColorTheme()->m_buttonRedColor;
 	} else {
 		textColor = pPref->getColorTheme()->m_windowTextColor;
+		textColorActive = pPref->getColorTheme()->m_widgetTextColor;
 	}
+	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+
+	QColor backgroundColorActive = pPref->getColorTheme()->m_widgetColor;
 
 	QString sStyleSheet = QString( "\
-QLineEdit { \
+QLineEdit:enabled { \
     color: %1; \
-    background-color: %2;" )
+    background-color: %2; \
+} \
+QLineEdit:disabled { \
+    color: %3; \
+    background-color: %4; \
+}" )
+		.arg( textColorActive.name() )
+		.arg( backgroundColorActive.name() )
 		.arg( textColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() );
+		.arg( backgroundColor.name() );
 
 	// For fixed font displays we have to add the current font
 	// parameters as well to avoid any inherited changes.
 	if ( m_bFixedFont && font().pixelSize() > 0 ) {
 		sStyleSheet.append( QString( "\
+QLineEdit { \
     font-size: %1px; \
-    font-family: %2;" )
+    font-family: %2; \
+}" )
 							.arg( font().pixelSize() )
 							.arg( font().family() ) );
 	}
 
-	setStyleSheet( sStyleSheet.append( "}" ) );
+	setStyleSheet( sStyleSheet );
 }
 
 void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

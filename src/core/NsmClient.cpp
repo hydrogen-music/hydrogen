@@ -202,7 +202,8 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 	
 	bool bRelinkDrumkit = true;
 	
-	const QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
+	const QString sDrumkitName = pHydrogen->getLastLoadedDrumkitName();
+	const QString sDrumkitAbsPath = pHydrogen->getLastLoadedDrumkitPath();
 	
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
 		.arg( sName ).arg( "drumkit" );
@@ -270,25 +271,6 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 					NsmClient::printError( QString( "Unable to remove symlink to drumkit [%1]." )
 										   .arg( sLinkedDrumkitPath ) );
 					return;
-				}
-			}
-		}
-		
-		// Figure out the actual path to the drumkit. We will search
-		// the user drumkits first and the system ones second.
-		QString sDrumkitAbsPath( "" );
-		const QStringList drumkitListUsr = H2Core::Filesystem::usr_drumkit_list();
-		for ( auto ssName : drumkitListUsr ) {
-			if ( ssName == sDrumkitName ) {
-				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + ssName;
-			}
-		}
-		
-		if ( sDrumkitAbsPath.isEmpty() ) {
-			const QStringList drumkitListSys = H2Core::Filesystem::sys_drumkit_list();
-			for ( auto ssName : drumkitListSys ) {
-				if ( ssName == sDrumkitName ) {
-					sDrumkitAbsPath = H2Core::Filesystem::sys_drumkits_dir() + ssName;
 				}
 			}
 		}

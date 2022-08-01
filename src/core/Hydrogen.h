@@ -23,6 +23,7 @@
 #define HYDROGEN_H
 
 #include <core/config.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>
 #include <core/Object.h>
@@ -31,7 +32,6 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Timehelper.h>
 
@@ -45,6 +45,8 @@ namespace H2Core
 {
 	class CoreActionController;
 	class AudioEngine;
+	class SoundLibraryDatabase;
+
 ///
 /// Hydrogen Audio Engine.
 ///
@@ -81,15 +83,18 @@ public:
 	 */
 	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
 
-	/*
-	 * return central instance of the audio engine
-	 */
-	AudioEngine*		getAudioEngine() const;
-
 	/**
 	 * Destructor taking care of most of the clean up.
 	 */
 	~Hydrogen();
+
+	/*
+	 * return central instance of the audio engine
+	 */
+	AudioEngine*		getAudioEngine() const;
+	SoundLibraryDatabase* getSoundLibraryDatabase() const {
+		return m_pSoundLibraryDatabase;
+	}
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -206,31 +211,6 @@ public:
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
 
-		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
-		 * the current session.
-		 *
-		 * During loading all H2Core::Instrument of the current
-		 * drumkit will be replaced by the ones in @a pDrumkitInfo top
-		 * to bottom. If the latter contains less instruments, the
-		 * superfluous ones will be stripped from the
-		 * bottom. Depending on the choice of @a bConditional all
-		 * instruments will be strip or just those which do not
-		 * contain any notes.
-		 *
-		 * When under session management (see
-		 * NsmClient::m_bUnderSessionManagement) the function will
-		 * create a symlink to the loaded H2Core::Drumkit using the
-		 * name "drumkit" in the folder
-		 * NsmClient::m_sSessionFolderPath.
-		 *
-		 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
-		 * \param bConditional Whether to remove all redundant
-		 * H2Core::Instrument regardless of their content.
-		 *
-		 * \returns 0 on success.
-		 */
-		int			loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
-
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
 		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
@@ -238,14 +218,10 @@ public:
 		/** Delete an #Instrument.*/
 		void			removeInstrument( int nInstrumentNumber );
 
-		/** \return m_sCurrentDrumkitName */
-		QString	getCurrentDrumkitName() const;
-		/** \param sName sets m_sCurrentDrumkitName */
-		void			setCurrentDrumkitName( const QString& sName );
-		/** \return m_currentDrumkitLookup */
-		Filesystem::Lookup	getCurrentDrumkitLookup() const;
-		/** \param lookup sets m_currentDrumkitLookup */
-		void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
+		/** \return m_sLastLoadedDrumkitName */
+		QString	getLastLoadedDrumkitName() const;
+		/** \return m_sLastLoadedDrumkitPath */
+		QString	getLastLoadedDrumkitPath() const;
 
 		void			raiseError( unsigned nErrorCode );
 
@@ -337,7 +313,16 @@ void			previewSample( Sample *pSample );
 	void updateSelectedPattern( bool bNeedsLock = true );
 
 	int				getSelectedInstrumentNumber() const;
-	void			setSelectedInstrumentNumber( int nInstrument );
+	/**
+	 * \param nInstrument #Instrument about to be selected
+	 * \param bTriggerEvent Whether #EVENT_SELECTED_INSTRUMENT_CHANGED
+	 * should be queued. When e.g. changing the selected instrument as
+	 * part of loading a different drumkit, it's important to only
+	 * trigger a single event after the loading is done and to not
+	 * fire some premature ones making the GUI act on a core that
+	 * might be in an unclean state.
+	 */
+	void			setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent = true );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
 	/**
@@ -462,14 +447,6 @@ void			previewSample( Sample *pSample );
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
 	/**
-	 * Returns the #License of the drumkit found in @a sDrumkitPath.
-	 *
-	 * It caches the results in m_licenseMap.
-	 */
-	License getLicenseFromDrumkit( const QString& sDrumkitPath );
-	void addDrumkitLicenseToCache( const License& license, const QString& sDrumkitPath );
-
-	/**
 	 * Add @a pInstr to __instrument_death_row and triggers
 	 * __kill_instruments().
 	 *
@@ -587,14 +564,7 @@ private:
 	 */
 	AudioEngine*	m_pAudioEngine;
 
-	/**
-	 * Map associating drumkit paths with the license found in the
-	 * corresponding drumkit.xml file.
-	 *
-	 * As retrieving a license based on a drumkit name/path is rather
-	 * expensive, this object will be used for caching.
-	 */
-	std::map<QString, License> m_licenseMap;
+	SoundLibraryDatabase* m_pSoundLibraryDatabase;
 
 	/** 
 	 * Constructor, entry point, and initialization of the

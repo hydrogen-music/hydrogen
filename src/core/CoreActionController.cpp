@@ -33,6 +33,7 @@
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
 #include <core/Helpers/Xml.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/MidiOutput.h>
@@ -483,7 +484,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	sendMasterVolumeFeedback();
 	
 	//PER-INSTRUMENT/STRIP STATES
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 	for ( int ii = 0; ii < pInstrList->size(); ii++){
 		auto pInstr = pInstrList->get( ii );
 		if ( pInstr != nullptr ) {
@@ -956,34 +957,69 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bConditional ) {
-	auto pDrumkit = H2Core::Drumkit::load_by_name( sDrumkitName, true );
+bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditional ) {
+
+	auto pDrumkit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+		->getDrumkit( sDrumkit );
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Drumkit [%1] could not be loaded" )
-				  .arg( sDrumkitName ) );
+		ERRORLOG( QString( "Drumkit [%1] could not be loaded." )
+				  .arg( sDrumkit ) );
 		return false;
 	}
 
-	int nRet = loadDrumkit( pDrumkit, bConditional );
-	delete pDrumkit;
-
-	return nRet;
+	return setDrumkit( pDrumkit, bConditional );
 }
 
-bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
-
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	if ( pDrumkit != nullptr ) {
-		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
+
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
+
+			INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+					 .arg( pDrumkit->get_name() )
+					 .arg( pDrumkit->get_path() ) );
+
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+		
+			pSong->setDrumkit( pDrumkit, bConditional );
+			
+			if ( pHydrogen->getSelectedInstrumentNumber() >=
+				 pSong->getInstrumentList()->size() ) {
+				pHydrogen->setSelectedInstrumentNumber(
+					std::max( 0, pSong->getInstrumentList()->size() -1 ),
+					false );
+			}
+
+			pHydrogen->renameJackPorts( pSong );
+			
+			pHydrogen->getAudioEngine()->unlock();
+	
+			initExternalControlInterfaces();
+
+			pHydrogen->setIsModified( true );
+	
+			// Create a symbolic link in the session folder when under session
+			// management.
+			if ( pHydrogen->isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
+				NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
+#endif
+			}
+
 			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
-		} else {
-			ERRORLOG( "Unable to load drumkit" );
+		}
+		else {
+			ERRORLOG( "No song set yet" );
 			return false;
 		}
-	} else {
+	}
+	else {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1066,7 +1102,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 				ERRORLOG( QString( "Unable to backup source drumkit XML file from [%1] to [%2]. We abort instead of overwriting things." )
 						  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
 						  .arg( sBackupPath ) );
-				delete pDrumkit;
 				return false;
 			}
 		} else {
@@ -1074,7 +1109,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 			if ( ! Filesystem::file_copy( sDrumkitPath, sBackupPath, true, true ) ) {
 				ERRORLOG( QString( "Unable to backup source .h2drumkit file from [%1] to [%2]. We abort instead of overwriting things." )
 						  .arg( sDrumkitPath ).arg( sBackupPath ) );
-				delete pDrumkit;
 				return false;
 			}
 		}
@@ -1082,11 +1116,9 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 		sPath = sDrumkitDir;
 	}
 
-	if ( ! pDrumkit->save_file( Filesystem::drumkit_file( sPath ),
-								true, -1, true, true ) ) {
+	if ( ! pDrumkit->save( sPath, -1, true, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
 				  .arg( sPath ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1103,7 +1135,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 		if ( ! pDrumkit->exportTo( sExportPath, "", true, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
-			delete pDrumkit;
 			return false;
 		}
 
@@ -1119,8 +1150,6 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 
 	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
 			 .arg( sDrumkitPath ) );
-
-	delete pDrumkit;
 
 	return true;
 }
@@ -1144,7 +1173,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
 		ERRORLOG( QString( "Something went wrong in the drumkit retrieval of [%1]. Unable to load from [%2]" )
 				  .arg( sDrumkitPath ).arg( sDrumkitDir ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1153,7 +1181,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 					Filesystem::drumkit_xsd_path(), true ) ) {
 		ERRORLOG( QString( "Drumkit file [%1] does not comply with the current XSD definition" )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-		delete pDrumkit;
 		return false;
 	}
 	
@@ -1161,7 +1188,6 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-		delete pDrumkit;
 		return false;
 	}
 
@@ -1171,9 +1197,14 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 	return true;
 }
 
-Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
+std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
 
-	Drumkit* pDrumkit = nullptr;
+	std::shared_ptr<Drumkit> pDrumkit = nullptr;
+
+	// We do not attempt to retrieve the drumkit from disk since this
+	// function is intended to be used for validating or upgrading
+	// drumkits via CLI or OSC command. It should always refer to the
+	// latest copy found on disk.
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
@@ -1184,7 +1215,7 @@ Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, boo
 	if ( Filesystem::dir_readable( sDrumkitPath, true ) ) {
 
 		// Providing the folder containing the drumkit
-		pDrumkit = Drumkit::load( sDrumkitPath, false, false, true );
+		pDrumkit = Drumkit::load( sDrumkitPath, false, true );
 		*sDrumkitDir = sDrumkitPath;
 		
 	} else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() &&
@@ -1192,7 +1223,8 @@ Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, boo
 
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
-		pDrumkit = Drumkit::load_file( sDrumkitPath, false, false, true );
+		QString sDrumkitDirPath = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
+		pDrumkit = Drumkit::load( sDrumkitDirPath, false, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
 	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&
@@ -1246,7 +1278,7 @@ Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, boo
 
 		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
 		
-		pDrumkit = Drumkit::load( *sDrumkitDir, false, false, true );
+		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
 		
 	} else {
 		ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )
@@ -1314,8 +1346,8 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-					  .arg( nTotalTick ) );
+			INFOLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+					 .arg( nTotalTick ) );
 			return false;
 		} else {
 			// In case of Pattern mode this is not a problem and we

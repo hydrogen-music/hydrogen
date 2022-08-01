@@ -45,6 +45,7 @@
 #include <core/Hydrogen.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Sampler/Sampler.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -71,8 +72,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_sNotes( "" )
 	, m_pPatternList( nullptr )
 	, m_pPatternGroupSequence( nullptr )
-	, m_pInstrumentList( nullptr )
-	, m_pComponents( nullptr )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
@@ -90,11 +89,14 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
-	, m_currentDrumkitLookup( Filesystem::Lookup::stacked )
+	, m_sLastLoadedDrumkitName( "" )
+	, m_sLastLoadedDrumkitPath( "" )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
-	m_pComponents = new std::vector<DrumkitComponent*> ();
+	m_pInstrumentList = std::make_shared<InstrumentList>();
+	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 
 	m_pTimeline = std::make_shared<Timeline>();
@@ -106,14 +108,9 @@ Song::~Song()
 	 * Warning: it is not safe to delete a song without having a lock on the audio engine.
 	 * Following the current design, the caller has to care for the lock.
 	 */
-	
+
 	delete m_pPatternList;
-
-	for (std::vector<DrumkitComponent*>::iterator it = m_pComponents->begin() ; it != m_pComponents->end(); ++it) {
-		delete *it;
-	}
-	delete m_pComponents;
-
+	
 	if ( m_pPatternGroupSequence ) {
 		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
 			PatternList* pPatternList = ( *m_pPatternGroupSequence )[i];
@@ -122,8 +119,6 @@ Song::~Song()
 		}
 		delete m_pPatternGroupSequence;
 	}
-
-	delete m_pInstrumentList;
 
 	delete m_pVelocityAutomationPath;
 
@@ -365,7 +360,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	if ( ( ! componentListNode.isNull()  ) ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			DrumkitComponent* pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pSong->getComponents()->push_back( pDrumkitComponent );
 			}
@@ -374,15 +369,14 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 		}
 	}
 	else {
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pSong->getComponents()->push_back( pDrumkitComponent );
 	}
 
 	// Instrument List
 	//
-	// By supplying no drumkit path and name the individual
-	// drumkit meta infos stored in the 'instrument' nodes will be
-	// used.
+	// By supplying no drumkit path the individual drumkit meta infos
+	// stored in the 'instrument' nodes will be used.
 	auto pInstrumentList = InstrumentList::load_from( pRootNode,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
@@ -395,9 +389,48 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 	pInstrumentList->load_samples( fBpm );
 	pSong->setInstrumentList( pInstrumentList );
 
-	// TODO: fix me by providing a top-level drumkit path 
-	pSong->setCurrentDrumkitName( pSong->getInstrumentList()->get( 0 )->get_drumkit_name() );
-	pSong->setCurrentDrumkitLookup( pSong->getInstrumentList()->get( 0 )->get_drumkit_lookup() );
+	QString sLastLoadedDrumkitPath =
+		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );
+	QString sLastLoadedDrumkitName = 
+		pRootNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+	
+	if ( sLastLoadedDrumkitPath.isEmpty() ) {
+		// Prior to version 1.2.0 the last loaded drumkit was read
+		// from the last instrument loaded and was not written to disk
+		// explicitly. This caused problems the moment the user put an
+		// instrument from a different drumkit at the end of the
+		// instrument list. To nevertheless retrieve the last loaded
+		// drumkit we will use a heuristic by taking the majority vote
+		// among the loaded instruments.
+		std::map<QString,int> loadedDrumkits;
+		for ( const auto& pInstrument : *pSong->getInstrumentList() ) {
+			if ( loadedDrumkits.find( pInstrument->get_drumkit_path() ) !=
+				 loadedDrumkits.end() ) {
+				loadedDrumkits[ pInstrument->get_drumkit_path() ] += 1;
+			}
+			else {
+				loadedDrumkits[ pInstrument->get_drumkit_path() ] = 1;
+			}
+		}
+
+		QString sMostCommonDrumkit;
+		int nMax = -1;
+		for ( const auto& xx : loadedDrumkits ) {
+			if ( xx.second > nMax ) {
+				sMostCommonDrumkit = xx.first;
+				nMax = xx.second;
+			}
+		}
+
+		sLastLoadedDrumkitPath = sMostCommonDrumkit;
+	}
+	
+	if ( sLastLoadedDrumkitName.isEmpty() ) {
+		sLastLoadedDrumkitName = Drumkit::loadNameFrom( sLastLoadedDrumkitPath,
+														bSilent );
+	}
+	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
+	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( pRootNode,
@@ -770,6 +803,9 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	pRootNode->write_float( "swing_factor", m_fSwingFactor );
 
+	pRootNode->write_string( "last_loaded_drumkit", m_sLastLoadedDrumkitPath );
+	pRootNode->write_string( "last_loaded_drumkit_name", m_sLastLoadedDrumkitName );
+
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
@@ -876,7 +912,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 	pSong->setHumanizeVelocityValue( 0.0 );
 	pSong->setSwingFactor( 0.0 );
 
-	InstrumentList* pInstrList = new InstrumentList();
+	auto pInstrList = std::make_shared<InstrumentList>();
 	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID, "New instrument" );
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
@@ -905,13 +941,27 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	pSong->setFilename( Filesystem::empty_song_path() );
 
-	auto pDrumkit = H2Core::Drumkit::load_by_name( Filesystem::drumkit_default_kit(), true );
+	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+	QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unabled to load default Drumkit [%1]" )
-				  .arg( Filesystem::drumkit_default_kit() ) );
-	} else {
-		pSong->loadDrumkit( pDrumkit, true );
-		delete pDrumkit;
+		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+			if ( pEntry.second != nullptr ) {
+				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
+							.arg( sDefaultDrumkitPath )
+							.arg( pEntry.first ) );
+				pDrumkit = pEntry.second;
+				break;
+			}
+		}
+	}
+
+	if ( pDrumkit != nullptr ) {
+		pSong->setDrumkit( pDrumkit, true );
+	}
+	else {
+		ERRORLOG( "Unable to load drumkit" );
 	}
 	
 	pSong->setIsModified( false );
@@ -920,11 +970,11 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 }
 
-DrumkitComponent* Song::getComponent( int nID ) const
+std::shared_ptr<DrumkitComponent> Song::getComponent( int nID ) const
 {
-	for (std::vector<DrumkitComponent*>::iterator it = m_pComponents->begin() ; it != m_pComponents->end(); ++it) {
-		if( (*it)->get_id() == nID ) {
-			return *it;
+	for ( auto pComponent : *m_pComponents ) {
+		if ( pComponent->get_id() == nID ) {
+			return pComponent;
 		}
 	}
 
@@ -969,7 +1019,7 @@ void Song::setIsModified( bool bIsModified )
 
 bool Song::hasMissingSamples() const
 {
-	InstrumentList *pInstrumentList = getInstrumentList();
+	auto pInstrumentList = getInstrumentList();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		if ( pInstrumentList->get( i )->has_missing_samples() ) {
 			return true;
@@ -979,7 +1029,7 @@ bool Song::hasMissingSamples() const
 }
 
 void Song::clearMissingSamples() {
-	InstrumentList *pInstrumentList = getInstrumentList();
+	auto pInstrumentList = getInstrumentList();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get( i )->set_missing_samples( false );
 	}
@@ -1146,38 +1196,29 @@ void Song::setPanLawKNorm( float fKNorm ) {
 	}
 }
 
-void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
+void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );
 		return;
 	}
-	
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	m_sCurrentDrumkitName = pDrumkit->get_name();
-	if ( pDrumkit->isUserDrumkit() ) {
-		m_currentDrumkitLookup = Filesystem::Lookup::user;
-	} else {
-		m_currentDrumkitLookup = Filesystem::Lookup::system;
-	}
-
+	m_sLastLoadedDrumkitName = pDrumkit->get_name();
+	m_sLastLoadedDrumkitPath = pDrumkit->get_path();
 
 	// Load DrumkitComponents 
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
+	auto pDrumkitCompoList = pDrumkit->get_components();
+
+	auto pNewComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	
-	for( auto &pComponent : *m_pComponents ){
-		delete pComponent;
-	}
-	m_pComponents->clear();
-	
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-		DrumkitComponent* pSrcComponent = *it;
-		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+	for ( const auto& pSrcComponent : *pDrumkitCompoList ) {
+		auto pNewComponent = std::make_shared<DrumkitComponent>( pSrcComponent->get_id(),
+																 pSrcComponent->get_name() );
 		pNewComponent->load_from( pSrcComponent );
 
-		m_pComponents->push_back( pNewComponent );
+		pNewComponents->push_back( pNewComponent );
 	}
+	m_pComponents = pNewComponents;
 
 	//////
 	// Load InstrumentList
@@ -1189,7 +1230,15 @@ void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
 	 * pos > pDrumkitInstrList->size() stay in the
 	 * new instrumentlist
 	 */
-	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
+	auto pDrumkitInstrList = pDrumkit->get_instruments();
+
+	if ( pDrumkitInstrList == m_pInstrumentList ) {
+		// This occurs when saving a Drumkit based on the instrument
+		// list of the current song using a different name. It stores
+		// just a pointer to the instrument and component list of the
+		// current song and will be set afterwards.
+		return;
+	}
 	
 	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
 	int nMaxID = -1;
@@ -1233,6 +1282,11 @@ void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
 							  bConditional );
 		}
 	}
+
+	// Load samples of all instruments.
+	m_pInstrumentList->load_samples(
+		Hydrogen::get_instance()->getAudioEngine()->getBpm() );
+
 }
 
 void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
@@ -1248,7 +1302,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 		// the instrument will be kept instead of discarded.
 		for ( const auto& pPattern : *m_pPatternList ) {
 			if ( pPattern->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
+				INFOLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
 				return;
 			}
 		}
@@ -1268,7 +1322,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 				pCompo->set_layer( nullptr, nLayer );
 			}
 		}
-		DEBUGLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
+		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
 		return;
 	}
 	
@@ -1422,8 +1476,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
+		sOutput.append( QString( "%1%2m_sLastLoadedDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitName ) )
+			.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitPath ) );;
 	} else {
 		
 		sOutput = QString( "[Song]" )
@@ -1476,8 +1530,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}
-		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
+		sOutput.append( QString( ", m_sLastLoadedDrumkitName: %1" ).arg( m_sLastLoadedDrumkitName ) )
+			.append( QString( ", m_sLastLoadedDrumkitPath: %1" ).arg( m_sLastLoadedDrumkitPath ) );
 			
 	}
 	

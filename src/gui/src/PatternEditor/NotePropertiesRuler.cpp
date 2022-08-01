@@ -841,7 +841,7 @@ void NotePropertiesRuler::addUndoAction()
 		return;
 	}
 
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;

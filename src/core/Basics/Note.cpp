@@ -150,7 +150,7 @@ void Note::setPan( float val ) {
 	m_fPan = check_boundary( val, -1.0f, 1.0f );
 }
 
-void Note::map_instrument( InstrumentList* pInstrumentList )
+void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 {
 	if ( pInstrumentList == nullptr ) {
 		assert( pInstrumentList );
@@ -420,7 +420,7 @@ void Note::save_to( XMLNode* node )
 	node->write_float( "probability", __probability );
 }
 
-Note* Note::load_from( XMLNode* node, InstrumentList* instruments, bool bSilent )
+Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent )
 {
 	bool bFound, bFound2;
 	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, bSilent );

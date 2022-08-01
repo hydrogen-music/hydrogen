@@ -854,7 +854,7 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;

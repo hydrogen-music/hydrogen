@@ -23,6 +23,8 @@
 #ifndef H2C_DRUMKIT_H
 #define H2C_DRUMKIT_H
 
+#include <memory>
+
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
@@ -46,76 +48,27 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
-		Drumkit( Drumkit* other );
+		Drumkit( std::shared_ptr<Drumkit> other );
 		/** drumkit destructor, delete #__instruments */
 		~Drumkit();
 
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * This function is a wrapper around load_file(). The
-		 * provided drumkit directory @a dk_dir is converted
-		 * by Filesystem::drumkit_file() internally.
-		 *
 		 * \param dk_dir A directory containing a drumkit,
 		 * like those returned by
 		 * Filesystem::drumkit_dir_search().
-		 * \param load_samples Automatically load sample data
-		 * if set to true.
 		 * \param bUpgrade Whether the loaded drumkit should be
 		 * upgraded using upgrade_drumkit() in case it did not comply
 		 * with the current XSD file.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir,
-							  const bool load_samples = false,
-							  bool bUpgrade = true,
-							  bool bSilent = false,
-							  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
-		/**
-		 * Simple wrapper for load() used with the drumkit's
-		 * name instead of its directory.
-		 *
-		 * Uses Filesystem::drumkit_path_search() to determine
-		 * the directory of the Drumkit from @a dk_name.
-		 *
-		 * \param dk_name Name of the Drumkit.
-		 * \param load_samples Automatically load sample data
-		 * if set to true.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 *
-		 * \return A Drumkit on success, nullptr otherwise.
-		 */
-		static Drumkit* load_by_name( const QString& dk_name,
-									  const bool load_samples = false,
-									  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
-		/**
-		 * Load a Drumkit from a file.
-		 *
-		 * \param dk_path is a path to an xml file
-		 * \param load_samples automatically load sample data if set
-		 * to true
-		 * \param bUpgrade Whether the loaded drumkit should be
-		 * upgraded using upgrade_drumkit() in case it did not comply
-		 * with the current XSD file.
-		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 *
-		 * \return A Drumkit on success, nullptr otherwise.
-		 */
-		static Drumkit* load_file( const QString& dk_path,
-								   const bool load_samples = false,
-								   bool bUpgrade = true,
-								   bool bSilent = true,
-								   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static std::shared_ptr<Drumkit> load( const QString& dk_dir,
+											  bool bUpgrade = true,
+											  bool bSilent = false );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -129,27 +82,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * Loads the license information of a drumkit contained in
 	 * directory @a sDrumkitDir.
 	 *
-	 * This function is a wrapper around load_file(). The
-	 * provided drumkit directory @a dk_dir is converted
-	 * by Filesystem::drumkit_file() internally.
-	 *
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
 	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
-	/**
-	 * Simple wrapper for loadLicense() used with the drumkit's
-	 * name instead of its directory.
-	 *
-	 * Uses Filesystem::drumkit_path_search() to determine
-	 * the directory of the Drumkit from @a sDrumkitName.
-	 *
-	 * \param sDrumkitName Name of the Drumkit.
-	 * \param lookup Where to search (system/user folder or both)
-	 * for the drumkit.
-	 */
-	static License loadLicenseByNameFrom( const QString& sDrumkitName,
-										  Filesystem::Lookup lookup = Filesystem::Lookup::stacked,
-										  bool bSilent = false );
 
 	/**
 	 * Retrieve the name of a drumkit stored in @a sDrumkitDir.
@@ -188,73 +123,31 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * This is used when the drumkit did not comply to 
 		 * our xml schema.
 		 */
-		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path, bool bSilent = false );
+		static void upgrade_drumkit( std::shared_ptr<Drumkit> pDrumkit,
+									 const QString& dk_path,
+									 bool bSilent = false );
 
 		/**
-		 * check if a user drumkit with the given name
-		 * already exists
-		 * \param dk_path Drumkit path
-		 * \return true on success
-		 */
-		static bool user_drumkit_exists( const QString& dk_path );
-
-		/**
-		 * save a drumkit, xml file and samples
-		 * \param overwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		bool save( bool overwrite=false );
-		/**
-		 * save a drumkit, xml file and samples
-		 * neither #__path nor #__name are updated
-		 * \param dk_dir the directory to save the drumkit into
-		 * \param overwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		bool save( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save a drumkit into an xml file
-		 * \param dk_path the path to save the drumkit into
-		 * \param overwrite allows to write over existing drumkit file
-		 * \param component_id to chose the component to save or -1 for all
+		 * Save a drumkit to disk.
+		 *
+		 * It takes care of writing all parameters etc. into a
+		 * drumkit.xml file as well as copying both associated samples
+		 * and images.
+		 *
+		 * \param sDrumkitPath the path (folder) to save the #Drumkit
+		 * into. If left empty, the path stored in #__path will be
+		 * used instead.
+		 * \param nComponentID to chose the component to save or -1 for all
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false,
-						int component_id=-1, bool bRecentVersion = true,
-						bool bSilent = false ) const;
-		/**
-		 * save a drumkit instruments samples into a directory
-		 * \param dk_dir the directory to save the samples into
-		 * \param overwrite allows to write over existing drumkit samples files
-		 * \return true on success
-		 */
-		bool save_samples( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save the drumkit image into the new directory
-		 * \param dk_dir the directory to save the image into
-		 * \param overwrite allows to write over existing drumkit image file
-		 * \return true on success
-		 */
-		bool save_image( const QString& dk_dir, bool overwrite=false );
-		/**
-		 * save a drumkit using given parameters and an instrument list
-		 * \param sName the name of the drumkit
-		 * \param sAuthor the author of the drumkit
-		 * \param sInfo the info of the drumkit
-		 * \param license the license of the drumkit
-		 * \param sImage the image filename (with full path) of
-		   the drumkit
-		 * \param imageLicense license of the supplied image
-		 * \param pInstruments the instruments to be saved
-		   within the drumkit
-		 * \param pComponents
-		 * \param bOverwrite allows to write over existing drumkit files
-		 * \return true on success
-		 */
-		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const License& license, const QString& sImage, const License& imageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
+		bool save( const QString& sDrumkitPath = "",
+				   int nComponentID = -1,
+				   bool bRecentVersion = true,
+				   bool bSilent = false );
+
 		/**
 		 * Extract a .h2drumkit file.
 		 *
@@ -293,17 +186,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
-		 * \param dk_name the drumkit name
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
+		 *
+		 * \param sDrumkitDir Path to #Drumkit
 		 * \return true on success
 		 */
-		static bool remove( const QString& dk_name, Filesystem::Lookup lookup );
+		static bool remove( const QString& sDrumkitDir );
 
 		/** set __instruments, delete existing one */
-		void set_instruments( InstrumentList* instruments );
+		void set_instruments( std::shared_ptr<InstrumentList> instruments );
 		/**  returns #__instruments */
-		InstrumentList* get_instruments() const;
+		std::shared_ptr<InstrumentList> get_instruments() const;
 
 		/** #__path setter */
 		void set_path( const QString& path );
@@ -336,16 +228,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
-		void dump();
-
 		/**
 		 * \return Whether the associated files are located in the
 		 * user or the systems drumkit folder.
 		 */
 		bool isUserDrumkit() const;
 
-		std::vector<DrumkitComponent*>* get_components();
-		void set_components( std::vector<DrumkitComponent*>* components );
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
+	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 
 	/**
 	 * Assign the license stored in #m_license to all samples
@@ -378,9 +268,25 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License __imageLicense;			///< drumkit image license
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
-		InstrumentList* __instruments;  ///< the list of instruments
-		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+		std::shared_ptr<InstrumentList> __instruments;  ///< the list of instruments
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> __components;  ///< list of drumkit component
 
+		/**
+		 * save the drumkit image into the new directory
+		 * \param dk_dir the directory to save the image into
+		 * \param bSilent Whether to suppress info and warning log
+		 * level messages.
+		 * \return true on success
+		 */
+	bool save_image( const QString& dk_dir, bool bSilent = false ) const;
+		/**
+		 * save a drumkit instruments samples into a directory
+		 * \param dk_dir the directory to save the samples into
+		 * \param bSilent Whether to suppress info and warning log
+		 * level messages.
+		 * \return true on success
+		 */
+	bool save_samples( const QString& dk_dir, bool bSilent = false ) const;
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
@@ -389,20 +295,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * supported by Hydrogen 0.9.7 or higher (whether it should be
 		 * composed of DrumkitComponents).
 		 */
-	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true ) const;
+	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true, bool bSilent = false ) const;
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
 		 */
-	static Drumkit* load_from( XMLNode* node,
-							   const QString& dk_path,
-							   bool bSilent = false,
-							   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+	static std::shared_ptr<Drumkit> load_from( XMLNode* node,
+											   const QString& dk_path,
+											   bool bSilent = false );
 
 	/**
 	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and
@@ -416,7 +319,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 // DEFINITIONS
 
-inline InstrumentList* Drumkit::get_instruments() const
+inline std::shared_ptr<InstrumentList> Drumkit::get_instruments() const
 {
 	return __instruments;
 }
@@ -498,7 +401,7 @@ inline const bool Drumkit::samples_loaded() const
 	return __samples_loaded;
 }
 
-inline std::vector<DrumkitComponent*>* Drumkit::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::get_components()
 {
 	return __components;
 }

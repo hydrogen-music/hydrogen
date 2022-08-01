@@ -23,14 +23,13 @@
 #ifndef SOUND_LIBRARY_EXPORT_DIALOG_H
 #define SOUND_LIBRARY_EXPORT_DIALOG_H
 
+#include <QtGui>
+#include <QtWidgets>
+
 #include "ui_SoundLibraryExportDialog_UI.h"
 
 #include <core/Object.h>
-#include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Helpers/Filesystem.h>
-
-#include <vector>
 
 ///
 ///
@@ -41,7 +40,7 @@ class SoundLibraryExportDialog :  public QDialog, public Ui_SoundLibraryExportDi
 	H2_OBJECT(SoundLibraryExportDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryExportDialog( QWidget* pParent, const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup );
+	SoundLibraryExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
 		~SoundLibraryExportDialog();
 
 private slots:
@@ -49,15 +48,12 @@ private slots:
 	void on_browseBtn_clicked();
 	void on_cancelBtn_clicked();
 	void on_versionList_currentIndexChanged( int index );
-	void on_drumkitList_currentIndexChanged( QString str );
 	void on_drumkitPathTxt_textChanged( QString str );
-	void updateDrumkitList();
+	
 private:
-	std::vector<H2Core::Drumkit*> m_pDrumkitInfoList;
-	QString m_sPreselectedKit;
-	H2Core::Filesystem::Lookup m_preselectedKitLookup;
-	QString m_sSysDrumkitSuffix;
-	QHash<QString, QStringList> m_kit_components;
+	void updateComponentList();
+	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
+	QStringList m_components;
 };
 
 

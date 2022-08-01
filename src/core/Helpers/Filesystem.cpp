@@ -255,6 +255,10 @@ bool Filesystem::file_executable( const QString& path, bool silent )
 {
 	return check_permissions( path, is_file|is_executable, silent );
 }
+bool Filesystem::dir_exists(  const QString& path, bool silent )
+{
+	return check_permissions( path, is_dir, silent );
+}
 bool Filesystem::dir_readable(  const QString& path, bool silent )
 {
 	return check_permissions( path, is_dir|is_readable|is_executable, silent );
@@ -645,8 +649,32 @@ QStringList Filesystem::drumkit_list( const QString& path )
 	return ok;
 }
 QString Filesystem::drumkit_default_kit() {
-	return DRUMKIT_DEFAULT_KIT;
+	QString sDefaultPath = sys_drumkits_dir() + DRUMKIT_DEFAULT_KIT;
+
+	// GMRockKit does not exist at system-level? Let's pick another
+	// one.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::sys_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::sys_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	// There is no drumkit at system-level? Let's pick one from user-space.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::usr_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::usr_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	return sDefaultPath;
 }
+
 QStringList Filesystem::sys_drumkit_list( )
 {
 	return drumkit_list( sys_drumkits_dir() ) ;
@@ -757,7 +785,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	}
 
 	if ( ! bSilent ) {
-		ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
+		ERRORLOG( QString( "drumkit [%1] not found using lookup type [%2]" )
 				  .arg( dk_name )
 				  .arg( static_cast<int>(lookup)));
 	}

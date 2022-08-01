@@ -57,7 +57,7 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	__out_R = new float[ MAX_BUFFER_SIZE ];
 }
 
-DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
+DrumkitComponent::DrumkitComponent( std::shared_ptr<DrumkitComponent> other )
 	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __volume( other->__volume )
@@ -94,7 +94,7 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 	return __out_R[nBufferPos];
 }
 
-void DrumkitComponent::load_from( DrumkitComponent* component )
+void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
@@ -104,15 +104,15 @@ void DrumkitComponent::load_from( DrumkitComponent* component )
 	this->set_volume( component->get_volume() );
 }
 
-DrumkitComponent* DrumkitComponent::load_from( XMLNode* node )
+std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( XMLNode* node )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	DrumkitComponent* pDrumkitComponent =
-		new DrumkitComponent( id, node->read_string( "name", "", false, false ) );
+	auto pDrumkitComponent =
+		std::make_shared<DrumkitComponent>( id, node->read_string( "name", "", false, false ) );
 	pDrumkitComponent->set_volume( node->read_float( "volume", 1.0f, true, false ) );
 
 	return pDrumkitComponent;

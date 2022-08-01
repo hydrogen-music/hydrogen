@@ -39,7 +39,7 @@ InstrumentList::InstrumentList()
 {
 }
 
-InstrumentList::InstrumentList( InstrumentList* other ) : Object( *other )
+InstrumentList::InstrumentList( std::shared_ptr<InstrumentList> other ) : Object( *other )
 {
 	assert( other );
 	assert( __instruments.size() == 0 );
@@ -66,7 +66,7 @@ void InstrumentList::unload_samples()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
 {
 	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
@@ -74,7 +74,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 		return nullptr;
 	}
 
-	InstrumentList* pInstrumentList = new InstrumentList();
+	auto pInstrumentList = std::make_shared<InstrumentList>();
 	XMLNode instrumentNode = instrumentListNode.firstChildElement( "instrument" );
 	int nCount = 0;
 	while ( !instrumentNode.isNull() ) {
@@ -85,8 +85,10 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 			break;
 		}
 
-		auto pInstrument = Instrument::load_from( &instrumentNode, sDrumkitPath,
-												  sDrumkitName, license, bSilent );
+		auto pInstrument = Instrument::load_from( &instrumentNode,
+												  sDrumkitPath,
+												  sDrumkitName,
+												  license, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
 		}
@@ -100,7 +102,6 @@ InstrumentList* InstrumentList::load_from( XMLNode* pNode, const QString& sDrumk
 
 	if ( nCount == 0 ) {
 		ERRORLOG( "Newly created instrument list does not contain any instruments. Aborting." );
-		delete pInstrumentList;
 		return nullptr;
 	}
 	
@@ -126,6 +127,34 @@ void InstrumentList::operator<<( std::shared_ptr<Instrument> instrument )
 		if( __instruments[i]==instrument ) return;
 	}
 	__instruments.push_back( instrument );
+}
+	
+bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const {
+	if ( pOther != nullptr && size() == pOther->size() ) {
+		for ( int ii = 0; ii < size(); ++ii ) {
+			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool InstrumentList::operator!=( std::shared_ptr<InstrumentList> pOther ) const {
+	if ( pOther != nullptr && size() == pOther->size() ) {
+		for ( int ii = 0; ii < size(); ++ii ) {
+			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	return true;
 }
 
 void InstrumentList::add( std::shared_ptr<Instrument> instrument )
@@ -167,14 +196,14 @@ bool InstrumentList::is_valid_index( int idx ) const
 	return is_valid_index;
 }
 
-std::shared_ptr<Instrument> InstrumentList::get( int idx )
+std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 {
-	if ( !is_valid_index( idx ) ) {
+	if ( ! is_valid_index( idx ) ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
 	}
 	assert( idx >= 0 && idx < __instruments.size() );
-	return __instruments[idx];
+	return __instruments.at( idx );
 }
 
 int InstrumentList::index( std::shared_ptr<Instrument> instr )
@@ -250,7 +279,7 @@ void InstrumentList::move( int idx_a, int idx_b )
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }
 
-std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const {
+std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const {
 	std::vector<std::shared_ptr<InstrumentList::Content>> results;
 
 	for ( const auto& ppInstrument : __instruments ) {

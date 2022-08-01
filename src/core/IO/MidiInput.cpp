@@ -248,7 +248,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	static const float fPan = 0.f;
 
 	int nInstrument = nNote - 36;
-	InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
 	if ( pPref->__playselectedinstrument ){
@@ -320,7 +320,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	int nNote = msg.m_nData1;
 	int nInstrument = nNote - 36;

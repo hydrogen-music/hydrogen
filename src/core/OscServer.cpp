@@ -1004,8 +1004,8 @@ void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		bConditionalLoad = argv[1]->f == 0 ? false : true;
 	}
 	
-	pController->loadDrumkit( QString::fromUtf8( &argv[0]->s ),
-							  bConditionalLoad );
+	pController->setDrumkit( QString::fromUtf8( &argv[0]->s ),
+							 bConditionalLoad );
 }
 
 void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {

@@ -26,7 +26,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "SoundLibraryDatastructures.h"
+#include <core/Object.h>
 
 class SoundLibraryPanel;
 

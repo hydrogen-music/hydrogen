@@ -77,7 +77,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param pattern_path the path to the file to load the pattern from
 		 * \param instruments the current instrument list to search instrument into
 		 */
-		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
+		static Pattern* load_file( const QString& pattern_path, std::shared_ptr<InstrumentList> instruments );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -87,7 +87,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static Pattern* load_from( XMLNode* node, InstrumentList* instruments, bool bSilent = false );
+	static Pattern* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param drumkit_name the name of the drumkit it is supposed to play with
@@ -246,7 +246,7 @@ class Pattern : public H2Core::Object<Pattern>
 	 *
 	 * \return true on success.
 	 */
-	static bool loadDoc( const QString& sPatternPath, InstrumentList* pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
+	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \

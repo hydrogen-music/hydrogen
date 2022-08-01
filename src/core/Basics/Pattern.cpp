@@ -63,7 +63,7 @@ Pattern::~Pattern()
 	}
 }
 
-bool Pattern::loadDoc( const QString& sPatternPath, InstrumentList* pInstrumentList, XMLDoc* pDoc, bool bSilent )
+bool Pattern::loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent )
 {
 	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
 		return false;
@@ -103,7 +103,7 @@ bool Pattern::loadDoc( const QString& sPatternPath, InstrumentList* pInstrumentL
 	return bReadingSuccessful;
 }
 
-Pattern* Pattern::load_file( const QString& sPatternPath, InstrumentList* pInstrumentList )
+Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
@@ -118,7 +118,7 @@ Pattern* Pattern::load_file( const QString& sPatternPath, InstrumentList* pInstr
 	return load_from( &pattern_node, pInstrumentList );
 }
 
-Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList, bool bSilent )
+Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent )
 {
 	Pattern* pPattern = new Pattern(
 	    node->read_string( "name", nullptr, false, false ),

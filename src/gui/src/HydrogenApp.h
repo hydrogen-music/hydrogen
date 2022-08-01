@@ -155,6 +155,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void setWindowProperties( QWidget *pWindow, H2Core::WindowProperties &prop, unsigned flags = SetAll );
 		H2Core::WindowProperties getWindowProperties( QWidget *pWindow );
 
+	static bool checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit );
+
 signals:
 	/** Propagates a change in the Preferences through the GUI.
 	 *

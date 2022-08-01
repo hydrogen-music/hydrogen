@@ -305,7 +305,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 
 	// License related export warnings
 	if ( pPref->m_bShowExportSongLicenseWarning ) {
@@ -347,21 +347,20 @@ void ExportSongDialog::on_okBtn_clicked()
 		sMsg.append( "</ul>" );
 
 		if ( bIsCopyleft ) {
-			sMsg.append( "<p>" ).append( tr( "You used drumkit samples holding a <b>copyleft license</b> to create the song. <b>Be aware that you are legally obliged to make a copy of your song publicly available and can not prevent its redistribution by others.</B" ) )
-				.append( "</p>" );
+			sMsg.append( QString( "<p>%1</p>" )
+						 .arg( pCommonStrings->getLicenseCopyleftWarning() ) );
 		}
 
 		if ( bHasAttribution ) {
-			sMsg.append( "<p>" ).append( tr( "All license containing the letters 'CC BY' <b>require you to give an attribution</b> by naming drumkit, author, as well as the license in e.g. a CD booklet or a description on bandcamp." ) )
-				.append( "</p>" );
+			sMsg.append( QString( "<p>%1</p>" )
+						 .arg( pCommonStrings->getLicenseAttributionWarning() ) );
 		}
 		
 		sMsg.append( "\n" ).append( tr( "Be sure you satisfy all license conditions and give the required attribution." ) );
 
-		licenseWarning.setWindowTitle( tr( "Song Licensing" ) );
+		licenseWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
 		licenseWarning.setText( sMsg );
 		licenseWarning.setTextFormat( Qt::RichText );
-		// licenseWarning.setText( pCommonStrings->getExportSongLicenseWarning() );
 
 		licenseWarning.addButton( pCommonStrings->getButtonOk(),
 								  QMessageBox::AcceptRole );
@@ -374,16 +373,12 @@ void ExportSongDialog::on_okBtn_clicked()
 		licenseWarning.exec();
 
 		if ( licenseWarning.clickedButton() == pMuteButton ) {
-			DEBUGLOG( "Don't show again" );
 			pPref->m_bShowExportSongLicenseWarning = false;
 		}
 		else if ( licenseWarning.clickedButton() == pRejectButton ) {
-			DEBUGLOG( "rejecting" );
 			return;
 		}
 	}
-
-	DEBUGLOG( "rolling" );
 
 	m_bOverwriteFiles = false;
 
@@ -484,7 +479,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 void ExportSongDialog::exportTracks()
 {
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -795,7 +790,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->getInstrumentList();
+		auto pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			auto pInstr = pSongInstrList->get( nInstr );

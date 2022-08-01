@@ -55,6 +55,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void drumkitLoadedEvent() override;
 		//~ Implements EventListener interface
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,
@@ -97,14 +98,13 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
 		/**
-		 * \param sDrumkitName
+		 * \param sDrumkitPath
 		 * \param sInstrumentName
 		 * \param nTargetInstrument
 		 * \param AddedComponents
-		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents, H2Core::Filesystem::Lookup lookup );
+		void functionDropInstrumentRedoAction(QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents );
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();

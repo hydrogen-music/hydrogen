@@ -47,8 +47,6 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "SoundLibrary/SoundLibraryDatastructures.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -95,7 +93,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pPreferencesUpdateTimer->setSingleShot( true );
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
-	SoundLibraryDatabase::create_instance();
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	//setup the undo stack
@@ -206,8 +203,6 @@ HydrogenApp::~HydrogenApp()
 	delete m_pPlaylistDialog;
 	delete m_pDirector;
 	delete m_pSampleEditor;
-
-	delete SoundLibraryDatabase::get_instance();
 
 	#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -687,8 +682,10 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	setStatusBarMessage( tr( "Drumkit loaded: [%1]" )
-						 .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ), 2000 );
+	setStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitName() )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitPath() ) ),
+						 2000 );
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -850,6 +847,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_PLAYBACK_TRACK_CHANGED:
 				pListener->playbackTrackChangedEvent();
+				break;
+
+			case EVENT_SOUND_LIBRARY_CHANGED:
+				pListener->soundLibraryChangedEvent();
 				break;
 
 			default:
@@ -1070,4 +1071,126 @@ void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
 void HydrogenApp::propagatePreferences() {
 	emit preferencesChanged( m_bufferedChanges );
 	m_bufferedChanges = H2Core::Preferences::Changes::None;
+}
+
+bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( ! pPref->m_bShowExportDrumkitLicenseWarning &&
+		 ! pPref->m_bShowExportDrumkitCopyleftWarning &&
+		 ! pPref->m_bShowExportDrumkitAttributionWarning ) {
+		return true;
+	}
+	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	auto drumkitLicense = pDrumkit->get_license();
+	auto contentVector = pDrumkit->summarizeContent();
+
+	QStringList additionalLicenses;
+	bool bCopyleftLicenseFound = drumkitLicense.isCopyleft();
+	bool bAttributionRequired = drumkitLicense.hasAttribution();
+
+	for ( const auto& ccontent : contentVector ) {
+		QString sSampleLicense = QString( "%1 (by %2)" )
+			.arg( ccontent->m_license.getLicenseString() )
+			.arg( ccontent->m_license.getCopyrightHolder() );
+		
+		if ( ccontent->m_license != drumkitLicense &&
+			 ! additionalLicenses.contains( sSampleLicense ) ) {
+			additionalLicenses << sSampleLicense;
+
+			bCopyleftLicenseFound = bCopyleftLicenseFound ||
+				ccontent->m_license.isCopyleft();
+			bAttributionRequired = bAttributionRequired ||
+				ccontent->m_license.hasAttribution();
+		}
+	}
+
+	if ( additionalLicenses.size() > 0 &&
+		 pPref->m_bShowExportDrumkitLicenseWarning ) {
+
+		QString sMsg = tr( "Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?" )
+			.arg( drumkitLicense.getLicenseString() );
+
+		sMsg.append( "\n" );
+		for ( const auto& sLicense : additionalLicenses ) {
+			sMsg.append( QString( "\n- %1" ).arg( sLicense ) );
+		}
+		
+		QMessageBox licenseWarning;
+		licenseWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		licenseWarning.setText( sMsg );
+		licenseWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			licenseWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			licenseWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		licenseWarning.exec();
+
+		if ( licenseWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitLicenseWarning = false;
+		}
+		else if ( licenseWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on overwriting licenses" );
+			return false;
+		}
+	}
+
+	if ( bCopyleftLicenseFound &&
+		 pPref->m_bShowExportDrumkitCopyleftWarning ) {
+		QMessageBox copyleftWarning;
+		copyleftWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		copyleftWarning.setText( pCommonStrings->getLicenseCopyleftWarning() );
+		copyleftWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			copyleftWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			copyleftWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		copyleftWarning.exec();
+
+		if ( copyleftWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitCopyleftWarning = false;
+		}
+		else if ( copyleftWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on copyleft licenses" );
+			return false;
+		}
+	}
+
+	if ( bAttributionRequired &&
+		 pPref->m_bShowExportDrumkitAttributionWarning ) {
+		QMessageBox attributionWarning;
+		attributionWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		attributionWarning.setText( pCommonStrings->getLicenseAttributionWarning() );
+		attributionWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			attributionWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			attributionWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		attributionWarning.exec();
+
+		if ( attributionWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitAttributionWarning = false;
+		}
+		else if ( attributionWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on attribution licenses" );
+			return false;
+		}
+	}
+	
+	return true;
 }
