@@ -88,6 +88,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
+		m_pLadspaFXLine[nFX]->setObjectName( "LadspaFXMixerLine" );
 		m_pLadspaFXLine[nFX]->move( 13, 43 * nFX + 84 );
 #ifdef H2CORE_HAVE_LADSPA
 		if ( pEffects != nullptr ) {
@@ -113,6 +114,7 @@ Mixer::Mixer( QWidget* pParent )
 
 // Master frame
 	m_pMasterLine = new MasterMixerLine( nullptr );
+	m_pMasterLine->setObjectName( "MasterMixerLine" );
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
@@ -167,6 +169,7 @@ Mixer::~Mixer()
 MixerLine* Mixer::createMixerLine( int nInstr )
 {
 	MixerLine *pMixerLine = new MixerLine( nullptr , nInstr);
+	pMixerLine->setObjectName( "MixerLine" );
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -193,6 +196,7 @@ void Mixer::closeEvent( QCloseEvent* ev )
 ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 {
 	ComponentMixerLine *pMixerLine = new ComponentMixerLine( nullptr , theCompoID);
+	pMixerLine->setObjectName( "ComponentMixerLine" );
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );

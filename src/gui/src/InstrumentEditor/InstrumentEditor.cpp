@@ -78,11 +78,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pShowInstrumentBtn->move( 4, 4 );
 	
 	connect( m_pShowInstrumentBtn, &QPushButton::clicked,
-			 [=]() { m_pInstrumentProp->show();
-				 m_pLayerProp->hide();
-			 });
-	connect( m_pShowInstrumentBtn, &QPushButton::clicked,
-			 this, &InstrumentEditor::tabButtonClicked );
+			 [=]() { showLayers( false ); } );
 
 	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 140, 22 ), Button::Type::Toggle, "",
 								   pCommonStrings->getLayersButton(), false, QSize(),
@@ -90,11 +86,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pShowLayersBtn->move( 145, 4 );
 	
 	connect( m_pShowLayersBtn, &QPushButton::clicked,
-			 [=]() { m_pInstrumentProp->hide();
-				 m_pLayerProp->show();
-			 });
-	connect( m_pShowLayersBtn, &QPushButton::clicked,
-			 this, &InstrumentEditor::tabButtonClicked );
+			 [=]() { showLayers( true ); } );
 
 
 	// Instrument properties
@@ -483,10 +475,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	update();
 	//~component handling
 
-	m_pLayerProp->hide();
-	m_pShowLayersBtn->setChecked( false );
-	m_pInstrumentProp->show();
-	m_pShowInstrumentBtn->setChecked( true );
+	showLayers( false );
 
 	selectLayer( m_nSelectedLayer );
 
@@ -833,21 +822,6 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 	}
 	else {
 		loadLayerBtnClicked();
-	}
-}
-
-void InstrumentEditor::tabButtonClicked()
-{
-	if ( m_pInstrumentProp->isVisible() ) {
-		m_pShowLayersBtn->setChecked( false );
-		m_pShowInstrumentBtn->setChecked( true );
-	}
-	else if ( m_pLayerProp->isVisible() ) {
-		m_pShowLayersBtn->setChecked( true );
-		m_pShowInstrumentBtn->setChecked( false );
-	}
-	else {
-		ERRORLOG( "Neither the instrument nor the layer editor is visible" );
 	}
 }
 
@@ -1486,5 +1460,20 @@ void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes change
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		setStyleSheet( QString( "QLabel { background: %1 }" )
 					   .arg( pPref->getColorTheme()->m_windowColor.name() ) );
+	}
+}
+
+void InstrumentEditor::showLayers( bool bShow ) {
+	if ( bShow ) {
+		m_pInstrumentProp->hide();
+		m_pShowInstrumentBtn->setChecked( false );
+		m_pLayerProp->show();
+		m_pShowLayersBtn->setChecked( true );
+	}
+	else {
+		m_pInstrumentProp->show();
+		m_pShowInstrumentBtn->setChecked( true );
+		m_pLayerProp->hide();
+		m_pShowLayersBtn->setChecked( false );
 	}
 }

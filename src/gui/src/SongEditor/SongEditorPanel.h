@@ -109,6 +109,10 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 
 	public slots:
+	/** Used by the shotlist during automated generation of images
+		for the manual. */
+	void activateStackedMode( bool bActive );
+		
 		void showHideTimeline( bool bClicked ) {
 			m_pTimelineBtn->setChecked( bClicked );
 			timelineBtnClicked();

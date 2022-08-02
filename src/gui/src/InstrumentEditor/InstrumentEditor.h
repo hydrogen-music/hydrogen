@@ -75,6 +75,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 
 	public slots:
+	/** Used by #Shotlist */
+	void showLayers( bool bShow );
 		void showSampleEditor();
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -101,8 +103,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void sampleSelectionChanged( int );
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
-
-	void tabButtonClicked();
 
 	private:
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;
