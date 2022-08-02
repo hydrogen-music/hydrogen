@@ -46,6 +46,7 @@
 ///
 /** \ingroup docGUI*/
 class ShotList : public QObject {
+	Q_OBJECT
 
 	/// Find a widget which inherits the named class
 	static QWidget *findWidgetInheriting( QObject *pObject, QString &sName );
