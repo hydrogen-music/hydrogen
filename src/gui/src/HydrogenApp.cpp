@@ -313,6 +313,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// MIXER
 	m_pMixer = new Mixer(nullptr);
+	m_pMixer->setObjectName( "Mixer" );
 	WindowProperties mixerProp = pPref->getMixerProperties();
 
 	if ( layout != InterfaceTheme::Layout::SinglePane ) {

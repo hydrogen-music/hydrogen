@@ -108,6 +108,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// pan rotary
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
+	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
 	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
@@ -119,6 +120,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
 		m_pFxRotary[i] = new Rotary( this, Rotary::Type::Small, tr( "FX %1 send" ).arg( i + 1 ), false );
+		m_pFxRotary[i]->setObjectName( "FXRotary" );
 		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
 		pAction->setParameter1( QString::number( nInstr ) );
 		pAction->setParameter2( QString::number( i ) );

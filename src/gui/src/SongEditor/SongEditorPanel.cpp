@@ -176,7 +176,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
+		activateStackedMode( true );
 	});
 
 	m_pPlaySelectedMultipleBtn = new Button( pBackPanel, QSize( 25, 21 ),
@@ -188,7 +188,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
 	connect( m_pPlaySelectedMultipleBtn, &QPushButton::clicked, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
+		activateStackedMode( false );
 	});
 
 	// We access the raw variable in the song class since we do not
@@ -260,6 +260,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// timeline view toggle button
 	m_pViewTimelineBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
+	m_pViewTimelineBtn->setObjectName( "TimeLineToggleBtn" );
 	connect( m_pViewTimelineBtn, SIGNAL( clicked() ), this, SLOT( viewTimelineBtnClicked() ) );
 	m_pViewTimelineBtn->setChecked( ! pPref->getShowPlaybackTrack() );
 	
@@ -1155,5 +1156,15 @@ void SongEditorPanel::patternChangedEvent() {
 		int nPatternInView = -1;
 		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
 		vScrollTo( scroll );
+	}
+}
+
+void SongEditorPanel::activateStackedMode( bool bActive ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( bActive ) {
+		pHydrogen->setPatternMode( Song::PatternMode::Stacked );
+	}
+	else {
+		pHydrogen->setPatternMode( Song::PatternMode::Selected );
 	}
 }
