@@ -75,6 +75,7 @@ public:
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void activateSongMode( bool bActivate );
 
 private slots:
 	void recBtnClicked();
@@ -92,7 +93,7 @@ private slots:
 	void showInstrumentRackButtonClicked();
 
 	//beatcounter
-	void bcOnOffBtnClicked();
+	void activateBeatCounter( bool bActivate );
 	void bcSetPlayBtnClicked();
 	void bcbUpButtonClicked();
 	void bcbDownButtonClicked();
@@ -109,10 +110,6 @@ private:
 	 * cutting of the beginning of the message.*/
 	void updateStatusLabel();
 	void midiActivityEvent() override;
-
-	/** Ensures both the song and pattern mode button stay checked
-		when pressed twice*/
-	void songModeBtnClicked();
 	
 	H2Core::Hydrogen *m_pHydrogen;
 	QPixmap m_background;

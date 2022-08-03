@@ -335,6 +335,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_buttonDropDownCompo = new Button( m_pLayerProp, QSize( 18, 18 ),
 										Button::Type::Push, "dropdown.svg", "",
 										false, QSize( 12, 12 ) );
+	m_buttonDropDownCompo->setObjectName( "InstrumentEditorComponentNameDropDown" );
 	m_buttonDropDownCompo->move( 263, 8 );
 	connect( m_buttonDropDownCompo, SIGNAL( clicked() ),
 			 this, SLOT( onDropDownCompoClicked() ) );

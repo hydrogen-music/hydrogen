@@ -42,6 +42,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
  , m_pDrumkit( pDrumkit )
  , m_bDrumkitNameLocked( bDrumkitNameLocked )
 {
+	setObjectName( "SoundLibraryPropertiesDialog" );
+	
 	setupUi( this );
 
 	auto pPref = Preferences::get_instance();

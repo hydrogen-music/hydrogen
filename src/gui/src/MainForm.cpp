@@ -257,6 +257,7 @@ void MainForm::createMenuBar()
 {
 	// menubar
 	QMenuBar *pMenubar = new QMenuBar( this );
+	pMenubar->setObjectName( "MainMenu" );
 	setMenuBar( pMenubar );
 
 	// FILE menu
