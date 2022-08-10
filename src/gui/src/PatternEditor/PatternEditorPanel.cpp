@@ -220,7 +220,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// both of them.
 	__show_piano_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_piano_btn->move( 178, 1 );
-	__show_piano_btn->setObjectName( "ShowDrumBtn" );
+	__show_piano_btn->setObjectName( "ShowPianoBtn" );
 	__show_piano_btn->hide();
 	connect( __show_piano_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
 	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 40, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );

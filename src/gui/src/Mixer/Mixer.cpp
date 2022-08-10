@@ -84,6 +84,7 @@ Mixer::Mixer( QWidget* pParent )
 	auto pEffects = Effects::get_instance();
 #endif
 	m_pFXFrame = new PixmapWidget( nullptr );
+	m_pFXFrame->setObjectName( "MixerFXRack" );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -119,11 +120,13 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
 	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "", false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
+	m_pOpenMixerSettingsBtn->setObjectName( "MixerSettingsButton" );
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked() ), this, SLOT( openMixerSettingsDialog() ) );
 
 
 	m_pShowFXPanelBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getFXButton(), false, QSize(), tr( "Show FX panel" ) );
+	m_pShowFXPanelBtn->setObjectName( "MixerShowFXButton" );
 	m_pShowFXPanelBtn->move( 63, 243 );
 	m_pShowFXPanelBtn->setChecked(false);
 	connect( m_pShowFXPanelBtn, SIGNAL( clicked() ), this, SLOT( showFXPanelClicked() ));
@@ -134,6 +137,7 @@ Mixer::Mixer( QWidget* pParent )
 #endif
 
 	m_pShowPeaksBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getPeakButton(), false, QSize(), tr( "Show instrument peaks" ) );
+	m_pShowPeaksBtn->setObjectName( "MixerShowPeaksButton" );
 	m_pShowPeaksBtn->move( 63, 259 );
 	m_pShowPeaksBtn->setChecked( (Preferences::get_instance())->showInstrumentPeaks() );
 	connect( m_pShowPeaksBtn, SIGNAL( clicked() ), this, SLOT( showPeaksBtnClicked() ));

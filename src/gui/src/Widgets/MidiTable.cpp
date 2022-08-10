@@ -132,6 +132,7 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	++m_nRowCount;
 
 	QPushButton *midiSenseButton = new QPushButton(this);
+	midiSenseButton->setObjectName( "MidiSenseButton" );
 	midiSenseButton->setIcon(QIcon(Skin::getSvgImagePath() + "/icons/record.svg"));
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );

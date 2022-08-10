@@ -648,6 +648,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 	// Mute btn
 	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
+	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
 	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 	pAction = std::make_shared<Action>("MUTE_TOGGLE");
@@ -911,12 +912,14 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 
 	// active button
 	m_pBypassBtn = new Button( this, QSize( 34, 14 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
+	m_pBypassBtn->setObjectName( "MixerFXBypassButton" );
 	m_pBypassBtn->move( 52, 25 );
 	connect( m_pBypassBtn, SIGNAL( clicked() ), this, SLOT( bypassBtnClicked() ) );
 	
 
 	// edit button
 	m_pEditBtn = new Button( this, QSize( 34, 14 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
+	m_pEditBtn->setObjectName( "MixerFXEditButton" );
 	m_pEditBtn->move( 86, 25 );
 	connect( m_pEditBtn, SIGNAL( clicked() ), this, SLOT( editBtnClicked() ) );
 

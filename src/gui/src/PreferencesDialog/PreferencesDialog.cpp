@@ -566,17 +566,17 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x110, pTopLevelItem, tr( "Tool Tip Base" ) );
 	new ColorTreeItem( 0x111, pTopLevelItem, tr( "Tool Tip Text" ) );
 	
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Widgets" ) );
-	new ColorTreeItem( 0x200, pTopLevelItem, tr( "Widget" ) );
-	new ColorTreeItem( 0x201, pTopLevelItem, tr( "Widget Text" ) );
-	new ColorTreeItem( 0x202, pTopLevelItem, tr( "Accent" ) );
-	new ColorTreeItem( 0x203, pTopLevelItem, tr( "Accent Text" ) );
-	new ColorTreeItem( 0x204, pTopLevelItem, tr( "Button Red" ) );
-	new ColorTreeItem( 0x205, pTopLevelItem, tr( "Button Red Text" ) );
-	new ColorTreeItem( 0x206, pTopLevelItem, tr( "Spin Box" ) );
-	new ColorTreeItem( 0x207, pTopLevelItem, tr( "Spin Box Text" ) );
-	new ColorTreeItem( 0x208, pTopLevelItem, tr( "Playhead" ) );
-	new ColorTreeItem( 0x209, pTopLevelItem, tr( "Cursor" ) );
+	auto pWidgetItem = new ColorTreeItem( 0x000, colorTree, tr( "Widgets" ) );
+	auto pDefaultItem = new ColorTreeItem( 0x200, pWidgetItem, tr( "Widget" ) );
+	new ColorTreeItem( 0x201, pWidgetItem, tr( "Widget Text" ) );
+	new ColorTreeItem( 0x202, pWidgetItem, tr( "Accent" ) );
+	new ColorTreeItem( 0x203, pWidgetItem, tr( "Accent Text" ) );
+	new ColorTreeItem( 0x204, pWidgetItem, tr( "Button Red" ) );
+	new ColorTreeItem( 0x205, pWidgetItem, tr( "Button Red Text" ) );
+	new ColorTreeItem( 0x206, pWidgetItem, tr( "Spin Box" ) );
+	new ColorTreeItem( 0x207, pWidgetItem, tr( "Spin Box Text" ) );
+	new ColorTreeItem( 0x208, pWidgetItem, tr( "Playhead" ) );
+	new ColorTreeItem( 0x209, pWidgetItem, tr( "Cursor" ) );
 	
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new ColorTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
@@ -630,8 +630,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
 	connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
 	connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+	
+	// We initialize the tree by expanding the "Widget" node and
+	// selecting the first color. This looks more nice than with no
+	// color selected at all and works better with the Shotlist.
+	colorTree->expandItem( pWidgetItem );
+	colorTree->setCurrentItem( pDefaultItem );
 
 	updateColorTree();
+
 	updateAppearanceTab( m_pCurrentTheme );
 
 	m_bNeedDriverRestart = false;

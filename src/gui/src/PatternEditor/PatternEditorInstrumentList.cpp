@@ -80,7 +80,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 							 false, true );
 	m_pMuteBtn->move( 145, 0 );
 	m_pMuteBtn->setChecked(false);
-	m_pMuteBtn->setObjectName( "MuteButton" );
+	m_pMuteBtn->setObjectName( "InstrumentLineMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its
@@ -92,7 +92,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 							 false, true );
 	m_pSoloBtn->move( 163, 0 );
 	m_pSoloBtn->setChecked(false);
-	m_pSoloBtn->setObjectName( "SoloButton" );
+	m_pSoloBtn->setObjectName( "InstrumentLineSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
 	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,

@@ -61,7 +61,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		void updateAll();
 		void updatePositionRuler();
-		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
 		void showPlaybackTrack();
@@ -111,12 +110,14 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	public slots:
 	/** Used by the shotlist during automated generation of images
 		for the manual. */
-	void activateStackedMode( bool bActive );
+	void activateStackedMode( bool bActivate );
+	void activateSelectMode( bool bActivate );
 		
 		void showHideTimeline( bool bClicked ) {
 			m_pTimelineBtn->setChecked( bClicked );
 			timelineBtnClicked();
 		}
+		void toggleAutomationAreaVisibility();
 
 	private slots:
 		void vScrollTo( int value );
@@ -130,8 +131,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void selectionModeBtnClicked();
-		void drawModeBtnClicked();
 		void timelineBtnClicked();
 		void viewTimelineBtnClicked();
 		void viewPlaybackTrackBtnClicked();
