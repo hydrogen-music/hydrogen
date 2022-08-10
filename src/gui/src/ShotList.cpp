@@ -21,8 +21,10 @@
  */
 
 #include <core/Hydrogen.h>
+#include <core/EventQueue.h>
 
 #include "ShotList.h"
+#include "HydrogenApp.h"
 
 ShotList::ShotList( QString sShotsFilename ) {
 	QFile shots( sShotsFilename );
@@ -34,6 +36,20 @@ ShotList::ShotList( QString sShotsFilename ) {
 	}
 	while (! shots.atEnd() ) {
 		m_shots << shots.readLine();
+	}
+
+	HydrogenApp::get_instance()->addEventListener( this );
+}
+
+ShotList::ShotList( QStringList shots ) {
+	m_shots = shots;
+
+	HydrogenApp::get_instance()->addEventListener( this );
+}
+
+ShotList::~ShotList() {
+	if ( auto pHydrogenApp = HydrogenApp::get_instance() ) {
+		pHydrogenApp->removeEventListener( this );
 	}
 }
 
@@ -213,11 +229,13 @@ void ShotList::shoot() {
 	}
 }
 
+void ShotList::nextShotEvent() {
+	QMetaObject::invokeMethod( this, "nextShot", Qt::QueuedConnection );
+}
 
 void ShotList::nextShot( void ) {
 	if ( ( m_nNextShot + 1) < m_shots.size() ) {
-		// Cue up next shot
-		QMetaObject::invokeMethod( this, "nextShot", Qt::QueuedConnection );
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_NEXT_SHOT, 0 );
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }

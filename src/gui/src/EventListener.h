@@ -64,6 +64,7 @@ class EventListener
 	virtual void driverChangedEvent(){}
 	virtual void playbackTrackChangedEvent(){}
 	virtual void soundLibraryChangedEvent(){}
+	virtual void nextShotEvent(){}
 
 		virtual ~EventListener() {}
 };
