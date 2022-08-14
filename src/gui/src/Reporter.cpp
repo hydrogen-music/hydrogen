@@ -19,6 +19,7 @@
  *
  */
 #include <iostream>
+#include <signal.h>
 #include "core/Hydrogen.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Logger.h"
@@ -26,6 +27,10 @@
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
+
+
+std::vector<QProcess *> Reporter::m_children;
+
 
 using namespace H2Core;
 
@@ -59,6 +64,7 @@ Reporter::Reporter( QProcess *pChild )
 {
 	assert( pChild != nullptr );
 	this->m_pChild = pChild;
+	m_children.push_back( pChild );
 
 	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
@@ -181,6 +187,23 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 	}
 }
 
+void Reporter::handleSignal( int nSignal )
+{
+	// First disable signal handler to allow normal termination
+	signal( nSignal, SIG_DFL );
+
+	for ( QProcess *pChild : m_children ) {
+		kill( pChild->processId(), nSignal );
+	}
+
+	raise( nSignal );
+}
+
+static void handleSignal( int nSignal ) {
+	Reporter::handleSignal( nSignal );
+}
+
+
 void Reporter::spawn(int argc, char *argv[])
 {
 	QStringList arguments;
@@ -195,6 +218,12 @@ void Reporter::spawn(int argc, char *argv[])
 	arguments << "--child";
 	subProcess.start(argv[0], arguments);
 
+	// Signal handler
+	for ( int nSignal : { SIGINT, SIGTERM, SIGHUP } ) {
+		signal( nSignal, ::handleSignal );
+	}
+
+	
 	Reporter reporter( &subProcess );
 	reporter.waitForFinished();
 	exit( subProcess.exitCode() );

@@ -33,6 +33,7 @@
 #include <cassert>
 #include <memory>
 #include <iostream>
+#include <vector>
 
 
 /** Crash reporter class
@@ -69,6 +70,8 @@ class Reporter : public QObject
 
 	void waitForFinished();
 
+	static std::vector<QProcess *> m_children;
+
  public:
 
 	Reporter( QProcess *child );
@@ -78,6 +81,8 @@ class Reporter : public QObject
 
 	/** Potentially spawn child process */
 	static void spawn( int argc, char *argv[] );
+
+	static void handleSignal( int nSignal );
 
 public slots:
 
