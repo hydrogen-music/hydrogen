@@ -219,7 +219,11 @@ void Reporter::spawn(int argc, char *argv[])
 	subProcess.start(argv[0], arguments);
 
 	// Signal handler
-	for ( int nSignal : { SIGINT, SIGTERM, SIGHUP } ) {
+	for ( int nSignal : { SIGINT, SIGTERM
+#ifndef WIN32
+						 , SIGHUP
+#endif
+		} ) {
 		signal( nSignal, ::handleSignal );
 	}
 
