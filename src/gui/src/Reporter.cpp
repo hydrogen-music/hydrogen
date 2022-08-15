@@ -24,6 +24,9 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Logger.h"
 #include "Reporter.h"
+#ifdef WIN32
+#include <Processthreadsapi.h>
+#endif
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
@@ -193,7 +196,13 @@ void Reporter::handleSignal( int nSignal )
 	signal( nSignal, SIG_DFL );
 
 	for ( QProcess *pChild : m_children ) {
+#ifndef WIN32
 		kill( pChild->processId(), nSignal );
+#else
+		// On Windows, we can't use kill() to pass along the signal we received, so just use
+		// QProcess::terminate()
+		pChild->terminate();
+#endif
 	}
 
 	raise( nSignal );
