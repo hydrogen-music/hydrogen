@@ -24,16 +24,11 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Logger.h"
 #include "Reporter.h"
-#ifdef WIN32
-#include <Processthreadsapi.h>
-#endif
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
 
-
 std::set<QProcess *> Reporter::m_children;
-
 
 using namespace H2Core;
 
@@ -216,7 +211,6 @@ void Reporter::handleSignal( int nSignal )
 static void handleSignal( int nSignal ) {
 	Reporter::handleSignal( nSignal );
 }
-
 
 void Reporter::spawn(int argc, char *argv[])
 {
