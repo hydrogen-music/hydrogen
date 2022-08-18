@@ -32,7 +32,7 @@
 QString Reporter::m_sPrefix = "Fatal error in: ";
 
 
-std::vector<QProcess *> Reporter::m_children;
+std::set<QProcess *> Reporter::m_children;
 
 
 using namespace H2Core;
@@ -67,7 +67,7 @@ Reporter::Reporter( QProcess *pChild )
 {
 	assert( pChild != nullptr );
 	this->m_pChild = pChild;
-	m_children.push_back( pChild );
+	m_children.insert( pChild );
 
 	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
@@ -75,6 +75,11 @@ Reporter::Reporter( QProcess *pChild )
 			 this, &Reporter::on_readyReadStandardError );
 	connect( pChild, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			 this, &Reporter::on_finished );
+}
+
+Reporter::~Reporter()
+{
+	m_children.erase( this->m_pChild );
 }
 
 void Reporter::waitForFinished()
@@ -236,7 +241,6 @@ void Reporter::spawn(int argc, char *argv[])
 		signal( nSignal, ::handleSignal );
 	}
 
-	
 	Reporter reporter( &subProcess );
 	reporter.waitForFinished();
 	exit( subProcess.exitCode() );

@@ -33,7 +33,7 @@
 #include <cassert>
 #include <memory>
 #include <iostream>
-#include <vector>
+#include <set>
 
 
 /** Crash reporter class
@@ -70,11 +70,12 @@ class Reporter : public QObject
 
 	void waitForFinished();
 
-	static std::vector<QProcess *> m_children;
+	static std::set<QProcess *> m_children;
 
  public:
 
 	Reporter( QProcess *child );
+	~Reporter();
 
 	/** Report some crash details in a crashing child (mostly, the Logger 'crash context' string) */
 	static void report( void );
