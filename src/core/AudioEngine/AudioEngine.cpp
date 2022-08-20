@@ -2110,7 +2110,7 @@ void AudioEngine::updatePlayingPatterns( int nColumn, long nTick ) {
 	}
 }
 
-void AudioEngine::toggleNextPatterns( int nPatternNumber ) {
+void AudioEngine::toggleNextPattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
@@ -2126,7 +2126,7 @@ void AudioEngine::clearNextPatterns() {
 	m_pNextPatterns->clear();
 }
 
-void AudioEngine::flushAndAddNextPatterns( int nPatternNumber ) {
+void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
