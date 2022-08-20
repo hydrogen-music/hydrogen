@@ -148,8 +148,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool effect_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 	bool select_only_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
+	bool select_only_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_next_pattern_promptly(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_and_play_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pan_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
@@ -173,6 +173,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		int m_nLastBpmChangeCCParameter;
 
 	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+	bool nextPatternSelection( int nPatternNumber );
+	bool onlyNextPatternSelection( int nPatternNumber );
 
 	public:
 
