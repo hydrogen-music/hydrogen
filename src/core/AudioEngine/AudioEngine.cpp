@@ -2132,18 +2132,27 @@ void AudioEngine::flushAndAddNextPatterns( int nPatternNumber ) {
 	auto pPatternList = pSong->getPatternList();
 
 	m_pNextPatterns->clear();
+	bool bAlreadyPlaying = false;
 	
-	for ( int ii = 0; ii < m_pPlayingPatterns->size(); ++ii ) {
-		m_pNextPatterns->add( m_pPlayingPatterns->get( ii ) );
-	}
-	
-	// Appending the requested pattern.
 	// Note: we will not perform a bound check on the provided pattern
 	// number. This way the user can use the SELECT_ONLY_NEXT_PATTERN
 	// MIDI or OSC command to flush all playing patterns.
-	auto pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern != nullptr ) {
-		m_pNextPatterns->add( pPattern );
+	auto pRequestedPattern = pPatternList->get( nPatternNumber );
+	
+	for ( int ii = 0; ii < m_pPlayingPatterns->size(); ++ii ) {
+
+		auto pPlayingPattern = m_pPlayingPatterns->get( ii );
+		if ( pPlayingPattern != pRequestedPattern ) {
+			m_pNextPatterns->add( pPlayingPattern );
+		}
+		else if ( pRequestedPattern != nullptr ) {
+			bAlreadyPlaying = true;
+		}
+	}
+	
+	// Appending the requested pattern.
+	if ( ! bAlreadyPlaying && pRequestedPattern != nullptr ) {
+		m_pNextPatterns->add( pRequestedPattern );
 	}
 }
 
