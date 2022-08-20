@@ -33,6 +33,7 @@
 #include <cassert>
 #include <memory>
 #include <iostream>
+#include <set>
 
 
 /** Crash reporter class
@@ -69,15 +70,20 @@ class Reporter : public QObject
 
 	void waitForFinished();
 
+	static std::set<QProcess *> m_children;
+
  public:
 
 	Reporter( QProcess *child );
+	~Reporter();
 
 	/** Report some crash details in a crashing child (mostly, the Logger 'crash context' string) */
 	static void report( void );
 
 	/** Potentially spawn child process */
 	static void spawn( int argc, char *argv[] );
+
+	static void handleSignal( int nSignal );
 
 public slots:
 

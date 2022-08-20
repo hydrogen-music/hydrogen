@@ -19,6 +19,7 @@
  *
  */
 #include <iostream>
+#include <signal.h>
 #include "core/Hydrogen.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Logger.h"
@@ -26,6 +27,8 @@
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
+
+std::set<QProcess *> Reporter::m_children;
 
 using namespace H2Core;
 
@@ -59,6 +62,7 @@ Reporter::Reporter( QProcess *pChild )
 {
 	assert( pChild != nullptr );
 	this->m_pChild = pChild;
+	m_children.insert( pChild );
 
 	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
@@ -66,6 +70,11 @@ Reporter::Reporter( QProcess *pChild )
 			 this, &Reporter::on_readyReadStandardError );
 	connect( pChild, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
 			 this, &Reporter::on_finished );
+}
+
+Reporter::~Reporter()
+{
+	m_children.erase( this->m_pChild );
 }
 
 void Reporter::waitForFinished()
@@ -181,6 +190,28 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 	}
 }
 
+void Reporter::handleSignal( int nSignal )
+{
+	// First disable signal handler to allow normal termination
+	signal( nSignal, SIG_DFL );
+
+	for ( QProcess *pChild : m_children ) {
+#ifndef WIN32
+		kill( pChild->processId(), nSignal );
+#else
+		// On Windows, we can't use kill() to pass along the signal we received, so just use
+		// QProcess::terminate()
+		pChild->terminate();
+#endif
+	}
+
+	raise( nSignal );
+}
+
+static void handleSignal( int nSignal ) {
+	Reporter::handleSignal( nSignal );
+}
+
 void Reporter::spawn(int argc, char *argv[])
 {
 	QStringList arguments;
@@ -194,6 +225,15 @@ void Reporter::spawn(int argc, char *argv[])
 	QProcess subProcess;
 	arguments << "--child";
 	subProcess.start(argv[0], arguments);
+
+	// Signal handler
+	for ( int nSignal : { SIGINT, SIGTERM
+#ifndef WIN32
+						 , SIGHUP
+#endif
+		} ) {
+		signal( nSignal, ::handleSignal );
+	}
 
 	Reporter reporter( &subProcess );
 	reporter.waitForFinished();
