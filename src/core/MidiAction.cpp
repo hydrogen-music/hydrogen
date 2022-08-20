@@ -399,17 +399,27 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 	}
 	
 	bool ok;
-	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pSong->getPatternList()->size() -1 ||
-		row < 0 ) {
-		INFOLOG( QString( "Provided pattern number [%1] out of bound [0,%2]. All patterns will be deselected." ).arg( row )
-				  .arg( pSong->getPatternList()->size() - 1 ) );
+	int nRow = pAction->getParameter1().toInt(&ok,10);
+	if ( nRow > pSong->getPatternList()->size() -1 ||
+		nRow < 0 ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
+			ERRORLOG( QString( "Provided pattern number [%1] out of bound [0,%2]." )
+					  .arg( nRow )
+					  .arg( pSong->getPatternList()->size() - 1 ) );
+			return false;
+		}
+		else {
+			INFOLOG( QString( "Provided pattern number [%1] out of bound [0,%2]. All patterns will be deselected." )
+					 .arg( nRow )
+					 .arg( pSong->getPatternList()->size() - 1 ) );
+		}
 	}
+	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		return select_next_pattern( pAction, pHydrogen );
 	}
 	
-	return pHydrogen->flushAndAddNextPattern( row );
+	return pHydrogen->flushAndAddNextPattern( nRow );
 }
 
 bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
