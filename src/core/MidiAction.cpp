@@ -402,9 +402,8 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 	int row = pAction->getParameter1().toInt(&ok,10);
 	if( row > pSong->getPatternList()->size() -1 ||
 		row < 0 ) {
-		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
+		INFOLOG( QString( "Provided pattern number [%1] out of bound [0,%2]. All patterns will be deselected." ).arg( row )
 				  .arg( pSong->getPatternList()->size() - 1 ) );
-		return false;
 	}
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		return select_next_pattern( pAction, pHydrogen );
