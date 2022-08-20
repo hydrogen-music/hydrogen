@@ -1460,6 +1460,11 @@ void SongEditorPatternList::selectedPatternChangedEvent() {
 	update();
 }
 
+void SongEditorPatternList::stackedPatternsChangedEvent() {
+	createBackground();
+	update();
+}
+
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {

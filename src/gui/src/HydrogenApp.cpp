@@ -852,6 +852,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_NEXT_SHOT:
 				pListener->nextShotEvent();
 				break;
+				
+			case EVENT_STACKED_PATTERNS_CHANGED:
+				pListener->stackedPatternsChangedEvent();
+				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );

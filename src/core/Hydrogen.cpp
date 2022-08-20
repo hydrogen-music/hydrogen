@@ -618,6 +618,7 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->toggleNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_PATTERNS_CHANGED, 0 );
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
@@ -629,6 +630,7 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_PATTERNS_CHANGED, 0 );
 
 		return true;
 
