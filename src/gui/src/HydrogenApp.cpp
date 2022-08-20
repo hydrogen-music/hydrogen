@@ -849,6 +849,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->soundLibraryChangedEvent();
 				break;
 
+			case EVENT_NEXT_SHOT:
+				pListener->nextShotEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
