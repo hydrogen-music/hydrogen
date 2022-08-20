@@ -613,22 +613,24 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 }
 
 
-void Hydrogen::toggleNextPatterns( int nPatternNumber ) {
+void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->toggleNextPatterns( nPatternNumber );
+		m_pAudioEngine->toggleNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_PATTERNS_CHANGED, 0 );
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
 	}
 }
 
-bool Hydrogen::flushAndAddNextPatterns( int nPatternNumber ) {
+bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->flushAndAddNextPatterns( nPatternNumber );
+		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_PATTERNS_CHANGED, 0 );
 
 		return true;
 

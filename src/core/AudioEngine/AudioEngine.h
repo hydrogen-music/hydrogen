@@ -458,14 +458,14 @@ public:
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
 	 * in case it is already present.
 	 */
-	void toggleNextPatterns( int nPatternNumber );
+	void toggleNextPattern( int nPatternNumber );
 	/**
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns as well as
 	 * the whole content of #m_pPlayingPatterns. After the next call
 	 * to updatePlayingPatterns() only @a nPatternNumber will be left
 	 * playing.
 	 */
-	void flushAndAddNextPatterns( int nPatternNumber );
+	void flushAndAddNextPattern( int nPatternNumber );
 
 	/**
 	 * Updates the transport state and all notes in #m_songNoteQueue
