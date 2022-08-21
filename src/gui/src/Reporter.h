@@ -23,13 +23,8 @@
 #define REPORTER_H
 
 #include <QtGui>
-#include <QWidget>
-#include <QApplication>
-#include <QProcess>
-#include <QMessageBox>
-#include <QDesktopServices>
+#include <QtWidgets>
 #include <deque>
-#include <QDebug>
 #include <cassert>
 #include <memory>
 #include <iostream>
