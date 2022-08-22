@@ -263,9 +263,7 @@ private:
 
 
 	bool processPlaybackTrack(int nBufferSize);
-	
-	bool isAnyInstrumentSoloed() const;
-	
+
 	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
 
 	Interpolation::InterpolateMode m_interpolateMode;

@@ -247,6 +247,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	std::vector<std::shared_ptr<Instrument>>::iterator begin();
 	std::vector<std::shared_ptr<Instrument>>::iterator end();
 
+		/** Check if any instrument in the list is solo'd */
+		bool isAnyInstrumentSoloed();
+
 	private:
 		std::vector<std::shared_ptr<Instrument>> __instruments;            ///< the list of instruments
 };

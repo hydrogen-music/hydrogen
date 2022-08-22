@@ -407,6 +407,19 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 
 	return sOutput;
 }
+
+
+bool InstrumentList::isAnyInstrumentSoloed()
+{
+	for ( auto &pInstrument : __instruments ) {
+		if ( pInstrument->is_soloed() ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */
