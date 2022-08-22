@@ -199,6 +199,9 @@ AlsaAudioDriver::~AlsaAudioDriver()
 	if ( m_nXRuns > 0 ) {
 		WARNINGLOG( QString( "%1 xruns" ).arg( m_nXRuns ) );
 	}
+
+	snd_config_update_free_global();
+
 }
 
 

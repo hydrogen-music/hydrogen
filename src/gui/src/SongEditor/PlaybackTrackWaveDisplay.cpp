@@ -51,6 +51,12 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
 	setAcceptDrops(true);
 }
 
+PlaybackTrackWaveDisplay::~PlaybackTrackWaveDisplay()
+{
+	delete m_pBackgroundPixmap;
+}
+
+
 void PlaybackTrackWaveDisplay::dropEvent(QDropEvent* event)
 {
 	const QMimeData* mimeData = event->mimeData();

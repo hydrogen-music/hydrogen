@@ -242,6 +242,8 @@ MainForm::~MainForm()
 	
 	hide();
 
+	delete m_pUndoView;
+
 	if (h2app != nullptr) {
 		delete Playlist::get_instance();
 		delete h2app;

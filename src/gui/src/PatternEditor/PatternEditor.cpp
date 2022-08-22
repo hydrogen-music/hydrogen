@@ -96,6 +96,13 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 }
 
+PatternEditor::~PatternEditor()
+{
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+}
+
 void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
 {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {

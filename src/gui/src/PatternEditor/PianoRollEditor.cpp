@@ -75,6 +75,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 PianoRollEditor::~PianoRollEditor()
 {
 	INFOLOG( "DESTROY" );
+	delete m_pTemp;
 }
 
 
