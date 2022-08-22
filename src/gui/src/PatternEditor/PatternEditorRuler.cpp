@@ -84,6 +84,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 PatternEditorRuler::~PatternEditorRuler() {
 	//infoLog( "DESTROY");
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void PatternEditorRuler::updatePosition( bool bForce ) {

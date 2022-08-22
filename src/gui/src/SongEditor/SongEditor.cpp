@@ -78,6 +78,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pHydrogen( nullptr )
  , m_pAudioEngine( nullptr )
  , m_bEntered( false )
+ , m_pBackgroundPixmap( nullptr )
+ , m_pSequencePixmap( nullptr )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -123,6 +125,12 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 SongEditor::~SongEditor()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	if ( m_pSequencePixmap ) {
+		delete m_pSequencePixmap;
+	}
 }
 
 
@@ -1089,7 +1097,12 @@ void SongEditor::createBackground()
 		if (nNewHeight == 0) {
 			nNewHeight = 1;	// the pixmap should not be empty
 		}
-
+		if ( m_pBackgroundPixmap ) {
+			delete m_pBackgroundPixmap;
+		}
+		if ( m_pSequencePixmap ) {
+			delete m_pSequencePixmap;
+		}
 		m_pBackgroundPixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		m_pSequencePixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		this->resize( QSize( width(), nNewHeight ) );
@@ -1140,7 +1153,9 @@ void SongEditor::createBackground()
 void SongEditor::cleanUp(){
 
 	delete m_pBackgroundPixmap;
+	m_pBackgroundPixmap = nullptr;
 	delete m_pSequencePixmap;
+	m_pSequencePixmap = nullptr;
 }
 
 // Update the GridCell representation.
@@ -1436,6 +1451,10 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 SongEditorPatternList::~SongEditorPatternList()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	delete m_pDragScroller;
 }
 
 
@@ -2421,6 +2440,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 SongEditorPositionRuler::~SongEditorPositionRuler() {
 	m_pTimer->stop();
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void SongEditorPositionRuler::relocationEvent() {
