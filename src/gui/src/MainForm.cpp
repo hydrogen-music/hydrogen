@@ -73,7 +73,7 @@
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-#include <lash/lash.h>
+include <lash-1.0/lash/lash.h>
 #include <core/Lash/LashClient.h>
 #endif
 
