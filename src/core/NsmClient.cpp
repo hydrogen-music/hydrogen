@@ -217,27 +217,25 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 			// In case of a symbolic link, the target it is pointing to
 			// has to be resolved. If drumkit is a real folder, we will
 			// search for a drumkit.xml therein.
-			QString sDrumkitXMLPath;
+			QString sLinkedDrumkitPath;
 			if ( linkedDrumkitPathInfo.isSymLink() ) {
-				sDrumkitXMLPath = QString( "%1/%2" )
-					.arg( linkedDrumkitPathInfo.symLinkTarget() )
-					.arg( "drumkit.xml" );
+				sLinkedDrumkitPath = QString( "%1" )
+					.arg( linkedDrumkitPathInfo.symLinkTarget() );
 			} else {
-				sDrumkitXMLPath = QString( "%1/%2" )
-					.arg( sLinkedDrumkitPath ).arg( "drumkit.xml" );
+				sLinkedDrumkitPath = QString( "%1" )
+					.arg( sLinkedDrumkitPath );
 			}
-		
-			const QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
-			if ( drumkitXMLInfo.exists() ) {
+	    
+			if ( H2Core::Filesystem::drumkit_valid( sLinkedDrumkitPath ) ) {
 
-				const QString sDrumkitNameXML = H2Core::Drumkit::loadNameFrom( sDrumkitXMLPath );
+				const QString sLinkedDrumkitName = H2Core::Drumkit::loadNameFrom( sLinkedDrumkitPath );
 	
-				if ( sDrumkitNameXML == sDrumkitName ) {
+				if ( sLinkedDrumkitName == sDrumkitName ) {
 					bRelinkDrumkit = false;
 				}
 				else {
 					NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
-										   .arg( sDrumkitNameXML )
+										   .arg( sLinkedDrumkitName )
 										   .arg( sDrumkitName ) );
 				}
 			}
