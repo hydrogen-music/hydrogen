@@ -974,9 +974,24 @@ void SongEditor::updateWidget() {
 	m_previousMousePosition = m_currentMousePosition;
 }
 
+
 void SongEditor::updatePosition( float fTick ) {
-	m_fTick = fTick;
-	update();
+	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
+		m_fTick = fTick;
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nOffset = Skin::getPlayheadShaftOffset();
+		QRect updateRect( nX + nOffset -2, 0, 4, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+	}
 }
 
 void SongEditor::paintEvent( QPaintEvent *ev )
@@ -3125,10 +3140,22 @@ void SongEditorPositionRuler::updatePosition()
 	m_pAudioEngine->unlock();
 
 	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
 
 		m_fTick = fTick;
-	
-		update();
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+
+		QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+
 		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 		if ( pSongEditorPanel != nullptr ) {
 			pSongEditorPanel->getSongEditor()->updatePosition( fTick );
