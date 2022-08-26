@@ -656,6 +656,13 @@ bool CoreActionController::saveSong() {
 				  .arg( sSongPath ) );
 		return false;
 	}
+
+#ifdef H2CORE_HAVE_OSC
+	if ( pHydrogen->isUnderSessionManagement() &&
+		 pHydrogen->getSessionDrumkitNeedsRelinking() ) {
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
+	}
+#endif
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
@@ -1004,7 +1011,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 			// management.
 			if ( pHydrogen->isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-				NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
+				pHydrogen->setSessionDrumkitNeedsRelinking( true );
 #endif
 			}
 

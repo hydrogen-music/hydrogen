@@ -290,6 +290,8 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 			}
 		}
 	}
+
+	pHydrogen->setSessionDrumkitNeedsRelinking( false );
 }
 
 void NsmClient::printError( const QString& msg ) {

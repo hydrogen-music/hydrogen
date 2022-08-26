@@ -111,6 +111,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
+					 , m_bSessionDrumkitNeedsRelinking( false )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );

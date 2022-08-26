@@ -443,6 +443,9 @@ void			previewSample( Sample *pSample );
 		supported.*/
 	bool			isUnderSessionManagement() const;
 
+	void			setSessionDrumkitNeedsRelinking( bool bNeedsRelinking );
+	bool			getSessionDrumkitNeedsRelinking() const;
+
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
@@ -554,12 +557,29 @@ private:
 	int				m_nSelectedPatternNumber;
 
 	/**
+	 * When using Hydrogen with session management it tries to keep
+	 * all central files within a session folder instead of using the
+	 * once found at the data folder at either user or system
+	 * level. This allows to zip and transfer a session without
+	 * requiring to move the whole data folder as well.
+	 *
+	 * As sample files can be quite large in both size and number the
+	 * drumkit is only linked into the session folder.
+	 *
+	 * This variable indicates whether a different drumkit was loaded
+	 * into the current song (by either directly loading a drumkit or
+	 * replacing the entire song) and thus a relinking is required
+	 * upon saving the song.
+	 */
+	bool			m_bSessionDrumkitNeedsRelinking;
+
+	/**
 	 * Onset of the recorded last in addRealtimeNote(). It is used to
 	 * determine the custom length of the note in case the note on
 	 * event is followed by a note off event.
 	 */
 	int				m_nLastRecordedMIDINoteTick;
-	/*
+	/**
 	 * Central instance of the audio engine. 
 	 */
 	AudioEngine*	m_pAudioEngine;
@@ -625,6 +645,13 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
+}
+
+inline void Hydrogen::setSessionDrumkitNeedsRelinking( bool bNeedsRelinking ) {
+	m_bSessionDrumkitNeedsRelinking = bNeedsRelinking;
+}
+inline bool Hydrogen::getSessionDrumkitNeedsRelinking() const {
+	return m_bSessionDrumkitNeedsRelinking;
 }
 };
 
