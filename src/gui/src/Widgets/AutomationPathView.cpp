@@ -52,6 +52,13 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	createBackground();
 }
 
+AutomationPathView::~AutomationPathView()
+{
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+}
+
 void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		createBackground();
@@ -164,8 +171,8 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 width() != m_pBackgroundPixmap->width() ||
-		 height() != m_pBackgroundPixmap->height() ) {
+		 width() * pixelRatio != m_pBackgroundPixmap->width() ||
+		 height() * pixelRatio != m_pBackgroundPixmap->height() ) {
 		createBackground();
 	}
 	

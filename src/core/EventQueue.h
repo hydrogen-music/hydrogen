@@ -55,6 +55,12 @@ enum EventType {
 	 * A pattern was added, deleted, or modified.
 	 */
 	EVENT_PATTERN_MODIFIED,
+	/**
+	 * Used in stacked pattern mode to indicate that a either
+	 * AudioEngine::m_pNextPatterns or AudioEngine::m_pPlayingPatterns
+	 * changed.
+	 */
+	EVENT_STACKED_PATTERNS_CHANGED,
 	/** Another pattern was selected via MIDI or the GUI without
 	 * affecting the audio transport. While the selection in the
 	 * former case already happens in the GUI, this event will be used
@@ -172,7 +178,8 @@ enum EventType {
 	EVENT_SONG_SIZE_CHANGED,
 	EVENT_DRIVER_CHANGED,
 	EVENT_PLAYBACK_TRACK_CHANGED,
-	EVENT_SOUND_LIBRARY_CHANGED
+	EVENT_SOUND_LIBRARY_CHANGED,
+	EVENT_NEXT_SHOT
 };
 
 /** Basic building block for the communication between the core of

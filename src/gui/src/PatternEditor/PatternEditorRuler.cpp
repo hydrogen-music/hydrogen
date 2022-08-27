@@ -84,6 +84,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 PatternEditorRuler::~PatternEditorRuler() {
 	//infoLog( "DESTROY");
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void PatternEditorRuler::updatePosition( bool bForce ) {
@@ -119,13 +122,24 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 	int nTick = pAudioEngine->getPatternTickPosition();
 
 	if ( nTick != m_nTick || bForce ) {
+		int nDiff = m_fGridWidth * (nTick - m_nTick);
 		m_nTick = nTick;
-		update();
+		int nX = static_cast<int>( static_cast<float>(PatternEditor::nMargin) + 1 +
+								   m_nTick * static_cast<float>(m_fGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+		update( updateRect );
+		if ( nDiff > 1 || nDiff < -1 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -nDiff, 0 );
+			update( updateRect );
+		}
 
 		if ( ! bIsSelectedPatternPlaying ) {
 			nTick = -1;
 		}
-		
+
 		auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 		if ( pPatternEditorPanel != nullptr ) {
 			pPatternEditorPanel->getDrumPatternEditor()->updatePosition( nTick );

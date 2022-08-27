@@ -643,6 +643,17 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( pAction );
 }
 
+void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
+{
+	INFOLOG( "processing message" );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_ONLY_NEXT_PATTERN");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Null song handling done in MidiActionManager.
+	pActionManager->handleAction( pAction );
+}
+
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
@@ -1279,6 +1290,7 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/SELECT_ONLY_NEXT_PATTERN", "f", SELECT_ONLY_NEXT_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "", BEATCOUNTER_Handler);

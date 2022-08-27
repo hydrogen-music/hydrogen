@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include "EventListener.h"
 
 /// Shot List
 ///
@@ -45,7 +46,7 @@
 /// application to allow a lot of flexibility in how screenshots are set up in shot lists.
 ///
 /** \ingroup docGUI*/
-class ShotList : public QObject {
+class ShotList : public QObject, public EventListener {
 	Q_OBJECT
 
 	/// Find a widget which inherits the named class
@@ -93,12 +94,12 @@ private:
 	void shoot( QString s );
 
 public:
-	ShotList( QStringList shots ) {
-		m_shots = shots;
-	}
+	ShotList( QStringList shots );
 	ShotList( QString sShotsFilename );
+	~ShotList();
 
 	void shoot();
+	void nextShotEvent() override;
 
 public slots:
 	void nextShot( void );

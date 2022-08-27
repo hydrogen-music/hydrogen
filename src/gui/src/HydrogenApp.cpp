@@ -204,6 +204,13 @@ HydrogenApp::~HydrogenApp()
 	delete m_pDirector;
 	delete m_pSampleEditor;
 
+	if ( m_pTab ) {
+		delete m_pTab;
+	}
+	if ( m_pSplitter ) {
+		delete m_pSplitter;
+	}
+
 	#ifdef H2CORE_HAVE_LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		delete m_pLadspaFXProperties[nFX];
@@ -847,6 +854,14 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_SOUND_LIBRARY_CHANGED:
 				pListener->soundLibraryChangedEvent();
+				break;
+
+			case EVENT_NEXT_SHOT:
+				pListener->nextShotEvent();
+				break;
+				
+			case EVENT_STACKED_PATTERNS_CHANGED:
+				pListener->stackedPatternsChangedEvent();
 				break;
 
 			default:

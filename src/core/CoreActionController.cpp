@@ -1499,7 +1499,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// _before_ updating the playing patterns.
 	for ( int ii = 0; ii < pNextPatterns->size(); ++ii ) {
 		if ( pNextPatterns->get( ii ) == pPattern ) {
-			pAudioEngine->toggleNextPatterns( nPatternNumber );
+			pAudioEngine->toggleNextPattern( nPatternNumber );
 		}
 	}
 	

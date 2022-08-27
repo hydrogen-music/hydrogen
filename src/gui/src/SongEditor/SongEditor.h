@@ -281,6 +281,7 @@ class SongEditorPatternList :  public QWidget
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 	virtual void selectedPatternChangedEvent() override;
+	virtual void stackedPatternsChangedEvent() override;
 
 	public slots:
 		void patternPopup_edit();
