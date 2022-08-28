@@ -346,7 +346,7 @@ for:
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
           %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
-          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.2.dll
+          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.2.0.dll
 
           REM Chocolatey installs JACK dlls in c:\Windows, so
           REM copy_third_party_libs.py thinks it's a system lib and
