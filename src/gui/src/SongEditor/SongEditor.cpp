@@ -78,6 +78,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pHydrogen( nullptr )
  , m_pAudioEngine( nullptr )
  , m_bEntered( false )
+ , m_pBackgroundPixmap( nullptr )
+ , m_pSequencePixmap( nullptr )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -123,6 +125,12 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 SongEditor::~SongEditor()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	if ( m_pSequencePixmap ) {
+		delete m_pSequencePixmap;
+	}
 }
 
 
@@ -966,9 +974,24 @@ void SongEditor::updateWidget() {
 	m_previousMousePosition = m_currentMousePosition;
 }
 
+
 void SongEditor::updatePosition( float fTick ) {
-	m_fTick = fTick;
-	update();
+	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
+		m_fTick = fTick;
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nOffset = Skin::getPlayheadShaftOffset();
+		QRect updateRect( nX + nOffset -2, 0, 4, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+	}
 }
 
 void SongEditor::paintEvent( QPaintEvent *ev )
@@ -1089,7 +1112,12 @@ void SongEditor::createBackground()
 		if (nNewHeight == 0) {
 			nNewHeight = 1;	// the pixmap should not be empty
 		}
-
+		if ( m_pBackgroundPixmap ) {
+			delete m_pBackgroundPixmap;
+		}
+		if ( m_pSequencePixmap ) {
+			delete m_pSequencePixmap;
+		}
 		m_pBackgroundPixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		m_pSequencePixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		this->resize( QSize( width(), nNewHeight ) );
@@ -1140,7 +1168,9 @@ void SongEditor::createBackground()
 void SongEditor::cleanUp(){
 
 	delete m_pBackgroundPixmap;
+	m_pBackgroundPixmap = nullptr;
 	delete m_pSequencePixmap;
+	m_pSequencePixmap = nullptr;
 }
 
 // Update the GridCell representation.
@@ -1436,6 +1466,10 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 SongEditorPatternList::~SongEditorPatternList()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	delete m_pDragScroller;
 }
 
 
@@ -2421,6 +2455,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 SongEditorPositionRuler::~SongEditorPositionRuler() {
 	m_pTimer->stop();
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void SongEditorPositionRuler::relocationEvent() {
@@ -3103,10 +3140,22 @@ void SongEditorPositionRuler::updatePosition()
 	m_pAudioEngine->unlock();
 
 	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
 
 		m_fTick = fTick;
-	
-		update();
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+
+		QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+
 		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 		if ( pSongEditorPanel != nullptr ) {
 			pSongEditorPanel->getSongEditor()->updatePosition( fTick );

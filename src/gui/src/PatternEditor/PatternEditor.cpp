@@ -27,6 +27,7 @@
 #include "../HydrogenApp.h"
 #include "../EventListener.h"
 #include "../UndoActions.h"
+#include "../Skin.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -94,6 +95,13 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+}
+
+PatternEditor::~PatternEditor()
+{
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
@@ -876,8 +884,27 @@ void PatternEditor::stackedModeActivationEvent( int nValue )
 }
 
 void PatternEditor::updatePosition( float fTick ) {
+	if ( m_nTick == (int)fTick ) {
+		return;
+	}
+
+	float fDiff = m_fGridWidth * (fTick - m_nTick);
+
 	m_nTick = fTick;
-	update();
+
+	int nOffset = Skin::getPlayheadShaftOffset();
+	int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
+							  static_cast<float>(m_nTick) *
+							  m_fGridWidth );
+
+	QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+	update( updateRect );
+	if ( fDiff > 1.0 || fDiff < -1.0 ) {
+		// New cursor is far enough away from the old one that the single update rect won't cover both. So
+		// update at the old location as well.
+		updateRect.translate( -fDiff, 0 );
+		update( updateRect );
+	}
 }
 
 void PatternEditor::storeNoteProperties( const Note* pNote ) {

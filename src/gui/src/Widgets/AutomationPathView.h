@@ -54,6 +54,7 @@ class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPat
 
 public:
 	AutomationPathView(QWidget *parent = nullptr);
+	~AutomationPathView();
 
 	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
 	void setAutomationPath(H2Core::AutomationPath *path, bool bUpdate = true);

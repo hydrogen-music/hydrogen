@@ -82,6 +82,8 @@ public:
 	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
 
+	~PatternEditor();
+
 
 	//! Set the editor grid resolution, dividing a whole note into `res` subdivisions. 
 	void setResolution( uint res, bool bUseTriplets );

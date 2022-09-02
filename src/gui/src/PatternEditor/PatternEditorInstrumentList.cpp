@@ -765,6 +765,7 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 {
 	//INFOLOG( "DESTROY" );
 	m_pUpdateTimer->stop();
+	delete m_pDragScroller;
 }
 
 

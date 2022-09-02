@@ -600,7 +600,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 		float cost_track_R = 1.0f;
 		
 		bool isMutedForExport = (pHydrogen->getIsExportSessionActive() && !pInstr->is_currently_exported());
-		bool isMutedBecauseOfSolo = (isAnyInstrumentSoloed() && !pInstr->is_soloed());
+		bool bAnyInstrumentIsSoloed = pSong->getInstrumentList()->isAnyInstrumentSoloed();
+		bool isMutedBecauseOfSolo = (bAnyInstrumentIsSoloed && !pInstr->is_soloed());
 		
 		/*
 		 *  Is instrument muted?
@@ -1399,24 +1400,6 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
-}
-
-bool Sampler::isAnyInstrumentSoloed() const
-{
-	Hydrogen*		pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> 			pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getInstrumentList();
-	bool			bAnyInstrumentIsSoloed = false;
-	
-	for(int i=0; i < pInstrList->size(); i++) {
-		std::shared_ptr<Instrument> pInstr = pInstrList->get( i );
-		
-		if( pInstr->is_soloed() )	{
-			bAnyInstrumentIsSoloed = true;
-		}
-	}
-	
-	return bAnyInstrumentIsSoloed;
 }
 
 bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )

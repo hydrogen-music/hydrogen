@@ -1772,8 +1772,11 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		if ( val_R > m_fMasterPeak_R ) {
 			m_fMasterPeak_R = val_R;
 		}
+	}
 
-		for ( auto pComponent : *pSong->getComponents() ) {
+	for ( auto component : *pSong->getComponents() ) {
+		DrumkitComponent *pComponent = component.get();
+		for ( unsigned i = 0; i < nFrames; ++i ) {
 			float compo_val_L = pComponent->get_out_L(i);
 			float compo_val_R = pComponent->get_out_R(i);
 
