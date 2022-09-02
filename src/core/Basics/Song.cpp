@@ -1197,6 +1197,8 @@ void Song::setPanLawKNorm( float fKNorm ) {
 }
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
 	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );
@@ -1285,7 +1287,7 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 
 	// Load samples of all instruments.
 	m_pInstrumentList->load_samples(
-		Hydrogen::get_instance()->getAudioEngine()->getBpm() );
+		pHydrogen->getAudioEngine()->getBpm() );
 
 }
 

@@ -34,6 +34,7 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
+#include <core/NsmClient.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "AboutDialog.h"
@@ -614,8 +615,8 @@ void MainForm::action_file_new()
 		// of undoing the action. Therefore, a warning popup will
 		// check whether the action was intentional.
 		QMessageBox confirmationBox;
-		confirmationBox.setText( "Replace current song with empty one?" );
-		confirmationBox.setInformativeText( "You won't be able to undo this action! Please export the current song from the session first in order to keep it." );
+		confirmationBox.setText( tr( "Replace current song with empty one?" ) );
+		confirmationBox.setInformativeText( tr( "You won't be able to undo this action after saving the new song! Please export the current song from the session first in order to keep it." ) );
 		confirmationBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 		confirmationBox.setDefaultButton( QMessageBox::No );
 		
@@ -643,6 +644,10 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->openSong( pSong );
+	
+	// The drumkit of the new song will linked into the session
+	// folder during the next song save.
+	pHydrogen->setSessionDrumkitNeedsRelinking( true );
 }
 
 
@@ -655,7 +660,32 @@ void MainForm::action_file_save_as()
 	if ( pSong == nullptr ) {
 		return;
 	}
+
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
+	if ( bUnderSessionManagement &&
+		 pHydrogen->getSessionDrumkitNeedsRelinking() ) {
+		// When used under session management "save as" will be used
+		// for exporting and Hydrogen is allowed to
+		// be in a transient state which is not ready for export. This
+		// way the user is able to undo e.g. loading a drumkit by
+		// closing the session without storing and the overall state
+		// is not getting bricked during unexpected shut downs.
+		//
+		// We will prompt for saving the changes applied to the
+		// drumkit usage and require the user to exit this transient
+		// state first.
+		if ( QMessageBox::information( this, "Hydrogen",
+									   tr( "\nThere have been recent changes to the drumkit settings.\n"
+										   "The session needs to be saved before exporting will can be continued.\n" ),
+		                               QMessageBox::Save | QMessageBox::Cancel,
+		                               QMessageBox::Save )
+		     == QMessageBox::Cancel ) {
+			INFOLOG( "Exporting cancelled at relinking" );
+			return;
+		}
+
+		action_file_save();
+	}
 
 	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -677,31 +707,52 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	QString defaultFilename;
-	QString lastFilename = pSong->getFilename();
+	QString sDefaultFilename;
 
-	if ( lastFilename == Filesystem::empty_song_path() ) {
-		defaultFilename = Filesystem::default_song_name();
-	} else if ( lastFilename.isEmpty() ) {
-		defaultFilename = pHydrogen->getSong()->getName();
+	// Cachce a couple of things we have to restore when under session
+	// management.
+	QString sLastFilename = pSong->getFilename();
+	QString sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+
+	if ( sLastFilename == Filesystem::empty_song_path() ) {
+		sDefaultFilename = Filesystem::default_song_name();
+	} else if ( sLastFilename.isEmpty() ) {
+		sDefaultFilename = pHydrogen->getSong()->getName();
 	} else {
-		QFileInfo fileInfo( lastFilename );
-		defaultFilename = fileInfo.completeBaseName();
+		QFileInfo fileInfo( sLastFilename );
+		sDefaultFilename = fileInfo.completeBaseName();
 	}
-	defaultFilename += Filesystem::songs_ext;
+	sDefaultFilename += Filesystem::songs_ext;
 
-	fd.selectFile( defaultFilename );
+	fd.selectFile( sDefaultFilename );
 
 	if (fd.exec() == QDialog::Accepted) {
-		QString filename = fd.selectedFiles().first();
+		QString sNewFilename = fd.selectedFiles().first();
 
-		if ( !filename.isEmpty() ) {
+		if ( ! sNewFilename.isEmpty() ) {
 			Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-			QString sNewFilename = filename;
-			if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
-				filename += Filesystem::songs_ext;
+			if ( ! sNewFilename.endsWith( Filesystem::songs_ext ) ) {
+				sNewFilename += Filesystem::songs_ext;
 			}
+
+#ifdef H2CORE_HAVE_OSC
+			// In a session all main samples (last loaded drumkit) are
+			// taken from the session folder itself (either via a
+			// symlink or a copy of the whole drumkit). When exporting
+			// a song, these "local" references have to be replaced by
+			// global ones (drumkits in the system's or user's data
+			// folder).
+			if ( bUnderSessionManagement ) {
+				pHydrogen->setSessionIsExported( true );
+				int nRet = NsmClient::dereferenceDrumkit( pSong );
+				if ( nRet == -2 ) {
+					QMessageBox::warning( this, "Hydrogen",
+										  tr( "Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly." )
+										  .arg( pSong->getLastLoadedDrumkitName() ) );
+				}
+			}
+#endif
 
 			// We do not use the CoreActionController::saveSongAs
 			// function directly since action_file_save as does some
@@ -710,15 +761,19 @@ void MainForm::action_file_save_as()
 			action_file_save( sNewFilename );
 		}
 	
-		// When Hydrogen is under session management, the file name
-		// provided by the NSM server has to be preserved.
+		// When Hydrogen is under session management, we only copy a
+		// backup of the song to a different place but keep working on
+		// the original.
 		if ( bUnderSessionManagement ) {
-			pSong->setFilename( lastFilename );
-			h2app->showStatusBarMessage( tr("Song exported as: ") + defaultFilename );
-		} else {
-			h2app->showStatusBarMessage( tr("Song saved as: ") + defaultFilename );
+			pSong->setFilename( sLastFilename );
+			NsmClient::replaceDrumkitPath( pSong, sLastLoadedDrumkitPath );
+			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFilename );
+			pHydrogen->setSessionIsExported( false );
 		}
-	
+		else {
+			h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
+		}
+		
 		h2app->updateWindowTitle();
 	}
 }

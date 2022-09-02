@@ -174,7 +174,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	if ( bFull ) {
 		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
 	} else {
-		sFilename = get_sample()->get_filename();
+		sFilename = pSample->get_filename();
 	}
 	
 	layer_node.write_string( "filename", sFilename );

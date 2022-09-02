@@ -121,9 +121,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * the current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * \param pSong New Song.
+		 * \param bRelinking Whether the drumkit last loaded should be
+		 * relinked when under session management. This flag is used
+		 * to distinguish between the regular load of a song file
+		 * within a session and its replacement by another song (which
+		 * requires an update of the linked drumkit).
 		 * \return true on success
 		 */
-		bool openSong( std::shared_ptr<Song> pSong );
+		bool openSong( std::shared_ptr<Song> pSong, bool bRelinking = true );
 		/**
 		 * Saves the current #H2Core::Song.
 		 *
@@ -394,9 +399,14 @@ private:
 		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * \param pSong Pointer to the #H2Core::Song to set.
+		 * \param bRelinking Whether the drumkit last loaded should be
+		 * relinked when under session management. This flag is used
+		 * to distinguish between the regular load of a song file
+		 * within a session and its replacement by another song (which
+		 * requires an update of the linked drumkit).
 		 * \return true on success
 		 */
-		bool setSong( std::shared_ptr<Song> pSong );
+		bool setSong( std::shared_ptr<Song> pSong, bool bRelinking = true );
 
 	/**
 	 * Loads the drumkit specified in @a sDrumkitPath.

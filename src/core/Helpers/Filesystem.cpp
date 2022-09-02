@@ -745,7 +745,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		
 		QString sDrumkitPath = QString( "%1/%2" )
-			.arg( NsmClient::get_instance()->m_sSessionFolderPath )
+			.arg( NsmClient::get_instance()->getSessionFolderPath() )
 			.arg( "drumkit" );
 		
 		// If the path is symbolic link, dereference it.

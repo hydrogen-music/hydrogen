@@ -212,6 +212,8 @@ class Sample : public H2Core::Object<Sample>
 		const QString get_filename() const;
 		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
+		/** \param filename sets #__filepath*/
+		void set_filepath( const QString& sFilepath );
 		/**
 		 * #__frames setter
 		 * \param value the new value for #__frames
@@ -349,6 +351,11 @@ inline void Sample::unload()
 inline bool Sample::is_empty() const
 {
 	return ( __data_l == 0 && __data_r == 0 );
+}
+
+inline void Sample::set_filepath( const QString& sFilepath )
+{
+	__filepath = sFilepath;
 }
 
 inline const QString Sample::get_filepath() const

@@ -122,8 +122,13 @@ public:
 		/**
 		 * Sets the current song #__song to @a newSong.
 		 * \param newSong Pointer to the new Song object.
+		 * \param bRelinking Whether the drumkit last loaded should be
+		 * relinked when under session management. This flag is used
+		 * to distinguish between the regular load of a song file
+		 * within a session and its replacement by another song (which
+		 * requires an update of the linked drumkit).
 		 */
-		void			setSong	( std::shared_ptr<Song> newSong );
+		void			setSong	( std::shared_ptr<Song> newSong, bool bRelinking = true );
 
 	/**
 	 * Find a PatternList/column corresponding to the supplied tick
@@ -445,6 +450,8 @@ void			previewSample( Sample *pSample );
 
 	void			setSessionDrumkitNeedsRelinking( bool bNeedsRelinking );
 	bool			getSessionDrumkitNeedsRelinking() const;
+	void			setSessionIsExported( bool bIsExported );
+	bool			getSessionIsExported() const;
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -572,6 +579,11 @@ private:
 	 * upon saving the song.
 	 */
 	bool			m_bSessionDrumkitNeedsRelinking;
+	/**
+	 * Indicates whether NSM session is saved or exported when entering
+	 * the CoreActionController::saveSong() function.
+	 */
+	bool			m_bSessionIsExported;
 
 	/**
 	 * Onset of the recorded last in addRealtimeNote(). It is used to
@@ -652,6 +664,12 @@ inline void Hydrogen::setSessionDrumkitNeedsRelinking( bool bNeedsRelinking ) {
 }
 inline bool Hydrogen::getSessionDrumkitNeedsRelinking() const {
 	return m_bSessionDrumkitNeedsRelinking;
+}
+inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
+	m_bSessionIsExported = bSessionIsExported;
+}
+inline bool Hydrogen::getSessionIsExported() const {
+	return m_bSessionIsExported;
 }
 };
 

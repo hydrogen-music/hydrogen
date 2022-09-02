@@ -112,6 +112,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bSessionDrumkitNeedsRelinking( false )
+					 , m_bSessionIsExported( false )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -283,7 +284,7 @@ void Hydrogen::loadPlaybackTrack( QString sFilename )
 	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::setSong( std::shared_ptr<Song> pSong )
+void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 {
 	assert ( pSong );
 
@@ -308,7 +309,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			pSong->setFilename( pCurrentSong->getFilename() );
 		}
 		removeSong();
-		// delete pCurrentSong;
 	}
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
@@ -328,8 +328,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	m_pCoreActionController->initExternalControlInterfaces();
 
 #ifdef H2CORE_HAVE_OSC
-	if ( isUnderSessionManagement() ) {
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
+	if ( isUnderSessionManagement() && bRelinking ) {
+		setSessionDrumkitNeedsRelinking( true );
 	}
 #endif
 }
