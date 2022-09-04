@@ -368,5 +368,11 @@ void MidiTable::updateRow( int nRow ) {
 		} else {
 			ERRORLOG( QString( "Unable to find MIDI action [%1]" ).arg( sActionType ) );
 		}
+
+		// Relative changes should allow for both increasing and
+		// decreasing the pattern number.
+		if ( sActionType == "SELECT_NEXT_PATTERN_RELATIVE" ) {
+			pActionSpinner1->setMinimum( -1 * pActionSpinner1->maximum() );
+		}
 	}
 }

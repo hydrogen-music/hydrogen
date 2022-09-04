@@ -1796,6 +1796,17 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		// special processing for key press
 		QKeyEvent *k = (QKeyEvent *)e;
 
+		if ( k->matches( QKeySequence::StandardKey::Undo ) ) {
+			k->accept();
+			action_undo();
+			return true;
+		} else if ( k->matches( QKeySequence::StandardKey::Redo ) ) {
+			k->accept();
+			action_redo();
+			return true;
+		}
+
+
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
 		switch (k->key()) {
 		case Qt::Key_Space:
