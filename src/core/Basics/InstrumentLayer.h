@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <core/Object.h>
+#include <core/License.h>
 
 namespace H2Core
 {
@@ -87,7 +88,7 @@ namespace H2Core
 		 * Calls the #H2Core::Sample::load()
 		 * member function of #__sample.
 		 */
-		void load_sample();
+		void load_sample( float fBpm = 120 );
 		/*
 		 * unload sample and replace it with an empty one
 		 */
@@ -96,19 +97,26 @@ namespace H2Core
 		/**
 		 * save the instrument layer within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param bFull Whether to write all parameters of the
+		 * contained #Sample as well. This will be done when storing
+		 * an #Instrument as part of a #Song but not when storing
+		 * as part of a #Drumkit.
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, bool bFull = false );
 		/**
 		 * load an instrument layer from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit data
+		 * \param pNode the XMLDode to read from
+		 * \param sDrumkitPath the directory holding the drumkit data
+		 * \param drumkitLicense License assigned to all #Sample
+		 * contain in the loaded #InstrumentLayer.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return a new InstrumentLayer instance
 		 */
-		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* node,
-														   const QString& dk_path,
+		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* pNode,
+														   const QString& sDrumkitPath,
+														   const License& drumkitLicense = License(),
 														   bool bSilent = false );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

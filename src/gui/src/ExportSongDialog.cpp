@@ -24,6 +24,7 @@
 #include <QProgressBar>
 #include <QLabel>
 
+#include "CommonStrings.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
@@ -137,7 +138,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 ExportSongDialog::~ExportSongDialog()
 {
-	HydrogenApp::get_instance()->removeEventListener( this );
+	if ( auto pH2App = HydrogenApp::get_instance() ) {
+		pH2App->removeEventListener( this );
+	}
 }
 
 QString ExportSongDialog::createDefaultFilename()
@@ -299,9 +302,83 @@ void ExportSongDialog::on_okBtn_clicked()
 	}
 	
 	saveSettingsToPreferences();
-	
+
+	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
+
+	// License related export warnings
+	if ( pPref->m_bShowExportSongLicenseWarning ) {
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		
+		QMessageBox licenseWarning( this );
+
+		auto drumkitContent =
+			pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
+
+		bool bHasAttribution = false;
+		bool bIsCopyleft = false;
+		QStringList licenses;
+		QString sLicense;
+		for ( const auto& ccontent : drumkitContent ) {
+			if ( ccontent->m_license.hasAttribution() ) {
+				sLicense = QString( "%1 (by %2)" )
+					.arg( ccontent->m_license.getLicenseString() )
+					.arg( ccontent->m_license.getCopyrightHolder() );
+				bHasAttribution = true;
+			}
+			else {
+				sLicense = ccontent->m_license.getLicenseString();
+			}
+			
+			if ( ! licenses.contains( sLicense ) ) {
+				licenses << sLicense;
+
+				if ( ccontent->m_license.isCopyleft() ) {
+					bIsCopyleft = true;
+				}
+			}
+		}
+		QString sMsg = QString( tr( "Your song uses samples of the following license:" ) )
+			.append( "<ul>" );
+		for ( const auto& llicense : licenses ) {
+			sMsg.append( QString(  "<li>%1</li>" ).arg( llicense ) );
+		}
+		sMsg.append( "</ul>" );
+
+		if ( bIsCopyleft ) {
+			sMsg.append( QString( "<p>%1</p>" )
+						 .arg( pCommonStrings->getLicenseCopyleftWarning() ) );
+		}
+
+		if ( bHasAttribution ) {
+			sMsg.append( QString( "<p>%1</p>" )
+						 .arg( pCommonStrings->getLicenseAttributionWarning() ) );
+		}
+		
+		sMsg.append( "\n" ).append( tr( "Be sure you satisfy all license conditions and give the required attribution." ) );
+
+		licenseWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		licenseWarning.setText( sMsg );
+		licenseWarning.setTextFormat( Qt::RichText );
+
+		licenseWarning.addButton( pCommonStrings->getButtonOk(),
+								  QMessageBox::AcceptRole );
+		auto pMuteButton =
+			licenseWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			licenseWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+		licenseWarning.exec();
+
+		if ( licenseWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportSongLicenseWarning = false;
+		}
+		else if ( licenseWarning.clickedButton() == pRejectButton ) {
+			return;
+		}
+	}
 
 	m_bOverwriteFiles = false;
 
@@ -402,7 +479,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 void ExportSongDialog::exportTracks()
 {
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -713,7 +790,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->getInstrumentList();
+		auto pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			auto pInstr = pSongInstrList->get( nInstr );

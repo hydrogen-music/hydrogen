@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/LocalFileMng.h>
+#include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
@@ -31,7 +31,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QDateTime>
-#include <QDomDocument>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -255,6 +254,10 @@ bool Filesystem::file_writable( const QString& path, bool silent )
 bool Filesystem::file_executable( const QString& path, bool silent )
 {
 	return check_permissions( path, is_file|is_executable, silent );
+}
+bool Filesystem::dir_exists(  const QString& path, bool silent )
+{
+	return check_permissions( path, is_dir, silent );
 }
 bool Filesystem::dir_readable(  const QString& path, bool silent )
 {
@@ -646,8 +649,32 @@ QStringList Filesystem::drumkit_list( const QString& path )
 	return ok;
 }
 QString Filesystem::drumkit_default_kit() {
-	return DRUMKIT_DEFAULT_KIT;
+	QString sDefaultPath = sys_drumkits_dir() + DRUMKIT_DEFAULT_KIT;
+
+	// GMRockKit does not exist at system-level? Let's pick another
+	// one.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::sys_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::sys_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::sys_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	// There is no drumkit at system-level? Let's pick one from user-space.
+	if ( ! drumkit_valid( sDefaultPath ) ) {
+		for ( const auto& sDrumkitName : Filesystem::usr_drumkit_list() ) {
+			if ( drumkit_valid( Filesystem::usr_drumkits_dir() + sDrumkitName ) ) {
+				sDefaultPath = Filesystem::usr_drumkits_dir() + sDrumkitName;
+				break;
+			}
+		}
+	}
+
+	return sDefaultPath;
 }
+
 QStringList Filesystem::sys_drumkit_list( )
 {
 	return drumkit_list( sys_drumkits_dir() ) ;
@@ -731,38 +758,22 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 		// drumkit (using its name).
 		QString sDrumkitXMLPath = QString( "%1/%2" )
 				.arg( sDrumkitPath ).arg( "drumkit.xml" );
-		QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
-		if ( drumkitXMLInfo.exists() ) {
-	
-			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
-			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
-	
-			if( nodeList.isEmpty() && ! bSilent ) {
-				NsmClient::printError( "Local drumkit does not seem valid" );
-			} else {
-				QDomNode drumkitInfoNode = nodeList.at( 0 );
-				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
-	
-				if ( sDrumkitNameXML == dk_name ) {
-					// Jackpot. The local drumkit seems legit.	
-					return sDrumkitPath;
-					
-				} else {
-					if ( ! bSilent ) {
-						NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
-											   .arg( sDrumkitNameXML )
-											   .arg( dk_name ) );
-					}
-				}
-			}
-		}
 
+		if ( dk_name == Drumkit::loadNameFrom( sDrumkitXMLPath ) ) {
+				// The local drumkit seems legit.	
+				return sDrumkitPath;
+		}
+		else if ( ! bSilent ) {
+			NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
+								   .arg( sDrumkitXMLPath )
+								   .arg( dk_name ) );
+		}
 	}
 			
 #endif
 	
 	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
-		if( usr_drumkit_list().contains( dk_name ) ){
+		if ( usr_drumkit_list().contains( dk_name ) ){
 			return usr_drumkits_dir() + dk_name;
 		}
 	}
@@ -774,13 +785,14 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	}
 
 	if ( ! bSilent ) {
-		ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
+		ERRORLOG( QString( "drumkit [%1] not found using lookup type [%2]" )
 				  .arg( dk_name )
 				  .arg( static_cast<int>(lookup)));
 	}
 	
 	return QString("");
 }
+	
 QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
 {
 	if ( lookup == Lookup::user || lookup == Lookup::stacked ) {
@@ -941,6 +953,16 @@ void Filesystem::info()
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
 
+QString Filesystem::absolute_path( const QString& sFilename, bool bSilent ) {
+	if ( QFile( sFilename ).exists() ) {
+		return QFileInfo( sFilename ).absoluteFilePath();
+	}
+	else if ( ! bSilent ) {
+		___ERRORLOG( QString( "File [%1] not found" ).arg( sFilename ) );
+	}
+
+	return QString();
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -34,7 +34,7 @@
 #include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange, const QString& sBorderRadius )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange, int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
@@ -49,7 +49,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bUseRedBackground( bUseRedBackground )
 	, m_nFixedFontSize( -1 )
 	, m_bModifyOnChange( bModifyOnChange )
-	, m_sBorderRadius( sBorderRadius )
+	, m_nBorderRadius( nBorderRadius )
 {
 	setFocusPolicy( Qt::NoFocus );
 	
@@ -66,13 +66,13 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setText( sText );
 	}
 
-	if ( m_sBorderRadius.isEmpty() ) {
+	if ( m_nBorderRadius == -1 ) {
 		if ( size.width() <= 12 || size.height() <= 12 ) {
-			m_sBorderRadius = "0";
+			m_nBorderRadius = 0;
 		} else if ( size.width() <= 20 || size.height() <= 20 ) {
-			m_sBorderRadius = "3";
+			m_nBorderRadius = 3;
 		} else {
-			m_sBorderRadius = "5";
+			m_nBorderRadius = 5;
 		}
 	}
 	
@@ -132,7 +132,7 @@ void Button::updateStyleSheet() {
 
 	if ( m_type == Type::Icon ) {
 		// Make background transparent
-		setStyleSheet( "background-color: none" );
+		setStyleSheet( "QPushButton { background-color: none; }" );
 		return;
 	}
 
@@ -264,7 +264,7 @@ QPushButton:disabled:checked:hover { \
 }"
 							)
 				   .arg( textColor.name() )
-				   .arg( m_sBorderRadius )
+				   .arg( m_nBorderRadius )
 				   .arg( backgroundLight.name() )
 				   .arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() )
@@ -479,4 +479,9 @@ void Button::onClick() {
 	if ( m_bModifyOnChange ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
+}
+
+void Button::setBorderRadius( int nBorderRadius ) {
+	m_nBorderRadius = nBorderRadius;
+	updateStyleSheet();
 }

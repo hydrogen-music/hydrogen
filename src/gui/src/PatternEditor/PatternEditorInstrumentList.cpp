@@ -31,7 +31,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
-#include <core/LocalFileMng.h>
 using namespace H2Core;
 
 #include "CommonStrings.h"
@@ -40,7 +39,7 @@ using namespace H2Core;
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
-#include "../Mixer/Mixer.h"
+#include "../MainForm.h"
 #include "../Widgets/Button.h"
 #include "../Skin.h"
 
@@ -81,8 +80,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 							 false, true );
 	m_pMuteBtn->move( 145, 0 );
 	m_pMuteBtn->setChecked(false);
-	m_pMuteBtn->setObjectName( "MuteButton" );
-	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ));
+	m_pMuteBtn->setObjectName( "InstrumentLineMuteButton" );
+	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
@@ -93,8 +92,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 							 false, true );
 	m_pSoloBtn->move( 163, 0 );
 	m_pSoloBtn->setChecked(false);
-	m_pSoloBtn->setObjectName( "SoloButton" );
-	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));
+	m_pSoloBtn->setObjectName( "InstrumentLineSoloButton" );
+	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
 	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
 								   "warning.svg", "", false, QSize(),
@@ -102,7 +101,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 								   true );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
-	connect(m_pSampleWarning, SIGNAL( pressed() ), this, SLOT( sampleWarningClicked() ));
+	connect(m_pSampleWarning, SIGNAL( clicked() ), this, SLOT( sampleWarningClicked() ));
 
 
 	// Popup menu
@@ -131,7 +130,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
+	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, [=](){
+		HydrogenApp::get_instance()->getMainForm()->
+			functionDeleteInstrument( m_nInstrumentNumber );} );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 		// Reset the clicked row once the popup is closed by clicking at
@@ -299,8 +300,19 @@ void InstrumentLine::muteClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+	
+	auto pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( m_nInstrumentNumber ) );
+		return;
+	}
+	
 	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
 	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
@@ -311,7 +323,25 @@ void InstrumentLine::muteClicked()
 
 void InstrumentLine::soloClicked()
 {
-	HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrumentNumber );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+	
+	auto pInstrList = pSong->getInstrumentList();
+	auto pInstr = pInstrList->get( m_nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( m_nInstrumentNumber ) );
+		return;
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
+
+	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
+	pCoreActionController->setStripIsSoloed( m_nInstrumentNumber, !pInstr->is_soloed() );
 }
 
 void InstrumentLine::sampleWarningClicked()
@@ -340,6 +370,10 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
+		if ( pInstr == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		const float fPitch = pInstr->get_pitch_offset();
 
 		Note *pNote = new Note( pInstr, 0, velocity, fPan, nLength, fPitch);
@@ -364,7 +398,9 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	PixmapWidget::mousePressEvent(ev);
 }
 
-
+void InstrumentLine::mouseDoubleClickEvent( QMouseEvent* ev ) {
+	functionRenameInstrument();
+}
 
 H2Core::Pattern* InstrumentLine::getCurrentPattern()
 {
@@ -390,6 +426,10 @@ void InstrumentLine::functionClearNotes()
 	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	if ( selectedPatternNr == -1 ) {
 		// No pattern selected. Nothing to be clear.
@@ -414,35 +454,46 @@ void InstrumentLine::functionClearNotes()
 
 void InstrumentLine::functionCopyAllInstrumentPatterns()
 {
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-	assert(song);
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		assert( pSong );
+		ERRORLOG( "No song present" );
+		return;
+	}
 
 	// Serialize & put to clipboard
-	QString serialized = song->copyInstrumentLineToString( -1, m_nInstrumentNumber );
+	QString sSerialized = pSong->copyInstrumentLineToString( m_nInstrumentNumber );
+	if ( sSerialized.isEmpty() ) {
+		ERRORLOG( QString( "Unable to serialize instrument line [%1]" )
+				  .arg( m_nInstrumentNumber ) );
+		return;
+	}
+	
 	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText(serialized);
+	clipboard->setText( sSerialized );
 }
 
 
 void InstrumentLine::functionPasteAllInstrumentPatterns()
 {
-	functionPasteInstrumentPatternExec(-1);
-}
-
-void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
-{
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-	assert(song);
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		assert( pSong );
+		ERRORLOG( "No song present" );
+		return;
+	}
 
 	// This is a note list for pasted notes collection
-	std::list< Pattern* > patternList;
+	std::list<Pattern*> patternList;
 
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
-	QString serialized = clipboard->text();
-	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) ) {
+	QString sSerialized = clipboard->text();
+	if ( ! pSong->pasteInstrumentLineFromString( sSerialized,
+												 m_nInstrumentNumber,
+												 patternList ) ) {
 		return;
 	}
 
@@ -461,6 +512,10 @@ void InstrumentLine::functionDeleteNotesAllPatterns()
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( m_nInstrumentNumber );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	pUndo->beginMacro( tr( "Delete all notes on %1" ).arg( pSelectedInstrument->get_name()  ) );
@@ -523,30 +578,31 @@ void InstrumentLine::functionFillNotes( int every )
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
+		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-		if (nSelectedInstrument != -1) {
-			auto instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
-
-			for (int i = 0; i < nPatternSize; i += nResolution) {
-				bool noteAlreadyPresent = false;
-				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
-					Note *pNote = it->second;
-					if ( pNote->get_instrument() == instrRef ) {
-						// note already exists
-						noteAlreadyPresent = true;
-						break;
-					}
-				}
-
-				if ( noteAlreadyPresent == false ) {
-					notePositions << QString("%1").arg(i);
+		for (int i = 0; i < nPatternSize; i += nResolution) {
+			bool noteAlreadyPresent = false;
+			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				Note *pNote = it->second;
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
+					// note already exists
+					noteAlreadyPresent = true;
+					break;
 				}
 			}
-			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+
+			if ( noteAlreadyPresent == false ) {
+				notePositions << QString("%1").arg(i);
+			}
 		}
+		SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 }
@@ -583,32 +639,33 @@ void InstrumentLine::functionRandomizeVelocity()
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
+		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-		if (nSelectedInstrument != -1) {
-			auto instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
-
-			for (int i = 0; i < nPatternSize; i += nResolution) {
-				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
-					Note *pNote = it->second;
-					if ( pNote->get_instrument() == instrRef ) {
-						float fVal = ( rand() % 100 ) / 100.0;
-						oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
-						fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
-						if ( fVal < 0  ) {
-							fVal = 0;
-						}
-						if ( fVal > 1 ) {
-							fVal = 1;
-						}
-						noteVeloValue << QString("%1").arg(fVal);
+		for (int i = 0; i < nPatternSize; i += nResolution) {
+			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				Note *pNote = it->second;
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
+					float fVal = ( rand() % 100 ) / 100.0;
+					oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
+					fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
+					if ( fVal < 0  ) {
+						fVal = 0;
 					}
+					if ( fVal > 1 ) {
+						fVal = 1;
+					}
+					noteVeloValue << QString("%1").arg(fVal);
 				}
 			}
-			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
+		SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 
@@ -621,6 +678,10 @@ void InstrumentLine::functionRenameInstrument()
 	// in InstrumentEditor.cpp
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	QString sOldName = pSelectedInstrument->get_name();
 	bool bIsOkPressed;
@@ -628,7 +689,7 @@ void InstrumentLine::functionRenameInstrument()
 	if ( bIsOkPressed  ) {
 		pSelectedInstrument->set_name( sNewName );
 
-		if ( pHydrogen->haveJackAudioDriver() ) {
+		if ( pHydrogen->hasJackAudioDriver() ) {
 			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 			pHydrogen->renameJackPorts( pHydrogen->getSong() );
 			pHydrogen->getAudioEngine()->unlock();
@@ -644,33 +705,6 @@ void InstrumentLine::functionRenameInstrument()
 	}
 	
 	setRowSelection( RowSelection::None );
-}
-
-void InstrumentLine::functionDeleteInstrument()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-		
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( m_nInstrumentNumber );
-	std::list< Note* > noteList;
-
-	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
-
-	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
-		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
-		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pNote->set_pattern_idx( i );
-				noteList.push_back( pNote );
-			}
-		}
-	}
-	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, sDrumkitName, sInstrumentName, m_nInstrumentNumber );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -731,6 +765,7 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 {
 	//INFOLOG( "DESTROY" );
 	m_pUpdateTimer->stop();
+	delete m_pDragScroller;
 }
 
 
@@ -760,7 +795,7 @@ void PatternEditorInstrumentList::drumkitLoadedEvent() {
 void PatternEditorInstrumentList::repaintInstrumentLines() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
@@ -775,7 +810,7 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -795,11 +830,9 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 ///
 void PatternEditorInstrumentList::updateInstrumentLines()
 {
-	//INFOLOG( "Update lines" );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getInstrumentList();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -853,9 +886,11 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		event->ignore();
 		return;
 	}
-	
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->size();
+
+	auto pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pInstrumentList = pSong->getInstrumentList();
+	int nInstruments = pInstrumentList->size();
 	if ( nInstruments >= MAX_INSTRUMENTS ) {
 		event->ignore();
 		QMessageBox::critical( this, "Hydrogen", tr( "Unable to insert further instruments. Maximum possible number" ) +
@@ -875,8 +910,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 	if (sText.startsWith("move instrument:")) {
 
-		Hydrogen *engine = Hydrogen::get_instance();
-		int nSourceInstrument = engine->getSelectedInstrumentNumber();
+		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 		// Starting point for instument list is 50 lower than
 		// on the drum pattern editor
@@ -885,8 +919,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		int nTargetInstrument = pos_y / m_nGridHeight;
 
-		if( nTargetInstrument >= engine->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = engine->getSong()->getInstrumentList()->size() - 1;
+		if( nTargetInstrument >= pInstrumentList->size() ){
+			nTargetInstrument = pInstrumentList->size() - 1;
 		}
 
 		if ( nSourceInstrument == nTargetInstrument ) {
@@ -905,9 +939,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
-		QString sDrumkitScope = tokens.at( 0 );
-		QString sDrumkitName = tokens.at( 1 );
-		QString sInstrumentName = tokens.at( 2 );
+		QString sDrumkitPath = tokens.at( 0 );
+		QString sInstrumentName = tokens.at( 1 );
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
@@ -919,21 +952,18 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 		}
 
-		Hydrogen *engine = Hydrogen::get_instance();
-		if( nTargetInstrument > engine->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = engine->getSong()->getInstrumentList()->size();
+		if( nTargetInstrument > pInstrumentList->size() ){
+			nTargetInstrument = pInstrumentList->size();
 		}
 
-		// Check whether the drumkit was chosen amongst the system's
-		// or user's set.
-		H2Core::Filesystem::Lookup lookup;
-	  	if ( sDrumkitScope == "system" ) {
-			lookup = H2Core::Filesystem::Lookup::system;
-		} else {
-			lookup = H2Core::Filesystem::Lookup::user;
+		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
+		
+		if ( sDrumkitPath.isEmpty() ) {
+			QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
+			return;
 		}
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, lookup );
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitPath, sInstrumentName, nTargetInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
@@ -962,10 +992,13 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
-	auto pInstr = pHydrogen->getSong()->getInstrumentList()->get(nSelectedInstr);
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
-	QString sText = QString("move instrument:%1").arg( pInstr->get_name() );
+	QString sText = QString("move instrument:%1").arg( pSelectedInstrument->get_name() );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;
@@ -979,4 +1012,48 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);
+}
+
+
+void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrumentNumber ) {
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+
+	if ( nInstrumentNumber == -1 ) {
+		// Update all lines.
+		for ( int ii = 0; ii < MAX_INSTRUMENTS; ++ii ) {
+			auto pInstrumentLine = m_pInstrumentLine[ ii ];
+			if ( pInstrumentLine != nullptr ) {
+				auto pInstrument = pInstrumentList->get( ii );
+				if ( pInstrument == nullptr ) {
+					ERRORLOG( QString( "Instrument [%1] associated to InstrumentLine [%1] not found" )
+							  .arg( ii ) );
+					return;
+				}
+				
+				pInstrumentLine->setName( pInstrument->get_name() );
+				pInstrumentLine->setMuted( pInstrument->is_muted() );
+				pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+			}
+		}
+	}
+	else {
+		// Update a specific line
+		auto pInstrument = pInstrumentList->get( nInstrumentNumber );
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Instrument [%1] not found" )
+					  .arg( nInstrumentNumber ) );
+			return;
+		}
+	
+		auto pInstrumentLine = m_pInstrumentLine[ nInstrumentNumber ];
+		if ( pInstrumentLine == nullptr ) {
+			ERRORLOG( QString( "No InstrumentLine for instrument [%1] created yet" )
+					  .arg( nInstrumentNumber ) );
+			return;
+		}
+
+		pInstrumentLine->setName( pInstrument->get_name() );
+		pInstrumentLine->setMuted( pInstrument->is_muted() );
+		pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+	}
 }

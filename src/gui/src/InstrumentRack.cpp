@@ -51,12 +51,13 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	// instrument editor button
 	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
-	connect( m_pShowInstrumentEditorBtn, SIGNAL( pressed() ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
+	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
+			 [=]() { showSoundLibrary( false ); });
 
 	// show sound library button
 	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
-	connect( m_pShowSoundLibraryBtn, SIGNAL( pressed() ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
-
+	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
+			 [=]() { showSoundLibrary( true ); });
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
@@ -85,8 +86,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	this->setLayout( pGrid );
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentRack::onPreferencesChanged );
-	
-	on_showInstrumentEditorBtnClicked();	// show the instrument editor as default
+
+	showSoundLibrary( false );
 }
 
 
@@ -96,39 +97,6 @@ InstrumentRack::~InstrumentRack()
 	INFOLOG( "DESTROY" );
 }
 
-void InstrumentRack::on_showSoundLibraryBtnClicked()
-{
-	if ( m_pShowSoundLibraryBtn->isChecked() && m_pShowSoundLibraryBtn->isDown() ) {
-		
-		m_pShowSoundLibraryBtn->setChecked( true );
-		m_pShowSoundLibraryBtn->setDown( false );
-		return;
-	}
-	
-	m_pShowInstrumentEditorBtn->setChecked( false );
-
-	m_pSoundLibraryPanel->show();
-	InstrumentEditorPanel::get_instance()->hide();
-}
-
-void InstrumentRack::on_showInstrumentEditorBtnClicked()
-{
-	if ( m_pShowInstrumentEditorBtn->isChecked() && m_pShowInstrumentEditorBtn->isDown() ) {
-		
-		m_pShowInstrumentEditorBtn->setChecked( true );
-		m_pShowInstrumentEditorBtn->setDown( false );
-		return;
-	} else if ( ! m_pShowInstrumentEditorBtn->isChecked() &&
-				! m_pShowInstrumentEditorBtn->isDown() ) {
-		m_pShowInstrumentEditorBtn->setChecked( true );
-	}
-
-	m_pShowSoundLibraryBtn->setChecked( false );
-
-	InstrumentEditorPanel::get_instance()->show();
-	m_pSoundLibraryPanel->hide();
-}
-
 void InstrumentRack::onPreferencesChanged(  H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -136,5 +104,20 @@ void InstrumentRack::onPreferencesChanged(  H2Core::Preferences::Changes changes
 		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
+	}
+}
+
+void InstrumentRack::showSoundLibrary( bool bShow ) {
+	if ( bShow ) {
+		m_pSoundLibraryPanel->show();
+		m_pShowSoundLibraryBtn->setChecked( true );
+		InstrumentEditorPanel::get_instance()->hide();
+		m_pShowInstrumentEditorBtn->setChecked( false );
+	}
+	else {
+		m_pSoundLibraryPanel->hide();
+		m_pShowSoundLibraryBtn->setChecked( false );
+		InstrumentEditorPanel::get_instance()->show();
+		m_pShowInstrumentEditorBtn->setChecked( true );
 	}
 }

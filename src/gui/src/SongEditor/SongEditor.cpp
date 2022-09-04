@@ -32,8 +32,8 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>
-#include <core/LocalFileMng.h>
 #include <core/Helpers/Xml.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -46,7 +46,6 @@ using namespace H2Core;
 #include "PlaybackTrackWaveDisplay.h"
 #include "VirtualPatternDialog.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
-#include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
@@ -79,6 +78,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pHydrogen( nullptr )
  , m_pAudioEngine( nullptr )
  , m_bEntered( false )
+ , m_pBackgroundPixmap( nullptr )
+ , m_pSequencePixmap( nullptr )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -124,6 +125,12 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 SongEditor::~SongEditor()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	if ( m_pSequencePixmap ) {
+		delete m_pSequencePixmap;
+	}
 }
 
 
@@ -149,7 +156,7 @@ SongEditor::~SongEditor()
 int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nScroll = pScrollArea->verticalScrollBar()->value();
+	const int nScroll = pScrollArea->verticalScrollBar()->value();
 	int nHeight = pScrollArea->height();
 
 	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
@@ -159,12 +166,13 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 		return nScroll;
 	}
 
+	m_pAudioEngine->lock( RIGHT_HERE );
+
 	PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
 
 	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
 	// avoids doing a linear search in the critical section.
 	std::vector<Pattern *> currentPatterns;
-	m_pAudioEngine->lock( RIGHT_HERE );
 	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
 		currentPatterns.push_back( pPlayingPatterns->get( ii ) );
 	}
@@ -173,6 +181,12 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	std::vector<int> playingRows;
 	for ( Pattern *pPattern : currentPatterns ) {
 		playingRows.push_back( pSongPatterns->index( pPattern ) );
+	}
+
+	// Occasionally the detection of playing patterns glitches at the
+	// transition to empty columns.
+	if ( playingRows.size() == 0 ) {
+		return nScroll;
 	}
 
 	// Check if there are any currently playing patterns which are entirely visible.
@@ -960,9 +974,24 @@ void SongEditor::updateWidget() {
 	m_previousMousePosition = m_currentMousePosition;
 }
 
+
 void SongEditor::updatePosition( float fTick ) {
-	m_fTick = fTick;
-	update();
+	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
+		m_fTick = fTick;
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nOffset = Skin::getPlayheadShaftOffset();
+		QRect updateRect( nX + nOffset -2, 0, 4, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+	}
 }
 
 void SongEditor::paintEvent( QPaintEvent *ev )
@@ -1083,7 +1112,12 @@ void SongEditor::createBackground()
 		if (nNewHeight == 0) {
 			nNewHeight = 1;	// the pixmap should not be empty
 		}
-
+		if ( m_pBackgroundPixmap ) {
+			delete m_pBackgroundPixmap;
+		}
+		if ( m_pSequencePixmap ) {
+			delete m_pSequencePixmap;
+		}
 		m_pBackgroundPixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		m_pSequencePixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
 		this->resize( QSize( width(), nNewHeight ) );
@@ -1134,7 +1168,9 @@ void SongEditor::createBackground()
 void SongEditor::cleanUp(){
 
 	delete m_pBackgroundPixmap;
+	m_pBackgroundPixmap = nullptr;
 	delete m_pSequencePixmap;
+	m_pSequencePixmap = nullptr;
 }
 
 // Update the GridCell representation.
@@ -1341,6 +1377,9 @@ void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
+
+		m_bSequenceChanged = true;
+
 		// Required to be called at least once in order to make the
 		// scroll bars match the (potential) new width.
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
@@ -1427,6 +1466,10 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 SongEditorPatternList::~SongEditorPatternList()
 {
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
+	delete m_pDragScroller;
 }
 
 
@@ -1447,6 +1490,11 @@ void SongEditorPatternList::patternModifiedEvent() {
 }
 
 void SongEditorPatternList::selectedPatternChangedEvent() {
+	createBackground();
+	update();
+}
+
+void SongEditorPatternList::stackedPatternsChangedEvent() {
 	createBackground();
 	update();
 }
@@ -1472,13 +1520,13 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MiddleButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
-		 || ev->pos().x() < 15 ){
-		if ( m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-			m_pHydrogen->toggleNextPattern( nRow );
-		}
+	if ( ( ev->button() == Qt::MiddleButton ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton ) ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) ||
+		   ev->pos().x() < 15 ) &&
+		 m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		
+		m_pHydrogen->toggleNextPattern( nRow );
 	}
 	else {
 		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
@@ -1870,13 +1918,12 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString prevPatternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   pHydrogen->getCurrentDrumkitName() );
+							   pHydrogen->getLastLoadedDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
 		return;
 	}
-	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
@@ -1914,7 +1961,7 @@ void SongEditorPatternList::patternPopup_save()
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
-										   pSong, pHydrogen->getCurrentDrumkitName() );
+										   pSong, pHydrogen->getLastLoadedDrumkitName() );
 	if ( sPath.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
 									   pCommonStrings->getButtonOk(),
@@ -1924,7 +1971,7 @@ void SongEditorPatternList::patternPopup_save()
 			return;
 		}
 		sPath = Files::savePatternOver( pPattern->get_name(), pPattern,
-										pSong, pHydrogen->getCurrentDrumkitName() );
+										pSong, pHydrogen->getLastLoadedDrumkitName() );
 	}
 
 	if ( sPath.isEmpty() ) {
@@ -1933,11 +1980,9 @@ void SongEditorPatternList::patternPopup_save()
 		return;
 	}
 
-	pHydrogenApp->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+	pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
 
-	SoundLibraryDatabase::get_instance()->updatePatterns();
-	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	pHydrogen->getSoundLibraryDatabase()->updatePatterns();
 	
 	setRowSelection( RowSelection::None );
 }
@@ -2009,13 +2054,12 @@ void SongEditorPatternList::patternPopup_delete()
 
 	QString patternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   m_pHydrogen->getCurrentDrumkitName() );
+							   m_pHydrogen->getLastLoadedDrumkitName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
 		return;
 	}
-	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
@@ -2046,7 +2090,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		QString filePath = Files::savePatternTmp( pNewPattern->get_name(),
 												  pNewPattern, pSong,
-												  m_pHydrogen->getCurrentDrumkitName() );
+												  m_pHydrogen->getLastLoadedDrumkitName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			setRowSelection( RowSelection::None );
@@ -2411,6 +2455,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 SongEditorPositionRuler::~SongEditorPositionRuler() {
 	m_pTimer->stop();
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void SongEditorPositionRuler::relocationEvent() {
@@ -3069,9 +3116,9 @@ void SongEditorPositionRuler::updatePosition()
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = m_pAudioEngine->getColumn();
+	m_nColumn = std::max( m_pAudioEngine->getColumn(), 0 );
 
-	if ( pPatternGroupVector->size() >= m_nColumn &&
+	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
 		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
@@ -3083,14 +3130,32 @@ void SongEditorPositionRuler::updatePosition()
 	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		fTick = -1;
 	}
+	else if ( fTick < 0 ) {
+		// As some variables of the audio engine are initialized as or
+		// reset to -1 we ensure this does not affect the position of
+		// the playhead in the SongEditor.
+		fTick = 0;
+	}
 
 	m_pAudioEngine->unlock();
 
 	if ( fTick != m_fTick ) {
+		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
 
 		m_fTick = fTick;
-	
-		update();
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+
+		QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+		update( updateRect );
+		if ( fDiff > 1.0 || fDiff < -1.0 ) {
+			// New cursor is far enough away from the old one that the single update rect won't cover both. So
+			// update at the old location as well.
+			updateRect.translate( -fDiff, 0 );
+			update( updateRect );
+		}
+
 		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 		if ( pSongEditorPanel != nullptr ) {
 			pSongEditorPanel->getSongEditor()->updatePosition( fTick );

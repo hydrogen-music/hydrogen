@@ -37,7 +37,7 @@
  *
  * The widgets can be set by click-drag, wheel event, and by
  * keyboard. For the latter the widget has to be clicked first, in
- * order for it to aquire focus. The derived class must indicate the
+ * order for it to acquire focus. The derived class must indicate the
  * presence of the focus in its paintEvent() using the
  * H2Core::ColorTheme::m_highlightColor.
  *

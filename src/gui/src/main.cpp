@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -35,6 +35,7 @@
 #include "MainForm.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "Skin.h"
+#include "Reporter.h"
 
 #ifdef H2CORE_HAVE_LASH
 #include <core/Lash/LashClient.h>
@@ -76,6 +77,9 @@ static void handleFatalSignal( int nSignal )
 	// First disable signal handler to allow normal termination
 	signal( nSignal, SIG_DFL );
 
+	// Report current context to the crash reporter
+	Reporter::report();
+
 	___ERRORLOG( QString( "Fatal signal %1" ).arg( nSignal ) );
 
 #ifdef HAVE_EXECINFO_H
@@ -114,9 +118,9 @@ static int setup_unix_signal_handlers()
 
 #endif
 
-	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE,
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGABRT,
 #ifndef WIN32
-						 SIGBUS
+						 SIGBUS, SIGTRAP
 #endif
 		} ) {
 		signal( nSignal, handleFatalSignal );
@@ -184,6 +188,7 @@ public:
 
 int main(int argc, char *argv[])
 {
+	Reporter::spawn( argc, argv );
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -237,6 +242,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
+		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -250,6 +256,7 @@ int main(int argc, char *argv[])
 		parser.addOption( verboseOption );
 		parser.addOption( shotListOption );
 		parser.addOption( uiLayoutOption );
+		parser.addOption( noReporterOption );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		// Evaluate the options
@@ -295,6 +302,8 @@ int main(int argc, char *argv[])
 		std::cout << aboutText.toStdString();
 		
 		setup_unix_signal_handlers();
+		QString sInitialisingCrashContext( "Initialising Hydrogen" );
+		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
 		H2Core::Logger::create_instance();
@@ -511,7 +520,7 @@ int main(int argc, char *argv[])
 
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			pHydrogen->getCoreActionController()->loadDrumkit( sDrumkitToLoad );
+			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );
 		}
 
 		// Write the changes in the Preferences to disk to make them
@@ -543,7 +552,12 @@ int main(int argc, char *argv[])
 			pHydrogen->setIsModified( false );
 		}
 
+		H2Core::Logger::setCrashContext( nullptr );
+
 		pQApp->exec();
+
+		QString sShutdownCrashContext( "Shutting down Hydrogen" );
+		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
 
 		pPref->savePreferences();
 		delete pSplash;

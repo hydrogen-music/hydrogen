@@ -52,7 +52,7 @@ CommonStrings::CommonStrings(){
 	  is designed to hold three characters.*/
 	m_sTimelineBigButton = tr( "Timeline" );
 	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold eigth characters.*/
+	  is designed to hold eight characters.*/
 	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
@@ -262,7 +262,7 @@ CommonStrings::CommonStrings(){
 	 characters but not that flexible.*/
 	m_sTimeMilliSecondsLabel = tr( "1/1000" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
-	  humanization rotaries. Designed to hold eigth characters but not
+	  humanization rotaries. Designed to hold eight characters but not
 	  that flexible.*/
 	m_sHumanizeLabel = tr( "Humanize" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
@@ -315,7 +315,8 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackMasterTooltip = tr("JACK Timebase master on/off");
+	m_sJackTBMMasterTooltip = tr("Register Hydrogen as JACK Timebase master");
+	m_sJackTBMSlaveTooltip = tr("Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.");
 	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
@@ -331,6 +332,7 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
 	/*: Displayed within a status message when activating a widget.*/
 	m_sStatusOn = tr( "on" );
@@ -387,6 +389,8 @@ CommonStrings::CommonStrings(){
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 
+	m_sMutableDialog = tr( "Don't show this message again" );
+	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
 	  not be loaded.*/
@@ -397,6 +401,26 @@ CommonStrings::CommonStrings(){
 	/*: Additional text displayed in the info box asking the user to
 	  recover unsaved changes from an earlier session.*/
 	// m_sDialogUnsavedChangedH2 = tr( "Do you want to recover them?" );
+
+	/*: Label corresponding to the line edit in the drumkit and song
+	  properties dialog used to enter the license*/
+	m_sLicenseStringLbl = tr( "License String" );
+	/*: Tool tip used for the combo boxes in both the drumkit and song
+	  property dialog to set a predefined license type.*/
+	m_sLicenseComboToolTip = tr( "License parsed from License String. You can use this combo box to overwrite the current license with a predefined one" );
+	m_sLicenseStringToolTip = tr( "License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license" );
+	
+	m_sLicenseCopyleftWarning = tr( "You used drumkit samples holding a <b>copyleft license</b>. Be aware that <b>you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.</b>" );
+	m_sLicenseAttributionWarning = tr( "All license containing the letters 'CC BY' <b>require you to give an attribution</b> by naming drumkit, author, as well as the license itself." );
+	/*: Shown as title in dialogs used to inform the user about
+	  license issues and information.*/
+	m_sLicenseWarningWindowTitle = tr( "License Warning" );
+	
+	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
+	
+	/*: Suffix appended to a drumkit, song, or pattern name in case it
+	 * is found on system-level and is read-only. */
+	m_sSoundLibrarySystemSuffix = tr( "system" );
 }
 
 CommonStrings::~CommonStrings(){

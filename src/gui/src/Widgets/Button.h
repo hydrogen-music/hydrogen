@@ -96,7 +96,7 @@ public:
 	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
 	 * invoked with `true` as soon as the value of the widget does
 	 * change.
-	 * \param sBorderRadius Radius of the button in pixel, which will
+	 * \param nBorderRadius Radius of the button in pixel, which will
 	 * be passed to the style sheet.
 	 */
 	Button(
@@ -110,7 +110,7 @@ public:
 		   QString sBaseTooltip = "",
 		   bool bColorful = false,
 		   bool bModifyOnChange = false,
-		   const QString& sBorderRadius = ""
+		   int nBorderRadius = -1
 		   );
 	virtual ~Button();
 	
@@ -134,6 +134,9 @@ public:
 
 	void setUseRedBackground( bool bUseRedBackground );
 	bool getUseRedBackground() const;
+
+	void setBorderRadius( int nBorderRadius );
+	int getBorderRadius() const;
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -162,7 +165,7 @@ private:
 	int m_nRegisteredMidiParameter;
 	int m_nFixedFontSize;
 
-	QString m_sBorderRadius;
+	int m_nBorderRadius;
 
 	bool m_bColorful;
 	bool m_bLastCheckedState;
@@ -192,6 +195,10 @@ inline bool Button::getUseRedBackground() const {
 }
 inline Button::Type Button::getType() const {
 	return m_type;
+}
+
+inline int Button::getBorderRadius() const {
+	return m_nBorderRadius;
 }
 
 #endif

@@ -27,6 +27,7 @@
 #include <vector>
 #include <sndfile.h>
 
+#include <core/License.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -73,7 +74,7 @@ class Sample : public H2Core::Object<Sample>
 		/** define the type used to store velocity envelope points */
 		using VelocityEnvelope = std::vector<EnvelopePoint>;
 		/** set of loop configuration flags */
-		class Loops
+	class Loops
 		{
 			public:
 				/** possible sample editing loop mode */
@@ -105,7 +106,7 @@ class Sample : public H2Core::Object<Sample>
 		};
 
 		/** set of rubberband configuration flags */
-		class Rubberband
+	class Rubberband
 		{
 			public:
 				bool use;               ///< is rubberband enabled
@@ -131,12 +132,13 @@ class Sample : public H2Core::Object<Sample>
 		/**
 		 * Sample constructor
 		 * \param filepath the path to the sample
+		 * \param license associated with the sample
 		 * \param frames the number of frames per channel in the sample
 		 * \param sample_rate the sample rate of the sample
 		 * \param data_l the left channel array of data
 		 * \param data_r the right channel array of data
 		 */
-		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
+		Sample( const QString& filepath, const License& license = License(), int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( std::shared_ptr<Sample> other );
 		/** destructor */
@@ -158,6 +160,7 @@ class Sample : public H2Core::Object<Sample>
 		 * load() member on it.
 		 *
 		 * \param filepath the file to load audio data from
+		 * \param license associated with the sample
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
@@ -165,26 +168,7 @@ class Sample : public H2Core::Object<Sample>
 		 *
 		 * \fn load(const QString& filepath)
 		 */
-		static std::shared_ptr<Sample> load( const QString& filepath);
-	
-		/**
-		 * Load a sample from a file and apply the
-		 * transformations to the sample data.
-		 *
-		 * \param filepath the file to load audio data from
-		 * \param loops transformation parameters
-		 * \param rubber band transformation parameters
-		 * \param velocity envelope points
-		 * \param pan envelope points
-		 * \param fBpm tempo the Rubberband transformation will target
-		 *
-		 * \return Pointer to the newly initialized Sample. If
-		 * the provided @a filepath is not readable, a nullptr
-		 * is returned instead.
-		 *
-		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
-		 */
-		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
+	static std::shared_ptr<Sample> load( const QString& filepath, const License& license = License() );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -207,63 +191,18 @@ class Sample : public H2Core::Object<Sample>
 		 * truncated and a warning log message will be
 		 * displayed.
 		 *
+		 * After successfully loading, the function applies all loop,
+		 * rubberband, and envelope modifications in case they were
+		 * set by the user.
+		 *
 		 * \fn load()
 		 */
-		bool load();
+		bool load( float fBpm = 120 );
 		/**
 		 * Flush the current content of the left and right
 		 * channel and the current metadata.
 		 */
 		void unload();
-
-		/**
-		 * Apply transformations to the sample data.
-		 *
-		 * The function is a wrapper around a specific apply_*
-		 * functions.
-		 *
-		 * \param loops Loops transformation parameters handed
-		 * over to apply_loops().
-		 * \param rubber Rubber Band transformation parameters
-		 * handed over to apply_rubberband() in case Hydrogen
-		 * was compiled to use the Rubber Band library for
-		 * audio time-stretching and pitch-shifting
-		 * (#H2CORE_HAVE_RUBBERBAND) or exec_rubberband_cli()
-		 * if is wasn't.
-		 * \param velocity Velocity envelope points handed
-		 * over to apply_velocity().
-		 * \param pan Pan envelope points handed over to
-		 * \param fBpm tempo the Rubberband transformation will target
-		 * apply_pan().
-		 */
-		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
-		/**
-		 * apply loop transformation to the sample
-		 * \param lo loops parameters
-		 */
-		bool apply_loops( const Loops& lo );
-		/**
-		 * apply velocity transformation to the sample
-		 * \param v the velocity vector
-		 */
-		void apply_velocity( const VelocityEnvelope& v );
-		/**
-		 * apply velocity transformation to the sample
-		 * \param p the pan vector
-		 */
-		void apply_pan( const PanEnvelope& p );
-		/**
-		 * apply rubberband transformation to the sample
-		 * \param rb rubberband parameters
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		void apply_rubberband( const Rubberband& rb, float fBpm );
-		/**
-		 * call rubberband cli to modify the sample
-		 * \param rb rubberband parameters
-		 * \param fBpm tempo the Rubberband transformation will target
-		 */
-		bool exec_rubberband_cli( const Rubberband& rb, float fBpm );
 
 		/** \return true if both data channels are null pointers */
 		bool is_empty() const;
@@ -312,6 +251,14 @@ class Sample : public H2Core::Object<Sample>
 		Loops get_loops() const;
 		/** \return #__rubberband parameters */
 		Rubberband get_rubberband() const;
+	void set_pan_envelope( PanEnvelope envelope );
+	void set_velocity_envelope( VelocityEnvelope envelope );
+	void set_loops( Loops loops );
+	void set_rubberband( Rubberband rubberband );
+
+	License getLicense() const;
+	void setLicense( const License& license );
+	
 		/**
 		 * parse the given string and rturn the corresponding loop_mode
 		 * \param string the loop mode text to be parsed
@@ -329,6 +276,30 @@ class Sample : public H2Core::Object<Sample>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	private:
+		/**
+		 * apply #__loops transformation to the sample
+		 */
+		bool apply_loops();
+		/**
+		 * apply #__velocity_envelope transformation to the sample
+		 */
+		void apply_velocity();
+		/**
+		 * apply #__pan_envelope transformation to the sample
+		 * \param p the pan vector
+		 */
+		void apply_pan();
+		/**
+		 * apply #__rubberband transformation to the sample
+		 * \param fBpm tempo the Rubberband transformation will target
+		 */
+		void apply_rubberband( float fBpm );
+		/**
+		 * call rubberband cli to modify the sample using #__rubberband
+		 * \param fBpm tempo the Rubberband transformation will target
+		 */
+		bool exec_rubberband_cli( float fBpm );
+	
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample
 		int					__sample_rate;       ///< samplerate for this sample
@@ -341,6 +312,20 @@ class Sample : public H2Core::Object<Sample>
 		Rubberband			__rubberband;        ///< set of rubberband parameters
 		/** loop modes string */
 		static const std::vector<QString> __loop_modes;
+
+	/** Transient property indicating the license associated with the
+	 * sample.
+	 *
+	 * This variable is not stored on disk but either derived from the
+	 * license of the drumkit containing the sample or specified by
+	 * the user when loading the it directly.
+	 *
+	 * It's value is only important for samples associated with a
+	 * drumkit (stored in the InstrumentLayers of a kit). For "free"
+	 * ones, like metronome or sound feedback when inserting notes in
+	 * the Pattern Editor, it does not have to be specified.
+	 */
+	License m_license;
 };
 
 // DEFINITIONS
@@ -449,6 +434,25 @@ inline Sample::Loops Sample::get_loops() const
 inline Sample::Rubberband Sample::get_rubberband() const
 {
 	return __rubberband;
+}
+inline void Sample::set_pan_envelope( PanEnvelope envelope ) {
+	__pan_envelope = envelope;
+}
+inline void Sample::set_velocity_envelope( VelocityEnvelope envelope ) {
+	__velocity_envelope = envelope;
+}
+inline void Sample::set_loops( Loops loops ) {
+	__loops = loops;
+}
+inline void Sample::set_rubberband( Rubberband rubberband ) {
+	__rubberband = rubberband;
+}
+
+inline License Sample::getLicense() const {
+	return m_license;
+}
+inline void Sample::setLicense( const License& license ) {
+	m_license = license;
 }
 
 };

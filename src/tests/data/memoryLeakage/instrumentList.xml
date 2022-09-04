@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<song>
  <instrumentList>
   <instrument>
    <id>0</id>
@@ -238,3 +239,4 @@
    </instrumentComponent>
   </instrument>
  </instrumentList>
+</song>

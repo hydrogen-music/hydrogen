@@ -1047,11 +1047,11 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <widget class="QTabWidget" name="tabWidget">
+         <widget class="QTabWidget" name="AppearanceTabTabs">
           <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="tab_4">
+          <widget class="QWidget" name="AppearanceInterfaceTab">
            <attribute name="title">
             <string>Interface</string>
            </attribute>
@@ -1293,7 +1293,7 @@
             </layout>
            </widget>
           </widget>
-          <widget class="QWidget" name="tabColors">
+          <widget class="QWidget" name="AppearanceColorTab">
            <attribute name="title">
             <string>Colors</string>
            </attribute>
@@ -1531,7 +1531,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_5">
+          <widget class="QWidget" name="AppearanceFontTab">
            <attribute name="title">
             <string>Font</string>
            </attribute>

@@ -22,6 +22,12 @@
 #include "PatternEditor.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
+#include "PatternEditorPanel.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../EventListener.h"
+#include "../UndoActions.h"
+#include "../Skin.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -38,11 +44,6 @@
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
-
-#include "../HydrogenApp.h"
-#include "../EventListener.h"
-#include "PatternEditorPanel.h"
-#include "UndoActions.h"
 
 
 using namespace std;
@@ -94,6 +95,13 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+}
+
+PatternEditor::~PatternEditor()
+{
+	if ( m_pBackgroundPixmap ) {
+		delete m_pBackgroundPixmap;
+	}
 }
 
 void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
@@ -333,7 +341,7 @@ void PatternEditor::selectNone()
 void PatternEditor::copy()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -391,7 +399,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		return;
 	}
 	
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
@@ -472,6 +480,8 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 	if ( m_pPattern == nullptr ) {
 		return false;
 	}
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	//	Hydrogen *pH = Hydrogen::get_instance();
 	std::set< Note *> duplicates;
@@ -498,7 +508,7 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
 			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
 									 QMessageBox::Cancel | QMessageBox::Ok, this );
-			messageBox.setCheckBox( new QCheckBox( tr( "Don't show this message again" ) ) );
+			messageBox.setCheckBox( new QCheckBox( pCommonStrings->getMutableDialog() ) );
 			messageBox.checkBox()->setChecked( false );
 			bOk = messageBox.exec() == QMessageBox::Ok;
 			if ( messageBox.checkBox()->isChecked() ) {
@@ -874,8 +884,27 @@ void PatternEditor::stackedModeActivationEvent( int nValue )
 }
 
 void PatternEditor::updatePosition( float fTick ) {
+	if ( m_nTick == (int)fTick ) {
+		return;
+	}
+
+	float fDiff = m_fGridWidth * (fTick - m_nTick);
+
 	m_nTick = fTick;
-	update();
+
+	int nOffset = Skin::getPlayheadShaftOffset();
+	int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
+							  static_cast<float>(m_nTick) *
+							  m_fGridWidth );
+
+	QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
+	update( updateRect );
+	if ( fDiff > 1.0 || fDiff < -1.0 ) {
+		// New cursor is far enough away from the old one that the single update rect won't cover both. So
+		// update at the old location as well.
+		updateRect.translate( -fDiff, 0 );
+		update( updateRect );
+	}
 }
 
 void PatternEditor::storeNoteProperties( const Note* pNote ) {
@@ -1111,6 +1140,10 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	if ( editor == Editor::PianoRoll ) {
 		auto pSelectedInstrument =
 			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
@@ -1122,6 +1155,10 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {
@@ -1180,6 +1217,10 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		
 		auto pSelectedInstrument =
 			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
@@ -1191,6 +1232,10 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {
@@ -1262,6 +1307,7 @@ QString PatternEditor::modeToQString( Mode mode ) {
 
 void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 	QString s;
+	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
 	float fValue;
 	
@@ -1271,6 +1317,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			s = QString( tr( "Set note velocity" ) )
 				.append( QString( ": [%1]")
 						 .arg( pNote->get_velocity(), 2, 'f', 2 ) );
+			sCaller.append( ":Velocity" );
 		}
 		break;
 		
@@ -1291,6 +1338,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			} else {
 				s = QString( tr( "Note centered" ) );
 			}
+			sCaller.append( ":Pan" );
 		}
 		break;
 		
@@ -1316,6 +1364,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 		else {
 			s = tr( "Note on beat" );
 		}
+		sCaller.append( ":LeadLag" );
 		break;
 
 	case PatternEditor::Mode::NoteKey:
@@ -1323,6 +1372,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
 			.append( tr( "octave" ) )
 			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
+		sCaller.append( ":NoteKey" );
 		break;
 
 	case PatternEditor::Mode::Probability:
@@ -1330,6 +1380,7 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 			s = tr( "Set note probability to" )
 				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
 		}
+		sCaller.append( ":Probability" );
 		break;
 
 	default:
@@ -1337,6 +1388,6 @@ void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
 	}
 
 	if ( ! s.isEmpty() ) {
-		HydrogenApp::get_instance()->setStatusBarMessage( s, 2000 );
+		HydrogenApp::get_instance()->showStatusBarMessage( s, sCaller );
 	}
 }

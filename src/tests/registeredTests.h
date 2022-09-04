@@ -29,6 +29,7 @@
 #include "FilesystemTest.h"
 #include "FunctionalTests.cpp"
 #include "InstrumentListTest.cpp"
+#include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiNoteTest.cpp"
 #include "NoteTest.cpp"
@@ -47,6 +48,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );

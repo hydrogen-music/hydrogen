@@ -127,8 +127,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	// Gather notes to act on: selected or under the mouse cursor
 	std::list< Note *> notes;
@@ -242,8 +245,12 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
+	
 	float fDelta;
 
 	QPoint movingOffset = m_selection.movingOffset();
@@ -377,9 +384,11 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	clearOldNotes();
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the selected notes.
@@ -416,8 +425,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
 
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
@@ -437,8 +444,11 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 	int keyval = val;
 	val = val / height(); // val is normalized, in [0;1]
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	bool bValueSet = false;
 
@@ -610,6 +620,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	}
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	
 	const int nWordSize = 5;
@@ -694,8 +705,13 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 		if ( fDelta != 0.0 || bRepeatLastValue ) {
 			int column = m_pPatternEditorPanel->getCursorPosition();
-			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-			std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
+
+			auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+			if ( pSelectedInstrument == nullptr ) {
+				ERRORLOG( "No instrument selected" );
+				return;
+			}
+			
 			int nNotes = 0;
 
 			// Collect notes to apply the change to
@@ -710,8 +726,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
-					if ( pNote->get_instrument() ==
-						 pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+					if ( pNote->get_instrument() == pSelectedInstrument ) {
 						nNotes++;
 						notes.push_back( pNote );
 					}
@@ -826,7 +841,7 @@ void NotePropertiesRuler::addUndoAction()
 		return;
 	}
 
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -1046,6 +1061,7 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
 	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
@@ -1054,9 +1070,12 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	drawDefaultBackground( p );
 
 	// draw velocity lines
-	if (m_pPattern != nullptr) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	if ( m_pPattern != nullptr ) {
+		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
@@ -1070,7 +1089,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+				if ( pNote->get_instrument() != pSelectedInstrument
 					 && !m_selection.isSelected( pNote ) ) {
 					continue;
 				}
@@ -1127,6 +1146,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 	
 	QColor baseLineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
 	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
@@ -1146,8 +1166,12 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	}
 
 	if ( m_pPattern != nullptr ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
+		
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
@@ -1161,7 +1185,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
-											   != pSong->getInstrumentList()->get( nSelectedInstrument )
+											   != pSelectedInstrument
 											   && !m_selection.isSelected( pNote ) ) ) {
 					continue;
 				}
@@ -1296,10 +1320,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		}
 	}
 
-	//paint the octave
 	if ( m_pPattern != nullptr ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+		auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
@@ -1307,40 +1329,22 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+			if ( pNote->get_instrument() != pSelectedInstrument
 				 && !m_selection.isSelected( pNote ) ) {
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
+				//paint the octave
 				uint x_pos = 17 + pNote->get_position() * m_fGridWidth;
 				uint y_pos = (4-pNote->get_octave())*10-3;
 				p.setBrush( DrumPatternEditor::computeNoteColor( pNote->get_velocity() ) );
 				p.drawEllipse( x_pos, y_pos, 6, 6);
-			}
-		}
-	}
 
-	//paint the note
-	if ( m_pPattern != nullptr ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		QPen selectedPen( selectedNoteColor() );
-		selectedPen.setWidth( 2 );
-
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
-				 && !m_selection.isSelected( pNote ) ) {
-				continue;
-			}
-
-			if ( !pNote->get_note_off() ) {
+				//paint note
 				int d = 8;
 				int k = pNote->get_key();
-				uint x_pos = 16 + pNote->get_position() * m_fGridWidth;
-				uint y_pos = 200-(k*10)-4;
+				x_pos = 16 + pNote->get_position() * m_fGridWidth;
+				y_pos = 200-(k*10)-4;
 
 				x_pos -= 1;
 				y_pos -= 1;
@@ -1461,10 +1465,14 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 		return std::move( result );
 	}
 	
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	auto pInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return std::move( result );
+	}
 
 	// Account for the notional active area of the slider. We allow a
 	// width of 8 as this is the size of the circle used for the zero
@@ -1476,7 +1484,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	r += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		if ( it->second->get_instrument() !=  pInstrument
+		if ( it->second->get_instrument() != pSelectedInstrument
 			 && !m_selection.isSelected( it->second ) ) {
 			continue;
 		}

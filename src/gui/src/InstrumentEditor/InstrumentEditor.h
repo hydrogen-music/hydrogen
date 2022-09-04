@@ -66,15 +66,17 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int ) override;
+	virtual void instrumentParametersChangedEvent( int ) override;
 		//~ implements EventListener interface
 		void update();
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
 
 	public slots:
-		void showLayers();
-		void showInstrument();
+	/** Used by #Shotlist */
+	void showLayers( bool bShow );
 		void showSampleEditor();
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 

@@ -92,7 +92,7 @@ private:
 	 * #m_nFrames, and #m_fTickSize.
 	 *
 	 * Note that the smallest unit for positioning a #Note is a frame
-	 * due to the humanization capatibilities.
+	 * due to the humanization capabilities.
 	 *
 	 * Float is, unfortunately, not enough. When the engine is running
 	 * for a long time the high precision digits after decimal point

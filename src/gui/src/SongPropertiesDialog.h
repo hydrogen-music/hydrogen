@@ -26,12 +26,15 @@
 
 #include "ui_SongPropertiesDialog_UI.h"
 #include "HydrogenApp.h"
+#include "Widgets/WidgetWithLicenseProperty.h"
 
 /**
  * Song Properties Dialog
  */
 /** \ingroup docGUI*/
-class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
+class SongPropertiesDialog : public QDialog,
+							 protected WidgetWithLicenseProperty,
+							 private Ui_SongPropertiesDialog_UI
 {
 	Q_OBJECT
 
@@ -42,6 +45,7 @@ class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
 	private slots:
 		void on_cancelBtn_clicked();
 		void on_okBtn_clicked();
+	void licenseComboBoxChanged( int );
 
 };
 

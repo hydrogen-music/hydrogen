@@ -20,33 +20,18 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_SAVE_DIALOG_H
-#define SOUND_LIBRARY_SAVE_DIALOG_H
+#include <core/config.h>
 
-#include "ui_SoundLibrarySaveDialog_UI.h"
-#include <core/Object.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <core/License.h>
 
-///
-///
-///
-/** \ingroup docGUI*/
-class SoundLibrarySaveDialog :  public QDialog, public Ui_SoundLibrarySaveDialog_UI,  public H2Core::Object<SoundLibrarySaveDialog>
-{
-	H2_OBJECT(SoundLibrarySaveDialog)
-	Q_OBJECT
-	public:
-		explicit SoundLibrarySaveDialog( QWidget* pParent );
-		~SoundLibrarySaveDialog();
-
-	private slots:
-		void on_saveBtn_clicked();
-		void on_imageBrowsePushButton_clicked();
-
-	private:
-		void updateImage( QString& filename );
-
+class LicenseTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( LicenseTest );
+	CPPUNIT_TEST( testParsing );
+	CPPUNIT_TEST( testOperators );
+	CPPUNIT_TEST_SUITE_END();
+	
+public:
+	void testParsing();
+	void testOperators();
 };
-
-
-#endif
-

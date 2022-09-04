@@ -20,11 +20,11 @@
  *
  */
 
-#include "core/LocalFileMng.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
+#include "core/Basics/Drumkit.h"
 #include "core/Basics/Song.h"
 #include "core/AudioEngine/AudioEngine.h"
 #include "core/NsmClient.h"
@@ -32,7 +32,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDomDocument>
 #include <pthread.h>
 #include <unistd.h>
 
@@ -203,7 +202,8 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 	
 	bool bRelinkDrumkit = true;
 	
-	const QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
+	const QString sDrumkitName = pHydrogen->getLastLoadedDrumkitName();
+	const QString sDrumkitAbsPath = pHydrogen->getLastLoadedDrumkitPath();
 	
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
 		.arg( sName ).arg( "drumkit" );
@@ -229,25 +229,19 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 		
 			const QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
 			if ( drumkitXMLInfo.exists() ) {
+
+				const QString sDrumkitNameXML = H2Core::Drumkit::loadNameFrom( sDrumkitXMLPath );
 	
-				const QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
-				const QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
-	
-				if( nodeList.isEmpty() ) {
-					NsmClient::printError( "Linked drumkit does not seem valid." );
-				} else {
-					const QDomNode drumkitInfoNode = nodeList.at( 0 );
-					const QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
-	
-					if ( sDrumkitNameXML == sDrumkitName ) {
-						bRelinkDrumkit = false;
-					} else {
-						NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
-											   .arg( sDrumkitNameXML )
-											   .arg( sDrumkitName ) );
-					}
+				if ( sDrumkitNameXML == sDrumkitName ) {
+					bRelinkDrumkit = false;
 				}
-			} else {
+				else {
+					NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
+										   .arg( sDrumkitNameXML )
+										   .arg( sDrumkitName ) );
+				}
+			}
+			else {
 				NsmClient::printError( "Symlink does not point to valid drumkit." );
 			}				   
 		}
@@ -277,25 +271,6 @@ void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {
 					NsmClient::printError( QString( "Unable to remove symlink to drumkit [%1]." )
 										   .arg( sLinkedDrumkitPath ) );
 					return;
-				}
-			}
-		}
-		
-		// Figure out the actual path to the drumkit. We will search
-		// the user drumkits first and the system ones second.
-		QString sDrumkitAbsPath( "" );
-		const QStringList drumkitListUsr = H2Core::Filesystem::usr_drumkit_list();
-		for ( auto ssName : drumkitListUsr ) {
-			if ( ssName == sDrumkitName ) {
-				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + ssName;
-			}
-		}
-		
-		if ( sDrumkitAbsPath.isEmpty() ) {
-			const QStringList drumkitListSys = H2Core::Filesystem::sys_drumkit_list();
-			for ( auto ssName : drumkitListSys ) {
-				if ( ssName == sDrumkitName ) {
-					sDrumkitAbsPath = H2Core::Filesystem::sys_drumkits_dir() + ssName;
 				}
 			}
 		}

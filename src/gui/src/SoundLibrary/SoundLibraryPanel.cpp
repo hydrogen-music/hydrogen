@@ -25,11 +25,9 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "SoundLibraryDatastructures.h"
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"
 
-#include "SoundLibrarySaveDialog.h"
 #include "SoundLibraryPropertiesDialog.h"
 #include "SoundLibraryExportDialog.h"
 
@@ -44,11 +42,11 @@
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <core/LocalFileMng.h>
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -56,6 +54,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
 
@@ -65,7 +64,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
  , __sound_library_tree( nullptr )
  , __drumkit_menu( nullptr )
- , __instrument_menu( nullptr )
  , __song_menu( nullptr )
  , __pattern_menu( nullptr )
  , __pattern_menu_list( nullptr )
@@ -77,7 +75,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 	
-	//
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	__drumkit_menu->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
@@ -85,9 +82,11 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu->addSeparator();
 	__drumkit_menu->addAction( tr( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
 
-	__instrument_menu = new QMenu( this );
-	__instrument_menu->addSeparator();
-	__instrument_menu->addAction( tr( "Delete" ), this, SLOT( on_instrumentDeleteAction() ) );
+	// A version with reduced functionality for read-only drumkits
+	__drumkit_menu_system = new QMenu( this );
+	__drumkit_menu_system->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu_system->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
+	__drumkit_menu_system->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
@@ -126,11 +125,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__expand_pattern_list = Preferences::get_instance()->__expandPatternItem;
 	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
 
-	m_sMessageFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
-	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
-	updateDrumkitList();
+	updateTree();
 	
 	HydrogenApp::get_instance()->addEventListener(this);
 }
@@ -139,35 +136,26 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 SoundLibraryPanel::~SoundLibraryPanel()
 {
-	HydrogenApp::get_instance()->removeEventListener( this );
-
-	for (uint i = 0; i < __system_drumkit_info_list.size(); ++i ) {
-		delete __system_drumkit_info_list[i];
+	if ( auto pH2App = HydrogenApp::get_instance() ) {
+		pH2App->removeEventListener( this );
 	}
-	__system_drumkit_info_list.clear();
-
-	for (uint i = 0; i < __user_drumkit_info_list.size(); ++i ) {
-		delete __user_drumkit_info_list[i];
-	}
-	__user_drumkit_info_list.clear();
-
 }
 
 
 
-void SoundLibraryPanel::updateDrumkitList()
+void SoundLibraryPanel::updateTree()
 {
-
 	auto pPref = H2Core::Preferences::get_instance();
-
-	LocalFileMng mng;
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldFont.setBold( true );
 
-	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( childFont );
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
@@ -179,55 +167,46 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkits_item->setText( 0, tr( "User drumkits" ) );
 	__user_drumkits_item->setExpanded( true );
 	__user_drumkits_item->setFont( 0, boldFont );
-	
 
-	for (uint i = 0; i < __system_drumkit_info_list.size(); ++i ) {
-		delete __system_drumkit_info_list[i];
-	}
-	__system_drumkit_info_list.clear();
+	// drumkit list
+	m_drumkitRegister.clear();
+	m_drumkitLabels.clear();
+	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
+		auto pDrumkit = pDrumkitEntry.second;
+		if ( pDrumkit != nullptr ) {
+			QString sItemLabel = pDrumkit->get_name();
 
-	for (uint i = 0; i < __user_drumkit_info_list.size(); ++i ) {
-		delete __user_drumkit_info_list[i];
-	}
-	__user_drumkit_info_list.clear();
-
-	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkit_list();
-	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath, false );
-		if (pInfo) {
-			__user_drumkit_info_list.push_back( pInfo );
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
-			pDrumkitItem->setText( 0, pInfo->get_name() );
-			if ( ! m_bInItsOwnDialog ) {
-				InstrumentList *pInstrList = pInfo->get_instruments();
-				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					auto pInstr = pInstrList->get( nInstr );
-					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
-				}
+			QTreeWidgetItem* pDrumkitItem;
+			if ( pDrumkit->isUserDrumkit() ) {
+				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
+			} else {
+				pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
+				sItemLabel.append( QString( " (%1)" )
+								   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
 			}
-		}
-	}
 
-	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkit_list();
-	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath, false );
-		if (pInfo) {
-			__system_drumkit_info_list.push_back( pInfo );
-			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
-			pDrumkitItem->setText( 0, pInfo->get_name() );
+			// Ensure uniqueness of the label.
+			int nCount = 1;
+			while ( m_drumkitLabels.contains( sItemLabel ) ) {
+				sItemLabel = QString( "%1 (%2)" )
+					.arg( pDrumkit->get_name() ).arg( nCount );
+				nCount++;
+			}
+
+			m_drumkitLabels << sItemLabel;
+			m_drumkitRegister[ sItemLabel ] = pDrumkitEntry.first;
+			
+			pDrumkitItem->setText( 0, sItemLabel );
 			if ( ! m_bInItsOwnDialog ) {
-				InstrumentList *pInstrList = pInfo->get_instruments();
-				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					auto pInstr = pInstrList->get( nInstr );
-					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+				auto pInstrList = pDrumkit->get_instruments();
+				for ( const auto& pInstrument : *pDrumkit->get_instruments() ) {
+					if ( pInstrument != nullptr ) {
+						QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+						pInstrumentItem->setText( 0, QString( "[%1] %2" )
+												  .arg( pInstrument->get_id() )
+												  .arg( pInstrument->get_name() ) );
+						pInstrumentItem->setToolTip( 0, pInstrument->get_name() );
+					}
 				}
 			}
 		}
@@ -261,11 +240,10 @@ void SoundLibraryPanel::updateDrumkitList()
 			__pattern_item->setExpanded( __expand_pattern_list );
 			__pattern_item->setFont( 0, boldFont );
 		
-			//this is the second step to push the mng.function
-			//SoundLibraryDatabase::create_instance();
-			SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
-			soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
-			QStringList allCategoryNameList = db->getAllPatternCategories();
+			soundLibraryInfoVector* allPatternDirList =
+				pSoundLibraryDatabase->getAllPatternInfos();
+			QStringList allCategoryNameList =
+				pSoundLibraryDatabase->getAllPatternCategories();
 
 			//now sorting via category
 
@@ -283,7 +261,7 @@ void SoundLibraryPanel::updateDrumkitList()
 							QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 							pPatternItem->setText( 0, (*mapIterator)->getName());
 							pPatternItem->setText( 1, (*mapIterator)->getPath() );
-							pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( (*mapIterator)->getPath() ));
+							pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( (*mapIterator)->getPath() ));
 							INFOLOG( "Path" +  (*mapIterator)->getPath() );
 						}
 					}
@@ -337,21 +315,25 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 	if ( item->parent() == __system_drumkits_item ||
 		 item->parent() == __user_drumkits_item  ) {
-		// e' stato selezionato un drumkit
+		// Double clicking a drumkit
 	}
 	else {
+		// Double clicking an instrument
+		QString sSelectedName = item->text(0);
 
-		// e' stato selezionato uno strumento
-		QString selectedName = item->text(0);
-		if( item->text(0) == "Patterns" ){
+		QString sInstrName = sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
+		QString sDrumkitName = item->parent()->text(0);
+		QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
+				 .arg( sInstrName ).arg( sDrumkitName ).arg( sDrumkitPath ) );
+
+		auto pInstrument = Instrument::load_instrument( sDrumkitPath, sInstrName );
+
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( "Unable to load instrument. Abort" );
 			return;
 		}
-
-		QString sInstrName = selectedName.remove( 0, selectedName.indexOf( "] " ) + 2 );
-		QString sDrumkitName = item->parent()->text(0);
-		INFOLOG( QString(sDrumkitName) + ", instr:" + sInstrName );
-
-		auto pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
+		
 		pInstrument->set_muted( false );
 
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pInstrument );
@@ -389,20 +371,12 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	if ( __sound_library_tree->currentItem()->parent() == __user_drumkits_item ) {
 		__drumkit_menu->popup( pos );
 	}
-	else if ( __sound_library_tree->currentItem()->parent()->parent() == __user_drumkits_item ) {
-		__instrument_menu->popup( pos );
-	}
-	//else if ( __sound_library_tree->currentItem()->parent()->parent()->parent() ==  __pattern_item_list ) {
-	//	__pattern_menu_list->popup( pos );
-	//}
 	
 
 	if ( __sound_library_tree->currentItem()->parent() == __system_drumkits_item ) {
-		__drumkit_menu->popup( pos );
+		__drumkit_menu_system->popup( pos );
 	}
-	else if ( __sound_library_tree->currentItem()->parent()->parent() == __system_drumkits_item ) {
-		__instrument_menu->popup( pos );
-	}
+
 }
 
 
@@ -479,16 +453,11 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		}
 
 		QString sDrumkitName = __sound_library_tree->currentItem()->parent()->text(0);
-		QString sInstrumentName = ( __sound_library_tree->currentItem()->text(0) ).remove( 0, __sound_library_tree->currentItem()->text(0).indexOf( "] " ) + 2 );
-		QString sDrumkitScope;
-		if ( __sound_library_tree->currentItem()->parent()->parent() == __system_drumkits_item ) {
-			sDrumkitScope = "system";
-		} else {
-			sDrumkitScope = "user";
-		}
+		QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+		QString sInstrumentName = ( __sound_library_tree->currentItem()->text(0) )
+			.remove( 0, __sound_library_tree->currentItem()->text(0).indexOf( "] " ) + 2 );
 
-		QString sText = "importInstrument:" + sDrumkitScope + "::" +
-			sDrumkitName + "::" + sInstrumentName;
+		QString sText = "importInstrument:" + sDrumkitPath + "::" + sInstrumentName;
 
 		QDrag *pDrag = new QDrag(this);
 		QMimeData *pMimeData = new QMimeData;
@@ -507,45 +476,18 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	// Whether we deal with a system or a user drumkit.
-	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
-
-	Drumkit *pDrumkitInfo = nullptr;
-
-	// Find the drumkit in the list. If the drumkit was listed as a
-	// "System drumkit", it won't be searched in the user ones and
-	// vice versa.
-	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
-		
-		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-			Drumkit *pInfo = __system_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
-				break;
-			}
-		}
-	} else if ( sDrumkitType == __user_drumkits_item->text(0) ) {
-		
-		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-			Drumkit *pInfo = __user_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
-				break;
-			}
-		}
-	} else {
-		ERRORLOG( QString( "Unknown drumkit type [%1] for drumkit [%2]" )
-				  .arg( sDrumkitType ).arg( sDrumkitName ) );
-		return;
-	}
+	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+	auto pDrumkit =
+		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	
-	if( !pDrumkitInfo ) {
-		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
+				  .arg( sDrumkitName ).arg( sDrumkitPath ) );
 		return;
 	}
 
-	InstrumentList *pSongInstrList = pHydrogen->getSong()->getInstrumentList();
-	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
+	auto pSongInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pDrumkitInstrList = pDrumkit->get_instruments();
 
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();
@@ -608,16 +550,20 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-	assert( pDrumkitInfo );
+	assert( pDrumkit );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkitInfo, conditionalLoad );
+	pHydrogen->getCoreActionController()->setDrumkit( pDrumkit, conditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }
 
 void SoundLibraryPanel::drumkitLoadedEvent() {
+	update_background_color();
+}
+
+void SoundLibraryPanel::selectedInstrumentChangedEvent() {
 	update_background_color();
 }
 
@@ -640,25 +586,41 @@ void SoundLibraryPanel::restore_background_color()
 	}
 }
 
+QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const {
+	for ( const auto& entry : m_drumkitRegister ) {
+		if ( entry.second == sDrumkitPath ) {
+			return entry.first;
+		}
+	}
 
+	return "";
+}
+QString SoundLibraryPanel::getDrumkitPath( const QString& sDrumkitLabel ) const {
+	return m_drumkitRegister.at( sDrumkitLabel );
+}
 
 void SoundLibraryPanel::change_background_color()
 {
-	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitName();
+	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
+	QString sDrumkitLabel = getDrumkitLabel( sDrumkitPath );
 
-	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
-		for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-			if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
-				( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				break;
-			}
+	if ( sDrumkitLabel.isEmpty() ) {
+		ERRORLOG( QString( "Unable to find label corresponding to drumkit [%1]. No highlighting applied" )
+				  .arg( sDrumkitPath ) );
+		return;
+	}
+	
+	for ( int i = 0; i < __system_drumkits_item->childCount() ; i++){
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitLabel ){
+			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+			return;
 		}
-	} else {
-		for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-			if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sCurDrumkitName ){
-				( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				break;
-			}
+	}
+	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitLabel ){
+			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+			break;
 		}
 	}
 }
@@ -670,24 +632,16 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	QString sDrumkitName = pItem->text(0);
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	Filesystem::Lookup lookup;
 	if ( pItem->parent() == __system_drumkits_item ) {
-		lookup = Filesystem::Lookup::system;
-	} else {
-		lookup = Filesystem::Lookup::user;
-	}
-
-	// If we delete the current loaded drumkit we can get trouble with some empty pointers
-	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitName() &&
-		 lookup == Hydrogen::get_instance()->getCurrentDrumkitLookup() ){
-		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
-		return;
-	}
-
-	if ( lookup == Filesystem::Lookup::system ) {
 		QMessageBox::warning( this, "Hydrogen", QString( "\"%1\" " )
 							  .arg(sDrumkitName)
 							  .append( tr( "is a system drumkit and can't be deleted.") ) );
+		return;
+	}
+
+	// If we delete the current loaded drumkit we can get trouble with some empty pointers
+	if ( pItem->text(0) == Hydrogen::get_instance()->getLastLoadedDrumkitName() ){
+		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
 		return;
 	}
 
@@ -701,11 +655,9 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	bool success = Drumkit::remove( pItem->text(0), lookup );
-	test_expandedItems();
-	updateDrumkitList();
+	bool bSuccess = Drumkit::remove( m_drumkitRegister[ pItem->text(0) ] );
 	QApplication::restoreOverrideCursor();
-	if ( !success) {
+	if ( ! bSuccess ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
 	}
 }
@@ -714,14 +666,14 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 void SoundLibraryPanel::on_drumkitExportAction()
 {
+	auto pSoundLibraryDatabase =
+		Hydrogen::get_instance()->getSoundLibraryDatabase();
+	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	Filesystem::Lookup lookup;
-	if ( __sound_library_tree->currentItem()->parent()->text(0) == __system_drumkits_item->text(0) ) {
-		lookup = Filesystem::Lookup::system;
-	} else {
-		lookup = Filesystem::Lookup::user;
-	}
-	SoundLibraryExportDialog exportDialog( this, sDrumkitName, lookup );
+	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+	
+	SoundLibraryExportDialog exportDialog( this, pDrumkit );
 	exportDialog.exec();
 }
 
@@ -729,86 +681,25 @@ void SoundLibraryPanel::on_drumkitExportAction()
 
 void SoundLibraryPanel::on_drumkitPropertiesAction()
 {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	// Whether we deal with a system or a user drumkit.
-	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
-
-	Drumkit* pDrumkitInfo = nullptr;
-
-	// Find the selected drumkit in the drumkit tree. If it was listed
-	// as a "System drumkit", it won't be searched in the user ones
-	// and vice versa.
-	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
-		
-		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-			Drumkit *pInfo = __system_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
-				break;
-			}
-		}
-	} else if ( sDrumkitType == __user_drumkits_item->text(0) ) {
-		
-		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-			Drumkit*pInfo = __user_drumkit_info_list[i];
-			if ( pInfo->get_name() == sDrumkitName ) {
-				pDrumkitInfo = pInfo;
-				break;
-			}
-		}
-	} else {
-		ERRORLOG( QString( "Unknown drumkit type [%1] for drumkit [%2]" )
-				  .arg( sDrumkitType ).arg( sDrumkitName ) );
+	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+	
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
+				  .arg( sDrumkitName ).arg( sDrumkitPath ) );
 		return;
 	}
 	
-	if( ! pDrumkitInfo ) {
-		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
-		return;
-	}
-
-	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
-
-	Drumkit* pPreDrumkitInfo = nullptr;
-
-	// Find the currently loaded drumkit in the drumkit tree and use
-	// the current lookup to decide whether to search in the system or
-	// the user folder.
-	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
-		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-			Drumkit *prInfo = __system_drumkit_info_list[i];
-			if ( prInfo->get_name() == sPreDrumkitName ) {
-				pPreDrumkitInfo = prInfo;
-				break;
-			}
-		}
-	} else {
-		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-			Drumkit *prInfo = __user_drumkit_info_list[i];
-			if ( prInfo->get_name() == sPreDrumkitName ) {
-				pPreDrumkitInfo = prInfo;
-				break;
-			}
-		}
-	}
-
-	if ( pPreDrumkitInfo == nullptr ){
-		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]").arg( m_sMessageFailedPreDrumkitLoad ).arg(sPreDrumkitName) );
-		return;
-	}
-	assert( pPreDrumkitInfo );
-	
-	//open the soundlibrary save dialog
-	SoundLibraryPropertiesDialog dialog( this , pDrumkitInfo, pPreDrumkitInfo );
+	// We provide a copy of the recent drumkit to ensure the drumkit
+	// is not getting dirty upon saving (in case new properties are
+	// stored in the kit but writing it to disk fails).
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, true );
 	dialog.exec();
-}
-
-
-
-void SoundLibraryPanel::on_instrumentDeleteAction()
-{
-	QMessageBox::warning( this, "Hydrogen", tr( "Not implemented yet.") );
-	ERRORLOG( "[on_instrumentDeleteAction] not implemented yet" );
 }
 
 void SoundLibraryPanel::on_songLoadAction()
@@ -824,8 +715,9 @@ void SoundLibraryPanel::on_patternLoadAction() {
 
 	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
 	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
-	Hydrogen::get_instance()->getCoreActionController()->openPattern( Filesystem::pattern_path( sDrumkitName,
-																								sPatternName ) );
+	Hydrogen::get_instance()->getCoreActionController()
+		->openPattern( Filesystem::pattern_path( sDrumkitName,
+												 sPatternName ) );
 }
 
 
@@ -849,11 +741,13 @@ void SoundLibraryPanel::on_patternDeleteAction()
 		ERRORLOG( "Error removing the pattern" );
 	}
 
-	SoundLibraryDatabase::get_instance()->updatePatterns();
-	test_expandedItems();
-	updateDrumkitList();
+	H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->updatePatterns();
 }
 
+void SoundLibraryPanel::soundLibraryChangedEvent() {
+	test_expandedItems();
+	updateTree();
+}
 
 void SoundLibraryPanel::test_expandedItems()
 {

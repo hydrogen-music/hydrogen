@@ -75,7 +75,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPlaySampleBtn = new Button( this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "", false, QSize( 7, 7 ), tr( "Play sample" ) );
 	m_pPlaySampleBtn->move( 6, 1 );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
-	connect(m_pPlaySampleBtn, SIGNAL( pressed() ), this, SLOT( playSampleBtnClicked() ) );
+	connect(m_pPlaySampleBtn, SIGNAL( clicked() ), this, SLOT( playSampleBtnClicked() ) );
 
 	// Trigger sample LED
 	m_pTriggerSampleLED = new LED( this, QSize( 5, 13 ) );
@@ -92,7 +92,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
-	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
+	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
 	pAction = std::make_shared<Action>("STRIP_MUTE_TOGGLE");
 	pAction->setParameter1( QString::number(nInstr ));
 	m_pMuteBtn->setAction(pAction);
@@ -101,16 +101,17 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
-	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
+	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
 	pAction = std::make_shared<Action>("STRIP_SOLO_TOGGLE");
 	pAction->setParameter1( QString::number(nInstr ));
 	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
+	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
-	pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
+	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
@@ -119,9 +120,10 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
 		m_pFxRotary[i] = new Rotary( this, Rotary::Type::Small, tr( "FX %1 send" ).arg( i + 1 ), false );
-		pAction = std::make_shared<Action>(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
+		m_pFxRotary[i]->setObjectName( "FXRotary" );
+		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
 		pAction->setParameter1( QString::number( nInstr ) );
-		pAction->setParameter2( QString::number(i+1) );
+		pAction->setParameter2( QString::number( i ) );
 		m_pFxRotary[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
 			m_pFxRotary[i]->move( 9, 63 + (20 * y) );
@@ -154,14 +156,15 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// m_pFader
 	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false, false, 0.0, 1.5 );
 	m_pFader->move( 23, 128 );
-	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
+	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
+			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	pAction = std::make_shared<Action>("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr) );
 	m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -218,8 +221,16 @@ void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" )
-														  .arg( value, 0, 'f', 2 ), 2000 );
+
+	QString sMessage = tr( "Set volume [%1] of instrument" )
+		.arg( value, 0, 'f', 2 );
+	sMessage.append( QString( " [%1]" )
+					 .arg( m_pNameWidget->text() ) );
+	QString sCaller = QString( "%1:faderChanged:%2" )
+		.arg( class_name() ).arg( m_pNameWidget->text() );
+	
+	( HydrogenApp::get_instance() )->
+		showStatusBarMessage( sMessage, sCaller );
 }
 
 bool MixerLine::isMuteClicked() {
@@ -404,12 +415,12 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	// Mute button
 	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 5, 16 );
-	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
+	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
 
 	// Solo button
 	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 28, 16 );
-	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
+	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -431,14 +442,15 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	// m_pFader
 	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false, false, 0.0, 1.5 );
 	m_pFader->move( 23, 128 );
-	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
+	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
+			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	//pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
 	//pAction->setParameter1( QString::number(nInstr) );
 	//m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -490,8 +502,16 @@ void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" )
-														  .arg( value, 0, 'f', 2 ), 2000 );
+	
+	QString sMessage = tr( "Set volume [%1] of component" )
+		.arg( value, 0, 'f', 2 );
+	sMessage.append( QString( " [%1]" )
+					 .arg( m_pNameWidget->text() ) );
+	QString sCaller = QString( "%1:faderChanged:%2" )
+		.arg( class_name() ).arg( m_pNameWidget->text() );
+	
+	( HydrogenApp::get_instance() )->
+		showStatusBarMessage( sMessage, sCaller );
 }
 
 bool ComponentMixerLine::isMuteClicked() {
@@ -606,7 +626,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ) );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ), false, false );
 	m_pPeakLCD->move( 22, 51 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
@@ -628,8 +648,9 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 	// Mute btn
 	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
+	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
-	connect( m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ) );
+	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 	pAction = std::make_shared<Action>("MUTE_TOGGLE");
 	m_pMuteBtn->setAction( pAction );
 
@@ -652,7 +673,7 @@ MasterMixerLine::~MasterMixerLine()
 
 void MasterMixerLine::muteClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( ! m_pMuteBtn->isChecked() );
+	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
 }
 
 void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
@@ -667,8 +688,11 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 	Hydrogen::get_instance()->setIsModified( true );
 
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" )
-														  .arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->
+		showStatusBarMessage( tr( "Set master volume [%1]" )
+							  .arg( value, 0, 'f', 2 ),
+							  QString( "%1:faderChanged" )
+							  .arg( class_name() ) );
 }
 
 float MasterMixerLine::getVolume()
@@ -771,6 +795,7 @@ void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 	Rotary* pRotary = static_cast<Rotary*>( pRef );
 	
 	QString sMsg;
+	QString sCaller = QString( "%1:rotaryChanged" ).arg( class_name() );
 	double fVal = (double) pRotary->getValue();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -779,14 +804,17 @@ void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 	if ( pRotary == m_pHumanizeTimeRotary ) {
 		pHydrogen->getSong()->setHumanizeTimeValue( fVal );
 		sMsg = tr( "Set humanize time param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
+		sCaller.append( ":humanizeTime" );
 	}
 	else if ( pRotary == m_pHumanizeVelocityRotary ) {
 		pHydrogen->getSong()->setHumanizeVelocityValue( fVal );
 		sMsg = tr( "Set humanize vel. param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
+		sCaller.append( ":humanizeVelocity" );
 	}
 	else if ( pRotary == m_pSwingRotary ) {
 		pHydrogen->getSong()->setSwingFactor( fVal );
 		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
+		sCaller.append( ":humanizeSwing" );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
@@ -794,7 +822,7 @@ void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 
 	pHydrogen->getAudioEngine()->unlock();
 
-	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
+	( HydrogenApp::get_instance() )->showStatusBarMessage( sMsg, sCaller );
 }
 
 
@@ -884,17 +912,19 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 
 	// active button
 	m_pBypassBtn = new Button( this, QSize( 34, 14 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
+	m_pBypassBtn->setObjectName( "MixerFXBypassButton" );
 	m_pBypassBtn->move( 52, 25 );
-	connect( m_pBypassBtn, SIGNAL( pressed() ), this, SLOT( bypassBtnClicked() ) );
+	connect( m_pBypassBtn, SIGNAL( clicked() ), this, SLOT( bypassBtnClicked() ) );
 	
 
 	// edit button
 	m_pEditBtn = new Button( this, QSize( 34, 14 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
+	m_pEditBtn->setObjectName( "MixerFXEditButton" );
 	m_pEditBtn->move( 86, 25 );
-	connect( m_pEditBtn, SIGNAL( pressed() ), this, SLOT( editBtnClicked() ) );
+	connect( m_pEditBtn, SIGNAL( clicked() ), this, SLOT( editBtnClicked() ) );
 
 	// instrument name widget
-	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ) );
+	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ), false, false );
 	m_pNameLCD->move( 11, 9 );
 	m_pNameLCD->setText( "No name" );
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );
@@ -904,7 +934,8 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 124, 4 );
 	m_pRotary->setIsActive( false );
-	connect( m_pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+	connect( m_pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
+			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	m_pReturnLbl = new ClickableLabel( this, QSize( 46, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getReturnLabel(), ClickableLabel::Color::Dark );
 	m_pReturnLbl->move( 123, 30 );
@@ -946,15 +977,8 @@ void LadspaFXMixerLine::setFxBypassed( bool bBypassed )
 
 void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)
 {
+	emit volumeChanged( this );
 	UNUSED( ref );
-	m_fMaxPeak = 0.0;
-
-	Hydrogen::get_instance()->setIsModified( true );
-	emit volumeChanged(this);
-	
-	double value = (double) ref->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" )
-														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )

@@ -75,15 +75,18 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pShowInstrumentBtn = new Button( m_pInstrumentPropTop, QSize( 141, 22 ), Button::Type::Toggle, "",
 									   pCommonStrings->getGeneralButton(), false, QSize(),
 									   tr( "Show instrument properties" ) );
-	connect( m_pShowInstrumentBtn, SIGNAL( pressed() ), this, SLOT( showInstrument() ) );
 	m_pShowInstrumentBtn->move( 4, 4 );
-	m_pShowInstrumentBtn->setChecked( true );
+	
+	connect( m_pShowInstrumentBtn, &QPushButton::clicked,
+			 [=]() { showLayers( false ); } );
 
 	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 140, 22 ), Button::Type::Toggle, "",
 								   pCommonStrings->getLayersButton(), false, QSize(),
 								   tr( "Show layers properties" ) );
-	connect( m_pShowLayersBtn, SIGNAL( pressed() ), this, SLOT( showLayers() ) );
 	m_pShowLayersBtn->move( 145, 4 );
+	
+	connect( m_pShowLayersBtn, &QPushButton::clicked,
+			 [=]() { showLayers( true ); } );
 
 
 	// Instrument properties
@@ -130,7 +133,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
 			 this, SLOT( labelClicked(ClickableLabel*) ) );
 	
-	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ) );
+	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ), false, false );
 	m_pPitchLCD->move( 24, 213 );
 	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ),
 									  pCommonStrings->getPitchLabel() );
@@ -172,7 +175,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle,
 									 "", pCommonStrings->getBypassButton(), true,
 									 QSize( 0, 0 ), "", false, true );
-	connect( m_pFilterBypassBtn, SIGNAL( pressed() ),
+	connect( m_pFilterBypassBtn, SIGNAL( clicked() ),
 			 this, SLOT( filterActiveBtnClicked() ) );
 	m_pFilterBypassBtn->move( 67, 169 );
 
@@ -236,7 +239,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ ADSR
 
 	// instrument gain
-	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ) );
+	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ), false, false );
 	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
 									tr( "Instrument gain" ), false, 0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
@@ -332,8 +335,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_buttonDropDownCompo = new Button( m_pLayerProp, QSize( 18, 18 ),
 										Button::Type::Push, "dropdown.svg", "",
 										false, QSize( 12, 12 ) );
+	m_buttonDropDownCompo->setObjectName( "InstrumentEditorComponentNameDropDown" );
 	m_buttonDropDownCompo->move( 263, 8 );
-	connect( m_buttonDropDownCompo, SIGNAL( pressed() ),
+	connect( m_buttonDropDownCompo, SIGNAL( clicked() ),
 			 this, SLOT( onDropDownCompoClicked() ) );
 
 	// Layer preview
@@ -374,14 +378,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 304 );
 
-	connect( m_pLoadLayerBtn, SIGNAL( pressed() ),
+	connect( m_pLoadLayerBtn, SIGNAL( clicked() ),
 			 this, SLOT( loadLayerBtnClicked() ) );
-	connect( m_pRemoveLayerBtn, SIGNAL( pressed() ),
+	connect( m_pRemoveLayerBtn, SIGNAL( clicked() ),
 			 this, SLOT( removeLayerButtonClicked() ) );
-	connect( m_pSampleEditorBtn, SIGNAL( pressed() ),
+	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
 			 this, SLOT( showSampleEditor() ) );
 	// Layer gain
-	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ), false, false );
 	m_pLayerGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal,
 									 tr( "Layer gain" ), false , 0.0, 5.0);
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
@@ -391,7 +395,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  pCommonStrings->getLayerGainLabel() );
 	m_pLayerGainLbl->move( 50, 360 );
 
-	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ), false, false );
 	m_pCompoGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal,
 									 tr( "Component volume" ), false, 0.0, 5.0 );
 	m_pCompoGainRotary->setDefaultValue ( 1.0 );
@@ -401,8 +405,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  pCommonStrings->getComponentGainLabel() );
 	m_pCompoGainLbl->move( 147, 360 );
 
-	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
-	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
+	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ), false, false );
+	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ), false, false );
 	m_pLayerPitchLbl = new ClickableLabel( m_pLayerProp, QSize( 45, 10 ),
 										   pCommonStrings->getPitchLabel() );
 	m_pLayerPitchLbl->move( 17, 412 );
@@ -454,10 +458,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
-	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
-		DrumkitComponent* pComponent = *it;
-		if( !itemsCompo.contains( pComponent->get_name() ) ) {
+	auto pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	for ( const auto& pComponent : *pComponentList ) {
+		if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
 			itemsCompo.append( pComponent->get_name() );
 		}
 	}
@@ -473,6 +476,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	update();
 	//~component handling
 
+	showLayers( false );
 
 	selectLayer( m_nSelectedLayer );
 
@@ -500,32 +504,17 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	}
 }
 
+void InstrumentEditor::drumkitLoadedEvent() {
+	selectedInstrumentChangedEvent();
+}
+
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-
+	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
-	if ( pSong != nullptr ) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = pHydrogen->getSelectedInstrumentNumber();
-		if ( nInstr >= pInstrList->size() ) {
-			nInstr = -1;
-		}
-
-		if ( nInstr == -1 ) {
-			m_pInstrument = nullptr;
-		}
-		else {
-			m_pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
-		}
-	}
-	else {
-		m_pInstrument = nullptr;
-	}
-	pHydrogen->getAudioEngine()->unlock();
+	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	// update layer list
 	if ( m_pInstrument ) {
@@ -600,11 +589,10 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
 
 		itemsCompo.clear();
-		std::vector<DrumkitComponent*>* compoList = pSong->getComponents();
-		for (auto& it : *pSong->getComponents() ) {
-			DrumkitComponent* pDrumkitComponent = it;
-			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) ) {
-				itemsCompo.append( pDrumkitComponent->get_name() );
+		auto compoList = pSong->getComponents();
+		for ( const auto& pComponent : *pSong->getComponents() ) {
+			if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
+				itemsCompo.append( pComponent->get_name() );
 			}
 		}
 		itemsCompo.append("--sep--");
@@ -615,8 +603,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		update();
 
 		bool bFound = false;
-		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-			DrumkitComponent* pComponent = *it;
+		for ( const auto& pComponent : *compoList ) {
 			if ( pComponent->get_id() == m_nSelectedComponent ) {
 				bFound = true;
 				break;
@@ -626,7 +613,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = compoList->front()->get_id();
 		}
 
-		DrumkitComponent* pTmpComponent = pSong->getComponent( m_nSelectedComponent );
+		auto pTmpComponent = pSong->getComponent( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
@@ -668,7 +655,35 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	selectLayer( m_nSelectedLayer );
 }
 
+// In here we just check those parameters that can be altered by MIDI
+// or OSC messages or other parts of Hydrogen.
+void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
+{
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	
+	// Check if either this particular line or all lines should be updated.
+	if ( m_pInstrument != nullptr &&
+		 ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
+		   nInstrumentNumber == -1 ) ) {
 
+		if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
+			m_pNameLbl->setText( m_pInstrument->get_name() );
+		}
+
+		// filter
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+		//~ filter
+	}
+	else {
+		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
+		m_pWaveDisplay->updateDisplay( nullptr );
+		m_nSelectedLayer = 0;
+	}
+
+	selectLayer( m_nSelectedLayer );
+}
 
 void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 {
@@ -753,7 +768,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			}
 		}
 		else if ( pRotary == m_pLayerPitchFineRotary ) {
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal, 0, 'f', 0 ) );
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
@@ -781,7 +796,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 void InstrumentEditor::filterActiveBtnClicked()
 {
 	if ( m_pInstrument ) {
-		m_pInstrument->set_filter_active( m_pFilterBypassBtn->isChecked() );
+		m_pInstrument->set_filter_active( ! m_pFilterBypassBtn->isChecked() );
 	}
 }
 
@@ -809,36 +824,6 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 	else {
 		loadLayerBtnClicked();
 	}
-}
-
-void InstrumentEditor::showLayers()
-{
-	if ( m_pShowLayersBtn->isDown() && m_pShowLayersBtn->isChecked() ) {
-		m_pShowLayersBtn->setChecked( true );
-		m_pShowLayersBtn->setDown( false );
-		return;
-	}
-	m_pShowInstrumentBtn->setChecked( false );
-	m_pLayerProp->show();
-	m_pInstrumentProp->hide();
-
-	m_pShowLayersBtn->show();
-	m_pShowInstrumentBtn->show();
-}
-
-void InstrumentEditor::showInstrument()
-{
-	if ( m_pShowInstrumentBtn->isDown() && m_pShowInstrumentBtn->isChecked() ) {
-		m_pShowInstrumentBtn->setChecked( true );
-		m_pShowInstrumentBtn->setDown( false );
-		return;
-	}
-	m_pShowLayersBtn->setChecked( false );
-	m_pInstrumentProp->show();
-	m_pLayerProp->hide();
-
-	m_pShowLayersBtn->show();
-	m_pShowInstrumentBtn->show();
 }
 
 void InstrumentEditor::showSampleEditor()
@@ -973,15 +958,10 @@ void InstrumentEditor::loadLayerBtnClicked()
 	int firstSelection = selectedLayer;
 
 	// Ensure instrument pointer is current
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong ) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		m_pInstrument = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
-	} else {
-		m_pInstrument = nullptr;
-	}
+	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	if ( m_pInstrument == nullptr ) {
+		WARNINGLOG( "No instrument selected" );
 		return;
 	}
 
@@ -1088,7 +1068,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
+	auto pComponent = pSong->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
 		return;
 	}
@@ -1185,7 +1165,8 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" )
+										   .arg( fFinePitch * 100, 0, 'f', 0 ) );
 
 			m_pRemoveLayerBtn->setIsActive( true );
 			m_pSampleEditorBtn->setIsActive( true );
@@ -1312,10 +1293,9 @@ void InstrumentEditor::update()
 int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 {
 	bool bFoundFreeSlot = true;
-	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponentList->begin() ; it != pDrumkitComponentList->end(); ++it) {
-		DrumkitComponent* pDrumkitComponent = *it;
-		if( pDrumkitComponent->get_id() == startingPoint ) {
+	auto pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	for ( const auto& pComponent : *pDrumkitComponentList ) {
+		if ( pComponent->get_id() == startingPoint ) {
 			bFoundFreeSlot = false;
 			break;
 		}
@@ -1339,7 +1319,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			bool bIsOkPressed;
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
-				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
+				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( findFreeDrumkitComponentId(), sNewName );
 				pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 				//auto instrument_component = std::make_shared<InstrumentComponent>( dm_component->get_id() );
@@ -1364,20 +1344,20 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
+		auto pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pHydrogen->getSong()->getInstrumentList();
+		auto pInstruments = pHydrogen->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
-				auto  pInstrumentComponent = pInstrument->get_components()->at( o );
+				auto pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
 					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;
@@ -1386,7 +1366,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 
 		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
-			DrumkitComponent* pTmpDrumkitComponent = pDrumkitComponents->at( n );
+			auto pTmpDrumkitComponent = pDrumkitComponents->at( n );
 			if( pTmpDrumkitComponent->get_id() == pDrumkitComponent->get_id() ) {
 				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
 				break;
@@ -1395,7 +1375,6 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 		m_nSelectedComponent = pDrumkitComponents->front()->get_id();
 
-		delete pDrumkitComponent;
 
 		selectedInstrumentChangedEvent();
 		// this will force an update...
@@ -1406,12 +1385,11 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
-		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
-			DrumkitComponent* pDrumkitComponent = *it;
-			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
-				m_nSelectedComponent = pDrumkitComponent->get_id();
-				m_pCompoNameLbl->setText( pDrumkitComponent->get_name() );
+		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		for ( const auto& pComponent : *pDrumkitComponents ) {
+			if ( pComponent->get_name().compare( sSelectedAction ) == 0) {
+				m_nSelectedComponent = pComponent->get_id();
+				m_pCompoNameLbl->setText( pComponent->get_name() );
 				break;
 			}
 		}
@@ -1483,5 +1461,20 @@ void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes change
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		setStyleSheet( QString( "QLabel { background: %1 }" )
 					   .arg( pPref->getColorTheme()->m_windowColor.name() ) );
+	}
+}
+
+void InstrumentEditor::showLayers( bool bShow ) {
+	if ( bShow ) {
+		m_pInstrumentProp->hide();
+		m_pShowInstrumentBtn->setChecked( false );
+		m_pLayerProp->show();
+		m_pShowLayersBtn->setChecked( true );
+	}
+	else {
+		m_pInstrumentProp->show();
+		m_pShowInstrumentBtn->setChecked( true );
+		m_pLayerProp->hide();
+		m_pShowLayersBtn->setChecked( false );
 	}
 }

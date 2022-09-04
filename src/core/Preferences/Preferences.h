@@ -391,7 +391,7 @@ public:
 	void			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
-	void			savePreferences();
+	bool			savePreferences();
 
 	const QString&	getDataDirectory();
 
@@ -640,6 +640,11 @@ public:
     int				getMidiExportMode() const;
     void			setMidiExportMode(int nExportMode);
 
+	bool			m_bShowExportSongLicenseWarning;
+	bool			m_bShowExportDrumkitLicenseWarning;
+	bool			m_bShowExportDrumkitCopyleftWarning;
+	bool			m_bShowExportDrumkitAttributionWarning;
+
 	/** Returns #m_sPreferencesOverwritePath
 	 * \return #m_sPreferencesOverwritePath */
 	QString			getPreferencesOverwritePath();
@@ -793,8 +798,8 @@ private:
 	
 	Preferences();
 
-	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
-	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
+	WindowProperties readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp );
+	void writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop );
 };
 
 inline QString			Preferences::getLastExportPatternAsDirectory() const {

@@ -25,9 +25,10 @@
 
 #include <cassert>
 #include <vector>
-#include <core/Object.h>
 #include <memory>
 
+#include <core/Object.h>
+#include <core/License.h>
 
 namespace H2Core
 {
@@ -47,10 +48,11 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-		void				save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
-		static std::shared_ptr<InstrumentComponent> 	load_from( XMLNode* node,
-																   const QString& dk_path,
-																   bool bSilent = false );
+	void				save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
+		static std::shared_ptr<InstrumentComponent> load_from( XMLNode* pNode,
+															   const QString& sDrumkitPath,
+															   const License& drumkitLicense = License(),
+															   bool bSilent = false );
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
 		std::shared_ptr<InstrumentLayer>	get_layer( int idx );
@@ -66,6 +68,11 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		static int			getMaxLayers();
 		/** @param layers Sets #m_nMaxLayers.*/
 		static void			setMaxLayers( int layers );
+	
+		/** Iteration */
+	std::vector<std::shared_ptr<InstrumentLayer>>::iterator begin();
+	std::vector<std::shared_ptr<InstrumentLayer>>::iterator end();
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

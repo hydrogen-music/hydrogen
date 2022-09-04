@@ -30,11 +30,11 @@ namespace H2Core
 
 namespace Interpolation
 {
-	enum class InterpolateMode { Linear,
-								Cosine,
-								Third,
-								Cubic,
-								Hermite };
+	enum class InterpolateMode { Linear = 0,
+								Cosine = 1,
+								Third = 2,
+								Cubic = 3,
+								Hermite = 4 };
 
 	inline static float linear_Interpolate( float y1, float y2, float mu )
 	{

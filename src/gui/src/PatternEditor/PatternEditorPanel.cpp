@@ -60,7 +60,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
 }
 
 
@@ -104,7 +104,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//soundlibrary name
 	m_pSLlabel = new QLabel( nullptr );
 	m_pSLlabel->setFont( boldFont );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
 	m_pSLlabel->setFixedSize( 170, 20 );
 	m_pSLlabel->move( 10, 3 );
 	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
@@ -124,12 +124,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
 	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
 			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
@@ -185,7 +187,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 								  "speaker.svg", "", false, QSize( 15, 13 ),
 								  tr( "Hear new notes" ), false, true );
 	m_pHearNotesBtn->move( 42, 1 );
-	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
+	connect( m_pHearNotesBtn, SIGNAL( clicked() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
 	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 36, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
@@ -202,7 +204,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( m_pQuantizeEventsBtn, SIGNAL( pressed() ), this, SLOT( quantizeEventsBtnClick() ) );
+	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ), this, SLOT( quantizeEventsBtnClick() ) );
 	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 44, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
 	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
 	m_pQuantizeEventsLbl->move( 64, 4 );
@@ -211,7 +213,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->move( 178, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
-	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_drum_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
 	// Since the button to activate the piano roll is shown
 	// initially, both buttons get the same tooltip. Actually only the
 	// last one does need a tooltip since it will be shown regardless
@@ -220,21 +222,21 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// both of them.
 	__show_piano_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_piano_btn->move( 178, 1 );
-	__show_piano_btn->setObjectName( "ShowDrumBtn" );
+	__show_piano_btn->setObjectName( "ShowPianoBtn" );
 	__show_piano_btn->hide();
-	connect( __show_piano_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_piano_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
 	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 40, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
 	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
 	m_pShowPianoLbl->move( 135, 4 );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( pressed() ), this, SLOT( zoomInBtnClicked() ) );
+	connect( zoom_in_btn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
 	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnClicked() ) );
+	connect( zoom_out_btn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
@@ -609,8 +611,6 @@ PatternEditorPanel::~PatternEditorPanel()
 
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
-	getDrumPatternEditor()->updateEditor();
-	
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -731,24 +731,24 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 void PatternEditorPanel::hearNotesBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( ! m_pHearNotesBtn->isChecked() );
+	pref->setHearNewNotes( m_pHearNotesBtn->isChecked() );
 
-	if ( ! m_pHearNotesBtn->isChecked() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
+	if ( m_pHearNotesBtn->isChecked() ) {
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = On" ) );
 	} else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = Off" ) );
 	}
 }
 
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( ! m_pQuantizeEventsBtn->isChecked() );
+	pref->setQuantizeEvents( m_pQuantizeEventsBtn->isChecked() );
 
-	if ( ! m_pQuantizeEventsBtn->isChecked() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),	2000 );
+	if ( m_pQuantizeEventsBtn->isChecked() ) {
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
 	} else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ) );
 	}
 }
 
@@ -906,8 +906,24 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
+void PatternEditorPanel::updatePatternInfo() {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	m_pPattern = nullptr;
+	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+
+	if ( pSong != nullptr ) {
+		PatternList *pPatternList = pSong->getPatternList();
+		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
+			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		}
+	}
+}
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+
+	updatePatternInfo();
 
 	// Changes of pattern may leave the cursor out of bounds.
 	setCursorPosition( getCursorPosition() );
@@ -967,7 +983,6 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
-
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -1000,15 +1015,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	int nNewLength =
 		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
 
-	// Delete all notes that are not accessible anymore.
-	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( "remove excessive notes after pattern size change" );
-
-	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
-													   m_pPattern->get_length(),
-													   fNewDenominator,
-													   m_pPattern->get_denominator(),
-													   m_nSelectedPatternNumber ) );
+	if ( nNewLength == m_pPattern->get_length() ) {
+		return;
+	}
 
 	std::vector<Note*> excessiveNotes;
 	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
@@ -1019,6 +1028,23 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 			excessiveNotes.push_back( pNote );
 		}
 	}
+
+	// Delete all notes that are not accessible anymore.
+	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	if ( excessiveNotes.size() != 0 ) {
+		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2 (trimming %3 notes)" )
+								.arg( fNewNumerator ).arg( fNewDenominator )
+								.arg( excessiveNotes.size() ) );
+	} else {
+		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
+								.arg( fNewNumerator ).arg( fNewDenominator ) );
+	}
+
+	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
+													   m_pPattern->get_length(),
+													   fNewDenominator,
+													   m_pPattern->get_denominator(),
+													   m_nSelectedPatternNumber ) );
 
 	for ( auto pNote : excessiveNotes ) {
 		// Note is exceeding the new pattern length. It has to be

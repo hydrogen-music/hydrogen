@@ -122,7 +122,14 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 
 void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 	double fOldValue = value();
-	
+
+	// Pass Undo/Redo commands up to the parent
+	if ( ev->matches( QKeySequence::StandardKey::Undo )
+		 || ev->matches( QKeySequence::StandardKey::Redo ) ) {
+		ev->ignore();
+		return;
+	}
+
 	if ( m_kind == Kind::PatternSizeDenominator &&
 		 ( ev->key() == Qt::Key_Up || ev->key() == Qt::Key_Down ||
 		   ev->key() == Qt::Key_PageUp || ev->key() == Qt::Key_PageDown ) ) {

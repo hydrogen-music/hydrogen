@@ -263,9 +263,7 @@ private:
 
 
 	bool processPlaybackTrack(int nBufferSize);
-	
-	bool isAnyInstrumentSoloed() const;
-	
+
 	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
 
 	Interpolation::InterpolateMode m_interpolateMode;
@@ -275,7 +273,7 @@ private:
 		Note *pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
-		DrumkitComponent *pDrumCompo,
+		std::shared_ptr<DrumkitComponent> pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,
@@ -290,7 +288,7 @@ private:
 		Note *pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
-		DrumkitComponent *pDrumCompo,
+		std::shared_ptr<DrumkitComponent> pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
 		float cost_L,

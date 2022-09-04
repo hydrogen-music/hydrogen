@@ -57,6 +57,8 @@ class InstrumentLine : public PixmapWidget
 	public:
 		explicit InstrumentLine(QWidget* pParent);
 
+	int getNumber() const;
+	
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
@@ -83,12 +85,10 @@ public slots:
 		void functionFillNotes( int every );
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteAllInstrumentPatterns();
-		void functionPasteInstrumentPatternExec(int patternID);
 		void functionDeleteNotesAllPatterns();
 		void functionCutNotesAllPatterns();
 
 		void functionRandomizeVelocity();
-		void functionDeleteInstrument();
 		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
@@ -108,6 +108,7 @@ public slots:
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 	virtual void enterEvent( QEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 	virtual void paintEvent( QPaintEvent* ev ) override;
@@ -119,6 +120,10 @@ public slots:
 	/** Whether the cursor entered the boundary of the widget.*/
 	bool m_bEntered;
 };
+
+inline int InstrumentLine::getNumber() const {
+	return m_nInstrumentNumber;
+}
 
 
 /** \ingroup docGUI*/
@@ -142,6 +147,7 @@ class PatternEditorInstrumentList :  public QWidget,
 	virtual void selectedInstrumentChangedEvent() override;
 	virtual void updateSongEvent( int nEvent ) override;
 	virtual void drumkitLoadedEvent() override;
+	virtual void instrumentParametersChangedEvent( int ) override;
 	
 	void repaintInstrumentLines();
 	public slots:

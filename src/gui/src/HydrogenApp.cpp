@@ -47,8 +47,6 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "SoundLibrary/SoundLibraryDatastructures.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -89,13 +87,12 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 	// Wait for m_nPreferenceUpdateTimeout milliseconds of no update
-	// signal before propagating the update. Else importing/reseting a
+	// signal before propagating the update. Else importing/resetting a
 	// theme will slow down the GUI significantly.
 	m_pPreferencesUpdateTimer = new QTimer( this );
 	m_pPreferencesUpdateTimer->setSingleShot( true );
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
-	SoundLibraryDatabase::create_instance();
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	//setup the undo stack
@@ -207,12 +204,11 @@ HydrogenApp::~HydrogenApp()
 	delete m_pDirector;
 	delete m_pSampleEditor;
 
-	delete SoundLibraryDatabase::get_instance();
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if (pHydrogen) {
-		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete pHydrogen;
+	if ( m_pTab ) {
+		delete m_pTab;
+	}
+	if ( m_pSplitter ) {
+		delete m_pSplitter;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -221,18 +217,15 @@ HydrogenApp::~HydrogenApp()
 	}
 	#endif
 
-}
-
-
-
-/// Return an HydrogenApp m_pInstance
-HydrogenApp* HydrogenApp::get_instance() {
-	if (m_pInstance == nullptr) {
-		std::cerr << "Error! HydrogenApp::get_instance (m_pInstance = NULL)" << std::endl;
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if (pHydrogen) {
+		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
+		delete pHydrogen;
 	}
-	return m_pInstance;
-}
 
+	m_pInstance = nullptr;
+
+}
 
 
 
@@ -327,6 +320,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// MIXER
 	m_pMixer = new Mixer(nullptr);
+	m_pMixer->setObjectName( "Mixer" );
 	WindowProperties mixerProp = pPref->getMixerProperties();
 
 	if ( layout != InterfaceTheme::Layout::SinglePane ) {
@@ -379,13 +373,18 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-bool HydrogenApp::openSong( QString sFilename) {
+bool HydrogenApp::openSong( QString sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	// Check whether there is an autosave file next to it
 	// containing newer content.
 	QFileInfo fileInfo( sFilename );
+
+	// Ensure the path to the file is not relative.
+	if ( fileInfo.isRelative() ) {
+		sFilename = fileInfo.absoluteFilePath();
+	}
 
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
@@ -416,7 +415,7 @@ bool HydrogenApp::openSong( QString sFilename) {
 	if ( ! sRecoverFilename.isEmpty() ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "There are unsaved changes." ) );
 		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
@@ -433,7 +432,7 @@ bool HydrogenApp::openSong( QString sFilename) {
 	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
@@ -450,7 +449,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 	if ( ! pCoreActionController->openSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
@@ -493,7 +492,7 @@ bool HydrogenApp::recoverEmptySong() {
 	if ( ! sRecoverFilename.isEmpty() ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "There are unsaved changes." ) );
 		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
@@ -514,7 +513,7 @@ bool HydrogenApp::recoverEmptySong() {
 	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
@@ -578,19 +577,16 @@ void HydrogenApp::showPreferencesDialog()
 
 
 
-void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
+void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& sCaller )
 {
-	auto pPlayerControl = getPlayerControl();
-	if ( pPlayerControl != nullptr ) {
-		pPlayerControl->resetStatusLabel();
-		pPlayerControl->showMessage( msg, msec );
+	if ( m_pPlayerControl != nullptr ) {
+		m_pPlayerControl->showStatusBarMessage( sMessage, sCaller );
 	}
 }
 
 void HydrogenApp::XRunEvent() {
-	setStatusBarMessage( QString( "XRUNS [%1]!!!" )
-						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ),
-						 5000 );
+	showStatusBarMessage( QString( "XRUNS [%1]!!!" )
+						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ) );
 }
 
 void HydrogenApp::updateWindowTitle()
@@ -637,12 +633,6 @@ void HydrogenApp::updateWindowTitle()
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) +
 								   QString( " - " ) + sTitle ) );
 }
-
-void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
-{
-	getPlayerControl()->showScrollMessage( msg, msec , test);
-}
-
 
 
 void HydrogenApp::showAudioEngineInfoForm()
@@ -696,8 +686,9 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	setStatusBarMessage( tr( "Drumkit loaded: [%1]" )
-						 .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ), 2000 );
+	showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitName() )
+								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitPath() ) ) );
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -745,8 +736,8 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->selectedInstrumentChangedEvent();
 				break;
 
-			case EVENT_PARAMETERS_INSTRUMENT_CHANGED:
-				pListener->parametersInstrumentChangedEvent();
+			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
+				pListener->instrumentParametersChangedEvent( event.value );
 				break;
 
 			case EVENT_MIDI_ACTIVITY:
@@ -861,6 +852,18 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->playbackTrackChangedEvent();
 				break;
 
+			case EVENT_SOUND_LIBRARY_CHANGED:
+				pListener->soundLibraryChangedEvent();
+				break;
+
+			case EVENT_NEXT_SHOT:
+				pListener->nextShotEvent();
+				break;
+				
+			case EVENT_STACKED_PATTERNS_CHANGED:
+				pListener->stackedPatternsChangedEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
@@ -966,9 +969,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	}
 		
 	if ( nValue == 0 ) {
-		setScrollStatusBarMessage( tr("Preferences saved.") + 
-								   QString(" Into: ") + 
-								   sPreferencesFilename, 2000 );
+		showStatusBarMessage( tr("Preferences saved.") + 
+							  QString(" Into: ") + sPreferencesFilename );
 	} else if ( nValue == 1 ) {
 		
 		// Since the Preferences have changed, we also have to reflect
@@ -1017,9 +1019,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 #endif
 
 		// Inform the user about which file was loaded.
-		setScrollStatusBarMessage( tr("Preferences loaded.") + 
-								   QString(" From: ") + 
-								   sPreferencesFilename, 2000 );
+		showStatusBarMessage( tr("Preferences loaded.") + 
+							  QString(" From: ") + sPreferencesFilename );
 
 	
 	} else {
@@ -1050,7 +1051,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		QString sFilename = pSong->getFilename();
 		
 		// Song was saved.
-		setScrollStatusBarMessage( tr("Song saved as: ") + sFilename, 2000 );
+		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
 	} else if ( nValue == 2 ) {
@@ -1079,4 +1080,126 @@ void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
 void HydrogenApp::propagatePreferences() {
 	emit preferencesChanged( m_bufferedChanges );
 	m_bufferedChanges = H2Core::Preferences::Changes::None;
+}
+
+bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( ! pPref->m_bShowExportDrumkitLicenseWarning &&
+		 ! pPref->m_bShowExportDrumkitCopyleftWarning &&
+		 ! pPref->m_bShowExportDrumkitAttributionWarning ) {
+		return true;
+	}
+	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	auto drumkitLicense = pDrumkit->get_license();
+	auto contentVector = pDrumkit->summarizeContent();
+
+	QStringList additionalLicenses;
+	bool bCopyleftLicenseFound = drumkitLicense.isCopyleft();
+	bool bAttributionRequired = drumkitLicense.hasAttribution();
+
+	for ( const auto& ccontent : contentVector ) {
+		QString sSampleLicense = QString( "%1 (by %2)" )
+			.arg( ccontent->m_license.getLicenseString() )
+			.arg( ccontent->m_license.getCopyrightHolder() );
+		
+		if ( ccontent->m_license != drumkitLicense &&
+			 ! additionalLicenses.contains( sSampleLicense ) ) {
+			additionalLicenses << sSampleLicense;
+
+			bCopyleftLicenseFound = bCopyleftLicenseFound ||
+				ccontent->m_license.isCopyleft();
+			bAttributionRequired = bAttributionRequired ||
+				ccontent->m_license.hasAttribution();
+		}
+	}
+
+	if ( additionalLicenses.size() > 0 &&
+		 pPref->m_bShowExportDrumkitLicenseWarning ) {
+
+		QString sMsg = tr( "Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?" )
+			.arg( drumkitLicense.getLicenseString() );
+
+		sMsg.append( "\n" );
+		for ( const auto& sLicense : additionalLicenses ) {
+			sMsg.append( QString( "\n- %1" ).arg( sLicense ) );
+		}
+		
+		QMessageBox licenseWarning;
+		licenseWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		licenseWarning.setText( sMsg );
+		licenseWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			licenseWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			licenseWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		licenseWarning.exec();
+
+		if ( licenseWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitLicenseWarning = false;
+		}
+		else if ( licenseWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on overwriting licenses" );
+			return false;
+		}
+	}
+
+	if ( bCopyleftLicenseFound &&
+		 pPref->m_bShowExportDrumkitCopyleftWarning ) {
+		QMessageBox copyleftWarning;
+		copyleftWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		copyleftWarning.setText( pCommonStrings->getLicenseCopyleftWarning() );
+		copyleftWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			copyleftWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			copyleftWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		copyleftWarning.exec();
+
+		if ( copyleftWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitCopyleftWarning = false;
+		}
+		else if ( copyleftWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on copyleft licenses" );
+			return false;
+		}
+	}
+
+	if ( bAttributionRequired &&
+		 pPref->m_bShowExportDrumkitAttributionWarning ) {
+		QMessageBox attributionWarning;
+		attributionWarning.setWindowTitle( pCommonStrings->getLicenseWarningWindowTitle() );
+		attributionWarning.setText( pCommonStrings->getLicenseAttributionWarning() );
+		attributionWarning.addButton( pCommonStrings->getButtonOk(),
+								   QMessageBox::AcceptRole );
+		auto pMuteButton =
+			attributionWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			attributionWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+
+		attributionWarning.exec();
+
+		if ( attributionWarning.clickedButton() == pMuteButton ) {
+			pPref->m_bShowExportDrumkitAttributionWarning = false;
+		}
+		else if ( attributionWarning.clickedButton() == pRejectButton ) {
+			ERRORLOG( "Aborted on attribution licenses" );
+			return false;
+		}
+	}
+	
+	return true;
 }

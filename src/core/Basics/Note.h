@@ -113,15 +113,17 @@ class Note : public H2Core::Object<Note>
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param instruments the current instrument list to search instrument into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 * be logged.
 		 * \return a new Note instance
 		 */
-		static Note* load_from( XMLNode* node, InstrumentList* instruments );
+	static Note* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
 
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument
 		 * \param instruments the list of instrument to look into
 		 */
-		void map_instrument( InstrumentList* instruments );
+		void map_instrument( std::shared_ptr<InstrumentList> instruments );
 		/** #__instrument accessor */
 		std::shared_ptr<Instrument> get_instrument();
 		/** return true if #__instrument is set */

@@ -72,7 +72,6 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 		__instrument_id = __instrument->get_id();
 
 		for ( const auto& pCompo : *__instrument->get_components() ) {
-
 			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
@@ -151,15 +150,31 @@ void Note::setPan( float val ) {
 	m_fPan = check_boundary( val, -1.0f, 1.0f );
 }
 
-void Note::map_instrument( InstrumentList* instruments )
+void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 {
-	assert( instruments );
-	auto instr = instruments->find( __instrument_id );
-	if( !instr ) {
-		ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
+	if ( pInstrumentList == nullptr ) {
+		assert( pInstrumentList );
+		ERRORLOG( "Invalid instrument list" );
+		return;
+	}
+	
+	auto pInstr = pInstrumentList->find( __instrument_id );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Instrument with ID [%1] not found. Using empty instrument." )
+				  .arg( __instrument_id ) );
 		__instrument = std::make_shared<Instrument>();
-	} else {
-		__instrument = instr;
+	}
+	else {
+		__instrument = pInstr;
+		__adsr = pInstr->copy_adsr();
+
+		for ( const auto& ppCompo : *pInstr->get_components() ) {
+			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
+			sampleInfo->SelectedLayer = -1;
+			sampleInfo->SamplePosition = 0;
+
+			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
+		}
 	}
 }
 
@@ -405,33 +420,34 @@ void Note::save_to( XMLNode* node )
 	node->write_float( "probability", __probability );
 }
 
-Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
+Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent )
 {
 	bool bFound, bFound2;
-	float fPan = node->read_float( "pan", 0.f, &bFound );
+	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, bSilent );
 	if ( !bFound ) {
-		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
-		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
-		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
-		if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+		// check if pan is expressed in the old fashion (version <=
+		// 1.1 ) with the pair (pan_L, pan_R)
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
+		if ( bFound && bFound2 ) {
 			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
 		}
 	}
 
 	Note* note = new Note(
 		nullptr,
-		node->read_int( "position", 0 ),
-		node->read_float( "velocity", 0.8f ),
+		node->read_int( "position", 0, false, false, bSilent ),
+		node->read_float( "velocity", 0.8f, false, false, bSilent ),
 		fPan,
-		node->read_int( "length", -1 ),
-		node->read_float( "pitch", 0.0f )
+		node->read_int( "length", -1, true, false, bSilent ),
+		node->read_float( "pitch", 0.0f, false, false, bSilent )
 	);
-	note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
-	note->set_key_octave( node->read_string( "key", "C0", false, false ) );
-	note->set_note_off( node->read_bool( "note_off", false, false, false ) );
-	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID ) );
+	note->set_lead_lag( node->read_float( "leadlag", 0, false, false, bSilent ) );
+	note->set_key_octave( node->read_string( "key", "C0", false, false, bSilent ) );
+	note->set_note_off( node->read_bool( "note_off", false, false, false, bSilent ) );
+	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
 	note->map_instrument( instruments );
-	note->set_probability( node->read_float( "probability", 1.0f ));
+	note->set_probability( node->read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
 }
@@ -472,16 +488,26 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_msg ) )
 			.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __note_off ) )
 			.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s ).arg( __just_recorded ) )
-			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) )
-			.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
+			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) );
+		if ( __instrument != nullptr ) {		
+			sOutput.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2instrument: nullptr\n" ).arg( sPrefix ).arg( s ) );
+		}
 		sOutput.append( QString( "%1%2layers_selected:\n" )
 						.arg( sPrefix ).arg( s ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
-							.arg( sPrefix ).arg( s + s )
-							.arg( ll.first )
-							.arg( ll.second->SelectedLayer )
-							.arg( ll.second->SamplePosition ) );
+			if ( ll.second != nullptr ) {
+				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
+								.arg( sPrefix ).arg( s + s )
+								.arg( ll.first )
+								.arg( ll.second->SelectedLayer )
+								.arg( ll.second->SamplePosition ) );
+			} else {
+				sOutput.append( QString( "%1%2[component: %3, selected layer info: nullptr]\n" )
+								.arg( sPrefix ).arg( s + s )
+								.arg( ll.first ) );
+			}
 		}
 	} else {
 
@@ -518,14 +544,23 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", midi_msg: %1" ).arg( __midi_msg ) )
 			.append( QString( ", note_off: %1" ).arg( __note_off ) )
 			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
-			.append( QString( ", probability: %1" ).arg( __probability ) )
-			.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) )
-			.append( QString( ", layers_selected: " ) );
+			.append( QString( ", probability: %1" ).arg( __probability ) );
+		if ( __instrument != nullptr ) {
+			sOutput.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) );
+		} else {
+			sOutput.append( QString( ", instrument: nullptr" ) );
+		}
+		sOutput.append( QString( ", layers_selected: " ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
-							.arg( ll.first )
-							.arg( ll.second->SelectedLayer )
-							.arg( ll.second->SamplePosition ) );
+			if ( ll.second != nullptr ) {
+				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
+								.arg( ll.first )
+								.arg( ll.second->SelectedLayer )
+								.arg( ll.second->SamplePosition ) );
+			} else {
+				sOutput.append( QString( "[component: %1, selected layer info: nullptr]" )
+								.arg( ll.first ) );
+			}
 		}
 	}
 	return sOutput;

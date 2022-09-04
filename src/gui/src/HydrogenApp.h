@@ -85,7 +85,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		virtual ~HydrogenApp();
 
 		/** 
-		 * \param sFilename Absolute path used to load the next Song.
+		 * \param sFilename Absolute or relative path used to load the next #H2Core::Song.
 		 * \return bool true on success
 		 */
 		static bool openSong( QString sFilename );
@@ -129,8 +129,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		QUndoStack*			m_pUndoStack;
 
-		void setStatusBarMessage( const QString& msg, int msec = 0 );
-		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
+	void showStatusBarMessage( const QString& sMessage, const QString& sCaller = "" );
 		void updateWindowTitle();
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -155,6 +154,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void setWindowProperties( QWidget *pWindow, H2Core::WindowProperties &prop, unsigned flags = SetAll );
 		H2Core::WindowProperties getWindowProperties( QWidget *pWindow );
 
+	static bool checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit );
+
 signals:
 	/** Propagates a change in the Preferences through the GUI.
 	 *
@@ -170,48 +171,6 @@ signals:
 		 * Function called every #QUEUE_TIMER_PERIOD
 		 * millisecond to pop all Events from the EventQueue
 		 * and invoke the corresponding functions.
-		 *
-		 * Depending on the H2Core::EventType, the following members
-		 * of EventListener will be called:
-		 * - H2Core::EVENT_STATE -> 
-		     EventListener::stateChangedEvent()
-		 * - H2Core::EVENT_PATTERN_CHANGED -> 
-		     EventListener::patternChangedEvent()
-		 * - H2Core::EVENT_PATTERN_MODIFIED -> 
-		     EventListener::patternModifiedEvent()
-		 * - H2Core::EVENT_SONG_MODIFIED -> 
-		     EventListener::songModifiedEvent()
-		 * - H2Core::EVENT_SELECTED_PATTERN_CHANGED -> 
-		     EventListener::selectedPatternChangedEvent()
-		 * - H2Core::EVENT_SELECTED_INSTRUMENT_CHANGED -> 
-		     EventListener::selectedInstrumentChangedEvent()
-		 * - H2Core::EVENT_PARAMETERS_INSTRUMENT_CHANGED -> 
-		     EventListener::parametersInstrumentChangedEvent()
-		 * - H2Core::EVENT_MIDI_ACTIVITY -> 
-		     EventListener::midiActivityEvent()
-		 * - H2Core::EVENT_NOTEON -> 
-		     EventListener::noteOnEvent()
-		 * - H2Core::EVENT_ERROR -> 
-		     EventListener::errorEvent()
-		 * - H2Core::EVENT_XRUN -> 
-		     EventListener::XRunEvent()
-		 * - H2Core::EVENT_METRONOME -> 
-		     EventListener::metronomeEvent()
-		 * - H2Core::EVENT_PROGRESS -> 
-		     EventListener::progressEvent()
-		 * - H2Core::EVENT_JACK_SESSION -> 
-		     EventListener::jacksessionEvent()
-		 * - H2Core::EVENT_PLAYLIST_LOADSONG -> 
-		     EventListener::playlistLoadSongEvent()
-		 * - H2Core::EVENT_UNDO_REDO -> 
-		     EventListener::undoRedoActionEvent()
-		 * - H2Core::EVENT_TEMPO_CHANGED -> 
-		     EventListener::tempoChangedEvent()
-		 * - H2Core::EVENT_UPDATE_PREFERENCES -> 
-		     EventListener::updatePreferencesEvent()
-		 * - H2Core::EVENT_UPDATE_SONG -> 
-		     EventListener::updateSongEvent()
-		 * - H2Core::EVENT_NONE -> nothing
 		 *
 		 * In addition, all MIDI notes in
 		 * H2Core::EventQueue::m_addMidiNoteVector will converted into
@@ -301,6 +260,11 @@ private slots:
 	
 };
 
+
+/// Return an HydrogenApp m_pInstance
+inline HydrogenApp* HydrogenApp::get_instance() {
+	return m_pInstance;
+}
 
 inline Mixer* HydrogenApp::getMixer()
 {

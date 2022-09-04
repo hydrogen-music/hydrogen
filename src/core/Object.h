@@ -48,7 +48,6 @@ typedef struct {
 	int destructed;
 } obj_cpt_t;
 
-
 /** the objects class map types */
 typedef std::map<const char*, obj_cpt_t> object_map_t;
 typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
@@ -100,6 +99,15 @@ class Base {
 		static int bootstrap( Logger* logger, bool count=false );
 		static Logger* logger()                 { return __logger; }            ///< return the logger instance
 
+	/**
+	 * Measures the current time and stores it in #__last_clock. In
+	 * case #__last_clock was already set - base_clock() was invoked
+	 * at least once - the time difference will be logged with DEBUG
+	 * level.
+	 */
+	static QString base_clock( const QString& sMsg );
+	static QString base_clock_in( const QString& sMsg );
+	
 		/** \return Total numbers of objects being alive. */
 		static int getAliveObjectCount();
 		/** \return Copy of the object map. */
@@ -142,7 +150,8 @@ class Base {
 		static bool __count;               ///< should we count class instances
 		static Logger * __logger;
 		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
-
+	static timeval __last_clock;
+	
 	private:
 		static std::atomic<int> __objects_count;        ///< total objects count
 		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
@@ -243,6 +252,10 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 #define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
 #define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );
 #define ___ERRORLOG(x)  __LOG_STATIC( H2Core::Logger::Error,    (x) );
+
+// Can be called without or with a single argument
+#define CLOCK(...)      __LOG_METHOD( H2Core::Logger::Debug, base_clock( QString( "%1" ).arg( #__VA_ARGS__ ) ) );
+#define CLOCKIN(...)    __LOG_METHOD( H2Core::Logger::Debug, base_clock_in( QString( "%1" ).arg( #__VA_ARGS__ ) ) );
 
 };
 

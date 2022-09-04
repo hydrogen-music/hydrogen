@@ -75,6 +75,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 PianoRollEditor::~PianoRollEditor()
 {
 	INFOLOG( "DESTROY" );
+	delete m_pTemp;
 }
 
 
@@ -389,8 +390,7 @@ void PianoRollEditor::drawPattern()
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
-	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
+	if ( pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
 		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
@@ -411,8 +411,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Note::Key notekey = (Note::Key)nNotekey;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 
 	Note* pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
 											  notekey, octave );
@@ -491,10 +490,13 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
-	std::shared_ptr<Instrument> pSelectedInstrument = nullptr;
+	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
-	assert(pSelectedInstrument);
+	
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	int nPitch = lineToPitch( nPressedLine );
 	Note::Octave pressedoctave = Note::pitchToOctave( nPitch );
@@ -597,9 +599,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	m_pDraggedNote = nullptr;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nColumn = getColumn( ev->x() );
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 
 	int nRow = std::floor(static_cast<float>(ev->y()) /
 						  static_cast<float>(m_nGridHeight));
@@ -664,7 +664,11 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
-	assert(pSelectedInstrument);
+	if ( pSelectedInstrument ) {
+		ERRORLOG( QString( "Instrument [%1] could not be found" )
+				  .arg( selectedinstrument ) );
+		return;
+	}
 
 	Pattern *pPattern = nullptr;
 	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
@@ -803,13 +807,13 @@ void PianoRollEditor::deleteSelection()
 		// Delete a selection.
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-		InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
-				if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
+				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					int nLine = pitchToLine( pNote->get_notekey_pitch() );
 					actions.push_back( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
 																			  nLine,
@@ -851,7 +855,7 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;
@@ -1204,8 +1208,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	
 	int w = 8;
 	int h = m_nGridHeight - 2;
-	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nInstr );
+	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
 	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {
@@ -1220,7 +1223,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;
-		if ( pNote->get_instrument() == pInstr ) {
+		if ( pNote->get_instrument() == pSelectedInstrument ) {
 			uint start_x = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 

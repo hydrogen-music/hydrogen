@@ -55,6 +55,12 @@ enum EventType {
 	 * A pattern was added, deleted, or modified.
 	 */
 	EVENT_PATTERN_MODIFIED,
+	/**
+	 * Used in stacked pattern mode to indicate that a either
+	 * AudioEngine::m_pNextPatterns or AudioEngine::m_pPlayingPatterns
+	 * changed.
+	 */
+	EVENT_STACKED_PATTERNS_CHANGED,
 	/** Another pattern was selected via MIDI or the GUI without
 	 * affecting the audio transport. While the selection in the
 	 * former case already happens in the GUI, this event will be used
@@ -64,7 +70,12 @@ enum EventType {
 	 */
 	EVENT_SELECTED_PATTERN_CHANGED,
 	EVENT_SELECTED_INSTRUMENT_CHANGED,
-	EVENT_PARAMETERS_INSTRUMENT_CHANGED,
+	/** Some parameters of an instrument have been changed.
+	 *
+	 * Numbers `>=0` indicate the number of the instrument that has been
+	 * changed. `-1` indicates that multiple instruments were altered.
+	 */
+	EVENT_INSTRUMENT_PARAMETERS_CHANGED,
 	EVENT_MIDI_ACTIVITY,
 	EVENT_XRUN,
 	EVENT_NOTEON,
@@ -160,13 +171,15 @@ enum EventType {
 	/** Locks the PatternEditor on the pattern currently played back.*/
 	EVENT_PATTERN_EDITOR_LOCKED,
 	/** Triggered in case there is a relocation of the transport
-	 * position due to an user interaction or an incoming MIDI/OSC
-	 * command. 
+	 * position due to an user interaction or an incoming
+	 * MIDI/OSC/JACK command.
 	 */
 	EVENT_RELOCATION,
 	EVENT_SONG_SIZE_CHANGED,
 	EVENT_DRIVER_CHANGED,
-	EVENT_PLAYBACK_TRACK_CHANGED
+	EVENT_PLAYBACK_TRACK_CHANGED,
+	EVENT_SOUND_LIBRARY_CHANGED,
+	EVENT_NEXT_SHOT
 };
 
 /** Basic building block for the communication between the core of

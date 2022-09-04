@@ -53,10 +53,9 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( "[start of handleMidiMessage]" );
-		INFOLOG( QString("[handleMidiMessage] channel: %1").arg(msg.m_nChannel) );
-		INFOLOG( QString("[handleMidiMessage] val1: %1").arg( msg.m_nData1 ) );
-		INFOLOG( QString("[handleMidiMessage] val2: %1").arg( msg.m_nData2 ) );
+		INFOLOG( QString( "[start of handleMidiMessage] channel: %1, val1: %2, val2: %3" )
+				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
+				 .arg( msg.m_nData2 ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -236,7 +235,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pHydrogen->m_LastMidiEvent = "NOTE";
 	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
-	bool bActionSuccess = pMidiActionManager->handleActions( pMidiMap->getNoteActions( msg.m_nData1 ) );
+	auto actions = pMidiMap->getNoteActions( msg.m_nData1 );
+	for ( auto action : actions ) {
+		action->setValue( QString::number( msg.m_nData2 ) );
+	}
+	bool bActionSuccess = pMidiActionManager->handleActions( actions );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
@@ -245,7 +248,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	static const float fPan = 0.f;
 
 	int nInstrument = nNote - 36;
-	InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
 	if ( pPref->__playselectedinstrument ){
@@ -317,7 +320,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	int nNote = msg.m_nData1;
 	int nInstrument = nNote - 36;

@@ -116,7 +116,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	// Rewind button
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
 	m_pRwdBtn->move( 4, 4 );
-	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
+	connect(m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 	m_pRwdBtn->setAction( pAction );
 
@@ -124,21 +124,21 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "", false, QSize( 13, 13 ), tr("Play/ Pause/ Load selected song") );
 	m_pPlayBtn->move( 31, 4 );
 	m_pPlayBtn->setChecked(false);
-	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( nodePlayBTN() ));
+	connect(m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( nodePlayBTN() ));
 	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
 	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
 	m_pStopBtn->move( 63, 4 );
-	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( nodeStopBTN() ));
+	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( nodeStopBTN() ));
 	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
 	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
 	m_pFfwdBtn->move( 90, 4 );
-	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( ffWDBtnClicked() ));
+	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( ffWDBtnClicked() ));
 	pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
 	m_pFfwdBtn->setAction( pAction );
 
@@ -188,12 +188,12 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	// zoom-in btn
 	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
-	connect(pUpBtn, SIGNAL( pressed() ), this, SLOT(o_upBClicked()) );
+	connect(pUpBtn, SIGNAL( clicked() ), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
 
 	// zoom-in btn
 	Button *pDownBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
-	connect(pDownBtn, SIGNAL( pressed() ), this, SLOT(o_downBClicked()));
+	connect(pDownBtn, SIGNAL( clicked() ), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
 
 	//restore the playlist
@@ -747,7 +747,7 @@ void PlaylistDialog::nodePlayBTN()
 	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
 
-	if ( ! m_pPlayBtn->isChecked() ) {
+	if ( m_pPlayBtn->isChecked() ) {
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 		if ( m_pPlaylistItem == nullptr ){
 			QMessageBox::information ( this, "Hydrogen", tr ( "No valid song selected!" ) );
@@ -771,10 +771,10 @@ void PlaylistDialog::nodePlayBTN()
 		}
 
 		pHydrogen->sequencer_play();
-	}else
-	{
+	}
+	else {
 		pHydrogen->sequencer_stop();
-		pH2App->setStatusBarMessage(tr("Pause."), 5000);
+		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
 }
 
@@ -818,7 +818,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	pH2App->openSong( sFilename );
 
-	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
+	pH2App->showStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ) );
 
 ///exec script
 ///this is very very simple and only an experiment

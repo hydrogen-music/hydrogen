@@ -106,7 +106,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		static MidiActionManager *__instance;
 
 		/**
-		 * Holds the names of all Action identfiers which Hydrogen is
+		 * Holds the names of all Action identifiers which Hydrogen is
 		 * able to interpret.
 		 */
 	QStringList m_actionList;
@@ -148,12 +148,13 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool effect_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 	bool select_only_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
+	bool select_only_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_next_pattern_promptly(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_next_pattern_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool select_and_play_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pan_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pan_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
+	bool pan_absolute_sym(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool filter_cutoff_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool beatcounter(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool tap_tempo(std::shared_ptr<Action> , H2Core::Hydrogen * );
@@ -171,13 +172,17 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		int m_nLastBpmChangeCCParameter;
 
+	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+	bool nextPatternSelection( int nPatternNumber );
+	bool onlyNextPatternSelection( int nPatternNumber );
+
 	public:
 
 		/**
 		 * Handles multiple actions at once and calls handleAction()
 		 * on them.
 		 *
-		 * \return true - in case all actions were successul, false - otherwise.
+		 * \return true - in case all actions were successful, false - otherwise.
 		 */
 	bool handleActions( std::vector<std::shared_ptr<Action>> );
 		/**

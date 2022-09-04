@@ -20,57 +20,15 @@
  *
  */
 
-#ifndef SOUNDLIBRARYDATASTRUCTURES_H
-#define SOUNDLIBRARYDATASTRUCTURES_H
+#ifndef SOUNDLIBRARYINFO_H
+#define SOUNDLIBRARYINFO_H
 
+#include <core/License.h>
 #include <core/Object.h>
 #include <vector>
 
-class SoundLibraryInfo;
-
-/**
-* @class SoundLibraryDatabase
-*
-* @brief This class holds information about all installed soundlibrary items.
-*
-* This class organizes the metadata of all locally installed soundlibrary items.
-*
-* @author Sebastian Moors
-*
-*/
-
-typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
-
-/** \ingroup docGUI*/
-class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
+namespace H2Core
 {
-	H2_OBJECT(SoundLibraryDatabase)
-	public:
-		SoundLibraryDatabase();
-		~SoundLibraryDatabase();
-
-		//bool isItemInstalled( const SoundLibraryInfo& item );
-		soundLibraryInfoVector* getAllPatterns() const;
-		QStringList getAllPatternCategories() const {
-			return patternCategories;
-		}
-
-		void update();
-		void updatePatterns();
-		void printPatterns();
-		void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
-		bool isPatternInstalled( const QString& patternName);
-
-		static void create_instance();
-		static SoundLibraryDatabase* get_instance() { assert(__instance); return __instance; }
-
-
-	private:
-		static SoundLibraryDatabase *__instance;
-		soundLibraryInfoVector* patternVector;
-		QStringList patternCategories;
-};
-
 
 /**
 * @class SoundLibraryInfo
@@ -78,14 +36,14 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 * @brief This class holds information about a soundlibrary.
 *
 * This class is used to represent soundlibrary items. It contains
-* the metadata for songs, pattern and drumkits.
+* the metadata for (songs,) pattern, and drumkits.
 *
 * @author Sebastian Moors
 *
 */
 
-/** \ingroup docGUI*/
-class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
+/** \ingroup docCore docDataStructure */
+class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 {
 	H2_OBJECT(SoundLibraryInfo)
 	public:
@@ -117,16 +75,16 @@ class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 			return m_sType;
 		}
 
-		QString getLicense() const {
-			return m_sLicense;
+		H2Core::License getLicense() const {
+			return m_license;
 		}
 
 		QString getImage() const {
 			return m_sImage;
 		}
 
-		QString getImageLicense() const {
-			return m_sImageLicense;
+		H2Core::License getImageLicense() const {
+			return m_imageLicense;
 		}
 
 		void setName( const QString& name ){
@@ -153,16 +111,16 @@ class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 			m_sCategory = category;
 		}
 
-		void setLicense( const QString& license ){
-			m_sLicense = license;
+		void setLicense( const H2Core::License& license ){
+			m_license = license;
 		}
 
 		void setImage( const QString& image ){
 			m_sImage = image;
 		}
 
-		void setImageLicense( const QString& imageLicense ){
-			m_sImageLicense = imageLicense;
+		void setImageLicense( const H2Core::License& imageLicense ){
+			m_imageLicense = imageLicense;
 		}
 
 		void setPath( const QString& path){
@@ -181,10 +139,11 @@ class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 		QString m_sAuthor;
 		QString m_sCategory;
 		QString m_sType;
-		QString m_sLicense;
+		H2Core::License m_license;
 		QString m_sImage;
-		QString m_sImageLicense;
+		H2Core::License m_imageLicense;
 		QString m_sPath;
 };
+}; // namespace H2Core
 
-#endif // SOUNDLIBRARYDATASTRUCTURES_H
+#endif // SOUNDLIBRARYINFO_H

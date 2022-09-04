@@ -520,7 +520,7 @@ public:
 				clearSelection();
 				updateWidgetGroup();
 			} else if ( ev->button() == Qt::RightButton && m_pSelectionGroup->m_selectedElements.empty() ) {
-				// Right-clicking with an emply selection will first attempt to select anything at the click
+				// Right-clicking with an empty selection will first attempt to select anything at the click
 				// position before passing the click through to the client.
 				QRect r = QRect( ev->pos(), ev->pos() );
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );

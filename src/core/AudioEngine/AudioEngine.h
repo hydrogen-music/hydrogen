@@ -215,7 +215,7 @@ public:
 	/**
 	 * Mutex unlocking of the AudioEngine.
 	 *
-	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
+	 * Unlocks the AudioEngine to allow other threads access, and leaves #__locker untouched.
 	 */
 	void			unlock();
 
@@ -239,14 +239,14 @@ public:
 	 * \param nframes Buffersize.
 	 * \param arg Unused.
 	 * \return
-	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
+	 * - __2__ : Failed to acquire the audio engine lock, no processing took place.
 	 * - __1__ : kill the audio driver thread.
 	 * - __0__ : else
 	 */
 	static int                      audioEngine_process( uint32_t nframes, void *arg );
 
 	/**
-	 * Calcuates the number of frames that make up a tick.
+	 * Calculates the number of frames that make up a tick.
 	 */
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 	/**
@@ -354,6 +354,7 @@ public:
 
 	int				getColumn() const;
 	long long		getFrameOffset() const;
+	void			setFrameOffset( long long nFrameOffset );
 	double  		getTickOffset() const;
 
 	const PatternList*	getNextPatterns() const;
@@ -452,6 +453,7 @@ public:
 	 * \param nTick Desired location in pattern mode.
 	 */
 	void updatePlayingPatterns( int nColumn, long nTick = 0 );
+	void clearNextPatterns();
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
 	 * in case it is already present.
@@ -646,19 +648,7 @@ private:
 	int				updateNoteQueue( unsigned nFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
-	
-	/** Increments #m_fElapsedTime at the end of a process cycle.
-	 *
-	 * At the end of H2Core::audioEngine_process() this function will
-	 * be used to add the time passed during the last process cycle to
-	 * #m_fElapsedTime.
-	 *
-	 * \param bufferSize Number of frames process during a cycle of
-	 * the audio engine.
-	 * \param sampleRate Temporal resolution used by the sound card in
-	 * frames per second.
-	 */
-	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
+    
 	void			updateBpmAndTickSize();
 	
 	void			setPatternTickPosition( long nTick );
@@ -737,9 +727,9 @@ private:
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const;
 	/**
-	 * Takes two instances of Sampler::m_playingNotesQueue and checkes
+	 * Takes two instances of Sampler::m_playingNotesQueue and checks
 	 * whether matching notes have exactly @a nPassedFrames difference
-	 * in thei SelectedLayerInfo::SamplePosition.
+	 * in their SelectedLayerInfo::SamplePosition.
 	 */
 	bool testCheckAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
 									const std::vector<std::shared_ptr<Note>> newNotes,
@@ -854,7 +844,7 @@ private:
 	 * The current transport position thus corresponds
 	 * to #m_fTick = lookahead + #m_nPatternStartTick +
 	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample reate dependent).
+	 * sample rate dependent).
 	 */
 	long				m_nPatternStartTick;
 
@@ -864,7 +854,7 @@ private:
 	 * The current transport position thus corresponds
 	 * to #m_fTick = lookahead + #m_nPatternStartTick +
 	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample reate dependent).
+	 * sample rate dependent).
 	 */
 	long				m_nPatternTickPosition;
 
@@ -1094,6 +1084,9 @@ inline float AudioEngine::getNextBpm() const {
 }
 inline long long AudioEngine::getFrameOffset() const {
 	return m_nFrameOffset;
+}
+inline void AudioEngine::setFrameOffset( long long nFrameOffset ) {
+	m_nFrameOffset = nFrameOffset;
 }
 inline double AudioEngine::getTickOffset() const {
 	return m_fTickOffset;

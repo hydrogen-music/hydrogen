@@ -25,8 +25,10 @@
 
 #include <set>
 #include <memory>
+#include <core/License.h>
 #include <core/Object.h>
 #include <core/Basics/Note.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
@@ -75,7 +77,17 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param pattern_path the path to the file to load the pattern from
 		 * \param instruments the current instrument list to search instrument into
 		 */
-		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
+		static Pattern* load_file( const QString& pattern_path, std::shared_ptr<InstrumentList> instruments );
+		/**
+		 * load a pattern from an XMLNode
+		 * \param node the XMLDode to read from
+		 * \param instruments the current instrument list to search
+		 * instrument into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 * be logged.
+		 * \return a new Pattern instance
+		 */
+	static Pattern* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param drumkit_name the name of the drumkit it is supposed to play with
@@ -85,7 +97,13 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false ) const; 
+		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const;
+
+	/**
+	 * Retrieves the name of the associated drumkit contained in the
+	 * pattern XML file residing at @a sPatternPath.
+	 */
+	static QString loadDrumkitNameFrom( const QString& sPatternPath );
 
 		///< set the name of the pattern
 		void set_name( const QString& name );
@@ -222,13 +240,13 @@ class Pattern : public H2Core::Object<Pattern>
 		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
 		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
 		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
-		/**
-		 * load a pattern from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param instruments the current instrument list to search instrument into
-		 * \return a new Pattern instance
-		 */
-		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
+	/**
+	 * Loads the pattern stored in @a sPatternPath into @a pDoc and
+	 * takes care of all the error handling.
+	 *
+	 * \return true on success.
+	 */
+	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \

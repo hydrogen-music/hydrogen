@@ -172,6 +172,7 @@ LadspaFX::~LadspaFX()
 		if ( m_d->cleanup ) {
 			if ( m_handle ) {
 				INFOLOG( "Cleanup" );
+				Logger::CrashContext cc( &m_sLibraryPath );
 				m_d->cleanup( m_handle );
 			}
 		}
@@ -212,6 +213,8 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	LadspaFX* pFX = new LadspaFX( sLibraryPath, sPluginLabel );
 
 	_INFOLOG( "INIT - " + sLibraryPath + " - " + sPluginLabel );
+
+	Logger::CrashContext ctx( QString( "Initialising LADSPA plugin " ) + sLibraryPath + " - " + sPluginLabel);
 
 	pFX->m_pLibrary = new QLibrary( sLibraryPath );
 	LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )pFX->m_pLibrary->resolve( "ladspa_descriptor" );
@@ -388,7 +391,6 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
 		Hydrogen::get_instance()->setIsModified( true );
 	}
-
 	return pFX;
 }
 
@@ -397,7 +399,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R )
 {
 	INFOLOG( "[connectAudioPorts]" );
-
+	Logger::CrashContext ctx( QString( "Connecting ports on LADSPA plugin " ) + m_sLibraryPath + " - " + m_sLabel);
 	unsigned nAIConn = 0;
 	unsigned nAOConn = 0;
 	for ( unsigned nPort = 0; nPort < m_d->PortCount; nPort++ ) {
@@ -438,6 +440,7 @@ void LadspaFX::processFX( unsigned nFrames )
 {
 //	infoLog( "[LadspaFX::applyFX()]" );
 	if( m_bActivated ) {
+		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->run( m_handle, nFrames );
 	}
 }
@@ -447,6 +450,7 @@ void LadspaFX::activate()
 	if ( m_d->activate ) {
 		INFOLOG( "activate " + getPluginName() );
 		m_bActivated = true;
+		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->activate( m_handle );
 		Hydrogen::get_instance()->setIsModified( true );
 	}
@@ -458,6 +462,7 @@ void LadspaFX::deactivate()
 	if ( m_d->deactivate && m_bActivated ) {
 		INFOLOG( "deactivate " + getPluginName() );
 		m_bActivated = false;
+		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->deactivate( m_handle );
 		Hydrogen::get_instance()->setIsModified( true );
 	}

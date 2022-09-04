@@ -35,7 +35,7 @@ LED::LED( QWidget *pParent, QSize size )
 	setFixedSize( size );
 
 	// Since the load function does not report success, we will check
-	// for the existance of the background image separately.
+	// for the existence of the background image separately.
 	QString sPath;
 	float fAspectRatio = static_cast<float>( size.width() ) / static_cast<float>( size.height() );
 	if ( fAspectRatio < 1 ) {
@@ -87,7 +87,7 @@ MetronomeLED::MetronomeLED( QWidget *pParent, QSize size )
 	HydrogenApp::get_instance()->addEventListener( this );
 	
 	// Since the load function does not report success, we will check
-	// for the existance of the background image separately.
+	// for the existence of the background image separately.
 	QString sPath( Skin::getSvgImagePath() + "/led_22_7.svg" );
 	QFile file( sPath );
 	if ( file.exists() ) {

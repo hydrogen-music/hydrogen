@@ -79,7 +79,9 @@ void MidiTable::midiSensePressed( int row ){
 	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.m_sLastMidiEvent ) );
 	eventSpinner->setValue( midiSenseWidget.m_LastMidiEventParameter );
 
-	m_pUpdateTimer->start( 100 );	
+	m_pUpdateTimer->start( 100 );
+
+	emit changed();
 }
 
 // Reimplementing this one is quite expensive. But the visibility of
@@ -115,6 +117,9 @@ void MidiTable::updateTable() {
 	}
 }
 
+void MidiTable::sendChanged() {
+	emit changed();
+}
 
 void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventString, int eventParameter)
 {
@@ -127,6 +132,7 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	++m_nRowCount;
 
 	QPushButton *midiSenseButton = new QPushButton(this);
+	midiSenseButton->setObjectName( "MidiSenseButton" );
 	midiSenseButton->setIcon(QIcon(Skin::getSvgImagePath() + "/icons/record.svg"));
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
@@ -145,6 +151,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	eventBox->insertItems( oldRowCount , pActionHandler->getEventList() );
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
+	connect( eventBox , SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( sendChanged() ) );
 	setCellWidget( oldRowCount, 1, eventBox );
 	
 	
@@ -153,6 +161,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
 	eventParameterSpinner->setMaximum( 999 );
 	eventParameterSpinner->setValue( eventParameter );
+	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( sendChanged() ) );
 
 
 	LCDCombo *actionBox = new LCDCombo(this);
@@ -160,6 +170,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( pAction->getType() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
+	connect( actionBox , SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( sendChanged() ) );
 	setCellWidget( oldRowCount , 3, actionBox );
 
 	bool ok;
@@ -169,6 +181,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner1->setMaximum( 999 );
 	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
 	actionParameterSpinner1->hide();
+	connect( actionParameterSpinner1, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( sendChanged() ) );
 
 	LCDSpinBox *actionParameterSpinner2 = new LCDSpinBox(this);
 	actionParameterSpinner2->setSize( QSize( m_nColumn5Width, m_nRowHeight ) );
@@ -176,6 +190,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
 	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
 	actionParameterSpinner2->hide();
+	connect( actionParameterSpinner2, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( sendChanged() ) );
 
 	LCDSpinBox *actionParameterSpinner3 = new LCDSpinBox(this);
 	actionParameterSpinner3->setSize( QSize( m_nColumn6Width, m_nRowHeight ) );
@@ -183,6 +199,8 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
 	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
 	actionParameterSpinner3->hide();
+	connect( actionParameterSpinner3, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( sendChanged() ) );
 }
 
 void MidiTable::setupMidiTable()
@@ -349,6 +367,12 @@ void MidiTable::updateRow( int nRow ) {
 			}
 		} else {
 			ERRORLOG( QString( "Unable to find MIDI action [%1]" ).arg( sActionType ) );
+		}
+
+		// Relative changes should allow for both increasing and
+		// decreasing the pattern number.
+		if ( sActionType == "SELECT_NEXT_PATTERN_RELATIVE" ) {
+			pActionSpinner1->setMinimum( -1 * pActionSpinner1->maximum() );
 		}
 	}
 }

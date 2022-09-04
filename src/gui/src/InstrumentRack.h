@@ -45,10 +45,10 @@ class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}
 
-	public slots:
-		void on_showSoundLibraryBtnClicked();
-		void on_showInstrumentEditorBtnClicked();
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+public slots:
+	/** Used by the #Shotlist*/
+	void showSoundLibrary( bool bShow );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		/// button for showing the Sound Library

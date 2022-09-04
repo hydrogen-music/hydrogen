@@ -117,7 +117,7 @@ QString CoreAudioDriver::deviceName( AudioDeviceID deviceID )
 	};
 	err = AudioObjectGetPropertyData( deviceID, &propertyAddress, 0, NULL, &size, &deviceNameRef );
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Coudn't get name for device %1" ).arg( deviceID ) );
+		ERRORLOG( QString( "Couldn't get name for device %1" ).arg( deviceID ) );
 		return QString();
 	}
 	UInt32 nBufferSize = CFStringGetMaximumSizeForEncoding( CFStringGetLength( deviceNameRef ), kCFStringEncodingUTF8 );

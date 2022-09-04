@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>593</width>
-    <height>653</height>
+    <width>744</width>
+    <height>919</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -40,18 +40,12 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="nameTxt">
+    <widget class="LCDDisplay" name="nameTxt">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
      </property>
     </widget>
    </item>
@@ -69,28 +63,28 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="authorTxt">
+    <widget class="LCDDisplay" name="authorTxt">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="licenseLbl">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Drumkit License</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -98,25 +92,39 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="licenseTxt">
+    <widget class="LCDCombo" name="licenseComboBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="licenseStringLbl">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="LCDDisplay" name="licenseStringTxt">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="text">
       <string/>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+   </item>
+   <item row="6" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Information</string>
@@ -129,14 +137,14 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="6" column="1">
     <widget class="QTextEdit" name="infoTxt">
      <property name="acceptRichText">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_5">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -149,10 +157,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="7" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="imageText">
+      <widget class="LCDDisplay" name="imageText">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -171,7 +179,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="imageBrowsePushButton">
+      <widget class="Button" name="imageBrowsePushButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -185,103 +193,34 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_6">
+   <item row="10" column="1">
+    <widget class="LCDCombo" name="imageLicenseComboBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="imageLicenseStringLbl">
      <property name="text">
-      <string>Image License</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLineEdit" name="imageLicenseText">
+   <item row="11" column="1">
+    <widget class="LCDDisplay" name="imageLicenseStringTxt">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-     <item>
-      <widget class="QCheckBox" name="saveChanges_checkBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Save changes made to instruments into sound library</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <layout class="QHBoxLayout">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="saveBtn">
-       <property name="text">
-        <string>Save </string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="m_cancelBtn">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="6" column="0" colspan="2">
+   <item row="13" column="0" colspan="2">
     <widget class="QLabel" name="drumkitImageLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -292,7 +231,7 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>175</height>
+       <height>75</height>
       </size>
      </property>
      <property name="palette">
@@ -349,12 +288,91 @@
      </property>
     </widget>
    </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="contentLabel">
+     <property name="text">
+      <string>Content</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="2">
+    <widget class="QTableWidget" name="contentTable"/>
+   </item>
+   <item row="19" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch=""/>
+   </item>
+   <item row="20" column="0" colspan="2">
+    <layout class="QHBoxLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="Button" name="saveBtn">
+       <property name="text">
+        <string>Save </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Button" name="m_cancelBtn">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="imageLicenseLbl">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Image License</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
- </widget>
+</widget>
+ <customwidgets>
+  <customwidget>
+   <class>LCDDisplay</class>
+   <extends>QLineEdit</extends>
+   <header location="global">../src/Widgets/LCDDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDCombo</class>
+   <extends>QComboBox</extends>
+   <header location="global">../src/Widgets/LCDCombo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>nameTxt</tabstop>
   <tabstop>authorTxt</tabstop>
-  <tabstop>licenseTxt</tabstop>
   <tabstop>infoTxt</tabstop>
   <tabstop>saveBtn</tabstop>
   <tabstop>m_cancelBtn</tabstop>

@@ -330,7 +330,7 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	InstrumentList *instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {

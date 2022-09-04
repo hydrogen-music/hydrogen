@@ -110,7 +110,6 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 		void portaudioHostAPIComboBoxActivated( int index );
 		void latencyTargetSpinBoxValueChanged( int i );
 		void bufferSizeSpinBoxValueChanged( int i );
-		void resampleComboBoxCurrentIndexChanged ( int index );
 		void sampleRateComboBoxEditTextChanged( const QString& text );
 		void midiPortComboBoxActivated( int index );
 		void midiOutportComboBoxActivated( int index );		
@@ -174,6 +173,9 @@ private:
 	QColor* m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;
+
+	/** Stores which part of the dialog was altered.*/
+	H2Core::Preferences::Changes m_changes;
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;

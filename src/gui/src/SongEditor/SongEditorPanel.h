@@ -61,7 +61,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		void updateAll();
 		void updatePositionRuler();
-		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
 		void showPlaybackTrack();
@@ -109,10 +108,16 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 
 	public slots:
-		void showHideTimeline( bool bPressed ) {
-			m_pTimelineBtn->setChecked( bPressed );
-			timelineBtnPressed();
+	/** Used by the shotlist during automated generation of images
+		for the manual. */
+	void activateStackedMode( bool bActivate );
+	void activateSelectMode( bool bActivate );
+		
+		void showHideTimeline( bool bClicked ) {
+			m_pTimelineBtn->setChecked( bClicked );
+			timelineBtnClicked();
 		}
+		void toggleAutomationAreaVisibility();
 
 	private slots:
 		void vScrollTo( int value );
@@ -126,15 +131,13 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void selectionModeBtnPressed();
-		void drawModeBtnPressed();
-		void timelineBtnPressed();
-		void viewTimelineBtnPressed();
-		void viewPlaybackTrackBtnPressed();
-		void editPlaybackTrackBtnPressed();
+		void timelineBtnClicked();
+		void viewTimelineBtnClicked();
+		void viewPlaybackTrackBtnClicked();
+		void editPlaybackTrackBtnClicked();
 
-		void zoomInBtnPressed();
-		void zoomOutBtnPressed();
+		void zoomInBtnClicked();
+		void zoomOutBtnClicked();
 		
 		void faderChanged( WidgetWithInput* pRef );
 

@@ -72,13 +72,8 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 	INFOLOG( "DESTROY" );
 }
 
-void InstrumentEditorPanel::parametersInstrumentChangedEvent()
-{
-	drumkitLoadedEvent();
-}
-
 void InstrumentEditorPanel::drumkitLoadedEvent() {
-	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->getComponents();
+	auto pComponentList = H2Core::Hydrogen::get_instance()->getSong()->getComponents();
 
 	m_pInstrumentEditor->selectComponent(pComponentList->front()->get_id());
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();

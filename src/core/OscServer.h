@@ -164,6 +164,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * - MASTER_VOLUME_RELATIVE_Handler()
 		 * - STRIP_VOLUME_RELATIVE_Handler()
 		 * - SELECT_NEXT_PATTERN_Handler()
+		 * - SELECT_ONLY_NEXT_PATTERN_Handler()
 		 * - SELECT_AND_PLAY_PATTERN_Handler() 
 		 * - PLAYLIST_SONG_Handler()
 		 * - SELECT_INSTRUMENT_Handler()
@@ -237,6 +238,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * - \e /Hydrogen/STRIP_VOLUME_ABSOLUTE/[x]
 		 * - \e /Hydrogen/STRIP_VOLUME_RELATIVE/[x]
 		 * - \e /Hydrogen/PAN_ABSOLUTE/[x]
+		 * - \e /Hydrogen/PAN_ABSOLUTE_SYM/[x]
+		 * - \e /Hydrogen/PAN_RELATIVE/[x]
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]
 		 * - \e /Hydrogen/STRIP_SOLO_TOGGLE/[x]
 		 *
@@ -462,6 +465,18 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		/**
+		 * Creates an Action of type @b SELECT_ONLY_NEXT_PATTERN and
+		 * passes its references to MidiActionManager::handleAction().
+		 *
+		 * The first argument in @a argv will be used to set
+		 * Action::parameter1.
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv, int i);
+		/**
 		 * Creates an Action of type @b SELECT_AND_PLAY_PATTERN and
 		 * passes its references to MidiActionManager::handleAction().
 		 *
@@ -473,33 +488,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
-		/**
-		 * Creates an Action of type @b PAN_RELATIVE and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_RELATIVE_Handler(QString param1, QString param2);
-		/**
-		 * Creates an Action of type @b PAN_ABSOLUTE and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_ABSOLUTE_Handler(QString param1, QString param2);
-		/**
-		 * Creates an Action of type @b PAN_ABSOLUTE_SYM and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2);
 		/**
 		 * Creates an Action of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
@@ -767,7 +755,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::loadDrumkit().
+		 * Triggers CoreActionController::setDrumkit().
 		 *
 		 * The handler expects the user to provide the drumkit name. 
 		 * (row the pattern resides in within the SongEditor). The
@@ -822,6 +810,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * (if only a single argument is present.)
 		 * - \e /Hydrogen/STRIP_VOLUME_ABSOLUTE/[x]
 		 * - \e /Hydrogen/PAN_ABSOLUTE/[x]
+		 * - \e /Hydrogen/PAN_ABSOLUTE_SYM/[x]
 		 * - \e /Hydrogen/PAN_RELATIVE/[x]
 		 * - \e /Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/[x]
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]
@@ -842,6 +831,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \return 1 - means that the message has not been fully
 		 * handled and the server should try other methods */
 		static int  generic_handler(const char *path, const char *types, lo_arg ** argv,
+								int argc, lo_message data, void *user_data);
+	static int incomingMessageLogging(const char *path, const char *types, lo_arg ** argv,
 								int argc, lo_message data, void *user_data);
 
 	private:

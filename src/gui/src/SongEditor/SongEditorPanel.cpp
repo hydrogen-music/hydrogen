@@ -80,7 +80,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 								 pCommonStrings->getTimelineEnabled() );
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
-	connect( m_pTimelineBtn, SIGNAL( pressed() ), this, SLOT( timelineBtnPressed() ) );
+	connect( m_pTimelineBtn, SIGNAL( clicked() ), this, SLOT( timelineBtnClicked() ) );
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
 		m_pTimelineBtn->setIsActive( false );
@@ -95,36 +95,38 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// clear sequence button
 	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 61, 21 ), Button::Type::Push, "", pCommonStrings->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
 	m_pClearPatternSeqBtn->move( 2, 25 );
-	connect( m_pClearPatternSeqBtn, SIGNAL( pressed() ), this, SLOT( clearSequence() ) );
+	connect( m_pClearPatternSeqBtn, SIGNAL( clicked() ), this, SLOT( clearSequence() ) );
 
 	// new pattern button
 	Button *newPatBtn = new Button( pBackPanel,	QSize( 25, 21 ), Button::Type::Push, "plus.svg", "", false, QSize( 15, 15 ), tr("Create new pattern") );
 	newPatBtn->move( 64, 25 );
-	connect( newPatBtn, SIGNAL( pressed() ), this, SLOT( newPatBtnClicked() ) );
+	connect( newPatBtn, SIGNAL( clicked() ), this, SLOT( newPatBtnClicked() ) );
 
 	// down button
 	m_pDownBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
 							 "down.svg", "", false, QSize( 7, 7 ),
-							 tr("Move the selected pattern down"), false, true, "2" );
+							 tr("Move the selected pattern down"), false, true, 2 );
 	m_pDownBtn->move( 90, 36 );
-	connect( m_pDownBtn, SIGNAL( pressed() ), this, SLOT( downBtnClicked() ) );
+	connect( m_pDownBtn, SIGNAL( clicked() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
 	m_pUpBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
 						   "up.svg", "", false, QSize( 7, 7 ),
-						   tr("Move the selected pattern up"), false, true, "2" );
+						   tr("Move the selected pattern up"), false, true, 2 );
 	m_pUpBtn->move( 90, 25 );
-	connect( m_pUpBtn, SIGNAL( pressed() ), this, SLOT( upBtnClicked() ) );
+	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( upBtnClicked() ) );
 
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
 	m_pSelectionModeBtn = new Button( pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "select.svg", "", false, QSize( 17, 16 ), tr( "Select mode" ) );
 	m_pSelectionModeBtn->move( 116, 25 );
-	connect( m_pSelectionModeBtn, SIGNAL( pressed() ), this, SLOT( selectionModeBtnPressed() ) );
+	connect( m_pSelectionModeBtn, &QPushButton::clicked,
+			 [=](){ activateSelectMode( true ); } );
 
 	m_pDrawModeBtn = new Button( pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "draw.svg", "", false, QSize( 17, 16 ), tr( "Draw mode") );
 	m_pDrawModeBtn->move( 116, 25 );
-	connect( m_pDrawModeBtn, SIGNAL( pressed() ), this, SLOT( drawModeBtnPressed() ) );
+	connect( m_pDrawModeBtn, &QPushButton::clicked,
+			 [=](){ activateSelectMode( false ); } );
 
 	if ( pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_pDrawModeBtn->hide();
@@ -133,14 +135,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	}
 
 	// Two buttons sharing the same position and either of them is
-	// shown unpressed.
+	// shown unpressed
 	m_pPatternEditorLockedBtn = new Button( pBackPanel, QSize( 25, 21 ),
 											Button::Type::Toggle, "lock_closed.svg",
 											"", false, QSize( 21, 17 ),
 											pCommonStrings->getPatternEditorLocked(),
 											false, true );
 	m_pPatternEditorLockedBtn->move( 142, 25 );
-	connect( m_pPatternEditorLockedBtn, &Button::pressed,
+	connect( m_pPatternEditorLockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
 
 	m_pPatternEditorUnlockedBtn = new Button( pBackPanel, QSize( 25, 21 ),
@@ -150,7 +152,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 											  pCommonStrings->getPatternEditorLocked(),
 											  false, true );
 	m_pPatternEditorUnlockedBtn->move( 142, 25 );
-	connect( m_pPatternEditorUnlockedBtn, &Button::pressed,
+	connect( m_pPatternEditorUnlockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( true ); } );
 
 	if ( pHydrogen->isPatternEditorLocked() ) {
@@ -175,8 +177,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										 tr( "single pattern mode"),
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
-	connect( m_pPlaySelectedSingleBtn, &Button::pressed, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
+	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
+		activateStackedMode( true );
 	});
 
 	m_pPlaySelectedMultipleBtn = new Button( pBackPanel, QSize( 25, 21 ),
@@ -187,8 +189,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										   false, true );
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
-	connect( m_pPlaySelectedMultipleBtn, &Button::pressed, [=]() {
-		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
+	connect( m_pPlaySelectedMultipleBtn, &QPushButton::clicked, [=]() {
+		activateStackedMode( false );
 	});
 
 	// We access the raw variable in the song class since we do not
@@ -210,22 +212,23 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// zoom-in btn
 	Button* pZoomInBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ) );
-	connect( pZoomInBtn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnPressed() ) );
+	connect( pZoomInBtn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 
 
 
 	// zoom-out btn
 	Button* pZoomOutBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ) );
-	connect( pZoomOutBtn, SIGNAL( pressed() ), this, SLOT( zoomInBtnPressed() ) );
+	connect( pZoomOutBtn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 	// view playback track toggle button
 	m_pViewPlaybackBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getPlaybackTrackButton(), false, QSize(), tr( "View playback track" ) );
 	m_pViewPlaybackBtn->setObjectName( "ViewPlaybackBtn" );
-	connect( m_pViewPlaybackBtn, SIGNAL( pressed() ), this, SLOT( viewPlaybackTrackBtnPressed() ) );
+	connect( m_pViewPlaybackBtn, SIGNAL( clicked() ), this, SLOT( viewPlaybackTrackBtnClicked() ) );
 	m_pViewPlaybackBtn->setChecked( pPref->getShowPlaybackTrack() );
 	
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader( pBackPanel, Fader::Type::Vertical, tr( "Playback track volume" ), false, false, 0.0, 1.5 );
+	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
 	m_pPlaybackTrackFader->move( 6, 1 );
 	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 	m_pPlaybackTrackFader->hide();
@@ -237,6 +240,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 									 pCommonStrings->getBigMuteButton(),
 									 true, QSize(), tr( "Mute playback track" ),
 									 false, true );
+	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
 	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=](bool bChecked){
@@ -253,14 +257,16 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	// edit playback track toggle button
 	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 34, 17 ), Button::Type::Push, "", pCommonStrings->getEditButton(), false, QSize(), tr( "Choose playback track") );
+	m_pEditPlaybackBtn->setObjectName( "SongEditorPlaybackTrackEditButton" );
 	m_pEditPlaybackBtn->move( 123, 4 );
 	m_pEditPlaybackBtn->hide();
-	connect( m_pEditPlaybackBtn, SIGNAL( pressed() ), this, SLOT( editPlaybackTrackBtnPressed() ) );
+	connect( m_pEditPlaybackBtn, SIGNAL( clicked() ), this, SLOT( editPlaybackTrackBtnClicked() ) );
 	m_pEditPlaybackBtn->setChecked( false );
 
 	// timeline view toggle button
 	m_pViewTimelineBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
-	connect( m_pViewTimelineBtn, SIGNAL( pressed() ), this, SLOT( viewTimelineBtnPressed() ) );
+	m_pViewTimelineBtn->setObjectName( "TimeLineToggleBtn" );
+	connect( m_pViewTimelineBtn, SIGNAL( clicked() ), this, SLOT( viewTimelineBtnClicked() ) );
 	m_pViewTimelineBtn->setChecked( ! pPref->getShowPlaybackTrack() );
 	
 	
@@ -319,6 +325,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
+	m_pPositionRuler->setObjectName( "SongEditorPositionRuler" );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
@@ -348,6 +355,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
+	m_pAutomationPathView->setObjectName( "SongEditorAutomationPathView" );
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
 	m_pAutomationPathScrollView->setFixedHeight( 64 );
 	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
@@ -752,6 +760,8 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 		timelineActivationEvent();
 		selectedPatternChangedEvent();
 		updatePlaybackTrackIfNecessary();
+
+		updatePositionRuler();
 	}
 }
 
@@ -809,19 +819,8 @@ void SongEditorPanel::actionModeChangeEvent( int ) {
 	}
 }
 
-void SongEditorPanel::selectionModeBtnPressed()
-{
-	Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::drawMode );
-}
-
-void SongEditorPanel::drawModeBtnPressed()
-{
-	Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::selectMode );
-}
-
-
-void SongEditorPanel::timelineBtnPressed() {
-	setTimelineActive( ! m_pTimelineBtn->isChecked() );
+void SongEditorPanel::timelineBtnClicked() {
+	setTimelineActive( m_pTimelineBtn->isChecked() );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
@@ -860,25 +859,25 @@ void SongEditorPanel::showPlaybackTrack()
 	updatePlaybackTrackIfNecessary();
 }
 
-void SongEditorPanel::viewTimelineBtnPressed()
+void SongEditorPanel::viewTimelineBtnClicked()
 {
-	if ( ! m_pViewTimelineBtn->isChecked() ){
+	if ( m_pViewTimelineBtn->isChecked() ){
 		showTimeline();
 	} else {
 		showPlaybackTrack();
 	}
 }
 
-void SongEditorPanel::viewPlaybackTrackBtnPressed()
+void SongEditorPanel::viewPlaybackTrackBtnClicked()
 {
-	if ( ! m_pViewPlaybackBtn->isChecked() ){
+	if ( m_pViewPlaybackBtn->isChecked() ){
 		showPlaybackTrack();
 	} else {
 		showTimeline();
 	}
 }
 
-void SongEditorPanel::editPlaybackTrackBtnPressed()
+void SongEditorPanel::editPlaybackTrackBtnClicked()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -950,7 +949,7 @@ void SongEditorPanel::stackedModeActivationEvent( int )
 	}
 }
 
-void SongEditorPanel::zoomInBtnPressed()
+void SongEditorPanel::zoomInBtnClicked()
 {
 	unsigned width = m_pSongEditor->getGridWidth();
 	--width;
@@ -965,7 +964,7 @@ void SongEditorPanel::zoomInBtnPressed()
 }
 
 
-void SongEditorPanel::zoomOutBtnPressed()
+void SongEditorPanel::zoomOutBtnClicked()
 {
 	unsigned width = m_pSongEditor->getGridWidth();
 	++width;
@@ -1109,7 +1108,7 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 	QString sMessage = QString( "%1 = %2" )
 		.arg( pCommonStrings->getTimelineBigButton() )
 		.arg( bActive ? pCommonStrings->getStatusOn() : pCommonStrings->getStatusOff() );
-	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
 bool SongEditorPanel::getTimelineEnabled() const {
@@ -1134,7 +1133,7 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 		.arg( pCommonStrings->getTimelineBigButton() )
 		.arg( bEnabled ? pCommonStrings->getStatusEnabled() :
 			  pCommonStrings->getStatusDisabled() );
-	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
 void SongEditorPanel::gridCellToggledEvent() {
@@ -1153,5 +1152,30 @@ void SongEditorPanel::patternChangedEvent() {
 		int nPatternInView = -1;
 		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
 		vScrollTo( scroll );
+	}
+}
+
+void SongEditorPanel::activateStackedMode( bool bActive ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( bActive ) {
+		pHydrogen->setPatternMode( Song::PatternMode::Stacked );
+	}
+	else {
+		pHydrogen->setPatternMode( Song::PatternMode::Selected );
+	}
+}
+
+void SongEditorPanel::activateSelectMode( bool bActivate ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// Already reset them in here in order to avoid visual glitches.
+	m_pSelectionModeBtn->setChecked( false );
+	m_pDrawModeBtn->setChecked( false );
+
+	if ( bActivate ) {
+		pHydrogen->setActionMode( H2Core::Song::ActionMode::drawMode );
+	}
+	else {
+		pHydrogen->setActionMode( H2Core::Song::ActionMode::selectMode );
 	}
 }

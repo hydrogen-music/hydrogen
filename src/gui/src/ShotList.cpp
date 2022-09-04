@@ -21,8 +21,10 @@
  */
 
 #include <core/Hydrogen.h>
+#include <core/EventQueue.h>
 
 #include "ShotList.h"
+#include "HydrogenApp.h"
 
 ShotList::ShotList( QString sShotsFilename ) {
 	QFile shots( sShotsFilename );
@@ -34,6 +36,20 @@ ShotList::ShotList( QString sShotsFilename ) {
 	}
 	while (! shots.atEnd() ) {
 		m_shots << shots.readLine();
+	}
+
+	HydrogenApp::get_instance()->addEventListener( this );
+}
+
+ShotList::ShotList( QStringList shots ) {
+	m_shots = shots;
+
+	HydrogenApp::get_instance()->addEventListener( this );
+}
+
+ShotList::~ShotList() {
+	if ( auto pHydrogenApp = HydrogenApp::get_instance() ) {
+		pHydrogenApp->removeEventListener( this );
 	}
 }
 
@@ -52,6 +68,7 @@ QWidget *ShotList::findWidgetInheriting( QObject *pObject, QString &sName ) {
 
 QWidget *ShotList::findWidget( QString &sName ) {
 	for ( QWidget * pTop : QApplication::topLevelWidgets() ) {
+
 		QWidget *pWidget = pTop->findChild< QWidget *>( sName );
 		if ( !pWidget && pTop->objectName() == sName ) {
 			pWidget = dynamic_cast< QWidget *>( pTop );
@@ -78,6 +95,12 @@ void ShotList::shoot( QString s ) {
 		// Empty line or "#" to start a comment
 	} else if ( sCmd.compare( "fin", Qt::CaseInsensitive) == 0 ) {
 		// Finish the shot list and quit Hydrogen
+
+		// Since the shot lists do also toggle some buttons that mark
+		// the overall song modified, we need to discard the flag in
+		// order to avoid a popup dialog.
+		H2Core::Hydrogen::get_instance()->setIsModified( false );
+		
 		QTimer::singleShot( 1, QApplication::instance(), &QApplication::closeAllWindows );
 	} else if ( sCmd.compare( "dump", Qt::CaseInsensitive) == 0 ) {
 		// Dump object tree for debugging
@@ -206,11 +229,13 @@ void ShotList::shoot() {
 	}
 }
 
+void ShotList::nextShotEvent() {
+	QMetaObject::invokeMethod( this, "nextShot", Qt::QueuedConnection );
+}
 
 void ShotList::nextShot( void ) {
 	if ( ( m_nNextShot + 1) < m_shots.size() ) {
-		// Cue up next shot
-		QMetaObject::invokeMethod( this, "nextShot", Qt::QueuedConnection );
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_NEXT_SHOT, 0 );
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }

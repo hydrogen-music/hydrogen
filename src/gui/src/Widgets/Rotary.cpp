@@ -66,7 +66,7 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 	updateTooltip();
 
 	// Since the load function does not report success, we will check
-	// for the existance of the knob image separately.
+	// for the existence of the knob image separately.
 	QString sKnobPath( Skin::getSvgImagePath() + "/rotary.svg" ); 
 	QFile knobFile( sKnobPath );
 	if ( knobFile.exists() ) {

@@ -269,7 +269,7 @@ namespace H2Core
 		static QString drumkit_file( const QString& dk_path );
 
 		/**
-		 * Returns filename and extention of the expected drumkit file.
+		 * Returns filename and extension of the expected drumkit file.
 		 */
 		static QString drumkit_xml();
 
@@ -318,7 +318,7 @@ namespace H2Core
 		 * event informing the GUI to show a read-only warning.)
 		 *
 		 * \param sSongPath Absolute path to an .h2song file.
-		 * \param bCheckExistance Whether the existance of the file is
+		 * \param bCheckExistance Whether the existence of the file is
 		 * checked (should be true for opening and false for creating
 		 * a new song)
 		 * \return true - if valid.
@@ -366,6 +366,12 @@ namespace H2Core
 		 */
 		static bool file_executable( const QString& path, bool silent=false );
 		/**
+		 * returns true if the given path is a regular directory
+		 * \param path the path to the file to check
+		 * \param silent output not messages if set to true
+		 */
+		static bool dir_exists( const QString& path, bool silent=false );
+		/**
 		 * returns true if the given path is a readable regular directory
 		 * \param path the path to the file to check
 		 * \param silent output not messages if set to true
@@ -384,6 +390,11 @@ namespace H2Core
 		 * \param silent output not messages if set to true
 		 */
 		static bool path_usable( const QString& path, bool create=true, bool silent=false );
+
+		/**
+		 * Convert a direct to an absolute path.
+		 */
+		static QString absolute_path( const QString& sFilename, bool bSilent = false );
 		/**
 		 * writes to a file
 		 * \param dst the destination path
