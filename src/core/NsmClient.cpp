@@ -260,11 +260,6 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 			if ( sLinkedDrumkitName == sDrumkitName ) {
 				bRelinkDrumkit = false;
 			}
-			else {
-				NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
-									   .arg( sLinkedDrumkitName )
-									   .arg( sDrumkitName ) );
-			}
 		}
 		else {
 			NsmClient::printError( "Symlink does not point to valid drumkit." );
@@ -318,7 +313,7 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 
 	// Replace the temporary reference to the "global" drumkit to the
 	// (freshly) linked/found one in the session folder.
-	NsmClient::replaceDrumkitPath( pSong, sLinkedDrumkitPath );
+	NsmClient::replaceDrumkitPath( pSong, "./drumkit" );
 
 	pHydrogen->setSessionDrumkitNeedsRelinking( false );
 }
@@ -427,6 +422,7 @@ void NsmClient::replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong, const Q
 								QString sNewPath = QString( "%1/%2" )
 									.arg( sDrumkitPath )
 									.arg( pSample->get_filename() );
+
 								pSample->set_filepath( H2Core::Filesystem::prepare_sample_path( sNewPath ) );
 							}
 						}

@@ -424,12 +424,14 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 		sLastLoadedDrumkitPath = sMostCommonDrumkit;
 	}
+	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
 	
 	if ( sLastLoadedDrumkitName.isEmpty() ) {
-		sLastLoadedDrumkitName = Drumkit::loadNameFrom( sLastLoadedDrumkitPath,
-														bSilent );
+		// Use the getter in here to support relative paths as well.
+		sLastLoadedDrumkitName =
+			Drumkit::loadNameFrom( pSong->getLastLoadedDrumkitPath(),
+								   bSilent );
 	}
-	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 
 	// Pattern list
@@ -1421,6 +1423,11 @@ QString Song::makeComponentNameUnique( const QString& sName ) const {
 		}
 	}
 	return sName;
+}
+
+QString Song::getLastLoadedDrumkitPath() const
+{
+	return Filesystem::ensure_session_compatibility( m_sLastLoadedDrumkitPath );
 }
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
