@@ -812,10 +812,8 @@ void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		m_pPatternEditorPanel->getInstrumentList()->update();
 	}
-	
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	createBackground();
+
+	// Update to show the focus border highlight
 	update();
 }
 
@@ -826,9 +824,7 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 		m_pPatternEditorPanel->getInstrumentList()->update();
 	}
 	
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	createBackground();
+	// Update to remove the focus border highlight
 	update();
 }
 
