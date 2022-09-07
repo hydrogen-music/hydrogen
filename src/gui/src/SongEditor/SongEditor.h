@@ -84,6 +84,7 @@ class SongEditor : public QWidget
 		~SongEditor();
 
 		void createBackground();
+		void invalidateBackground();
 	void updatePosition( float fTick );
 		
 		void cleanUp();
@@ -143,6 +144,8 @@ class SongEditor : public QWidget
 		bool 					m_bSequenceChanged;
 
 		QMenu *					m_pPopupMenu;
+
+		bool m_bBackgroundInvalid;
 
 
 		//! @name Background pixmap caching
@@ -216,7 +219,6 @@ class SongEditor : public QWidget
 	/** Cached position of the playhead.*/
 	float m_fTick;
 public:
-	void patternModifiedEvent() override;
 
 		//! @name Selection interfaces
 		//! see Selection.h for details.
@@ -270,6 +272,7 @@ class SongEditorPatternList :  public QWidget
 
 		void updateEditor();
 		void createBackground();
+		void invalidateBackground();
 		void movePatternLine( int, int );
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
@@ -308,6 +311,7 @@ class SongEditorPatternList :  public QWidget
 		static const uint 	m_nInitialHeight = 10;
 
 		QPixmap *			m_pBackgroundPixmap;
+		bool m_bBackgroundInvalid;
 							
 		QPixmap				m_labelBackgroundLight;
 		QPixmap				m_labelBackgroundDark;
