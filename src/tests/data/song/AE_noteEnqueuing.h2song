@@ -15,7 +15,7 @@
  <playbackTrackVolume>0</playbackTrackVolume>
  <action_mode>0</action_mode>
  <isPatternEditorLocked>false</isPatternEditorLocked>
- <isTimelineActivated>false</isTimelineActivated>
+ <isTimelineActivated>true</isTimelineActivated>
  <mode>song</mode>
  <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
  <pan_law_k_norm>1.33333</pan_law_k_norm>
@@ -2986,7 +2986,20 @@
    <volume>0</volume>
   </fx>
  </ladspa>
- <BPMTimeLine/>
+ <BPMTimeLine>
+  <newBPM>
+   <BAR>0</BAR>
+   <BPM>100</BPM>
+  </newBPM>
+  <newBPM>
+   <BAR>2</BAR>
+   <BPM>180</BPM>
+  </newBPM>
+  <newBPM>
+   <BAR>4</BAR>
+   <BPM>70</BPM>
+  </newBPM>
+ </BPMTimeLine>
  <timeLineTag/>
  <automationPaths>
   <path adjust="velocity"/>
