@@ -632,22 +632,23 @@ private:
 	 * Apart from the MIDI queue, the extraction of all notes will be
 	 * based on their position measured in ticks. Since Hydrogen does
 	 * support humanization, which also involves triggering a Note
-	 * earlier or later than its actual position, the loop over all ticks
-	 * won't be done starting from the current position but at some
-	 * position in the future. This value, also called @e lookahead, is
-	 * set to the sum of the maximum offsets introduced by both the random
-	 * humanization (2000 frames) and the deterministic lead-lag offset (5
-	 * times TransportInfo::m_nFrames) plus 1 (note that it's not given in
-	 * ticks but in frames!). Hydrogen thus loops over @a nFrames frames
-	 * starting at the current position + the lookahead (or at 0 when at
-	 * the beginning of the Song).
+	 * earlier or later than its actual position, the loop over all
+	 * ticks won't be done starting from the current position but at
+	 * some position in the future. This value, also called @e
+	 * lookahead, is set to the sum of the maximum offsets introduced
+	 * by both the random humanization (2000 frames) and the
+	 * deterministic lead-lag offset (5 times
+	 * TransportInfo::m_nFrames) plus 1 (note that it's not given in
+	 * ticks but in frames!). Hydrogen thus loops over @a
+	 * nIntervalLengthInFrames frames starting at the current position
+	 * + the lookahead (or at 0 when at the beginning of the Song).
 	 *
 	 * \return
 	 * - -1 if in Song::SONG_MODE and no patterns left.
 	 */
-	int				updateNoteQueue( unsigned nFrames );
+	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
-	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
+	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
     
 	void			updateBpmAndTickSize();
 	
@@ -742,7 +743,7 @@ private:
 	 * nToggleRow twice and checks whether the transport position and
 	 * the audio processing remains consistent.
 	 */
-	bool testCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
+	bool testToggleAndCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
 	
 	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue();
 	/**
