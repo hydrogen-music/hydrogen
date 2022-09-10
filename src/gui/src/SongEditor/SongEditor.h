@@ -85,9 +85,7 @@ class SongEditor : public QWidget
 
 		void createBackground();
 		void invalidateBackground();
-	void updatePosition( float fTick );
-		
-		void cleanUp();
+		void updatePosition( float fTick );
 
 		int getGridWidth ();
 		void setGridWidth( uint width);
@@ -386,6 +384,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		void showBpmWidget( int nColumn );
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 		void createBackground();
+		void invalidateBackground();
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -423,6 +422,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	int m_nActiveColumns;
 
 		QPixmap *			m_pBackgroundPixmap;
+		bool 				m_bBackgroundInvalid;
 		bool				m_bRightBtnPressed;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev) override;
