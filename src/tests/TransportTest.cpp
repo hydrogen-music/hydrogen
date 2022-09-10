@@ -125,20 +125,22 @@ void TransportTest::testComputeTickInterval() {
 void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+	pCoreActionController->openSong( m_pSongSizeChanged );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		
 		// For larger sample rates no notes will remain in the
 		// AudioEngine::m_songNoteQueue after one process step.
 		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
-			TestHelper::varyAudioDriverConfig( ii );
 			bool bNoMismatch = pAudioEngine->testSongSizeChange();
 			CPPUNIT_ASSERT( bNoMismatch );
 		}
 	}
-
-	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	
+	pCoreActionController->activateLoopMode( false );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {
