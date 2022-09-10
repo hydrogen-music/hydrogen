@@ -4244,9 +4244,9 @@ bool AudioEngine::testToggleAndCheckConsistency( int nToggleColumn, int nToggleR
 	
 	updateNoteQueue( nBufferSize );
 
-	auto prevNotes = testCopySongNoteQueue();
-
 	processAudio( nBufferSize );
+
+	auto prevNotes = testCopySongNoteQueue();
 
 	// Cache some stuff in order to compare it later on.
 	long nOldSongSize = pSong->lengthInTicks();
