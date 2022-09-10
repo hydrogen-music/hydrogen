@@ -114,7 +114,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	// redraw all
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -1274,6 +1274,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 }
 
 void DrumPatternEditor::createBackground() {
+	m_bBackgroundInvalid = false;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -1301,7 +1302,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 	

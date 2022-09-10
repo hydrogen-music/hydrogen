@@ -95,6 +95,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	m_bBackgroundInvalid = true;
 }
 
 PatternEditor::~PatternEditor()
@@ -826,6 +827,10 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 	
 	// Update to remove the focus border highlight
 	update();
+}
+
+void PatternEditor::invalidateBackground() {
+	m_bBackgroundInvalid = true;
 }
 
 void PatternEditor::createBackground() {
