@@ -1906,26 +1906,30 @@ void AudioEngine::updateSongSize() {
 
 	bool bEndOfSongReached = false;
 
-	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
-
-	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, mod(tick): %6, pTickPos: %7, pStartPos: %8, m_fLastTickIntervalEnd: %9, m_fSongSizeInTicks: %10" )
-	// 			.arg( getFrames() ).arg( getBpm() )
-	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn )
-	// 			.arg( getDoubleTick(), 0, 'g', 30 )
-	// 			.arg( std::fmod( getDoubleTick(), m_fSongSizeInTicks ), 0, 'g', 30 )
-	// 			.arg( m_nPatternTickPosition )
-	// 			.arg( m_nPatternStartTick )
-	// 			.arg( m_fLastTickIntervalEnd )
-	// 			.arg( m_fSongSizeInTicks )
-	// 			);
+	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
 	// Strip away all repetitions when in loop mode but keep their
 	// number. m_nPatternStartTick and m_nColumn are only defined
 	// between 0 and m_fSongSizeInTicks.
 	double fNewTick = std::fmod( getDoubleTick(), m_fSongSizeInTicks );
-	double fRepetitions =
+	const double fRepetitions =
 		std::floor( getDoubleTick() / m_fSongSizeInTicks );
+
+	// WARNINGLOG( QString( "[Before] getFrames(): %1, getBpm(): %2, getTickSize(): %3, m_nColumn: %4, getDoubleTick(): %5, fNewTick: %6, fRepetitions: %7. m_nPatternTickPosition: %8, m_nPatternStartTick: %9, m_fLastTickIntervalEnd: %10, m_fSongSizeInTicks: %11, fNewSongSizeInTicks: %12, m_nFrameOffset: %13, m_fTickMismatch: %14" )
+	// 			.arg( getFrames() ).arg( getBpm() )
+	// 			.arg( getTickSize(), 0, 'f' )
+	// 			.arg( m_nColumn )
+	// 			.arg( getDoubleTick(), 0, 'g', 30 )
+	// 			.arg( fNewTick, 0, 'g', 30 )
+	// 			.arg( fRepetitions, 0, 'f' )
+	// 			.arg( m_nPatternTickPosition )
+	// 			.arg( m_nPatternStartTick )
+	// 			.arg( m_fLastTickIntervalEnd )
+	// 			.arg( m_fSongSizeInTicks )
+	// 			.arg( fNewSongSizeInTicks )
+	// 			.arg( m_nFrameOffset )
+	// 			.arg( m_fTickMismatch )
+	// 			);
 
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
@@ -1945,7 +1949,7 @@ void AudioEngine::updateSongSize() {
 	// We strive for consistency in audio playback and make both the
 	// current column/pattern and the transport position within the
 	// pattern invariant in this transformation.
-	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
+	const long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 
 	if ( nNewPatternStartTick == -1 ) {
 		bEndOfSongReached = true;
@@ -1965,7 +1969,7 @@ void AudioEngine::updateSongSize() {
 	fNewTick += fRepetitions * fNewSongSizeInTicks;
 	
 	// Ensure transport state is consistent
-	long long nNewFrames = computeFrameFromTick( fNewTick, &m_fTickMismatch );
+	const long long nNewFrames = computeFrameFromTick( fNewTick, &m_fTickMismatch );
 
 	m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 	m_fTickOffset = fNewTick - getDoubleTick();
@@ -1977,16 +1981,17 @@ void AudioEngine::updateSongSize() {
 	m_fTickOffset = std::round( m_fTickOffset );
 	m_fTickOffset *= 1e-8;
 		
-	// INFOLOG(QString( "[update] nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9")
-	// 		 .arg( nNewFrames ).arg( getFrames() )
-	// 		 .arg( m_nFrameOffset )
-	// 		 .arg( fNewTick, 0, 'g', 30 )
-	// 		 .arg( getDoubleTick(), 0, 'g', 30 )
-	// 		 .arg( m_fTickOffset, 0, 'g', 30 )
+	// INFOLOG(QString( "[update] nNewFrame: %1, getFrames() (old): %2, m_nFrameOffset: %3, fNewTick: %4, getDoubleTick() (old): %5, m_fTickOffset : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9")
+	// 		.arg( nNewFrames )
+	// 		.arg( getFrames() )
+	// 		.arg( m_nFrameOffset )
+	// 		.arg( fNewTick, 0, 'g', 30 )
+	// 		.arg( getDoubleTick(), 0, 'g', 30 )
+	// 		.arg( m_fTickOffset, 0, 'g', 30 )
 	// 		.arg( fNewTick - getDoubleTick(), 0, 'g', 30 )
-	// 		 .arg( fNewSongSizeInTicks, 0, 'g', 30 )
-	// 		 .arg( fRepetitions, 0, 'g', 30 )
-	// 		 );
+	// 		.arg( fNewSongSizeInTicks, 0, 'g', 30 )
+	// 		.arg( fRepetitions, 0, 'g', 30 )
+	// 		);
 
 	setFrames( nNewFrames );
 	setTick( fNewTick );
@@ -2010,13 +2015,21 @@ void AudioEngine::updateSongSize() {
 		locate( 0 );
 	}
 
-	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
+	// WARNINGLOG( QString( "[After] getFrames(): %1, getBpm(): %2, getTickSize(): %3, m_nColumn: %4, getDoubleTick(): %5, fNewTick: %6, fRepetitions: %7. m_nPatternTickPosition: %8, m_nPatternStartTick: %9, m_fLastTickIntervalEnd: %10, m_fSongSizeInTicks: %11, fNewSongSizeInTicks: %12, m_nFrameOffset: %13, m_fTickMismatch: %14" )
 	// 			.arg( getFrames() ).arg( getBpm() )
 	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nColumn )
+	// 			.arg( getDoubleTick(), 0, 'g', 30 )
+	// 			.arg( fNewTick, 0, 'g', 30 )
+	// 			.arg( fRepetitions, 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
-	// 			.arg( m_fLastTickIntervalEnd ) );
+	// 			.arg( m_fLastTickIntervalEnd )
+	// 			.arg( m_fSongSizeInTicks )
+	// 			.arg( fNewSongSizeInTicks )
+	// 			.arg( m_nFrameOffset )
+	// 			.arg( m_fTickMismatch )
+	// 			);
 	
 }
 
@@ -2282,12 +2295,16 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart += nLookahead;
 	}
 	
-	*fTickStart = computeTickFromFrame( nFrameStart );
-	*fTickEnd = computeTickFromFrame( nFrameEnd );
+	*fTickStart = computeTickFromFrame( nFrameStart ) + m_fTickMismatch;
+	*fTickEnd = computeTickFromFrame( nFrameEnd ) + m_fTickMismatch;
 
-	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4" )
-	// 		 .arg( nFrameStart ).arg( nFrameEnd )
-	// 		 .arg( *fTickStart, 0, 'f' ).arg( *fTickEnd, 0, 'f' ) );
+	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, m_fTickMismatch: %5" )
+	// 		 .arg( nFrameStart )
+	// 		 .arg( nFrameEnd )
+	// 		 .arg( *fTickStart, 0, 'f' )
+	// 		 .arg( *fTickEnd, 0, 'f' )
+	// 		 .arg( m_fTickMismatch, 0, 'f' )
+	// 		 );
 
 	if ( getState() == State::Playing || getState() == State::Testing ) {
 		// If there was a change in ticksize, account for the last used
