@@ -1645,7 +1645,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->setRealtimeFrames( pAudioEngine->getRealtimeFrames() +
 										 static_cast<long long>(nframes) );
 	}
-   
+
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
 	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
@@ -1915,6 +1915,8 @@ void AudioEngine::updateSongSize() {
 	const double fRepetitions =
 		std::floor( getDoubleTick() / m_fSongSizeInTicks );
 
+	const int nOldColumn = m_nColumn;
+
 	// WARNINGLOG( QString( "[Before] getFrames(): %1, getBpm(): %2, getTickSize(): %3, m_nColumn: %4, getDoubleTick(): %5, fNewTick: %6, fRepetitions: %7. m_nPatternTickPosition: %8, m_nPatternStartTick: %9, m_fLastTickIntervalEnd: %10, m_fSongSizeInTicks: %11, fNewSongSizeInTicks: %12, m_nFrameOffset: %13, m_fTickMismatch: %14" )
 	// 			.arg( getFrames() ).arg( getBpm() )
 	// 			.arg( getTickSize(), 0, 'f' )
@@ -1935,9 +1937,12 @@ void AudioEngine::updateSongSize() {
 
 	// Expected behavior:
 	// - changing any part of the song except of the pattern currently
-	//   play shouldn't affect the transport position
-	// - there shouldn't be a difference in behavior when the song was
-	//   looped at least once
+	//   play shouldn't affect transport position
+	// - the current transport position is defined as the start of
+	//   column associated with the current position in tick + the
+	//   current pattern tick position
+	// - there shouldn't be a difference in behavior whether the song is
+	//   looped or not
 	// - this internal compensation in the transport position will
 	//   only be propagated to external audio servers, like JACK, once
 	//   a relocation takes place. This temporal loss of sync is done
@@ -1949,7 +1954,7 @@ void AudioEngine::updateSongSize() {
 	// We strive for consistency in audio playback and make both the
 	// current column/pattern and the transport position within the
 	// pattern invariant in this transformation.
-	const long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
+	const long nNewPatternStartTick = pHydrogen->getTickForColumn( m_nColumn );
 
 	if ( nNewPatternStartTick == -1 ) {
 		bEndOfSongReached = true;
@@ -1957,13 +1962,23 @@ void AudioEngine::updateSongSize() {
 	
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
 
-		// DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
+		// DEBUGLOG( QString( "[nPatternStartTick mismatch] old: %1, new: %2" )
 		// 		  .arg( m_nPatternStartTick )
 		// 		  .arg( nNewPatternStartTick ) );
 		
 		fNewTick +=
 			static_cast<double>(nNewPatternStartTick - m_nPatternStartTick);
 	}
+	
+#ifdef H2CORE_HAVE_DEBUG
+	const long nNewPatternTickPosition =
+		static_cast<long>(std::floor( fNewTick )) - nNewPatternStartTick;
+	if ( nNewPatternTickPosition != m_nPatternTickPosition ) {
+		ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
+				  .arg( m_nPatternTickPosition )
+				  .arg( nNewPatternTickPosition ) );
+	}
+#endif
 
 	// Incorporate the looped transport again
 	fNewTick += fRepetitions * fNewSongSizeInTicks;
@@ -2007,6 +2022,27 @@ void AudioEngine::updateSongSize() {
 	// consistent.
 	updateTransportPosition( getDoubleTick() );
 
+	// Edge case: the previous column was beyond the new song
+	// end. This can e.g. happen if there are empty patterns in front
+	// of a final grid cell, transport is within an empty pattern, and
+	// the final grid cell get's deactivated.
+	// We use all code above to ensure things are consistent but
+	// locate to the beginning of the song as this might be the most
+	// obvious thing to do from the user perspective.
+	if ( nOldColumn >= pSong->getPatternGroupVector()->size() ) {
+		// DEBUGLOG( QString( "Old column [%1] larger than new song size [%2] (in columns). Relocating to start." )
+		// 		  .arg( nOldColumn )
+		// 		  .arg( pSong->getPatternGroupVector()->size() ) );
+		locate( 0 );
+	} 
+#ifdef H2CORE_HAVE_DEBUG
+	else if ( nOldColumn != m_nColumn ) {
+		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
+				  .arg( nOldColumn )
+				  .arg( m_nColumn ) );
+	}
+#endif
+	
 	if ( m_nColumn == -1 ||
 		 ( bEndOfSongReached &&
 		   pSong->getLoopMode() != Song::LoopMode::Enabled ) ) {
@@ -3306,11 +3342,12 @@ bool AudioEngine::testSongSizeChange() {
 
 	lock( RIGHT_HERE );
 	reset( false );
-	setState( AudioEngine::State::Testing );
+	setState( AudioEngine::State::Ready );
 
 	unlock();
 	pCoreActionController->locateToColumn( 4 );
 	lock( RIGHT_HERE );
+	setState( AudioEngine::State::Testing );
 
 	if ( ! testToggleAndCheckConsistency( 1, 1, "[testSongSizeChange] prior" ) ) {
 		setState( AudioEngine::State::Ready );
@@ -4088,6 +4125,9 @@ void AudioEngine::testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
 
 bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
 	double fTickMismatch;
 	long long nCheckFrame = computeFrameFromTick( getDoubleTick(), &fTickMismatch );
 	double fCheckTick = computeTickFromFrame( getFrames() );// + fTickMismatch );
@@ -4095,7 +4135,7 @@ bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 	if ( abs( fCheckTick + fTickMismatch - getDoubleTick() ) > 1e-9 ||
 		 abs( fTickMismatch - m_fTickMismatch ) > 1e-9 ||
 		 nCheckFrame != getFrames() ) {
-		qDebug() << QString( "[testCheckTransportPosition] [%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8, fCheckTick + fTickMismatch - getDoubleTick(): %10, fTickMismatch - m_fTickMismatch: %11, nCheckFrame - getFrames(): %12" )
+		qDebug() << QString( "[testCheckTransportPosition] [%9] [tick or frame mismatch]. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8, fCheckTick + fTickMismatch - getDoubleTick(): %10, fTickMismatch - m_fTickMismatch: %11, nCheckFrame - getFrames(): %12" )
 			.arg( getFrames() )
 			.arg( nCheckFrame )
 			.arg( getDoubleTick(), 0 , 'f', 9 )
@@ -4108,6 +4148,30 @@ bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 			.arg( fCheckTick + fTickMismatch - getDoubleTick(), 0, 'E' )
 			.arg( fTickMismatch - m_fTickMismatch, 0, 'E' )
 			.arg( nCheckFrame - getFrames() );
+		return false;
+	}
+
+	long nCheckPatternStartTick;
+	int nCheckColumn = pHydrogen->getColumnForTick( getTick(), pSong->isLoopEnabled(),
+													&nCheckPatternStartTick );
+	long nTicksSinceSongStart =
+		static_cast<long>(std::floor( std::fmod( getDoubleTick(),
+												 m_fSongSizeInTicks ) ));
+	if ( pHydrogen->getMode() == Song::Mode::Song &&
+		 ( nCheckColumn != m_nColumn ||
+		   nCheckPatternStartTick != m_nPatternStartTick ||
+		   nTicksSinceSongStart - nCheckPatternStartTick != m_nPatternTickPosition ) ) {
+		qDebug() << QString( "[testCheckTransportPosition] [%10] [column or pattern tick mismatch]. getTick(): %1, m_nColumn: %2, nCheckColumn: %3, m_nPatternStartTick: %4, nCheckPatternStartTick: %5, m_nPatternTickPosition: %6, nCheckPatternTickPosition: %7, nTicksSinceSongStart: %8, m_fSongSizeInTicks: %9" )
+			.arg( getTick() )
+			.arg( m_nColumn )
+			.arg( nCheckColumn )
+			.arg( m_nPatternStartTick )
+			.arg( nCheckPatternStartTick )
+			.arg( m_nPatternTickPosition )
+			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
+			.arg( nTicksSinceSongStart )
+			.arg( m_fSongSizeInTicks, 0, 'f' )
+			.arg( sContext );
 		return false;
 	}
 
@@ -4258,15 +4322,16 @@ bool AudioEngine::testToggleAndCheckConsistency( int nToggleColumn, int nToggleR
 	auto pSong = pHydrogen->getSong();
 	
 	unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
-	
-	updateNoteQueue( nBufferSize );
 
+	updateNoteQueue( nBufferSize );
 	processAudio( nBufferSize );
+	incrementTransportPosition( nBufferSize );
 
 	auto prevNotes = testCopySongNoteQueue();
 
 	// Cache some stuff in order to compare it later on.
 	long nOldSongSize = pSong->lengthInTicks();
+	int nOldColumn = m_nColumn;
 	float fPrevTempo = getBpm();
 	float fPrevTickSize = getTickSize();
 	double fPrevTickStart, fPrevTickEnd;
@@ -4314,38 +4379,61 @@ bool AudioEngine::testToggleAndCheckConsistency( int nToggleColumn, int nToggleR
 									  0, false, m_fTickOffset ) ) {
 		return false;
 	}
-	double fTickStart, fTickEnd;
-	long long nLeadLag;
 
-	// We need to reset this variable in order for
-	// computeTickInterval() to behave like just after a relocation.
-	m_fLastTickIntervalEnd = -1;
-	nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+	// Column must be consistent. Unless the song length shrunk due to
+	// the toggling and the previous column was located beyond the new
+	// end (in which case transport will be reset to 0).
+	if ( nOldColumn < pSong->getPatternGroupVector()->size() ) {
+		// Transport was not reset to 0 - happens in most cases.
 
-	if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
-		qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
-			.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext );
-		return false;
+		if ( nOldColumn != m_nColumn &&
+			 nOldColumn < pSong->getPatternGroupVector()->size() ) {
+			qDebug() << QString( "[%3] Column changed old: %1, new: %2" )
+				.arg( nOldColumn )
+				.arg( m_nColumn )
+				.arg( sFirstContext );
+			return false;
+		}
+
+		// We need to reset this variable in order for
+		// computeTickInterval() to behave like just after a relocation.
+		m_fLastTickIntervalEnd = -1;
+		double fTickEnd, fTickStart;
+		const long long nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+		if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
+			qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
+				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext );
+			return false;
+		}
+		if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
+			qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
+				.arg( fTickStart, 0, 'f' )
+				.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickStart, 0, 'f' )
+				.arg( m_fTickOffset, 0, 'f' )
+				.arg( sFirstContext );
+			return false;
+		}
+		if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
+			qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
+				.arg( fTickEnd, 0, 'f' )
+				.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickEnd, 0, 'f' )
+				.arg( m_fTickOffset, 0, 'f' )
+				.arg( sFirstContext );
+			return false;
+		}
 	}
-	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
-		qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
-			.arg( fTickStart, 0, 'f' )
-			.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
-			.arg( fPrevTickStart, 0, 'f' )
-			.arg( m_fTickOffset, 0, 'f' )
+	else if ( m_nColumn != 0 &&
+			  nOldColumn >= pSong->getPatternGroupVector()->size() ) {
+		qDebug() << QString( "[%4] Column reset failed nOldColumn: %1, m_nColumn (new): %2, pSong->getPatternGroupVector()->size() (new): %3" )
+			.arg( nOldColumn )
+			.arg( m_nColumn )
+			.arg( pSong->getPatternGroupVector()->size() )
 			.arg( sFirstContext );
 		return false;
 	}
-	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
-		qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
-			.arg( fTickEnd, 0, 'f' )
-			.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
-			.arg( fPrevTickEnd, 0, 'f' )
-			.arg( m_fTickOffset, 0, 'f' )
-			.arg( sFirstContext );
-		return false;
-	}
-
+	
 	// Now we emulate that playback continues without any new notes
 	// being added and expect the rendering of the notes currently
 	// played back by the Sampler to start off precisely where we
@@ -4396,6 +4484,8 @@ bool AudioEngine::testToggleAndCheckConsistency( int nToggleColumn, int nToggleR
 	double fPrevLastTickIntervalEnd = m_fLastTickIntervalEnd;
 	nPrevLeadLag = computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
 	m_fLastTickIntervalEnd = fPrevLastTickIntervalEnd;
+
+	nOldColumn = m_nColumn;
 	
 	unlock();
 	pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
@@ -4426,27 +4516,53 @@ bool AudioEngine::testToggleAndCheckConsistency( int nToggleColumn, int nToggleR
 		return false;
 	}
 
-	nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
-	if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
-		qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
-			.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext );
-		return false;
+	// Column must be consistent. Unless the song length shrunk due to
+	// the toggling and the previous column was located beyond the new
+	// end (in which case transport will be reset to 0).
+	if ( nOldColumn < pSong->getPatternGroupVector()->size() ) {
+		// Transport was not reset to 0 - happens in most cases.
+
+		if ( nOldColumn != m_nColumn &&
+			 nOldColumn < pSong->getPatternGroupVector()->size() ) {
+			qDebug() << QString( "[%3] Column changed old: %1, new: %2" )
+				.arg( nOldColumn )
+				.arg( m_nColumn )
+				.arg( sSecondContext );
+			return false;
+		}
+
+		double fTickEnd, fTickStart;
+		const long long nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+		if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
+			qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
+				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext );
+			return false;
+		}
+		if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
+			qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
+				.arg( fTickStart, 0, 'f' )
+				.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickStart, 0, 'f' )
+				.arg( m_fTickOffset, 0, 'f' )
+				.arg( sSecondContext );
+			return false;
+		}
+		if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
+			qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
+				.arg( fTickEnd, 0, 'f' )
+				.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickEnd, 0, 'f' )
+				.arg( m_fTickOffset, 0, 'f' )
+				.arg( sSecondContext );
+			return false;
+		}
 	}
-	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
-		qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
-			.arg( fTickStart, 0, 'f' )
-			.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
-			.arg( fPrevTickStart, 0, 'f' )
-			.arg( m_fTickOffset, 0, 'f' )
-			.arg( sSecondContext );
-		return false;
-	}
-	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
-		qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
-			.arg( fTickEnd, 0, 'f' )
-			.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
-			.arg( fPrevTickEnd, 0, 'f' )
-			.arg( m_fTickOffset, 0, 'f' )
+	else if ( m_nColumn != 0 &&
+			  nOldColumn >= pSong->getPatternGroupVector()->size() ) {
+		qDebug() << QString( "[%4] Column reset failed nOldColumn: %1, m_nColumn (new): %2, pSong->getPatternGroupVector()->size() (new): %3" )
+			.arg( nOldColumn )
+			.arg( m_nColumn )
+			.arg( pSong->getPatternGroupVector()->size() )
 			.arg( sSecondContext );
 		return false;
 	}
