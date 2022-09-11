@@ -93,6 +93,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 	if ( ! Filesystem::file_exists( sFilename, true ) && ! sDrumkitPath.isEmpty() &&
 		 ! sFilename.startsWith( "/" ) ) {
 
+#ifdef H2CORE_HAVE_OSC
 		if ( pHydrogen->isUnderSessionManagement() ) {
 			// If we use the NSM support and the sample files to save
 			// are corresponding to the drumkit linked/located in the
@@ -121,6 +122,10 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 			sFilename = sDrumkitPath + "/" + sFilename;
 			sAbsoluteFilename = sFilename;
 		}
+#else
+		sFilename = sDrumkitPath + "/" + sFilename;
+		sAbsoluteFilename = sFilename;
+#endif
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;

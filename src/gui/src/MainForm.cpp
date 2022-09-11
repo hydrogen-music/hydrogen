@@ -760,7 +760,8 @@ void MainForm::action_file_save_as()
 			// if required.
 			action_file_save( sNewFilename );
 		}
-	
+
+#ifdef H2CORE_HAVE_OSC
 		// When Hydrogen is under session management, we only copy a
 		// backup of the song to a different place but keep working on
 		// the original.
@@ -773,6 +774,9 @@ void MainForm::action_file_save_as()
 		else {
 			h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
 		}
+#else
+		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
+#endif
 		
 		h2app->updateWindowTitle();
 	}
