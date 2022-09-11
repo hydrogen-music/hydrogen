@@ -1657,7 +1657,10 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
-			
+
+			// TODO: This part of the code might not be reached
+			// anymore.
+			pAudioEngine->unlock();
 			return 1;	// kill the audio AudioDriver thread
 		}
 	}
