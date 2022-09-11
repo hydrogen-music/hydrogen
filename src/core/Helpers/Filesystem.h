@@ -395,6 +395,12 @@ namespace H2Core
 		 * Convert a direct to an absolute path.
 		 */
 		static QString absolute_path( const QString& sFilename, bool bSilent = false );
+		/** 
+		 * If Hydrogen is under session management, we support for paths
+		 * relative to the session folder. This is required to allow for
+		 * sessions being renamed or duplicated.
+		 */
+		static QString ensure_session_compatibility( const QString& sPath );
 		/**
 		 * writes to a file
 		 * \param dst the destination path

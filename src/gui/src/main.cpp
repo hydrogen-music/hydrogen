@@ -531,11 +531,6 @@ int main(int argc, char *argv[])
 
 		// Tell the core that the GUI is now fully loaded and ready.
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
-#ifdef H2CORE_HAVE_OSC
-		if ( NsmClient::get_instance() != nullptr ) {
-			NsmClient::get_instance()->sendDirtyState( false );
-		}
-#endif
 
 		if ( sShotList != QString() ) {
 			ShotList *sl = new ShotList( sShotList );
@@ -549,7 +544,24 @@ int main(int argc, char *argv[])
 		// the previous session.
 		if ( pHydrogen->getSong()->getFilename() !=
 			 H2Core::Filesystem::empty_song_path() ) {
+#ifdef H2CORE_HAVE_OSC
+			// Mark empty song created in a new NSM session modified
+			// in order to emphasis that an initial song save is
+			// required to generate the song file and link the
+			// associated drumkit in the session folder.
+			if ( NsmClient::get_instance() != nullptr &&
+				 NsmClient::get_instance()->getIsNewSession() ) {
+				
+				NsmClient::get_instance()->sendDirtyState( true );
+				pHydrogen->setIsModified( true );
+			}
+			else {
+				NsmClient::get_instance()->sendDirtyState( false );
+				pHydrogen->setIsModified( false );
+			}
+#else
 			pHydrogen->setIsModified( false );
+#endif
 		}
 
 		H2Core::Logger::setCrashContext( nullptr );

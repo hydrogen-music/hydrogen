@@ -565,7 +565,7 @@ public:
 	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	/** Is allowed to call setSong().*/
-	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
+	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking );
 	/** Is allowed to call removeSong().*/
 	friend void Hydrogen::removeSong();
 	/** Is allowed to use locate() to directly set the position in
