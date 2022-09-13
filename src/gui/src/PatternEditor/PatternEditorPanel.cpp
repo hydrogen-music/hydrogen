@@ -942,6 +942,13 @@ void PatternEditorPanel::patternModifiedEvent() {
 	selectedPatternChangedEvent();
 }
 
+void PatternEditorPanel::patternChangedEvent() {
+	if ( Hydrogen::get_instance()->getPatternMode() ==
+		 Song::PatternMode::Stacked ) {
+		updateEditors( true );
+	}
+}
+
 void PatternEditorPanel::songModeActivationEvent() {
 	if ( Hydrogen::get_instance()->getPatternMode() ==
 		 Song::PatternMode::Stacked ) {
