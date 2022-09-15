@@ -725,7 +725,14 @@ private:
 	 */
 	void handleDriverChange();
 	
-	/** Helper function */
+	/**
+	 * Checks the consistency of the current transport position by
+	 * converting the current tick, frame, column, pattern start tick
+	 * etc. into each other and comparing the results. 
+	 *
+	 * \param sContext String identifying the calling function and
+	 * used for logging
+	 */
 	bool testCheckTransportPosition( const QString& sContext ) const;
 	/**
 	 * Takes two instances of Sampler::m_playingNotesQueue and checks
