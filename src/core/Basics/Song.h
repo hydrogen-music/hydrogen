@@ -317,7 +317,7 @@ private:
 		/**
 		 * Current speed in beats per minutes.
 		 *
-		 * See TransportInfo::m_fBpm for how the handling of the
+		 * See TransportPosition::m_fBpm for how the handling of the
 		 * different tempo instances work.
 		 */
 		float m_fBpm;

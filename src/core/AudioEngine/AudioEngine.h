@@ -29,7 +29,7 @@
 #include <core/Sampler/Sampler.h>
 #include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine/TransportInfo.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
 
 #include <core/IO/AudioOutput.h>
@@ -96,7 +96,7 @@ namespace H2Core
  *
  * \ingroup docCore docAudioEngine
  */ 
-class AudioEngine : public H2Core::TransportInfo, public H2Core::Object<AudioEngine>
+class AudioEngine : public H2Core::TransportPosition, public H2Core::Object<AudioEngine>
 {
 	H2_OBJECT(AudioEngine)
 public:
@@ -576,7 +576,7 @@ public:
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	friend void JackAudioDriver::updateTransportInfo();
+	friend void JackAudioDriver::updateTransportPosition();
 	friend void JackAudioDriver::relocateUsingBBT();
 private:
 
@@ -638,7 +638,7 @@ private:
 	 * lookahead, is set to the sum of the maximum offsets introduced
 	 * by both the random humanization (2000 frames) and the
 	 * deterministic lead-lag offset (5 times
-	 * TransportInfo::m_nFrames) plus 1 (note that it's not given in
+	 * TransportPosition::m_nFrames) plus 1 (note that it's not given in
 	 * ticks but in frames!). Hydrogen thus loops over @a
 	 * nIntervalLengthInFrames frames starting at the current position
 	 * + the lookahead (or at 0 when at the beginning of the Song).
@@ -943,8 +943,8 @@ private:
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	/** Number of frames TransportInfo::m_nFrames is ahead of
-		TransportInfo::m_nTick. */
+	/** Number of frames TransportPosition::m_nFrames is ahead of
+		TransportPosition::m_nTick. */
 	double m_fTickMismatch;
 	double m_fTickOffset;
 	long long m_nFrameOffset;

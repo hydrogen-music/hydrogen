@@ -19,14 +19,14 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include <core/AudioEngine/TransportInfo.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/config.h>
 
 namespace H2Core {
 
-TransportInfo::TransportInfo()
+TransportPosition::TransportPosition()
 	: m_nFrames( 0 )
 	, m_fTick( 0 )
 	, m_fTickSize( 400 )
@@ -34,10 +34,10 @@ TransportInfo::TransportInfo()
 }
 
 
-TransportInfo::~TransportInfo() {
+TransportPosition::~TransportPosition() {
 }
 
-void TransportInfo::setBpm( float fNewBpm ) {
+void TransportPosition::setBpm( float fNewBpm ) {
 	if ( fNewBpm > MAX_BPM ) {
 		ERRORLOG( QString( "Provided bpm [%1] is too high. Assigning upper bound %2 instead" )
 					.arg( fNewBpm ).arg( MAX_BPM ) );
@@ -55,7 +55,7 @@ void TransportInfo::setBpm( float fNewBpm ) {
 	}
 }
  
-void TransportInfo::setFrames( long long nNewFrames ) {
+void TransportPosition::setFrames( long long nNewFrames ) {
 	if ( nNewFrames < 0 ) {
 		ERRORLOG( QString( "Provided frame [%1] is negative. Setting frame 0 instead." )
 				  .arg( nNewFrames ) );
@@ -65,7 +65,7 @@ void TransportInfo::setFrames( long long nNewFrames ) {
 	m_nFrames = nNewFrames;
 }
 
-void TransportInfo::setTick( double fNewTick ) {
+void TransportPosition::setTick( double fNewTick ) {
 	if ( fNewTick < 0 ) {
 		ERRORLOG( QString( "Provided tick [%1] is negative. Setting frame 0 instead." )
 				  .arg( fNewTick ) );
@@ -75,7 +75,7 @@ void TransportInfo::setTick( double fNewTick ) {
 	m_fTick = fNewTick;
 }
 
-void TransportInfo::setTickSize( float fNewTickSize ) {
+void TransportPosition::setTickSize( float fNewTickSize ) {
 	if ( fNewTickSize <= 0 ) {
 		ERRORLOG( QString( "Provided tick size [%1] is too small. Using 400 as a fallback instead." )
 				  .arg( fNewTickSize ) );

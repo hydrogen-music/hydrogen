@@ -433,7 +433,7 @@ class Note : public H2Core::Object<Note>
 	*/
 	long long m_nNoteStart;
 	/**
-	 * TransportInfo::m_fTickSize used to calculate #m_nNoteStart.
+	 * TransportPosition::m_fTickSize used to calculate #m_nNoteStart.
 	 *
 	 * If #m_nNoteStart was calculated in the presence of an active
 	 * #Timeline, it will be set to -1.

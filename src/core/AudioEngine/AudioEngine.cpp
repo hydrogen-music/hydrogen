@@ -101,7 +101,7 @@ inline timeval currentTime2()
 }
 
 AudioEngine::AudioEngine()
-		: TransportInfo()
+		: TransportPosition()
 		, m_pSampler( nullptr )
 		, m_pSynth( nullptr )
 		, m_pAudioDriver( nullptr )
@@ -1651,7 +1651,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		// server. It will only overwrite the transport state, if
 		// the transport position was changed by the user by
 		// e.g. clicking on the timeline.
-		static_cast<JackAudioDriver*>( pHydrogen->getAudioOutput() )->updateTransportInfo();
+		static_cast<JackAudioDriver*>( pHydrogen->getAudioOutput() )->updateTransportPosition();
 	}
 #endif
 
@@ -2759,7 +2759,7 @@ long long AudioEngine::getLookaheadInFrames( double fTick ) {
 }
 
 double AudioEngine::getDoubleTick() const {
-	return TransportInfo::getTick();
+	return TransportPosition::getTick();
 }
 
 long AudioEngine::getTick() const {

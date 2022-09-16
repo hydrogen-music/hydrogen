@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef TRANSPORT_INFO_H
-#define TRANSPORT_INFO_H
+#ifndef TRANSPORT_POSITION_H
+#define TRANSPORT_POSITION_H
 
 #include <core/Object.h>
 
@@ -41,17 +41,17 @@ namespace H2Core
  * "externalFrames" to indicate that it's not used within Hydrogen but
  * to sync it with other apps.
  */
-class TransportInfo : public H2Core::Object<TransportInfo>
+class TransportPosition : public H2Core::Object<TransportPosition>
 {
-	H2_OBJECT(TransportInfo)
+	H2_OBJECT(TransportPosition)
 public:
 
 	/**
-	 * Constructor of TransportInfo
+	 * Constructor of TransportPosition
 	 */
-	TransportInfo();
-	/** Destructor of TransportInfo */
-	~TransportInfo();
+	TransportPosition();
+	/** Destructor of TransportPosition */
+	~TransportPosition();
 
 	long long getFrames() const;
 	double getTick() const;
@@ -113,7 +113,7 @@ private:
 	float m_fTickSize;
 	/** Current tempo in beats per minute.
 	 *
-	 * The tempo hold by the #TransportInfo (and thus the
+	 * The tempo hold by the #TransportPosition (and thus the
 	 * #AudioEngine) is the one currently used throughout Hydrogen. It
 	 * can be set through three different mechanisms and the
 	 * corresponding values are stored in different places.
@@ -138,16 +138,16 @@ private:
 	float m_fBpm;
 };
 
-inline long long TransportInfo::getFrames() const {
+inline long long TransportPosition::getFrames() const {
 	return m_nFrames;
 }
-inline double TransportInfo::getTick() const {
+inline double TransportPosition::getTick() const {
 	return m_fTick;
 }
-inline float TransportInfo::getTickSize() const {
+inline float TransportPosition::getTickSize() const {
 	return m_fTickSize;
 }
-inline float TransportInfo::getBpm() const {
+inline float TransportPosition::getBpm() const {
 	return m_fBpm;
 }
 };

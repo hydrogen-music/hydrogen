@@ -49,7 +49,6 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/H2Exception.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportInfo.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>

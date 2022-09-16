@@ -33,7 +33,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportInfo.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -486,7 +486,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	return true;
 }
 
-void JackAudioDriver::updateTransportInfo()
+void JackAudioDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
