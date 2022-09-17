@@ -122,27 +122,50 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 *
 		 * Sets #bNsmShutdown to true.*/
 		void shutdown();
+	
 	/**
-	 * Responsible for linking and loading of the drumkit samples.
+	 * Responsible for linking a drumkit on user or system level into
+	 * the session folder and updating all corresponding references in
+	 * @a pSong.
 	 *
-	 * Upon first invocation of this function in a new project, a
-	 * symbolic link to the folder containing the samples of the
-	 * current drumkit will be created in @a sName `drumkit`. In all
-	 * following runs of the session the linked samples will be used
-	 * over the default ones.
-	 *
-	 * If the session were archived, the symbolic link would had
+	 * If the session was archived, the symbolic link had
 	 * been replaced by a folder containing the samples. In such an
 	 * occasion the samples located in the folder will be loaded. This
 	 * ensure portability of Hydrogen within a session regardless of
 	 * the local drumkits present in the user's home.
 	 *
-	 * \param sName Absolute path to the session folder.
-	 * \param bCheckLinkage Whether or not the linked drumkit should
-	 * be verified to correspond to @a sName. If set to none, the
-	 * drumkit will always be relinked.
+	 * \param pSong @H2Core::Song containing references to global
+	 * drumkit.
 	 */
-	static void linkDrumkit( const QString& sName, bool bCheckLinkage );
+	static void linkDrumkit( std::shared_ptr<H2Core::Song> pSong );
+
+	/**
+	 * Replaces a path in Song::m_sLastLoadedDrumkitPath pointing to
+	 * the session folder with one pointing to the corresponding kit
+	 * in the data folder.
+	 *
+	 * In case the session drumkit does not exist at neither system
+	 * nor user level, Song::m_sLastLoadedDrumkitPath will be replaced
+	 * by an empty string.
+	 *
+	 * \return 0 : success. -1 : general error, -2 : drumkit is
+	 * present as directory in session folder. But a drumkit holding
+	 * the same name couldn't be found on the system.
+	 */
+	static int dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong );
+
+	/**
+	 * Replaces @H2Core::Song::m_sLastLoadedDrumkitPath as well as all
+	 * @H2Core::Instrument::__drumkit_path bearing the same value in
+	 * @a pSong with @a sDrumkitPath.
+	 *
+	 * This is required when telling a #H2Core::Song to use the
+	 * drumkit linked/found in the session folder instead of its
+	 * counterpart in the user's or system's drumkit data folder or
+	 * the over way around when exporting the song of the session.
+	 */
+	static void replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong, const QString& sDrumkitPath );
+	
 	/** Custom function to print a colored error message.
 	 *
 	 * Since the OpenCallback() and SaveCallback() functions will be
@@ -165,13 +188,11 @@ class NsmClient : public H2Core::Object<NsmClient>
 	/** \return m_bUnderSessionManagement*/
 	bool getUnderSessionManagement() const;
 
-		/** Folder all the content of the current session will be
-		 * stored in.
-		 *
-		 * Set at the beginning of each session in
-		 * NsmClient::OpenCallback().
-		 */
-		QString m_sSessionFolderPath;
+	QString getSessionFolderPath() const;
+	void setSessionFolderPath( const QString& sPath );
+
+	bool getIsNewSession() const;
+	void setIsNewSession( bool bNew );
 
 	private:
 		/**Private constructor to allow construction only via
@@ -191,6 +212,21 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * createInitialClient() has to be called first.
 		 */
 		bool m_bUnderSessionManagement;
+
+		/** Folder all the content of the current session will be
+		 * stored in.
+		 *
+		 * Set at the beginning of each session in
+		 * NsmClient::OpenCallback().
+		 */
+		QString m_sSessionFolderPath;
+
+	/**
+	 * Indicates whether a song file was already found in the session
+	 * folder and successfully loaded or the session was initialized
+	 * with an empty song.
+	 */
+	bool m_bIsNewSession;
 	
 	/**
 	 * Callback function for the NSM server to tell Hydrogen to open a
@@ -290,6 +326,19 @@ inline bool NsmClient::getUnderSessionManagement() const {
 	return m_bUnderSessionManagement;
 }
 
+inline QString NsmClient::getSessionFolderPath() const {
+	return m_sSessionFolderPath;
+}
+inline void NsmClient::setSessionFolderPath( const QString& sPath ) {
+	m_sSessionFolderPath = sPath;
+}
+
+inline bool NsmClient::getIsNewSession() const {
+	return m_bIsNewSession;
+}
+inline void NsmClient::setIsNewSession( bool bNew ) {
+	m_bIsNewSession = bNew;
+}
 #endif /* H2CORE_HAVE_OSC */
 
 #endif // NSM_CLIENT_H

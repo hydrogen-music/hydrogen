@@ -40,9 +40,12 @@ void TransportTest::setUp(){
 	m_pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
 
 	m_pSongSizeChanged = Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+	m_pSongNoteEnqueuing = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
 
 	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
 	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
+	CPPUNIT_ASSERT( m_pSongNoteEnqueuing != nullptr );
+
 	Preferences::get_instance()->m_bUseMetronome = false;
 }
 
@@ -125,20 +128,31 @@ void TransportTest::testComputeTickInterval() {
 void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+	pCoreActionController->openSong( m_pSongSizeChanged );
+
+	// Depending on buffer size and sample rate transport might be
+	// loop when toggling a pattern at the end of the song. If there
+	// were tempo markers present, the chunk of the interval covered
+	// by AudioEngine::computeTickInterval being looped would have a
+	// different tickSize than its first part. This is itself no
+	// problem but it would make the test much more complex as we test
+	// against those calculated intervals to remain constant.
+	pCoreActionController->activateTimeline( false );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		
 		// For larger sample rates no notes will remain in the
 		// AudioEngine::m_songNoteQueue after one process step.
 		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
-			TestHelper::varyAudioDriverConfig( ii );
 			bool bNoMismatch = pAudioEngine->testSongSizeChange();
 			CPPUNIT_ASSERT( bNoMismatch );
 		}
 	}
-
-	pHydrogen->getCoreActionController()->activateLoopMode( false );
+	
+	pCoreActionController->activateLoopMode( false );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {
@@ -158,7 +172,7 @@ void TransportTest::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+	pHydrogen->getCoreActionController()->openSong( m_pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };

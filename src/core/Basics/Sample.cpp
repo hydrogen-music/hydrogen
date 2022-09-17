@@ -121,10 +121,15 @@ Sample::~Sample()
 void Sample::set_filename( const QString& filename )
 {
 	QFileInfo Filename = QFileInfo( filename );
-	QFileInfo Dest = QFileInfo( __filepath );
+	QFileInfo Dest = QFileInfo( get_filepath() );
 	__filepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
 }
 
+
+QString Sample::get_filepath() const
+{
+	return Filesystem::ensure_session_compatibility( __filepath );
+}
 
 std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
 {
@@ -152,9 +157,9 @@ bool Sample::load( float fBpm )
 	SF_INFO sound_info = {0};
 
 	// Opens file in read-only mode.
-	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
+	SNDFILE* file = sf_open( get_filepath().toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
-		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( __filepath ) );
+		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( get_filepath() ) );
 		return false;
 	}
 	
@@ -181,12 +186,12 @@ bool Sample::load( float fBpm )
 	// encoding (e.g. 16 bit PCM).
 	sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
 	if( count==0 ){
-		WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
+		WARNINGLOG( QString( "%1 is an empty sample" ).arg( get_filepath() ) );
 	}
 	
 	// Deallocate the handler.
 	if ( sf_close( file ) != 0 ){
-		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( __filepath ) );
+		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( get_filepath() ) );
 	}
 	
 	// Flush the current content of the left and right channel and

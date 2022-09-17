@@ -745,7 +745,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		
 		QString sDrumkitPath = QString( "%1/%2" )
-			.arg( NsmClient::get_instance()->m_sSessionFolderPath )
+			.arg( NsmClient::get_instance()->getSessionFolderPath() )
 			.arg( "drumkit" );
 		
 		// If the path is symbolic link, dereference it.
@@ -758,14 +758,16 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 		// drumkit (using its name).
 		QString sDrumkitXMLPath = QString( "%1/%2" )
 				.arg( sDrumkitPath ).arg( "drumkit.xml" );
+		QString sSessionDrumkitName = Drumkit::loadNameFrom( sDrumkitPath );
 
-		if ( dk_name == Drumkit::loadNameFrom( sDrumkitXMLPath ) ) {
+		if ( dk_name == sSessionDrumkitName ) {
 				// The local drumkit seems legit.	
 				return sDrumkitPath;
 		}
 		else if ( ! bSilent ) {
-			NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
+			NsmClient::printError( QString( "Local drumkit [%1] name [%2] and the one stored in .h2song file [%3] do not match!" )
 								   .arg( sDrumkitXMLPath )
+								   .arg( sSessionDrumkitName )
 								   .arg( dk_name ) );
 		}
 	}
@@ -811,6 +813,31 @@ QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
 }
 bool Filesystem::drumkit_valid( const QString& dk_path )
 {
+#ifdef H2CORE_HAVE_OSC
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr &&
+		 pHydrogen->isUnderSessionManagement() ) {
+
+		// Explicit handling for relative drumkit paths supported in
+		// the session management.
+		QFileInfo info( dk_path );
+		if ( info.isRelative() ) {
+			QString sAbsoluteDrumkitPath = QString( "%1%2" )
+				.arg( NsmClient::get_instance()->getSessionFolderPath() )
+				// remove the leading dot indicating that the path is relative. 
+				.arg( dk_path.right( dk_path.size() - 1 ) );
+
+			QFileInfo infoAbs( sAbsoluteDrumkitPath );
+			if ( infoAbs.isSymLink() ) {
+				sAbsoluteDrumkitPath = infoAbs.symLinkTarget();
+			}
+
+			return file_readable( sAbsoluteDrumkitPath + "/" +
+								  DRUMKIT_XML, true );
+		}
+	}
+#endif
+		
 	return file_readable( dk_path + "/" + DRUMKIT_XML, true);
 }
 QString Filesystem::drumkit_file( const QString& dk_path )
@@ -962,6 +989,25 @@ QString Filesystem::absolute_path( const QString& sFilename, bool bSilent ) {
 	}
 
 	return QString();
+}
+
+QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
+#ifdef H2CORE_HAVE_OSC
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen != nullptr &&
+		 pHydrogen->isUnderSessionManagement() ) {
+
+		QFileInfo info( sPath );
+		if ( info.isRelative() ) {
+			return QString( "%1%2" )
+				.arg( NsmClient::get_instance()->getSessionFolderPath() )
+				// remove the leading dot indicating that the path is relative. 
+				.arg( sPath.right( sPath.size() - 1 ) );
+		}
+	}
+#endif
+
+	return sPath;
 }
 };
 

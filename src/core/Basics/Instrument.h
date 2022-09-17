@@ -282,7 +282,7 @@ class Instrument : public H2Core::Object<Instrument>
 		///< set the path of the related drumkit
 		void set_drumkit_path( const QString& sPath );
 		///< get the path of the related drumkits
-		const QString& get_drumkit_path() const;
+		QString get_drumkit_path() const;
 		///< set the name of the related drumkit
 		void set_drumkit_name( const QString& sName );
 		///< get the name of the related drumkits
@@ -666,11 +666,6 @@ inline int Instrument::get_higher_cc() const
 inline void Instrument::set_drumkit_path( const QString& sPath )
 {
 	__drumkit_path = sPath;
-}
-
-inline const QString& Instrument::get_drumkit_path() const
-{
-	return __drumkit_path;
 }
 
 inline void Instrument::set_drumkit_name( const QString& sName )

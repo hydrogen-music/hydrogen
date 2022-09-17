@@ -88,7 +88,7 @@ Drumkit::~Drumkit()
 std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitPath ) );
+		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitPath ) );
 		return nullptr;
 	}
 
@@ -273,7 +273,7 @@ QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
 bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {
 
 	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
+		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitDir ) );
 		return false;
 	}
 
@@ -572,7 +572,7 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 bool Drumkit::remove( const QString& sDrumkitDir )
 {
 	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( sDrumkitDir ) );
+		ERRORLOG( QString( "%1 is not valid drumkit folder" ).arg( sDrumkitDir ) );
 		return false;
 	}
 	
