@@ -39,7 +39,8 @@ class TransportTest : public CppUnit::TestFixture {
 private:
 	std::shared_ptr<H2Core::Song> m_pSongDemo;
 	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
-	
+	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
+
 public:
 	void setUp();
 	void tearDown();

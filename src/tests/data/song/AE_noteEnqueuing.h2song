@@ -15,12 +15,12 @@
  <playbackTrackVolume>0</playbackTrackVolume>
  <action_mode>0</action_mode>
  <isPatternEditorLocked>false</isPatternEditorLocked>
- <isTimelineActivated>false</isTimelineActivated>
+ <isTimelineActivated>true</isTimelineActivated>
  <mode>song</mode>
  <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
  <pan_law_k_norm>1.33333</pan_law_k_norm>
- <humanize_time>1</humanize_time>
- <humanize_velocity>1</humanize_velocity>
+ <humanize_time>0.07</humanize_time>
+ <humanize_velocity>0.1</humanize_velocity>
  <swing_factor>0</swing_factor>
  <last_loaded_drumkit>/usr/local/share/hydrogen/data/drumkits/GMRockKit</last_loaded_drumkit>
  <last_loaded_drumkit_name>GMRockKit</last_loaded_drumkit_name>
@@ -175,7 +175,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>999</Release>
+   <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>37</midiOutNote>
@@ -298,7 +298,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>999</Release>
+   <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>38</midiOutNote>
@@ -2075,7 +2075,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>999</Release>
+   <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>81</midiOutNote>
@@ -2313,7 +2313,7 @@
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
-     <velocity>0.89</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2325,7 +2325,7 @@
     <note>
      <position>6</position>
      <leadlag>0</leadlag>
-     <velocity>0.87</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2337,7 +2337,7 @@
     <note>
      <position>12</position>
      <leadlag>0</leadlag>
-     <velocity>0.83</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2361,7 +2361,7 @@
     <note>
      <position>24</position>
      <leadlag>0</leadlag>
-     <velocity>0.78</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2373,7 +2373,7 @@
     <note>
      <position>30</position>
      <leadlag>0</leadlag>
-     <velocity>0.75</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2385,7 +2385,7 @@
     <note>
      <position>36</position>
      <leadlag>0</leadlag>
-     <velocity>0.73</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2397,7 +2397,7 @@
     <note>
      <position>42</position>
      <leadlag>0</leadlag>
-     <velocity>0.7</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2421,7 +2421,7 @@
     <note>
      <position>48</position>
      <leadlag>0</leadlag>
-     <velocity>0.65</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2433,7 +2433,7 @@
     <note>
      <position>54</position>
      <leadlag>0</leadlag>
-     <velocity>0.62</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2445,7 +2445,7 @@
     <note>
      <position>60</position>
      <leadlag>0</leadlag>
-     <velocity>0.59</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2457,7 +2457,7 @@
     <note>
      <position>66</position>
      <leadlag>0</leadlag>
-     <velocity>0.56</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2469,7 +2469,7 @@
     <note>
      <position>72</position>
      <leadlag>0</leadlag>
-     <velocity>0.53</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2481,7 +2481,7 @@
     <note>
      <position>78</position>
      <leadlag>0</leadlag>
-     <velocity>0.51</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2493,7 +2493,7 @@
     <note>
      <position>84</position>
      <leadlag>0</leadlag>
-     <velocity>0.47</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2505,7 +2505,7 @@
     <note>
      <position>90</position>
      <leadlag>0</leadlag>
-     <velocity>0.44</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2529,7 +2529,7 @@
     <note>
      <position>96</position>
      <leadlag>0</leadlag>
-     <velocity>0.41</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2541,7 +2541,7 @@
     <note>
      <position>102</position>
      <leadlag>0</leadlag>
-     <velocity>0.37</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2553,7 +2553,7 @@
     <note>
      <position>108</position>
      <leadlag>0</leadlag>
-     <velocity>0.36</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2565,7 +2565,7 @@
     <note>
      <position>114</position>
      <leadlag>0</leadlag>
-     <velocity>0.32</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2577,7 +2577,7 @@
     <note>
      <position>120</position>
      <leadlag>0</leadlag>
-     <velocity>0.3</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2589,7 +2589,7 @@
     <note>
      <position>126</position>
      <leadlag>0</leadlag>
-     <velocity>0.27</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2601,7 +2601,7 @@
     <note>
      <position>132</position>
      <leadlag>0</leadlag>
-     <velocity>0.26</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2613,7 +2613,7 @@
     <note>
      <position>138</position>
      <leadlag>0</leadlag>
-     <velocity>0.22</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2637,7 +2637,7 @@
     <note>
      <position>144</position>
      <leadlag>0</leadlag>
-     <velocity>0.21</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2649,7 +2649,7 @@
     <note>
      <position>150</position>
      <leadlag>0</leadlag>
-     <velocity>0.17</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2661,7 +2661,7 @@
     <note>
      <position>156</position>
      <leadlag>0</leadlag>
-     <velocity>0.13</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2673,7 +2673,7 @@
     <note>
      <position>162</position>
      <leadlag>0</leadlag>
-     <velocity>0.11</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2685,7 +2685,7 @@
     <note>
      <position>168</position>
      <leadlag>0</leadlag>
-     <velocity>0.08</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2697,7 +2697,7 @@
     <note>
      <position>174</position>
      <leadlag>0</leadlag>
-     <velocity>0.06</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2709,7 +2709,7 @@
     <note>
      <position>180</position>
      <leadlag>0</leadlag>
-     <velocity>0.03</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2721,7 +2721,7 @@
     <note>
      <position>186</position>
      <leadlag>0</leadlag>
-     <velocity>0.01</velocity>
+     <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2742,7 +2742,7 @@
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
-     <velocity>1</velocity>
+     <velocity>0.78</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
@@ -2986,7 +2986,20 @@
    <volume>0</volume>
   </fx>
  </ladspa>
- <BPMTimeLine/>
+ <BPMTimeLine>
+  <newBPM>
+   <BAR>0</BAR>
+   <BPM>100</BPM>
+  </newBPM>
+  <newBPM>
+   <BAR>2</BAR>
+   <BPM>180</BPM>
+  </newBPM>
+  <newBPM>
+   <BAR>4</BAR>
+   <BPM>70</BPM>
+  </newBPM>
+ </BPMTimeLine>
  <timeLineTag/>
  <automationPaths>
   <path adjust="velocity"/>
