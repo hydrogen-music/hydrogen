@@ -1203,8 +1203,10 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
-	// p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
-	// 		   backgroundInactiveColor);
+	if ( m_nActiveWidth < m_nEditorWidth ) {
+		p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
+				   backgroundInactiveColor);
+	}
 
 	for ( int ii = 0; ii < nInstruments; ii++ ) {
 		int y = static_cast<int>(m_nGridHeight) * ii;
