@@ -155,7 +155,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -354,6 +354,8 @@ void PianoRollEditor::createBackground()
 	
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
+
+	m_bBackgroundInvalid = false;
 }
 
 
@@ -1250,7 +1252,7 @@ void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }

@@ -310,7 +310,7 @@ void SongEditor::setGridWidth( uint width )
 		m_nGridWidth = width;
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
@@ -688,7 +688,7 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
-	createBackground();
+	invalidateBackground();
 	update();
 	
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
@@ -704,7 +704,7 @@ void SongEditor::focusOutEvent( QFocusEvent *ev )
 
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
-	createBackground();
+	invalidateBackground();
 	update();
 	
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
@@ -923,11 +923,6 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 	}
 }
 
-void SongEditor::patternModifiedEvent() {
-	createBackground();
-	update();
-}
-
 
 //! Modify pattern cells by first deleting some, then adding some.
 //! deleteCells and addCells *may* safely overlap
@@ -996,6 +991,10 @@ void SongEditor::updatePosition( float fTick ) {
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
+	if ( m_bBackgroundInvalid ) {
+		createBackground();
+	}
+
 	// ridisegno tutto solo se sono cambiate le note
 	if (m_bSequenceChanged) {
 		m_bSequenceChanged = false;
@@ -1097,6 +1096,7 @@ void SongEditor::leaveEvent( QEvent *ev ) {
 
 void SongEditor::createBackground()
 {
+	m_bBackgroundInvalid = false;
 	auto pPref = H2Core::Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 
@@ -1163,14 +1163,11 @@ void SongEditor::createBackground()
 
 	//~ celle
 	m_bSequenceChanged = true;
+
 }
 
-void SongEditor::cleanUp(){
-
-	delete m_pBackgroundPixmap;
-	m_pBackgroundPixmap = nullptr;
-	delete m_pSequencePixmap;
-	m_pSequencePixmap = nullptr;
+void SongEditor::invalidateBackground() {
+	m_bBackgroundInvalid = true;
 }
 
 // Update the GridCell representation.
@@ -1222,6 +1219,7 @@ QPoint SongEditor::movingGridOffset( ) const {
 void SongEditor::drawSequence()
 {
 	QPainter p;
+
 	p.begin( m_pSequencePixmap );
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 	p.end();
@@ -1474,28 +1472,28 @@ SongEditorPatternList::~SongEditorPatternList()
 
 
 void SongEditorPatternList::patternChangedEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPatternList::setRowSelection( RowSelection rowSelection ) {
 	m_rowSelection = rowSelection;
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPatternList::patternModifiedEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPatternList::selectedPatternChangedEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPatternList::stackedPatternsChangedEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -1557,7 +1555,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		}
 	}
 
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -1568,7 +1566,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 void SongEditorPatternList::togglePattern( int row ) {
 
 	m_pHydrogen->toggleNextPattern( row );
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -1638,7 +1636,8 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 	qreal pixelRatio = devicePixelRatio();
 	if ( width() != m_pBackgroundPixmap->width() ||
 		 height() != m_pBackgroundPixmap->height() ||
-		 pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		 pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 	QRectF srcRect(
@@ -1690,14 +1689,20 @@ void SongEditorPatternList::songModeActivationEvent() {
 	// Refresh pattern list display if in stacked mode
 	if ( Hydrogen::get_instance()->getPatternMode() ==
 		 Song::PatternMode::Stacked ) {
-		createBackground();
+		invalidateBackground();
 		update();
 	}
+}
+
+void SongEditorPatternList::invalidateBackground()
+{
+	m_bBackgroundInvalid = true;
 }
 
 void SongEditorPatternList::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
+	m_bBackgroundInvalid = false;
 
 	QFont boldTextFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldTextFont.setBold( true );
@@ -1822,7 +1827,7 @@ void SongEditorPatternList::createBackground()
 }
 
 void SongEditorPatternList::stackedModeActivationEvent( int ) {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2025,7 +2030,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 	pattern->set_category( newPatternCategory );
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2040,7 +2045,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPat
 	pattern->set_category( oldPatternCategory );
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2339,7 +2344,7 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 void SongEditorPatternList::leaveEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_nRowHovered = -1;
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2348,7 +2353,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	// Update the highlighting of the hovered row.
 	if ( event->pos().y() / m_nGridHeight != m_nRowHovered ) {
 		m_nRowHovered = event->pos().y() / m_nGridHeight;
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 	
@@ -2396,7 +2401,7 @@ void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes c
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
@@ -2466,7 +2471,7 @@ void SongEditorPositionRuler::relocationEvent() {
 
 void SongEditorPositionRuler::songSizeChangedEvent() {
 	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2482,11 +2487,14 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 		m_nGridWidth = width;
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
 
+void SongEditorPositionRuler::invalidateBackground() {
+	m_bBackgroundInvalid = true;
+}
 
 void SongEditorPositionRuler::createBackground()
 {
@@ -2608,6 +2616,8 @@ void SongEditorPositionRuler::createBackground()
 	p.drawLine( 0, 0, width(), 0 );
 	p.drawLine( 0, height() - 25, width(), height() - 25 );
 	p.drawLine( 0, height(), width(), height() );
+
+	m_bBackgroundInvalid = false;
 }
 
 void SongEditorPositionRuler::tempoChangedEvent( int ) {
@@ -2623,7 +2633,7 @@ void SongEditorPositionRuler::tempoChangedEvent( int ) {
 		return;
 	}
 
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2702,17 +2712,17 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 
 void SongEditorPositionRuler::songModeActivationEvent() {
 	updatePosition();
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPositionRuler::timelineActivationEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
 void SongEditorPositionRuler::jackTimebaseStateChangedEvent() {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -2831,6 +2841,10 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	auto pTimeline = m_pHydrogen->getTimeline();
 	auto pPref = Preferences::get_instance();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+
+	if ( m_bBackgroundInvalid ) {
+		createBackground();
+	}
 	
 	if (!isVisible()) {
 		return;
@@ -3167,7 +3181,7 @@ void SongEditorPositionRuler::updatePosition()
 
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
 {
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -3178,7 +3192,7 @@ void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes
 			 
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }

@@ -95,6 +95,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	m_bBackgroundInvalid = true;
 }
 
 PatternEditor::~PatternEditor()
@@ -812,10 +813,8 @@ void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		m_pPatternEditorPanel->getInstrumentList()->update();
 	}
-	
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	createBackground();
+
+	// Update to show the focus border highlight
 	update();
 }
 
@@ -826,10 +825,12 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 		m_pPatternEditorPanel->getInstrumentList()->update();
 	}
 	
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	createBackground();
+	// Update to remove the focus border highlight
 	update();
+}
+
+void PatternEditor::invalidateBackground() {
+	m_bBackgroundInvalid = true;
 }
 
 void PatternEditor::createBackground() {
