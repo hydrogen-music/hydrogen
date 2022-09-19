@@ -4246,41 +4246,47 @@ Sei sicuro?</translation>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile eliminare il drumkit correntemente caricato:
+        &quot;%1&quot;.
+        Per eliminare questo drumkit è necessario caricarne un altro.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvertimento, il drumkit &quot;%1&quot; sarà eliminato dal disco.</translation>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminazione del drumkit fallita.</translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni</translation>
     </message>
     <message>
         <source>The existing kit has %1 instruments but the new one only has %2.
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Il kit esistente ha %1 strumenti ma il nuovo ne ha solamente %2.
+        I primi %2 strumenti saranno sostituiti con i nuovi strumenti e saranno mantenute le note, ma alcuni dei restanti
+        strumenti hanno note. Vuoi mantenenere o eliminare i restanti strumenti e note?</translation>
     </message>
     <message>
         <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Doppio clic per espandere la lista</translation>
     </message>
     <message>
         <source>Drumkit registered in the current song can not be found on disk.
 Please load an existing drumkit first.
 Current kit:</source>
-        <translation type="unfinished"></translation>
+        <translation>Il drumkit utilizzato nella canzone corrente non può essere trovato sul disco.
+        Per piacere, carica prima un drumkit esistente.
+        Kit corrente:</translation>
     </message>
     <message>
         <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>è un drumkit di sistema e non può essere eliminato.</translation>
     </message>
     <message>
         <source>Not implemented yet.</source>
