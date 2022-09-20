@@ -29,6 +29,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>
@@ -3111,20 +3112,22 @@ void SongEditorPositionRuler::updatePosition()
 	auto pPref = Preferences::get_instance();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
-	float fTick = m_pAudioEngine->getColumn();
-
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = std::max( m_pAudioEngine->getColumn(), 0 );
+	m_nColumn = std::max( m_pAudioEngine->getPlayheadPosition()->getColumn(), 0 );
+
+	float fTick = static_cast<float>(m_nColumn);
 
 	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
-		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
+		fTick += (float)m_pAudioEngine->getPlayheadPosition()->getPatternTickPosition() /
+			(float)nLength;
 	} else {
 		// Empty column. Use the default length.
-		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
+		fTick += (float)m_pAudioEngine->getPlayheadPosition()->getPatternTickPosition() /
+			(float)MAX_NOTES;
 	}
 
 	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {

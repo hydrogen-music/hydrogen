@@ -41,6 +41,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
@@ -449,7 +450,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
 
-		int nPlayHeadPosition = pAudioEngine->getColumn() *
+		int nPlayHeadPosition = pAudioEngine->getPlayheadPosition()->getColumn() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();

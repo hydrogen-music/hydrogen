@@ -35,6 +35,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Timeline.h>
 #include <core/EventQueue.h>
 #include <core/Basics/Playlist.h>
@@ -788,13 +789,13 @@ void PlaylistDialog::nodeStopBTN()
 void PlaylistDialog::ffWDBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()

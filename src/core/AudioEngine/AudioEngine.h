@@ -29,7 +29,6 @@
 #include <core/Sampler/Sampler.h>
 #include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
 
 #include <core/IO/AudioOutput.h>
@@ -68,6 +67,7 @@ namespace H2Core
 	class PatternList;
 	class Drumkit;
 	class Song;
+	class TransportPosition;
 	
 /**
  * Audio Engine main class.
@@ -96,7 +96,7 @@ namespace H2Core
  *
  * \ingroup docCore docAudioEngine
  */ 
-class AudioEngine : public H2Core::TransportPosition, public H2Core::Object<AudioEngine>
+class AudioEngine : public H2Core::Object<AudioEngine>
 {
 	H2_OBJECT(AudioEngine)
 public:
@@ -249,38 +249,7 @@ public:
 	 * Calculates the number of frames that make up a tick.
 	 */
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
-	/**
-	 * Calculates a tick equivalent to @a nFrame.
-	 *
-	 * The function takes all passed tempo markers into account and
-	 * depends on the sample rate @a nSampleRate. It also assumes that
-	 * sample rate and resolution are constant over the whole song.
-	 *
-	 * @param nFrame Transport position in frame which should be
-	 * converted into ticks.
-	 * @param nSampleRate If set to 0, the sample rate provided by the
-	 * audio driver will be used.
-	 */
-	double computeTickFromFrame( long long nFrame, int nSampleRate = 0 ) const;
-
-	/**
-	 * Calculates the frame equivalent to @a fTick.
-	 *
-	 * The function takes all passed tempo markers into account and
-	 * depends on the sample rate @a nSampleRate. It also assumes that
-	 * sample rate and resolution are constant over the whole song.
-	 *
-	 * @param fTick Current transport position in ticks.
-	 * @param fTickMismatch Since ticks are stored as doubles and there
-	 * is some loss in precision, this variable is used report how
-	 * much @fTick exceeds/is ahead of the resulting frame.
-	 * @param nSampleRate If set to 0, the sample rate provided by the
-	 * audio driver will be used.
-	 *
-	 * @return frame
-	 */
-	long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 ) const;
-
+	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #m_pSampler */
 	Sampler*		getSampler() const;
@@ -349,10 +318,9 @@ public:
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
 
-	long			getPatternTickPosition() const;
-	long			getPatternStartTick() const;
+	const std::shared_ptr<TransportPosition> getTransportPosition() const;
+	const std::shared_ptr<TransportPosition> getPlayheadPosition() const;
 
-	int				getColumn() const;
 	long long		getFrameOffset() const;
 	void			setFrameOffset( long long nFrameOffset );
 	double  		getTickOffset() const;
@@ -393,6 +361,8 @@ public:
 	 * \return Frame offset*/
 	long long getLookaheadInFrames( double fTick );
 
+	double getSongSizeInTicks() const;
+
 	/**
 	 * Sets m_nextState to State::Playing. This will start the audio
 	 * engine during the next call of the audioEngine_process callback
@@ -416,10 +386,6 @@ public:
 	 * adopted during the next processing cycle.*/
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
-
-	/** Compatibility layer for external classes pretending that ticks
-		are still integer.*/
-	long getTick() const;
 
 	static float 	getBpmAtColumn( int nColumn );
 
@@ -587,27 +553,7 @@ private:
 	void handleSelectedPattern();
 	
 	inline void			processPlayNotes( unsigned long nframes );
-	/**
-	 * Converts a tick into frames under the assumption of a constant
-	 * @a fTickSize since the beginning of the song (sample rate,
-	 * tempo, and resolution did not change).
-	 *
-	 * As the assumption above usually does not hold,
-	 * computeFrameFromTick() should be used instead while this
-	 * function is only meant for internal use.
-	 */
-	static long long computeFrame( double fTick, float fTickSize );
-	/**
-	 * Converts a frame into ticks under the assumption of a constant
-	 * @a fTickSize since the beginning of the song (sample rate,
-	 * tempo, and resolution did not change).
-	 *
-	 * As the assumption above usually does not hold,
-	 * computeTickFromFrame() should be used instead while this
-	 * function is only meant for internal use.
-	 */
-	static double computeTick( long long nFrame, float fTickSize );
-	
+
 	/** Resets a number of member variables to their initial state.
 	 *
 	 * This is used to allow a smooth transition between the Song and
@@ -616,9 +562,6 @@ private:
 	 * directly but using the JACK server.
 	 */
 	void reset(  bool bWithJackBroadcast = true );
-
-	double getDoubleTick() const;
-	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
@@ -650,7 +593,7 @@ private:
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
     
-	void			updateBpmAndTickSize();
+	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
 	
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
@@ -700,9 +643,9 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( double fTick );
-	void			updateSongTransportPosition( double fTick );
-	void			updatePatternTransportPosition( double fTick );
+	void			updateTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
+	void			updateSongTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
+	void			updatePatternTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue to be still valid after a
@@ -840,47 +783,22 @@ private:
 	struct timeval		m_currentTickTime;
 
 	/**
-	 * Beginning of the currently playing patterns
-	 * (#m_pPlayingPatterns) in ticks.
-	 *
-	 * Attention: This value can be larger than m_fTick. If transport
-	 * is rolling, the playing patterns are updated in
-	 * updateNoteQueue() using a lookahead which allows for notes to
-	 * be placed not just ahead of time but also back in time using
-	 * humanization.
-	 *
-	 * The current transport position thus corresponds
-	 * to #m_fTick = lookahead + #m_nPatternStartTick +
-	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample rate dependent).
+	 * Used to retrieve bpm.
 	 */
-	long				m_nPatternStartTick;
+	std::shared_ptr<TransportPosition> m_pTransportPosition;
 
 	/**
-	 * Ticks passed since #m_nPatternStartTick.
-	 *
-	 * The current transport position thus corresponds
-	 * to #m_fTick = lookahead + #m_nPatternStartTick +
-	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample rate dependent).
+	 * #m_transportPosition + a both speed and
+	 * sample rate dependent lookahead.
 	 */
-	long				m_nPatternTickPosition;
+	std::shared_ptr<TransportPosition> m_pPlayheadPosition;
+
 
 	/**
 	 * Cached information to determine the end of the currently
 	 * playing pattern in ticks (see #m_pPlayingPatterns).
 	 */
 	int m_nPatternSize;
-	/**
-	 * Coarse-grained version of #m_nPatternStartTick which can be
-	 * used as the index of the current PatternList/column in the
-	 * Song::__pattern_group_sequence.
-	 *
-	 * A value of -1 corresponds to "pattern list could not be found"
-	 * and is used to indicate that transport reached the end of the
-	 * song (with transport not looped).
-	 */
-	int					m_nColumn;
 
 	/** Set to the total number of ticks in a Song.*/
 	double				m_fSongSizeInTicks;
@@ -943,11 +861,8 @@ private:
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	/** Number of frames TransportPosition::m_nFrames is ahead of
-		TransportPosition::m_nTick. */
-	double m_fTickMismatch;
-	double m_fTickOffset;
-	long long m_nFrameOffset;
+	double 				m_fTickOffset;
+	long long 			m_nFrameOffset;
 	double m_fLastTickIntervalEnd;
 
 };
@@ -1052,25 +967,6 @@ inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
 }
 
-inline long AudioEngine::getPatternStartTick() const {
-	return m_nPatternStartTick;
-}
-inline void AudioEngine::setPatternTickPosition( long nTick ) {
-	m_nPatternTickPosition = nTick;
-}
-
-inline long AudioEngine::getPatternTickPosition() const {
-	return m_nPatternTickPosition;
-}
-
-inline void AudioEngine::setColumn( int songPos ) {
-	m_nColumn = songPos;
-}
-
-inline int AudioEngine::getColumn() const {
-	return m_nColumn;
-}
-
 inline const PatternList* AudioEngine::getPlayingPatterns() const {
 	return m_pPlayingPatterns;
 }
@@ -1098,6 +994,15 @@ inline void AudioEngine::setFrameOffset( long long nFrameOffset ) {
 }
 inline double AudioEngine::getTickOffset() const {
 	return m_fTickOffset;
+}
+inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPosition() const {
+	return m_pTransportPosition;
+}
+inline const std::shared_ptr<TransportPosition> AudioEngine::getPlayheadPosition() const {
+	return m_pPlayheadPosition;
+}
+inline double AudioEngine::getSongSizeInTicks() const {
+	return m_fSongSizeInTicks;
 }
 };
 

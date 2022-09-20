@@ -45,6 +45,7 @@ https://www.gnu.org/licenses
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
@@ -340,7 +341,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	// initialize BPM widget
 	m_pLCDBPMSpinbox->setIsActive( m_pHydrogen->getTempoSource() ==
 								   H2Core::Hydrogen::Tempo::Song );
-	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
+	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getPlayheadPosition()->getBpm() );
 	updateBPMSpinboxToolTip();
 
 	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ),
@@ -546,7 +547,7 @@ void PlayerControl::updatePlayerControl()
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
 	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {
-		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
+		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getPlayheadPosition()->getBpm() );
 	}
 
 	//beatcounter
@@ -815,7 +816,7 @@ void PlayerControl::rubberbandButtonToggle()
 		// recalculation is just triggered if there is a tempo change
 		// in the audio engine.
 		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getBpm() );
+		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getPlayheadPosition()->getBpm() );
 		pHydrogen->getAudioEngine()->unlock();
 		pPref->setRubberBandBatchMode(true);
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Recalculate all samples using Rubberband ON") );
@@ -927,7 +928,7 @@ void PlayerControl::jackMasterBtnClicked()
 void PlayerControl::fastForwardBtnClicked()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() + 1 );
 }
 
 
@@ -935,7 +936,7 @@ void PlayerControl::fastForwardBtnClicked()
 void PlayerControl::rewindBtnClicked()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() - 1 );
 }
 
 void PlayerControl::loopModeActivationEvent() {
@@ -1065,7 +1066,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * Just update the GUI using the current tempo
 	 * of the song.
 	 */
-	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
+	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getPlayheadPosition()->getBpm() );
 	
 	if ( ! bIsReadOnly ) {
 		m_pLCDBPMSpinbox->setReadOnly( false );

@@ -39,6 +39,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Hydrogen.h>
 
 #include <QModelIndex>
@@ -429,7 +430,7 @@ void SampleEditor::createNewLayer()
 		pEditSample->set_velocity_envelope( *m_pTargetSampleView->get_velocity() );
 		pEditSample->set_pan_envelope( *m_pTargetSampleView->get_pan() );
 
-		if( ! pEditSample->load( pAudioEngine->getBpm() ) ){
+		if( ! pEditSample->load( pAudioEngine->getPlayheadPosition()->getBpm() ) ){
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -938,7 +939,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 void SampleEditor::checkRatioSettings()
 {
 	//calculate ratio
-	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getBpm()
+	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getPlayheadPosition()->getBpm()
 		* __rubberband.divider;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;

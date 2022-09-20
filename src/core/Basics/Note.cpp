@@ -26,6 +26,7 @@
 
 #include <core/Helpers/Xml.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -228,7 +229,7 @@ void Note::computeNoteStart() {
 
 	double fTickMismatch;
 	m_nNoteStart =
-		pAudioEngine->computeFrameFromTick( __position, &fTickMismatch );
+		TransportPosition::computeFrameFromTick( __position, &fTickMismatch );
 		
 	// If there is a negative Humanize delay, take into account so
 	// we don't miss the time slice.  ignore positive delay, or we
@@ -241,7 +242,7 @@ void Note::computeNoteStart() {
 	if ( pHydrogen->isTimelineEnabled() ) {
 		m_fUsedTickSize = -1;
 	} else {
-		m_fUsedTickSize = pAudioEngine->getTickSize();
+		m_fUsedTickSize = pAudioEngine->getPlayheadPosition()->getTickSize();
 	}
 }
 

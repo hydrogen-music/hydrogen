@@ -21,6 +21,7 @@
  */
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -964,7 +965,8 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 		// If the transport was already looped at least once, disabling
 		// loop mode will result in immediate stop. Instead, we want to
 		// stop transport at the end of the song.
-		if ( pSong->lengthInTicks() < pAudioEngine->getTick() ) {
+		if ( pSong->lengthInTicks() <
+			 pAudioEngine->getPlayheadPosition()->getTick() ) {
 			pSong->setLoopMode( Song::LoopMode::Finishing );
 		} else {
 			pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -1358,8 +1360,6 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	

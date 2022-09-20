@@ -22,7 +22,10 @@
 #ifndef TRANSPORT_POSITION_H
 #define TRANSPORT_POSITION_H
 
+#include <memory>
+
 #include <core/Object.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 namespace H2Core
 {
@@ -54,20 +57,105 @@ public:
 	~TransportPosition();
 
 	long long getFrames() const;
-	double getTick() const;
+	/**
+	 * Retrieve a rounded version of #m_fTick.
+	 *
+	 * Only within the #AudioEngine ticks are handled as doubles.
+	 * This is required to allow for a seamless transition between
+	 * frames and ticks without any rounding error. All other parts
+	 * use integer values.
+	 */
+	long getTick() const;
 	float getTickSize() const;
 	float getBpm() const;
+	long getPatternStartTick() const;
+	long getPatternTickPosition() const;
+	int getColumn() const;
+	double getTickMismatch() const;
 
-protected:
-	void setFrames( long long nNewFrames );
-	void setTick( double fNewTick );
-	void setBpm( float fNewBpm );
-	void setTickSize( float fNewTickSize );
-	/** All classes other than the AudioEngine should use
-		AudioEngine::locate().
-	*/
+		/**
+	 * Calculates a tick equivalent to @a nFrame.
+	 *
+	 * The function takes all passed tempo markers into account and
+	 * depends on the sample rate @a nSampleRate. It also assumes that
+	 * sample rate and resolution are constant over the whole song.
+	 *
+	 * @param nFrame Transport position in frame which should be
+	 * converted into ticks.
+	 * @param nSampleRate If set to 0, the sample rate provided by the
+	 * audio driver will be used.
+	 */
+	static double computeTickFromFrame( long long nFrame, int nSampleRate = 0 );
+
+	/**
+	 * Calculates the frame equivalent to @a fTick.
+	 *
+	 * The function takes all passed tempo markers into account and
+	 * depends on the sample rate @a nSampleRate. It also assumes that
+	 * sample rate and resolution are constant over the whole song.
+	 *
+	 * @param fTick Current transport position in ticks.
+	 * @param fTickMismatch Since ticks are stored as doubles and there
+	 * is some loss in precision, this variable is used report how
+	 * much @fTick exceeds/is ahead of the resulting frame.
+	 * @param nSampleRate If set to 0, the sample rate provided by the
+	 * audio driver will be used.
+	 *
+	 * @return frame
+	 */
+	static long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 );
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+	friend class AudioEngine;
 
 private:
+	/**
+	 * Copying the content of one position into the other is a lot
+	 * cheaper than performing computations, like
+	 * #AudioEngine::updateTransportPosition(), twice.
+	 */
+	void set( std::shared_ptr<TransportPosition> pOther );
+	void reset();
+	
+	void setFrames( long long nNewFrames );
+	void setTick( double fNewTick );
+	void setTickSize( float fNewTickSize );
+	void setBpm( float fNewBpm );
+	void setPatternStartTick( long nPatternStartTick );
+	void setPatternTickPosition( long nPatternTickPosition );
+	void setColumn( int nColumn );
+
+	/**
+	 * Converts a tick into frames under the assumption of a constant
+	 * @a fTickSize since the beginning of the song (sample rate,
+	 * tempo, and resolution did not change).
+	 *
+	 * As the assumption above usually does not hold,
+	 * computeFrameFromTick() should be used instead while this
+	 * function is only meant for internal use.
+	 */
+	static long long computeFrame( double fTick, float fTickSize );
+	/**
+	 * Converts a frame into ticks under the assumption of a constant
+	 * @a fTickSize since the beginning of the song (sample rate,
+	 * tempo, and resolution did not change).
+	 *
+	 * As the assumption above usually does not hold,
+	 * computeTickFromFrame() should be used instead while this
+	 * function is only meant for internal use.
+	 */
+	static double computeTick( long long nFrame, float fTickSize );
+
+	double getDoubleTick() const;
 
 	/** 
 	 * Current transport position in number of frames since the
@@ -136,19 +224,72 @@ private:
 	 * stored by Hydrogen.
 	 */
 	float m_fBpm;
+	
+	/**
+	 * Beginning of the pattern in ticks the transport position is
+	 * located in.
+	 *
+	 * The current transport position corresponds
+	 * to #m_fTick = #m_nPatternStartTick +
+	 * #m_nPatternTickPosition.
+	 */
+	long				m_nPatternStartTick;
+	/**
+	 * Ticks passed since #m_nPatternStartTick.
+	 *
+	 * The current transport position thus corresponds
+	 * to #m_fTick = #m_nPatternStartTick +
+	 * #m_nPatternTickPosition.
+	 */
+	long				m_nPatternTickPosition;
+	/**
+	 * Coarse-grained version of #m_nPatternStartTick which can be
+	 * used as the index of the current PatternList/column in the
+	 * #Song::m_pPatternGroupSequence.
+	 *
+	 * A value of -1 corresponds to "pattern list could not be found"
+	 * and is used to indicate that transport reached the end of the
+	 * song (with transport not looped).
+	 */
+	int					m_nColumn;
+	
+	/** Number of frames #m_nFrames is ahead/behind of
+	 *	#m_nTick.
+	 *
+	 * This is due to the rounding error introduced when calculating
+	 * the frame counterpart in double within computeFrameFromTick()
+	 * and rounding it to assign it to #m_nFrames.
+	**/
+	double 				m_fTickMismatch;
+		
 };
 
 inline long long TransportPosition::getFrames() const {
 	return m_nFrames;
 }
-inline double TransportPosition::getTick() const {
+inline double TransportPosition::getDoubleTick() const {
 	return m_fTick;
+}
+inline long TransportPosition::getTick() const {
+	return static_cast<long>(std::floor( m_fTick ));
 }
 inline float TransportPosition::getTickSize() const {
 	return m_fTickSize;
 }
 inline float TransportPosition::getBpm() const {
 	return m_fBpm;
+}
+inline long TransportPosition::getPatternStartTick() const {
+	return m_nPatternStartTick;
+}
+inline long TransportPosition::getPatternTickPosition() const {
+	return m_nPatternTickPosition;
+}
+inline int TransportPosition::getColumn() const {
+	return m_nColumn;
+}
+inline double TransportPosition::getTickMismatch() const {
+	return m_fTickMismatch;
 }
 };
 

@@ -25,6 +25,9 @@
 #include <cassert>
 #include <memory>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
+
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
@@ -1289,7 +1292,7 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 
 	// Load samples of all instruments.
 	m_pInstrumentList->load_samples(
-		pHydrogen->getAudioEngine()->getBpm() );
+		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 }
 

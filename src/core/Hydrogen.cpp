@@ -49,6 +49,7 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/H2Exception.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -353,6 +354,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 {
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
+	auto pSampler = pAudioEngine->getSampler();
 	Preferences *pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
@@ -383,11 +385,13 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
-	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() );
+	long long nLookaheadInFrames =
+		m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTransportPosition()->getTick() );
 	long nLookaheadTicks = 
-		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( pAudioEngine->getFrames() +
-																		   nLookaheadInFrames ) -
-									 m_pAudioEngine->getTick()));
+		static_cast<long>(std::floor(
+			TransportPosition::computeTickFromFrame( pAudioEngine->getTransportPosition()->getFrames() +
+													 nLookaheadInFrames ) - 
+			m_pAudioEngine->getTransportPosition()->getTick()));
 			  
 	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
@@ -397,8 +401,8 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		// Recording + song playback mode + actually playing
 		PatternList* pPatternList = pSong->getPatternList();
 		auto pColumns = pSong->getPatternGroupVector();
-		int nColumn = pAudioEngine->getColumn(); // current column
-												   // or pattern group
+		int nColumn = pAudioEngine->getTransportPosition()->getColumn(); // current column
+		// or pattern group
 		if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
@@ -407,7 +411,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			return;
 		}
 		// Locate nTickInPattern -- may need to jump back one column
-		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
 		while ( nTickInPattern < nLookaheadTicks ) {
 			nColumn -= 1;
 			if ( nColumn < 0 || nColumn >= pColumns->size() ) {
@@ -465,7 +469,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 
 		// Locate nTickInPattern -- may need to wrap around end of pattern
-		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
 		if ( nTickInPattern >= nLookaheadTicks ) {
 			nTickInPattern -= nLookaheadTicks;
 		} else {
@@ -515,7 +519,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			
 			int nPatternSize = pCurrentPattern->get_length();
 			int nNoteLength =
-				static_cast<int>(pAudioEngine->getPatternTickPosition()) -
+				static_cast<int>(pAudioEngine->getTransportPosition()->getPatternTickPosition()) -
 				m_nLastRecordedMIDINoteTick;
 
 			if ( bPlaySelectedInstrument ) {
@@ -580,8 +584,8 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Play back the note.
 	if ( bPlaySelectedInstrument ) {
 		if ( bNoteOff ) {
-			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
-				pAudioEngine->getSampler()->midiKeyboardNoteOff( nNote );
+			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
+				pSampler->midiKeyboardNoteOff( nNote );
 			}
 		}
 		else { // note on
@@ -597,7 +601,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 	else {
 		if ( bNoteOff ) {
-			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
+			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
 				Note *pNoteOff = new Note( pInstr, 0.0, 0.0, 0.0, -1, 0 );
 				pNoteOff->set_note_off( true );
 				midi_noteOn( pNoteOff );
@@ -1328,7 +1332,7 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 			// AudioEngine::updatePatternTransportPosition() will call
 			// the functions and activate the next patterns once the
 			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getPlayheadPosition()->getColumn() );
 			m_pAudioEngine->clearNextPatterns();
 		}
 
@@ -1713,8 +1717,14 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
-			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
-			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
+			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
+		if ( m_pAudioEngine != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pAudioEngine->toQString( sPrefix + s + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
+		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
@@ -1759,8 +1769,14 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
-			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
-			.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
+			.append( ", m_pAudioEngine:" );
+		if ( m_pAudioEngine != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pAudioEngine->toQString( sPrefix, bShort ) ) );
+		} else {
+			sOutput.append( QString( " nullptr" ) );
+		}
+		sOutput.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );

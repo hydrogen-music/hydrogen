@@ -25,6 +25,8 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
@@ -54,7 +56,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 	pHydrogen->startExportSession( nSampleRate, 16 );
 	pHydrogen->startExportSong( fileName );
 
-	long long nStartFrames = pHydrogen->getAudioEngine()->getFrames();
+	long long nStartFrames = pHydrogen->getAudioEngine()->getTransportPosition()->getFrames();
 
 	bool done = false;
 	while ( ! done ) {
@@ -70,7 +72,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 
 	pHydrogen->stopExportSession();
 
-	return pHydrogen->getAudioEngine()->getFrames() - nStartFrames;
+	return pHydrogen->getAudioEngine()->getTransportPosition()->getFrames() - nStartFrames;
 }
 
 static QString showNumber( double f ) {

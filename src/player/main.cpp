@@ -30,6 +30,7 @@
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/MidiMap.h>
 
@@ -119,7 +120,8 @@ int main(int argc, char** argv){
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
+				cout << "Frames = " << hydrogen->getAudioEngine()->
+					getTransportPosition()->getFrames() << endl;
 				break;
 
 			case 'd':

@@ -36,6 +36,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/Sampler/Sampler.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 using namespace H2Core;
 
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
@@ -94,8 +95,8 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Song position
 	QString sColumn = "N/A";
-	if ( pAudioEngine->getColumn() != -1 ) {
-		sColumn = QString::number( pAudioEngine->getColumn() );
+	if ( pAudioEngine->getTransportPosition()->getColumn() != -1 ) {
+		sColumn = QString::number( pAudioEngine->getTransportPosition()->getColumn() );
 	}
 	m_pSongPositionLbl->setText( sColumn );
 
@@ -125,7 +126,7 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// tick number
-	sprintf(tmp, "%03d", (int)pAudioEngine->getPatternTickPosition() );
+	sprintf(tmp, "%03d", (int)pAudioEngine->getTransportPosition()->getPatternTickPosition() );
 	nTicksLbl->setText(tmp);
 
 
@@ -148,7 +149,7 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText(QString(tmp));
 
 		// Number of frames
-		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getFrames() ) );
+		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getTransportPosition()->getFrames() ) );
 		nFramesLbl->setText(tmp);
 	}
 	else {
