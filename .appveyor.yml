@@ -289,7 +289,7 @@ for:
 
           cmake --version
           g++ --version
-          choco install %CHOCO_ARCH% jack --version 1.9.17 -my
+          choco install %CHOCO_ARCH% -y jack
 
           REM *** Results are ignored since a dependency was not properly installed in 32 bit Windows. But the .dll files required are installed regardless, so we don't care.***
 
