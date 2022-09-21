@@ -389,7 +389,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTransportPosition()->getTick() );
 	long nLookaheadTicks = 
 		static_cast<long>(std::floor(
-			TransportPosition::computeTickFromFrame( pAudioEngine->getTransportPosition()->getFrames() +
+			TransportPosition::computeTickFromFrame( pAudioEngine->getTransportPosition()->getFrame() +
 													 nLookaheadInFrames ) - 
 			m_pAudioEngine->getTransportPosition()->getTick()));
 			  

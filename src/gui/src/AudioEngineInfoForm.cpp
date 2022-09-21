@@ -149,7 +149,7 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText(QString(tmp));
 
 		// Number of frames
-		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getTransportPosition()->getFrames() ) );
+		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getTransportPosition()->getFrame() ) );
 		nFramesLbl->setText(tmp);
 	}
 	else {
@@ -159,7 +159,7 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText( "N/A" );
 		nFramesLbl->setText( "N/A" );
 	}
-	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pAudioEngine->getRealtimeFrames() ) );
+	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pAudioEngine->getRealtimeFrame() ) );
 
 
 	// Midi driver info

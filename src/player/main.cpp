@@ -120,8 +120,8 @@ int main(int argc, char** argv){
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getAudioEngine()->
-					getTransportPosition()->getFrames() << endl;
+				cout << "Frame = " << hydrogen->getAudioEngine()->
+					getTransportPosition()->getFrame() << endl;
 				break;
 
 			case 'd':

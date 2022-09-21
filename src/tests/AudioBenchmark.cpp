@@ -56,7 +56,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 	pHydrogen->startExportSession( nSampleRate, 16 );
 	pHydrogen->startExportSong( fileName );
 
-	long long nStartFrames = pHydrogen->getAudioEngine()->getTransportPosition()->getFrames();
+	long long nStartFrame = pHydrogen->getAudioEngine()->getTransportPosition()->getFrame();
 
 	bool done = false;
 	while ( ! done ) {
@@ -72,7 +72,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 
 	pHydrogen->stopExportSession();
 
-	return pHydrogen->getAudioEngine()->getTransportPosition()->getFrames() - nStartFrames;
+	return pHydrogen->getAudioEngine()->getTransportPosition()->getFrame() - nStartFrame;
 }
 
 static QString showNumber( double f ) {

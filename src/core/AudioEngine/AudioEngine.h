@@ -83,9 +83,9 @@ namespace H2Core
  * other threads once again.
  *
  * The audio engine does not have one but two consistent states with
- * respect it its member variables. #m_fTick, #m_nFrames,
+ * respect it its member variables. #m_fTick, #m_nFrame,
  * #m_fTickOffset, #m_fTickMismatch, #m_fBpm, #m_fTickSize,
- * #m_nFrameOffset, #m_state, and #m_nRealtimeFrames are associated
+ * #m_nFrameOffset, #m_state, and #m_nRealtimeFrame are associated
  * with the current transport position. #m_fLastTickIntervalEnd,
  * #m_nColumn, #m_nPatternSize, #m_nPatternStartTick, and
  * #m_nPatternTickPosition determine the current position
@@ -330,7 +330,7 @@ public:
 	const PatternList*	getNextPatterns() const;
 	const PatternList*	getPlayingPatterns() const;
 	
-	long long		getRealtimeFrames() const;
+	long long		getRealtimeFrame() const;
 
 	const struct timeval& 	getCurrentTickTime() const;
 	
@@ -515,7 +515,7 @@ private:
 	 * lookahead, is set to the sum of the maximum offsets introduced
 	 * by both the random humanization (2000 frames) and the
 	 * deterministic lead-lag offset (5 times
-	 * TransportPosition::m_nFrames) plus 1 (note that it's not given in
+	 * TransportPosition::m_nFrame) plus 1 (note that it's not given in
 	 * ticks but in frames!). Hydrogen thus loops over @a
 	 * nIntervalLengthInFrames frames starting at the current position
 	 * + the lookahead (or at 0 when at the beginning of the Song).
@@ -531,7 +531,7 @@ private:
 	
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
-	void			setRealtimeFrames( long long nFrames );
+	void			setRealtimeFrame( long long nFrame );
 	
 	/**
 	 * Updates the global objects of the audioEngine according to new
@@ -722,7 +722,7 @@ private:
 	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing.
 	 */
-	long long		m_nRealtimeFrames;
+	long long		m_nRealtimeFrame;
 
 	/**
 	 * Current state of the H2Core::AudioEngine.
@@ -872,12 +872,12 @@ inline const PatternList* AudioEngine::getNextPatterns() const {
 	return m_pNextPatterns;
 }
 
-inline long long AudioEngine::getRealtimeFrames() const {
-	return m_nRealtimeFrames;
+inline long long AudioEngine::getRealtimeFrame() const {
+	return m_nRealtimeFrame;
 }
 
-inline void AudioEngine::setRealtimeFrames( long long nFrames ) {
-	m_nRealtimeFrames = nFrames;
+inline void AudioEngine::setRealtimeFrame( long long nFrame ) {
+	m_nRealtimeFrame = nFrame;
 }
 
 inline float AudioEngine::getNextBpm() const {

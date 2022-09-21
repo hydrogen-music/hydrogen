@@ -57,7 +57,7 @@ public:
 	/** Destructor of TransportPosition */
 	~TransportPosition();
 
-	long long getFrames() const;
+	long long getFrame() const;
 	/**
 	 * Retrieve a rounded version of #m_fTick.
 	 *
@@ -128,7 +128,7 @@ private:
 	void set( std::shared_ptr<TransportPosition> pOther );
 	void reset();
 	
-	void setFrames( long long nNewFrames );
+	void setFrame( long long nNewFrame );
 	void setTick( double fNewTick );
 	void setTickSize( float fNewTickSize );
 	void setBpm( float fNewBpm );
@@ -168,18 +168,14 @@ private:
 	 * second and, with a _buffer size_ = 1024, 1024 consecutive
 	 * frames will be accumulated before they are handed over to the
 	 * audio engine for processing. Internally, the transport is based
-	 * on float precision ticks. (#m_nFrames / #m_fTickSize) Caution:
-	 * when using the Timeline the ticksize does change throughout the
-	 * song. This requires #m_nFrames to be recalculate with
-	 * AudioEngine::updateFrames() each time the transport position is
-	 * relocated (possibly crossing some tempo markers).
+	 * on float precision ticks. (#m_nFrame / #m_fTickSize)
 	 */
-	long long m_nFrames;
+	long long m_nFrame;
 	
 	/**
 	 * Smallest temporal unit used for transport navigation within
 	 * Hydrogen and is calculated using AudioEngine::computeTick(),
-	 * #m_nFrames, and #m_fTickSize.
+	 * #m_nFrame, and #m_fTickSize.
 	 *
 	 * Note that the smallest unit for positioning a #Note is a frame
 	 * due to the humanization capabilities.
@@ -255,19 +251,19 @@ private:
 	 */
 	int					m_nColumn;
 	
-	/** Number of frames #m_nFrames is ahead/behind of
+	/** Number of frames #m_nFrame is ahead/behind of
 	 *	#m_nTick.
 	 *
 	 * This is due to the rounding error introduced when calculating
 	 * the frame counterpart in double within computeFrameFromTick()
-	 * and rounding it to assign it to #m_nFrames.
+	 * and rounding it to assign it to #m_nFrame.
 	**/
 	double 				m_fTickMismatch;
 		
 };
 
-inline long long TransportPosition::getFrames() const {
-	return m_nFrames;
+inline long long TransportPosition::getFrame() const {
+	return m_nFrame;
 }
 inline double TransportPosition::getDoubleTick() const {
 	return m_fTick;

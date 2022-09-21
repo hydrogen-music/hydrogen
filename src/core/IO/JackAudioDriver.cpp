@@ -568,12 +568,12 @@ void JackAudioDriver::updateTransportPosition()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( ( pAudioEngine->getTransportPosition()->getFrames() -
+	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
 		   pAudioEngine->getFrameOffset() ) !=
 		 m_JackTransportPos.frame ) {
 		
 		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
-		// 		 .arg( pAudioEngine->getTransportPosition()->getFrames() )
+		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
 		// 		 .arg( pAudioEngine->getFrameOffset() )
 		// 		 .arg( m_JackTransportPos.frame ) );
 		
@@ -1122,7 +1122,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	pJackPosition->beat_type = fDenumerator;
 	pJackPosition->beats_per_minute = static_cast<double>(pPos->getBpm());
 
-	if ( pPos->getFrames() < 1 ) {
+	if ( pPos->getFrame() < 1 ) {
 		pJackPosition->bar = 1;
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;

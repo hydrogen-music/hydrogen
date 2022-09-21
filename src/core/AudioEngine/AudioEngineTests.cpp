@@ -191,21 +191,21 @@ bool AudioEngineTests::testTransportProcessing() {
 			break;
 		}
 
-		if ( pTransportPos->getFrames() - nFrames != nLastFrame ) {
-			qDebug() << QString( "[testTransportProcessing] [constant tempo] inconsistent frame update. pTransportPos->getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-				.arg( pTransportPos->getFrames() )
+		if ( pTransportPos->getFrame() - nFrames != nLastFrame ) {
+			qDebug() << QString( "[testTransportProcessing] [constant tempo] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
+				.arg( pTransportPos->getFrame() )
 				.arg( nFrames )
 				.arg( nLastFrame );
 			bNoMismatch = false;
 			break;
 		}
-		nLastFrame = pTransportPos->getFrames();
+		nLastFrame = pTransportPos->getFrame();
 
 		nn++;
 
 		if ( nn > nMaxCycles ) {
-			qDebug() << QString( "[testTransportProcessing] [constant tempo] end of the song wasn't reached in time. pTransportPos->getFrames(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
-				.arg( pTransportPos->getFrames() )
+			qDebug() << QString( "[testTransportProcessing] [constant tempo] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
 				.arg( pAE->getSongSizeInTicks(), 0, 'f' )
@@ -253,14 +253,14 @@ bool AudioEngineTests::testTransportProcessing() {
 			}
 
 			if ( ( cc > 0 &&
-				   ( pTransportPos->getFrames() - nFrames !=
+				   ( pTransportPos->getFrame() - nFrames !=
 					 nLastFrame ) ) ||
 				 // errors in the rescaling of nLastFrame are omitted.
 				 ( cc == 0 &&
-				   abs( ( pTransportPos->getFrames() - nFrames - nLastFrame ) /
-						pTransportPos->getFrames() ) > 1e-8 ) ) {
-				qDebug() << QString( "[testTransportProcessing] [variable tempo] inconsistent frame update. pTransportPos->getFrames(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
-					.arg( pTransportPos->getFrames() ).arg( nFrames )
+				   abs( ( pTransportPos->getFrame() - nFrames - nLastFrame ) /
+						pTransportPos->getFrame() ) > 1e-8 ) ) {
+				qDebug() << QString( "[testTransportProcessing] [variable tempo] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
+					.arg( pTransportPos->getFrame() ).arg( nFrames )
 					.arg( nLastFrame ).arg( cc )
 					.arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' )
 					.arg( nPrevLastFrame );
@@ -270,16 +270,16 @@ bool AudioEngineTests::testTransportProcessing() {
 				return bNoMismatch;
 			}
 			
-			nLastFrame = pTransportPos->getFrames();
+			nLastFrame = pTransportPos->getFrame();
 
 			// Using the offset Hydrogen can keep track of the actual
 			// number of frames passed since the playback was started
 			// even in case a tempo change was issued by the user.
 			nTotalFrames += nFrames;
-			if ( pTransportPos->getFrames() - pAE->m_nFrameOffset !=
+			if ( pTransportPos->getFrame() - pAE->m_nFrameOffset !=
 				 nTotalFrames ) {
-				qDebug() << QString( "[testTransportProcessing] [variable tempo] frame offset incorrect. pTransportPos->getFrames(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
-					.arg( pTransportPos->getFrames() )
+				qDebug() << QString( "[testTransportProcessing] [variable tempo] frame offset incorrect. pTransportPos->getFrame(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
+					.arg( pTransportPos->getFrame() )
 					.arg( pAE->m_nFrameOffset ).arg( nTotalFrames );
 				bNoMismatch = false;
 				pAE->setState( AudioEngine::State::Ready );
@@ -337,13 +337,13 @@ bool AudioEngineTests::testTransportProcessing() {
 			break;
 		}
 
-		if ( pTransportPos->getFrames() - nFrames != nLastFrame ) {
-			qDebug() << QString( "[testTransportProcessing] [timeline] inconsistent frame update. pTransportPos->getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-				.arg( pTransportPos->getFrames() ).arg( nFrames ).arg( nLastFrame );
+		if ( pTransportPos->getFrame() - nFrames != nLastFrame ) {
+			qDebug() << QString( "[testTransportProcessing] [timeline] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
+				.arg( pTransportPos->getFrame() ).arg( nFrames ).arg( nLastFrame );
 			bNoMismatch = false;
 			break;
 		}
-		nLastFrame = pTransportPos->getFrames();
+		nLastFrame = pTransportPos->getFrame();
 
 		nn++;
 
@@ -410,14 +410,14 @@ bool AudioEngineTests::testTransportProcessing() {
 			}
 
 			if ( ( cc > 0 &&
-				   ( pTransportPos->getFrames() - nFrames !=
+				   ( pTransportPos->getFrame() - nFrames !=
 					 nLastFrame ) ) ||
 				 // errors in the rescaling of nLastFrame are omitted.
 				 ( cc == 0 &&
-				   abs( pTransportPos->getFrames() -
+				   abs( pTransportPos->getFrame() -
 						nFrames - nLastFrame ) > 1 ) ) {
-				qDebug() << QString( "[testTransportProcessing] [pattern mode] inconsistent frame update. pTransportPos->getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-					.arg( pTransportPos->getFrames() ).arg( nFrames ).arg( nLastFrame );
+				qDebug() << QString( "[testTransportProcessing] [pattern mode] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
+					.arg( pTransportPos->getFrame() ).arg( nFrames ).arg( nLastFrame );
 				bNoMismatch = false;
 				pAE->setState( AudioEngine::State::Ready );
 				pAE->unlock();
@@ -425,16 +425,16 @@ bool AudioEngineTests::testTransportProcessing() {
 				return bNoMismatch;
 			}
 			
-			nLastFrame = pTransportPos->getFrames();
+			nLastFrame = pTransportPos->getFrame();
 
 			// Using the offset Hydrogen can keep track of the actual
 			// number of frames passed since the playback was started
 			// even in case a tempo change was issued by the user.
 			nTotalFrames += nFrames;
-			if ( pTransportPos->getFrames() -
+			if ( pTransportPos->getFrame() -
 				 pAE->m_nFrameOffset != nTotalFrames ) {
-				qDebug() << QString( "[testTransportProcessing] [pattern mode] frame offset incorrect. pTransportPos->getFrames(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
-					.arg( pTransportPos->getFrames() )
+				qDebug() << QString( "[testTransportProcessing] [pattern mode] frame offset incorrect. pTransportPos->getFrame(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
+					.arg( pTransportPos->getFrame() )
 					.arg( pAE->m_nFrameOffset )
 					.arg( nTotalFrames );
 				bNoMismatch = false;
@@ -588,14 +588,14 @@ bool AudioEngineTests::testComputeTickInterval() {
 		}
 
 		if ( fTickStart != fLastTickEnd ) {
-			qDebug() << QString( "[testComputeTickInterval] [constant tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrames(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
+			qDebug() << QString( "[testComputeTickInterval] [constant tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrame(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
 				.arg( fTickStart, 0, 'f' )
 				.arg( fTickEnd, 0, 'f' )
 				.arg( fLastTickStart, 0, 'f' )
 				.arg( fLastTickEnd, 0, 'f' )
 				.arg( nFrames )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
-				.arg( pTransportPos->getFrames() )
+				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getBpm(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
 				.arg( nLeadLagFactor );
@@ -638,14 +638,14 @@ bool AudioEngineTests::testComputeTickInterval() {
 			}
 
 			if ( fTickStart != fLastTickEnd ) {
-				qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrames(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
+				qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrame(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
 					.arg( fTickStart, 0, 'f' )
 					.arg( fTickEnd, 0, 'f' )
 					.arg( fLastTickStart, 0, 'f' )
 					.arg( fLastTickEnd, 0, 'f' )
 					.arg( nFrames )
 					.arg( pTransportPos->getDoubleTick(), 0, 'f' )
-					.arg( pTransportPos->getFrames() )
+					.arg( pTransportPos->getFrame() )
 					.arg( pTransportPos->getBpm(), 0, 'f' )
 					.arg( pTransportPos->getTickSize(), 0, 'f' )
 					.arg( nLeadLagFactor );
@@ -955,8 +955,8 @@ bool AudioEngineTests::testNoteEnqueuing() {
 
 		++nn;
 		if ( nn > nMaxCycles ) {
-			qDebug() << QString( "[testNoteEnqueuing] end of the song wasn't reached in time. pTransportPos->getFrames(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
-				.arg( pTransportPos->getFrames() )
+			qDebug() << QString( "[testNoteEnqueuing] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
 				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
@@ -1134,8 +1134,8 @@ bool AudioEngineTests::testNoteEnqueuing() {
 
 		++nn;
 		if ( nn > nMaxCycles ) {
-			qDebug() << QString( "[testNoteEnqueuing] end of pattern wasn't reached in time. pTransportPos->getFrames(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pPattern->get_length(): %4, nMaxCycles: %5, nLoops: %6" )
-				.arg( pTransportPos->getFrames() )
+			qDebug() << QString( "[testNoteEnqueuing] end of pattern wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pPattern->get_length(): %4, nMaxCycles: %5, nLoops: %6" )
+				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
 				.arg( pPattern->get_length() )
@@ -1342,8 +1342,8 @@ bool AudioEngineTests::testNoteEnqueuing() {
 
 		++nn;
 		if ( nn > nMaxCycles ) {
-			qDebug() << QString( "[testNoteEnqueuing] [loop mode] end of song wasn't reached in time. pTransportPos->getFrames(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, m_fSongSizeInTicks(): %4, nMaxCycles: %5" )
-				.arg( pTransportPos->getFrames() )
+			qDebug() << QString( "[testNoteEnqueuing] [loop mode] end of song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, m_fSongSizeInTicks(): %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
 				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
@@ -1480,14 +1480,14 @@ bool AudioEngineTests::checkTransportPosition( const QString& sContext ) {
 			pTransportPos->getDoubleTick(), &fCheckTickMismatch );
 	double fCheckTick =
 		TransportPosition::computeTickFromFrame(
-			pTransportPos->getFrames() );
+			pTransportPos->getFrame() );
 	
 	if ( abs( fCheckTick + fCheckTickMismatch -
 			  pTransportPos->getDoubleTick() ) > 1e-9 ||
 		 abs( fCheckTickMismatch - pTransportPos->m_fTickMismatch ) > 1e-9 ||
-		 nCheckFrame != pTransportPos->getFrames() ) {
-		qDebug() << QString( "[testCheckTransportPosition] [%9] [tick or frame mismatch]. pTransportPos->getFrames(): %1, nCheckFrame: %2, pTransportPos->getDoubleTick(): %3, fCheckTick: %4, m_fTickMismatch: %5, fCheckTickMismatch: %6, getTickSize(): %7, pTransportPos->getBpm(): %8, fCheckTick + fCheckTickMismatch - pTransportPos->getDoubleTick(): %10, fCheckTickMismatch - m_fTickMismatch: %11, nCheckFrame - pTransportPos->getFrames(): %12" )
-			.arg( pTransportPos->getFrames() )
+		 nCheckFrame != pTransportPos->getFrame() ) {
+		qDebug() << QString( "[testCheckTransportPosition] [%9] [tick or frame mismatch]. pTransportPos->getFrame(): %1, nCheckFrame: %2, pTransportPos->getDoubleTick(): %3, fCheckTick: %4, m_fTickMismatch: %5, fCheckTickMismatch: %6, getTickSize(): %7, pTransportPos->getBpm(): %8, fCheckTick + fCheckTickMismatch - pTransportPos->getDoubleTick(): %10, fCheckTickMismatch - m_fTickMismatch: %11, nCheckFrame - pTransportPos->getFrame(): %12" )
+			.arg( pTransportPos->getFrame() )
 			.arg( nCheckFrame )
 			.arg( pTransportPos->getDoubleTick(), 0 , 'f', 9 )
 			.arg( fCheckTick, 0 , 'f', 9 )
@@ -1499,7 +1499,7 @@ bool AudioEngineTests::checkTransportPosition( const QString& sContext ) {
 			.arg( fCheckTick + fCheckTickMismatch -
 				  pTransportPos->getDoubleTick(), 0, 'E' )
 			.arg( fCheckTickMismatch - pTransportPos->m_fTickMismatch, 0, 'E' )
-			.arg( nCheckFrame - pTransportPos->getFrames() );
+			.arg( nCheckFrame - pTransportPos->getFrame() );
 
 		return false;
 	}
@@ -1646,9 +1646,9 @@ bool AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 				qDebug() << nnote->toQString( "    ", true );
 			}
 		}
-		qDebug() << QString( "[testCheckAudioConsistency] pTransportPos->getDoubleTick(): %1, pTransportPos->getFrames(): %2, nPassedFrames: %3, fPassedTicks: %4, pTransportPos->getTickSize(): %5" )
+		qDebug() << QString( "[testCheckAudioConsistency] pTransportPos->getDoubleTick(): %1, pTransportPos->getFrame(): %2, nPassedFrames: %3, fPassedTicks: %4, pTransportPos->getTickSize(): %5" )
 			.arg( pTransportPos->getDoubleTick(), 0, 'f' )
-			.arg( pTransportPos->getFrames() )
+			.arg( pTransportPos->getFrame() )
 			.arg( nPassedFrames )
 			.arg( fPassedTicks, 0, 'f' )
 			.arg( pTransportPos->getTickSize(), 0, 'f' );

@@ -461,10 +461,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-		nFrame = pAudioEngine->getTransportPosition()->getFrames();
+		nFrame = pAudioEngine->getTransportPosition()->getFrame();
 	} else {
 		// use this to support realtime events when not playing
-		nFrame = pAudioEngine->getRealtimeFrames();
+		nFrame = pAudioEngine->getRealtimeFrame();
 	}
 
 	// Only if the Sampler has not started rendering the note yet we
@@ -475,11 +475,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	if ( ! pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		// DEBUGLOG(QString( "framepos: %1, note pos: %2, pAudioEngine->getTransportPosition()->getTickSize(): %3, pAudioEngine->getTransportPosition()->getTick(): %4, pAudioEngine->getTransportPosition()->getFrames(): %5, nNoteStartInFrames: %6 ")
+		// DEBUGLOG(QString( "framepos: %1, note pos: %2, pAudioEngine->getTransportPosition()->getTickSize(): %3, pAudioEngine->getTransportPosition()->getTick(): %4, pAudioEngine->getTransportPosition()->getFrame(): %5, nNoteStartInFrames: %6 ")
 		// 		 .arg( nFrames).arg( pNote->get_position() )
 		//       .arg( pAudioEngine->getTransportPosition()->getTickSize() )
 		//       .arg( pAudioEngine->getTransportPosition()->getTick() )
-		//       .arg( pAudioEngine->getTransportPosition()->getFrames() )
+		//       .arg( pAudioEngine->getTransportPosition()->getFrame() )
 		// 		 .arg( nNoteStartInFrames )
 		// 		 .append( pNote->toQString( "", true ) ) );
 
@@ -739,7 +739,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
-	const long long nFrame = pAudioEngine->getTransportPosition()->getFrames();
+	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
 	const long long nFrameOffset = pAudioEngine->getFrameOffset();
 
 	if(pSample->get_sample_rate() == pAudioDriver->getSampleRate()){
