@@ -23,6 +23,8 @@
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H
 
+#include <core/AudioEngine/AudioEngineTests.h>
+
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Hydrogen.h>
@@ -450,75 +452,6 @@ public:
 	 * See handleTimelineChange().
 	 */
 	void handleTimelineChange();
-
-	/** 
-	 * Unit test checking for consistency when converting frames to
-	 * ticks and back.
-	 *
-	 * @return true on success.
-	 */
-	bool testFrameToTickConversion();
-	/** 
-	 * Unit test checking the incremental update of the transport
-	 * position in audioEngine_process().
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testTransportProcessing();
-	/** 
-	 * Unit test checking the relocation of the transport
-	 * position in audioEngine_process().
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testTransportRelocation();
-	/** 
-	 * Unit test checking consistency of tick intervals processed in
-	 * updateNoteQueue() (no overlap and no holes).
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testComputeTickInterval();
-	/** 
-	 * Unit test checking consistency of transport position when
-	 * playback was looped at least once and the song size is changed
-	 * by toggling a pattern.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testSongSizeChange();
-	/** 
-	 * Unit test checking consistency of transport position when
-	 * playback was looped at least once and the song size is changed
-	 * by toggling a pattern.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testSongSizeChangeInLoopMode();
-	/** 
-	 * Unit test checking that all notes in a song are picked up once.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testNoteEnqueuing();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -544,6 +477,7 @@ public:
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportPosition();
 	friend void JackAudioDriver::relocateUsingBBT();
+	friend class AudioEngineTests;
 private:
 
 	/**
@@ -667,43 +601,6 @@ private:
 	 * frame-based variables might have become invalid.
 	 */
 	void handleDriverChange();
-	
-	/**
-	 * Checks the consistency of the current transport position by
-	 * converting the current tick, frame, column, pattern start tick
-	 * etc. into each other and comparing the results. 
-	 *
-	 * \param sContext String identifying the calling function and
-	 * used for logging
-	 */
-	bool testCheckTransportPosition( const QString& sContext ) const;
-	/**
-	 * Takes two instances of Sampler::m_playingNotesQueue and checks
-	 * whether matching notes have exactly @a nPassedFrames difference
-	 * in their SelectedLayerInfo::SamplePosition.
-	 */
-	bool testCheckAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
-									const std::vector<std::shared_ptr<Note>> newNotes,
-									const QString& sContext,
-									int nPassedFrames,
-									bool bTestAudio = true,
-									float fPassedTicks = 0.0 ) const;
-	/**
-	 * Toggles the grid cell defined by @a nToggleColumn and @a
-	 * nToggleRow twice and checks whether the transport position and
-	 * the audio processing remains consistent.
-	 */
-	bool testToggleAndCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
-	
-	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue();
-	/**
-	 * Add every Note in @a newNotes not yet contained in @a noteList
-	 * to the latter.
-	 */
-	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
-						  std::vector<std::shared_ptr<Note>> newNotes );
-	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
-						  std::vector<Note*> newNotes );
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;

@@ -26,6 +26,7 @@
 
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/AudioEngineTests.h>
 
 namespace H2Core
 {
@@ -116,6 +117,7 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	friend class AudioEngine;
+	friend class AudioEngineTests;
 
 private:
 	/**

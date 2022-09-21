@@ -21,7 +21,7 @@
  */
 
 #include <core/CoreActionController.h>
-#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
@@ -61,33 +61,30 @@ void TransportTest::tearDown() {
 
 void TransportTest::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 	
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
+		bool bNoMismatch = AudioEngineTests::testFrameToTickConversion();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }
 
 void TransportTest::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testTransportProcessing();
+		bool bNoMismatch = AudioEngineTests::testTransportProcessing();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }		
  
 void TransportTest::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	pCoreActionController->openSong( m_pSongDemo );
@@ -105,7 +102,7 @@ void TransportTest::testTransportRelocation() {
 	
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testTransportRelocation();
+		bool bNoMismatch = AudioEngineTests::testTransportRelocation();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 
@@ -114,20 +111,18 @@ void TransportTest::testTransportRelocation() {
 
 void TransportTest::testComputeTickInterval() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testComputeTickInterval();
+		bool bNoMismatch = AudioEngineTests::testComputeTickInterval();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }		
 
 void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	pCoreActionController->openSong( m_pSongSizeChanged );
@@ -147,7 +142,7 @@ void TransportTest::testSongSizeChange() {
 		// For larger sample rates no notes will remain in the
 		// AudioEngine::m_songNoteQueue after one process step.
 		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
-			bool bNoMismatch = pAudioEngine->testSongSizeChange();
+			bool bNoMismatch = AudioEngineTests::testSongSizeChange();
 			CPPUNIT_ASSERT( bNoMismatch );
 		}
 	}
@@ -157,20 +152,18 @@ void TransportTest::testSongSizeChange() {
 
 void TransportTest::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
+		bool bNoMismatch = AudioEngineTests::testSongSizeChangeInLoopMode();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }		
 
 void TransportTest::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongNoteEnqueuing );
 
@@ -179,7 +172,7 @@ void TransportTest::testNoteEnqueuing() {
 
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testNoteEnqueuing();
+		bool bNoMismatch = AudioEngineTests::testNoteEnqueuing();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }		
