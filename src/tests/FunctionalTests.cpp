@@ -248,23 +248,19 @@ public:
 private:	
 	/**
 	 * \brief Export Hydrogon song to audio file
-	 * \param songFile Path to Hydrogen file
-	 * \param fileName Output file name
+	 * \param sSongFile Path to Hydrogen file
+	 * \param sFileName Output file name
 	 **/
-	void exportSong( const QString &songFile, const QString &fileName )
+	void exportSong( const QString& sSongFile, const QString& sFileName )
 	{
 		auto t0 = std::chrono::high_resolution_clock::now();
 
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		EventQueue *pQueue = EventQueue::get_instance();
 
-		std::shared_ptr<Song> pSong = Song::load( songFile );
+		std::shared_ptr<Song> pSong = Song::load( sSongFile );
 		CPPUNIT_ASSERT( pSong != nullptr );
-	
-		if( !pSong ) {
-			return;
-		}
-	
+		
 		pHydrogen->setSong( pSong );
 
 		auto pInstrumentList = pSong->getInstrumentList();
@@ -273,14 +269,14 @@ private:
 		}
 
 		pHydrogen->startExportSession( 44100, 16 );
-		pHydrogen->startExportSong( fileName );
+		pHydrogen->startExportSong( sFileName );
 
-		bool done = false;
-		while ( ! done ) {
+		bool bDone = false;
+		while ( ! bDone ) {
 			Event event = pQueue->pop_event();
 
 			if (event.type == EVENT_PROGRESS && event.value == 100) {
-				done = true;
+				bDone = true;
 			}
 			else if ( event.type == EVENT_NONE ) {
 				usleep(100 * 1000);

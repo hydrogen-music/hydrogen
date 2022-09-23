@@ -32,6 +32,8 @@
 namespace H2Core
 {
 
+	class TransportPosition;
+
 class AudioEngineTests : public H2Core::Object<AudioEngineTests>
 {
 	H2_OBJECT(AudioEngineTests)
@@ -107,14 +109,15 @@ public:
 	
 private:	
 	/**
-	 * Checks the consistency of the current transport position by
+	 * Checks the consistency of the transport position @a pPos by
 	 * converting the current tick, frame, column, pattern start tick
 	 * etc. into each other and comparing the results. 
 	 *
+	 * \param pPos Transport position to check
 	 * \param sContext String identifying the calling function and
 	 * used for logging
 	 */
-	static bool checkTransportPosition( const QString& sContext );
+	static bool checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext );
 	/**
 	 * Takes two instances of Sampler::m_playingNotesQueue and checks
 	 * whether matching notes have exactly @a nPassedFrames difference

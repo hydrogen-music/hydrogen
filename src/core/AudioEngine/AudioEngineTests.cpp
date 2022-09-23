@@ -186,7 +186,8 @@ bool AudioEngineTests::testTransportProcessing() {
 
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] constant tempo" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testTransportProcessing] constant tempo" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -246,7 +247,8 @@ bool AudioEngineTests::testTransportProcessing() {
 
 			pAE->incrementTransportPosition( nFrames );
 
-			if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] variable tempo" ) ) {
+			if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+															 "[testTransportProcessing] variable tempo" ) ) {
 				pAE->setState( AudioEngine::State::Ready );
 				pAE->unlock();
 				return bNoMismatch;
@@ -318,7 +320,8 @@ bool AudioEngineTests::testTransportProcessing() {
 	pAE->setState( AudioEngine::State::Testing );
 	
 	// Check consistency after switching on the Timeline
-	if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] timeline: off" ) ) {
+	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+													 "[testTransportProcessing] timeline: off" ) ) {
 		bNoMismatch = false;
 	}
 	
@@ -332,7 +335,8 @@ bool AudioEngineTests::testTransportProcessing() {
 
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] timeline" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testTransportProcessing] timeline" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -364,7 +368,8 @@ bool AudioEngineTests::testTransportProcessing() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
-	if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] timeline: off" ) ) {
+	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+													 "[testTransportProcessing] timeline: off" ) ) {
 		bNoMismatch = false;
 	}
 
@@ -402,7 +407,8 @@ bool AudioEngineTests::testTransportProcessing() {
 
 			pAE->incrementTransportPosition( nFrames );
 
-			if ( ! AudioEngineTests::checkTransportPosition( "[testTransportProcessing] pattern mode" ) ) {
+			if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+															 "[testTransportProcessing] pattern mode" ) ) {
 				pAE->setState( AudioEngine::State::Ready );
 				pAE->unlock();
 				pCoreActionController->activateSongMode( true );
@@ -460,6 +466,7 @@ bool AudioEngineTests::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
 
 	pAE->lock( RIGHT_HERE );
 
@@ -503,7 +510,8 @@ bool AudioEngineTests::testTransportRelocation() {
 
 		pAE->locate( fNewTick, false );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testTransportRelocation] mismatch tick-based" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testTransportRelocation] mismatch tick-based" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -512,7 +520,8 @@ bool AudioEngineTests::testTransportRelocation() {
 		nNewFrame = frameDist( randomEngine );
 		pAE->locateToFrame( nNewFrame );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testTransportRelocation] mismatch frame-based" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testTransportRelocation] mismatch frame-based" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -745,6 +754,7 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
 	
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( true );
@@ -779,14 +789,16 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->locate( fInitialSongSize + frameDist( randomEngine ) );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChangeInLoopMode] relocation" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChangeInLoopMode] relocation" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChangeInLoopMode] first increment" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChangeInLoopMode] first increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -797,7 +809,8 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		pAE->lock( RIGHT_HERE );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChangeInLoopMode] first toggling" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChangeInLoopMode] first toggling" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -811,7 +824,8 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChange] second increment" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChange] second increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -820,7 +834,8 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		pAE->lock( RIGHT_HERE );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChange] second toggling" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChange] second toggling" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -834,7 +849,8 @@ bool AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( ! AudioEngineTests::checkTransportPosition( "[testSongSizeChange] third increment" ) ) {
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testSongSizeChange] third increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -1467,65 +1483,56 @@ void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList
 	}
 }
 
-bool AudioEngineTests::checkTransportPosition( const QString& sContext ) {
+bool AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
 
 	double fCheckTickMismatch;
 	long long nCheckFrame =
 		TransportPosition::computeFrameFromTick(
-			pTransportPos->getDoubleTick(), &fCheckTickMismatch );
+			pPos->getDoubleTick(), &fCheckTickMismatch );
 	double fCheckTick =
 		TransportPosition::computeTickFromFrame(
-			pTransportPos->getFrame() );
+			pPos->getFrame() );
 	
-	if ( abs( fCheckTick + fCheckTickMismatch -
-			  pTransportPos->getDoubleTick() ) > 1e-9 ||
-		 abs( fCheckTickMismatch - pTransportPos->m_fTickMismatch ) > 1e-9 ||
-		 nCheckFrame != pTransportPos->getFrame() ) {
-		qDebug() << QString( "[testCheckTransportPosition] [%9] [tick or frame mismatch]. pTransportPos->getFrame(): %1, nCheckFrame: %2, pTransportPos->getDoubleTick(): %3, fCheckTick: %4, m_fTickMismatch: %5, fCheckTickMismatch: %6, getTickSize(): %7, pTransportPos->getBpm(): %8, fCheckTick + fCheckTickMismatch - pTransportPos->getDoubleTick(): %10, fCheckTickMismatch - m_fTickMismatch: %11, nCheckFrame - pTransportPos->getFrame(): %12" )
-			.arg( pTransportPos->getFrame() )
+	if ( abs( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick() ) > 1e-9 ||
+		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ||
+		 nCheckFrame != pPos->getFrame() ) {
+		qDebug() << QString( "[checkTransportPosition] [%8] [tick or frame mismatch]. original position: [%1], nCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			.arg( pPos->toQString( "", true ) )
 			.arg( nCheckFrame )
-			.arg( pTransportPos->getDoubleTick(), 0 , 'f', 9 )
 			.arg( fCheckTick, 0 , 'f', 9 )
-			.arg( pTransportPos->m_fTickMismatch, 0 , 'f', 9 )
 			.arg( fCheckTickMismatch, 0 , 'f', 9 )
-			.arg( pTransportPos->getTickSize(), 0 , 'f' )
-			.arg( pTransportPos->getBpm(), 0 , 'f' )
-			.arg( sContext )
 			.arg( fCheckTick + fCheckTickMismatch -
-				  pTransportPos->getDoubleTick(), 0, 'E' )
-			.arg( fCheckTickMismatch - pTransportPos->m_fTickMismatch, 0, 'E' )
-			.arg( nCheckFrame - pTransportPos->getFrame() );
+				  pPos->getDoubleTick(), 0, 'E' )
+			.arg( fCheckTickMismatch - pPos->m_fTickMismatch, 0, 'E' )
+			.arg( nCheckFrame - pPos->getFrame() )
+			.arg( sContext );
 
 		return false;
 	}
 
 	long nCheckPatternStartTick;
 	int nCheckColumn =
-		pHydrogen->getColumnForTick( pTransportPos->getTick(),
+		pHydrogen->getColumnForTick( pPos->getTick(),
 									 pSong->isLoopEnabled(),
 									 &nCheckPatternStartTick );
 	long nTicksSinceSongStart =
 		static_cast<long>(std::floor( std::fmod(
-			pTransportPos->getDoubleTick(),
+			pPos->getDoubleTick(),
 			pAE->m_fSongSizeInTicks ) ));
-	if ( pHydrogen->getMode() == Song::Mode::Song &&
-		 ( nCheckColumn != pTransportPos->getColumn() ||
+	if ( pHydrogen->getMode() == Song::Mode::Song && 
+		 ( nCheckColumn != pPos->getColumn() ||
 		   ( nCheckPatternStartTick !=
-			 pTransportPos->getPatternStartTick() ) ||
+			 pPos->getPatternStartTick() ) ||
 		   ( nTicksSinceSongStart - nCheckPatternStartTick !=
-			 pTransportPos->getPatternTickPosition() ) ) ) {
-		qDebug() << QString( "[testCheckTransportPosition] [%10] [column or pattern tick mismatch]. pTransportPos->getTick(): %1, pTransportPos->getColumn(): %2, nCheckColumn: %3, pTransportPos->getPatternStartTick(): %4, nCheckPatternStartTick: %5, pTransportPos->getPatternTickPosition(): %6, nCheckPatternTickPosition: %7, nTicksSinceSongStart: %8, pAE->m_fSongSizeInTicks: %9" )
-			.arg( pTransportPos->getTick() )
-			.arg( pTransportPos->getColumn() )
+			 pPos->getPatternTickPosition() ) ) ) {
+		qDebug() << QString( "[checkTransportPosition] [%7] [column or pattern tick mismatch]. current position: [%1], nCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			.arg( pPos->toQString( "", true ) )
 			.arg( nCheckColumn )
-			.arg( pTransportPos->getPatternStartTick() )
 			.arg( nCheckPatternStartTick )
-			.arg( pTransportPos->getPatternTickPosition() )
 			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
 			.arg( nTicksSinceSongStart )
 			.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
@@ -1590,7 +1597,7 @@ bool AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 									  static_cast<double>(nSampleFrames) );
 						if ( std::abs( ppNewNote->get_layer_selected( nn )->SamplePosition -
 									   fExpectedFrames ) > 1 ) {
-							qDebug().noquote() << QString( "[testCheckAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
+							qDebug().noquote() << QString( "[checkAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
 								.arg( ppOldNote->toQString( "", true ) )
 								.arg( ppNewNote->toQString( "", true ) )
 								.arg( fPassedFrames, 0, 'f' )
@@ -1611,7 +1618,7 @@ bool AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 					// audio engine.
 					if ( ppNewNote->get_position() - fPassedTicks !=
 						 ppOldNote->get_position() ) {
-						qDebug().noquote() << QString( "[testCheckAudioConsistency] [%5] glitch in note queue.\n\tPre: %1\n\tPost: %2\n\tfPassedTicks: %3, diff (new - passed - old): %4" )
+						qDebug().noquote() << QString( "[checkAudioConsistency] [%5] glitch in note queue.\n\tPre: %1\n\tPost: %2\n\tfPassedTicks: %3, diff (new - passed - old): %4" )
 							.arg( ppOldNote->toQString( "", true ) )
 							.arg( ppNewNote->toQString( "", true ) )
 							.arg( fPassedTicks )
@@ -1632,7 +1639,7 @@ bool AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 	if ( nNotesFound == 0 &&
 		 oldNotes.size() > 0 &&
 		 newNotes.size() > 0 ) {
-		qDebug() << QString( "[testCheckAudioConsistency] [%1] bad test design. No notes played back." )
+		qDebug() << QString( "[checkAudioConsistency] [%1] bad test design. No notes played back." )
 			.arg( sContext );
 		if ( oldNotes.size() != 0 ) {
 			qDebug() << "old notes:";
@@ -1646,13 +1653,13 @@ bool AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 				qDebug() << nnote->toQString( "    ", true );
 			}
 		}
-		qDebug() << QString( "[testCheckAudioConsistency] pTransportPos->getDoubleTick(): %1, pTransportPos->getFrame(): %2, nPassedFrames: %3, fPassedTicks: %4, pTransportPos->getTickSize(): %5" )
+		qDebug() << QString( "[checkAudioConsistency] pTransportPos->getDoubleTick(): %1, pTransportPos->getFrame(): %2, nPassedFrames: %3, fPassedTicks: %4, pTransportPos->getTickSize(): %5" )
 			.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 			.arg( pTransportPos->getFrame() )
 			.arg( nPassedFrames )
 			.arg( fPassedTicks, 0, 'f' )
 			.arg( pTransportPos->getTickSize(), 0, 'f' );
-		qDebug() << "[testCheckAudioConsistency] notes in song:";
+		qDebug() << "[checkAudioConsistency] notes in song:";
 		for ( auto const& nnote : pSong->getAllNotes() ) {
 			qDebug() << nnote->toQString( "    ", true );
 		}
@@ -1685,7 +1692,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getTransportPosition();
+	auto pTransportPos = pAE->getPlayheadPosition();
 	
 	const unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
 
@@ -1723,7 +1730,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
 	pAE->lock( RIGHT_HERE );
 
-	QString sFirstContext = QString( "[testToggleAndCheckConsistency] %1 : 1. toggling" ).arg( sContext );
+	QString sFirstContext = QString( "[toggleAndCheckConsistency] %1 : 1. toggling" ).arg( sContext );
 
 	// Check whether there is a change in song size
 	long nNewSongSize = pSong->lengthInTicks();
@@ -1735,7 +1742,8 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 
 	// Check whether current frame and tick information are still
 	// consistent.
-	if ( ! AudioEngineTests::checkTransportPosition( sFirstContext ) ) {
+	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+													 sFirstContext ) ) {
 		return false;
 	}
 
@@ -1743,8 +1751,8 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	auto afterNotes = AudioEngineTests::copySongNoteQueue();
 
 	if ( ! AudioEngineTests::checkAudioConsistency( prevNotes, afterNotes,
-														sFirstContext + " 1. audio check",
-														0, false, pAE->m_fTickOffset ) ) {
+													sFirstContext + " 1. audio check",
+													0, false, pAE->m_fTickOffset ) ) {
 		return false;
 	}
 
@@ -1836,7 +1844,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	// Toggle the same grid cell again
 	//////
 
-	QString sSecondContext = QString( "[testToggleAndCheckConsistency] %1 : 2. toggling" ).arg( sContext );
+	QString sSecondContext = QString( "[toggleAndCheckConsistency] %1 : 2. toggling" ).arg( sContext );
 	
 	notes1.clear();
 	for ( const auto& ppNote : pSampler->getPlayingNotesQueue() ) {
@@ -1873,7 +1881,8 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 
 	// Check whether current frame and tick information are still
 	// consistent.
-	if ( ! AudioEngineTests::checkTransportPosition( sSecondContext ) ) {
+	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+													 sSecondContext ) ) {
 		return false;
 	}
 
@@ -1882,9 +1891,9 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	prevNotes.clear();
 	prevNotes = AudioEngineTests::copySongNoteQueue();
 	if ( ! AudioEngineTests::checkAudioConsistency( afterNotes, prevNotes,
-														sSecondContext + " 1. audio check",
-														0, false,
-														pAE->m_fTickOffset ) ) {
+													sSecondContext + " 1. audio check",
+													0, false,
+													pAE->m_fTickOffset ) ) {
 		return false;
 	}
 

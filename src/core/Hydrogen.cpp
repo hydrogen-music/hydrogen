@@ -659,8 +659,12 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	}
 
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
 	
-	m_oldEngineMode = getMode();
+	m_oldEngineMode = pSong->getMode();
 	m_bOldLoopEnabled = pSong->isLoopEnabled();
 
 	pSong->setMode( Song::Mode::Song );
@@ -672,7 +676,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	 * Stop the current driver and fire up the DiskWriter.
 	 */
 	pAudioEngine->stopAudioDrivers();
-	
+
 	AudioOutput* pDriver =
 		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
 

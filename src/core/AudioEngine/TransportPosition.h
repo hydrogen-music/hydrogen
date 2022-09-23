@@ -53,10 +53,11 @@ public:
 	/**
 	 * Constructor of TransportPosition
 	 */
-	TransportPosition();
+	TransportPosition( const QString sLabel = "" );
 	/** Destructor of TransportPosition */
 	~TransportPosition();
 
+	const QString getLabel() const;
 	long long getFrame() const;
 	/**
 	 * Retrieve a rounded version of #m_fTick.
@@ -158,6 +159,11 @@ private:
 	static double computeTick( long long nFrame, float fTickSize );
 
 	double getDoubleTick() const;
+
+	/** Identifier of the transport position. Used to keep different
+	 * instances apart.
+	 */
+	const QString m_sLabel;
 
 	/** 
 	 * Current transport position in number of frames since the
@@ -262,6 +268,9 @@ private:
 		
 };
 
+inline const QString TransportPosition::getLabel() const {
+	return m_sLabel;
+}
 inline long long TransportPosition::getFrame() const {
 	return m_nFrame;
 }

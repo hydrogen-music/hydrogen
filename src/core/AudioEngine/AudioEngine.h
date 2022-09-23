@@ -577,9 +577,9 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
-	void			updateSongTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
-	void			updatePatternTransportPosition( double fTick, std::shared_ptr<TransportPosition> pPos );
+	void			updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos );
+	void			updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos );
+	void			updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue to be still valid after a

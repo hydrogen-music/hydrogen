@@ -230,7 +230,7 @@ void Note::computeNoteStart() {
 	double fTickMismatch;
 	m_nNoteStart =
 		TransportPosition::computeFrameFromTick( __position, &fTickMismatch );
-		
+
 	// If there is a negative Humanize delay, take into account so
 	// we don't miss the time slice.  ignore positive delay, or we
 	// might end the queue processing prematurely based on NoteQueue
@@ -242,6 +242,9 @@ void Note::computeNoteStart() {
 	if ( pHydrogen->isTimelineEnabled() ) {
 		m_fUsedTickSize = -1;
 	} else {
+		// This is used for triggering recalculation in case the tempo
+		// changes where manually applied by the user. They affect
+		// both playhead and transport position and one can use either.
 		m_fUsedTickSize = pAudioEngine->getPlayheadPosition()->getTickSize();
 	}
 }
