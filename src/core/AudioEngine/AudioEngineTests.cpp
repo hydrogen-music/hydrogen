@@ -1692,7 +1692,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pTransportPos = pAE->getPlayheadPosition();
+	auto pTransportPos = pAE->getTransportPosition();
 	
 	const unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
 

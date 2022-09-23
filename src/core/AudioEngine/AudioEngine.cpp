@@ -1592,93 +1592,79 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
-	bool bEndOfSongReached = false;
-
-	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
-
+	// Expected behavior:
+	// - changing any part of the song except of the pattern currently
+	//   play shouldn't affect transport position
+	// - the current transport position is defined as the start of
+	//   column associated with the current position in tick + the
+	//   current pattern tick position
+	// - there shouldn't be a difference in behavior whether the song
+	//   was already looped or not
+	// - the internal compensation in the transport position will
+	//   only be propagated to external audio servers, like JACK, once
+	//   a relocation takes place. This temporal loss of sync is done
+	//   to avoid audible glitches when e.g. toggling a pattern or
+	//   scrolling the pattern length spin boxes.
+	//
 	// In case there is at least one tempo marker located between the
 	// current transport and playhead position not both of them can be
 	// changed in a way that their tick is consistent. We strive for a
-	// consistency of the playhead position as glitches in audio
-	// rendering are a lot more easy to spot that glitches in the
-	// transport position. In addition, transport position is only
-	// broadcasted to external apps/servers when relocation transport
-	// which will make both transport and playhead in sync again
-	// anyway.
+	// consistency of the transport position as glitches in audio
+	// rendering must be avoided while tiny glitches in the playhead
+	// position are mostly cosmetic issues.
+	bool bEndOfSongReached = false;
+	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
 	// Strip away all repetitions when in loop mode but keep their
-	// number. m_nPatternStartTick and m_nColumn are only defined
-	// between 0 and m_fSongSizeInTicks.
-	double fNewTick = std::fmod( m_pPlayheadPosition->getDoubleTick(),
+	// number. nPatternStartTick and nColumn are only defined
+	// between 0 and fSongSizeInTicks.
+	double fNewTick = std::fmod( m_pTransportPosition->getDoubleTick(),
 								 m_fSongSizeInTicks );
 	const double fRepetitions =
-		std::floor( m_pPlayheadPosition->getDoubleTick() / m_fSongSizeInTicks );
+		std::floor( m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks );
+	const int nOldColumn = m_pTransportPosition->getColumn();
 
-	const int nOldColumn = m_pPlayheadPosition->getColumn();
-
-	// WARNINGLOG( QString( "[Before] m_pPlayheadPosition->getFrame(): %1, m_pPlayheadPosition->getBpm(): %2, m_pPlayheadPosition->getTickSize(): %3, m_pPlayheadPosition->getColumn(): %4, m_pPlayheadPosition->getDoubleTick(): %5, fNewTick: %6, fRepetitions: %7. m_pPlayheadPosition->getPatternTickPosition(): %8, m_pPlayheadPosition->getPatternStartTick(): %9, m_fLastTickIntervalEnd: %10, m_fSongSizeInTicks: %11, fNewSongSizeInTicks: %12, m_nFrameOffset: %13, m_pPlayheadPosition->getTickMismatch(): %14" )
-	// 			.arg( m_pPlayheadPosition->getFrame() )
-	//          .arg( m_pPlayheadPosition->getBpm() )
-	// 			.arg( m_pPlayheadPosition->getTickSize(), 0, 'f' )
-	// 			.arg( m_pPlayheadPosition->getColumn() )
-	// 			.arg( m_pPlayheadPosition->getDoubleTick(), 0, 'g', 30 )
+	// WARNINGLOG( QString( "[Before] fNewTick: %1, fRepetitions: %2, m_fLastTickIntervalEnd: %3, m_fSongSizeInTicks: %4, fNewSongSizeInTicks: %5, m_nFrameOffset: %6, transport: %7, playhead: %8" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
-	// 			.arg( m_pPlayheadPosition->getPatternTickPosition() )
-	// 			.arg( m_pPlayheadPosition->getPatternStartTick() )
 	// 			.arg( m_fLastTickIntervalEnd )
 	// 			.arg( m_fSongSizeInTicks )
 	// 			.arg( fNewSongSizeInTicks )
 	// 			.arg( m_nFrameOffset )
-	// 			.arg( m_pPlayheadPosition->getTickMismatch() )
+	// 			.arg( m_pTransportPosition->toQString( "", true ) )
+	// 			.arg( m_pPlayheadPosition->toQString( "", true ) )
 	// 			);
 
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
-	// Expected behavior:
-	// - changing any part of the song except of the pattern currently
-	//   play shouldn't affect playhead position
-	// - the current playhead position is defined as the start of
-	//   column associated with the current position in tick + the
-	//   current pattern tick position
-	// - there shouldn't be a difference in behavior whether the song is
-	//   looped or not
-	// - this internal compensation in the transport position will
-	//   only be propagated to external audio servers, like JACK, once
-	//   a relocation takes place. This temporal loss of sync is done
-	//   to avoid audible glitches when e.g. toggling a pattern or
-	//   scrolling the pattern length spin boxes. A general intuition
-	//   for a loss of synchronization when just changing song parts
-	//   in one application can probably be expected.  
-	// 
-	// We strive for consistency in audio playback and make both the
-	// current column/pattern and the playhead position within the
-	// pattern invariant in this transformation.
 	const long nNewPatternStartTick =
-		pHydrogen->getTickForColumn( m_pPlayheadPosition->getColumn() );
+		pHydrogen->getTickForColumn( m_pTransportPosition->getColumn() );
 
 	if ( nNewPatternStartTick == -1 ) {
 		bEndOfSongReached = true;
 	}
 	
-	if ( nNewPatternStartTick != m_pPlayheadPosition->getPatternStartTick() ) {
+	if ( nNewPatternStartTick != m_pTransportPosition->getPatternStartTick() ) {
+		// A pattern prior to the current position was toggled,
+		// enlarged, or shrunk. We need to compensate this in order to
+		// keep the tick within the current pattern constant.
 
 		// DEBUGLOG( QString( "[nPatternStartTick mismatch] old: %1, new: %2" )
-		// 		  .arg( m_pPlayheadPosition->getPatternStartTick() )
+		// 		  .arg( m_pTransportPosition->getPatternStartTick() )
 		// 		  .arg( nNewPatternStartTick ) );
 		
 		fNewTick +=
 			static_cast<double>(nNewPatternStartTick -
-								m_pPlayheadPosition->getPatternStartTick());
+								m_pTransportPosition->getPatternStartTick());
 	}
 	
 #ifdef H2CORE_HAVE_DEBUG
 	const long nNewPatternTickPosition =
 		static_cast<long>(std::floor( fNewTick )) - nNewPatternStartTick;
 	if ( nNewPatternTickPosition !=
-		 m_pPlayheadPosition->getPatternTickPosition() ) {
+		 m_pTransportPosition->getPatternTickPosition() ) {
 		ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
-				  .arg( m_pPlayheadPosition->getPatternTickPosition() )
+				  .arg( m_pTransportPosition->getPatternTickPosition() )
 				  .arg( nNewPatternTickPosition ) );
 	}
 #endif
@@ -1689,11 +1675,11 @@ void AudioEngine::updateSongSize() {
 	// Ensure transport state is consistent
 	const long long nNewFrame =
 		TransportPosition::computeFrameFromTick( fNewTick,
-												 &m_pPlayheadPosition->m_fTickMismatch );
+												 &m_pTransportPosition->m_fTickMismatch );
 
 	m_nFrameOffset = nNewFrame -
-		m_pPlayheadPosition->getFrame() + m_nFrameOffset;
-	m_fTickOffset = fNewTick - m_pPlayheadPosition->getDoubleTick();
+		m_pTransportPosition->getFrame() + m_nFrameOffset;
+	m_fTickOffset = fNewTick - m_pTransportPosition->getDoubleTick();
 
 	// Small rounding noise introduced in the calculation might spoil
 	// things as we floor the resulting tick offset later on. Hence,
@@ -1702,32 +1688,29 @@ void AudioEngine::updateSongSize() {
 	m_fTickOffset = std::round( m_fTickOffset );
 	m_fTickOffset *= 1e-8;
 		
-	// INFOLOG(QString( "[update] nNewFrame: %1, m_pPlayheadPosition->getFrame() (old): %2, m_nFrameOffset: %3, fNewTick: %4, m_pPlayheadPosition->getDoubleTick() (old): %5, m_fTickOffset : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9")
+	// INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_nFrameOffset: %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_fTickOffset : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9")
 	// 		.arg( nNewFrame )
-	// 		.arg( m_pPlayheadPosition->getFrame() )
+	// 		.arg( m_pTransportPosition->getFrame() )
 	// 		.arg( m_nFrameOffset )
 	// 		.arg( fNewTick, 0, 'g', 30 )
-	// 		.arg( m_pPlayheadPosition->getDoubleTick(), 0, 'g', 30 )
+	// 		.arg( m_pTransportPosition->getDoubleTick(), 0, 'g', 30 )
 	// 		.arg( m_fTickOffset, 0, 'g', 30 )
-	// 		.arg( fNewTick - m_pPlayheadPosition->getDoubleTick(), 0, 'g', 30 )
+	// 		.arg( fNewTick - m_pTransportPosition->getDoubleTick(), 0, 'g', 30 )
 	// 		.arg( fNewSongSizeInTicks, 0, 'g', 30 )
 	// 		.arg( fRepetitions, 0, 'g', 30 )
 	// 		);
 	
 	m_fLastTickIntervalEnd += m_fTickOffset;
 
-	// After tick and frame information as well as notes are updated
-	// we will make the remainder of the transport information
-	// consistent.
-	updateTransportPosition( fNewTick, nNewFrame, m_pPlayheadPosition );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
 	// Updating the transport position by the same offset to keep them
 	// approximately in sync.
-	const double fTickTransport = m_pTransportPosition->getDoubleTick() +
+	const double fNewTickPlayhead = m_pPlayheadPosition->getDoubleTick() +
 		m_fTickOffset;
-	const long long nFrameTransport = 
-		TransportPosition::computeFrameFromTick( m_pTransportPosition->getDoubleTick(),
-												 &m_pTransportPosition->m_fTickMismatch );
-	updateTransportPosition( fTickTransport, nFrameTransport, m_pTransportPosition );
+	const long long nNewFramePlayhead = 
+		TransportPosition::computeFrameFromTick( fNewTickPlayhead,
+												 &m_pPlayheadPosition->m_fTickMismatch );
+	updateTransportPosition( fNewTickPlayhead, nNewFramePlayhead, m_pPlayheadPosition );
 
 	// Moves all notes currently processed by Hydrogen with respect to
 	// the offsets calculated above.
@@ -1741,19 +1724,26 @@ void AudioEngine::updateSongSize() {
 	// locate to the beginning of the song as this might be the most
 	// obvious thing to do from the user perspective.
 	if ( nOldColumn >= pSong->getPatternGroupVector()->size() ) {
+		
 		// DEBUGLOG( QString( "Old column [%1] larger than new song size [%2] (in columns). Relocating to start." )
 		// 		  .arg( nOldColumn )
 		// 		  .arg( pSong->getPatternGroupVector()->size() ) );
+		
 		locate( 0 );
 	} 
 #ifdef H2CORE_HAVE_DEBUG
-	else if ( nOldColumn != m_pPlayheadPosition->getColumn() ) {
+	else if ( nOldColumn != m_pTransportPosition->getColumn() ) {
 		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
 				  .arg( nOldColumn )
-				  .arg( m_pPlayheadPosition->getColumn() ) );
+				  .arg( m_pTransportPosition->getColumn() ) );
 	}
 #endif
-	
+
+	// The stopping the transport at the end of the song is primary
+	// done to include no additional note to the note queue, which is
+	// determined by the position of the playhead. Audio rendering,
+	// however, follows the transport position and will continue
+	// using the realtime frame.
 	if ( m_pPlayheadPosition->getColumn() == -1 ||
 		 ( bEndOfSongReached &&
 		   pSong->getLoopMode() != Song::LoopMode::Enabled ) ) {
@@ -1762,22 +1752,17 @@ void AudioEngine::updateSongSize() {
 		locate( 0 );
 	}
 
-	// WARNINGLOG( QString( "[After] m_pPlayheadPosition->getFrame(): %1, m_pPlayheadPosition->getBpm(): %2, m_pPlayheadPosition->getTickSize(): %3, m_pPlayheadPosition->getColumn(): %4, m_pPlayheadPosition->getDoubleTick(): %5, fNewTick: %6, fRepetitions: %7. m_pPlayheadPosition->getPatternTickPosition(): %8, m_pPlayheadPosition->getPatternStartTick(): %9, m_fLastTickIntervalEnd: %10, m_fSongSizeInTicks: %11, fNewSongSizeInTicks: %12, m_nFrameOffset: %13, m_pPlayheadPosition->getTickMismatch(): %14" )
-	// 			.arg( m_pPlayheadPosition->getFrame() )
-	//          .arg( m_pPlayheadPosition->getBpm() )
-	// 			.arg( m_pPlayheadPosition->getTickSize(), 0, 'f' )
-	// 			.arg( m_pPlayheadPosition->getColumn() )
-	// 			.arg( m_pPlayheadPosition->getDoubleTick(), 0, 'g', 30 )
+	// WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fLastTickIntervalEnd: %3, m_fSongSizeInTicks: %4, fNewSongSizeInTicks: %5, m_nFrameOffset: %6, transport: %7, playhead: %8" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
-	// 			.arg( m_pPlayheadPosition->getPatternTickPosition() )
-	// 			.arg( m_pPlayheadPosition->getPatternStartTick() )
 	// 			.arg( m_fLastTickIntervalEnd )
 	// 			.arg( m_fSongSizeInTicks )
 	// 			.arg( fNewSongSizeInTicks )
 	// 			.arg( m_nFrameOffset )
-	// 			.arg( m_pPlayheadPosition->getTickMismatch() )
-	// 			);	
+	// 			.arg( m_pTransportPosition->toQString( "", true ) )
+	// 			.arg( m_pPlayheadPosition->toQString( "", true ) )
+	// 			);
+
 }
 
 void AudioEngine::removePlayingPattern( int nIndex ) {
