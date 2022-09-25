@@ -74,6 +74,8 @@ public:
 	long getPatternTickPosition() const;
 	int getColumn() const;
 	double getTickMismatch() const;
+	long long getFrameOffsetTempo() const;
+	double getTickOffsetSongSize() const;
 
 		/**
 	 * Calculates a tick equivalent to @a nFrame.
@@ -136,6 +138,8 @@ private:
 	void setPatternStartTick( long nPatternStartTick );
 	void setPatternTickPosition( long nPatternTickPosition );
 	void setColumn( int nColumn );
+	void setFrameOffsetTempo( long long nFrameOffset );
+	void setTickOffsetSongSize( double fTickOffset );
 
 	/**
 	 * Converts a tick into frames under the assumption of a constant
@@ -265,7 +269,33 @@ private:
 	 * and rounding it to assign it to #m_nFrame.
 	**/
 	double 				m_fTickMismatch;
-		
+
+	/** Offset introduced when changing the tempo of the song while
+	 * playback is running.
+	 *
+	 * On each tempo change #m_fTickSize of the song gets altered
+	 * too. As a result #m_nFrame and #m_fTick are not consistent
+	 * anymore. We will handle this case by compensating the
+	 * difference in frames using #m_nFrameOffsetTempo internally till
+	 * transport is stopped or relocated again.
+	 *
+	 * Note that this variable is _not_ the frame equivalent of
+	 * #m_fTickOffsetSongSize.
+	 */
+	long long 			m_nFrameOffsetTempo;
+
+	/**
+	 * Offset introduced when song size is changed while playback is
+	 * running.
+	 *
+	 * When altering the size of the song the #m_nPatternStartTick can
+	 * change too. In order to still keep the playback consistent the
+	 * difference in ticks is stored in @m_fTickOffsetSongSize.
+	 *
+	 * Note that this variable is _not_ the tick equivalent of
+	 * #m_nFrameOffsetTempo.
+	 */
+	double 				m_fTickOffsetSongSize;
 };
 
 inline const QString TransportPosition::getLabel() const {
@@ -297,6 +327,18 @@ inline int TransportPosition::getColumn() const {
 }
 inline double TransportPosition::getTickMismatch() const {
 	return m_fTickMismatch;
+}
+inline long long TransportPosition::getFrameOffsetTempo() const {
+	return m_nFrameOffsetTempo;
+}
+inline double TransportPosition::getTickOffsetSongSize() const {
+	return m_fTickOffsetSongSize;
+}
+inline void TransportPosition::setFrameOffsetTempo( long long nFrameOffset ) {
+	m_nFrameOffsetTempo = nFrameOffset;
+}
+inline void TransportPosition::setTickOffsetSongSize( double fTickOffset ) {
+	m_fTickOffsetSongSize = fTickOffset;
 }
 };
 

@@ -53,41 +53,41 @@ bool AudioEngineTests::testFrameToTickConversion() {
 	pCoreActionController->addTempoMarker( 5, 40 );
 	pCoreActionController->addTempoMarker( 7, 200 );
 
-	double fFrameOffset1, fFrameOffset2, fFrameOffset3,
-		fFrameOffset4, fFrameOffset5, fFrameOffset6;
+	double fFrameMismatch1, fFrameMismatch2, fFrameMismatch3,
+		fFrameMismatch4, fFrameMismatch5, fFrameMismatch6;
 	
 	long long nFrame1 = 342732;
 	long long nFrame2 = 1037223;
 	long long nFrame3 = 453610333722;
 	double fTick1 = TransportPosition::computeTickFromFrame( nFrame1 );
 	long long nFrame1Computed =
-		TransportPosition::computeFrameFromTick( fTick1, &fFrameOffset1 );
+		TransportPosition::computeFrameFromTick( fTick1, &fFrameMismatch1 );
 	double fTick2 = TransportPosition::computeTickFromFrame( nFrame2 );
 	long long nFrame2Computed =
-		TransportPosition::computeFrameFromTick( fTick2, &fFrameOffset2 );
+		TransportPosition::computeFrameFromTick( fTick2, &fFrameMismatch2 );
 	double fTick3 = TransportPosition::computeTickFromFrame( nFrame3 );
 	long long nFrame3Computed =
-		TransportPosition::computeFrameFromTick( fTick3, &fFrameOffset3 );
+		TransportPosition::computeFrameFromTick( fTick3, &fFrameMismatch3 );
 	
-	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-10 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+	if ( nFrame1Computed != nFrame1 || std::abs( fFrameMismatch1 ) > 1e-10 ) {
+		qDebug() << QString( "[testFrameToTickConversion] [1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameMismatch: %4, frame diff: %5" )
 			.arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
-			.arg( fFrameOffset1, 0, 'E', -1 )
+			.arg( fFrameMismatch1, 0, 'E', -1 )
 			.arg( nFrame1Computed - nFrame1 )
 			.toLocal8Bit().data();
 		bNoMismatch = false;
 	}
-	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-10 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+	if ( nFrame2Computed != nFrame2 || std::abs( fFrameMismatch2 ) > 1e-10 ) {
+		qDebug() << QString( "[testFrameToTickConversion] [2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameMismatch: %4, frame diff: %5" )
 			.arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
-			.arg( fFrameOffset2, 0, 'E', -1 )
+			.arg( fFrameMismatch2, 0, 'E', -1 )
 			.arg( nFrame2Computed - nFrame2 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
-	if ( nFrame3Computed != nFrame3 || std::abs( fFrameOffset3 ) > 1e-6 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+	if ( nFrame3Computed != nFrame3 || std::abs( fFrameMismatch3 ) > 1e-6 ) {
+		qDebug() << QString( "[testFrameToTickConversion] [3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameMismatch: %4, frame diff: %5" )
 			.arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
-			.arg( fFrameOffset3, 0, 'E', -1 )
+			.arg( fFrameMismatch3, 0, 'E', -1 )
 			.arg( nFrame3Computed - nFrame3 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
@@ -96,39 +96,39 @@ bool AudioEngineTests::testFrameToTickConversion() {
 	double fTick5 = 1939;
 	double fTick6 = 534623409;
 	long long nFrame4 =
-		TransportPosition::computeFrameFromTick( fTick4, &fFrameOffset4 );
+		TransportPosition::computeFrameFromTick( fTick4, &fFrameMismatch4 );
 	double fTick4Computed =
-		TransportPosition::computeTickFromFrame( nFrame4 ) + fFrameOffset4;
+		TransportPosition::computeTickFromFrame( nFrame4 ) + fFrameMismatch4;
 	long long nFrame5 =
-		TransportPosition::computeFrameFromTick( fTick5, &fFrameOffset5 );
+		TransportPosition::computeFrameFromTick( fTick5, &fFrameMismatch5 );
 	double fTick5Computed =
-		TransportPosition::computeTickFromFrame( nFrame5 ) + fFrameOffset5;
+		TransportPosition::computeTickFromFrame( nFrame5 ) + fFrameMismatch5;
 	long long nFrame6 =
-		TransportPosition::computeFrameFromTick( fTick6, &fFrameOffset6 );
+		TransportPosition::computeFrameFromTick( fTick6, &fFrameMismatch6 );
 	double fTick6Computed =
-		TransportPosition::computeTickFromFrame( nFrame6 ) + fFrameOffset6;
+		TransportPosition::computeTickFromFrame( nFrame6 ) + fFrameMismatch6;
 	
 	
 	if ( abs( fTick4Computed - fTick4 ) > 1e-9 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+		qDebug() << QString( "[testFrameToTickConversion] [4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameMismatch: %4, tick diff: %5" )
 			.arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
-			.arg( fFrameOffset4, 0, 'E' )
+			.arg( fFrameMismatch4, 0, 'E' )
 			.arg( fTick4Computed - fTick4 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick5Computed - fTick5 ) > 1e-9 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+		qDebug() << QString( "[testFrameToTickConversion] [5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameMismatch: %4, tick diff: %5" )
 			.arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
-			.arg( fFrameOffset5, 0, 'E' )
+			.arg( fFrameMismatch5, 0, 'E' )
 			.arg( fTick5Computed - fTick5 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick6Computed - fTick6 ) > 1e-6 ) {
-		qDebug() << QString( "[testFrameToTickConversion] [6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+		qDebug() << QString( "[testFrameToTickConversion] [6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameMismatch: %4, tick diff: %5" )
 			.arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
-			.arg( fFrameOffset6, 0, 'E' )
+			.arg( fFrameMismatch6, 0, 'E' )
 			.arg( fTick6Computed - fTick6 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
@@ -142,6 +142,7 @@ bool AudioEngineTests::testTransportProcessing() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
+	auto pPlayheadPos = pAE->getPlayheadPosition();
 	
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( true );
@@ -167,7 +168,10 @@ bool AudioEngineTests::testTransportProcessing() {
 	
 	uint32_t nFrames;
 	double fCheckTick;
-	long long nCheckFrame, nLastFrame = 0;
+	long long nCheckFrame;
+	long long nLastTransportFrame = 0;
+	long nLastPlayheadTick = 0;
+	long long nTotalFrames = 0;
 
 	bool bNoMismatch = true;
 
@@ -179,33 +183,95 @@ bool AudioEngineTests::testTransportProcessing() {
 				  2112.0 );
 	int nn = 0;
 
-	while ( pTransportPos->getDoubleTick() <
-			pAE->getSongSizeInTicks() ) {
-
+	auto testTransport = [&]( const QString& sContext,
+							 bool bRelaxLastFrames = true ) {
 		nFrames = frameDist( randomEngine );
 
+		double fLastTickIntervalEnd = pAE->m_fLastTickIntervalEnd;
+		double fTickStart, fTickEnd;
+		pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
+		// This variable is set within computeTickInterval and has to
+		// be reset in order for updateNoteQueue to work properly.
+		pAE->m_fLastTickIntervalEnd = fLastTickIntervalEnd;
+
+		pAE->updateNoteQueue( nFrames );
 		pAE->incrementTransportPosition( nFrames );
 
 		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-														 "[testTransportProcessing] constant tempo" ) ) {
-			bNoMismatch = false;
-			break;
+														 "[testTransportProcessing] " + sContext ) ) {
+			return false;
 		}
 
-		if ( pTransportPos->getFrame() - nFrames != nLastFrame ) {
-			qDebug() << QString( "[testTransportProcessing] [constant tempo] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
-				.arg( pTransportPos->getFrame() )
-				.arg( nFrames )
-				.arg( nLastFrame );
-			bNoMismatch = false;
-			break;
+		if ( ! AudioEngineTests::checkTransportPosition( pPlayheadPos,
+														 "[testTransportProcessing] " + sContext ) ) {
+			return false;
 		}
-		nLastFrame = pTransportPos->getFrame();
+
+		if ( ( ! bRelaxLastFrames &&
+			   ( pTransportPos->getFrame() - nFrames != nLastTransportFrame ) ) ||
+			 // errors in the rescaling of nLastTransportFrame are omitted.
+			 ( bRelaxLastFrames &&
+			   abs( ( pTransportPos->getFrame() - nFrames - nLastTransportFrame ) /
+					pTransportPos->getFrame() ) > 1e-8 ) ) {
+			qDebug() << QString( "[testTransportProcessing : transport] [%1] inconsistent frame update. pTransportPos->getFrame(): %2, nFrames: %3, nLastTransportFrame: %4, bRelaxLastFrame: %5" )
+				.arg( sContext )
+				.arg( pTransportPos->getFrame() ).arg( nFrames )
+				.arg( nLastTransportFrame ).arg( bRelaxLastFrames );
+			return false;
+		}
+		nLastTransportFrame = pTransportPos->getFrame();
+
+		int nNoteQueueUpdate =
+			static_cast<int>(std::floor( fTickEnd ) - std::floor( fTickStart ));
+		// We will only compare the playhead position in case interval
+		// in updateNoteQueue covers at least one tick and, thus,
+		// an update has actually taken place.
+		if ( nLastPlayheadTick > 0 && nNoteQueueUpdate > 0 ) {
+			if ( pPlayheadPos->getTick() - nNoteQueueUpdate !=
+				 nLastPlayheadTick ) {
+				qDebug() << QString( "[testTransportProcessing : playhead] [%1] inconsistent tick update. pPlayheadPos->getTick(): %2, nNoteQueueUpdate: %3, nLastPlayheadTick: %4" )
+					.arg( sContext )
+					.arg( pPlayheadPos->getTick() )
+					.arg( nNoteQueueUpdate )
+					.arg( nLastPlayheadTick );
+				return false;
+			}
+		}
+		nLastPlayheadTick = pPlayheadPos->getTick();
+
+		// Using the offset Hydrogen can keep track of the actual
+		// number of frames passed since the playback was started
+		// even in case a tempo change was issued by the user.
+		nTotalFrames += nFrames;
+		if ( pTransportPos->getFrame() - pTransportPos->getFrameOffsetTempo() !=
+			 nTotalFrames ) {
+			qDebug() << QString( "[testTransportProcessing : transport] [%1] frame offset incorrect. pTransportPos->getFrame(): %2, pTransportPos->getFrameOffsetTempo(): %3, nTotalFrames: %4" )
+				.arg( sContext )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getFrameOffsetTempo() )
+				.arg( nTotalFrames );
+			return false;
+		}
+		return true;
+	};
+
+	// Check that the playhead position is monotonously increasing
+	// (and there are no glitches).
+	int nPlayheadColumn = 0;
+	long nPlayheadPatternTickPosition = 0;
+
+	while ( pTransportPos->getDoubleTick() <
+			pAE->getSongSizeInTicks() ) {
+		if ( ! testTransport( QString( "[song mode : constant tempo]" ),
+							  false ) ) {
+			pAE->setState( AudioEngine::State::Ready );
+			pAE->unlock();
+			return false;
+		}
 
 		nn++;
-
 		if ( nn > nMaxCycles ) {
-			qDebug() << QString( "[testTransportProcessing] [constant tempo] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
+			qDebug() << QString( "[testTransportProcessing] [song mode : constant tempo] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
 				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )
@@ -217,14 +283,14 @@ bool AudioEngineTests::testTransportProcessing() {
 	}
 
 	pAE->reset( false );
-	nLastFrame = 0;
+	nLastTransportFrame = 0;
+	nLastPlayheadTick = 0;
 
 	float fBpm;
 	float fLastBpm = pTransportPos->getBpm();
 	int nCyclesPerTempo = 5;
-	int nPrevLastFrame = 0;
 
-	long long nTotalFrames = 0;
+	nTotalFrames = 0;
 
 	nn = 0;
 
@@ -232,70 +298,28 @@ bool AudioEngineTests::testTransportProcessing() {
 			pAE->getSongSizeInTicks() ) {
 
 		fBpm = tempoDist( randomEngine );
-
-		nPrevLastFrame = nLastFrame;
-		nLastFrame =
-			static_cast<int>(std::round( static_cast<double>(nLastFrame) *
-										 static_cast<double>(fLastBpm) /
-										 static_cast<double>(fBpm) ));
-		
 		pAE->setNextBpm( fBpm );
 		pAE->updateBpmAndTickSize( pTransportPos );
+		pAE->updateBpmAndTickSize( pPlayheadPos );
+
+		nLastTransportFrame = pTransportPos->getFrame();
+		nLastPlayheadTick = pPlayheadPos->getTick();
 		
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
-			nFrames = frameDist( randomEngine );
-
-			pAE->incrementTransportPosition( nFrames );
-
-			if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-															 "[testTransportProcessing] variable tempo" ) ) {
+			if ( ! testTransport( QString( "[song mode : variable tempo %1->%2]" )
+								  .arg( fLastBpm ).arg( fBpm ),
+								  cc == 0 ) ) {
 				pAE->setState( AudioEngine::State::Ready );
 				pAE->unlock();
-				return bNoMismatch;
-			}
-
-			if ( ( cc > 0 &&
-				   ( pTransportPos->getFrame() - nFrames !=
-					 nLastFrame ) ) ||
-				 // errors in the rescaling of nLastFrame are omitted.
-				 ( cc == 0 &&
-				   abs( ( pTransportPos->getFrame() - nFrames - nLastFrame ) /
-						pTransportPos->getFrame() ) > 1e-8 ) ) {
-				qDebug() << QString( "[testTransportProcessing] [variable tempo] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
-					.arg( pTransportPos->getFrame() ).arg( nFrames )
-					.arg( nLastFrame ).arg( cc )
-					.arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' )
-					.arg( nPrevLastFrame );
-				bNoMismatch = false;
-				pAE->setState( AudioEngine::State::Ready );
-				pAE->unlock();
-				return bNoMismatch;
-			}
-			
-			nLastFrame = pTransportPos->getFrame();
-
-			// Using the offset Hydrogen can keep track of the actual
-			// number of frames passed since the playback was started
-			// even in case a tempo change was issued by the user.
-			nTotalFrames += nFrames;
-			if ( pTransportPos->getFrame() - pAE->m_nFrameOffset !=
-				 nTotalFrames ) {
-				qDebug() << QString( "[testTransportProcessing] [variable tempo] frame offset incorrect. pTransportPos->getFrame(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
-					.arg( pTransportPos->getFrame() )
-					.arg( pAE->m_nFrameOffset ).arg( nTotalFrames );
-				bNoMismatch = false;
-				pAE->setState( AudioEngine::State::Ready );
-				pAE->unlock();
-				return bNoMismatch;
+				return false;
 			}
 		}
 		
 		fLastBpm = fBpm;
 
 		nn++;
-
 		if ( nn > nMaxCycles ) {
-			qDebug() << "[testTransportProcessing] [variable tempo] end of the song wasn't reached in time.";
+			qDebug() << "[testTransportProcessing] [song mode : variable tempo] end of the song wasn't reached in time.";
 			bNoMismatch = false;
 			break;
 		}
@@ -324,35 +348,28 @@ bool AudioEngineTests::testTransportProcessing() {
 													 "[testTransportProcessing] timeline: off" ) ) {
 		bNoMismatch = false;
 	}
+	if ( ! AudioEngineTests::checkTransportPosition( pPlayheadPos,
+													 "[testTransportProcessing] timeline: off" ) ) {
+		bNoMismatch = false;
+	}
 	
 	nn = 0;
-	nLastFrame = 0;
+	nLastTransportFrame = 0;
+	nLastPlayheadTick = 0;
 
 	while ( pTransportPos->getDoubleTick() <
 			pAE->m_fSongSizeInTicks ) {
-
-		nFrames = frameDist( randomEngine );
-
-		pAE->incrementTransportPosition( nFrames );
-
-		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-														 "[testTransportProcessing] timeline" ) ) {
-			bNoMismatch = false;
-			break;
+		if ( ! testTransport( QString( "[song mode : timeline]" ),
+							  false ) ) {
+			pAE->setState( AudioEngine::State::Ready );
+			pAE->unlock();
+			pCoreActionController->activateSongMode( true );
+			return false;
 		}
-
-		if ( pTransportPos->getFrame() - nFrames != nLastFrame ) {
-			qDebug() << QString( "[testTransportProcessing] [timeline] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
-				.arg( pTransportPos->getFrame() ).arg( nFrames ).arg( nLastFrame );
-			bNoMismatch = false;
-			break;
-		}
-		nLastFrame = pTransportPos->getFrame();
 
 		nn++;
-
 		if ( nn > nMaxCycles ) {
-			qDebug() << "[testTransportProcessing] [timeline] end of the song wasn't reached in time.";
+			qDebug() << "[testTransportProcessing] [song mode : timeline] end of the song wasn't reached in time.";
 			bNoMismatch = false;
 			break;
 		}
@@ -385,7 +402,8 @@ bool AudioEngineTests::testTransportProcessing() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
-	nLastFrame = 0;
+	nLastTransportFrame = 0;
+	nLastPlayheadTick = 0;
 	fLastBpm = 0;
 	nTotalFrames = 0;
 
@@ -394,60 +412,24 @@ bool AudioEngineTests::testTransportProcessing() {
 	for ( int tt = 0; tt < nDifferentTempos; ++tt ) {
 
 		fBpm = tempoDist( randomEngine );
-
-		nLastFrame = std::round( nLastFrame * fLastBpm / fBpm );
 		
 		pAE->setNextBpm( fBpm );
 		pAE->updateBpmAndTickSize( pTransportPos );
+		pAE->updateBpmAndTickSize( pPlayheadPos );
+
+		nLastTransportFrame = pTransportPos->getFrame();
+		nLastPlayheadTick = pPlayheadPos->getTick();
 
 		fLastBpm = fBpm;
 		
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
-			nFrames = frameDist( randomEngine );
-
-			pAE->incrementTransportPosition( nFrames );
-
-			if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-															 "[testTransportProcessing] pattern mode" ) ) {
+			if ( ! testTransport( QString( "[pattern mode : variable tempo %1->%2]" )
+								  .arg( fLastBpm ).arg( fBpm ),
+								  cc == 0 ) ) {
 				pAE->setState( AudioEngine::State::Ready );
 				pAE->unlock();
 				pCoreActionController->activateSongMode( true );
-				return bNoMismatch;
-			}
-
-			if ( ( cc > 0 &&
-				   ( pTransportPos->getFrame() - nFrames !=
-					 nLastFrame ) ) ||
-				 // errors in the rescaling of nLastFrame are omitted.
-				 ( cc == 0 &&
-				   abs( pTransportPos->getFrame() -
-						nFrames - nLastFrame ) > 1 ) ) {
-				qDebug() << QString( "[testTransportProcessing] [pattern mode] inconsistent frame update. pTransportPos->getFrame(): %1, nFrames: %2, nLastFrame: %3" )
-					.arg( pTransportPos->getFrame() ).arg( nFrames ).arg( nLastFrame );
-				bNoMismatch = false;
-				pAE->setState( AudioEngine::State::Ready );
-				pAE->unlock();
-				pCoreActionController->activateSongMode( true );
-				return bNoMismatch;
-			}
-			
-			nLastFrame = pTransportPos->getFrame();
-
-			// Using the offset Hydrogen can keep track of the actual
-			// number of frames passed since the playback was started
-			// even in case a tempo change was issued by the user.
-			nTotalFrames += nFrames;
-			if ( pTransportPos->getFrame() -
-				 pAE->m_nFrameOffset != nTotalFrames ) {
-				qDebug() << QString( "[testTransportProcessing] [pattern mode] frame offset incorrect. pTransportPos->getFrame(): %1, pAE->m_nFrameOffset: %2, nTotalFrames: %3" )
-					.arg( pTransportPos->getFrame() )
-					.arg( pAE->m_nFrameOffset )
-					.arg( nTotalFrames );
-				bNoMismatch = false;
-				pAE->setState( AudioEngine::State::Ready );
-				pAE->unlock();
-				pCoreActionController->activateSongMode( true );
-				return bNoMismatch;
+				return false;
 			}
 		}
 	}
@@ -1523,7 +1505,8 @@ bool AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		static_cast<long>(std::floor( std::fmod(
 			pPos->getDoubleTick(),
 			pAE->m_fSongSizeInTicks ) ));
-	if ( pHydrogen->getMode() == Song::Mode::Song && 
+	if ( pHydrogen->getMode() == Song::Mode::Song &&
+		 pPos->getColumn() != -1 &&
 		 ( nCheckColumn != pPos->getColumn() ||
 		   ( nCheckPatternStartTick !=
 			 pPos->getPatternStartTick() ) ||
@@ -1752,7 +1735,8 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 
 	if ( ! AudioEngineTests::checkAudioConsistency( prevNotes, afterNotes,
 													sFirstContext + " 1. audio check",
-													0, false, pAE->m_fTickOffset ) ) {
+													0, false,
+													pTransportPos->getTickOffsetSongSize() ) ) {
 		return false;
 	}
 
@@ -1782,21 +1766,21 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext );
 			return false;
 		}
-		if ( std::abs( fTickStart - pAE->m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
+		if ( std::abs( fTickStart - pTransportPos->getTickOffsetSongSize() - fPrevTickStart ) > 4e-3 ) {
 			qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
 				.arg( fTickStart, 0, 'f' )
-				.arg( fPrevTickStart + pAE->m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickStart + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( fPrevTickStart, 0, 'f' )
-				.arg( pAE->m_fTickOffset, 0, 'f' )
+				.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( sFirstContext );
 			return false;
 		}
-		if ( std::abs( fTickEnd - pAE->m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
+		if ( std::abs( fTickEnd - pTransportPos->getTickOffsetSongSize() - fPrevTickEnd ) > 4e-3 ) {
 			qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
 				.arg( fTickEnd, 0, 'f' )
-				.arg( fPrevTickEnd + pAE->m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickEnd + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( fPrevTickEnd, 0, 'f' )
-				.arg( pAE->m_fTickOffset, 0, 'f' )
+				.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( sFirstContext );
 			return false;
 		}
@@ -1893,7 +1877,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	if ( ! AudioEngineTests::checkAudioConsistency( afterNotes, prevNotes,
 													sSecondContext + " 1. audio check",
 													0, false,
-													pAE->m_fTickOffset ) ) {
+													pTransportPos->getTickOffsetSongSize() ) ) {
 		return false;
 	}
 
@@ -1920,21 +1904,21 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext );
 			return false;
 		}
-		if ( std::abs( fTickStart - pAE->m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
+		if ( std::abs( fTickStart - pTransportPos->getTickOffsetSongSize() - fPrevTickStart ) > 4e-3 ) {
 			qDebug() << QString( "[%5] Mismatch in the start of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
 				.arg( fTickStart, 0, 'f' )
-				.arg( fPrevTickStart + pAE->m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickStart + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( fPrevTickStart, 0, 'f' )
-				.arg( pAE->m_fTickOffset, 0, 'f' )
+				.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( sSecondContext );
 			return false;
 		}
-		if ( std::abs( fTickEnd - pAE->m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
+		if ( std::abs( fTickEnd - pTransportPos->getTickOffsetSongSize() - fPrevTickEnd ) > 4e-3 ) {
 			qDebug() << QString( "[%5] Mismatch in the end of the tick interval handled by updateNoteQueue new [%1] != [%2] old+offset, old: %3, offset: %4" )
 				.arg( fTickEnd, 0, 'f' )
-				.arg( fPrevTickEnd + pAE->m_fTickOffset, 0, 'f' )
+				.arg( fPrevTickEnd + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( fPrevTickEnd, 0, 'f' )
-				.arg( pAE->m_fTickOffset, 0, 'f' )
+				.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 				.arg( sSecondContext );
 			return false;
 		}

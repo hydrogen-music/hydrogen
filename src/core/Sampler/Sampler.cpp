@@ -425,12 +425,12 @@ void Sampler::handleSongSizeChange() {
 		
 		// DEBUGLOG( QString( "new pos: %1, old note: %2" )
 		// 		  .arg( std::max( nnote->get_position() +
-		// 							   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+		// 							   static_cast<long>(std::floor(pAudioEngine->getTransportPosition()->getTickOffsetSongSize())),
 		// 						  static_cast<long>(0) ) )
 		// 		  .arg( nnote->toQString( "", true ) ) );
 		
 		nnote->set_position( std::max( nnote->get_position() +
-									   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+									   static_cast<long>(std::floor(pAudioEngine->getTransportPosition()->getTickOffsetSongSize())),
 									   static_cast<long>(0) ) );
 		nnote->computeNoteStart();
 		
@@ -740,7 +740,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	int	nInitialBufferPos = 0;
 
 	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
-	const long long nFrameOffset = pAudioEngine->getFrameOffset();
+	const long long nFrameOffset =
+		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
 
 	if(pSample->get_sample_rate() == pAudioDriver->getSampleRate()){
 		// No resampling

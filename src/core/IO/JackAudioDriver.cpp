@@ -569,12 +569,12 @@ void JackAudioDriver::updateTransportPosition()
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
-		   pAudioEngine->getFrameOffset() ) !=
+		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
 		 m_JackTransportPos.frame ) {
 		
 		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
 		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
-		// 		 .arg( pAudioEngine->getFrameOffset() )
+		// 		 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
 		// 		 .arg( m_JackTransportPos.frame ) );
 		
 		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {

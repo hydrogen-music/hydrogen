@@ -323,10 +323,6 @@ public:
 	const std::shared_ptr<TransportPosition> getTransportPosition() const;
 	const std::shared_ptr<TransportPosition> getPlayheadPosition() const;
 
-	long long		getFrameOffset() const;
-	void			setFrameOffset( long long nFrameOffset );
-	double  		getTickOffset() const;
-
 	const PatternList*	getNextPatterns() const;
 	const PatternList*	getPlayingPatterns() const;
 	
@@ -758,8 +754,6 @@ private:
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	double 				m_fTickOffset;
-	long long 			m_nFrameOffset;
 	double m_fLastTickIntervalEnd;
 
 };
@@ -882,15 +876,6 @@ inline void AudioEngine::setRealtimeFrame( long long nFrame ) {
 
 inline float AudioEngine::getNextBpm() const {
 	return m_fNextBpm;
-}
-inline long long AudioEngine::getFrameOffset() const {
-	return m_nFrameOffset;
-}
-inline void AudioEngine::setFrameOffset( long long nFrameOffset ) {
-	m_nFrameOffset = nFrameOffset;
-}
-inline double AudioEngine::getTickOffset() const {
-	return m_fTickOffset;
 }
 inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPosition() const {
 	return m_pTransportPosition;

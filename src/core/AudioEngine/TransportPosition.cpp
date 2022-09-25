@@ -48,6 +48,8 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	m_nPatternTickPosition = pOther->m_nPatternTickPosition;
 	m_nColumn = pOther->m_nColumn;
 	m_fTickMismatch = pOther->m_fTickMismatch;
+	m_nFrameOffsetTempo = pOther->m_nFrameOffsetTempo;
+	m_fTickOffsetSongSize = pOther->m_fTickOffsetSongSize;
 }
 
 void TransportPosition::reset() {
@@ -59,6 +61,8 @@ void TransportPosition::reset() {
 	m_nPatternTickPosition = 0;
 	m_nColumn = -1;
 	m_fTickMismatch = 0;
+	m_nFrameOffsetTempo = 0;
+	m_fTickOffsetSongSize = 0;
 }
 
 void TransportPosition::setBpm( float fNewBpm ) {
