@@ -121,7 +121,8 @@ AudioEngine::AudioEngine()
 		, m_fNextBpm( 120 )
 		, m_pLocker({nullptr, 0, nullptr})
 		, m_currentTickTime( {0,0})
-		, m_fLastTickIntervalEnd( -1 )
+		, m_fLastTickEnd( 0 )
+		, m_nLastLeadLagFactor( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
 	m_pPlayheadPosition = std::make_shared<TransportPosition>( "Playhead" );
@@ -326,10 +327,11 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
 
+	m_fLastTickEnd = 0;
+	m_nLastLeadLagFactor = 0;
+
 	m_pTransportPosition->reset();
 	m_pPlayheadPosition->reset();
-
-	m_fLastTickIntervalEnd = -1;
 
 	updateBpmAndTickSize( m_pTransportPosition );
 	updateBpmAndTickSize( m_pPlayheadPosition );
@@ -655,6 +657,8 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 		return;
 	}
 
+	m_nLastLeadLagFactor = 0;
+
 	// DEBUGLOG(QString( "[%1] sample rate: %2, tick size: %3 -> %4, bpm: %5 -> %6" )
 	// 		 .arg( pPos->getLabel() )
 	// 		 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
@@ -663,44 +667,85 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	// 		 .arg( fOldBpm, 0, 'f' )
 	// 		 .arg( pPos->getBpm(), 0, 'f' ) );
 	
-	pPos->setTickSize( fNewTickSize ); 
+	pPos->setTickSize( fNewTickSize );
 
-	if ( ! pHydrogen->isTimelineEnabled() ) {
-		// If we deal with a single speed for the whole song, the frames
-		// since the beginning of the song are tempo-dependent and have to
-		// be recalculated.
-		const long long nNewFrame =
-			TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
-													 &pPos->m_fTickMismatch );
-		pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
-								   pPos->getFrameOffsetTempo() );
+	if ( pPos->getFrame() != 0 ) {
+		if ( ! pHydrogen->isTimelineEnabled() ) {
+			// If we deal with a single speed for the whole song, the frames
+			// since the beginning of the song are tempo-dependent and have to
+			// be recalculated.
+			const long long nNewFrame =
+				TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
+														 &pPos->m_fTickMismatch );
+			pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
+									   pPos->getFrameOffsetTempo() );
 
-		// DEBUGLOG( QString( "[%1] old frame: %2, new frame: %3, tick: %4, old tick size: %5, new tick size: %6" )
-		// 		  .arg( pPos->getLabel() )
-		// 		  .arg( pPos->getFrame() ).arg( nNewFrame ).arg( pPos->getDoubleTick(), 0, 'f' )
-		// 		  .arg( fOldTickSize, 0, 'f' ).arg( fNewTickSize, 0, 'f' ) );
+			const long long nNewLookahead =
+				getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
+				AudioEngine::nMaxTimeHumanize + 1;
+			const double fNewTickEnd = TransportPosition::computeTickFromFrame( nNewFrame + nNewLookahead );
+			pPos->setTickOffsetTempo( fNewTickEnd - m_fLastTickEnd );
+
+			// DEBUGLOG( QString( "[%1] old frame: %2, new frame: %3, tick: %4, old tick size: %5, new tick size: %6, pPos->getFrameOffsetTempo: %7, nNewLookahead: %8, pPos->getFrameOffsetTempo(): %9, pPos->getTickOffsetTempo(): %10, fOldTickEnd: %11, fNewTickEnd: %12, m_fLastTickEnd: %13" )
+			// 		  .arg( pPos->getLabel() )
+			// 		  .arg( pPos->getFrame() )
+			// 		  .arg( nNewFrame )
+			// 		  .arg( pPos->getDoubleTick(), 0, 'f' )
+			// 		  .arg( fOldTickSize, 0, 'f' )
+			// 		  .arg( fNewTickSize, 0, 'f' )
+			// 		  .arg( pPos->getFrameOffsetTempo() )
+			// 		  .arg( nNewLookahead )
+			// 		  .arg( pPos->getFrameOffsetTempo() )
+			// 		  .arg( pPos->getTickOffsetTempo(), 0, 'f' )
+			// 		  .arg( fNewTickEnd, 0, 'f' )
+			// 		  .arg( m_fLastTickEnd, 0, 'f' )
+			// 		  );
 		
-		pPos->setFrame( nNewFrame );
+			pPos->setFrame( nNewFrame );
 
-		// In addition, all currently processed notes have to be
-		// updated to be still valid.
-		handleTempoChange();
+			// In addition, all currently processed notes have to be
+			// updated to be still valid.
+			handleTempoChange();
 		
-	} else if ( pPos->getFrameOffsetTempo() != 0 ) {
-		// In case the frame offset was already set, we have to update
-		// it too in order to prevent inconsistencies in the transport
-		// and audio rendering when switching off the Timeline during
-		// playback, relocating, switching it on again, alter song
-		// size or sample rate, and switching it off again. I know,
-		// quite an edge case but still.
-		// If we deal with a single speed for the whole song, the frames
-		// since the beginning of the song are tempo-dependent and have to
-		// be recalculated.
-		const long long nNewFrame =
-			TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
-													 &pPos->m_fTickMismatch );
-		pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
-								   pPos->getFrameOffsetTempo() );
+		}
+		else if ( pPos->getFrameOffsetTempo() != 0 ) {
+			// In case the frame offset was already set, we have to update
+			// it too in order to prevent inconsistencies in the transport
+			// and audio rendering when switching off the Timeline during
+			// playback, relocating, switching it on again, alter song
+			// size or sample rate, and switching it off again. I know,
+			// quite an edge case but still.
+			// If we deal with a single speed for the whole song, the frames
+			// since the beginning of the song are tempo-dependent and have to
+			// be recalculated.
+			const long long nNewFrame =
+				TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
+														 &pPos->m_fTickMismatch );
+			pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
+									   pPos->getFrameOffsetTempo() );
+
+			const long long nNewLookahead =
+				getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
+				AudioEngine::nMaxTimeHumanize + 1;
+			const double fNewTickEnd = TransportPosition::computeTickFromFrame( nNewFrame + nNewLookahead ) + pPos->m_fTickMismatch;
+			pPos->setTickOffsetTempo( fNewTickEnd - m_fLastTickEnd );
+
+			// DEBUGLOG( QString( "[%1] old frame: %2, new frame: %3, tick: %4, old tick size: %5, new tick size: %6, pPos->getFrameOffsetTempo: %7, nNewLookahead: %8, pPos->getFrameOffsetTempo(): %9, pPos->getTickOffsetTempo(): %10, fOldTickEnd: %11, fNewTickEnd: %12, m_fLastTickEnd: %13" )
+			// 		  .arg( pPos->getLabel() )
+			// 		  .arg( pPos->getFrame() )
+			// 		  .arg( nNewFrame )
+			// 		  .arg( pPos->getDoubleTick(), 0, 'f' )
+			// 		  .arg( fOldTickSize, 0, 'f' )
+			// 		  .arg( fNewTickSize, 0, 'f' )
+			// 		  .arg( pPos->getFrameOffsetTempo() )
+			// 		  .arg( nNewLookahead )
+			// 		  .arg( pPos->getFrameOffsetTempo() )
+			// 		  .arg( pPos->getTickOffsetTempo(), 0, 'f' )
+			// 		  .arg( fNewTickEnd, 0, 'f' )
+			// 		  .arg( m_fLastTickEnd, 0, 'f' )
+			// 		  );
+			
+		}
 	}
 }
 
@@ -1635,10 +1680,9 @@ void AudioEngine::updateSongSize() {
 		std::floor( m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks );
 	const int nOldColumn = m_pTransportPosition->getColumn();
 
-	// WARNINGLOG( QString( "[Before] fNewTick: %1, fRepetitions: %2, m_fLastTickIntervalEnd: %3, m_fSongSizeInTicks: %4, fNewSongSizeInTicks: %5, transport: %6, playhead: %7" )
+	// WARNINGLOG( QString( "[Before] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, playhead: %6" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
-	// 			.arg( m_fLastTickIntervalEnd )
 	// 			.arg( m_fSongSizeInTicks )
 	// 			.arg( fNewSongSizeInTicks )
 	// 			.arg( m_pTransportPosition->toQString( "", true ) )
@@ -1712,10 +1756,13 @@ void AudioEngine::updateSongSize() {
 	// 		.arg( fRepetitions, 0, 'g', 30 )
 	// 		);
 	
-	m_fLastTickIntervalEnd += fTickOffset;
+	m_pTransportPosition->setTickOffsetTempo(
+		m_pTransportPosition->getTickOffsetTempo() + fTickOffset );
 	
 	m_pPlayheadPosition->setFrameOffsetTempo(
 		m_pTransportPosition->getFrameOffsetTempo() );
+	m_pPlayheadPosition->setTickOffsetTempo(
+		m_pTransportPosition->getTickOffsetTempo() );
 	m_pPlayheadPosition->setTickOffsetSongSize( fTickOffset );
 
 	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
@@ -1768,10 +1815,9 @@ void AudioEngine::updateSongSize() {
 		locate( 0 );
 	}
 
-	// WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fLastTickIntervalEnd: %3, m_fSongSizeInTicks: %4, fNewSongSizeInTicks: %5, transport: %6, playhead: %7" )
+	// WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, playhead: %6" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
-	// 			.arg( m_fLastTickIntervalEnd )
 	// 			.arg( m_fSongSizeInTicks )
 	// 			.arg( fNewSongSizeInTicks )
 	// 			.arg( m_pTransportPosition->toQString( "", true ) )
@@ -2029,76 +2075,68 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		// notes.
 		nFrameStart = getRealtimeFrame();
 	} else {
-		// Enters here both when transport is rolling and
-		// State::Playing is set as well as with State::Prepared
-		// during testing.
+		// Enters here both when transport is rolling or the unit
+		// tests are run.
 		nFrameStart = m_pTransportPosition->getFrame();
 	}
+
+	// nFrameStart -= m_pTransportPosition->getFrameOffsetTempo();
 	
 	// We don't use the getLookaheadInFrames() function directly
 	// because the lookahead contains both a frame-based and a
 	// tick-based component and would be twice as expensive to
 	// calculate using the mentioned call.
-	const long long nLeadLagFactor = getLeadLagInFrames( m_pTransportPosition->getDoubleTick() );
+	long long nLeadLagFactor =
+		getLeadLagInFrames( m_pTransportPosition->getDoubleTick() );
+
+	// Due to rounding errors in tick<->frame conversions the leadlag
+	// factor in frames can differ by +/-1 even if the corresponding
+	// lead lag in ticks is exactly the same. This, however, would
+	// result in small holes and overlaps in tick coverage for the
+	// playhead position and note enqueuing in updateNoteQueue. That's
+	// why we stick to a single lead lag factor invalidated each time
+	// the tempo of the song does change.
+    if ( m_nLastLeadLagFactor != 0 ) {
+		if ( m_nLastLeadLagFactor != nLeadLagFactor ) {
+			nLeadLagFactor = m_nLastLeadLagFactor;
+			
+			if ( std::abs( m_nLastLeadLagFactor - nLeadLagFactor ) > 1 ) {
+				ERRORLOG( QString( "Difference between calculated lead lag factors is too large! m_nLastLeadLagFactor: %1, nLeadLagFactor: %2" )
+						  .arg( m_nLastLeadLagFactor )
+						  .arg( nLeadLagFactor ) );
+			}
+		}
+	} else {
+		m_nLastLeadLagFactor = nLeadLagFactor;
+	}
+	
 	const long long nLookahead = nLeadLagFactor +
 		AudioEngine::nMaxTimeHumanize + 1;
 
 	nFrameEnd = nFrameStart + nLookahead +
 		static_cast<long long>(nIntervalLengthInFrames);
 
-	if ( m_fLastTickIntervalEnd != -1 ) {
+	if ( m_pTransportPosition->getFrame() !=
+		 m_pPlayheadPosition->getFrame() ) {
 		nFrameStart += nLookahead;
 	}
-	
-	*fTickStart = TransportPosition::computeTickFromFrame( nFrameStart ) +
-		m_pTransportPosition->m_fTickMismatch;
-	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) +
-		m_pTransportPosition->m_fTickMismatch;
 
-	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, m_pTransportPosition->m_fTickMismatch: %5" )
+	*fTickStart = TransportPosition::computeTickFromFrame( nFrameStart ) -
+		m_pTransportPosition->getTickOffsetTempo();
+	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
+		m_pTransportPosition->getTickOffsetTempo();
+
+	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, m_pTransportPosition->getTickOffsetTempo(): %5, nLookahead: %6, nIntervalLengthInFrames: %7, m_pTransportPosition->getFrame(): %8, m_pTransportPosition->getTickSize(): %9" )
 	// 		 .arg( nFrameStart )
 	// 		 .arg( nFrameEnd )
 	// 		 .arg( *fTickStart, 0, 'f' )
 	// 		 .arg( *fTickEnd, 0, 'f' )
-	// 		 .arg( m_pTransportPosition->m_fTickMismatch, 0, 'f' )
+	// 		 .arg( m_pTransportPosition->getTickOffsetTempo(), 0, 'f' )
+	// 		 .arg( nLookahead )
+	// 		 .arg( nIntervalLengthInFrames )
+	// 		 .arg( m_pTransportPosition->getFrame() )
+	// 		 .arg( m_pTransportPosition->getTickSize(), 0, 'f' )
 	// 		 );
-
-	if ( getState() == State::Playing || getState() == State::Testing ) {
-		// If there was a change in ticksize, account for the last used
-		// lookahead to ensure the tick intervals are aligned.
-		if ( m_fLastTickIntervalEnd != -1 &&
-			 m_fLastTickIntervalEnd != *fTickStart ) {
-			if ( m_fLastTickIntervalEnd > *fTickEnd ) {
-				// The last lookahead was larger than the end of the
-				// current interval would reach. We will remain at the
-				// former interval end until the lookahead was eaten up in
-				// future calls to updateNoteQueue() to not produce
-				// glitches by non-aligned tick intervals.
-				*fTickStart = m_fLastTickIntervalEnd;
-				*fTickEnd = m_fLastTickIntervalEnd;
-			} else {
-				*fTickStart = m_fLastTickIntervalEnd;
-			}
-		}
-
-		// DEBUGLOG( QString( "tick: [%1,%2], curr tick: %5, curr frame: %4, nIntervalLengthFrames: %3, realtime: %6, m_pTransportPosition->getTickOffsetSongSize(): %7, ticksize: %8, leadlag: %9, nlookahead: %10, m_fLastTickIntervalEnd: %11" )
-		// 		  .arg( *fTickStart, 0, 'f' )
-		// 		  .arg( *fTickEnd, 0, 'f' )
-		// 		  .arg( nIntervalLengthInFrames )
-		// 		  .arg( m_pTransportPosition->getFrame() )
-		// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
-		// 		  .arg( getRealtimeFrame() )
-		// 		  .arg( m_pTransportPosition->getTickOffsetSongSize(), 0, 'f' )
-		// 		  .arg( m_pTransportPosition->getTickSize(), 0, 'f' )
-		// 		  .arg( nLeadLagFactor )
-		// 		  .arg( nLookahead )
-		// 		  .arg( m_fLastTickIntervalEnd, 0, 'f' )
-		// 		  );
-
-		if ( m_fLastTickIntervalEnd < *fTickEnd ) {
-			m_fLastTickIntervalEnd = *fTickEnd;
-		}
-	}
 
 	return nLeadLagFactor;
 }
@@ -2112,6 +2150,8 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 	long long nLeadLagFactor =
 		computeTickInterval( &fTickStart, &fTickEnd, nIntervalLengthInFrames );
+
+	m_fLastTickEnd = fTickEnd;
 
 	// Get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, nullptr );
@@ -2140,12 +2180,13 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
  
-	// DEBUGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pPlayheadPosition->getDoubleTick(): %5, m_pPlayheadPosition->getFrame(): %6")
+	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pPlayheadPosition->getDoubleTick(): %5, m_pPlayheadPosition->getFrame(): %6, nLeadLagFactor: %7")
 	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
 	// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
 	// 		  .arg( m_pTransportPosition->getFrame() )
 	// 		  .arg( m_pPlayheadPosition->getDoubleTick(), 0, 'f' )
-	// 		  .arg( m_pPlayheadPosition->getFrame() ) );
+	// 		  .arg( m_pPlayheadPosition->getFrame() )
+	// 		  .arg( nLeadLagFactor ) );
 
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
@@ -2438,12 +2479,19 @@ double AudioEngine::getLeadLagInTicks() {
 }
 
 long long AudioEngine::getLeadLagInFrames( double fTick ) {
-	double fTickMismatch;
+	double fTmp;
 	const long long nFrameStart =
-		TransportPosition::computeFrameFromTick( fTick, &fTickMismatch );
+		TransportPosition::computeFrameFromTick( fTick, &fTmp );
 	const long long nFrameEnd =
-		TransportPosition::computeFrameFromTick( fTick + AudioEngine::getLeadLagInTicks(),
-												 &fTickMismatch );
+		TransportPosition::computeFrameFromTick( fTick +
+												 AudioEngine::getLeadLagInTicks(),
+												 &fTmp );
+
+	// WARNINGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3" )
+	// 			.arg( nFrameStart )
+	// 			.arg( nFrameEnd )
+	// 			.arg( nFrameEnd - nFrameStart )
+	// 			);
 
 	return nFrameEnd - nFrameStart;
 }
@@ -2477,7 +2525,8 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nextState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_nextState) ) )
 			.append( QString( "%1%2m_currentTickTime: %3 ms\n" ).arg( sPrefix ).arg( s ).arg( m_currentTickTime.tv_sec * 1000 + m_currentTickTime.tv_usec / 1000) )
 			.append( QString( "%1%2m_fSongSizeInTicks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( "%1%2m_fLastTickIntervalEnd: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLastTickIntervalEnd ) )
+			.append( QString( "%1%2m_fLastTickEnd: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLastTickEnd, 0, 'f' ) )
+			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastLeadLagFactor ) )
 			.append( QString( "%1%2m_pSampler: \n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pSynth: \n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pAudioDriver: \n" ).arg( sPrefix ).arg( s ) )
@@ -2533,7 +2582,8 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nextState: %1" ).arg( static_cast<int>(m_nextState) ) )
 			.append( QString( ", m_currentTickTime: %1 ms" ).arg( m_currentTickTime.tv_sec * 1000 + m_currentTickTime.tv_usec / 1000) )
 			.append( QString( ", m_fSongSizeInTicks: %1" ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( ", m_fLastTickIntervalEnd: %1" ).arg( m_fLastTickIntervalEnd ) )
+			.append( QString( ", m_fLastTickEnd: %1" ).arg( m_fLastTickEnd, 0, 'f' ) )
+			.append( QString( ", m_nLastLeadLagFactor: %1" ).arg( m_nLastLeadLagFactor ) )
 			.append( QString( ", m_pSampler:" ) )
 			.append( QString( ", m_pSynth:" ) )
 			.append( QString( ", m_pAudioDriver:" ) )

@@ -86,15 +86,15 @@ namespace H2Core
  * respect it its member variables. #m_fTick, #m_nFrame,
  * #m_fTickOffset, #m_fTickMismatch, #m_fBpm, #m_fTickSize,
  * #m_nFrameOffset, #m_state, and #m_nRealtimeFrame are associated
- * with the current transport position. #m_fLastTickIntervalEnd,
- * #m_nColumn, #m_nPatternSize, #m_nPatternStartTick, and
- * #m_nPatternTickPosition determine the current position
- * updateNoteQueue() is adding notes from #m_pPlayingPatterns into
- * #m_songNoteQueue. Since the latter is ahead of the current
- * transport position by a non-constant (tempo-dependent) lookahead,
- * both states are out of sync while in playback but in sync again
- * once the transport gets relocated (which resets the lookahead). But
- * within themselves both states are consistent.
+ * with the current transport position. #m_nColumn, #m_nPatternSize,
+ * #m_nPatternStartTick, and #m_nPatternTickPosition determine the
+ * current position updateNoteQueue() is adding notes from
+ * #m_pPlayingPatterns into #m_songNoteQueue. Since the latter is
+ * ahead of the current transport position by a non-constant
+ * (tempo-dependent) lookahead, both states are out of sync while in
+ * playback but in sync again once the transport gets relocated (which
+ * resets the lookahead). But within themselves both states are
+ * consistent.
  *
  * \ingroup docCore docAudioEngine
  */ 
@@ -754,8 +754,8 @@ private:
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	double m_fLastTickIntervalEnd;
-
+	double m_fLastTickEnd;
+	long long m_nLastLeadLagFactor;
 };
 
 

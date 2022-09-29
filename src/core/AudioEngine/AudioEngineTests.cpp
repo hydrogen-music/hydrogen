@@ -173,6 +173,10 @@ bool AudioEngineTests::testTransportProcessing() {
 	long nLastPlayheadTick = 0;
 	long long nTotalFrames = 0;
 
+	// Consistency of the playhead update.
+	double fLastTickIntervalEnd = 0;
+	long long nLastLookahead = 0;
+
 	bool bNoMismatch = true;
 
 	// 2112 is the number of ticks within the test song.
@@ -183,16 +187,24 @@ bool AudioEngineTests::testTransportProcessing() {
 				  2112.0 );
 	int nn = 0;
 
-	auto testTransport = [&]( const QString& sContext,
+	const auto testTransport = [&]( const QString& sContext,
 							 bool bRelaxLastFrames = true ) {
 		nFrames = frameDist( randomEngine );
 
-		double fLastTickIntervalEnd = pAE->m_fLastTickIntervalEnd;
 		double fTickStart, fTickEnd;
-		pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
-		// This variable is set within computeTickInterval and has to
-		// be reset in order for updateNoteQueue to work properly.
-		pAE->m_fLastTickIntervalEnd = fLastTickIntervalEnd;
+		const long long nLeadLag =
+			pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
+		// If this is the first call after a tempo change, the last
+		// lookahead will be set to 0
+		if ( nLastLookahead != 0 &&
+			 nLastLookahead != nLeadLag + AudioEngine::nMaxTimeHumanize + 1 ) {
+			qDebug() << QString( "[testTransportProcessing : lookahead] [%1] with one and the same BPM/tick size the lookahead must be consistent! [ %2 -> %3 ]" )
+				.arg( sContext )
+				.arg( nLastLookahead )
+				.arg( nLeadLag + AudioEngine::nMaxTimeHumanize + 1 );
+			return false;
+		}
+		nLastLookahead = nLeadLag + AudioEngine::nMaxTimeHumanize + 1;
 
 		pAE->updateNoteQueue( nFrames );
 		pAE->incrementTransportPosition( nFrames );
@@ -221,7 +233,7 @@ bool AudioEngineTests::testTransportProcessing() {
 		}
 		nLastTransportFrame = pTransportPos->getFrame();
 
-		int nNoteQueueUpdate =
+		const int nNoteQueueUpdate =
 			static_cast<int>(std::floor( fTickEnd ) - std::floor( fTickStart ));
 		// We will only compare the playhead position in case interval
 		// in updateNoteQueue covers at least one tick and, thus,
@@ -238,6 +250,23 @@ bool AudioEngineTests::testTransportProcessing() {
 			}
 		}
 		nLastPlayheadTick = pPlayheadPos->getTick();
+
+		// Check whether the tick interval covered in updateNoteQueue
+		// is consistent and does not include holes or overlaps.
+		// In combination with testNoteEnqueuing this should
+		// guarantuee that all note will be queued properly.
+		if ( std::abs( fTickStart - fLastTickIntervalEnd ) > 1E-4 ||
+			 fTickStart >= fTickEnd ) {
+			qDebug() << QString( "[testTransportProcessing : tick interval] [%1] inconsistent update. old: [ ... : %2 ], new: [ %3, %4 ], pTransportPos->getTickOffsetTempo(): %5, diff: %6" )
+				.arg( sContext )
+				.arg( fLastTickIntervalEnd )
+				.arg( fTickStart )
+				.arg( fTickEnd )
+				.arg( pTransportPos->getTickOffsetTempo() )
+				.arg( std::abs( fTickStart - fLastTickIntervalEnd ), 0, 'E', -1 );
+			return false;
+		}
+		fLastTickIntervalEnd = fTickEnd;
 
 		// Using the offset Hydrogen can keep track of the actual
 		// number of frames passed since the playback was started
@@ -285,10 +314,11 @@ bool AudioEngineTests::testTransportProcessing() {
 	pAE->reset( false );
 	nLastTransportFrame = 0;
 	nLastPlayheadTick = 0;
+	fLastTickIntervalEnd = 0;
 
 	float fBpm;
 	float fLastBpm = pTransportPos->getBpm();
-	int nCyclesPerTempo = 5;
+	int nCyclesPerTempo = 11;
 
 	nTotalFrames = 0;
 
@@ -304,6 +334,7 @@ bool AudioEngineTests::testTransportProcessing() {
 
 		nLastTransportFrame = pTransportPos->getFrame();
 		nLastPlayheadTick = pPlayheadPos->getTick();
+		nLastLookahead = 0;
 		
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
 			if ( ! testTransport( QString( "[song mode : variable tempo %1->%2]" )
@@ -356,6 +387,7 @@ bool AudioEngineTests::testTransportProcessing() {
 	nn = 0;
 	nLastTransportFrame = 0;
 	nLastPlayheadTick = 0;
+	fLastTickIntervalEnd = 0;
 
 	while ( pTransportPos->getDoubleTick() <
 			pAE->m_fSongSizeInTicks ) {
@@ -406,6 +438,7 @@ bool AudioEngineTests::testTransportProcessing() {
 	nLastPlayheadTick = 0;
 	fLastBpm = 0;
 	nTotalFrames = 0;
+	fLastTickIntervalEnd = 0;
 
 	int nDifferentTempos = 10;
 
@@ -419,9 +452,10 @@ bool AudioEngineTests::testTransportProcessing() {
 
 		nLastTransportFrame = pTransportPos->getFrame();
 		nLastPlayheadTick = pPlayheadPos->getTick();
+		nLastLookahead = 0;
 
 		fLastBpm = fBpm;
-		
+
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
 			if ( ! testTransport( QString( "[pattern mode : variable tempo %1->%2]" )
 								  .arg( fLastBpm ).arg( fBpm ),
@@ -612,6 +646,8 @@ bool AudioEngineTests::testComputeTickInterval() {
 
 		fBpm = tempoDist( randomEngine );
 		pAE->setNextBpm( fBpm );
+		pAE->updateBpmAndTickSize( pTransportPos );
+		pAE->updateBpmAndTickSize( pAE->getPlayheadPosition() );
 		
 		for ( int cc = 0; cc < nProcessCyclesPerTempo; ++cc ) {
 
@@ -628,12 +664,13 @@ bool AudioEngineTests::testComputeTickInterval() {
 				break;
 			}
 
-			if ( fTickStart != fLastTickEnd ) {
-				qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrame(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
+			if ( std::abs( fTickStart - fLastTickEnd ) > 1E-8 ) {
+				qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1, %2] -> [%3, %4] does not align. Diff: %5. nFrames: %6, pTransportPos->getDoubleTick(): %7, pTransportPos->getFrame(): %8, pTransportPos->getBpm(): %9, pTransportPos->getTickSize(): %10, nLeadLagFactor: %11")
+					.arg( fLastTickEnd, 0, 'f' )
+					.arg( fLastTickStart, 0, 'f' )
 					.arg( fTickStart, 0, 'f' )
 					.arg( fTickEnd, 0, 'f' )
-					.arg( fLastTickStart, 0, 'f' )
-					.arg( fLastTickEnd, 0, 'f' )
+					.arg( fTickStart - fLastTickEnd, 0, 'E', -1 )
 					.arg( nFrames )
 					.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 					.arg( pTransportPos->getFrame() )
@@ -647,6 +684,7 @@ bool AudioEngineTests::testComputeTickInterval() {
 			fLastTickStart = fTickStart;
 			fLastTickEnd = fTickEnd;
 
+			pAE->updateNoteQueue( nFrames );
 			pAE->incrementTransportPosition( nFrames );
 		}
 
@@ -1693,12 +1731,9 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	double fPrevTickStart, fPrevTickEnd;
 	long long nPrevLeadLag;
 
-	// We need to reset this variable in order for
-	// computeTickInterval() to behave like just after a relocation.
-	pAE->m_fLastTickIntervalEnd = -1;
 	nPrevLeadLag = pAE->computeTickInterval( &fPrevTickStart,
-													  &fPrevTickEnd,
-													  nBufferSize );
+											 &fPrevTickEnd,
+											 nBufferSize );
 
 	std::vector<std::shared_ptr<Note>> notes1, notes2;
 	for ( const auto& ppNote : pSampler->getPlayingNotesQueue() ) {
@@ -1755,9 +1790,6 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 			return false;
 		}
 
-		// We need to reset this variable in order for
-		// computeTickInterval() to behave like just after a relocation.
-		pAE->m_fLastTickIntervalEnd = -1;
 		double fTickEnd, fTickStart;
 		const long long nLeadLag =
 			pAE->computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
@@ -1835,6 +1867,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 		notes1.push_back( std::make_shared<Note>( ppNote ) );
 	}
 
+	//TODO:
 	// We deal with a slightly artificial situation regarding
 	// m_fLastTickIntervalEnd in here. Usually, in addition to
 	// incrementTransportPosition() and	processAudio()
@@ -1843,10 +1876,10 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	// emulate a situation that occurs when encountering a change in
 	// ticksize (passing a tempo marker or a user interaction with the
 	// BPM widget) just before the song size changed.
-	double fPrevLastTickIntervalEnd = pAE->m_fLastTickIntervalEnd;
+	// double fPrevLastTickIntervalEnd = pAE->m_fLastTickIntervalEnd;
 	nPrevLeadLag =
 		pAE->computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
-	pAE->m_fLastTickIntervalEnd = fPrevLastTickIntervalEnd;
+	// pAE->m_fLastTickIntervalEnd = fPrevLastTickIntervalEnd;
 
 	nOldColumn = pTransportPos->getColumn();
 	
