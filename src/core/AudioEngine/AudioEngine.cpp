@@ -1071,7 +1071,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		return MIN_BPM;
 	}
 
-	float fBpm = pSong->getBpm();
+	float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	// Check for a change in the current BPM.
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave &&
@@ -1084,7 +1084,8 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			fBpm = fJackMasterBpm;
 			// DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
 		}
-	} else if ( pSong->getIsTimelineActivated() &&
+	}
+	else if ( pSong->getIsTimelineActivated() &&
 				pHydrogen->getMode() == Song::Mode::Song ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
@@ -1092,8 +1093,8 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			// DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
 			fBpm = fTimelineBpm;
 		}
-
-	} else {
+	}
+	else {
 		// Change in speed due to user interaction with the BPM widget
 		// or corresponding MIDI or OSC events.
 		if ( pAudioEngine->getNextBpm() != fBpm ) {
