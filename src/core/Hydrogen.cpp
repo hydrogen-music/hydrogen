@@ -873,7 +873,10 @@ void Hydrogen::setTapTempo( float fInterval )
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
+	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->setNextBpm( fBPM );
+	m_pAudioEngine->unlock();
+	
 	// Store it's value in the .h2song file.
 	getSong()->setBpm( fBPM );
 	
@@ -1061,7 +1064,11 @@ bool Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
+
+			m_pAudioEngine->lock( RIGHT_HERE );
 			m_pAudioEngine->setNextBpm( fBeatCountBpm );
+			m_pAudioEngine->unlock();
+			
 			getSong()->setBpm( fBeatCountBpm );
 	
 			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );

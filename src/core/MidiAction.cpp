@@ -943,7 +943,9 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
 		 fBpm - mult > MIN_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm - 1*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
 		pHydrogen->getSong()->setBpm( fBpm - 1*mult );
 	}
@@ -951,7 +953,9 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 	if ( m_nLastBpmChangeCCParameter < cc_param
 		 && fBpm + mult < MAX_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm + 1*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
 		pHydrogen->getSong()->setBpm( fBpm + 1*mult );
 	}
@@ -990,14 +994,18 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
 		 fBpm - mult > MIN_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm - 0.01*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
 		pHydrogen->getSong()->setBpm( fBpm - 0.01*mult );
 	}
 	if ( m_nLastBpmChangeCCParameter < cc_param
 		 && fBpm + mult < MAX_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm + 0.01*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
 		pHydrogen->getSong()->setBpm( fBpm + 0.01*mult );
 	}
@@ -1023,7 +1031,9 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->setNextBpm( fBpm + 1*mult );
+	pAudioEngine->unlock();
 	// Store it's value in the .h2song file.
 	pHydrogen->getSong()->setBpm( fBpm + 1*mult );
 	
@@ -1046,7 +1056,9 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->setNextBpm( fBpm - 1*mult );
+	pAudioEngine->unlock();
 	// Store it's value in the .h2song file.
 	pHydrogen->getSong()->setBpm( fBpm - 1*mult );
 	

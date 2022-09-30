@@ -381,7 +381,12 @@ public:
 	void stop();
 
 	/** Stores the new speed into a separate variable which will be
-	 * adopted during the next processing cycle.*/
+	 * adopted during the next processing cycle.
+	 *
+	 * Setting this variable requires the audio engine to be locked!
+	 * (Else, tempo handling within audioEngine_process() might be
+	 * inconsistent and cause the playhead to glitch).
+	 */
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 

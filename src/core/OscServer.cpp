@@ -552,12 +552,16 @@ void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	float fNewBpm = argv[0]->f;
 	fNewBpm = std::clamp( fNewBpm, static_cast<float>(MIN_BPM),
 						  static_cast<float>(MAX_BPM) );
 
-	pHydrogen->getAudioEngine()->setNextBpm( fNewBpm );
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( fNewBpm );
+	pAudioEngine->unlock();
+		
 	pHydrogen->getSong()->setBpm( fNewBpm );
 
 	pHydrogen->setIsModified( true );
