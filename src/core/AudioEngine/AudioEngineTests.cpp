@@ -192,8 +192,11 @@ bool AudioEngineTests::testTransportProcessing() {
 		nFrames = frameDist( randomEngine );
 
 		double fTickStart, fTickEnd;
+		bool bOldLookaheadApplied = pAE->m_bLookaheadApplied;
 		const long long nLeadLag =
 			pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
+		pAE->m_bLookaheadApplied = bOldLookaheadApplied;
+		
 		// If this is the first call after a tempo change, the last
 		// lookahead will be set to 0
 		if ( nLastLookahead != 0 &&
@@ -357,75 +360,6 @@ bool AudioEngineTests::testTransportProcessing() {
 	}
 
 	pAE->setState( AudioEngine::State::Ready );
-
-	pAE->unlock();
-
-	pCoreActionController->activateTimeline( true );
-	pCoreActionController->addTempoMarker( 0, 120 );
-	pCoreActionController->addTempoMarker( 1, 100 );
-	pCoreActionController->addTempoMarker( 2, 20 );
-	pCoreActionController->addTempoMarker( 3, 13.4 );
-	pCoreActionController->addTempoMarker( 4, 383.2 );
-	pCoreActionController->addTempoMarker( 5, 64.38372 );
-	pCoreActionController->addTempoMarker( 6, 96.3 );
-	pCoreActionController->addTempoMarker( 7, 240.46 );
-	pCoreActionController->addTempoMarker( 8, 200.1 );
-
-	pAE->lock( RIGHT_HERE );
-	pAE->setState( AudioEngine::State::Testing );
-	
-	// Check consistency after switching on the Timeline
-	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-													 "[testTransportProcessing] timeline: off" ) ) {
-		bNoMismatch = false;
-	}
-	if ( ! AudioEngineTests::checkTransportPosition( pPlayheadPos,
-													 "[testTransportProcessing] timeline: off" ) ) {
-		bNoMismatch = false;
-	}
-	
-	nn = 0;
-	nLastTransportFrame = 0;
-	nLastPlayheadTick = 0;
-	fLastTickIntervalEnd = 0;
-
-	while ( pTransportPos->getDoubleTick() <
-			pAE->m_fSongSizeInTicks ) {
-		if ( ! testTransport( QString( "[song mode : timeline]" ),
-							  false ) ) {
-			pAE->setState( AudioEngine::State::Ready );
-			pAE->unlock();
-			pCoreActionController->activateSongMode( true );
-			return false;
-		}
-
-		nn++;
-		if ( nn > nMaxCycles ) {
-			qDebug() << "[testTransportProcessing] [song mode : timeline] end of the song wasn't reached in time.";
-			bNoMismatch = false;
-			break;
-		}
-	}
-
-	pAE->setState( AudioEngine::State::Ready );
-
-	pAE->unlock();
-
-	// Check consistency after switching on the Timeline
-	pCoreActionController->activateTimeline( false );
-
-	pAE->lock( RIGHT_HERE );
-	pAE->setState( AudioEngine::State::Testing );
-
-	if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
-													 "[testTransportProcessing] timeline: off" ) ) {
-		bNoMismatch = false;
-	}
-
-	pAE->reset( false );
-
-	pAE->setState( AudioEngine::State::Ready );
-
 	pAE->unlock();
 
 	// Check consistency of playback in PatternMode
@@ -475,6 +409,262 @@ bool AudioEngineTests::testTransportProcessing() {
 	pAE->unlock();
 	pCoreActionController->activateSongMode( true );
 
+	return bNoMismatch;
+}
+
+bool AudioEngineTests::testTransportProcessingTimeline() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pTimeline = pHydrogen->getTimeline();
+	auto pPref = Preferences::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
+	auto pPlayheadPos = pAE->getPlayheadPosition();
+	
+	pCoreActionController->activateTimeline( true );
+	pCoreActionController->activateLoopMode( true );
+
+	pAE->lock( RIGHT_HERE );
+
+	// Activating the Timeline without requiring the AudioEngine to be locked.
+	auto activateTimeline = [&]( bool bEnabled ) {
+		pPref->setUseTimelineBpm( bEnabled );
+		pSong->setIsTimelineActivated( bEnabled );
+
+		if ( bEnabled ) {
+			pTimeline->activate();
+		} else {
+			pTimeline->deactivate();
+		}
+
+		pAE->handleTimelineChange();
+	};
+
+	// Seed with a real random value, if available
+    std::random_device randomSeed;
+ 
+    // Choose a random mean between 1 and 6
+    std::default_random_engine randomEngine( randomSeed() );
+    std::uniform_int_distribution<int> frameDist( 1, pPref->m_nBufferSize );
+	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
+
+	// For this call the AudioEngine still needs to be in state
+	// Playing or Ready.
+	pAE->reset( false );
+
+	pAE->setState( AudioEngine::State::Testing );
+
+	// Check consistency of updated frames and ticks while using a
+	// random buffer size (e.g. like PulseAudio does).
+	
+	uint32_t nFrames;
+	double fCheckTick;
+	long long nCheckFrame;
+	long long nLastTransportFrame = 0;
+	long nLastPlayheadTick = 0;
+	long long nTotalFrames = 0;
+
+	// Consistency of the playhead update.
+	double fLastTickIntervalEnd = 0;
+	long long nLastLookahead = 0;
+
+	bool bNoMismatch = true;
+
+	long nSongSizeInTicks = pHydrogen->getSong()->lengthInTicks();
+	int nMaxCycles =
+		std::max( std::ceil( static_cast<double>(nSongSizeInTicks) /
+							 static_cast<double>(pPref->m_nBufferSize) *
+							 static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+				  static_cast<double>(nSongSizeInTicks) );
+	int nn = 0;
+
+	const auto testTransport = [&]( const QString& sContext,
+							 bool bRelaxLastFrames = true ) {
+		nFrames = frameDist( randomEngine );
+
+		double fTickStart, fTickEnd;
+		bool bOldLookaheadApplied = pAE->m_bLookaheadApplied;
+		const long long nLeadLag =
+			pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
+		pAE->m_bLookaheadApplied = bOldLookaheadApplied;
+		// No lookahead check in here since tempo does change
+		// automatically when passing a tempo marker -> lookahead will
+		// change as well.
+		pAE->updateNoteQueue( nFrames );
+		pAE->incrementTransportPosition( nFrames );
+
+		if ( ! AudioEngineTests::checkTransportPosition( pTransportPos,
+														 "[testTransportProcessingTimeline] " + sContext ) ) {
+			return false;
+		}
+
+		if ( ! AudioEngineTests::checkTransportPosition( pPlayheadPos,
+														 "[testTransportProcessingTimeline] " + sContext ) ) {
+			return false;
+		}
+
+		if ( ( ! bRelaxLastFrames &&
+			   ( pTransportPos->getFrame() - nFrames -
+				 pTransportPos->getFrameOffsetTempo() != nLastTransportFrame ) ) ||
+			 // errors in the rescaling of nLastTransportFrame are omitted.
+			 ( bRelaxLastFrames &&
+			   abs( ( pTransportPos->getFrame() - nFrames -
+					  pTransportPos->getFrameOffsetTempo() - nLastTransportFrame ) /
+					pTransportPos->getFrame() ) > 1e-8 ) ) {
+			qDebug() << QString( "[testTransportProcessingTimeline : transport] [%1] inconsistent frame update. pTransportPos->getFrame(): %2, nFrames: %3, nLastTransportFrame: %4, pTransportPos->getFrameOffsetTempo(): %5, bRelaxLastFrame: %6" )
+				.arg( sContext )
+				.arg( pTransportPos->getFrame() )
+				.arg( nFrames )
+				.arg( nLastTransportFrame )
+				.arg( pTransportPos->getFrameOffsetTempo() )
+				.arg( bRelaxLastFrames );
+			return false;
+		}
+		nLastTransportFrame = pTransportPos->getFrame() -
+			pTransportPos->getFrameOffsetTempo();
+
+		const int nNoteQueueUpdate =
+			static_cast<int>(std::floor( fTickEnd ) - std::floor( fTickStart ));
+		// We will only compare the playhead position in case interval
+		// in updateNoteQueue covers at least one tick and, thus,
+		// an update has actually taken place.
+		if ( nLastPlayheadTick > 0 && nNoteQueueUpdate > 0 ) {
+			if ( pPlayheadPos->getTick() - nNoteQueueUpdate !=
+				 nLastPlayheadTick ) {
+				qDebug() << QString( "[testTransportProcessingTimeline : playhead] [%1] inconsistent tick update. pPlayheadPos->getTick(): %2, nNoteQueueUpdate: %3, nLastPlayheadTick: %4" )
+					.arg( sContext )
+					.arg( pPlayheadPos->getTick() )
+					.arg( nNoteQueueUpdate )
+					.arg( nLastPlayheadTick );
+				return false;
+			}
+		}
+		nLastPlayheadTick = pPlayheadPos->getTick();
+
+		// Check whether the tick interval covered in updateNoteQueue
+		// is consistent and does not include holes or overlaps.
+		// In combination with testNoteEnqueuing this should
+		// guarantuee that all note will be queued properly.
+		if ( std::abs( fTickStart - fLastTickIntervalEnd ) > 1E-4 ||
+			 fTickStart >= fTickEnd ) {
+			qDebug() << QString( "[testTransportProcessingTimeline : tick interval] [%1] inconsistent update. old: [ ... : %2 ], new: [ %3, %4 ], pTransportPos->getTickOffsetTempo(): %5, diff: %6" )
+				.arg( sContext )
+				.arg( fLastTickIntervalEnd )
+				.arg( fTickStart )
+				.arg( fTickEnd )
+				.arg( pTransportPos->getTickOffsetTempo() )
+				.arg( std::abs( fTickStart - fLastTickIntervalEnd ), 0, 'E', -1 );
+			return false;
+		}
+		fLastTickIntervalEnd = fTickEnd;
+
+		// Using the offset Hydrogen can keep track of the actual
+		// number of frames passed since the playback was started
+		// even in case a tempo change was issued by the user.
+		nTotalFrames += nFrames;
+		if ( pTransportPos->getFrame() - pTransportPos->getFrameOffsetTempo() !=
+			 nTotalFrames ) {
+			qDebug() << QString( "[testTransportProcessingTimeline : transport] [%1] frame offset incorrect. pTransportPos->getFrame(): %2, pTransportPos->getFrameOffsetTempo(): %3, nTotalFrames: %4" )
+				.arg( sContext )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getFrameOffsetTempo() )
+				.arg( nTotalFrames );
+			return false;
+		}
+		return true;
+	};
+
+	// Check that the playhead position is monotonously increasing
+	// (and there are no glitches).
+	int nPlayheadColumn = 0;
+	long nPlayheadPatternTickPosition = 0;
+
+	while ( pTransportPos->getDoubleTick() <
+			pAE->getSongSizeInTicks() ) {
+		if ( ! testTransport( QString( "[song mode : all timeline]" ),
+							  false ) ) {
+			pAE->setState( AudioEngine::State::Ready );
+			pAE->unlock();
+			return false;
+		}
+
+		nn++;
+		if ( nn > nMaxCycles ) {
+			qDebug() << QString( "[testTransportProcessingTimeline] [all timeline] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+				.arg( pTransportPos->getTickSize(), 0, 'f' )
+				.arg( pAE->getSongSizeInTicks(), 0, 'f' )
+				.arg( nMaxCycles );
+			bNoMismatch = false;
+			break;
+		}
+	}
+
+	// Alternate Timeline usage and timeline deactivation with
+	// "classical" bpm change".
+
+	pAE->reset( false );
+	nLastTransportFrame = 0;
+	nLastPlayheadTick = 0;
+	fLastTickIntervalEnd = 0;
+
+	float fBpm;
+	float fLastBpm = pTransportPos->getBpm();
+	int nCyclesPerTempo = 11;
+
+	nTotalFrames = 0;
+
+	nn = 0;
+
+	while ( pTransportPos->getDoubleTick() <
+			pAE->getSongSizeInTicks() ) {
+
+		QString sContext;
+		if ( nn % 2 == 0 ){
+			activateTimeline( false );
+			fBpm = tempoDist( randomEngine );
+			pAE->setNextBpm( fBpm );
+			pAE->updateBpmAndTickSize( pTransportPos );
+			pAE->updateBpmAndTickSize( pPlayheadPos );
+
+			sContext = "no timeline";
+			DEBUGLOG( sContext );
+		}
+		else {
+			activateTimeline( true );
+			fBpm = AudioEngine::getBpmAtColumn( pTransportPos->getColumn() );
+			
+			sContext = "timeline";
+			DEBUGLOG( sContext );
+		}
+		
+		nLastLookahead = 0;
+		
+		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
+			if ( ! testTransport( QString( "[alternating timeline : bpm %1->%2 : %3]" )
+								  .arg( fLastBpm ).arg( fBpm ).arg( sContext ),
+								  cc == 0 ) ) {
+				pAE->setState( AudioEngine::State::Ready );
+				pAE->unlock();
+				return false;
+			}
+		}
+		
+		fLastBpm = fBpm;
+
+		nn++;
+		if ( nn > nMaxCycles ) {
+			qDebug() << "[testTransportProcessingTimeline] [alternating timeline] end of the song wasn't reached in time.";
+			bNoMismatch = false;
+			break;
+		}
+	}
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+	
 	return bNoMismatch;
 }
 
@@ -543,156 +733,6 @@ bool AudioEngineTests::testTransportRelocation() {
 		}
 	}
 
-	pAE->reset( false );
-	pAE->setState( AudioEngine::State::Ready );
-	pAE->unlock();
-
-	return bNoMismatch;
-}
-
-bool AudioEngineTests::testComputeTickInterval() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
-	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
-
-	pAE->lock( RIGHT_HERE );
-
-	// Seed with a real random value, if available
-    std::random_device randomSeed;
- 
-    // Choose a random mean between 1 and 6
-    std::default_random_engine randomEngine( randomSeed() );
-	std::uniform_real_distribution<float> frameDist( 1, pPref->m_nBufferSize );
-	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
-
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
-	pAE->reset( false );
-
-	pAE->setState( AudioEngine::State::Testing );
-
-	// Check consistency of tick intervals processed in
-	// updateNoteQueue() (no overlap and no holes). We pretend to
-	// receive transport position updates of random size (as e.g. used
-	// in PulseAudio).
-	
-	double fTickStart, fTickEnd;
-	double fLastTickStart = 0;
-	double fLastTickEnd = 0;
-	long long nLeadLagFactor;
-	long long nLastLeadLagFactor = 0;
-	int nFrames;
-
-	bool bNoMismatch = true;
-
-	int nProcessCycles = 100;
-	for ( int nn = 0; nn < nProcessCycles; ++nn ) {
-
-		nFrames = frameDist( randomEngine );
-
-		nLeadLagFactor = pAE->computeTickInterval( &fTickStart, &fTickEnd,
-															nFrames );
-
-		if ( nLastLeadLagFactor != 0 &&
-			 // Since we move a region on two mismatching grids (frame
-			 // and tick), it's okay if the calculated is not
-			 // perfectly constant. For certain tick ranges more
-			 // frames are enclosed than for others (Moire effect). 
-			 std::abs( nLastLeadLagFactor - nLeadLagFactor ) > 1 ) {
-			qDebug() << QString( "[testComputeTickInterval] [constant tempo] There should not be altering lead lag with constant tempo [new: %1, prev: %2].")
-				.arg( nLeadLagFactor ).arg( nLastLeadLagFactor );
-			bNoMismatch = false;
-		}
-		nLastLeadLagFactor = nLeadLagFactor;	
-
-		if ( nn == 0 && fTickStart != 0 ){
-			qDebug() << QString( "[testComputeTickInterval] [constant tempo] First interval [%1,%2] does not start at 0.")
-				.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' );
-			bNoMismatch = false;
-		}
-
-		if ( fTickStart != fLastTickEnd ) {
-			qDebug() << QString( "[testComputeTickInterval] [constant tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, pTransportPos->getDoubleTick(): %6, pTransportPos->getFrame(): %7, pTransportPos->getBpm(): %8, pTransportPos->getTickSize(): %9, nLeadLagFactor: %10")
-				.arg( fTickStart, 0, 'f' )
-				.arg( fTickEnd, 0, 'f' )
-				.arg( fLastTickStart, 0, 'f' )
-				.arg( fLastTickEnd, 0, 'f' )
-				.arg( nFrames )
-				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
-				.arg( pTransportPos->getFrame() )
-				.arg( pTransportPos->getBpm(), 0, 'f' )
-				.arg( pTransportPos->getTickSize(), 0, 'f' )
-				.arg( nLeadLagFactor );
-			bNoMismatch = false;
-		}
-		
-		fLastTickStart = fTickStart;
-		fLastTickEnd = fTickEnd;
-
-		pAE->incrementTransportPosition( nFrames );
-	}
-
-	pAE->reset( false );
-
-	fLastTickStart = 0;
-	fLastTickEnd = 0;
-	
-	float fBpm;
-
-	int nTempoChanges = 20;
-	int nProcessCyclesPerTempo = 5;
-	for ( int tt = 0; tt < nTempoChanges; ++tt ) {
-
-		fBpm = tempoDist( randomEngine );
-		pAE->setNextBpm( fBpm );
-		pAE->updateBpmAndTickSize( pTransportPos );
-		pAE->updateBpmAndTickSize( pAE->getPlayheadPosition() );
-		
-		for ( int cc = 0; cc < nProcessCyclesPerTempo; ++cc ) {
-
-			nFrames = frameDist( randomEngine );
-
-			nLeadLagFactor = pAE->computeTickInterval( &fTickStart, &fTickEnd,
-																nFrames );
-
-			if ( cc == 0 && tt == 0 && fTickStart != 0 ){
-				qDebug() << QString( "[testComputeTickInterval] [variable tempo] First interval [%1,%2] does not start at 0.")
-					.arg( fTickStart, 0, 'f' )
-					.arg( fTickEnd, 0, 'f' );
-				bNoMismatch = false;
-				break;
-			}
-
-			if ( std::abs( fTickStart - fLastTickEnd ) > 1E-8 ) {
-				qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1, %2] -> [%3, %4] does not align. Diff: %5. nFrames: %6, pTransportPos->getDoubleTick(): %7, pTransportPos->getFrame(): %8, pTransportPos->getBpm(): %9, pTransportPos->getTickSize(): %10, nLeadLagFactor: %11")
-					.arg( fLastTickEnd, 0, 'f' )
-					.arg( fLastTickStart, 0, 'f' )
-					.arg( fTickStart, 0, 'f' )
-					.arg( fTickEnd, 0, 'f' )
-					.arg( fTickStart - fLastTickEnd, 0, 'E', -1 )
-					.arg( nFrames )
-					.arg( pTransportPos->getDoubleTick(), 0, 'f' )
-					.arg( pTransportPos->getFrame() )
-					.arg( pTransportPos->getBpm(), 0, 'f' )
-					.arg( pTransportPos->getTickSize(), 0, 'f' )
-					.arg( nLeadLagFactor );
-				bNoMismatch = false;
-				break;
-			}
-
-			fLastTickStart = fTickStart;
-			fLastTickEnd = fTickEnd;
-
-			pAE->updateNoteQueue( nFrames );
-			pAE->incrementTransportPosition( nFrames );
-		}
-
-		if ( ! bNoMismatch ) {
-			break;
-		}
-	}
-	
 	pAE->reset( false );
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
@@ -1731,9 +1771,10 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	double fPrevTickStart, fPrevTickEnd;
 	long long nPrevLeadLag;
 
-	nPrevLeadLag = pAE->computeTickInterval( &fPrevTickStart,
-											 &fPrevTickEnd,
-											 nBufferSize );
+	bool bOldLookaheadApplied = pAE->m_bLookaheadApplied;
+	nPrevLeadLag =
+		pAE->computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
+	pAE->m_bLookaheadApplied = bOldLookaheadApplied;
 
 	std::vector<std::shared_ptr<Note>> notes1, notes2;
 	for ( const auto& ppNote : pSampler->getPlayingNotesQueue() ) {
@@ -1791,8 +1832,10 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 		}
 
 		double fTickEnd, fTickStart;
+		bool bOldLookaheadApplied = pAE->m_bLookaheadApplied;
 		const long long nLeadLag =
 			pAE->computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+		pAE->m_bLookaheadApplied = bOldLookaheadApplied;
 		if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
 			qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
 				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext );
@@ -1876,10 +1919,10 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	// emulate a situation that occurs when encountering a change in
 	// ticksize (passing a tempo marker or a user interaction with the
 	// BPM widget) just before the song size changed.
-	// double fPrevLastTickIntervalEnd = pAE->m_fLastTickIntervalEnd;
+	bOldLookaheadApplied = pAE->m_bLookaheadApplied;
 	nPrevLeadLag =
 		pAE->computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
-	// pAE->m_fLastTickIntervalEnd = fPrevLastTickIntervalEnd;
+	pAE->m_bLookaheadApplied = bOldLookaheadApplied;
 
 	nOldColumn = pTransportPos->getColumn();
 	
@@ -1930,8 +1973,10 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 		}
 
 		double fTickEnd, fTickStart;
+		bool bOldLookaheadApplied = pAE->m_bLookaheadApplied;
 		const long long nLeadLag =
 			pAE->computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+		pAE->m_bLookaheadApplied = bOldLookaheadApplied;
 		if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
 			qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
 				.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext );

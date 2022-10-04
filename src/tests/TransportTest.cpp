@@ -41,10 +41,13 @@ void TransportTest::setUp(){
 
 	m_pSongSizeChanged = Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
 	m_pSongNoteEnqueuing = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
+	m_pSongTransportProcessingTimeline =
+		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
 
 	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
 	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
 	CPPUNIT_ASSERT( m_pSongNoteEnqueuing != nullptr );
+	CPPUNIT_ASSERT( m_pSongTransportProcessingTimeline != nullptr );
 
 	Preferences::get_instance()->m_bUseMetronome = false;
 }
@@ -81,6 +84,19 @@ void TransportTest::testTransportProcessing() {
 		bool bNoMismatch = AudioEngineTests::testTransportProcessing();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
+}
+
+void TransportTest::testTransportProcessingTimeline() {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	pHydrogen->getCoreActionController()->
+		openSong( m_pSongTransportProcessingTimeline );
+
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = AudioEngineTests::testTransportProcessingTimeline();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
  
 void TransportTest::testTransportRelocation() {
@@ -107,19 +123,7 @@ void TransportTest::testTransportRelocation() {
 	}
 
 	pCoreActionController->activateTimeline( false );
-}		
-
-void TransportTest::testComputeTickInterval() {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
-
-	for ( int ii = 0; ii < 15; ++ii ) {
-		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testComputeTickInterval();
-		CPPUNIT_ASSERT( bNoMismatch );
-	}
-}		
+}
 
 void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();

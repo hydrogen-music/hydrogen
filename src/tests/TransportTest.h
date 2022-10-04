@@ -29,9 +29,9 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TransportTest );
 	CPPUNIT_TEST( testFrameToTickConversion );
 	CPPUNIT_TEST( testTransportProcessing );
+	CPPUNIT_TEST( testTransportProcessingTimeline );
 	CPPUNIT_TEST( testTransportRelocation );
-	CPPUNIT_TEST( testComputeTickInterval );
-	CPPUNIT_TEST( testSongSizeChange );
+	// CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST_SUITE_END();
@@ -40,6 +40,7 @@ private:
 	std::shared_ptr<H2Core::Song> m_pSongDemo;
 	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
 	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
+	std::shared_ptr<H2Core::Song> m_pSongTransportProcessingTimeline;
 
 public:
 	void setUp();
@@ -48,8 +49,8 @@ public:
 	void testFrameToTickConversion();
 
 	void testTransportProcessing();
+	void testTransportProcessingTimeline();
 	void testTransportRelocation();
-	void testComputeTickInterval();
 	void testSongSizeChange();
 	void testSongSizeChangeInLoopMode();
 	void testNoteEnqueuing();

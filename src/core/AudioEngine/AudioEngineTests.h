@@ -56,6 +56,16 @@ public:
 	 */
 	static bool testTransportProcessing();
 	/** 
+	 * More detailed test of the transport and playhead integrity in
+	 * case Timeline/tempo markers are involved.
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	static bool testTransportProcessingTimeline();
+	/** 
 	 * Unit test checking the relocation of the transport
 	 * position in audioEngine_process().
 	 *
@@ -65,16 +75,6 @@ public:
 	 * @return true on success.
 	 */
 	static bool testTransportRelocation();
-	/** 
-	 * Unit test checking consistency of tick intervals processed in
-	 * updateNoteQueue() (no overlap and no holes).
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	static bool testComputeTickInterval();
 	/** 
 	 * Unit test checking consistency of transport position when
 	 * playback was looped at least once and the song size is changed

@@ -498,6 +498,12 @@ private:
 	 */
 	void reset(  bool bWithJackBroadcast = true );
 
+	/**
+	 * A softer companion to reset() which does neither change the
+	 * current frame/tick position nor update the tick size.
+	 */
+	void resetOffsets();
+
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
 	 */
@@ -527,8 +533,16 @@ private:
 	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
-    
-	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
+
+	/**
+	 *
+	 * \param bHandleTempoChange Whether all notes in the note queues
+	 * should be updated to reflect the tempo change. This option was
+	 * introduced to suppress the updated by functions performing a
+	 * dedicated update themselves.
+	 */
+	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition, bool bHandleTempoChange = true );
+	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition, bool bHandleTempoChange = true );
 	
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
@@ -761,6 +775,7 @@ private:
 	float 			m_fNextBpm;
 	double m_fLastTickEnd;
 	long long m_nLastLeadLagFactor;
+	bool m_bLookaheadApplied;
 };
 
 
