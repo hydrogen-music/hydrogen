@@ -217,7 +217,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 		}
 	}
 
-	auto pSong = Song::loadFrom( &songNode, bSilent );
+	auto pSong = Song::loadFrom( &songNode, sFilename, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setFilename( sFilename );
 	}
@@ -225,7 +225,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilename, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	
@@ -265,6 +265,16 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
 													false, true, bSilent ) );
+	if ( sPlaybackTrack.left( 2 ) == "./" ||
+		 sPlaybackTrack.left( 2 ) == ".\\" ) {
+		// Playback track has been made portable by manually
+		// converting the absolute path stored by Hydrogen into a
+		// relative one.
+		QFileInfo info( sFilename );
+		sPlaybackTrack = info.absoluteDir()
+			.filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
+	}
+	
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&

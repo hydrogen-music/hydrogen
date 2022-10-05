@@ -26,12 +26,17 @@
 #include "core/Hydrogen.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
+#include <core/EventQueue.h>
+#include <core/Basics/Song.h>
 
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStringList>
 #include <exception>
 #include <random>
+#include <chrono>
+
+#include <cppunit/extensions/HelperMacros.h>
 
 static const QString APP_DATA_DIR = "/data/";
 static const QString TEST_DATA_DIR = "/src/tests/data/";
@@ -221,4 +226,56 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 				.arg( pPref->m_nBufferSize ).arg( pPref->m_nSampleRate ) );
 
 	H2Core::Hydrogen::get_instance()->restartDrivers();
+}
+
+void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName )
+{
+	auto t0 = std::chrono::high_resolution_clock::now();
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pQueue = H2Core::EventQueue::get_instance();
+
+	auto pSong = H2Core::Song::load( sSongFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+		
+	pHydrogen->setSong( pSong );
+
+	auto pInstrumentList = pSong->getInstrumentList();
+	for (auto i = 0; i < pInstrumentList->size(); i++) {
+		pInstrumentList->get(i)->set_currently_exported( true );
+	}
+
+	pHydrogen->startExportSession( 44100, 16 );
+	pHydrogen->startExportSong( sFileName );
+
+	bool bDone = false;
+	while ( ! bDone ) {
+		H2Core::Event event = pQueue->pop_event();
+
+		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
+			bDone = true;
+		}
+		else if ( event.type == H2Core::EVENT_NONE ) {
+			usleep(100 * 1000);
+		}
+	}
+	pHydrogen->stopExportSession();
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	double t = std::chrono::duration<double>( t1 - t0 ).count();
+	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
+}
+
+void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName, H2Core::SMFWriter& writer )
+{
+	auto t0 = std::chrono::high_resolution_clock::now();
+
+	auto pSong = H2Core::Song::load( sSongFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	writer.save( sFileName, pSong );
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	double t = std::chrono::duration<double>( t1 - t0 ).count();
+	___INFOLOG( QString("MIDI track export took %1 seconds").arg(t) );
 }

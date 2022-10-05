@@ -31,6 +31,8 @@
 #include "TransportTest.h"
 #include "TestHelper.h"
 
+#include "assertions/AudioFile.h"
+
 using namespace H2Core;
 
 void TransportTest::setUp(){
@@ -164,7 +166,18 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 		bool bNoMismatch = AudioEngineTests::testSongSizeChangeInLoopMode();
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
-}		
+}
+
+void TransportTest::testPlaybackTrack() {
+
+	QString sSongFile = H2TEST_FILE( "song/AE_playbackTrack.h2song" );
+	QString sOutFile = Filesystem::tmp_file_path("testPlaybackTrack.wav");
+	QString sRefFile = H2TEST_FILE("song/res/playbackTrack.flac");
+
+	TestHelper::exportSong( sSongFile, sOutFile );
+	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
+	Filesystem::rm( sOutFile );
+}
 
 void TransportTest::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
