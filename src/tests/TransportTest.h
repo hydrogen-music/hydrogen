@@ -34,6 +34,7 @@ class TransportTest : public CppUnit::TestFixture {
 	// CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST( testPlaybackTrack );
+	CPPUNIT_TEST( testSampleConsistency );
 	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST_SUITE_END();
 	
@@ -42,7 +43,6 @@ private:
 	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
 	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
 	std::shared_ptr<H2Core::Song> m_pSongTransportProcessingTimeline;
-	std::shared_ptr<H2Core::Song> m_pSongPlaybackTrack;
 
 public:
 	void setUp();
@@ -60,5 +60,6 @@ public:
 	 * whether it doesn't get affected by tempo markers.
 	 */
 	void testPlaybackTrack();
+	void testSampleConsistency();
 	void testNoteEnqueuing();
 };

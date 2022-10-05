@@ -60,6 +60,12 @@ class TestHelper {
 	 * \param sFileName Output file name
 	 */
 	static void exportSong( const QString& sSongFile, const QString& sFileName );
+	/**
+	 * Export the current song within Hydrogen to audio file @a sFileName;
+	 *
+	 * \param sFileName Output file name
+	 */
+	static void exportSong( const QString& sFileName );
 
 	/**
 	 * Export Hydrogon song @a sSongFile to MIDI file @a sFileName

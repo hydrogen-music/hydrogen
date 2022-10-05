@@ -266,6 +266,40 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
 }
 
+void TestHelper::exportSong( const QString& sFileName )
+{
+	auto t0 = std::chrono::high_resolution_clock::now();
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pQueue = H2Core::EventQueue::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	auto pInstrumentList = pSong->getInstrumentList();
+	for (auto i = 0; i < pInstrumentList->size(); i++) {
+		pInstrumentList->get(i)->set_currently_exported( true );
+	}
+
+	pHydrogen->startExportSession( 44100, 16 );
+	pHydrogen->startExportSong( sFileName );
+
+	bool bDone = false;
+	while ( ! bDone ) {
+		H2Core::Event event = pQueue->pop_event();
+
+		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
+			bDone = true;
+		}
+		else if ( event.type == H2Core::EVENT_NONE ) {
+			usleep(100 * 1000);
+		}
+	}
+	pHydrogen->stopExportSession();
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	double t = std::chrono::duration<double>( t1 - t0 ).count();
+	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
+}
+
 void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName, H2Core::SMFWriter& writer )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();

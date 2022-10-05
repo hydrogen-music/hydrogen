@@ -27,14 +27,15 @@
 
 static constexpr qint64 BUFFER_SIZE = 4096;
 
-void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine)
+void H2Test::checkAudioFilesEqual(const QString& sExpected, const QString& sActual, CppUnit::SourceLine sourceLine)
 {
 	SF_INFO info1 = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f1{ sf_open( expected.toLocal8Bit().data(), SFM_READ, &info1), sf_close };
+		f1{ sf_open( sExpected.toLocal8Bit().data(), SFM_READ, &info1), sf_close };
 	if ( f1 == nullptr ) {
 		CppUnit::Message msg(
-			"Can't open reference file",
+			QString( "Can't open reference file [%1]" ).arg( sExpected )
+			.toLocal8Bit().data(),
 			sf_strerror( nullptr )
 		);
 		throw CppUnit::Exception(msg, sourceLine);
@@ -42,10 +43,11 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 
 	SF_INFO info2 = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f2{ sf_open( actual.toLocal8Bit().data(), SFM_READ, &info2), sf_close };
+		f2{ sf_open( sActual.toLocal8Bit().data(), SFM_READ, &info2), sf_close };
 	if ( f2 == nullptr ) {
 		CppUnit::Message msg(
-			"Can't open results file",
+			QString( "Can't open results file [%1]" ).arg( sActual )
+			.toLocal8Bit().data(),
 			sf_strerror( nullptr )
 		);
 		throw CppUnit::Exception(msg, sourceLine);
@@ -54,8 +56,8 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 	if ( info1.frames != info2.frames ) {
 		CppUnit::Message msg(
 			"Number of samples different",
-			std::string("Expected: ") + expected.toStdString(),
-			std::string("Actual  : ") + actual.toStdString() );
+			std::string("Expected: ") + sExpected.toStdString(),
+			std::string("Actual  : ") + sActual.toStdString() );
 		throw CppUnit::Exception(msg, sourceLine);
 	}
 
@@ -80,8 +82,8 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 				auto diffLocation = offset + i + 1;
 				CppUnit::Message msg(
 					std::string("Files differ at sample ") + std::to_string(diffLocation),
-					std::string("Expected: ") + expected.toStdString(),
-					std::string("Actual  : ") + actual.toStdString() );
+					std::string("Expected: ") + sExpected.toStdString(),
+					std::string("Actual  : ") + sActual.toStdString() );
 				throw CppUnit::Exception(msg, sourceLine);
 
 			}

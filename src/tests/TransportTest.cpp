@@ -62,6 +62,11 @@ void TransportTest::tearDown() {
 	// scrolling. As the TestRunner itself does not seem to support
 	// fixtures, we flush the logger in here.
 	H2Core::Logger::get_instance()->flush();
+
+	// Reset to default audio driver config
+	auto pPref = H2Core::Preferences::get_instance();
+	pPref->m_nBufferSize = 1024;
+	pPref->m_nSampleRate = 44100;
 }
 
 void TransportTest::testFrameToTickConversion() {
@@ -175,6 +180,30 @@ void TransportTest::testPlaybackTrack() {
 	QString sRefFile = H2TEST_FILE("song/res/playbackTrack.flac");
 
 	TestHelper::exportSong( sSongFile, sOutFile );
+	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
+	Filesystem::rm( sOutFile );
+}
+
+void TransportTest::testSampleConsistency() {
+
+	const QString sSongFile = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
+	const QString sDrumkitDir = H2TEST_FILE( "drumkits/sampleKit/" );
+	const QString sOutFile = Filesystem::tmp_file_path("testsampleConsistency.wav");
+	const QString sRefFile = H2TEST_FILE("drumkits/sampleKit/longSample.flac");
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	
+	auto pSong = H2Core::Song::load( sSongFile );
+
+	CPPUNIT_ASSERT( pSong != nullptr );
+		
+	pHydrogen->setSong( pSong );
+
+	// Apply drumkit containing the long sample to be tested.
+	pCoreActionController->setDrumkit( sDrumkitDir, true );
+	
+	TestHelper::exportSong( sOutFile );
 	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 }
