@@ -981,12 +981,22 @@ void SongEditorPanel::zoomOutBtnClicked()
 
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 {
-	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Fader* pFader = dynamic_cast<Fader*>( pRef );
-	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
-	if( pSong ){
-		pSong->setPlaybackTrackVolume( pFader->getValue() );
+	Fader* pFader = dynamic_cast<Fader*>( pRef );
+	const float fNewValue = std::round( pFader->getValue() * 100 ) / 100;
+
+	if ( pSong->getPlaybackTrackVolume() != fNewValue ) {
+		pSong->setPlaybackTrackVolume( fNewValue );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Playback volume set to" )
+			.append( QString( " [%1]" ).arg( fNewValue ) ),
+			"SongEditorPanel:PlaybackTrackVolume" );
 	}
 }
 
