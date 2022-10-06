@@ -29,6 +29,7 @@
 namespace H2Test {
 	
 	void checkAudioFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine);
+	void checkAudioFilesDataEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine);
 
 }
 
@@ -37,6 +38,13 @@ namespace H2Test {
  **/
 #define H2TEST_ASSERT_AUDIO_FILES_EQUAL(expected, actual) \
 	H2Test::checkAudioFilesEqual(expected, actual, CPPUNIT_SOURCELINE())
+
+/**
+ * \brief Assert that two files' contents are the same expect for
+ * tailing 0s in @a actual
+ **/
+#define H2TEST_ASSERT_AUDIO_FILES_DATA_EQUAL(expected, actual) \
+	H2Test::checkAudioFilesDataEqual(expected, actual, CPPUNIT_SOURCELINE())
 
 #endif
 
