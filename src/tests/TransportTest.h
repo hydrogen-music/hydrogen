@@ -20,6 +20,8 @@
  *
  */
 
+#include <functional>
+
 #include <core/config.h>
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -31,11 +33,12 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testTransportProcessing );
 	CPPUNIT_TEST( testTransportProcessingTimeline );
 	CPPUNIT_TEST( testTransportRelocation );
-	// CPPUNIT_TEST( testSongSizeChange );
+	CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST( testSampleConsistency );
 	CPPUNIT_TEST( testNoteEnqueuing );
+	CPPUNIT_TEST( testNoteEnqueuingTimeline );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -43,6 +46,8 @@ private:
 	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
 	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
 	std::shared_ptr<H2Core::Song> m_pSongTransportProcessingTimeline;
+
+	void perform( std::function<void()> func );
 
 public:
 	void setUp();
@@ -62,4 +67,9 @@ public:
 	void testPlaybackTrack();
 	void testSampleConsistency();
 	void testNoteEnqueuing();
+	/**
+	 * Checks whether the order of notes enqueued and processed by the
+	 * Sampler is consistent on tempo change.
+	 */
+	void testNoteEnqueuingTimeline();
 };

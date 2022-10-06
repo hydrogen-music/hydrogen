@@ -76,8 +76,7 @@ void TransportTest::testFrameToTickConversion() {
 	
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testFrameToTickConversion();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testFrameToTickConversion );
 	}
 }
 
@@ -88,8 +87,7 @@ void TransportTest::testTransportProcessing() {
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testTransportProcessing();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testTransportProcessing );
 	}
 }
 
@@ -101,8 +99,7 @@ void TransportTest::testTransportProcessingTimeline() {
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testTransportProcessingTimeline();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testTransportProcessingTimeline );
 	}
 }		
  
@@ -125,8 +122,7 @@ void TransportTest::testTransportRelocation() {
 	
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testTransportRelocation();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testTransportRelocation );
 	}
 
 	pCoreActionController->activateTimeline( false );
@@ -153,8 +149,7 @@ void TransportTest::testSongSizeChange() {
 		// For larger sample rates no notes will remain in the
 		// AudioEngine::m_songNoteQueue after one process step.
 		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
-			bool bNoMismatch = AudioEngineTests::testSongSizeChange();
-			CPPUNIT_ASSERT( bNoMismatch );
+			perform( &AudioEngineTests::testSongSizeChange );
 		}
 	}
 	
@@ -168,8 +163,7 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 
 	for ( int ii = 0; ii < 15; ++ii ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testSongSizeChangeInLoopMode();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testSongSizeChangeInLoopMode );
 	}
 }
 
@@ -204,7 +198,7 @@ void TransportTest::testSampleConsistency() {
 	pCoreActionController->setDrumkit( sDrumkitDir, true );
 	
 	TestHelper::exportSong( sOutFile );
-	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
+	H2TEST_ASSERT_AUDIO_FILES_DATA_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 }
 
@@ -218,7 +212,32 @@ void TransportTest::testNoteEnqueuing() {
 
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = AudioEngineTests::testNoteEnqueuing();
-		CPPUNIT_ASSERT( bNoMismatch );
+		perform( &AudioEngineTests::testNoteEnqueuing );
 	}
 }		
+
+void TransportTest::testNoteEnqueuingTimeline() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
+
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	pHydrogen->getCoreActionController()->openSong( pSong );
+
+	// This test is quite time consuming.
+	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
+
+	for ( auto ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		perform( &AudioEngineTests::testNoteEnqueuingTimeline );
+	}
+}		
+
+void TransportTest::perform( std::function<void()> func ) {
+	try {
+		func();
+	} catch ( std::exception& err ) {
+		CppUnit::Message msg( err.what() );
+		throw CppUnit::Exception( msg );
+	}
+}

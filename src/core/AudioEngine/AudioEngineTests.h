@@ -41,40 +41,32 @@ public:
 	/** 
 	 * Unit test checking for consistency when converting frames to
 	 * ticks and back.
-	 *
-	 * @return true on success.
 	 */
-	static bool testFrameToTickConversion();
+	static void testFrameToTickConversion();
 	/** 
 	 * Unit test checking the incremental update of the transport
 	 * position in audioEngine_process().
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testTransportProcessing();
+	static void testTransportProcessing();
 	/** 
 	 * More detailed test of the transport and playhead integrity in
 	 * case Timeline/tempo markers are involved.
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testTransportProcessingTimeline();
+	static void testTransportProcessingTimeline();
 	/** 
 	 * Unit test checking the relocation of the transport
 	 * position in audioEngine_process().
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testTransportRelocation();
+	static void testTransportRelocation();
 	/** 
 	 * Unit test checking consistency of transport position when
 	 * playback was looped at least once and the song size is changed
@@ -82,10 +74,8 @@ public:
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testSongSizeChange();
+	static void testSongSizeChange();
 	/** 
 	 * Unit test checking consistency of transport position when
 	 * playback was looped at least once and the song size is changed
@@ -93,19 +83,21 @@ public:
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testSongSizeChangeInLoopMode();
+	static void testSongSizeChangeInLoopMode();
 	/** 
 	 * Unit test checking that all notes in a song are picked up once.
 	 *
 	 * Defined in here since it requires access to methods and
 	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
 	 */
-	static bool testNoteEnqueuing();
+	static void testNoteEnqueuing();
+
+	/**
+	 * Checks whether the order of notes enqueued and processed by the
+	 * Sampler is consistent on tempo change.
+	 */
+	static void testNoteEnqueuingTimeline();
 	
 private:	
 	/**
@@ -117,13 +109,13 @@ private:
 	 * \param sContext String identifying the calling function and
 	 * used for logging
 	 */
-	static bool checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext );
+	static void checkTransportPosition( std::shared_ptr<TransportPosition> pPos, const QString& sContext );
 	/**
 	 * Takes two instances of Sampler::m_playingNotesQueue and checks
 	 * whether matching notes have exactly @a nPassedFrames difference
 	 * in their SelectedLayerInfo::SamplePosition.
 	 */
-	static bool checkAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
+	static void checkAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
 									   const std::vector<std::shared_ptr<Note>> newNotes,
 									   const QString& sContext,
 									   int nPassedFrames,
@@ -134,7 +126,7 @@ private:
 	 * nToggleRow twice and checks whether the transport position and
 	 * the audio processing remains consistent.
 	 */
-	static bool toggleAndCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
+	static void toggleAndCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
 	
 	static std::vector<std::shared_ptr<Note>> copySongNoteQueue();
 	/**
@@ -145,6 +137,8 @@ private:
 							 std::vector<std::shared_ptr<Note>> newNotes );
 	static void mergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
 							 std::vector<Note*> newNotes );
+	static void resetSampler( const QString& sContext );
+	static void throwException( const QString& sMsg );
 };
 };
 
