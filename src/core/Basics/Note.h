@@ -304,6 +304,7 @@ class Note : public H2Core::Object<Note>
 
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const Note *pNote ) const;
+		bool match( const std::shared_ptr<Note> pNote ) const;
 
 		/**
 		 * compute left and right output based on filters
@@ -340,7 +341,7 @@ class Note : public H2Core::Object<Note>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
 		static inline double pitchToFrequency( double fPitch ) {
@@ -679,6 +680,10 @@ inline bool Note::match( std::shared_ptr<Instrument> instrument, Key key, Octave
 }
 
 inline bool Note::match( const Note *pNote ) const
+{
+	return match( pNote->__instrument, pNote->__key, pNote->__octave );
+}
+inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	return match( pNote->__instrument, pNote->__key, pNote->__octave );
 }
