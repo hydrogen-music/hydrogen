@@ -2102,8 +2102,6 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	// they both can be identical.
 	if ( m_bLookaheadApplied ) {
 		nFrameStart += nLookahead;
-	} else {
-		m_bLookaheadApplied = true;
 	}
 
 	*fTickStart = TransportPosition::computeTickFromFrame( nFrameStart ) -
@@ -2111,7 +2109,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
 		m_pTransportPosition->getTickOffsetTempo();
 
-	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, fTickStart (without offset): %5, fTickEnd (without offset): %6, m_pTransportPosition->getTickOffsetTempo(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition->getFrame(): %10, m_pTransportPosition->getTickSize(): %11, m_pPlayheadPosition->getFrame(): %12" )
+	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, fTickStart (without offset): %5, fTickEnd (without offset): %6, m_pTransportPosition->getTickOffsetTempo(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition->getFrame(): %10, m_pTransportPosition->getTickSize(): %11, m_pPlayheadPosition->getFrame(): %12, m_bLookaheadApplied: %13" )
 	// 		 .arg( nFrameStart )
 	// 		 .arg( nFrameEnd )
 	// 		 .arg( *fTickStart, 0, 'f' )
@@ -2124,6 +2122,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	// 		 .arg( m_pTransportPosition->getFrame() )
 	// 		 .arg( m_pTransportPosition->getTickSize(), 0, 'f' )
 	// 		 .arg( m_pPlayheadPosition->getFrame())
+	// 		 .arg( m_bLookaheadApplied )
 	// 		 );
 
 	return nLeadLagFactor;
@@ -2167,7 +2166,15 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	double fTickMismatch;
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
- 
+
+	// computeTickInterval() is always called regardless whether
+	// transport is rolling or not. But we mark the lookahead consumed
+	// if the notes of the associated tick interval were actually
+	// queued.
+	if ( ! m_bLookaheadApplied ) {
+		m_bLookaheadApplied = true;
+	}
+
 	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pPlayheadPosition->getDoubleTick(): %5, m_pPlayheadPosition->getFrame(): %6, nLeadLagFactor: %7")
 	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
 	// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
