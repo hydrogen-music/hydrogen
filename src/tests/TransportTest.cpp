@@ -225,7 +225,7 @@ void TransportTest::testNoteEnqueuingTimeline() {
 	pHydrogen->getCoreActionController()->openSong( pSong );
 
 	// This test is quite time consuming.
-	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
+	std::vector<int> indices{ 0, 1, 2, 5, 7 };
 
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
