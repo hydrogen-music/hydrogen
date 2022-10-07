@@ -99,7 +99,15 @@ public:
 	 */
 	static void testNoteEnqueuingTimeline();
 	
-private:	
+private:
+	static void processTransport( const QString& sContext,
+								  int nFrames,
+								  long long* nLastLookahead,
+								  long long* nLastTransportFrame,
+								  long long* nTotalFrames,
+								  long* nLastPlayheadTick,
+								  double* fLastTickIntervalEnd,
+								  bool bCheckLookahead = true );
 	/**
 	 * Checks the consistency of the transport position @a pPos by
 	 * converting the current tick, frame, column, pattern start tick

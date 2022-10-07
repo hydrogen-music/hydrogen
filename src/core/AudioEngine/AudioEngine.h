@@ -533,16 +533,8 @@ private:
 	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
-
-	/**
-	 *
-	 * \param bHandleTempoChange Whether all notes in the note queues
-	 * should be updated to reflect the tempo change. This option was
-	 * introduced to suppress the updated by functions performing a
-	 * dedicated update themselves.
-	 */
-	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition, bool bHandleTempoChange = true );
-	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition, bool bHandleTempoChange = true );
+	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
+	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
 	
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );

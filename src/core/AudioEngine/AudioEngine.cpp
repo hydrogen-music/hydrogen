@@ -648,7 +648,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	
 }
 
-void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos, bool bHandleTempoChange ) {
+void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos ) {
 	if ( ! ( m_state == State::Playing ||
 			 m_state == State::Ready ||
 			 m_state == State::Testing ) ) {
@@ -696,56 +696,48 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	
 	pPos->setTickSize( fNewTickSize );
 	
-	calculateTransportOffsetOnBpmChange( pPos, bHandleTempoChange );
+	calculateTransportOffsetOnBpmChange( pPos );
 }
 
-void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pPos, bool bHandleTempoChange ) {
+void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pPos ) {
 
-	// TODO
-	// if ( pPos->getFrame() != 0 ) {
-		// If we deal with a single speed for the whole song, the frames
-		// since the beginning of the song are tempo-dependent and have to
-		// be recalculated.
-		const long long nNewFrame =
-			TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
-													 &pPos->m_fTickMismatch );
-		pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
-								   pPos->getFrameOffsetTempo() );
+	// If we deal with a single speed for the whole song, the frames
+	// since the beginning of the song are tempo-dependent and have to
+	// be recalculated.
+	const long long nNewFrame =
+		TransportPosition::computeFrameFromTick( pPos->getDoubleTick(),
+												 &pPos->m_fTickMismatch );
+	pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
+							   pPos->getFrameOffsetTempo() );
 
-		if ( m_fLastTickEnd != 0 ) {
-			const long long nNewLookahead =
-				getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
-				AudioEngine::nMaxTimeHumanize + 1;
-			const double fNewTickEnd = TransportPosition::computeTickFromFrame( nNewFrame + nNewLookahead );
-			pPos->setTickOffsetTempo( fNewTickEnd - m_fLastTickEnd );
+	if ( m_fLastTickEnd != 0 ) {
+		const long long nNewLookahead =
+			getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
+			AudioEngine::nMaxTimeHumanize + 1;
+		const double fNewTickEnd = TransportPosition::computeTickFromFrame( nNewFrame + nNewLookahead );
+		pPos->setTickOffsetTempo( fNewTickEnd - m_fLastTickEnd );
 			
-			// DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetTempo(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
-			// 		  .arg( pPos->getLabel() )
-			// 		  .arg( Hydrogen::get_instance()->isTimelineEnabled() )
-			// 		  .arg( pPos->getFrame() )
-			// 		  .arg( nNewFrame )
-			// 		  .arg( pPos->getDoubleTick(), 0, 'f' )
-			// 		  .arg( nNewLookahead )
-			// 		  .arg( pPos->getFrameOffsetTempo() )
-			// 		  .arg( pPos->getTickOffsetTempo(), 0, 'f' )
-			// 		  .arg( fNewTickEnd, 0, 'f' )
-			// 		  .arg( m_fLastTickEnd, 0, 'f' )
-			// 		  );
-		}
+		// DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetTempo(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
+		// 		  .arg( pPos->getLabel() )
+		// 		  .arg( Hydrogen::get_instance()->isTimelineEnabled() )
+		// 		  .arg( pPos->getFrame() )
+		// 		  .arg( nNewFrame )
+		// 		  .arg( pPos->getDoubleTick(), 0, 'f' )
+		// 		  .arg( nNewLookahead )
+		// 		  .arg( pPos->getFrameOffsetTempo() )
+		// 		  .arg( pPos->getTickOffsetTempo(), 0, 'f' )
+		// 		  .arg( fNewTickEnd, 0, 'f' )
+		// 		  .arg( m_fLastTickEnd, 0, 'f' )
+		// 		  );
+	}
 
+	// Happens when the Timeline was either toggled or tempo
+	// changed while the former was deactivated.
+	if ( pPos->getFrame() != nNewFrame ) {
+		pPos->setFrame( nNewFrame );
+	}
 
-		// Happens when the Timeline was either toggled or tempo
-		// changed while the former was deactivated.
-		if ( pPos->getFrame() != nNewFrame ) {
-			pPos->setFrame( nNewFrame );
-		}
-
-		// In addition, all currently processed notes have to be
-		// updated to be still valid.
-		if ( bHandleTempoChange ) {
-			handleTempoChange();
-		}
-	// }
+	handleTempoChange();
 }
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
@@ -1973,23 +1965,21 @@ void AudioEngine::handleTimelineChange() {
 	// 		 .arg( m_pPlayheadPosition->toQString() ) );
 
 	const auto pOldTickSize = m_pTransportPosition->getTickSize();
-	// No relocation took place. The internal positions in ticks stay
-	// the same but frame and tick size needs to be updated.
-	updateBpmAndTickSize( m_pTransportPosition, false );
-	updateBpmAndTickSize( m_pPlayheadPosition, false );
+	updateBpmAndTickSize( m_pTransportPosition );
+	updateBpmAndTickSize( m_pPlayheadPosition );
 	
 	if ( pOldTickSize == m_pTransportPosition->getTickSize() ) {
-		ERRORLOG( pOldTickSize );
-		calculateTransportOffsetOnBpmChange( m_pTransportPosition, false );
+		// As tempo did not change during the Timeline activation, no
+		// update of the offsets took place. This, however, is not
+		// good, as it makes a significant difference to be located at
+		// tick X with e.g. 120 bpm tempo and at X with a 120 bpm
+		// tempo marker active but several others located prior to X. 
+		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
 	
 	// INFOLOG( QString( "after:\n%1\n%2" )
 	// 		 .arg( m_pTransportPosition->toQString() )
 	// 		 .arg( m_pPlayheadPosition->toQString() ) );
-
-	// Recalculate the note start in frames for all notes currently
-	// processed by the AudioEngine.
-	handleTempoChange();
 }
 
 void AudioEngine::handleTempoChange() {
@@ -2138,8 +2128,6 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	long long nLeadLagFactor =
 		computeTickInterval( &fTickStart, &fTickEnd, nIntervalLengthInFrames );
 
-	m_fLastTickEnd = fTickEnd;
-
 	// Get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, nullptr );
 		
@@ -2174,6 +2162,11 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	if ( ! m_bLookaheadApplied ) {
 		m_bLookaheadApplied = true;
 	}
+
+	// Only store the last tick interval end if transport is
+	// rolling. Else the realtime frame processing will mess things
+	// up.
+	m_fLastTickEnd = fTickEnd;
 
 	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pPlayheadPosition->getDoubleTick(): %5, m_pPlayheadPosition->getFrame(): %6, nLeadLagFactor: %7")
 	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
