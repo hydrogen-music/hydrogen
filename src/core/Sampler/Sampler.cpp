@@ -419,18 +419,20 @@ void Sampler::handleSongSizeChange() {
 		return;
 	}
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	const long nTickOffset =
+		static_cast<long>(std::floor(Hydrogen::get_instance()->getAudioEngine()->
+									 getTransportPosition()->getTickOffsetSongSize()));
 	
 	for ( auto nnote : m_playingNotesQueue ) {
 		
-		// DEBUGLOG( QString( "new pos: %1, old note: %2" )
-		// 		  .arg( std::max( nnote->get_position() +
-		// 							   static_cast<long>(std::floor(pAudioEngine->getTransportPosition()->getTickOffsetSongSize())),
+		// DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
+		// 		  .arg( nnote->get_position() )
+		// 		  .arg( std::max( nnote->get_position() + nTickOffset,
 		// 						  static_cast<long>(0) ) )
+		// 		  .arg( nTickOffset )
 		// 		  .arg( nnote->toQString( "", true ) ) );
 		
-		nnote->set_position( std::max( nnote->get_position() +
-									   static_cast<long>(std::floor(pAudioEngine->getTransportPosition()->getTickOffsetSongSize())),
+		nnote->set_position( std::max( nnote->get_position() + nTickOffset,
 									   static_cast<long>(0) ) );
 		nnote->computeNoteStart();
 		

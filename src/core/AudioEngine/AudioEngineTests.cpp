@@ -1310,7 +1310,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
 		pAE->lock( RIGHT_HERE );
 
-		const QString sFirstContext =
+		const QString sNewContext =
 			QString( "toggleAndCheckConsistency::toggleAndCheck : %1 : toggling (%2,%3)" )
 			.arg( sContext ).arg( nToggleColumn ).arg( nToggleRow );
 
@@ -1318,18 +1318,18 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		const long nNewSongSize = pSong->lengthInTicks();
 		if ( nNewSongSize == nOldSongSize ) {
 			AudioEngineTests::throwException(
-				QString( "[%1] no change in song size" ).arg( sFirstContext ) );
+				QString( "[%1] no change in song size" ).arg( sNewContext ) );
 		}
 
 		// Check whether current frame and tick information are still
 		// consistent.
-		AudioEngineTests::checkTransportPosition( pTransportPos, sFirstContext );
+		AudioEngineTests::checkTransportPosition( pTransportPos, sNewContext );
 
 		// m_songNoteQueue have been updated properly.
 		const auto notesSongQueuePostToggle = AudioEngineTests::copySongNoteQueue();
 		AudioEngineTests::checkAudioConsistency(
 			notesSongQueuePreToggle, notesSongQueuePostToggle,
-			sFirstContext + " : song queue", 0, false,
+			sNewContext + " : song queue", 0, false,
 			pTransportPos->getTickOffsetSongSize() );
 
 		// The post toggle state will become the pre toggle state during
@@ -1342,7 +1342,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		}
 		AudioEngineTests::checkAudioConsistency(
 			notesSamplerPreToggle, notesSamplerPostToggle,
-			sFirstContext + " : sampler queue", 0, false,
+			sNewContext + " : sampler queue", 0, false,
 			pTransportPos->getTickOffsetSongSize() );
 
 		// Column must be consistent. Unless the song length shrunk due to
@@ -1356,7 +1356,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 				AudioEngineTests::throwException(
 					QString( "[%3] Column changed old: %1, new: %2" )
 					.arg( nOldColumn ).arg( pTransportPos->getColumn() )
-					.arg( sFirstContext ) );
+					.arg( sNewContext ) );
 			}
 
 			double fTickEnd, fTickStart;
@@ -1365,7 +1365,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 			if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
 				AudioEngineTests::throwException(
 					QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
-					.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext ) );
+					.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sNewContext ) );
 			}
 			if ( std::abs( fTickStart - pTransportPos->getTickOffsetSongSize() - fPrevTickStart ) > 4e-3 ) {
 				AudioEngineTests::throwException(
@@ -1374,7 +1374,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 					.arg( fPrevTickStart + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 					.arg( fPrevTickStart, 0, 'f' )
 					.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
-					.arg( sFirstContext ) );
+					.arg( sNewContext ) );
 			}
 			if ( std::abs( fTickEnd - pTransportPos->getTickOffsetSongSize() - fPrevTickEnd ) > 4e-3 ) {
 				AudioEngineTests::throwException(
@@ -1383,7 +1383,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 					.arg( fPrevTickEnd + pTransportPos->getTickOffsetSongSize(), 0, 'f' )
 					.arg( fPrevTickEnd, 0, 'f' )
 					.arg( pTransportPos->getTickOffsetSongSize(), 0, 'f' )
-					.arg( sFirstContext ) );
+					.arg( sNewContext ) );
 			}
 		}
 		else if ( pTransportPos->getColumn() != 0 &&
@@ -1393,7 +1393,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 				.arg( nOldColumn )
 				.arg( pTransportPos->getColumn() )
 				.arg( pSong->getPatternGroupVector()->size() )
-				.arg( sFirstContext ) );
+				.arg( sNewContext ) );
 		}
 	
 		// Now we emulate that playback continues without any new notes
@@ -1404,15 +1404,23 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		// processing of notes we already encountered.
 		pAE->incrementTransportPosition( nBufferSize );
 		pAE->processAudio( nBufferSize );
+
+		// Update the end of the tick interval usually handled by
+		// updateNoteQueue().
+		double fTickEndRolling, fTickStartUnused;
+		pAE->computeTickInterval( &fTickStartUnused, &fTickEndRolling, nBufferSize );
+		
 		pAE->incrementTransportPosition( nBufferSize );
 		pAE->processAudio( nBufferSize );
+
+		pAE->m_fLastTickEnd = fTickEndRolling;
 
 		// Check whether tempo and tick size have not changed.
 		if ( fPrevTempo != pTransportPos->getBpm() ||
 			 fPrevTickSize != pTransportPos->getTickSize() ) {
 			AudioEngineTests::throwException(
 				QString( "[%1] tempo and ticksize are affected" )
-				.arg( sFirstContext ) );
+				.arg( sNewContext ) );
 		}
 
 		notesSamplerPostRolling.clear();
@@ -1421,15 +1429,15 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		}
 		AudioEngineTests::checkAudioConsistency(
 			notesSamplerPostToggle, notesSamplerPostRolling,
-			QString( "toggleAndCheck : %1 : : rolling after 1. toggle : sampler queue" )
+			QString( "toggleAndCheckConsistency::toggleAndCheck : %1 : rolling after toggle (%2,%3)" )
 			.arg( sContext ).arg( nToggleColumn ).arg( nToggleRow ), nBufferSize * 2 );
 	};
 
 	// Toggle the grid cell.
-	toggleAndCheck( "1. toggle" );
+	toggleAndCheck( sContext + " : 1. toggle" );
 
 	// Toggle the same grid cell again.
-	toggleAndCheck( "2. toggle" );
+	toggleAndCheck( sContext + " : 2. toggle" );
 }
 
 void AudioEngineTests::resetSampler( const QString& sContext ) {
