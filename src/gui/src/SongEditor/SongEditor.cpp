@@ -3115,18 +3115,18 @@ void SongEditorPositionRuler::updatePosition()
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = std::max( m_pAudioEngine->getPlayheadPosition()->getColumn(), 0 );
+	m_nColumn = std::max( m_pAudioEngine->getTransportPosition()->getColumn(), 0 );
 
 	float fTick = static_cast<float>(m_nColumn);
 
 	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
-		fTick += (float)m_pAudioEngine->getPlayheadPosition()->getPatternTickPosition() /
+		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
 			(float)nLength;
 	} else {
 		// Empty column. Use the default length.
-		fTick += (float)m_pAudioEngine->getPlayheadPosition()->getPatternTickPosition() /
+		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
 			(float)MAX_NOTES;
 	}
 

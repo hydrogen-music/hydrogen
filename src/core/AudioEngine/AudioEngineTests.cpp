@@ -98,7 +98,7 @@ void AudioEngineTests::testTransportProcessing() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->getPlayheadPosition();
+	auto pPlayheadPos = pAE->m_pPlayheadPosition;
 	
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( true );
@@ -243,7 +243,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->getPlayheadPosition();
+	auto pPlayheadPos = pAE->m_pPlayheadPosition;
 	
 	pCoreActionController->activateLoopMode( true );
 
@@ -380,7 +380,7 @@ void AudioEngineTests::processTransport( const QString& sContext,
 										 bool bCheckLookahead ) {
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->getPlayheadPosition();
+	auto pPlayheadPos = pAE->m_pPlayheadPosition;
 	
 	double fTickStart, fTickEnd;
 	const long long nLeadLag =

@@ -1555,10 +1555,10 @@ void MainForm::onBPMPlusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getPlayheadPosition()->getBpm() + 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getPlayheadPosition()->getBpm() + 0.1 );
+	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
 	pAudioEngine->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
@@ -1570,10 +1570,10 @@ void MainForm::onBPMMinusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getPlayheadPosition()->getBpm() - 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
 	
 	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getPlayheadPosition()->getBpm() - 0.1 );
+	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
 	pAudioEngine->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
@@ -1914,12 +1914,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() - 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() + 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 			return true;
 			break;
 		}

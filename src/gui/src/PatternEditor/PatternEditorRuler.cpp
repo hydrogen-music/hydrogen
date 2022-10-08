@@ -120,7 +120,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		pAudioEngine->unlock();
 	}
 
-	int nTick = pAudioEngine->getPlayheadPosition()->getPatternTickPosition();
+	int nTick = pAudioEngine->getTransportPosition()->getPatternTickPosition();
 
 	if ( nTick != m_nTick || bForce ) {
 		int nDiff = m_fGridWidth * (nTick - m_nTick);

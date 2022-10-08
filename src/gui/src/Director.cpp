@@ -80,8 +80,8 @@ Director::Director ( QWidget* pParent )
 	
 	setWindowTitle ( tr ( "Director" ) );
 
-	m_fBpm = pAudioEngine->getPlayheadPosition()->getBpm();
-	m_nBar = pAudioEngine->getPlayheadPosition()->getColumn() + 1;
+	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
 	}
@@ -147,8 +147,8 @@ void Director::timelineUpdateEvent( int nValue ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	m_fBpm = pAudioEngine->getPlayheadPosition()->getBpm();
-	m_nBar = pAudioEngine->getPlayheadPosition()->getColumn() + 1;
+	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
@@ -175,7 +175,7 @@ void Director::metronomeEvent( int nValue )
 	//bpm
 	m_fBpm = pHydrogen->getSong()->getBpm();
 	//bar
-	m_nBar = pHydrogen->getAudioEngine()->getPlayheadPosition()->getColumn() + 1;
+	m_nBar = pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;

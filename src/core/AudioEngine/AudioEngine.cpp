@@ -381,9 +381,6 @@ float AudioEngine::getElapsedTime() const {
 
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pDriver = pHydrogen->getAudioOutput();
-
-	long long nNewFrame;
 
 	// DEBUGLOG( QString( "fTick: %1" ).arg( fTick ) );
 
@@ -393,7 +390,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// position.
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		double fTickMismatch;
-		nNewFrame = TransportPosition::computeFrameFromTick( fTick, &fTickMismatch );
+		const long long nNewFrame =	TransportPosition::computeFrameFromTick(
+			fTick, &fTickMismatch );
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
 		return;
 	}
@@ -401,24 +399,20 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 
 	resetOffsets();
 	m_fLastTickEnd = fTick;
-	nNewFrame = TransportPosition::computeFrameFromTick( fTick,
-														 &m_pPlayheadPosition->m_fTickMismatch );
+	const long long nNewFrame = TransportPosition::computeFrameFromTick(
+		fTick, &m_pTransportPosition->m_fTickMismatch );
 
-	// It is important to use the position of the playhead and not the
-	// one of the transport in this "shared" update as the former
-	// triggers some additional code in updateTransportPosition().
-	updateTransportPosition( fTick, nNewFrame, m_pPlayheadPosition );
-	m_pTransportPosition->set( m_pPlayheadPosition );
+	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition, true );
+	m_pPlayheadPosition->set( m_pTransportPosition );
 	
 	handleTempoChange();
 }
 
 void AudioEngine::locateToFrame( const long long nFrame ) {
-	const auto pHydrogen = Hydrogen::get_instance();
-	
-	resetOffsets();
 
 	// DEBUGLOG( QString( "nFrame: %1" ).arg( nFrame ) );
+	
+	resetOffsets();
 
 	double fNewTick = TransportPosition::computeTickFromFrame( nFrame );
 
@@ -429,30 +423,22 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	// relocation.
 	if ( std::fmod( fNewTick, std::floor( fNewTick ) ) >= 0.97 ) {
 		INFOLOG( QString( "Computed tick [%1] will be rounded to [%2] in order to avoid glitches" )
-				 .arg( fNewTick, 0, 'E', -1 )
-				 .arg( std::round( fNewTick ) ) );
+				 .arg( fNewTick, 0, 'E', -1 ).arg( std::round( fNewTick ) ) );
 		fNewTick = std::round( fNewTick );
 	}
 	m_fLastTickEnd = fNewTick;
 
-	// Important step to assure the tick mismatch is set and
-	// tick<->frame can be converted properly.
-	const long long nNewFrame =
-		TransportPosition::computeFrameFromTick( fNewTick,
-												 &m_pPlayheadPosition->m_fTickMismatch );
+	// Assure tick<->frame can be converted properly using mismatch.
+	const long long nNewFrame = TransportPosition::computeFrameFromTick(
+		fNewTick, &m_pTransportPosition->m_fTickMismatch );
 	if ( nNewFrame != nFrame ) {
 		ERRORLOG( QString( "Something went wrong: nFrame: %1, nNewFrame: %2, fNewTick: %3, m_fTickMismatch: %4" )
-				  .arg( nFrame )
-				  .arg( nNewFrame )
-				  .arg( fNewTick )
+				  .arg( nFrame ).arg( nNewFrame ).arg( fNewTick )
 				  .arg( m_pPlayheadPosition->m_fTickMismatch ) );
 	}
 
-	// It is important to use the position of the playhead and not the
-	// one of the transport in this "shared" update as the former
-	// triggers some additional code in updateTransportPosition().
-	updateTransportPosition( fNewTick, nNewFrame, m_pPlayheadPosition );
-	m_pTransportPosition->set( m_pPlayheadPosition );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, true );
+	m_pPlayheadPosition->set( m_pTransportPosition );
 
 	handleTempoChange();
 
@@ -464,8 +450,6 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 }
 
 void AudioEngine::resetOffsets() {
-	const auto pHydrogen = Hydrogen::get_instance();
-	
 	clearNoteQueue();
 
 	// m_fLastTickEnd = 0;
@@ -498,13 +482,13 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
 	// 		  .arg( fNewTick, 0, 'f' )
 	// 		  .arg( m_pTransportPosition->getTickSize(), 0, 'f' ) );
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, false );
 
 	// We are not updating the playhead position in here. This will be
 	// done in updateNoteQueue.
 }
 
-void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -519,10 +503,10 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	// Update pPos->m_nPatternStartTick, pPos->m_nPatternTickPosition,
 	// and pPos->m_nPatternSize.
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		updateSongTransportPosition( fTick, nFrame, pPos );
+		updateSongTransportPosition( fTick, nFrame, pPos, bUpdatePlayingPatterns );
 	}
 	else {  // Song::Mode::Pattern
-		updatePatternTransportPosition( fTick, nFrame, pPos );
+		updatePatternTransportPosition( fTick, nFrame, pPos, bUpdatePlayingPatterns );
 	}
 
 	updateBpmAndTickSize( pPos );
@@ -535,7 +519,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	
 }
 
-void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -567,13 +551,13 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 								   m_nPatternSize );
 
 		// In stacked pattern mode we will only update the playing
-		// patterns if the transport of the original pattern is
-		// looped. This way all patterns start fresh at the beginning.
+		// patterns if the transport of the original pattern is looped
+		// back to the beginning. This way all patterns start fresh.
 		//
-		// The current patterns are associated with the playhead and
-		// not the transport position.
+		// In selected pattern mode pattern change does occur
+		// asynchonically by user interaction.
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked &&
-			 pPos == m_pPlayheadPosition ) {
+			 bUpdatePlayingPatterns ) {
 			// Updates m_nPatternSize.
 			updatePlayingPatterns( 0, fTick );
 		}
@@ -589,7 +573,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 	pPos->setPatternTickPosition( nPatternTickPosition );
 }
 
-void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
 	
 	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
 	// 			.arg( fTick, 0, 'f' )
@@ -630,9 +614,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	if ( pPos->getColumn() != nNewColumn ) {
 		pPos->setColumn( nNewColumn );
 
-		// The current patterns are associated with the playhead and
-		// not the transport position.
-		if ( pPos == m_pPlayheadPosition ) {
+		if ( bUpdatePlayingPatterns ) {
 			updatePlayingPatterns( nNewColumn, 0 );
 			handleSelectedPattern();
 		}
@@ -1768,7 +1750,7 @@ void AudioEngine::updateSongSize() {
 	// 		);
 
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, false );
 
 	// Ensure the tick offset is calculated as well (we do not expect
 	// the tempo to change).
@@ -1784,7 +1766,8 @@ void AudioEngine::updateSongSize() {
 		fNewTickPlayhead, &m_pPlayheadPosition->m_fTickMismatch );
 	// Use offsets calculated above for the transport position.
 	m_pPlayheadPosition->set( m_pTransportPosition );
-	updateTransportPosition( fNewTickPlayhead, nNewFramePlayhead, m_pPlayheadPosition );
+	updateTransportPosition( fNewTickPlayhead, nNewFramePlayhead,
+							 m_pPlayheadPosition, true );
 	
 #ifdef H2CORE_HAVE_DEBUG
 	if ( nOldColumn != m_pTransportPosition->getColumn() ) {
@@ -2188,8 +2171,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				static_cast<double>(nnTick),
 				&m_pPlayheadPosition->m_fTickMismatch );
 			updateSongTransportPosition( static_cast<double>(nnTick),
-										 nNewFrame,
-										 m_pPlayheadPosition );
+										 nNewFrame, m_pPlayheadPosition, true );
 
 			// If no pattern list could not be found, either choose
 			// the first one if loop mode is activate or the
@@ -2217,8 +2199,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				static_cast<double>(nnTick),
 				&m_pPlayheadPosition->m_fTickMismatch );
 			updatePatternTransportPosition( static_cast<double>(nnTick),
-											nNewFrame,
-											m_pPlayheadPosition );
+											nNewFrame, m_pPlayheadPosition, true );
 		}
 		
 		//////////////////////////////////////////////////////////////

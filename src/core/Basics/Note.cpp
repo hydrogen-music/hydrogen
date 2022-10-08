@@ -243,9 +243,10 @@ void Note::computeNoteStart() {
 		m_fUsedTickSize = -1;
 	} else {
 		// This is used for triggering recalculation in case the tempo
-		// changes where manually applied by the user. They affect
-		// both playhead and transport position and one can use either.
-		m_fUsedTickSize = pAudioEngine->getPlayheadPosition()->getTickSize();
+		// changes where manually applied by the user. They are not
+		// dependent on a particular position of the transport (as
+		// Timeline is not activated).
+		m_fUsedTickSize = pAudioEngine->getTransportPosition()->getTickSize();
 	}
 }
 

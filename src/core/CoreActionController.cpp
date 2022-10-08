@@ -966,7 +966,7 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 		// loop mode will result in immediate stop. Instead, we want to
 		// stop transport at the end of the song.
 		if ( pSong->lengthInTicks() <
-			 pAudioEngine->getPlayheadPosition()->getTick() ) {
+			 pAudioEngine->getTransportPosition()->getTick() ) {
 			pSong->setLoopMode( Song::LoopMode::Finishing );
 		} else {
 			pSong->setLoopMode( Song::LoopMode::Disabled );

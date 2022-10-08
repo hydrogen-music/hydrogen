@@ -1343,7 +1343,7 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 			// AudioEngine::updatePatternTransportPosition() will call
 			// the functions and activate the next patterns once the
 			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getPlayheadPosition()->getColumn() );
+			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getTransportPosition()->getColumn() );
 			m_pAudioEngine->clearNextPatterns();
 		}
 

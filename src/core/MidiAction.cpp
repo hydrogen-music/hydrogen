@@ -1075,7 +1075,7 @@ bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen 
 	}
 
 	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->
-							   getPlayheadPosition()->getColumn() ) + 1;
+							   getTransportPosition()->getColumn() ) + 1;
 	
 	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
