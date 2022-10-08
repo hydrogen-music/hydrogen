@@ -1547,14 +1547,9 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		setupLadspaFX();
 	}
 
-	// find the first pattern and set as current since we start in
-	// pattern mode.
-	if ( pNewSong->getPatternList()->size() > 0 ) {
-		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
-		m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-	} else {
-		m_nPatternSize = MAX_NOTES;
-	}
+	// Reset (among other things) the transport position. This causes
+	// the locate() call below to update the playing patterns.
+	reset( false );
 
 	pHydrogen->renameJackPorts( pNewSong );
 	m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
