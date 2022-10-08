@@ -80,6 +80,8 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		};
 
 		void createBackground();
+		void invalidateBackground();
+		bool m_bBackgroundInvalid;
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );

@@ -165,7 +165,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	if ( bValueChanged ) {
 		addUndoAction();
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
@@ -286,7 +286,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 
 	if ( bValueChanged ) {
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
@@ -294,7 +294,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction();
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -369,7 +369,7 @@ void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev->x() );
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -529,7 +529,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 
 	m_nDragPreviousColumn = nColumn;
-	createBackground();
+	invalidateBackground();
 	update();
 
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
@@ -540,7 +540,7 @@ void NotePropertiesRuler::propertyDragEnd()
 {
 	addUndoAction();
 	unsetCursor();
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -826,7 +826,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	
 	if ( bValueChanged ) {
-		createBackground();
+		invalidateBackground();
 	}
 	update();
 	
@@ -886,7 +886,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -1416,7 +1416,7 @@ void NotePropertiesRuler::updateEditor( bool )
 		m_nActiveWidth = m_nEditorWidth;
 	}
 
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -1446,6 +1446,7 @@ void NotePropertiesRuler::createBackground()
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
 	update();
+	m_bBackgroundInvalid = false;
 }
 
 
@@ -1497,7 +1498,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 
 	// Updating selection, we may need to repaint the whole widget.
-	createBackground();
+	invalidateBackground();
 	update();
 
 	return std::move(result);
@@ -1523,7 +1524,7 @@ void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes cha
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }

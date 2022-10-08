@@ -284,7 +284,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	const QString& getLastLoadedDrumkitName() const;
 	void setLastLoadedDrumkitName( const QString& sName );
-	const QString& getLastLoadedDrumkitPath() const;
+	QString getLastLoadedDrumkitPath() const;
 	void setLastLoadedDrumkitPath( const QString& sPath );
 	
 		/** Formatted string version for debugging purposes.
@@ -730,10 +730,6 @@ inline const QString& Song::getLastLoadedDrumkitName() const
 inline void Song::setLastLoadedDrumkitName( const QString& sName )
 {
 	m_sLastLoadedDrumkitName = sName;
-}
-inline const QString& Song::getLastLoadedDrumkitPath() const
-{
-	return m_sLastLoadedDrumkitPath;
 }
 inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
 {

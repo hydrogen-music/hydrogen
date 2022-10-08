@@ -110,6 +110,24 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
+		else {
+			ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
+		}
+	}
+
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+	}
+}
+
+void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTriggerEvent ) {
+
+	auto pDrumkit = Drumkit::load( sDrumkitPath );
+	if ( pDrumkit != nullptr ) {
+		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+	}
+	else {
+		ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
 	}
 
 	if ( bTriggerEvent ) {

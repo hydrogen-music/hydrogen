@@ -602,6 +602,9 @@ QString SoundLibraryPanel::getDrumkitPath( const QString& sDrumkitLabel ) const 
 void SoundLibraryPanel::change_background_color()
 {
 	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		return;
+	}
 	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
 	QString sDrumkitLabel = getDrumkitLabel( sDrumkitPath );
 

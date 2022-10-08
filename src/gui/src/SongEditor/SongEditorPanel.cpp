@@ -548,12 +548,10 @@ void SongEditorPanel::updateAll()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	m_pPatternList->createBackground();
+	m_pPatternList->invalidateBackground();
 	m_pPatternList->update();
 
-	m_pSongEditor->cleanUp();
-
-	m_pSongEditor->createBackground();
+	m_pSongEditor->invalidateBackground();
 	m_pSongEditor->update();
 
 	updatePositionRuler();
@@ -610,7 +608,7 @@ void SongEditorPanel::updatePlaybackTrackIfNecessary()
 
 void SongEditorPanel::updatePositionRuler()
 {
-	m_pPositionRuler->createBackground();
+	m_pPositionRuler->invalidateBackground();
 }
 
 ///

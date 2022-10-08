@@ -206,12 +206,15 @@ class Sample : public H2Core::Object<Sample>
 
 		/** \return true if both data channels are null pointers */
 		bool is_empty() const;
+		QString get_filepath() const;
 		/** \return #__filepath */
-		const QString get_filepath() const;
+		const QString get_raw_filepath() const;
 		/** \return Filename part of #__filepath */
 		const QString get_filename() const;
 		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
+		/** \param filename sets #__filepath*/
+		void set_filepath( const QString& sFilepath );
 		/**
 		 * #__frames setter
 		 * \param value the new value for #__frames
@@ -351,9 +354,14 @@ inline bool Sample::is_empty() const
 	return ( __data_l == 0 && __data_r == 0 );
 }
 
-inline const QString Sample::get_filepath() const
+inline const QString Sample::get_raw_filepath() const
 {
 	return __filepath;
+}
+
+inline void Sample::set_filepath( const QString& sFilepath )
+{
+	__filepath = sFilepath;
 }
 
 inline const QString Sample::get_filename() const
