@@ -98,7 +98,7 @@ void AudioEngineTests::testTransportProcessing() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->m_pPlayheadPosition;
+	auto pQueuingPos = pAE->m_pQueuingPosition;
 	
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( true );
@@ -115,17 +115,18 @@ void AudioEngineTests::testTransportProcessing() {
 	pAE->reset( false );
 	pAE->setState( AudioEngine::State::Testing );
 
-	// Check consistency of updated frames, ticks, and playhead while
-	// using a random buffer size (e.g. like PulseAudio does).
+	// Check consistency of updated frames, ticks, and queuing
+	// position while using a random buffer size (e.g. like PulseAudio
+	// does).
 	uint32_t nFrames;
 	double fCheckTick, fLastTickIntervalEnd;
 	long long nCheckFrame, nLastTransportFrame, nTotalFrames, nLastLookahead;
-	long nLastPlayheadTick;
+	long nLastQueuingTick;
 	int nn;
 
 	auto resetVariables = [&]() {
 		nLastTransportFrame = 0;
-		nLastPlayheadTick = 0;
+		nLastQueuingTick = 0;
 		fLastTickIntervalEnd = 0;
 		nTotalFrames = 0;
 		nLastLookahead = 0;
@@ -145,7 +146,7 @@ void AudioEngineTests::testTransportProcessing() {
 		processTransport(
 			"testTransportProcessing : song mode : constant tempo", nFrames,
 			&nLastLookahead, &nLastTransportFrame, &nTotalFrames,
-			&nLastPlayheadTick, &fLastTickIntervalEnd, true );
+			&nLastQueuingTick, &fLastTickIntervalEnd, true );
 
 		nn++;
 		if ( nn > nMaxCycles ) {
@@ -172,7 +173,7 @@ void AudioEngineTests::testTransportProcessing() {
 		fBpm = tempoDist( randomEngine );
 		pAE->setNextBpm( fBpm );
 		pAE->updateBpmAndTickSize( pTransportPos );
-		pAE->updateBpmAndTickSize( pPlayheadPos );
+		pAE->updateBpmAndTickSize( pQueuingPos );
 		
 		nLastLookahead = 0;
 		
@@ -181,7 +182,7 @@ void AudioEngineTests::testTransportProcessing() {
 			processTransport(
 				QString( "testTransportProcessing : song mode : variable tempo %1->%2" )
 				.arg( fLastBpm ).arg( fBpm ), nFrames, &nLastLookahead,
-				&nLastTransportFrame, &nTotalFrames, &nLastPlayheadTick,
+				&nLastTransportFrame, &nTotalFrames, &nLastQueuingTick,
 				&fLastTickIntervalEnd, true );
 		}
 		
@@ -214,7 +215,7 @@ void AudioEngineTests::testTransportProcessing() {
 		
 		pAE->setNextBpm( fBpm );
 		pAE->updateBpmAndTickSize( pTransportPos );
-		pAE->updateBpmAndTickSize( pPlayheadPos );
+		pAE->updateBpmAndTickSize( pQueuingPos );
 		
 		nLastLookahead = 0;
 
@@ -223,7 +224,7 @@ void AudioEngineTests::testTransportProcessing() {
 			processTransport(
 				QString( "testTransportProcessing : pattern mode : variable tempo %1->%2" )
 				.arg( fLastBpm ).arg( fBpm ), nFrames, &nLastLookahead,
-				&nLastTransportFrame, &nTotalFrames, &nLastPlayheadTick,
+				&nLastTransportFrame, &nTotalFrames, &nLastQueuingTick,
 				&fLastTickIntervalEnd, true );
 		}
 
@@ -243,7 +244,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->m_pPlayheadPosition;
+	auto pQueuingPos = pAE->m_pQueuingPosition;
 	
 	pCoreActionController->activateLoopMode( true );
 
@@ -274,17 +275,18 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	pAE->reset( false );
 	pAE->setState( AudioEngine::State::Testing );
 
-	// Check consistency of updated frames, ticks, and playhead while
-	// using a random buffer size (e.g. like PulseAudio does).
+	// Check consistency of updated frames, ticks, and queuing
+	// position while using a random buffer size (e.g. like PulseAudio
+	// does).
 	uint32_t nFrames;
 	double fCheckTick, fLastTickIntervalEnd;
 	long long nCheckFrame, nLastTransportFrame, nTotalFrames, nLastLookahead;
-	long nLastPlayheadTick;
+	long nLastQueuingTick;
 	int nn;
 
 	auto resetVariables = [&]() {
 		nLastTransportFrame = 0;
-		nLastPlayheadTick = 0;
+		nLastQueuingTick = 0;
 		fLastTickIntervalEnd = 0;
 		nTotalFrames = 0;
 		nLastLookahead = 0;
@@ -304,7 +306,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 		processTransport(
 			QString( "[testTransportProcessingTimeline : song mode : all timeline]" ),
 			nFrames, &nLastLookahead, &nLastTransportFrame, &nTotalFrames,
-			&nLastPlayheadTick, &fLastTickIntervalEnd, false );
+			&nLastQueuingTick, &fLastTickIntervalEnd, false );
 
 		nn++;
 		if ( nn > nMaxCycles ) {
@@ -337,7 +339,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 			fBpm = tempoDist( randomEngine );
 			pAE->setNextBpm( fBpm );
 			pAE->updateBpmAndTickSize( pTransportPos );
-			pAE->updateBpmAndTickSize( pPlayheadPos );
+			pAE->updateBpmAndTickSize( pQueuingPos );
 
 			sContext = "no timeline";
 		}
@@ -354,7 +356,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 				QString( "testTransportProcessing : alternating timeline : bpm %1->%2 : %3" )
 				.arg( fLastBpm ).arg( fBpm ).arg( sContext ),
 				nFrames, &nLastLookahead, &nLastTransportFrame, &nTotalFrames,
-				&nLastPlayheadTick, &fLastTickIntervalEnd, false );
+				&nLastQueuingTick, &fLastTickIntervalEnd, false );
 		}
 		
 		fLastBpm = fBpm;
@@ -375,12 +377,12 @@ void AudioEngineTests::processTransport( const QString& sContext,
 										 long long* nLastLookahead,
 										 long long* nLastTransportFrame,
 										 long long* nTotalFrames,
-										 long* nLastPlayheadTick,
+										 long* nLastQueuingTick,
 										 double* fLastTickIntervalEnd,
 										 bool bCheckLookahead ) {
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPlayheadPos = pAE->m_pPlayheadPosition;
+	auto pQueuingPos = pAE->m_pQueuingPosition;
 	
 	double fTickStart, fTickEnd;
 	const long long nLeadLag =
@@ -406,7 +408,7 @@ void AudioEngineTests::processTransport( const QString& sContext,
 		pTransportPos, "[processTransport] " + sContext );
 
 	AudioEngineTests::checkTransportPosition(
-		pPlayheadPos, "[processTransport] " + sContext );
+		pQueuingPos, "[processTransport] " + sContext );
 
 	if ( pTransportPos->getFrame() - nFrames -
 		 pTransportPos->getFrameOffsetTempo() != *nLastTransportFrame ) {
@@ -420,19 +422,19 @@ void AudioEngineTests::processTransport( const QString& sContext,
 
 	const int nNoteQueueUpdate =
 		static_cast<int>(std::floor( fTickEnd ) - std::floor( fTickStart ));
-	// We will only compare the playhead position in case interval
+	// We will only compare the queuing position in case interval
 	// in updateNoteQueue covers at least one tick and, thus,
 	// an update has actually taken place.
-	if ( *nLastPlayheadTick > 0 && nNoteQueueUpdate > 0 ) {
-		if ( pPlayheadPos->getTick() - nNoteQueueUpdate !=
-			 *nLastPlayheadTick ) {
+	if ( *nLastQueuingTick > 0 && nNoteQueueUpdate > 0 ) {
+		if ( pQueuingPos->getTick() - nNoteQueueUpdate !=
+			 *nLastQueuingTick ) {
 			AudioEngineTests::throwException(
-				QString( "[processTransport : playhead] [%1] inconsistent tick update. pPlayheadPos->getTick(): %2, nNoteQueueUpdate: %3, nLastPlayheadTick: %4" )
-				.arg( sContext ).arg( pPlayheadPos->getTick() )
-				.arg( nNoteQueueUpdate ).arg( *nLastPlayheadTick ) );
+				QString( "[processTransport : queuing pos] [%1] inconsistent tick update. pQueuingPos->getTick(): %2, nNoteQueueUpdate: %3, nLastQueuingTick: %4" )
+				.arg( sContext ).arg( pQueuingPos->getTick() )
+				.arg( nNoteQueueUpdate ).arg( *nLastQueuingTick ) );
 		}
 	}
-	*nLastPlayheadTick = pPlayheadPos->getTick();
+	*nLastQueuingTick = pQueuingPos->getTick();
 
 	// Check whether the tick interval covered in updateNoteQueue
 	// is consistent and does not include holes or overlaps.
@@ -441,9 +443,9 @@ void AudioEngineTests::processTransport( const QString& sContext,
 	if ( std::abs( fTickStart - *fLastTickIntervalEnd ) > 1E-4 ||
 		 fTickStart >= fTickEnd ) {
 		AudioEngineTests::throwException(
-			QString( "[processTransport : tick interval] [%1] inconsistent update. old: [ ... : %2 ], new: [ %3, %4 ], pTransportPos->getTickOffsetTempo(): %5, diff: %6" )
+			QString( "[processTransport : tick interval] [%1] inconsistent update. old: [ ... : %2 ], new: [ %3, %4 ], pTransportPos->getTickOffsetQueuing(): %5, diff: %6" )
 			.arg( sContext ).arg( *fLastTickIntervalEnd ).arg( fTickStart )
-			.arg( fTickEnd ).arg( pTransportPos->getTickOffsetTempo() )
+			.arg( fTickEnd ).arg( pTransportPos->getTickOffsetQueuing() )
 			.arg( std::abs( fTickStart - *fLastTickIntervalEnd ), 0, 'E', -1 ) );
 	}
 	*fLastTickIntervalEnd = fTickEnd;

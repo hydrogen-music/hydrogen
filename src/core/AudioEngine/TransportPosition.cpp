@@ -49,7 +49,7 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	m_nColumn = pOther->m_nColumn;
 	m_fTickMismatch = pOther->m_fTickMismatch;
 	m_nFrameOffsetTempo = pOther->m_nFrameOffsetTempo;
-	m_fTickOffsetTempo = pOther->m_fTickOffsetTempo;
+	m_fTickOffsetQueuing = pOther->m_fTickOffsetQueuing;
 	m_fTickOffsetSongSize = pOther->m_fTickOffsetSongSize;
 }
 
@@ -63,7 +63,7 @@ void TransportPosition::reset() {
 	m_nColumn = -1;
 	m_fTickMismatch = 0;
 	m_nFrameOffsetTempo = 0;
-	m_fTickOffsetTempo = 0;
+	m_fTickOffsetQueuing = 0;
 	m_fTickOffsetSongSize = 0;
 }
 
@@ -561,7 +561,7 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( "%1%2m_nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nColumn ) )
 			.append( QString( "%1%2m_fTickMismatch: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickMismatch, 0, 'f' ) )
 			.append( QString( "%1%2m_nFrameOffsetTempo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nFrameOffsetTempo ) )
-			.append( QString( "%1%2m_fTickOffsetTempo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetTempo, 0, 'f' ) )
+			.append( QString( "%1%2m_fTickOffsetQueuing: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
 			.append( QString( "%1%2m_fTickOffsetSongSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
 	}
 	else {
@@ -577,7 +577,7 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( ", m_nColumn: %1" ).arg( m_nColumn ) )
 			.append( QString( ", m_fTickMismatch: %1" ).arg( m_fTickMismatch, 0, 'f' ) )
 			.append( QString( ", m_nFrameOffsetTempo: %1" ).arg( m_nFrameOffsetTempo ) )
-			.append( QString( ", m_fTickOffsetTempo: %1" ).arg( m_fTickOffsetTempo, 0, 'f' ) )
+			.append( QString( ", m_fTickOffsetQueuing: %1" ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
 			.append( QString( ", m_fTickOffsetSongSize: %1" ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
 	}
 	

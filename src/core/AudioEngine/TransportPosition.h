@@ -75,7 +75,7 @@ public:
 	int getColumn() const;
 	double getTickMismatch() const;
 	long long getFrameOffsetTempo() const;
-	double getTickOffsetTempo() const;
+	double getTickOffsetQueuing() const;
 	double getTickOffsetSongSize() const;
 
 		/**
@@ -140,7 +140,7 @@ private:
 	void setPatternTickPosition( long nPatternTickPosition );
 	void setColumn( int nColumn );
 	void setFrameOffsetTempo( long long nFrameOffset );
-	void setTickOffsetTempo( double nTickOffset );
+	void setTickOffsetQueuing( double nTickOffset );
 	void setTickOffsetSongSize( double fTickOffset );
 
 	/**
@@ -286,7 +286,7 @@ private:
 	 */
 	long long 			m_nFrameOffsetTempo;
 
-	double 				m_fTickOffsetTempo;
+	double 				m_fTickOffsetQueuing;
 
 	/**
 	 * Offset introduced when song size is changed while playback is
@@ -338,11 +338,11 @@ inline long long TransportPosition::getFrameOffsetTempo() const {
 inline void TransportPosition::setFrameOffsetTempo( long long nFrameOffset ) {
 	m_nFrameOffsetTempo = nFrameOffset;
 }
-inline double TransportPosition::getTickOffsetTempo() const {
-	return m_fTickOffsetTempo;
+inline double TransportPosition::getTickOffsetQueuing() const {
+	return m_fTickOffsetQueuing;
 }
-inline void TransportPosition::setTickOffsetTempo( double fTickOffset ) {
-	m_fTickOffsetTempo = fTickOffset;
+inline void TransportPosition::setTickOffsetQueuing( double fTickOffset ) {
+	m_fTickOffsetQueuing = fTickOffset;
 }
 inline double TransportPosition::getTickOffsetSongSize() const {
 	return m_fTickOffsetSongSize;

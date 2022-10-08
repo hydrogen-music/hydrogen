@@ -321,7 +321,6 @@ public:
 	float			getMaxProcessTime() const;
 
 	const std::shared_ptr<TransportPosition> getTransportPosition() const;
-	const std::shared_ptr<TransportPosition> getPlayheadPosition() const;
 
 	const PatternList*	getNextPatterns() const;
 	const PatternList*	getPlayingPatterns() const;
@@ -704,7 +703,7 @@ private:
 	 * #m_transportPosition + a both speed and
 	 * sample rate dependent lookahead.
 	 */
-	std::shared_ptr<TransportPosition> m_pPlayheadPosition;
+	std::shared_ptr<TransportPosition> m_pQueuingPosition;
 
 
 	/**
@@ -900,9 +899,6 @@ inline float AudioEngine::getNextBpm() const {
 }
 inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPosition() const {
 	return m_pTransportPosition;
-}
-inline const std::shared_ptr<TransportPosition> AudioEngine::getPlayheadPosition() const {
-	return m_pPlayheadPosition;
 }
 inline double AudioEngine::getSongSizeInTicks() const {
 	return m_fSongSizeInTicks;
