@@ -33,28 +33,21 @@ namespace H2Core
 
 /**
  * Object holding most of the information about the transport state of
- * the AudioEngine, like if it is playing or stopped or its current
- * transport position and speed.
+ * the AudioEngine.
  *
  * Due to the original design of Hydrogen the fundamental variable to
- * determine the transport position is a tick. Whenever a tempo change
- * is encounter, the tick size (in frames per tick) is rescaled. To
- * nevertheless ensure compatibility with frame-based audio systems,
- * like JACK, this class will also keep track of the frame count
- * during BPM changes, relocations etc. This variable is dubbed
- * "externalFrames" to indicate that it's not used within Hydrogen but
- * to sync it with other apps.
+ * determine the transport position is a tick. Whenever a tempo or
+ * song size change is encountered, the tick and frame information are
+ * shifted or rescaled. To nevertheless ensure consistency, the amount
+ * of compensation required to retrieve the original position is
+ * stored in a number of dedicated offset variables.
  */
 class TransportPosition : public H2Core::Object<TransportPosition>
 {
 	H2_OBJECT(TransportPosition)
 public:
 
-	/**
-	 * Constructor of TransportPosition
-	 */
 	TransportPosition( const QString sLabel = "" );
-	/** Destructor of TransportPosition */
 	~TransportPosition();
 
 	const QString getLabel() const;
@@ -65,7 +58,7 @@ public:
 	 * Only within the #AudioEngine ticks are handled as doubles.
 	 * This is required to allow for a seamless transition between
 	 * frames and ticks without any rounding error. All other parts
-	 * use integer values.
+	 * use integer values (due to historical reasons).
 	 */
 	long getTick() const;
 	float getTickSize() const;
@@ -78,12 +71,17 @@ public:
 	double getTickOffsetQueuing() const;
 	double getTickOffsetSongSize() const;
 
-		/**
-	 * Calculates a tick equivalent to @a nFrame.
+	/**
+	 * Calculates tick equivalent of @a nFrame.
 	 *
-	 * The function takes all passed tempo markers into account and
-	 * depends on the sample rate @a nSampleRate. It also assumes that
-	 * sample rate and resolution are constant over the whole song.
+	 * In case the #Timeline is activated, the function takes all
+	 * passed tempo markers into account in order to determine the
+	 * number of ticks passed when letting the #AudioEngine roll for
+	 * @a nFrame frames.
+	 *
+	 * It depends on the sample rate @a nSampleRate and assumes that
+	 * it as well as the resolution to be constant over the whole
+	 * song.
 	 *
 	 * @param nFrame Transport position in frame which should be
 	 * converted into ticks.
@@ -93,11 +91,16 @@ public:
 	static double computeTickFromFrame( long long nFrame, int nSampleRate = 0 );
 
 	/**
-	 * Calculates the frame equivalent to @a fTick.
+	 * Calculates frame equivalent of @a fTick.
 	 *
-	 * The function takes all passed tempo markers into account and
-	 * depends on the sample rate @a nSampleRate. It also assumes that
-	 * sample rate and resolution are constant over the whole song.
+	 * In case the #Timeline is activated, the function takes all
+	 * passed tempo markers into account in order to determine the
+	 * number of frames passed when letting the #AudioEngine roll for
+	 * @a fTick ticks.
+	 *
+	 * It depends on the sample rate @a nSampleRate and assumes that
+	 * it as well as the resolution to be constant over the whole
+	 * song.
 	 *
 	 * @param fTick Current transport position in ticks.
 	 * @param fTickMismatch Since ticks are stored as doubles and there
@@ -144,23 +147,23 @@ private:
 	void setTickOffsetSongSize( double fTickOffset );
 
 	/**
-	 * Converts a tick into frames under the assumption of a constant
-	 * @a fTickSize since the beginning of the song (sample rate,
-	 * tempo, and resolution did not change).
+	 * Converts ticks into frames under the assumption of a constant
+	 * @a fTickSize (sample rate, tempo, and resolution did not
+	 * change).
 	 *
-	 * As the assumption above usually does not hold,
-	 * computeFrameFromTick() should be used instead while this
-	 * function is only meant for internal use.
+	 * As the assumption above does not hold once a tempo marker is
+	 * introduced, computeFrameFromTick() should be used instead while
+	 * this function is only meant for internal use.
 	 */
 	static long long computeFrame( double fTick, float fTickSize );
 	/**
-	 * Converts a frame into ticks under the assumption of a constant
-	 * @a fTickSize since the beginning of the song (sample rate,
-	 * tempo, and resolution did not change).
+	 * Converts frames into ticks under the assumption of a constant
+	 * @a fTickSize (sample rate, tempo, and resolution did not
+	 * change).
 	 *
-	 * As the assumption above usually does not hold,
-	 * computeTickFromFrame() should be used instead while this
-	 * function is only meant for internal use.
+	 * As the assumption above does not hold once a tempo marker is
+	 * introduced, computeFrameFromTick() should be used instead while
+	 * this function is only meant for internal use.
 	 */
 	static double computeTick( long long nFrame, float fTickSize );
 
@@ -180,17 +183,22 @@ private:
 	 * second and, with a _buffer size_ = 1024, 1024 consecutive
 	 * frames will be accumulated before they are handed over to the
 	 * audio engine for processing. Internally, the transport is based
-	 * on float precision ticks. (#m_nFrame / #m_fTickSize)
+	 * on ticks. (#m_nFrame / #m_fTickSize)
 	 */
 	long long m_nFrame;
 	
 	/**
-	 * Smallest temporal unit used for transport navigation within
-	 * Hydrogen and is calculated using AudioEngine::computeTick(),
-	 * #m_nFrame, and #m_fTickSize.
+	 * Current transport position in number of ticks since the
+	 * beginning of the song.
 	 *
-	 * Note that the smallest unit for positioning a #Note is a frame
-	 * due to the humanization capabilities.
+	 * A tick is the smallest temporal unit used for transport,
+	 * navigation, and audio rendering within Hydrogen. (Note that the
+	 * smallest unit for positioning a #Note is a frame due to the
+	 * humanization capabilities.)
+	 *
+	 * Although the precision of this variable is double, only a
+	 * version of it rounded to integer is used outside of the
+	 * #AudioEngine.
 	 *
 	 * Float is, unfortunately, not enough. When the engine is running
 	 * for a long time the high precision digits after decimal point
@@ -201,33 +209,27 @@ private:
 	/** 
 	 * Number of frames that make up one tick.
 	 *
-	 * The notes won't be processed frame by frame but, instead, tick
-	 * by tick. Therefore, #m_fTickSize represents the minimum
-	 * duration of a Note as well as the minimum distance between two
-	 * of them.
-	 *
 	 * Calculated using AudioEngine::computeTickSize().
 	 */
 	float m_fTickSize;
 	/** Current tempo in beats per minute.
 	 *
-	 * The tempo hold by the #TransportPosition (and thus the
-	 * #AudioEngine) is the one currently used throughout Hydrogen. It
-	 * can be set through three different mechanisms and the
+	 * It can be set through three different mechanisms and the
 	 * corresponding values are stored in different places.
 	 *
-	 * The most fundamental one is stored in Song::m_fBpm and can be
-	 * set using the BPM widget in the PlayerControl or via MIDI and
-	 * OSC commands. Writing the value to the current #Song is done by
-	 * the latter commands and widget and not within the AudioEngine.
+	 * 1. The most fundamental one is stored in #Song::m_fBpm and can
+	 * be set using the BPM widget in the #PlayerControl or via MIDI
+	 * and OSC commands. Writing the value to the current #Song is
+	 * done by the latter commands and widget and not within the
+	 * #AudioEngine.
 	 *
-	 * It is superseded by the tempo markers as soon as the #Timeline
-	 * is activated and at least one TempoMarker is set. The current
-	 * speed during Timeline-based transport will not override
-	 * Song::m_fBpm and is stored using the tempo markers in the
+	 * 2. It is superseded by the tempo markers as soon as the
+	 * #Timeline is activated and at least one TempoMarker is set. The
+	 * current speed during Timeline-based transport will not override
+	 * #Song::m_fBpm and is stored using the tempo markers in the
 	 * .h2song file instead. (see #Timeline for details)
 	 *
-	 * Both Song and Timeline tempo are superseded by the BPM
+	 * 3. Both #Song and #Timeline tempo are superseded by the BPM
 	 * broadcasted by the JACK timebase master application once
 	 * Hydrogen acts as timebase slave. The corresponding value
 	 * depends entirely on the external application and will not be
@@ -236,11 +238,11 @@ private:
 	float m_fBpm;
 	
 	/**
-	 * Beginning of the pattern in ticks the transport position is
-	 * located in.
+	 * Dicstance in ticks between the beginning of the song and the
+	 * beginning of the current column (#m_nColumn).
 	 *
 	 * The current transport position corresponds
-	 * to #m_fTick = #m_nPatternStartTick +
+	 * to #m_fTick = (roughly) #m_nPatternStartTick +
 	 * #m_nPatternTickPosition.
 	 */
 	long				m_nPatternStartTick;
@@ -248,13 +250,13 @@ private:
 	 * Ticks passed since #m_nPatternStartTick.
 	 *
 	 * The current transport position thus corresponds
-	 * to #m_fTick = #m_nPatternStartTick +
+	 * to #m_fTick = (roughly) #m_nPatternStartTick +
 	 * #m_nPatternTickPosition.
 	 */
 	long				m_nPatternTickPosition;
 	/**
-	 * Coarse-grained version of #m_nPatternStartTick which can be
-	 * used as the index of the current PatternList/column in the
+	 * Specifies the column transport is located in and can be used as
+	 * the index of the current PatternList/column in the
 	 * #Song::m_pPatternGroupSequence.
 	 *
 	 * A value of -1 corresponds to "pattern list could not be found"
@@ -263,41 +265,67 @@ private:
 	 */
 	int					m_nColumn;
 	
-	/** Number of frames #m_nFrame is ahead/behind of
-	 *	#m_nTick.
+	/** Number of ticks #m_nFrame is ahead/behind of
+	 *	#m_fTick.
 	 *
 	 * This is due to the rounding error introduced when calculating
-	 * the frame counterpart in double within computeFrameFromTick()
-	 * and rounding it to assign it to #m_nFrame.
+	 * the frame counterpart #m_nFrame of #m_fTick using
+	 * computeFrameFromTick().
+	 * #m_nFrame.
 	**/
 	double 				m_fTickMismatch;
 
-	/** Offset introduced when changing the tempo of the song while
-	 * playback is running.
+	/**
+	 * Frame offset introduced when changing the tempo of the song.
 	 *
-	 * On each tempo change #m_fTickSize of the song gets altered
-	 * too. As a result #m_nFrame and #m_fTick are not consistent
-	 * anymore. We will handle this case by compensating the
-	 * difference in frames using #m_nFrameOffsetTempo internally till
-	 * transport is stopped or relocated again.
+	 * In case the #Timeline is deactivate each tempo change does
+	 * alter #m_fTickSize and results in #m_nFrame and #m_fTick to not
+	 * be consistent anymore. We will handle this by compensating the
+	 * difference in frames (#m_fTick is kept constant during a tempo
+	 * change while #m_nFrame gets rescaled) using
+	 * #m_nFrameOffsetTempo as an additive offset internally.
 	 *
-	 * Note that this variable is _not_ the frame equivalent of
-	 * #m_fTickOffsetSongSize.
+	 * When locating transport or stopping playback both #m_nFrame and
+	 * #m_fTick become synced again and #m_nFrameOffsetTempo gets
+	 * resetted.
+	 *
+	 * Note this is not the frame equivalent of #m_fTickOffsetQueuing.
 	 */
 	long long 			m_nFrameOffsetTempo;
-
+	/**
+	 * Tick offset introduced when changing the tempo of the song.
+	 *
+	 * In case the #Timeline is deactivate each tempo change does
+	 * alter #m_fTickSize and results in the start of the new tick
+	 * interval covered for note enqueuing in
+	 * AudioEngine::updateNoteQueue() to not be consistent with the
+	 * previous interval end anymore. Holes or overlaps could lead to
+	 * note misses or double enqueuings. We will handle this by
+	 * compensating the difference in ticks using
+	 * #m_fTickOffsetQueuing as an additive offset internally.
+	 *
+	 * When locating transport or stopping playback both the tick
+	 * interval and #m_fTickOffsetQueuing get resetted.
+	 *
+	 * Note this is not the tick equivalent of #m_nFrameOffsetTempo.
+	 */
 	double 				m_fTickOffsetQueuing;
 
 	/**
-	 * Offset introduced when song size is changed while playback is
-	 * running.
+	 * Tick offset introduced when changing the size of the song.
 	 *
-	 * When altering the size of the song the #m_nPatternStartTick can
-	 * change too. In order to still keep the playback consistent the
-	 * difference in ticks is stored in @m_fTickOffsetSongSize.
+	 * When altering the size of the song, e.g. by enlarging a pattern
+	 * prior to the one currently playing, both #m_nFrame and #m_fTick
+	 * become invalid. We will handle this by compensating the
+	 * difference between the old and new tick position using
+	 * #m_fTickOffsetSongSize as an additive offset internally. In
+	 * addition, #m_nFrameOffsetTempo and #m_fTickOffsetQueuing will
+	 * be used to compensate for the change in the current frame
+	 * position and tick interval end.
 	 *
-	 * Note that this variable is _not_ the tick equivalent of
-	 * #m_nFrameOffsetTempo.
+	 * When locating transport or stopping playback both #m_nFrame and
+	 * #m_fTick become synced again and #m_fTickOffsetSongSize gets
+	 * resetted.
 	 */
 	double 				m_fTickOffsetSongSize;
 };

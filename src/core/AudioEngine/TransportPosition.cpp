@@ -345,16 +345,16 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	} else {
 
 		// As the timeline is not activate, the column passed is of no
-		// importance. We harness the ability of the function to
-		// collect and choose between tempo information gather from
-		// various sources.
+		// importance. But we harness the ability of getBpmAtColumn()
+		// to collect and choose between tempo information gathered
+		// from various sources.
 		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
 
 		const double fTickSize =
 			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm,
 												nResolution );
 		
-		// No Timeline but a single tempo for the whole song.
+		// Single tempo for the whole song.
 		const double fNewFrame = static_cast<double>(fTick) *
 			fTickSize;
 		nNewFrame = static_cast<long long>( std::round( fNewFrame ) );
@@ -370,6 +370,8 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	return nNewFrame;
 }
 
+// This function uses the assumption that sample rate and resolution
+// are constant over the whole song.
 double TransportPosition::computeTickFromFrame( const long long nFrame, int nSampleRate ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 
@@ -517,16 +519,15 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	}
 	else {
 		// As the timeline is not activate, the column passed is of no
-		// importance. We harness the ability of the function to
-		// collect and choose between tempo information gather from
-		// various sources.
+		// importance. But we harness the ability of getBpmAtColumn()
+		// to collect and choose between tempo information gathered
+		// from various sources.
 		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
 		const double fTickSize =
 			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm,
 												nResolution );
 
-
-		// No Timeline. Constant tempo/tick size for the whole song.
+		// Single tempo for the whole song.
 		fTick = static_cast<double>(nFrame) / fTickSize;
 
 		// DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
