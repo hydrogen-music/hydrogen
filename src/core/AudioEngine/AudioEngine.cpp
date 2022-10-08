@@ -692,9 +692,10 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 
 	if ( m_fLastTickEnd != 0 ) {
 		const long long nNewLookahead =
-			getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
+			getLeadLagInFrames( pPos->getDoubleTick() ) +
 			AudioEngine::nMaxTimeHumanize + 1;
-		const double fNewTickEnd = TransportPosition::computeTickFromFrame( nNewFrame + nNewLookahead );
+		const double fNewTickEnd = TransportPosition::computeTickFromFrame(
+			nNewFrame + nNewLookahead );
 		pPos->setTickOffsetQueuing( fNewTickEnd - m_fLastTickEnd );
 
 		// DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetQueuing(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
