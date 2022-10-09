@@ -801,13 +801,12 @@ void AudioEngineTests::testNoteEnqueuing() {
 	//////////////////////////////////////////////////////////////////
 	// Perform the test in pattern mode
 	//////////////////////////////////////////////////////////////////
-	
+
 	pCoreActionController->activateSongMode( false );
 	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 	pHydrogen->setSelectedPatternNumber( 4 );
 
 	pAE->lock( RIGHT_HERE );
-	pAE->reset( false );
 	pAE->setState( AudioEngine::State::Testing );
 
 	AudioEngineTests::resetSampler( "testNoteEnqueuing : pattern mode" );

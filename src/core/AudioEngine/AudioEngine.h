@@ -400,7 +400,7 @@ public:
 	 */
 	void updateSongSize();
 
-	void removePlayingPattern( int nIndex );
+	void removePlayingPattern( Pattern* pPattern );
 	/**
 	 * Update the list of patterns currently played back.
 	 *
@@ -420,7 +420,7 @@ public:
 	 * \param nColumn Desired location in song mode.
 	 * \param nTick Desired location in pattern mode.
 	 */
-	void updatePlayingPatterns( int nColumn, long nTick = 0 );
+	void updatePlayingPatterns();
 	void clearNextPatterns();
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
@@ -538,6 +538,26 @@ private:
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
 	void			setRealtimeFrame( long long nFrame );
+	/**
+	 * Update the list of patterns currently played back.
+	 *
+	 * This works in three different ways.
+	 *
+	 * 1. In case the song is in Song::Mode::Song when entering a new
+	 * @a nColumn #m_pPlayingPatterns will be flushed and all patterns
+	 * activated in the provided column will be added.
+	 * 2. While in Song::PatternMode::Selected the function
+	 * ensures the currently selected pattern is the only pattern in
+	 * #m_pPlayingPatterns.
+	 * 3. While in Song::PatterMode::Stacked all patterns
+	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
+	 * will be added in the latter and the ones already present will
+	 * be removed.
+	 *
+	 * \param nColumn Desired location in song mode.
+	 * \param nTick Desired location in pattern mode.
+	 */
+	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
 	
 	/**
 	 * Updates the global objects of the audioEngine according to new
@@ -583,18 +603,12 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( double fTick,
-											 long long nFrame,
-											 std::shared_ptr<TransportPosition> pPos,
-											 bool bUpdatePlayingPatterns );
-	void			updateSongTransportPosition( double fTick,
-												 long long nFrame,
-												 std::shared_ptr<TransportPosition> pPos,
-												 bool bUpdatePlayingPatterns  );
-	void			updatePatternTransportPosition( double fTick,
-													long long nFrame,
-													std::shared_ptr<TransportPosition> pPos,
-													bool bUpdatePlayingPatterns  );
+	void			updateTransportPosition( double fTick, long long nFrame,
+											 std::shared_ptr<TransportPosition> pPos );
+	void			updateSongTransportPosition( double fTick, long long nFrame,
+												 std::shared_ptr<TransportPosition> pPos );
+	void			updatePatternTransportPosition( double fTick, long long nFrame,
+													std::shared_ptr<TransportPosition> pPos );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue to be still valid after a
@@ -705,29 +719,8 @@ private:
 	 */
 	std::shared_ptr<TransportPosition> m_pQueuingPosition;
 
-
-	/**
-	 * Cached information to determine the end of the currently
-	 * playing pattern in ticks (see #m_pPlayingPatterns).
-	 */
-	int m_nPatternSize;
-
 	/** Set to the total number of ticks in a Song.*/
 	double				m_fSongSizeInTicks;
-
-	/**
-	 * Patterns to be played next in stacked Song::Mode::Pattern mode.
-	 *
-	 * See updatePlayingPatterns() for details.
-	 */
-	PatternList*		m_pNextPatterns;
-	
-	/**
-	 * PatternList containing all Patterns currently played back.
-	 *
-	 * See updatePlayingPatterns() for details.
-	 */
-	PatternList*		m_pPlayingPatterns;
 
 	/**
 	 * Variable keeping track of the transport position in realtime.
@@ -876,14 +869,6 @@ inline 	MidiInput*	AudioEngine::getMidiDriver() const {
 
 inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
-}
-
-inline const PatternList* AudioEngine::getPlayingPatterns() const {
-	return m_pPlayingPatterns;
-}
-
-inline const PatternList* AudioEngine::getNextPatterns() const {
-	return m_pNextPatterns;
 }
 
 inline long long AudioEngine::getRealtimeFrame() const {

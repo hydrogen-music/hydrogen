@@ -22,6 +22,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/AudioEngine/AudioEngine.h>
 
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -33,10 +34,17 @@ namespace H2Core {
 TransportPosition::TransportPosition( const QString sLabel )
 	: m_sLabel( sLabel )
 {
+	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns->setNeedsLock( true );
+	m_pNextPatterns = new PatternList();
+	m_pNextPatterns->setNeedsLock( true );
+	
 	reset();
 }
 
 TransportPosition::~TransportPosition() {
+	delete m_pPlayingPatterns;
+	delete m_pNextPatterns;
 }
 
 void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
@@ -51,6 +59,9 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	m_nFrameOffsetTempo = pOther->m_nFrameOffsetTempo;
 	m_fTickOffsetQueuing = pOther->m_fTickOffsetQueuing;
 	m_fTickOffsetSongSize = pOther->m_fTickOffsetSongSize;
+	m_pPlayingPatterns = pOther->m_pPlayingPatterns;
+	m_pNextPatterns = pOther->m_pNextPatterns;
+	m_nPatternSize = pOther->m_nPatternSize;
 }
 
 void TransportPosition::reset() {
@@ -65,6 +76,10 @@ void TransportPosition::reset() {
 	m_nFrameOffsetTempo = 0;
 	m_fTickOffsetQueuing = 0;
 	m_fTickOffsetSongSize = 0;
+
+	m_pPlayingPatterns->clear();
+	m_pNextPatterns->clear();
+	m_nPatternSize = MAX_NOTES;
 }
 
 void TransportPosition::setBpm( float fNewBpm ) {
@@ -143,6 +158,17 @@ void TransportPosition::setColumn( int nColumn ) {
 	}
 
 	m_nColumn = nColumn;
+}
+
+
+void TransportPosition::setPatternSize( int nPatternSize ) {
+	if ( nPatternSize < 0 ) {
+		ERRORLOG( QString( "[%1] Provided pattern size [%2] it too small. Using [0] as a fallback instead." )
+				  .arg( m_sLabel ).arg( nPatternSize ) );
+		nPatternSize = 0;
+	}
+
+	m_nPatternSize = nPatternSize;
 }
 				
 // This function uses the assumption that sample rate and resolution
@@ -564,6 +590,13 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( "%1%2m_nFrameOffsetTempo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nFrameOffsetTempo ) )
 			.append( QString( "%1%2m_fTickOffsetQueuing: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
 			.append( QString( "%1%2m_fTickOffsetSongSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
+		if ( m_pPlayingPatterns != nullptr ) {
+			sOutput.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) );
+		}
+		if ( m_pNextPatterns != nullptr ) {
+			sOutput.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
+		}
+		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternSize ) );
 	}
 	else {
 		sOutput = QString( "%1[TransportPosition]" ).arg( sPrefix )
@@ -580,6 +613,13 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( ", m_nFrameOffsetTempo: %1" ).arg( m_nFrameOffsetTempo ) )
 			.append( QString( ", m_fTickOffsetQueuing: %1" ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
 			.append( QString( ", m_fTickOffsetSongSize: %1" ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
+		if ( m_pPlayingPatterns != nullptr ) {
+			sOutput.append( QString( ", m_pPlayingPatterns: %1" ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) );
+		}
+		if ( m_pNextPatterns != nullptr ) {
+			sOutput.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
+		}
+		sOutput.append( QString( ", m_nPatternSize: %1" ).arg( m_nPatternSize ) );
 	}
 	
 	return sOutput;

@@ -928,15 +928,15 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		pHydrogen->setMode( Song::Mode::Song );
 	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
-
-		// Add the selected pattern to playing ones.
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-			pAudioEngine->lock( RIGHT_HERE );
-			pAudioEngine->updatePlayingPatterns( 0, 0 );
-			pAudioEngine->unlock();
-		}
 	}
+
 	locateToColumn( 0 );
+
+	// Ensure the playing patterns are properly updated regardless of
+	// the state of transport before switching song modes.
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->updatePlayingPatterns();
+	pAudioEngine->unlock();
 	
 	return true;
 }
@@ -1527,12 +1527,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// Ensure the pattern is not among the list of currently played
 	// patterns cached in the audio engine if transport is in pattern
 	// mode.
-	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
-		if ( pPlayingPatterns->get( ii ) == pPattern ) {
-			pAudioEngine->removePlayingPattern( ii );
-			break;
-		}
-	}
+	pAudioEngine->removePlayingPattern( pPattern );
 
 	// Delete the pattern from the list of available patterns.
 	pPatternList->del( pPattern );

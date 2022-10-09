@@ -923,7 +923,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 		m_nSelectedPatternNumber = nPat;
 		// The specific values provided are not important since we a
 		// in selected pattern mode.
-		m_pAudioEngine->updatePlayingPatterns( 0, 0 );
+		m_pAudioEngine->updatePlayingPatterns();
 
 		if ( bNeedsLock ) {
 			m_pAudioEngine->unlock();
@@ -1335,15 +1335,8 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 		__song->setPatternMode( mode );
 		setIsModified( true );
 		
-		if ( mode == Song::PatternMode::Selected ||
-			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
-			// Only update the playing patterns in selected pattern
-			// mode or if transport is not rolling. In stacked pattern
-			// mode with transport rolling
-			// AudioEngine::updatePatternTransportPosition() will call
-			// the functions and activate the next patterns once the
-			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getTransportPosition()->getColumn() );
+		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			m_pAudioEngine->updatePlayingPatterns();
 			m_pAudioEngine->clearNextPatterns();
 		}
 

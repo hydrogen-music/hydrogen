@@ -109,7 +109,6 @@ AudioEngine::AudioEngine()
 		, m_pMidiDriverOut( nullptr )
 		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
-		, m_nPatternSize( MAX_NOTES )
 		, m_fSongSizeInTicks( 0 )
 		, m_nRealtimeFrame( 0 )
 		, m_fMasterPeak_L( 0.0f )
@@ -148,11 +147,6 @@ AudioEngine::AudioEngine()
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
 	
-	m_pPlayingPatterns = new PatternList();
-	m_pPlayingPatterns->setNeedsLock( true );
-	m_pNextPatterns = new PatternList();
-	m_pNextPatterns->setNeedsLock( true );
-	
 	m_AudioProcessCallback = &audioEngine_process;
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -176,12 +170,6 @@ AudioEngine::~AudioEngine()
 
 	// change the current audio engine state
 	setState( State::Uninitialized );
-
-	delete m_pPlayingPatterns;
-	m_pPlayingPatterns = nullptr;
-
-	delete m_pNextPatterns;
-	m_pNextPatterns = nullptr;
 
 	m_pMetronomeInstrument = nullptr;
 
@@ -339,6 +327,8 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 
 	updateBpmAndTickSize( m_pTransportPosition );
 	updateBpmAndTickSize( m_pQueuingPosition );
+
+	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
@@ -402,7 +392,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const long long nNewFrame = TransportPosition::computeFrameFromTick(
 		fTick, &m_pTransportPosition->m_fTickMismatch );
 
-	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition, true );
+	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition );
 	m_pQueuingPosition->set( m_pTransportPosition );
 	
 	handleTempoChange();
@@ -437,7 +427,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 				  .arg( m_pQueuingPosition->m_fTickMismatch ) );
 	}
 
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, true );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
 	m_pQueuingPosition->set( m_pTransportPosition );
 
 	handleTempoChange();
@@ -482,13 +472,13 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
 	// 		  .arg( fNewTick, 0, 'f' )
 	// 		  .arg( m_pTransportPosition->getTickSize(), 0, 'f' ) );
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, false );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
 
 	// We are not updating the queuing position in here. This will be
 	// done in updateNoteQueue.
 }
 
-void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
+void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -503,10 +493,10 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	// Update pPos->m_nPatternStartTick, pPos->m_nPatternTickPosition,
 	// and pPos->m_nPatternSize.
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		updateSongTransportPosition( fTick, nFrame, pPos, bUpdatePlayingPatterns );
+		updateSongTransportPosition( fTick, nFrame, pPos );
 	}
 	else {  // Song::Mode::Pattern
-		updatePatternTransportPosition( fTick, nFrame, pPos, bUpdatePlayingPatterns );
+		updatePatternTransportPosition( fTick, nFrame, pPos );
 	}
 
 	updateBpmAndTickSize( pPos );
@@ -519,7 +509,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	
 }
 
-void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
+void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -542,13 +532,14 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 	// was just activated.
 	const double fPatternStartTick =
 		static_cast<double>(pPos->getPatternStartTick());
+	const int nPatternSize = pPos->getPatternSize();
 	
-	if ( fTick >= fPatternStartTick + static_cast<double>(m_nPatternSize) ||
+	if ( fTick >= fPatternStartTick + static_cast<double>(nPatternSize) ||
 		 fTick < fPatternStartTick ) {
 		pPos->setPatternStartTick( pPos->getPatternStartTick() +
 								   static_cast<long>(std::floor( ( fTick - fPatternStartTick ) /
-																 static_cast<double>(m_nPatternSize) )) *
-								   m_nPatternSize );
+																 static_cast<double>(nPatternSize) )) *
+								   nPatternSize );
 
 		// In stacked pattern mode we will only update the playing
 		// patterns if the transport of the original pattern is looped
@@ -556,24 +547,22 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 		//
 		// In selected pattern mode pattern change does occur
 		// asynchonically by user interaction.
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked &&
-			 bUpdatePlayingPatterns ) {
-			// Updates m_nPatternSize.
-			updatePlayingPatterns( 0, fTick );
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			updatePlayingPatternsPos( pPos );
 		}
 	}
 
 	long nPatternTickPosition = static_cast<long>(std::floor( fTick )) -
 		pPos->getPatternStartTick();
-	if ( nPatternTickPosition > m_nPatternSize ) {
+	if ( nPatternTickPosition > nPatternSize ) {
 		nPatternTickPosition = ( static_cast<long>(std::floor( fTick ))
 								 - pPos->getPatternStartTick() ) %
-			m_nPatternSize;
+			nPatternSize;
 	}
 	pPos->setPatternTickPosition( nPatternTickPosition );
 }
 
-void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos, bool bUpdatePlayingPatterns ) {
+void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 	
 	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
 	// 			.arg( fTick, 0, 'f' )
@@ -614,10 +603,8 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	if ( pPos->getColumn() != nNewColumn ) {
 		pPos->setColumn( nNewColumn );
 
-		if ( bUpdatePlayingPatterns ) {
-			updatePlayingPatterns( nNewColumn, 0 );
-			handleSelectedPattern();
-		}
+		updatePlayingPatternsPos( pPos );
+		handleSelectedPattern();
 	}
 	
 	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
@@ -1112,7 +1099,8 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 }
 
 void AudioEngine::handleSelectedPattern() {
-	// Expects the AudioEngine being locked.
+	// This function keeps the selected pattern in line with the one
+	// the transport position resides in
 	
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -1120,26 +1108,25 @@ void AudioEngine::handleSelectedPattern() {
 	if ( pHydrogen->isPatternEditorLocked() &&
 		 ( m_state == State::Playing ||
 		   m_state == State::Testing ) ) {
-
-		// As this function keeps the selected pattern in line with
-		// the one m_fTickEnd resides in, the queuing position needs
-		// to be used.
-		int nColumn = m_pQueuingPosition->getColumn();
-		if ( nColumn == -1 ) {
-			nColumn = 0;
-		}
-
-		const auto pPatternList = pSong->getPatternList();
-		const auto pColumn = ( *pSong->getPatternGroupVector() )[ nColumn ];
 		
 		int nPatternNumber = -1;
 
-		int nIndex;
-		for ( const auto& pattern : *pColumn ) {
-			nIndex = pPatternList->index( pattern );
+		const int nColumn = std::max( m_pTransportPosition->getColumn(), 0 );
+		if ( nColumn >= (*pSong->getPatternGroupVector()).size() ) {
 
-			if ( nIndex > nPatternNumber ) {
-				nPatternNumber = nIndex;
+			const auto pPatternList = pSong->getPatternList();
+			if ( pPatternList == nullptr ) {
+
+				const auto pColumn = ( *pSong->getPatternGroupVector() )[ nColumn ];
+
+				int nIndex;
+				for ( const auto& pattern : *pColumn ) {
+					nIndex = pPatternList->index( pattern );
+
+					if ( nIndex > nPatternNumber ) {
+						nPatternNumber = nIndex;
+					}
+				}
 			}
 		}
 
@@ -1584,10 +1571,8 @@ void AudioEngine::removeSong()
 		return;
 	}
 
-	m_pPlayingPatterns->clear();
-	m_pNextPatterns->clear();
-	clearNoteQueue();
 	m_pSampler->stopPlayingNotes();
+	reset();
 
 	// change the current audio engine state
 	setState( State::Prepared );
@@ -1604,11 +1589,15 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
-	if ( m_pPlayingPatterns->size() > 0 ) {
-		m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-	} else {
-		m_nPatternSize = MAX_NOTES;
-	}
+	auto updatePatternSize = []( std::shared_ptr<TransportPosition> pPos ) {
+		if ( pPos->getPlayingPatterns()->size() > 0 ) {
+			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length() );
+		} else {
+			pPos->setPatternSize( MAX_NOTES );
+		}
+	};
+	updatePatternSize( m_pTransportPosition );
+	updatePatternSize( m_pQueuingPosition );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
@@ -1746,7 +1735,7 @@ void AudioEngine::updateSongSize() {
 	// 		);
 
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, false );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
 
 	// Ensure the tick offset is calculated as well (we do not expect
 	// the tempo to change).
@@ -1763,7 +1752,7 @@ void AudioEngine::updateSongSize() {
 	// Use offsets calculated above for the transport position.
 	m_pQueuingPosition->set( m_pTransportPosition );
 	updateTransportPosition( fNewTickQueuing, nNewFrameQueuing,
-							 m_pQueuingPosition, true );
+							 m_pQueuingPosition );
 	
 #ifdef H2CORE_HAVE_DEBUG
 	if ( nOldColumn != m_pTransportPosition->getColumn() ) {
@@ -1790,97 +1779,100 @@ void AudioEngine::updateSongSize() {
 	EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 }
 
-void AudioEngine::removePlayingPattern( int nIndex ) {
-	m_pPlayingPatterns->del( nIndex );
+void AudioEngine::removePlayingPattern( Pattern* pPattern ) {
+	auto removePattern = [&]( std::shared_ptr<TransportPosition> pPos ) {
+		auto pPlayingPatterns = pPos->getPlayingPatterns();
+		
+		for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+			if ( pPlayingPatterns->get( ii ) == pPattern ) {
+				pPlayingPatterns->del( ii );
+				break;
+			}
+		}
+	};
+
+	removePattern( m_pTransportPosition );
+	removePattern( m_pQueuingPosition );
 }
 
-void AudioEngine::updatePlayingPatterns( int nColumn, long nTick ) {
+void AudioEngine::updatePlayingPatterns() {
+	updatePlayingPatternsPos( m_pTransportPosition );
+	updatePlayingPatternsPos( m_pQueuingPosition );
+}
+	
+void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	auto pPlayingPatterns = pPos->getPlayingPatterns();
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		// Called when transport enteres a new column.
-		m_pPlayingPatterns->clear();
+		
+		pPlayingPatterns->clear();
 
-		if ( nColumn < 0 || nColumn >= pSong->getPatternGroupVector()->size() ) {
-			return;
+		auto nColumn = std::max( pPos->getColumn(), 0 );
+		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
+			ERRORLOG( QString( "Provided column [%1] exceeds allowed range [0,%2]. Using 0 as fallback." )
+					  .arg( nColumn ).arg( pSong->getPatternGroupVector()->size() - 1 ) );
+			nColumn = 0;
 		}
 
 		for ( const auto& ppattern : *( *( pSong->getPatternGroupVector() ) )[ nColumn ] ) {
 			if ( ppattern != nullptr ) {
-				m_pPlayingPatterns->add( ppattern );
-				ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+				pPlayingPatterns->add( ppattern );
+				ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
 			}
-		}
-
-		if ( m_pPlayingPatterns->size() > 0 ) {
-			m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-		} else {
-			m_nPatternSize = MAX_NOTES;
 		}
 				
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		// Called asynchronous when a different pattern number
-		// gets selected or the user switches from stacked into
-		// selected pattern mode.
-			
+		
 		auto pSelectedPattern =
 			pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
-		if ( m_pPlayingPatterns->size() != 1 ||
-			 ( m_pPlayingPatterns->size() == 1 &&
-			   m_pPlayingPatterns->get( 0 ) != pSelectedPattern ) ) {
 
-			m_pPlayingPatterns->clear();
-				
-			if ( pSelectedPattern != nullptr ) {
-				m_pPlayingPatterns->add( pSelectedPattern );
-				pSelectedPattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
-			}
-				
-			if ( m_pPlayingPatterns->size() > 0 ) {
-				m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-			} else {
-				m_nPatternSize = MAX_NOTES;
-			}
-				
+		if ( pSelectedPattern != nullptr &&
+			 ! ( pPlayingPatterns->size() == 1 &&
+				 pPlayingPatterns->get( 0 ) == pSelectedPattern ) ) {
+			pPlayingPatterns->clear();
+			pPlayingPatterns->add( pSelectedPattern );
+			pSelectedPattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+
 			EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
 		}
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 
-		if ( m_pNextPatterns->size() > 0 ) {
-				
-			for ( const auto& ppattern : *m_pNextPatterns ) {
-				// If provided pattern is not part of the
-				// list, a nullptr will be returned. Else, a
-				// pointer to the deleted pattern will be
-				// returned.
+		auto pNextPatterns = pPos->getNextPatterns();
+		
+		if ( pNextPatterns->size() > 0 ) {
+			for ( const auto& ppattern : *pNextPatterns ) {
 				if ( ppattern == nullptr ) {
 					continue;
 				}
 
-				if ( ( m_pPlayingPatterns->del( ppattern ) ) == nullptr ) {
+				// If provided pattern is not part of the list, a
+				// nullptr will be returned. Else, a pointer to the
+				// deleted pattern will be returned.
+				if ( ( pPlayingPatterns->del( ppattern ) ) == nullptr ) {
 					// pPattern was not present yet. It will
 					// be added.
-					m_pPlayingPatterns->add( ppattern );
-					ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+					pPlayingPatterns->add( ppattern );
+					ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
 				} else {
 					// pPattern was already present. It will
 					// be deleted.
-					ppattern->removeFlattenedVirtualPatterns( m_pPlayingPatterns );
+					ppattern->removeFlattenedVirtualPatterns( pPlayingPatterns );
 				}
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
 			}
-			m_pNextPatterns->clear();
-				
-			if ( m_pPlayingPatterns->size() != 0 ) {
-				m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-			} else {
-				m_nPatternSize = MAX_NOTES;
-			}
+			pNextPatterns->clear();
 		}
+	}
+
+	if ( pPlayingPatterns->size() > 0 ) {
+		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length() );
+	} else {
+		pPos->setPatternSize( MAX_NOTES );
 	}
 }
 
@@ -1889,15 +1881,21 @@ void AudioEngine::toggleNextPattern( int nPatternNumber ) {
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 	auto pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern != nullptr ) {
-		if ( m_pNextPatterns->del( pPattern ) == nullptr ) {
-			m_pNextPatterns->add( pPattern );
-		}
+	if ( pPattern == nullptr ) {
+		return;
+	}
+	
+	if ( m_pTransportPosition->getNextPatterns()->del( pPattern ) == nullptr ) {
+		m_pTransportPosition->getNextPatterns()->add( pPattern );
+	}
+	if ( m_pQueuingPosition->getNextPatterns()->del( pPattern ) == nullptr ) {
+		m_pQueuingPosition->getNextPatterns()->add( pPattern );
 	}
 }
 
 void AudioEngine::clearNextPatterns() {
-	m_pNextPatterns->clear();
+	m_pTransportPosition->getNextPatterns()->clear();
+	m_pQueuingPosition->getNextPatterns()->clear();
 }
 
 void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
@@ -1905,29 +1903,38 @@ void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 
-	m_pNextPatterns->clear();
 	bool bAlreadyPlaying = false;
 	
 	// Note: we will not perform a bound check on the provided pattern
 	// number. This way the user can use the SELECT_ONLY_NEXT_PATTERN
 	// MIDI or OSC command to flush all playing patterns.
 	auto pRequestedPattern = pPatternList->get( nPatternNumber );
-	
-	for ( int ii = 0; ii < m_pPlayingPatterns->size(); ++ii ) {
 
-		auto pPlayingPattern = m_pPlayingPatterns->get( ii );
-		if ( pPlayingPattern != pRequestedPattern ) {
-			m_pNextPatterns->add( pPlayingPattern );
+	auto flushAndAddNext = [&]( std::shared_ptr<TransportPosition> pPos ) {
+
+		auto pNextPatterns = pPos->getNextPatterns();
+		auto pPlayingPatterns = pPos->getPlayingPatterns();
+		
+		pNextPatterns->clear();
+		for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+
+			auto pPlayingPattern = pPlayingPatterns->get( ii );
+			if ( pPlayingPattern != pRequestedPattern ) {
+				pNextPatterns->add( pPlayingPattern );
+			}
+			else if ( pRequestedPattern != nullptr ) {
+				bAlreadyPlaying = true;
+			}
 		}
-		else if ( pRequestedPattern != nullptr ) {
-			bAlreadyPlaying = true;
-		}
-	}
 	
-	// Appending the requested pattern.
-	if ( ! bAlreadyPlaying && pRequestedPattern != nullptr ) {
-		m_pNextPatterns->add( pRequestedPattern );
-	}
+		// Appending the requested pattern.
+		if ( ! bAlreadyPlaying && pRequestedPattern != nullptr ) {
+			pNextPatterns->add( pRequestedPattern );
+		}
+	};
+
+	flushAndAddNext( m_pTransportPosition );
+	flushAndAddNext( m_pQueuingPosition );
 }
 
 void AudioEngine::handleTimelineChange() {
@@ -2167,7 +2174,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				static_cast<double>(nnTick),
 				&m_pQueuingPosition->m_fTickMismatch );
 			updateSongTransportPosition( static_cast<double>(nnTick),
-										 nNewFrame, m_pQueuingPosition, true );
+										 nNewFrame, m_pQueuingPosition );
 
 			// If no pattern list could not be found, either choose
 			// the first one if loop mode is activate or the
@@ -2195,7 +2202,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				static_cast<double>(nnTick),
 				&m_pQueuingPosition->m_fTickMismatch );
 			updatePatternTransportPosition( static_cast<double>(nnTick),
-											nNewFrame, m_pQueuingPosition, true );
+											nNewFrame, m_pQueuingPosition );
 		}
 		
 		//////////////////////////////////////////////////////////////
@@ -2246,11 +2253,10 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		// - add remainder of pNote->get_position() % 1 when setting
 		// nnTick as new position.
 		//
-		if ( m_pPlayingPatterns->size() != 0 ) {
-			for ( unsigned nPat = 0 ;
-				  nPat < m_pPlayingPatterns->size() ;
-				  ++nPat ) {
-				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
+		const auto pPlayingPatterns = m_pQueuingPosition->getPlayingPatterns();
+		if ( pPlayingPatterns->size() != 0 ) {
+			for ( auto nPat = 0; nPat < pPlayingPatterns->size(); ++nPat ) {
+				Pattern *pPattern = pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
 				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
 
@@ -2459,6 +2465,20 @@ long long AudioEngine::getLookaheadInFrames( double fTick ) {
 		AudioEngine::nMaxTimeHumanize + 1;
 }
 
+const PatternList* AudioEngine::getPlayingPatterns() const {
+	if ( m_pTransportPosition != nullptr ) {
+		return m_pTransportPosition->getPlayingPatterns();
+	}
+	return nullptr;
+}
+
+const PatternList* AudioEngine::getNextPatterns() const {
+	if ( m_pTransportPosition != nullptr ) {
+		return m_pTransportPosition->getNextPatterns();
+	}
+	return nullptr;
+}
+
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -2506,8 +2526,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fMasterPeak_R: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMasterPeak_R ) )
 			.append( QString( "%1%2m_fProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fProcessTime ) )
 			.append( QString( "%1%2m_fMaxProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMaxProcessTime ) )
-			.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
-			.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( "%1%2m_nRealtimeFrame: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrame ) )
 			.append( QString( "%1%2m_AudioProcessCallback: \n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s ).arg( m_songNoteQueue.size() ) );
@@ -2563,8 +2581,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fMasterPeak_R: %1" ).arg( m_fMasterPeak_R ) )
 			.append( QString( ", m_fProcessTime: %1" ).arg( m_fProcessTime ) )
 			.append( QString( ", m_fMaxProcessTime: %1" ).arg( m_fMaxProcessTime ) )
-			.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
-			.append( QString( ", m_pPlayingPatterns: %1" ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( ", m_nRealtimeFrame: %1" ).arg( m_nRealtimeFrame ) )
 			.append( QString( ", m_AudioProcessCallback:" ) )
 			.append( QString( ", m_songNoteQueue: length = %1" ).arg( m_songNoteQueue.size() ) );

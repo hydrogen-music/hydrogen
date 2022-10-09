@@ -31,6 +31,8 @@
 namespace H2Core
 {
 
+class PatternList;
+
 /**
  * Object holding most of the information about the transport state of
  * the AudioEngine.
@@ -70,6 +72,9 @@ public:
 	long long getFrameOffsetTempo() const;
 	double getTickOffsetQueuing() const;
 	double getTickOffsetSongSize() const;
+	const PatternList* getPlayingPatterns() const;
+	const PatternList* getNextPatterns() const;
+	int getPatternSize() const;
 
 	/**
 	 * Calculates tick equivalent of @a nFrame.
@@ -145,6 +150,12 @@ private:
 	void setFrameOffsetTempo( long long nFrameOffset );
 	void setTickOffsetQueuing( double nTickOffset );
 	void setTickOffsetSongSize( double fTickOffset );
+	void setPlayingPatterns( PatternList* pPatternList );
+	void setNextPatterns( PatternList* pPatternList );
+	void setPatternSize( int nPatternSize );
+	
+	PatternList* getPlayingPatterns();
+	PatternList* getNextPatterns();
 
 	/**
 	 * Converts ticks into frames under the assumption of a constant
@@ -328,6 +339,36 @@ private:
 	 * resetted.
 	 */
 	double 				m_fTickOffsetSongSize;
+
+	/**
+	 * Patterns used to toggle the ones in #m_pPlayingPatterns in
+	 * Song::PatternMode::Stacked.
+	 *
+	 * If a #Pattern is already playing and added to #m_pNextPatterns,
+	 * it will the removed from #m_pPlayingPatterns next time
+	 * transport is looped to the beginning and vice versa.
+	 *
+	 * See AudioEngine::updatePlayingPatterns() for details.
+	 */
+	PatternList*		m_pNextPatterns;
+	
+	/**
+	 * Contains all Patterns currently played back.
+	 *
+	 * If transport is in #H2Core::Song::Mode::Song, it corresponds
+	 * to the patterns present in column #m_nColumn.
+	 *
+	 * See AudioEngine::updatePlayingPatterns() for details.
+	 */
+	PatternList*		m_pPlayingPatterns;
+	
+	/**
+	 * Maximum size of all patterns in #m_pPlayingPatterns.
+	 *
+	 * If #m_pPlayingPatterns is empty, #H2Core::MAX_NOTES will be
+	 * used as fallback.
+	 */
+	int 				m_nPatternSize;
 };
 
 inline const QString TransportPosition::getLabel() const {
@@ -377,6 +418,21 @@ inline double TransportPosition::getTickOffsetSongSize() const {
 }
 inline void TransportPosition::setTickOffsetSongSize( double fTickOffset ) {
 	m_fTickOffsetSongSize = fTickOffset;
+}
+inline const PatternList* TransportPosition::getPlayingPatterns() const {
+	return m_pPlayingPatterns;
+}
+inline PatternList* TransportPosition::getPlayingPatterns() {
+	return m_pPlayingPatterns;
+}
+inline const PatternList* TransportPosition::getNextPatterns() const {
+	return m_pNextPatterns;
+}
+inline PatternList* TransportPosition::getNextPatterns() {
+	return m_pNextPatterns;
+}
+inline int TransportPosition::getPatternSize() const {
+	return m_nPatternSize;
 }
 };
 
