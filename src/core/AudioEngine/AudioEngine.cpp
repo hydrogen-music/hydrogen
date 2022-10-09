@@ -1822,8 +1822,12 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 				ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
 			}
 		}
-				
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+
+		if ( pPos == m_pTransportPosition ) {
+			// GUI does not care about the internals of the audio
+			// engine and just moves along the transport position.
+			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+		}
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		
@@ -1837,7 +1841,11 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 			pPlayingPatterns->add( pSelectedPattern );
 			pSelectedPattern->addFlattenedVirtualPatterns( pPlayingPatterns );
 
-			EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+			if ( pPos == m_pTransportPosition ) {
+				// GUI does not care about the internals of the audio
+				// engine and just moves along the transport position.
+				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+			}
 		}
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
@@ -1863,7 +1871,12 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 					// be deleted.
 					ppattern->removeFlattenedVirtualPatterns( pPlayingPatterns );
 				}
-				EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+
+				if ( pPos == m_pTransportPosition ) {
+					// GUI does not care about the internals of the audio
+					// engine and just moves along the transport position.
+					EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+				}
 			}
 			pNextPatterns->clear();
 		}

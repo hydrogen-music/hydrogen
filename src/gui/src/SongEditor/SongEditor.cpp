@@ -1474,7 +1474,7 @@ SongEditorPatternList::~SongEditorPatternList()
 }
 
 
-void SongEditorPatternList::patternChangedEvent() {
+void SongEditorPatternList::playingPatternsChangedEvent() {
 	createBackground();
 	update();
 }
@@ -1495,7 +1495,7 @@ void SongEditorPatternList::selectedPatternChangedEvent() {
 	update();
 }
 
-void SongEditorPatternList::stackedPatternsChangedEvent() {
+void SongEditorPatternList::nextPatternsChangedEvent() {
 	createBackground();
 	update();
 }
@@ -2634,7 +2634,7 @@ void SongEditorPositionRuler::patternModifiedEvent() {
 	update();
 }
 
-void SongEditorPositionRuler::patternChangedEvent() {
+void SongEditorPositionRuler::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	update();

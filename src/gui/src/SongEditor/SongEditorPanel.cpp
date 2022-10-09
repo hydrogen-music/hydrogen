@@ -1151,7 +1151,7 @@ void SongEditorPanel::gridCellToggledEvent() {
 	updateAll();
 }
 
-void SongEditorPanel::patternChangedEvent() {
+void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.

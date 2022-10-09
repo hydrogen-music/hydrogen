@@ -942,7 +942,7 @@ void PatternEditorPanel::patternModifiedEvent() {
 	selectedPatternChangedEvent();
 }
 
-void PatternEditorPanel::patternChangedEvent() {
+void PatternEditorPanel::playingPatternsChangedEvent() {
 	updateEditors( true );
 }
 

@@ -253,7 +253,7 @@ void AudioEngineInfoForm::stateChangedEvent( H2Core::AudioEngine::State state )
 }
 
 
-void AudioEngineInfoForm::patternChangedEvent()
+void AudioEngineInfoForm::playingPatternsChangedEvent()
 {
 	updateAudioEngineState();
 }
