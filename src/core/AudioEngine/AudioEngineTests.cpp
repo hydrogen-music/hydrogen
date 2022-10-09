@@ -658,6 +658,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getTransportPosition();
+	auto pQueuingPos = pAE->m_pQueuingPosition;
 
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( false );
@@ -698,7 +699,6 @@ void AudioEngineTests::testNoteEnqueuing() {
 		// Add freshly enqueued notes.
 		AudioEngineTests::mergeQueues( &notesInSongQueue,
 									   AudioEngineTests::copySongNoteQueue() );
-
 		pAE->processAudio( nFrames );
 
 		AudioEngineTests::mergeQueues( &notesInSamplerQueue,
@@ -717,19 +717,17 @@ void AudioEngineTests::testNoteEnqueuing() {
 		}
 	};
 
-	bool bEndOfSongReached = false;
 	nn = 0;
-	while ( pTransportPos->getDoubleTick() <
-			pAE->m_fSongSizeInTicks ) {
+	int nRes;
+	while ( pQueuingPos->getDoubleTick() < pAE->m_fSongSizeInTicks ) {
 
 		nFrames = frameDist( randomEngine );
-
-		if ( ! bEndOfSongReached ) {
-			if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
-				bEndOfSongReached = true;
-			}
-		}
+		nRes = pAE->updateNoteQueue( nFrames );
 		retrieveNotes( "song mode" );
+
+		if ( nRes == -1 ) {
+			break;
+		}
 	}
 
 	auto checkQueueConsistency = [&]( const QString& sContext ) {
@@ -843,13 +841,10 @@ void AudioEngineTests::testNoteEnqueuing() {
 								   static_cast<float>(MAX_NOTES) *
 								   static_cast<float>(nLoops) ));
 	nn = 0;
-	while ( pTransportPos->getDoubleTick() <
-			pPattern->get_length() * nLoops ) {
+	while ( pQueuingPos->getDoubleTick() < pPattern->get_length() * nLoops ) {
 
 		nFrames = frameDist( randomEngine );
-
 		pAE->updateNoteQueue( nFrames );
-
 		retrieveNotes( "pattern mode" );
 	}
 
@@ -914,8 +909,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	notesInSamplerQueue.clear();
 
 	nn = 0;
-	bEndOfSongReached = false;
-	while ( pTransportPos->getDoubleTick() <
+	while ( pQueuingPos->getDoubleTick() < 
 			pAE->m_fSongSizeInTicks * ( nLoops + 1 ) ) {
 
 		nFrames = frameDist( randomEngine );
@@ -927,12 +921,12 @@ void AudioEngineTests::testNoteEnqueuing() {
 			pCoreActionController->activateLoopMode( false );
 		}
 
-		if ( ! bEndOfSongReached ) {
-			if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
-				bEndOfSongReached = true;
-			}
-		}
+		nRes = pAE->updateNoteQueue( nFrames );
 		retrieveNotes( "looped song mode" );
+
+		if ( nRes == -1 ) {
+			break;
+		}
 	}
 
 	checkQueueConsistency( "looped song mode" );

@@ -22,6 +22,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/AudioEngine/AudioEngine.h>
 
+#include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
@@ -59,8 +60,21 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	m_nFrameOffsetTempo = pOther->m_nFrameOffsetTempo;
 	m_fTickOffsetQueuing = pOther->m_fTickOffsetQueuing;
 	m_fTickOffsetSongSize = pOther->m_fTickOffsetSongSize;
-	m_pPlayingPatterns = pOther->m_pPlayingPatterns;
-	m_pNextPatterns = pOther->m_pNextPatterns;
+
+	m_pPlayingPatterns->clear();
+	for ( const auto ppattern : *pOther->m_pPlayingPatterns ) {
+		if ( ppattern != nullptr ) {
+			m_pPlayingPatterns->add( ppattern );
+			ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+		}
+	}
+	m_pNextPatterns->clear();
+	for ( const auto ppattern : *pOther->m_pNextPatterns ) {
+		if ( ppattern != nullptr ) {
+			m_pNextPatterns->add( ppattern );
+			ppattern->addFlattenedVirtualPatterns( m_pNextPatterns );
+		}
+	}
 	m_nPatternSize = pOther->m_nPatternSize;
 }
 

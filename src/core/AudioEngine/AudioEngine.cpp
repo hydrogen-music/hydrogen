@@ -1753,6 +1753,8 @@ void AudioEngine::updateSongSize() {
 	m_pQueuingPosition->set( m_pTransportPosition );
 	updateTransportPosition( fNewTickQueuing, nNewFrameQueuing,
 							 m_pQueuingPosition );
+
+	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_DEBUG
 	if ( nOldColumn != m_pTransportPosition->getColumn() ) {
@@ -1806,7 +1808,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	auto pPlayingPatterns = pPos->getPlayingPatterns();
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		
+
 		pPlayingPatterns->clear();
 
 		auto nColumn = std::max( pPos->getColumn(), 0 );
@@ -2195,9 +2197,12 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// reached.
 			if ( m_pQueuingPosition->getColumn() == -1 ||
 				 ( ( pSong->getLoopMode() == Song::LoopMode::Finishing ) &&
+				   ( m_pTransportPosition->getColumn() > 0 ) &&
 				   ( m_pQueuingPosition->getColumn() <
 					 m_pTransportPosition->getColumn() ) ) ) {
-				INFOLOG( "End of Song" );
+				INFOLOG( QString( "End of Song\n%1\n%2" )
+						 .arg( m_pQueuingPosition->toQString() )
+						 .arg( m_pTransportPosition->toQString() ) );
 
 				if( pHydrogen->getMidiOutput() != nullptr ){
 					pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
