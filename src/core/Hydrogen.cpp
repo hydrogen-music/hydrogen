@@ -385,8 +385,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
-	long long nLookaheadInFrames =
-		m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTransportPosition()->getTick() );
+	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames();
 	long nLookaheadTicks = 
 		static_cast<long>(std::floor(
 			TransportPosition::computeTickFromFrame( pAudioEngine->getTransportPosition()->getFrame() +

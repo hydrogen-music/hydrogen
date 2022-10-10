@@ -72,29 +72,24 @@ namespace H2Core
 	class TransportPosition;
 	
 /**
- * Audio Engine main class.
+ * The audio engine deals with two distinct #TransportPosition. The
+ * first (and most important one) is #m_pTransportPosition which
+ * indicated the current position of the audio rendering and playhead
+ * as well as all patterns associated with it. This is also the one
+ * other parts of Hydrogen are concerned with.
  *
- * It serves as a container for the Sampler and Synth stored in the
- * #m_pSampler and #m_pSynth member objects, takes care of transport
- * control and note processing, and provides a mutex #m_EngineMutex
- * enabling the user to synchronize the access of the Song object and
- * the AudioEngine itself. lock() and try_lock() can be called by a
- * thread to lock the engine and unlock() to make it accessible for
- * other threads once again.
+ * The second one is #m_pQueuingPosition which is only used
+ * internally. It is one lookahead ahead of #m_pTransportPosition,
+ * used for inserting notes into the song queue, and required in order
+ * to supported lead and lag of notes. Formerly, this second transport
+ * state was trimmed to a couple of variables making its update less
+ * expensive. However, this showed to be quite error prone as things
+ * tend to went out of sync.
  *
- * The audio engine does not have one but two consistent states with
- * respect it its member variables. #m_fTick, #m_nFrame,
- * #m_fTickOffset, #m_fTickMismatch, #m_fBpm, #m_fTickSize,
- * #m_nFrameOffset, #m_state, and #m_nRealtimeFrame are associated
- * with the current transport position. #m_nColumn, #m_nPatternSize,
- * #m_nPatternStartTick, and #m_nPatternTickPosition determine the
- * current position updateNoteQueue() is adding notes from
- * #m_pPlayingPatterns into #m_songNoteQueue. Since the latter is
- * ahead of the current transport position by a non-constant
- * (tempo-dependent) lookahead, both states are out of sync while in
- * playback but in sync again once the transport gets relocated (which
- * resets the lookahead). But within themselves both states are
- * consistent.
+ * All tick information (apart from note handling in
+ * updateNoteQueue()) are handled as double internally. But due to
+ * historical reasons the GUI and the remainder of the core only
+ * access a version of the current tick rounded to integer.
  *
  * \ingroup docCore docAudioEngine
  */ 
@@ -103,7 +98,6 @@ class AudioEngine : public H2Core::Object<AudioEngine>
 	H2_OBJECT(AudioEngine)
 public:
 
-	/** Audio Engine states.*/
 	enum class State {
 		/**
 		 * Not even the constructors have been called.
@@ -122,7 +116,7 @@ public:
 		 */
 		Ready = 4,
 		/**
-		 * Currently playing a sequence.
+		 * Transport is rolling.
 		 */
 		Playing = 5,
 		/**
@@ -134,15 +128,8 @@ public:
 		Testing = 6
 	};
 
-	/**
-	 * Constructor of the AudioEngine.
-	 */
 	AudioEngine();
 
-
-	/** 
-	 * Destructor of the AudioEngine.
-	 */
 	~AudioEngine();
 
 	/** Mutex locking of the AudioEngine.
@@ -232,12 +219,6 @@ public:
 	 * Main audio processing function called by the audio drivers whenever
 	 * there is work to do.
 	 *
-	 * In short, it resets the audio buffers, checks the current transport
-	 * position and configuration, updates the queue of notes, which are
-	 * about to be played, plays those notes and writes their output to
-	 * the audio buffers, and, finally, increment the transport position
-	 * in order to move forward in time.
-	 *
 	 * \param nframes Buffersize.
 	 * \param arg Unused.
 	 * \return
@@ -253,9 +234,7 @@ public:
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
-	/** \return #m_pSampler */
 	Sampler*		getSampler() const;
-	/** \return #m_pSynth */
 	Synth*			getSynth() const;
 
 	/** \return Time passed since the beginning of the song*/
@@ -299,9 +278,7 @@ public:
 	 */
 	void			renameJackPorts(std::shared_ptr<Song> pSong);
 
-	/* retrieve the midi (input) driver */
 	MidiInput*		getMidiDriver() const;
-	/* retrieve the midi (output) driver */
 	MidiOutput*		getMidiOutDriver() const;
 	
 
@@ -327,11 +304,9 @@ public:
 	
 	long long		getRealtimeFrame() const;
 
-	const struct timeval& 	getCurrentTickTime() const;
-	
 	/** Maximum lead lag factor in ticks.
 	 *
-	 * During the humanization the onset of a Note will be moved
+	 * During humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
 	static double	getLeadLagInTicks();
@@ -343,36 +318,25 @@ public:
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
 	long long		getLeadLagInFrames( double fTick );
-	/** Calculates time offset (in frames) the AudioEngine is ahead of
-	 * the transport position @a fTick.
-	 *
-	 * Due to the humanization there might be negative offset in the
-	 * position of a particular note. To be able to still render it
-	 * appropriately, we have to look into and handle notes from the
-	 * future.
-	 *
-	 * Since the tick size (and thus the lead lag factor in frames)
-	 * can change at an arbitrary point if the Timeline is activated,
-	 * the lookahead will be calculated relative to @a fTick.
+	/** Calculates time offset (in frames) #m_pQueuingPosition will be
+	 * ahead of the #m_pTransportPosition.
 	 *
 	 * \return Frame offset*/
-	long long getLookaheadInFrames( double fTick );
+	long long getLookaheadInFrames();
 
 	double getSongSizeInTicks() const;
 
 	/**
-	 * Sets m_nextState to State::Playing. This will start the audio
-	 * engine during the next call of the audioEngine_process callback
-	 * function.
+	 * Marks the audio engine to be started during the next call of
+	 * the audioEngine_process() callback function.
 	 *
 	 * If the JACK audio driver is used, a request to start transport
 	 * is send to the JACK server instead.
 	 */
 	void play();
 	/**
-	 * Sets m_nextState to State::Ready. This will stop the audio
-	 * engine during the next call of the audioEngine_process callback
-	 * function.
+	 * Marks the audio engine to be stopped during the next call of
+	 * the audioEngine_process() callback function.
 	 *
 	 * If the JACK audio driver is used, a request to stop transport
 	 * is send to the JACK server instead.
@@ -392,7 +356,7 @@ public:
 	static float 	getBpmAtColumn( int nColumn );
 
 	/**
-	 * Function to be called every time length of the current song
+	 * Function to be called every time the length of the current song
 	 * does change, e.g. by toggling a pattern or altering its length.
 	 *
 	 * It will adjust both the current transport information as well
@@ -402,7 +366,8 @@ public:
 
 	void removePlayingPattern( Pattern* pPattern );
 	/**
-	 * Update the list of patterns currently played back.
+	 * Update the list of currently played patterns associated with
+	 * #m_pTransportPosition and #m_pQueuingPosition.
 	 *
 	 * This works in three different ways.
 	 *
@@ -416,9 +381,6 @@ public:
 	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
 	 * will be added in the latter and the ones already present will
 	 * be removed.
-	 *
-	 * \param nColumn Desired location in song mode.
-	 * \param nTick Desired location in pattern mode.
 	 */
 	void updatePlayingPatterns();
 	void clearNextPatterns();
@@ -434,24 +396,6 @@ public:
 	 * playing.
 	 */
 	void flushAndAddNextPattern( int nPatternNumber );
-
-	/**
-	 * Updates the transport state and all notes in #m_songNoteQueue
-	 * after adding or deleting a TempoMarker or enabling/disabling
-	 * the #Timeline.
-	 *
-	 * If the #Timeline is activated, adding or removing a TempoMarker
-	 * does effectively has the same effects as a relocation with
-	 * respect to the transport position in frames. It's tick
-	 * counterpart, however, is not affected. This function ensures
-	 * they are in sync again.
-	 *
-	 * Updates all notes in #m_songNoteQueue to be still valid after a
-	 * tempo change.
-	 *
-	 * See handleTimelineChange().
-	 */
-	void handleTimelineChange();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -461,7 +405,7 @@ public:
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking );
@@ -472,6 +416,12 @@ public:
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
 	friend void Hydrogen::updateSelectedPattern( bool );
+	/** Uses handleTimelineChange() */
+	friend void Hydrogen::setIsTimelineActivated( bool );
+	/** Uses handleTimelineChange() */
+	friend bool CoreActionController::addTempoMarker( int, float );
+	/** Uses handleTimelineChange() */
+	friend bool CoreActionController::deleteTempoMarker( int );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
@@ -481,117 +431,53 @@ public:
 private:
 
 	/**
-	 * Sets the Hydrogen::m_nSelectedPatternNumber to the pattern
-	 * recorded notes will be inserted in.
+	 * Keeps the selected pattern in line with the one the transport
+	 * position resides in while in Song::Mode::Song.
+	 *
+	 * If multiple patterns are present in the current column, the pattern
+	 * recorded notes will be inserted in (bottom-most one) will be used.
 	 */
 	void handleSelectedPattern();
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
-	/** Resets a number of member variables to their initial state.
-	 *
-	 * This is used to allow a smooth transition between the Song and
-	 * Pattern Mode.
-	 * \param bWithJackBroadcast Relocate not using the AudioEngine
-	 * directly but using the JACK server.
-	 */
 	void reset(  bool bWithJackBroadcast = true );
 
-	/**
-	 * A softer companion to reset() which does neither change the
-	 * current frame/tick position nor update the tick size.
-	 */
 	void resetOffsets();
 
-	void			clearNoteQueue();
+	void			clearNoteQueues();
 	/** Clear all audio buffers.
 	 */
 	void			clearAudioBuffers( uint32_t nFrames );
 	/**
-	 * Takes all notes from the current patterns, from the MIDI queue
-	 * #m_midiNoteQueue, and those triggered by the metronome and pushes
-	 * them onto #m_songNoteQueue for playback.
-	 *
-	 * Apart from the MIDI queue, the extraction of all notes will be
-	 * based on their position measured in ticks. Since Hydrogen does
-	 * support humanization, which also involves triggering a Note
-	 * earlier or later than its actual position, the loop over all
-	 * ticks won't be done starting from the current position but at
-	 * some position in the future. This value, also called @e
-	 * lookahead, is set to the sum of the maximum offsets introduced
-	 * by both the random humanization (2000 frames) and the
-	 * deterministic lead-lag offset (5 times
-	 * TransportPosition::m_nFrame) plus 1 (note that it's not given in
-	 * ticks but in frames!). Hydrogen thus loops over @a
-	 * nIntervalLengthInFrames frames starting at the current position
-	 * + the lookahead (or at 0 when at the beginning of the Song).
+	 * Takes all notes from the currently playing patterns, from the
+	 * MIDI queue #m_midiNoteQueue, and those triggered by the
+	 * metronome and pushes them onto #m_songNoteQueue for playback.
 	 *
 	 * \return
-	 * - -1 if in Song::SONG_MODE and no patterns left.
+	 * - 0 - on success
+	 * - -1 - if in Hydrogen is in Song::Mode::Song, looping was
+	 * deactivated, and the end of the song was reached.
 	 */
 	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
 	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
 	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
-	
-	void			setPatternTickPosition( long nTick );
-	void			setColumn( int nColumn );
+    
 	void			setRealtimeFrame( long long nFrame );
-	/**
-	 * Update the list of patterns currently played back.
-	 *
-	 * This works in three different ways.
-	 *
-	 * 1. In case the song is in Song::Mode::Song when entering a new
-	 * @a nColumn #m_pPlayingPatterns will be flushed and all patterns
-	 * activated in the provided column will be added.
-	 * 2. While in Song::PatternMode::Selected the function
-	 * ensures the currently selected pattern is the only pattern in
-	 * #m_pPlayingPatterns.
-	 * 3. While in Song::PatterMode::Stacked all patterns
-	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
-	 * will be added in the latter and the ones already present will
-	 * be removed.
-	 *
-	 * \param nColumn Desired location in song mode.
-	 * \param nTick Desired location in pattern mode.
-	 */
 	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
 	
-	/**
-	 * Updates the global objects of the audioEngine according to new
-	 * Song.
-	 *
-	 * \param pNewSong Song to load.
-	 */
 	void			setSong( std::shared_ptr<Song>pNewSong );
-	/**
-	 * Does the necessary cleanup of the global objects in the audioEngine.
-	 */
 	void			removeSong();
 	void 			setState( State state );
 	void 			setNextState( State state );
 	State 			getNextState() const;
 
-	/**
-	 * Resets a number of member variables and sets m_state to
-	 * State::Playing.
-	 */
 	void				startPlayback();
 	
-	/**
-	 * Resets a number of member variables and sets m_state to
-	 * State::Ready.
-	 */
 	void			stopPlayback();
 	
-	/** Relocate using the audio driver.
-	 *
-	 * \param fTick Next transport position in ticks.
-	 * \param bWithJackBroadcast Relocate not using the AudioEngine
-	 * directly but using the JACK server.
-	 */
 	void			locate( const double fTick, bool bWithJackBroadcast = true );
 	/**
 	 * Version of the locate() function intended to be directly used
@@ -611,13 +497,24 @@ private:
 													std::shared_ptr<TransportPosition> pPos );
 
 	/**
-	 * Updates all notes in #m_songNoteQueue to be still valid after a
-	 * tempo change.
-	 *
-	 * This function will only be used with the #Timeline
-	 * disabled. See handleTimelineChange().
+	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
+	 * be still valid after a tempo change.
 	 */
 	void handleTempoChange();
+
+	/**
+	 * Updates the transport states and all notes in #m_songNoteQueue
+	 * and #m_midiNoteQueue after adding or deleting a TempoMarker or
+	 * enabling/disabling the #Timeline.
+	 *
+	 * If the #Timeline is activated, adding or removing a TempoMarker
+	 * does effectively has the same effects as a relocation with
+	 * respect to the transport position in frames. It's tick
+	 * counterpart, however, is not affected. This function ensures
+	 * they are in sync again.
+	 */
+	void handleTimelineChange();
+	
 	/**
 	 * Updates all notes in #m_songNoteQueue to be still valid after a
 	 * change in song size.
@@ -631,26 +528,11 @@ private:
 	 */
 	void handleDriverChange();
 
-	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
-	/** Local instance of the Synth. */
 	Synth* 				m_pSynth;
-
-	/**
-	 * Pointer to the current instance of the audio driver.
-	 */	
 	AudioOutput *		m_pAudioDriver;
-
-	/**
-	 * MIDI input
-	 */
 	MidiInput *			m_pMidiDriver;
-
-	/**
-	 * MIDI output
-	 */
 	MidiOutput *		m_pMidiDriverOut;
-	
 	EventQueue* 		m_pEventQueue;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
@@ -696,27 +578,11 @@ private:
 		const char* function;
 	} m_pLocker;
 
-	// time used in process function
 	float				m_fProcessTime;
-
-	// max ms usable in process with no xrun
 	float				m_fMaxProcessTime;
-
-	// time used to render audio produced byy LADSPA plugins
 	float				m_fLadspaTime;
 
-	// updated in audioEngine_updateNoteQueue()
-	struct timeval		m_currentTickTime;
-
-	/**
-	 * Used to retrieve bpm.
-	 */
 	std::shared_ptr<TransportPosition> m_pTransportPosition;
-
-	/**
-	 * #m_transportPosition + a both speed and
-	 * sample rate dependent lookahead.
-	 */
 	std::shared_ptr<TransportPosition> m_pQueuingPosition;
 
 	/** Set to the total number of ticks in a Song.*/
@@ -726,7 +592,7 @@ private:
 	 * Variable keeping track of the transport position in realtime.
 	 *
 	 * Even if the audio engine is stopped, the variable will be
-	 * incremented  (as audioEngine_process() would do at the beginning
+	 * incremented (as audioEngine_process() would do at the beginning
 	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing.
 	 */
@@ -755,8 +621,6 @@ private:
 	
 	/**
 	 * Pointer to the metronome.
-	 *
-	 * Initialized in audioEngine_init().
 	 */
 	std::shared_ptr<Instrument>		m_pMetronomeInstrument;
 	/**
@@ -842,10 +706,6 @@ inline float AudioEngine::getProcessTime() const {
 
 inline float AudioEngine::getMaxProcessTime() const {
 	return m_fMaxProcessTime;
-}
-
-inline const struct timeval& AudioEngine::getCurrentTickTime() const {
-	return m_currentTickTime;
 }
 
 inline AudioEngine::State AudioEngine::getState() const {
