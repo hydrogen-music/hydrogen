@@ -631,7 +631,6 @@ private:
 
 	float 			m_fNextBpm;
 	double m_fLastTickEnd;
-	long long m_nLastLeadLagFactor;
 	bool m_bLookaheadApplied;
 };
 

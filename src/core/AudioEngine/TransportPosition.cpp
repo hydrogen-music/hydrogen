@@ -76,6 +76,7 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 		}
 	}
 	m_nPatternSize = pOther->m_nPatternSize;
+	m_nLastLeadLagFactor = pOther->m_nLastLeadLagFactor;
 }
 
 void TransportPosition::reset() {
@@ -94,6 +95,7 @@ void TransportPosition::reset() {
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
 	m_nPatternSize = MAX_NOTES;
+	m_nLastLeadLagFactor = 0;
 }
 
 void TransportPosition::setBpm( float fNewBpm ) {
@@ -610,7 +612,8 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 		if ( m_pNextPatterns != nullptr ) {
 			sOutput.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
 		}
-		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternSize ) );
+		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternSize ) )
+			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastLeadLagFactor ) );
 	}
 	else {
 		sOutput = QString( "%1[TransportPosition]" ).arg( sPrefix )
@@ -633,7 +636,9 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 		if ( m_pNextPatterns != nullptr ) {
 			sOutput.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
 		}
-		sOutput.append( QString( ", m_nPatternSize: %1" ).arg( m_nPatternSize ) );
+		sOutput.append( QString( ", m_nPatternSize: %1" ).arg( m_nPatternSize ) )
+			.append( QString( ", m_nLastLeadLagFactor: %1" ).arg( m_nLastLeadLagFactor ) );
+
 	}
 	
 	return sOutput;

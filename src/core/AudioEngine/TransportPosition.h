@@ -75,6 +75,7 @@ public:
 	const PatternList* getPlayingPatterns() const;
 	const PatternList* getNextPatterns() const;
 	int getPatternSize() const;
+	long long getLastLeadLagFactor() const;
 
 	/**
 	 * Calculates tick equivalent of @a nFrame.
@@ -153,6 +154,7 @@ private:
 	void setPlayingPatterns( PatternList* pPatternList );
 	void setNextPatterns( PatternList* pPatternList );
 	void setPatternSize( int nPatternSize );
+	void setLastLeadLagFactor( long long nValue );
 	
 	PatternList* getPlayingPatterns();
 	PatternList* getNextPatterns();
@@ -369,6 +371,17 @@ private:
 	 * used as fallback.
 	 */
 	int 				m_nPatternSize;
+
+	/**
+	 * #AudioEngine::getLeadLagInFrames() calculated for the previous
+     * transport position.
+	 *
+	 * It is required to ensure a smooth update of the queuing
+	 * position in AudioEngine::updateNoteQueue() without any holes or
+	 * overlaps in the covered ticks (while using the #Timeline in
+	 * #Song::Mode::Song).
+	 */
+	long long m_nLastLeadLagFactor;
 };
 
 inline const QString TransportPosition::getLabel() const {
@@ -433,6 +446,12 @@ inline PatternList* TransportPosition::getNextPatterns() {
 }
 inline int TransportPosition::getPatternSize() const {
 	return m_nPatternSize;
+}
+inline long long TransportPosition::getLastLeadLagFactor() const {
+	return m_nLastLeadLagFactor;
+}
+inline void TransportPosition::setLastLeadLagFactor( long long nValue ) {
+	m_nLastLeadLagFactor = nValue;
 }
 };
 
