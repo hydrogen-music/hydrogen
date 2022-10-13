@@ -200,13 +200,12 @@ void* diskWriterDriver_thread( void* param )
 				nPatternLengthInFrames - nFrameNumber < pDriver->m_nBufferSize ){
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
-
 			};
 
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
-			while( ret != 0 ) {
+			while( ret == 2 ) {
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}
 
