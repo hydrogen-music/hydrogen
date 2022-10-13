@@ -372,7 +372,105 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	pAE->unlock();
 }
 
-void AudioEngineTests::processTransport( const QString& sContext,
+void AudioEngineTests::testLoopMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
+	
+	pCoreActionController->activateLoopMode( true );
+	pCoreActionController->activateSongMode( true );
+
+	pAE->lock( RIGHT_HERE );
+
+	// For this call the AudioEngine still needs to be in state
+	// Playing or Ready.
+	pAE->reset( false );
+	pAE->setState( AudioEngine::State::Testing );
+
+	// Check consistency of updated frames, ticks, and queuing
+	// position while using a random buffer size (e.g. like PulseAudio
+	// does).
+	double fLastTickIntervalEnd;
+	long long nLastTransportFrame, nTotalFrames, nLastLookahead;
+	long nLastQueuingTick;
+	int nn;
+
+	auto resetVariables = [&]() {
+		nLastTransportFrame = 0;
+		nLastQueuingTick = 0;
+		fLastTickIntervalEnd = 0;
+		nTotalFrames = 0;
+		nLastLookahead = 0;
+		nn = 0;
+	};
+	resetVariables();
+
+	const int nLoops = 3;
+	const double fSongSizeInTicks = pAE->m_fSongSizeInTicks;
+
+	const int nMaxCycles =
+		std::max( std::ceil( fSongSizeInTicks /
+							 static_cast<double>(pPref->m_nBufferSize) *
+							 static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+				  fSongSizeInTicks ) *
+		nLoops;
+
+	// Run nLoops cycles in total. nLoops - 1 with loop mode enabled
+	// and disabling it in the nLoops'th run. This should cause the
+	// transport stop when reaching the end of the song again. The
+	// condition of the while loop will be true for some longer just
+	// to be sure.
+	bool bLoopEnabled = true;
+	int nRet = 0;
+	while ( pTransportPos->getDoubleTick() <
+			fSongSizeInTicks * ( nLoops + 2 ) ) {
+		nRet = processTransport(
+			QString( "[testTransportProcessingTimeline : song mode : all timeline]" ),
+			pPref->m_nBufferSize, &nLastLookahead, &nLastTransportFrame,
+			&nTotalFrames, &nLastQueuingTick, &fLastTickIntervalEnd, false );
+
+		if ( nRet == -1 ) {
+			break;
+		}
+			
+
+		// Transport did run for nLoops - 1 rounds, let's deactivate
+		// loop mode.
+		if ( bLoopEnabled && pTransportPos->getDoubleTick() >
+			 fSongSizeInTicks * ( nLoops - 1 ) ) {
+			pAE->unlock();
+			pCoreActionController->activateLoopMode( false );
+			pAE->lock( RIGHT_HERE );
+		}
+		
+		nn++;
+		if ( nn > nMaxCycles ||
+			 pTransportPos->getDoubleTick() > fSongSizeInTicks * nLoops ) {
+			AudioEngineTests::throwException(
+				QString( "[testLoopMode] transport is rolling for too long. pTransportPos: %1,\n\tfSongSizeInTicks(): %2, nLoops: %3, pPref->m_nBufferSize: %4, nMaxCycles: %5" )
+				.arg( pTransportPos->toQString() )
+				.arg( fSongSizeInTicks, 0, 'f' ).arg( nLoops )
+				.arg( pPref->m_nBufferSize ).arg( nMaxCycles ) );
+		}
+	}
+
+	// Ensure transport did run the requested number of loops.
+	if ( pAE->m_pQueuingPosition->getDoubleTick() < fSongSizeInTicks * nLoops ) {
+		AudioEngineTests::throwException(
+			QString( "[testLoopMode] transport ended prematurely. pAE->m_pQueuingPosition: %1,\n\tfSongSizeInTicks(): %2, nLoops: %3, pPref->m_nBufferSize: %4" )
+			.arg( pAE->m_pQueuingPosition->toQString() )
+			.arg( fSongSizeInTicks, 0, 'f' ).arg( nLoops )
+			.arg( pPref->m_nBufferSize ) );
+	}
+		
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+}
+
+int AudioEngineTests::processTransport( const QString& sContext,
 										 int nFrames,
 										 long long* nLastLookahead,
 										 long long* nLastTransportFrame,
@@ -383,7 +481,7 @@ void AudioEngineTests::processTransport( const QString& sContext,
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	auto pQueuingPos = pAE->m_pQueuingPosition;
-	
+
 	double fTickStart, fTickEnd;
 	const long long nLeadLag =
 		pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
@@ -401,8 +499,14 @@ void AudioEngineTests::processTransport( const QString& sContext,
 		*nLastLookahead = nLeadLag + AudioEngine::nMaxTimeHumanize + 1;
 	}
 
-	pAE->updateNoteQueue( nFrames );
+	const int nRet = pAE->updateNoteQueue( nFrames );
 	pAE->incrementTransportPosition( nFrames );
+
+	if ( nRet != 0 ) {
+		// Don't check consistency at the end of the song as just the
+		// remaining frames are covered.
+		return nRet;
+	}
 
 	AudioEngineTests::checkTransportPosition(
 		pTransportPos, "[processTransport] " + sContext );
@@ -461,6 +565,8 @@ void AudioEngineTests::processTransport( const QString& sContext,
 			.arg( sContext ).arg( pTransportPos->getFrame() )
 			.arg( pTransportPos->getFrameOffsetTempo() ).arg( *nTotalFrames ) );
 	}
+
+	return 0;
 }
 
 void AudioEngineTests::testTransportRelocation() {

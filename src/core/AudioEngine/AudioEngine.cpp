@@ -2130,13 +2130,14 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// up.
 	m_fLastTickEnd = fTickEnd;
 
-	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pQueuingPosition->getDoubleTick(): %5, m_pQueuingPosition->getFrame(): %6, nLeadLagFactor: %7")
-	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
-	// 		  .arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
-	// 		  .arg( m_pTransportPosition->getFrame() )
-	// 		  .arg( m_pQueuingPosition->getDoubleTick(), 0, 'f' )
-	// 		  .arg( m_pQueuingPosition->getFrame() )
-	// 		  .arg( nLeadLagFactor ) );
+	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pQueuingPosition->getDoubleTick(): %5, m_pQueuingPosition->getFrame(): %6, nLeadLagFactor: %7, m_fSongSizeInTicks: %8")
+	// 			.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
+	// 			.arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
+	// 			.arg( m_pTransportPosition->getFrame() )
+	// 			.arg( m_pQueuingPosition->getDoubleTick(), 0, 'f' )
+	// 			.arg( m_pQueuingPosition->getFrame() )
+	// 			.arg( nLeadLagFactor )
+	// 			.arg( m_fSongSizeInTicks, 0, 'f' ) );
 
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
@@ -2151,17 +2152,19 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				return -1;
 			}
 
+			const long nPreviousPosition = m_pQueuingPosition->getPatternStartTick() +
+				m_pQueuingPosition->getPatternTickPosition();
+
 			const long long nNewFrame = TransportPosition::computeFrameFromTick(
 				static_cast<double>(nnTick),
 				&m_pQueuingPosition->m_fTickMismatch );
 			updateSongTransportPosition( static_cast<double>(nnTick),
 										 nNewFrame, m_pQueuingPosition );
 
-			if ( m_pQueuingPosition->getColumn() == -1 ||
-				 ( ( pSong->getLoopMode() == Song::LoopMode::Finishing ) &&
-				   ( m_pTransportPosition->getColumn() > 0 ) &&
-				   ( m_pQueuingPosition->getColumn() <
-					 m_pTransportPosition->getColumn() ) ) ) {
+			if ( ( pSong->getLoopMode() != Song::LoopMode::Enabled ) &&
+				 nPreviousPosition > m_pQueuingPosition->getPatternStartTick() +
+				 m_pQueuingPosition->getPatternTickPosition() ) {
+				
 				INFOLOG( QString( "End of Song\n%1\n%2" )
 						 .arg( m_pQueuingPosition->toQString() )
 						 .arg( m_pTransportPosition->toQString() ) );

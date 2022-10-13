@@ -128,6 +128,26 @@ void TransportTest::testTransportRelocation() {
 	pCoreActionController->activateTimeline( false );
 }
 
+void TransportTest::testLoopMode() {
+
+	const QString sSongFile = H2TEST_FILE( "song/AE_loopMode.h2song" );
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	
+	auto pSong = H2Core::Song::load( sSongFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	pCoreActionController->openSong( pSong );
+	
+	const std::vector<int> indices{ 0, 1, 12 };
+	
+	for ( const int ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		perform( &AudioEngineTests::testLoopMode );
+	}
+}
+
 void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
@@ -208,7 +228,7 @@ void TransportTest::testNoteEnqueuing() {
 	pHydrogen->getCoreActionController()->openSong( m_pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
-	std::vector<int> indices{ 9 };//0, 1, 2, 5, 7, 9, 12, 15 };
+	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
 
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );

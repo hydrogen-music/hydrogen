@@ -33,6 +33,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testTransportProcessing );
 	CPPUNIT_TEST( testTransportProcessingTimeline );
 	CPPUNIT_TEST( testTransportRelocation );
+	CPPUNIT_TEST( testLoopMode );
 	CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST( testPlaybackTrack );
@@ -58,6 +59,7 @@ public:
 	void testTransportProcessing();
 	void testTransportProcessingTimeline();
 	void testTransportRelocation();
+	void testLoopMode();
 	void testSongSizeChange();
 	void testSongSizeChangeInLoopMode();
 	/**

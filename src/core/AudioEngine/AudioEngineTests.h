@@ -34,6 +34,10 @@ namespace H2Core
 
 	class TransportPosition;
 
+/** 
+ * Defined in here since it requires access to methods and
+ * variables private to the #AudioEngine class.
+ */
 class AudioEngineTests : public H2Core::Object<AudioEngineTests>
 {
 	H2_OBJECT(AudioEngineTests)
@@ -46,50 +50,37 @@ public:
 	/** 
 	 * Unit test checking the incremental update of the transport
 	 * position in audioEngine_process().
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testTransportProcessing();
 	/** 
 	 * More detailed test of the transport and playhead integrity in
 	 * case Timeline/tempo markers are involved.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testTransportProcessingTimeline();
 	/** 
 	 * Unit test checking the relocation of the transport
 	 * position in audioEngine_process().
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testTransportRelocation();
+	/** 
+	 * Unit test checking that loop mode as well as deactivating it
+	 * works.
+	 */
+	static void testLoopMode();
 	/** 
 	 * Unit test checking consistency of transport position when
 	 * playback was looped at least once and the song size is changed
 	 * by toggling a pattern.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testSongSizeChange();
 	/** 
 	 * Unit test checking consistency of transport position when
 	 * playback was looped at least once and the song size is changed
 	 * by toggling a pattern.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testSongSizeChangeInLoopMode();
 	/** 
 	 * Unit test checking that all notes in a song are picked up once.
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
 	 */
 	static void testNoteEnqueuing();
 
@@ -100,14 +91,14 @@ public:
 	static void testNoteEnqueuingTimeline();
 	
 private:
-	static void processTransport( const QString& sContext,
-								  int nFrames,
-								  long long* nLastLookahead,
-								  long long* nLastTransportFrame,
-								  long long* nTotalFrames,
-								  long* nLastPlayheadTick,
-								  double* fLastTickIntervalEnd,
-								  bool bCheckLookahead = true );
+	static int processTransport( const QString& sContext,
+								 int nFrames,
+								 long long* nLastLookahead,
+								 long long* nLastTransportFrame,
+								 long long* nTotalFrames,
+								 long* nLastPlayheadTick,
+								 double* fLastTickIntervalEnd,
+								 bool bCheckLookahead = true );
 	/**
 	 * Checks the consistency of the transport position @a pPos by
 	 * converting the current tick, frame, column, pattern start tick
