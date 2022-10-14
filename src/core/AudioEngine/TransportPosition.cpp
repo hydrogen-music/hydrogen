@@ -226,12 +226,91 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		double fNextTick, fPassedTicks = 0;
 		double fNextTickSize;
 		double fNewFrame = 0;
+		int ii;
 
 		const int nColumns = pSong->getPatternGroupVector()->size();
+		
+		auto handleEnd = [&]() {
+			// The next frame is within this segment.
+			fNewFrame += fRemainingTicks * fNextTickSize;
+
+			nNewFrame = static_cast<long long>( std::round( fNewFrame ) );
+
+			// Keep track of the rounding error to be able to switch
+			// between fTick and its frame counterpart later on.  In
+			// case fTick is located close to a tempo marker we will
+			// only cover the part up to the tempo marker in here as
+			// only this region is governed by fNextTickSize.
+			const double fRoundingErrorInTicks =
+				( fNewFrame - static_cast<double>( nNewFrame ) ) /
+				fNextTickSize;
+
+			// Compares the negative distance between current position
+			// (fNewFrame) and the one resulting from rounding -
+			// fRoundingErrorInTicks - with the negative distance
+			// between current position (fNewFrame) and location of
+			// next tempo marker.
+			if ( fRoundingErrorInTicks >
+				 fPassedTicks + fRemainingTicks - fNextTick ) {
+				// Whole mismatch located within the current tempo
+				// interval.
+				*fTickMismatch = fRoundingErrorInTicks;
+						
+			}
+			else {
+				// Mismatch at this side of the tempo marker.
+				*fTickMismatch = fPassedTicks + fRemainingTicks - fNextTick;
+
+				const double fFinalFrame = fNewFrame +
+					( fNextTick - fPassedTicks - fRemainingTicks ) * fNextTickSize;
+
+				// Mismatch located beyond the tempo marker.
+				double fFinalTickSize;
+				if ( ii < tempoMarkers.size() ) {
+					fFinalTickSize = AudioEngine::computeDoubleTickSize(
+						nSampleRate, tempoMarkers[ ii ]->fBpm, nResolution );
+				}
+				else {
+					fFinalTickSize = AudioEngine::computeDoubleTickSize(
+						nSampleRate, tempoMarkers[ 0 ]->fBpm, nResolution );
+				}
+
+				// DEBUGLOG( QString( "[::computeFrameFromTick mismatch : 2] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
+				// 		  .arg( fPassedTicks + fRemainingTicks - fNextTick )
+				// 		  .arg( ( fFinalFrame - static_cast<double>(nNewFrame) ) / fNextTickSize )
+				// 		  .arg( nNewFrame )
+				// 		  .arg( fNewFrame, 0, 'f' )
+				// 		  .arg( fFinalFrame, 0, 'f' )
+				// 		  .arg( fNextTickSize, 0, 'f' )
+				// 		  .arg( fPassedTicks, 0, 'f' )
+				// 		  .arg( fRemainingTicks, 0, 'f' )
+				// 		  .arg( fFinalTickSize, 0, 'f' ));
+						
+				*fTickMismatch += ( fFinalFrame - static_cast<double>(nNewFrame) ) /
+					fFinalTickSize;
+			}
+
+			// DEBUGLOG( QString( "[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
+			// 		  .arg( fTick, 0, 'f' )
+			// 		  .arg( fNewFrame, 0, 'g', 30 )
+			// 		  .arg( fNextTick, 0, 'f' )
+			// 		  .arg( fRemainingTicks, 0, 'f' )
+			// 		  .arg( fPassedTicks, 0, 'f' )
+			// 		  .arg( fNextTickSize, 0, 'f' )
+			// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
+			// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
+			// 		  .arg( nNewFrame )
+			// 		  .arg( *fTickMismatch, 0, 'g', 30 )
+			// 		  .arg( fRemainingTicks * fNextTickSize, 0, 'g', 30 )
+			// 		  .arg( fRoundingErrorInTicks, 0, 'f' )
+			// 	);
+
+			fRemainingTicks -= fNewTick - fPassedTicks;
+		};
 
 		while ( fRemainingTicks > 0 ) {
 		
-			for ( int ii = 1; ii <= tempoMarkers.size(); ++ii ) {
+			for ( ii = 1; ii <= tempoMarkers.size(); ++ii ) {
 				if ( ii == tempoMarkers.size() ||
 					 tempoMarkers[ ii ]->nColumn >= nColumns ) {
 					fNextTick = fSongSizeInTicks;
@@ -269,94 +348,12 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 
 				}
 				else {
-					// The next frame is within this segment.
-					fNewFrame += fRemainingTicks * fNextTickSize;
-
-					nNewFrame = static_cast<long long>( std::round( fNewFrame ) );
-
-					// Keep track of the rounding error to be able to
-					// switch between fTick and its frame counterpart
-					// later on.
-					// In case fTick is located close to a tempo
-					// marker we will only cover the part up to the
-					// tempo marker in here as only this region is
-					// governed by fNextTickSize.
-					const double fRoundingErrorInTicks =
-						( fNewFrame - static_cast<double>( nNewFrame ) ) /
-						fNextTickSize;
-
-					// Compares the negative distance between current
-					// position (fNewFrame) and the one resulting
-					// from rounding - fRoundingErrorInTicks - with
-					// the negative distance between current position
-					// (fNewFrame) and location of next tempo marker.
-					if ( fRoundingErrorInTicks >
-						 fPassedTicks + fRemainingTicks - fNextTick ) {
-						// Whole mismatch located within the current
-						// tempo interval.
-						*fTickMismatch = fRoundingErrorInTicks;
-					}
-					else {
-						// Mismatch at this side of the tempo marker.
-						*fTickMismatch =
-							fPassedTicks + fRemainingTicks - fNextTick;
-
-						const double fFinalFrame = fNewFrame +
-							( fNextTick - fPassedTicks - fRemainingTicks ) *
-							fNextTickSize;
-
-						// Mismatch located beyond the tempo marker.
-						double fFinalTickSize;
-						if ( ii < tempoMarkers.size() ) {
-							fFinalTickSize =
-								AudioEngine::computeDoubleTickSize( nSampleRate,
-																	tempoMarkers[ ii ]->fBpm,
-																	nResolution );
-						}
-						else {
-							fFinalTickSize =
-								AudioEngine::computeDoubleTickSize( nSampleRate,
-																	tempoMarkers[ 0 ]->fBpm,
-																	nResolution );
-						}
-
-						// DEBUGLOG( QString( "[mismatch] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
-						// 			.arg( fPassedTicks + fRemainingTicks - fNextTick )
-						// 			.arg( ( fFinalFrame - static_cast<double>(nNewFrame) ) / fNextTickSize )
-						// 			.arg( nNewFrame )
-						// 			.arg( fNewFrame, 0, 'f' )
-						// 			.arg( fFinalFrame, 0, 'f' )
-						// 			.arg( fNextTickSize, 0, 'f' )
-						// 			.arg( fPassedTicks, 0, 'f' )
-						// 			.arg( fRemainingTicks, 0, 'f' )
-						// 			.arg( fFinalTickSize, 0, 'f' ));
-						
-						*fTickMismatch += 
-							( fFinalFrame - static_cast<double>(nNewFrame) ) /
-							fFinalTickSize;
-					}
-
-					// DEBUGLOG( QString( "[end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
-					// 		  .arg( fTick, 0, 'f' )
-					// 		  .arg( fNewFrame, 0, 'g', 30 )
-					// 		  .arg( fNextTick, 0, 'f' )
-					// 		  .arg( fRemainingTicks, 0, 'f' )
-					// 		  .arg( fPassedTicks, 0, 'f' )
-					// 		  .arg( fNextTickSize, 0, 'f' )
-					// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
-					// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
-					// 		  .arg( nNewFrame )
-					// 		  .arg( *fTickMismatch, 0, 'g', 30 )
-					// 		  .arg( fRemainingTicks * fNextTickSize, 0, 'g', 30 )
-					// 		  .arg( fRoundingErrorInTicks, 0, 'f' )
-					// 		  );
-
-					fRemainingTicks -= fNewTick - fPassedTicks;
+					handleEnd();
 					break;
 				}
 			}
 
-			if ( fRemainingTicks != 0 ) {
+			if ( fRemainingTicks > 0 ) {
 				// The provided fTick is larger than the song. But,
 				// luckily, we just calculated the song length in
 				// frames (fNewFrame).
@@ -368,11 +365,13 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				fRemainingTicks = fNewTick;
 				fPassedTicks = 0;
 
-				// DEBUGLOG( QString( "[repeat] frames covered: %1, ticks covered: %2, ticks remaining: %3, nRepetitions: %4, fSongSizeInFrames: %5" )
+				// DEBUGLOG( QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: %3, fRemainingTicks: %4, nRepetitions: %5, fSongSizeInTicks: %6, fSongSizeInFrames: %7" )
+				// 		  .arg( fTick, 0, 'g',30 )
 				// 		  .arg( fNewFrame, 0, 'g', 30 )
-				// 		  .arg( fTick - fNewTick, 0, 'g', 30 )
+				// 		  .arg( fNewTick, 0, 'g', 30 )
 				// 		  .arg( fRemainingTicks, 0, 'g', 30 )
 				// 		  .arg( nRepetitions )
+				// 		  .arg( fSongSizeInTicks, 0, 'g', 30 )
 				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
 				// 		  );
 
@@ -381,6 +380,20 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 					 std::numeric_limits<long long>::max() ) {
 					ERRORLOG( QString( "Provided ticks [%1] are too large." ).arg( fTick ) );
 					return 0;
+				}
+
+				// The target tick matches a multiple of the song
+				// size. We need to reproduce the context within the
+				// last tempo marker in order to get the mismatch
+				// right.
+				if ( fRemainingTicks == 0 ) {
+					ii = tempoMarkers.size();
+					fNextTick = static_cast<double>(pHydrogen->getTickForColumn(
+														tempoMarkers[ 0 ]->nColumn ) );
+					fNextTickSize = AudioEngine::computeDoubleTickSize(
+						nSampleRate, tempoMarkers[ ii - 1 ]->fBpm, nResolution );
+
+					handleEnd();
 				}
 			}
 		}
@@ -548,12 +561,13 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 					fSongSizeInFrames;
 				fPassedTicks = 0;
 
-				// DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5" )
+				// DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5, fSongSizeInTicks: %6" )
 				// 		  .arg( fPassedFrames, 0, 'g', 30 )
 				// 		  .arg( fTargetFrame - fPassedFrames, 0, 'g', 30 )
 				// 		  .arg( fTick, 0, 'g', 30 )
 				// 		  .arg( nRepetitions )
 				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
+				// 		  .arg( fSongSizeInTicks, 0, 'g', 30 )
 				// 		  );
 				
 			}

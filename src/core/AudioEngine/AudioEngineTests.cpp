@@ -45,6 +45,7 @@ namespace H2Core
 void AudioEngineTests::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
 	
 	pCoreActionController->activateTimeline( true );
 	pCoreActionController->addTempoMarker( 0, 120 );
@@ -90,6 +91,7 @@ void AudioEngineTests::testFrameToTickConversion() {
 	checkTick( 552, 1e-9 );
 	checkTick( 1939, 1e-9 );
 	checkTick( 534623409, 1e-6 );
+	checkTick( pAE->m_fSongSizeInTicks * 3, 1e-9 );
 }
 
 void AudioEngineTests::testTransportProcessing() {
