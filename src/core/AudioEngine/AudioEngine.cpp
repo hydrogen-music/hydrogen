@@ -166,6 +166,11 @@ AudioEngine::~AudioEngine()
 
 	setState( State::Uninitialized );
 
+	m_pTransportPosition->reset();
+	m_pTransportPosition = nullptr;
+	m_pQueuingPosition->reset();
+	m_pQueuingPosition = nullptr;
+
 	m_pMetronomeInstrument = nullptr;
 
 	this->unlock();
