@@ -80,6 +80,8 @@ public:
 
 	void setSize( QSize size );
 
+	bool getIsHovered() const;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void setValue( double fValue );
@@ -129,5 +131,8 @@ inline void LCDSpinBox::setKind( Kind kind ) {
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;
+}
+inline bool LCDSpinBox::getIsHovered() const {
+	return m_bEntered;
 }
 #endif

@@ -546,7 +546,8 @@ void PlayerControl::updatePlayerControl()
 
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
-	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {
+	if ( ! m_pLCDBPMSpinbox->hasFocus() &&
+		 ! m_pLCDBPMSpinbox->getIsHovered() ) {
 		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 	}
 
