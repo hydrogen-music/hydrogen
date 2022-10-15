@@ -1365,10 +1365,10 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	
 	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
-		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			INFOLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-					 .arg( nTotalTick ) );
+			ERRORLOG( QString( "Provided column [%1] violates the allowed range [0;%2). No relocation done." )
+					  .arg( nPatternGroup )
+					  .arg( pHydrogen->getSong()->getPatternGroupVector()->size() ) );
 			return false;
 		} else {
 			// In case of Pattern mode this is not a problem and we

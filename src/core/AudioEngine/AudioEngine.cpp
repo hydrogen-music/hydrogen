@@ -564,21 +564,30 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		return;
 	}
 
-	long nPatternStartTick;
-	const int nNewColumn = pHydrogen->getColumnForTick(
-		std::floor( fTick ), pSong->isLoopEnabled(), &nPatternStartTick );
-	pPos->setPatternStartTick( nPatternStartTick );
-
-	// While the current tick position is constantly increasing,
-	// m_nPatternStartTick is only defined between 0 and
-	// m_fSongSizeInTicks. We will take care of the looping next.
-	if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
-		pPos->setPatternTickPosition(
-			std::fmod( std::floor( fTick ) - nPatternStartTick,
-					   m_fSongSizeInTicks ) );
+	int nNewColumn;
+	if ( pSong->getPatternGroupVector()->size() == 0 ) {
+		// There are no patterns in song.
+		pPos->setPatternStartTick( 0 );
+		pPos->setPatternTickPosition( 0 );
+		nNewColumn = 0;
 	}
 	else {
-		pPos->setPatternTickPosition( std::floor( fTick ) - nPatternStartTick );
+		long nPatternStartTick;
+		nNewColumn = pHydrogen->getColumnForTick(
+			std::floor( fTick ), pSong->isLoopEnabled(), &nPatternStartTick );
+		pPos->setPatternStartTick( nPatternStartTick );
+
+		// While the current tick position is constantly increasing,
+		// m_nPatternStartTick is only defined between 0 and
+		// m_fSongSizeInTicks. We will take care of the looping next.
+		if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
+			pPos->setPatternTickPosition(
+				std::fmod( std::floor( fTick ) - nPatternStartTick,
+						   m_fSongSizeInTicks ) );
+		}
+		else {
+			pPos->setPatternTickPosition( std::floor( fTick ) - nPatternStartTick );
+		}
 	}
 	
 	if ( pPos->getColumn() != nNewColumn ) {
@@ -1077,14 +1086,16 @@ void AudioEngine::handleSelectedPattern() {
 	if ( pHydrogen->isPatternEditorLocked() &&
 		 ( m_state == State::Playing ||
 		   m_state == State::Testing ) ) {
-		
+
+		// Default value is used to deselect the current pattern in
+		// case none was found.
 		int nPatternNumber = -1;
 
 		const int nColumn = std::max( m_pTransportPosition->getColumn(), 0 );
-		if ( nColumn >= (*pSong->getPatternGroupVector()).size() ) {
+		if ( nColumn < (*pSong->getPatternGroupVector()).size() ) {
 
 			const auto pPatternList = pSong->getPatternList();
-			if ( pPatternList == nullptr ) {
+			if ( pPatternList != nullptr ) {
 
 				const auto pColumn = ( *pSong->getPatternGroupVector() )[ nColumn ];
 
@@ -1555,14 +1566,24 @@ void AudioEngine::updateSongSize() {
 	// - there shouldn't be a difference in behavior whether the song
 	//   was already looped or not
 	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
+	const double fOldSongSizeInTicks = m_fSongSizeInTicks;
 
-	// Strip away all repetitions when in loop mode but keep their
-	// number. nPatternStartTick and nColumn are only defined
-	// between 0 and fSongSizeInTicks.
-	double fNewStrippedTick = std::fmod( m_pTransportPosition->getDoubleTick(),
-										 m_fSongSizeInTicks );
-	const double fRepetitions =
-		std::floor( m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks );
+	double fNewStrippedTick, fRepetitions;
+	if ( m_fSongSizeInTicks != 0 ) {
+		// Strip away all repetitions when in loop mode but keep their
+		// number. nPatternStartTick and nColumn are only defined
+		// between 0 and fSongSizeInTicks.
+		fNewStrippedTick = std::fmod( m_pTransportPosition->getDoubleTick(),
+									  m_fSongSizeInTicks );
+		fRepetitions =
+			std::floor( m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks );
+	}
+	else {
+		// No patterns in song prior to song size change.
+		fNewStrippedTick = m_pTransportPosition->getDoubleTick();
+		fRepetitions = 0;
+	}
+	
 	const int nOldColumn = m_pTransportPosition->getColumn();
 
 	// WARNINGLOG( QString( "[Before] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
@@ -1627,8 +1648,9 @@ void AudioEngine::updateSongSize() {
 #ifdef H2CORE_HAVE_DEBUG
 	const long nNewPatternTickPosition =
 		static_cast<long>(std::floor( fNewStrippedTick )) - nNewPatternStartTick;
-	if ( nNewPatternTickPosition !=
-		 m_pTransportPosition->getPatternTickPosition() ) {
+	if ( nNewPatternTickPosition != 
+		 m_pTransportPosition->getPatternTickPosition() &&
+		 fOldSongSizeInTicks != 0 ) {
 		ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
 				  .arg( m_pTransportPosition->getPatternTickPosition() )
 				  .arg( nNewPatternTickPosition ) );
@@ -1699,7 +1721,8 @@ void AudioEngine::updateSongSize() {
 	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_DEBUG
-	if ( nOldColumn != m_pTransportPosition->getColumn() ) {
+	if ( nOldColumn != m_pTransportPosition->getColumn() &&
+		 fOldSongSizeInTicks != 0 ) {
 		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
 				  .arg( nOldColumn )
 				  .arg( m_pTransportPosition->getColumn() ) );
@@ -1753,7 +1776,17 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
+		const auto nPrevPatternNumber = pPlayingPatterns->size();
+
 		pPlayingPatterns->clear();
+
+		if ( pSong->getPatternGroupVector()->size() == 0 ) {
+			// No patterns in current song.
+			if ( nPrevPatternNumber > 0 ) {
+				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+			}
+			return;
+		}
 
 		auto nColumn = std::max( pPos->getColumn(), 0 );
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
@@ -1771,7 +1804,10 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		// GUI does not care about the internals of the audio engine
 		// and just moves along the transport position.
-		if ( pPos == m_pTransportPosition ) {
+		// We omit the event when passing from one empty column to the
+		// next.
+		if ( pPos == m_pTransportPosition &&
+			 ( nPrevPatternNumber != 0 && pPlayingPatterns->size() != 0 ) ) {
 			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 		}
 	}
@@ -2156,15 +2192,11 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
 	for ( long nnTick = static_cast<long>(std::floor(fTickStart));
-		  nnTick < static_cast<long>(std::floor(fTickEnd)); nnTick++ ) {
+		  nnTick < static_cast<long>(std::floor(fTickEnd)); ++nnTick ) {
 
 		//////////////////////////////////////////////////////////////
 		// Update queuing position and playing patterns.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			if ( pSong->getPatternGroupVector()->size() == 0 ) {
-				ERRORLOG( "no patterns in song." );
-				return -1;
-			}
 
 			const long nPreviousPosition = m_pQueuingPosition->getPatternStartTick() +
 				m_pQueuingPosition->getPatternTickPosition();
@@ -2176,8 +2208,9 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 										 nNewFrame, m_pQueuingPosition );
 
 			if ( ( pSong->getLoopMode() != Song::LoopMode::Enabled ) &&
-				 nPreviousPosition > m_pQueuingPosition->getPatternStartTick() +
-				 m_pQueuingPosition->getPatternTickPosition() ) {
+				 ( ( nPreviousPosition > m_pQueuingPosition->getPatternStartTick() +
+					 m_pQueuingPosition->getPatternTickPosition() ) ||
+				   pSong->getPatternGroupVector()->size() == 0 ) ) {
 				
 				INFOLOG( "End of song reached." );
 
@@ -2200,14 +2233,21 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		//////////////////////////////////////////////////////////////
 		// Metronome
 		// Only trigger the metronome at a predefined rate.
-		if ( m_pQueuingPosition->getPatternTickPosition() % 48 == 0 ) {
+		int nMetronomeTickPosition;
+		if ( pSong->getPatternGroupVector()->size() == 0 ) {
+			nMetronomeTickPosition = nnTick;
+		} else {
+			nMetronomeTickPosition = m_pQueuingPosition->getPatternTickPosition();
+		}
+
+		if ( nMetronomeTickPosition % 48 == 0 ) {
 			float fPitch;
 			float fVelocity;
 			
 			// Depending on whether the metronome beat will be issued
 			// at the beginning or in the remainder of the pattern,
 			// two different sounds and events will be used.
-			if ( m_pQueuingPosition->getPatternTickPosition() == 0 ) {
+			if ( nMetronomeTickPosition == 0 ) {
 				fPitch = 3;
 				fVelocity = 1.0;
 				EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
@@ -2235,7 +2275,17 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
-
+			
+		if ( pHydrogen->getMode() == Song::Mode::Song &&
+			 pSong->getPatternGroupVector()->size() == 0 ) {
+			// No patterns in song. We let transport roll in case
+			// patterns will be added again and still use metronome.
+			if ( Preferences::get_instance()->m_bUseMetronome ) {
+				continue;
+			} else {
+				return 0;
+			}
+		}
 		//////////////////////////////////////////////////////////////
 		// Update the notes queue.
 		//

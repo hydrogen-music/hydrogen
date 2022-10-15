@@ -1520,6 +1520,12 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 
+	if ( nColumns == 0 ) {
+		// There are no patterns in the current song.
+		*pPatternStartTick = 0;
+		return 0;
+	}
+
 	// Sum the lengths of all pattern columns and use the macro
 	// MAX_NOTES in case some of them are of size zero. If the
 	// supplied value nTick is bigger than this and doesn't belong to
@@ -1580,7 +1586,8 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {
-		return -1;
+		// No patterns in song.
+		return 0;
 	}
 
 	if ( nColumn >= nPatternGroups ) {

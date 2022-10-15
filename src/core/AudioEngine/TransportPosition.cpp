@@ -215,11 +215,15 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	}
 		
 	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
-	
+
+	// If there are no patterns in the current, we treat song mode
+	// like pattern mode.
 	long long nNewFrame = 0;
 	if ( pHydrogen->isTimelineEnabled() &&
 		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) ) {
+			 pTimeline->isFirstTempoMarkerSpecial() ) &&
+		 pHydrogen->getMode() == Song::Mode::Song &&
+		 pSong->getPatternGroupVector()->size() > 0 )  {
 
 		double fNewTick = fTick;
 		double fRemainingTicks = fTick;
@@ -458,9 +462,13 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		
 	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
 	
+	// If there are no patterns in the current, we treat song mode
+	// like pattern mode.
 	if ( pHydrogen->isTimelineEnabled() &&
 		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) ) {
+			 pTimeline->isFirstTempoMarkerSpecial() ) &&
+		 pHydrogen->getMode() == Song::Mode::Song &&
+		 pSong->getPatternGroupVector()->size() ) {
 
 		// We are using double precision in here to avoid rounding
 		// errors.
