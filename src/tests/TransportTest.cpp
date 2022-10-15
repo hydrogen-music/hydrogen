@@ -36,21 +36,6 @@
 using namespace H2Core;
 
 void TransportTest::setUp(){
-
-	// We need a song that has at least the maximum pattern group
-	// number provided in testElapsedTime(). An empty one won't do it.
-	m_pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
-
-	m_pSongSizeChanged = Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
-	m_pSongNoteEnqueuing = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
-	m_pSongTransportProcessingTimeline =
-		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
-
-	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
-	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
-	CPPUNIT_ASSERT( m_pSongNoteEnqueuing != nullptr );
-	CPPUNIT_ASSERT( m_pSongTransportProcessingTimeline != nullptr );
-
 	Preferences::get_instance()->m_bUseMetronome = false;
 }
 
@@ -72,9 +57,13 @@ void TransportTest::tearDown() {
 void TransportTest::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
-	
-	for ( int ii = 0; ii < 15; ++ii ) {
+	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
+								   .arg( Filesystem::demos_dir() ) );
+	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	pHydrogen->getCoreActionController()->openSong( pSongDemo );
+
+	const std::vector<int> indices{ 0, 5, 7, 12 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testFrameToTickConversion );
 	}
@@ -83,9 +72,13 @@ void TransportTest::testFrameToTickConversion() {
 void TransportTest::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
+	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
+								   .arg( Filesystem::demos_dir() ) );
+	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	pHydrogen->getCoreActionController()->openSong( pSongDemo );
 
-	for ( int ii = 0; ii < 15; ++ii ) {
+	const std::vector<int> indices{ 1, 9, 14 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testTransportProcessing );
 	}
@@ -94,10 +87,14 @@ void TransportTest::testTransportProcessing() {
 void TransportTest::testTransportProcessingTimeline() {
 	auto pHydrogen = Hydrogen::get_instance();
 
+	auto pSongTransportProcessingTimeline =
+		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongTransportProcessingTimeline != nullptr );
 	pHydrogen->getCoreActionController()->
-		openSong( m_pSongTransportProcessingTimeline );
+		openSong( pSongTransportProcessingTimeline );
 
-	for ( int ii = 0; ii < 15; ++ii ) {
+	const std::vector<int> indices{ 2, 9, 10 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testTransportProcessingTimeline );
 	}
@@ -107,7 +104,10 @@ void TransportTest::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	pCoreActionController->openSong( m_pSongDemo );
+	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
+								   .arg( Filesystem::demos_dir() ) );
+	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	pCoreActionController->openSong( pSongDemo );
 	
 	pCoreActionController->activateTimeline( true );
 	pCoreActionController->addTempoMarker( 0, 120 );
@@ -120,7 +120,8 @@ void TransportTest::testTransportRelocation() {
 	pCoreActionController->addTempoMarker( 7, 240.46 );
 	pCoreActionController->addTempoMarker( 8, 200.1 );
 	
-	for ( int ii = 0; ii < 15; ++ii ) {
+	const std::vector<int> indices{ 0, 5, 6 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testTransportRelocation );
 	}
@@ -141,7 +142,6 @@ void TransportTest::testLoopMode() {
 	pCoreActionController->openSong( pSong );
 	
 	const std::vector<int> indices{ 0, 1, 12 };
-	
 	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testLoopMode );
@@ -152,7 +152,10 @@ void TransportTest::testSongSizeChange() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	pCoreActionController->openSong( m_pSongSizeChanged );
+	auto pSongSizeChanged =
+		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongSizeChanged != nullptr );
+	pCoreActionController->openSong( pSongSizeChanged );
 
 	// Depending on buffer size and sample rate transport might be
 	// loop when toggling a pattern at the end of the song. If there
@@ -163,7 +166,8 @@ void TransportTest::testSongSizeChange() {
 	// against those calculated intervals to remain constant.
 	pCoreActionController->activateTimeline( false );
 
-	for ( int ii = 0; ii < 15; ++ii ) {
+	const std::vector<int> indices{ 0, 1, 2, 3 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		
 		// For larger sample rates no notes will remain in the
@@ -179,9 +183,13 @@ void TransportTest::testSongSizeChange() {
 void TransportTest::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
+	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
+								   .arg( Filesystem::demos_dir() ) );
+	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	pHydrogen->getCoreActionController()->openSong( pSongDemo );
 
-	for ( int ii = 0; ii < 15; ++ii ) {
+	const std::vector<int> indices{ 0, 5, 7, 13 };
+	for ( const int ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testSongSizeChangeInLoopMode );
 	}
@@ -225,11 +233,13 @@ void TransportTest::testSampleConsistency() {
 void TransportTest::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->getCoreActionController()->openSong( m_pSongNoteEnqueuing );
+	auto pSongNoteEnqueuing =
+		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongNoteEnqueuing != nullptr );
+	pHydrogen->getCoreActionController()->openSong( pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
-	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
-
+	std::vector<int> indices{ 1, 9, 12 };
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testNoteEnqueuing );
@@ -245,7 +255,7 @@ void TransportTest::testNoteEnqueuingTimeline() {
 	pHydrogen->getCoreActionController()->openSong( pSong );
 
 	// This test is quite time consuming.
-	std::vector<int> indices{ 0, 1, 2, 5, 7 };
+	std::vector<int> indices{ 0, 5, 7 };
 
 	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );

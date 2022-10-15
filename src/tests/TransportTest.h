@@ -41,13 +41,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST( testNoteEnqueuingTimeline );
 	CPPUNIT_TEST_SUITE_END();
-	
 private:
-	std::shared_ptr<H2Core::Song> m_pSongDemo;
-	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
-	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
-	std::shared_ptr<H2Core::Song> m_pSongTransportProcessingTimeline;
-
 	void perform( std::function<void()> func );
 
 public:
