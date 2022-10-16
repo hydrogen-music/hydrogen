@@ -317,6 +317,13 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 	// audioEngine_setSong().
 	__song = pSong;
 
+	// Ensure the selected instrument is within the range of new
+	// instrument list.
+	if ( m_nSelectedInstrumentNumber >= __song->getInstrumentList()->size() ) {
+		m_nSelectedInstrumentNumber =
+			std::max( __song->getInstrumentList()->size() - 1, 0 );
+	}
+
 	// Update the audio engine to work with the new song.
 	m_pAudioEngine->setSong( pSong );
 
