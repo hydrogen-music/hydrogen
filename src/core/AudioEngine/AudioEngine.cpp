@@ -1563,7 +1563,11 @@ void AudioEngine::updateSongSize() {
 	// - there shouldn't be a difference in behavior whether the song
 	//   was already looped or not
 	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
-	const double fOldSongSizeInTicks = m_fSongSizeInTicks;
+
+	// Indicates that the song contains no patterns (before or after
+	// song size did change). 
+	const bool bEmptySong =
+		m_fSongSizeInTicks == 0 || fNewSongSizeInTicks == 0;
 
 	double fNewStrippedTick, fRepetitions;
 	if ( m_fSongSizeInTicks != 0 ) {
@@ -1595,10 +1599,8 @@ void AudioEngine::updateSongSize() {
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	auto endOfSongReached = [&](){
-		if ( pSong->getLoopMode() != Song::LoopMode::Enabled ) {
-			stop();
-			stopPlayback();
-		}
+		stop();
+		stopPlayback();
 		locate( 0 );
 		
 		// WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
@@ -1613,7 +1615,8 @@ void AudioEngine::updateSongSize() {
 		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 	};
 
-	if ( nOldColumn >= pSong->getPatternGroupVector()->size() ) {
+	if ( nOldColumn >= pSong->getPatternGroupVector()->size() &&
+		pSong->getLoopMode() != Song::LoopMode::Enabled ) {
 		// Old column exceeds the new song size.
 		endOfSongReached();
 		return;
@@ -1622,13 +1625,15 @@ void AudioEngine::updateSongSize() {
 
 	const long nNewPatternStartTick = pHydrogen->getTickForColumn( nOldColumn );
 
-	if ( nNewPatternStartTick == -1 ) {
+	if ( nNewPatternStartTick == -1 &&
+		pSong->getLoopMode() != Song::LoopMode::Enabled ) {
 		// Failsave in case old column exceeds the new song size.
 		endOfSongReached();
 		return;
 	}
 	
-	if ( nNewPatternStartTick != m_pTransportPosition->getPatternStartTick() ) {
+	if ( nNewPatternStartTick != m_pTransportPosition->getPatternStartTick() &&
+		 ! bEmptySong ) {
 		// A pattern prior to the current position was toggled,
 		// enlarged, or shrunk. We need to compensate this in order to
 		// keep the current pattern tick position constant.
@@ -1645,9 +1650,8 @@ void AudioEngine::updateSongSize() {
 #ifdef H2CORE_HAVE_DEBUG
 	const long nNewPatternTickPosition =
 		static_cast<long>(std::floor( fNewStrippedTick )) - nNewPatternStartTick;
-	if ( nNewPatternTickPosition != 
-		 m_pTransportPosition->getPatternTickPosition() &&
-		 fOldSongSizeInTicks != 0 ) {
+	if ( nNewPatternTickPosition != m_pTransportPosition->getPatternTickPosition() &&
+		 ! bEmptySong ) {
 		ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
 				  .arg( m_pTransportPosition->getPatternTickPosition() )
 				  .arg( nNewPatternTickPosition ) );
@@ -1682,7 +1686,7 @@ void AudioEngine::updateSongSize() {
 		nNewFrame - m_pTransportPosition->getFrame() +
 		m_pTransportPosition->getFrameOffsetTempo() );
 		
-	// INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9")
+	// INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9, fNewStrippedTick: %10, nNewPatternStartTick: %11")
 	// 		.arg( nNewFrame )
 	// 		.arg( m_pTransportPosition->getFrame() )
 	// 		.arg( m_pTransportPosition->getFrameOffsetTempo() )
@@ -1691,7 +1695,9 @@ void AudioEngine::updateSongSize() {
 	// 		.arg( m_pTransportPosition->getTickOffsetSongSize(), 0, 'g', 30 )
 	// 		.arg( fNewTick - m_pTransportPosition->getDoubleTick(), 0, 'g', 30 )
 	// 		.arg( fNewSongSizeInTicks, 0, 'g', 30 )
-	// 		.arg( fRepetitions )
+	// 		.arg( fRepetitions, 0, 'f' )
+	// 		.arg( fNewStrippedTick, 0, 'f' )
+	// 		.arg( nNewPatternStartTick )
 	// 		);
 
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
@@ -1718,15 +1724,15 @@ void AudioEngine::updateSongSize() {
 	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_DEBUG
-	if ( nOldColumn != m_pTransportPosition->getColumn() &&
-		 fOldSongSizeInTicks != 0 ) {
+	if ( nOldColumn != m_pTransportPosition->getColumn() && ! bEmptySong ) {
 		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
 				  .arg( nOldColumn )
 				  .arg( m_pTransportPosition->getColumn() ) );
 	}
 #endif
 
-	if ( m_pQueuingPosition->getColumn() == -1 ) {
+	if ( m_pQueuingPosition->getColumn() == -1 &&
+		pSong->getLoopMode() != Song::LoopMode::Enabled ) {
 		endOfSongReached();
 		return;
 	}
