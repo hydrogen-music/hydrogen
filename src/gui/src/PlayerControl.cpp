@@ -699,7 +699,8 @@ void PlayerControl::stopBtnClicked()
 void PlayerControl::midiActivityEvent() {
 	m_pMidiActivityTimer->stop();
 	m_pMidiActivityLED->setActivated( true );
-	m_pMidiActivityTimer->start( m_midiActivityTimeout );
+	m_pMidiActivityTimer->start( std::chrono::duration_cast<std::chrono::milliseconds>( m_midiActivityTimeout )
+								 .count() );
 }
 
 void PlayerControl::deactivateMidiActivityLED() {

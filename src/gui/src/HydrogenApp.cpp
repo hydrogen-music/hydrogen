@@ -389,7 +389,7 @@ bool HydrogenApp::openSong( QString sFilename ) {
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
 	QString sBaseName( fileInfo.completeBaseName() );
-	if ( sBaseName.front() == "." ) {
+	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
 	
@@ -472,7 +472,7 @@ bool HydrogenApp::recoverEmptySong() {
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
 	QString sBaseName( fileInfo.completeBaseName() );
-	if ( sBaseName.front() == "." ) {
+	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
 	

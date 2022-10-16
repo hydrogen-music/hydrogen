@@ -307,11 +307,16 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	updatePosition();
 	
 	if (bRedrawAll) {
-		createBackground();
+		invalidateBackground();
 		update( 0, 0, width(), height() );
 	}
 }
 
+
+void PatternEditorRuler::invalidateBackground()
+{
+	m_bBackgroundInvalid = true;
+}
 
 void PatternEditorRuler::createBackground()
 {
@@ -395,6 +400,7 @@ void PatternEditorRuler::createBackground()
 	painter.drawLine( 0, m_nRulerHeight, m_nRulerWidth, m_nRulerHeight);
 	painter.drawLine( m_nRulerWidth, 0, m_nRulerWidth, m_nRulerHeight );
 
+	m_bBackgroundInvalid = false;
 }
 
 
@@ -414,7 +420,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	}
 
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -517,7 +523,7 @@ void PatternEditorRuler::updateActiveRange() {
 	if ( m_nWidthActive != nWidthActive ) {
 		m_nWidthActive = nWidthActive;
 
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }
@@ -534,7 +540,7 @@ void PatternEditorRuler::zoomIn()
 
 	updateActiveRange();
 	
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -552,7 +558,7 @@ void PatternEditorRuler::zoomOut()
 		
 		updateActiveRange();
 		
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }

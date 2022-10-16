@@ -606,7 +606,6 @@ void SoundLibraryPanel::change_background_color()
 		DEBUGLOG( "No instrument selected" );
 		return;
 	}
-	
 	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
 	QString sDrumkitLabel = getDrumkitLabel( sDrumkitPath );
 

@@ -219,7 +219,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 			// session folder, we have to ensure the relative paths
 			// are written out. This is vital in order to support
 			// renaming, duplicating, and porting sessions.
-			if ( pSample->get_raw_filepath().left( 1 ) == '.' ) {
+			if ( pSample->get_raw_filepath().startsWith( '.' ) ) {
 				sFilename = pSample->get_raw_filepath();
 			}
 			else {

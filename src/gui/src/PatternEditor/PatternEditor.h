@@ -272,7 +272,9 @@ protected:
 
 	/** Updates #m_pBackgroundPixmap to show the latest content. */
 	virtual void createBackground();
+	void invalidateBackground();
 	QPixmap *m_pBackgroundPixmap;
+	bool m_bBackgroundInvalid;
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;

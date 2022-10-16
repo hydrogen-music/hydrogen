@@ -127,7 +127,7 @@ void MetronomeLED::metronomeEvent( int nValue ) {
 	
 	update();
 
-	m_pTimer->start( m_activityTimeout );
+	m_pTimer->start( std::chrono::duration_cast<std::chrono::milliseconds>( m_activityTimeout ).count() );
 }
 
 void MetronomeLED::turnOff() {
