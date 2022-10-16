@@ -545,7 +545,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 }
 
 void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
-	
+
 	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
@@ -596,13 +596,13 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		updatePlayingPatternsPos( pPos );
 		handleSelectedPattern();
 	}
-	
+
 	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( pPos->toQString( "", true ) )
 	// 			.arg( pPos->getFrame() ) );
-	
+
 }
 
 void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos ) {
@@ -671,12 +671,13 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 	pPos->setFrameOffsetTempo( nNewFrame - pPos->getFrame() +
 							   pPos->getFrameOffsetTempo() );
 
-	if ( m_fLastTickEnd != 0 ) {
+	if ( m_bLookaheadApplied ) {
+			// if ( m_fLastTickEnd != 0 ) {
 		const long long nNewLookahead =
 			getLeadLagInFrames( pPos->getDoubleTick() ) +
 			AudioEngine::nMaxTimeHumanize + 1;
 		const double fNewTickEnd = TransportPosition::computeTickFromFrame(
-			nNewFrame + nNewLookahead );
+			nNewFrame + nNewLookahead ) + pPos->getTickMismatch();
 		pPos->setTickOffsetQueuing( fNewTickEnd - m_fLastTickEnd );
 
 		// DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetQueuing(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
@@ -691,6 +692,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 		// 		  .arg( fNewTickEnd, 0, 'f' )
 		// 		  .arg( m_fLastTickEnd, 0, 'f' )
 		// 		  );
+		
 	}
 
 	// Happens when the Timeline was either toggled or tempo
@@ -2112,12 +2114,12 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart += nLookahead;
 	}
 
-	*fTickStart = TransportPosition::computeTickFromFrame( nFrameStart ) -
-		pPos->getTickOffsetQueuing();
+	*fTickStart = ( TransportPosition::computeTickFromFrame( nFrameStart ) +
+					pPos->getTickMismatch() ) - pPos->getTickOffsetQueuing() ;
 	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
 		pPos->getTickOffsetQueuing();
 
-	// INFOLOG( QString( "nFrameStart: %1, nFrameEnd: %2, fTickStart: %3, fTickEnd: %4, fTickStart (without offset): %5, fTickEnd (without offset): %6, m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition->getFrame(): %10, m_pTransportPosition->getTickSize(): %11, m_pQueuingPosition->getFrame(): %12, m_bLookaheadApplied: %13" )
+	// INFOLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
 	// 		 .arg( nFrameStart )
 	// 		 .arg( nFrameEnd )
 	// 		 .arg( *fTickStart, 0, 'f' )
@@ -2127,9 +2129,8 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	// 		 .arg( pPos->getTickOffsetQueuing(), 0, 'f' )
 	// 		 .arg( nLookahead )
 	// 		 .arg( nIntervalLengthInFrames )
-	// 		 .arg( pPos->getFrame() )
-	// 		 .arg( pPos->getTickSize(), 0, 'f' )
-	// 		 .arg( m_pQueuingPosition->getFrame())
+	// 		 .arg( pPos->toQString() )
+	// 		 .arg( m_pQueuingPosition->toQString() )
 	// 		 .arg( m_bLookaheadApplied )
 	// 		 );
 
@@ -2141,16 +2142,35 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	double fTickStart, fTickEnd;
+	// Ideally we just floor the provided tick. When relocating to
+	// a specific tick, it's converted counterpart is stored as the
+	// transport position in frames, which is then used to calculate
+	// the tick start again. These conversions back and forth can
+	// introduce rounding error that get larger for larger tick
+	// numbers and could result in a computed start tick of
+	// 86753.999999934 when transport was relocated to 86754. As we do
+	// not want to cover notes prior to our current transport
+	// position, we have to account for such rounding errors.
+	auto coarseGrainTick = []( double fTick ) {
+		if ( std::ceil( fTick ) - fTick > 0 &&
+			 std::ceil( fTick ) - fTick < 1E-6 ) {
+			return std::floor( fTick ) + 1;
+		}
+		else {
+			return std::floor( fTick );
+		}
+	};
+
+	double fTickStartComp, fTickEndComp;
 
 	long long nLeadLagFactor =
-		computeTickInterval( &fTickStart, &fTickEnd, nIntervalLengthInFrames );
+		computeTickInterval( &fTickStartComp, &fTickEndComp, nIntervalLengthInFrames );
 
 	// MIDI events get put into the `m_songNoteQueue` as well.
 	while ( m_midiNoteQueue.size() > 0 ) {
 		Note *pNote = m_midiNoteQueue[0];
 		if ( pNote->get_position() >
-			 static_cast<long long>(std::floor( fTickEnd )) ) {
+			 static_cast<int>(coarseGrainTick( fTickEndComp )) ) {
 			break;
 		}
 
@@ -2174,25 +2194,26 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	if ( ! m_bLookaheadApplied ) {
 		m_bLookaheadApplied = true;
 	}
+	
+	const long nTickStart = static_cast<long>(coarseGrainTick( fTickStartComp ));
+	const long nTickEnd = static_cast<long>(coarseGrainTick( fTickEndComp ));
 
 	// Only store the last tick interval end if transport is
 	// rolling. Else the realtime frame processing will mess things
 	// up.
-	m_fLastTickEnd = fTickEnd;
+	m_fLastTickEnd = fTickEndComp;
 
-	// WARNINGLOG( QString( "tick interval: [%1 : %2], m_pTransportPosition->getDoubleTick(): %3, m_pTransportPosition->getFrame(): %4, m_pQueuingPosition->getDoubleTick(): %5, m_pQueuingPosition->getFrame(): %6, nLeadLagFactor: %7, m_fSongSizeInTicks: %8")
-	// 			.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
-	// 			.arg( m_pTransportPosition->getDoubleTick(), 0, 'f' )
-	// 			.arg( m_pTransportPosition->getFrame() )
-	// 			.arg( m_pQueuingPosition->getDoubleTick(), 0, 'f' )
-	// 			.arg( m_pQueuingPosition->getFrame() )
+	// WARNINGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pTransportPosition: %7, m_pQueuingPosition: %8")
+	// 			.arg( nTickStart ).arg( nTickEnd )
+	// 			.arg( fTickStartComp, 0, 'f' ).arg( fTickEndComp, 0, 'f' )
 	// 			.arg( nLeadLagFactor )
-	// 			.arg( m_fSongSizeInTicks, 0, 'f' ) );
+	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
+	// 			.arg( m_pTransportPosition->toQString() )
+	// 			.arg( m_pQueuingPosition->toQString() ) );
 
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
-	for ( long nnTick = static_cast<long>(std::floor(fTickStart));
-		  nnTick < static_cast<long>(std::floor(fTickEnd)); ++nnTick ) {
+	for ( long nnTick = nTickStart; nnTick < nTickEnd; ++nnTick ) {
 
 		//////////////////////////////////////////////////////////////
 		// Update queuing position and playing patterns.
@@ -2211,6 +2232,13 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				 ( ( nPreviousPosition > m_pQueuingPosition->getPatternStartTick() +
 					 m_pQueuingPosition->getPatternTickPosition() ) ||
 				   pSong->getPatternGroupVector()->size() == 0 ) ) {
+
+				// DEBUGLOG( QString( "nPreviousPosition: %1, currt: %2, transport pos: %3, queuing pos: %4" )
+				// 		 .arg( nPreviousPosition )
+				// 		 .arg( m_pQueuingPosition->getPatternStartTick() +
+				// 			   m_pQueuingPosition->getPatternTickPosition() )
+				// 		 .arg( m_pTransportPosition->toQString() )
+				// 		 .arg( m_pQueuingPosition->toQString() ) );
 				
 				INFOLOG( "End of song reached." );
 

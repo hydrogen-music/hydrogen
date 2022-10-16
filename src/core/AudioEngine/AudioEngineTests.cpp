@@ -573,6 +573,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 
 void AudioEngineTests::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
@@ -601,7 +602,7 @@ void AudioEngineTests::testTransportRelocation() {
 			fNewTick = tickDist( randomEngine );
 		}
 		else if ( nn < nProcessCycles - 1 ) {
-			// Results in an unfortunate rounding error due to the
+			// Resulted in an unfortunate rounding error due to the
 			// song end at 2112. 
 			fNewTick = 2111.928009209;
 		}
@@ -615,12 +616,31 @@ void AudioEngineTests::testTransportRelocation() {
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocation] mismatch tick-based" );
 
+		if ( pAE->updateNoteQueue( pPref->m_nBufferSize ) == -1 &&
+			pAE->m_fLastTickEnd < pAE->m_fSongSizeInTicks ) {
+			AudioEngineTests::throwException(
+				QString( "[testTransportRelocation] [tick] invalid end of song: fNewTick: %1, pAE->m_fSongSizeInTicks: %2, pAE->m_fLastTickEnd: %3, transport: %4;, queuing: %5" )
+				.arg( fNewTick, 0, 'f' )
+				.arg( pAE->m_pTransportPosition->toQString() )
+				.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_fLastTickEnd )
+				.arg( pAE->m_pTransportPosition->toQString() ) );
+		}
+
 		// Frame-based relocation
 		nNewFrame = frameDist( randomEngine );
 		pAE->locateToFrame( nNewFrame );
 
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocation] mismatch frame-based" );
+
+		if ( pAE->updateNoteQueue( pPref->m_nBufferSize ) == -1 &&
+			pAE->m_fLastTickEnd < pAE->m_fSongSizeInTicks ) {
+			AudioEngineTests::throwException(
+				QString( "[testTransportRelocation] [frame] invalid end of song: nNewFrame: %1, pAE->m_fSongSizeInTicks: %2, pAE->m_fLastTickEnd: %3, transport: %4;, queuing: %5" )
+				.arg( nNewFrame ).arg( pAE->m_pTransportPosition->toQString() )
+				.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_fLastTickEnd )
+				.arg( pAE->m_pTransportPosition->toQString() ) );
+		}
 	}
 
 	pAE->reset( false );
