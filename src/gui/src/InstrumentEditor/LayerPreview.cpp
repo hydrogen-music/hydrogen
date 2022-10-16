@@ -218,7 +218,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	bool bSelectedLayerChanged = false;
 	
 	// select the last valid layer
-	if ( m_pInstrument ) {
+	if ( m_pInstrument != nullptr ) {
 		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 			auto p_compo = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( p_compo ) {

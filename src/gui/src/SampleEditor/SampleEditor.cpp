@@ -176,7 +176,6 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 	
 	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return nullptr;
@@ -202,7 +201,6 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 void SampleEditor::getAllFrameInfos()
 {
 	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -657,6 +655,10 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	if ( pInstr == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary

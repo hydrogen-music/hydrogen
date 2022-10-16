@@ -412,6 +412,10 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	Note* pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
 											  notekey, octave );
@@ -600,6 +604,10 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nColumn = getColumn( ev->x() );
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	int nRow = std::floor(static_cast<float>(ev->y()) /
 						  static_cast<float>(m_nGridHeight));
@@ -664,7 +672,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
-	if ( pSelectedInstrument ) {
+	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Instrument [%1] could not be found" )
 				  .arg( selectedinstrument ) );
 		return;
@@ -808,6 +816,10 @@ void PianoRollEditor::deleteSelection()
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			DEBUGLOG( "No instrument selected" );
+			return;
+		}
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
@@ -1209,6 +1221,10 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	int w = 8;
 	int h = m_nGridHeight - 2;
 	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return std::move( result );
+	}
 
 	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {

@@ -284,7 +284,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-	if ( nRow >= nInstruments ) {
+	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
 	}
 	
