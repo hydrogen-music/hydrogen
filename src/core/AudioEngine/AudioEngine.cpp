@@ -415,11 +415,6 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	// Assure tick<->frame can be converted properly using mismatch.
 	const long long nNewFrame = TransportPosition::computeFrameFromTick(
 		fNewTick, &m_pTransportPosition->m_fTickMismatch );
-	if ( nNewFrame != nFrame ) {
-		ERRORLOG( QString( "Something went wrong: nFrame: %1, nNewFrame: %2, fNewTick: %3, m_fTickMismatch: %4" )
-				  .arg( nFrame ).arg( nNewFrame ).arg( fNewTick )
-				  .arg( m_pQueuingPosition->m_fTickMismatch ) );
-	}
 
 	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
 	m_pQueuingPosition->set( m_pTransportPosition );
