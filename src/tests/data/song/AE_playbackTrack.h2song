@@ -10,7 +10,7 @@
  <license>undefined license</license>
  <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
- <playbackTrackFilename>/home/phil/git/hydrogen/src/tests/data/song/res/playbackTrack.flac</playbackTrackFilename>
+ <playbackTrackFilename>./res/playbackTrack.flac</playbackTrackFilename>
  <playbackTrackEnabled>true</playbackTrackEnabled>
  <playbackTrackVolume>1</playbackTrackVolume>
  <action_mode>0</action_mode>
