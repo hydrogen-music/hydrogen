@@ -1728,7 +1728,8 @@ void AudioEngine::updateSongSize() {
 	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_DEBUG
-	if ( nOldColumn != m_pTransportPosition->getColumn() && ! bEmptySong ) {
+	if ( nOldColumn != m_pTransportPosition->getColumn() && ! bEmptySong &&
+		 nOldColumn != -1 && m_pTransportPosition->getColumn() != -1 ) {
 		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
 				  .arg( nOldColumn )
 				  .arg( m_pTransportPosition->getColumn() ) );
