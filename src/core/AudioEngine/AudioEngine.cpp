@@ -541,9 +541,10 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 
 void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
-	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
+	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
+	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
 	// 			.arg( pPos->toQString( "", true ) ) );
 
 	const auto pHydrogen = Hydrogen::get_instance();
@@ -592,9 +593,10 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		handleSelectedPattern();
 	}
 
-	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
+	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4, frame: %5" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
+	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
 	// 			.arg( pPos->toQString( "", true ) )
 	// 			.arg( pPos->getFrame() ) );
 
@@ -1551,6 +1553,8 @@ void AudioEngine::updateSongSize() {
 	updatePatternSize( m_pQueuingPosition );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
+		
 		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 		return;
 	}
