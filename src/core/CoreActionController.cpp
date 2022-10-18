@@ -1465,6 +1465,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
 
+
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -1504,6 +1505,19 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 				// column.
 				continue;
 			}
+		}
+	}
+
+	PatternList* pColumn;
+	// Ensure there are no empty columns in the pattern group vector.
+	for ( int ii = pPatternGroupVector->size() - 1; ii >= 0; --ii ) {
+		pColumn = pPatternGroupVector->at( ii );
+		if ( pColumn->size() == 0 ) {
+			pPatternGroupVector->erase( pPatternGroupVector->begin() + ii );
+			delete pColumn;
+		}
+		else {
+			break;
 		}
 	}
 	
