@@ -264,7 +264,12 @@ private:
 
 	bool processPlaybackTrack(int nBufferSize);
 
-	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
+    /**
+	 * Render a note
+	 *
+	 * @return false - the note is not ended, true - the note is ended
+	 */
+	bool renderNote( Note* pNote, unsigned nBufferSize );
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
@@ -279,8 +284,7 @@ private:
 		float cost_L,
 		float cost_R,
 		float cost_track_L,
-		float cost_track_R,
-		std::shared_ptr<Song> pSong
+		float cost_track_R
 	);
 
 	bool renderNoteResample(
@@ -295,8 +299,7 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		float fLayerPitch,
-		std::shared_ptr<Song> pSong
+		float fLayerPitch
 	);
 };
 
