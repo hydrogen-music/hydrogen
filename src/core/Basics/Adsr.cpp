@@ -300,6 +300,8 @@ QString ADSR::StateToQString( State state ) {
 	case State::Idle:
 		return std::move( "Idle" );
 	}
+
+	return std::move( "Attack" );
 }
 
 QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
