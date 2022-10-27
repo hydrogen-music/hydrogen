@@ -25,7 +25,6 @@
 #include <cassert>
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
@@ -159,8 +158,6 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 		return;
 	}
 	
-	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-
 	this->get_components()->clear();
 	
 	set_missing_samples( false );

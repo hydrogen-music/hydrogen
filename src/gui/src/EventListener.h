@@ -29,7 +29,8 @@ class EventListener
 {
 	public:
 	virtual void stateChangedEvent( H2Core::AudioEngine::State state) { UNUSED( state ); }
-		virtual void patternChangedEvent() {}
+	virtual void playingPatternsChangedEvent() {}
+	virtual void nextPatternsChangedEvent(){}
 		virtual void patternModifiedEvent() {}
 		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
@@ -65,7 +66,6 @@ class EventListener
 	virtual void playbackTrackChangedEvent(){}
 	virtual void soundLibraryChangedEvent(){}
 	virtual void nextShotEvent(){}
-	virtual void stackedPatternsChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

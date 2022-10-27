@@ -716,8 +716,12 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
 				break;
 
-			case EVENT_PATTERN_CHANGED:
-				pListener->patternChangedEvent();
+			case EVENT_PLAYING_PATTERNS_CHANGED:
+				pListener->playingPatternsChangedEvent();
+				break;
+				
+			case EVENT_NEXT_PATTERNS_CHANGED:
+				pListener->nextPatternsChangedEvent();
 				break;
 
 			case EVENT_PATTERN_MODIFIED:
@@ -858,10 +862,6 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_NEXT_SHOT:
 				pListener->nextShotEvent();
-				break;
-				
-			case EVENT_STACKED_PATTERNS_CHANGED:
-				pListener->stackedPatternsChangedEvent();
 				break;
 
 			default:

@@ -43,6 +43,7 @@
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Sampler/Sampler.h>
 #include <core/EventQueue.h>
 
@@ -551,7 +552,7 @@ void ExportSongDialog::closeExport() {
 	
 	if( m_pPreferences->getRubberBandBatchMode() ){
 		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		m_pHydrogen->recalculateRubberband( m_pHydrogen->getAudioEngine()->getBpm() );
+		m_pHydrogen->recalculateRubberband( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 		m_pHydrogen->getAudioEngine()->unlock();
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );

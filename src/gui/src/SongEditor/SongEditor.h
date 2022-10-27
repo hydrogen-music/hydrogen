@@ -278,11 +278,11 @@ class SongEditorPatternList :  public QWidget
 		int getGridHeight() { return m_nGridHeight; }
 	
 	virtual void patternModifiedEvent() override;
-	virtual void patternChangedEvent() override;
+	virtual void playingPatternsChangedEvent() override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 	virtual void selectedPatternChangedEvent() override;
-	virtual void stackedPatternsChangedEvent() override;
+	virtual void nextPatternsChangedEvent() override;
 
 	public slots:
 		void patternPopup_edit();
@@ -366,7 +366,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		uint getGridWidth();
 		void setGridWidth (uint width);
 	virtual void tempoChangedEvent( int ) override;
-	virtual void patternChangedEvent() override;
+	virtual void playingPatternsChangedEvent() override;
 	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
 	virtual void songSizeChangedEvent() override;
