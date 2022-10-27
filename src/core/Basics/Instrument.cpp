@@ -604,10 +604,10 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 	InstrumentNode.write_bool( "filterActive", __filter_active );
 	InstrumentNode.write_float( "filterCutoff", __filter_cutoff );
 	InstrumentNode.write_float( "filterResonance", __filter_resonance );
-	InstrumentNode.write_int( "Attack", __adsr->get_attack() );
-	InstrumentNode.write_int( "Decay", __adsr->get_decay() );
-	InstrumentNode.write_float( "Sustain", __adsr->get_sustain() );
-	InstrumentNode.write_int( "Release", __adsr->get_release() );
+	InstrumentNode.write_int( "Attack", __adsr->getAttack() );
+	InstrumentNode.write_int( "Decay", __adsr->getDecay() );
+	InstrumentNode.write_float( "Sustain", __adsr->getSustain() );
+	InstrumentNode.write_int( "Release", __adsr->getRelease() );
 	InstrumentNode.write_int( "muteGroup", __mute_group );
 	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
 	InstrumentNode.write_int( "midiOutNote", __midi_out_note );

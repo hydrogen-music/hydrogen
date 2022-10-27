@@ -33,71 +33,62 @@ const float fDecayExponent = 0.044796211247505179,
 	fDecayInit = 1.046934808452493870,
 	fDecayYOffset = -0.046934663351557632;
 
-
-inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal )
-{
-	return fVal_A * ( 1 - fVal ) + fVal_B * fVal;
-	//return fVal_A + fVal * ( fVal_B - fVal_A );
-	//return fVal_A + ((fVal_B - fVal_A) * fVal);
-}
-
-void ADSR::normalise()
-{
-	if (__attack < 0.0) {
-		__attack = 0.0;
-	}
-	if (__decay < 0.0) {
-		__decay = 0.0;
-	}
-	if (__sustain < 0.0) {
-		__sustain = 0.0;
-	}
-	if (__release < 256) {
-		__release = 256;
-	}
-	if (__attack > 100000) {
-		__attack = 100000;
-	}
-	if (__decay > 100000) {
-		__decay = 100000;
-	}
-	if (__sustain > 1.0) {
-		__sustain = 1.0;
-	}
-	if (__release > 100256) {
-		__release = 100256;
-	}
-}
-
 ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) :
-	__attack( attack ),
-	__decay( decay ),
-	__sustain( sustain ),
-	__release( release ),
-	__state( ATTACK ),
-	__ticks( 0.0 ),
-	__value( 0.0 ),
-	__release_value( 0.0 ),
+	m_nAttack( attack ),
+	m_nDecay( decay ),
+	m_fSustain( sustain ),
+	m_nRelease( release ),
+	m_state( State::Attack ),
+	m_fTicks( 0.0 ),
+	m_fValue( 0.0 ),
+	m_fReleaseValue( 0.0 ),
 	m_fQ( fAttackInit )
 {
 	normalise();
 }
 
 ADSR::ADSR( const std::shared_ptr<ADSR> other ) :
-	__attack( other->__attack ),
-	__decay( other->__decay ),
-	__sustain( other->__sustain ),
-	__release( other->__release ),
-	__state( other->__state ),
-	__ticks( other->__ticks ),
-	__value( other->__value ),
-	__release_value( other->__release_value )
+	m_nAttack( other->m_nAttack ),
+	m_nDecay( other->m_nDecay ),
+	m_fSustain( other->m_fSustain ),
+	m_nRelease( other->m_nRelease ),
+	m_state( other->m_state ),
+	m_fTicks( other->m_fTicks ),
+	m_fValue( other->m_fValue ),
+	m_fReleaseValue( other->m_fReleaseValue )
 {
 	normalise();
 }
 
 ADSR::~ADSR() { }
 
+void ADSR::normalise()
+{
+	if (m_nAttack < 0.0) {
+		m_nAttack = 0.0;
+	}
+	if (m_nDecay < 0.0) {
+		m_nDecay = 0.0;
+	}
+	if (m_fSustain < 0.0) {
+		m_fSustain = 0.0;
+	}
+	if (m_nRelease < 256) {
+		m_nRelease = 256;
+	}
+	if (m_nAttack > 100000) {
+		m_nAttack = 100000;
+	}
+	if (m_nDecay > 100000) {
+		m_nDecay = 100000;
+	}
+	if (m_fSustain > 1.0) {
+		m_fSustain = 1.0;
+	}
+	if (m_nRelease > 100256) {
+		m_nRelease = 100256;
+	}
+}
 
 /**
  * Apply an exponential envelope to a stereo pair of sample fragments.
@@ -185,86 +176,86 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 {
 	int n = 0;
 
-	if ( __state == ATTACK ) {
+	if ( m_state == State::Attack ) {
 		int nAttackFrames = std::min( nFrames, nReleaseFrame );
-		if ( nAttackFrames * fStep > __attack ) {
+		if ( nAttackFrames * fStep > m_nAttack ) {
 			// Attack must end before nFrames, so trim it
-			nAttackFrames = ceil( __attack / fStep );
+			nAttackFrames = ceil( m_nAttack / fStep );
 		}
 
 		m_fQ =  applyExponential( fAttackExponent, fAttackInit, 0.0, -1.0,
-								  pLeft, pRight, m_fQ, nAttackFrames, __attack, fStep, &__value );
+								  pLeft, pRight, m_fQ, nAttackFrames, m_nAttack, fStep, &m_fValue );
 
 		n += nAttackFrames;
 
-		__ticks += nAttackFrames * fStep;
+		m_fTicks += nAttackFrames * fStep;
 
-		if ( __ticks >= __attack ) {
-			__ticks = 0;
-			__state = DECAY;
+		if ( m_fTicks >= m_nAttack ) {
+			m_fTicks = 0;
+			m_state = State::Decay;
 			m_fQ = fDecayInit;
 		}
 	}
 
-	if ( __state == DECAY ) {
+	if ( m_state == State::Decay ) {
 		int nDecayFrames = std::min( nFrames, nReleaseFrame ) - n;
-		if ( nDecayFrames * fStep > __decay ) {
-			nDecayFrames = ceil( __decay / fStep );
+		if ( nDecayFrames * fStep > m_nDecay ) {
+			nDecayFrames = ceil( m_nDecay / fStep );
 		}
 
-		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, __sustain, (1.0-__sustain),
-								 &pLeft[n], &pRight[n], m_fQ, nDecayFrames, __decay, fStep, &__value );
+		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, m_fSustain, (1.0-m_fSustain),
+								 &pLeft[n], &pRight[n], m_fQ, nDecayFrames, m_nDecay, fStep, &m_fValue );
 
 		n += nDecayFrames;
-		__ticks += nDecayFrames * fStep;
+		m_fTicks += nDecayFrames * fStep;
 
-		if ( __ticks >= __decay ) {
-			__ticks = 0;
-			__state = SUSTAIN;
+		if ( m_fTicks >= m_nDecay ) {
+			m_fTicks = 0;
+			m_state = State::Sustain;
 		}
 	}
 
-	if ( __state == SUSTAIN ) {
+	if ( m_state == State::Sustain ) {
 
 		int nSustainFrames = std::min( nFrames, nReleaseFrame ) - n;
 		if ( nSustainFrames != 0 ) {
-			__value = __sustain;
-			if ( __sustain != 1.0 ) {
+			m_fValue = m_fSustain;
+			if ( m_fSustain != 1.0 ) {
 				for ( int i = 0; i < nSustainFrames; i++ ) {
-					pLeft[ n + i ] *= __sustain;
-					pRight[ n + i ] *= __sustain;
+					pLeft[ n + i ] *= m_fSustain;
+					pRight[ n + i ] *= m_fSustain;
 				}
 			}
 			n += nSustainFrames;
 		}
 	}
 
-	if ( __state != RELEASE && __state != IDLE && n >= nReleaseFrame ) {
-		__release_value = __value;
-		__state = RELEASE;
-		__ticks = 0;
+	if ( m_state != State::Release && m_state != State::Idle && n >= nReleaseFrame ) {
+		m_fReleaseValue = m_fValue;
+		m_state = State::Release;
+		m_fTicks = 0;
 		m_fQ = fDecayInit;
 	}
 
-	if ( __state == RELEASE ) {
+	if ( m_state == State::Release ) {
 
 		int nReleaseFrames = nFrames - n;
-		if ( nReleaseFrames * fStep > __release ) {
-			nReleaseFrames = ceil( __release / fStep );
+		if ( nReleaseFrames * fStep > m_nRelease ) {
+			nReleaseFrames = ceil( m_nRelease / fStep );
 		}
 
-		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, 0.0, __release_value,
-								 &pLeft[n], &pRight[n], m_fQ, nReleaseFrames, __release, fStep, &__value );
+		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, 0.0, m_fReleaseValue,
+								 &pLeft[n], &pRight[n], m_fQ, nReleaseFrames, m_nRelease, fStep, &m_fValue );
 
 		n += nReleaseFrames;
-		__ticks += nReleaseFrames * fStep;
+		m_fTicks += nReleaseFrames * fStep;
 		
-		if ( __ticks >= __release ) {
-			__state = IDLE;
+		if ( m_fTicks >= m_nRelease ) {
+			m_state = State::Idle;
 		}
 	}
 
-	if ( __state == IDLE ) {
+	if ( m_state == State::Idle ) {
 		for ( ; n < nFrames; n++ ) {
 			pLeft[ n ] = pRight[ n ] = 0.0;
 		}
@@ -275,20 +266,40 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 
 void ADSR::attack()
 {
-	__state = ATTACK;
-	__ticks = 0;
+	m_state = State::Attack;
+	m_fTicks = 0;
 	m_fQ = fAttackInit;
 }
 
 float ADSR::release()
 {
-	if ( __state == IDLE ) return 0;
-	if ( __state == RELEASE ) return __value;
-	__release_value = __value;
-	__state = RELEASE;
-	__ticks = 0;
+	if ( m_state == State::Idle ) {
+		return 0;
+	} 
+	else if ( m_state == State::Release ) {
+		return m_fValue;
+	}
+	
+	m_fReleaseValue = m_fValue;
+	m_state = State::Release;
+	m_fTicks = 0;
 	m_fQ = fDecayInit;
-	return __release_value;
+	return m_fReleaseValue;
+}
+
+QString ADSR::StateToQString( State state ) {
+	switch( state ) {
+	case State::Attack:
+		return std::move( "Attack" );
+	case State::Decay:
+		return std::move( "Decay" );
+	case State::Sustain:
+		return std::move( "Sustain" );
+	case State::Release:
+		return std::move( "Release" );
+	case State::Idle:
+		return std::move( "Idle" );
+	}
 }
 
 QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
@@ -296,24 +307,25 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )
-			.append( QString( "%1%2attack: %3\n" ).arg( sPrefix ).arg( s ).arg( __attack ) )
-			.append( QString( "%1%2decay: %3\n" ).arg( sPrefix ).arg( s ).arg( __decay ) )
-			.append( QString( "%1%2sustain: %3\n" ).arg( sPrefix ).arg( s ).arg( __sustain ) )
-			.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( __release ) )
-			.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s ).arg( __state ) )
-			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( __ticks ) )
-			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( __value ) )
-			.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( __release_value ) );
+			.append( QString( "%1%2attack: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nAttack ) )
+			.append( QString( "%1%2decay: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nDecay ) )
+			.append( QString( "%1%2sustain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSustain ) )
+			.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRelease ) )
+			.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( StateToQString( m_state ) ) )
+			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTicks ) )
+			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fValue ) )
+			.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fReleaseValue ) );
 	} else {
 		sOutput = QString( "[ADSR]" )
-			.append( QString( " attack: %1" ).arg( __attack ) )
-			.append( QString( ", decay: %1" ).arg( __decay ) )
-			.append( QString( ", sustain: %1" ).arg( __sustain ) )
-			.append( QString( ", release: %1" ).arg( __release ) )
-			.append( QString( ", state: %1" ).arg( __state ) )
-			.append( QString( ", ticks: %1" ).arg( __ticks ) )
-			.append( QString( ", value: %1" ).arg( __value ) )
-			.append( QString( ", release_value: %1\n" ).arg( __release_value ) );
+			.append( QString( " attack: %1" ).arg( m_nAttack ) )
+			.append( QString( ", decay: %1" ).arg( m_nDecay ) )
+			.append( QString( ", sustain: %1" ).arg( m_fSustain ) )
+			.append( QString( ", release: %1" ).arg( m_nRelease ) )
+			.append( QString( ", state: %1" ).arg( StateToQString( m_state ) ) )
+			.append( QString( ", ticks: %1" ).arg( m_fTicks ) )
+			.append( QString( ", value: %1" ).arg( m_fValue ) )
+			.append( QString( ", release_value: %1\n" ).arg( m_fReleaseValue ) );
 	}
 	
 	return sOutput;

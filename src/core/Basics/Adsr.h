@@ -54,44 +54,24 @@ class ADSR : public Object<ADSR>
 		/** destructor */
 		~ADSR();
 
-		/**
-		 * __attack setter
-		 * \param value the new value
-		 */
-		void set_attack( unsigned int value );
-		/** __attack accessor */
-		unsigned int get_attack();
-		/**
-		 * __decay setter
-		 * \param value the new value
-		 */
-		void set_decay( unsigned int value );
-		/** __decay accessor */
-		unsigned int get_decay();
-		/**
-		 * __sustain setter
-		 * \param value the new value
-		 */
-		void set_sustain( float value );
-		/** __sustain accessor */
-		float get_sustain();
-		/**
-		 * __release setter
-		 * \param value the new value
-		 */
-		void set_release( unsigned int value );
-		/** __release accessor */
-		unsigned int get_release();
+		void setAttack( unsigned int value );
+		unsigned int getAttack();
+		void setDecay( unsigned int value );
+		unsigned int getDecay();
+		void setSustain( float value );
+		float getSustain();
+		void setRelease( unsigned int value );
+		unsigned int getRelease();
 
 		/**
-		 * sets state to ATTACK
+		 * Sets #m_state to #State::Attack
 		 */
 		void attack();
 		/**
-		 * sets state to RELEASE,
-		 * returns 0 if the state is IDLE,
-		 * __value if the state is RELEASE,
-		 * set state to RELEASE, save __release_value and return it.
+		 * Sets #m_state to #State::Release and return the current
+		 * #m_fReleaseValue.
+		 *
+		 * State setting is only applied if the ADSR is not in #State::Idle.
 		 * */
 		float release();
 
@@ -101,7 +81,7 @@ class ADSR : public Object<ADSR>
 		 * \param pRight right-channel audio buffer
 		 * \param nFrames number of frames of audio
 		 * \param nReleaseFrame frame number of the release point
-		 * \param fStep the increment to be added to __ticks
+		 * \param fStep the increment to be added to m_fTicks
 		 */
 
 		bool applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep );
@@ -114,24 +94,26 @@ class ADSR : public Object<ADSR>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-		unsigned int __attack;		///< Attack tick count
-		unsigned int __decay;		///< Decay tick count
-		float __sustain;			///< Sustain level
-		unsigned int __release;		///< Release tick count
 		/** possible states */
-		enum ADSRState {
-			ATTACK=0,
-			DECAY,
-			SUSTAIN,
-			RELEASE,
-			IDLE
+		enum class State {
+			Attack = 0,
+			Decay,
+			Sustain,
+			Release,
+			Idle
 		};
-		ADSRState __state;      ///< current state
-		float __ticks;          ///< current tick count
-		float __value;          ///< current value
-		float __release_value;  ///< value when the release state was entered
+	static QString StateToQString( State state );
+	
+		unsigned int m_nAttack;		///< Attack tick count
+		unsigned int m_nDecay;		///< Decay tick count
+		float m_fSustain;			///< Sustain level
+		unsigned int m_nRelease;		///< Release tick count
+		State m_state;      ///< current state
+		float m_fTicks;          ///< current tick count
+		float m_fValue;          ///< current value
+		float m_fReleaseValue;  ///< value when the release state was entered
 
 		double m_fQ;				///< exponential decay state
 
@@ -140,44 +122,44 @@ class ADSR : public Object<ADSR>
 
 // DEFINITIONS
 
-inline void ADSR::set_attack( unsigned int value )
+inline void ADSR::setAttack( unsigned int value )
 {
-	__attack = value;
+	m_nAttack = value;
 }
 
-inline unsigned int ADSR::get_attack()
+inline unsigned int ADSR::getAttack()
 {
-	return __attack;
+	return m_nAttack;
 }
 
-inline void ADSR::set_decay( unsigned int value )
+inline void ADSR::setDecay( unsigned int value )
 {
-	__decay = value;
+	m_nDecay = value;
 }
 
-inline unsigned int ADSR::get_decay()
+inline unsigned int ADSR::getDecay()
 {
-	return __decay;
+	return m_nDecay;
 }
 
-inline void ADSR::set_sustain( float value )
+inline void ADSR::setSustain( float value )
 {
-	__sustain = value;
+	m_fSustain = value;
 }
 
-inline float ADSR::get_sustain()
+inline float ADSR::getSustain()
 {
-	return __sustain;
+	return m_fSustain;
 }
 
-inline void ADSR::set_release( unsigned int value )
+inline void ADSR::setRelease( unsigned int value )
 {
-	__release = value;
+	m_nRelease = value;
 }
 
-inline unsigned int ADSR::get_release()
+inline unsigned int ADSR::getRelease()
 {
-	return __release;
+	return m_nRelease;
 }
 
 };
