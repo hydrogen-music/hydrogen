@@ -29,6 +29,7 @@
 
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/DrumkitComponent.h>
@@ -418,18 +419,20 @@ void Sampler::handleSongSizeChange() {
 		return;
 	}
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	const long nTickOffset =
+		static_cast<long>(std::floor(Hydrogen::get_instance()->getAudioEngine()->
+									 getTransportPosition()->getTickOffsetSongSize()));
 	
 	for ( auto nnote : m_playingNotesQueue ) {
 		
-		// DEBUGLOG( QString( "new pos: %1, old note: %2" )
-		// 		  .arg( std::max( nnote->get_position() +
-		// 							   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+		// DEBUGLOG( QString( "pos: %1 -> %2, nTickOffset: %3, note: %4" )
+		// 		  .arg( nnote->get_position() )
+		// 		  .arg( std::max( nnote->get_position() + nTickOffset,
 		// 						  static_cast<long>(0) ) )
+		// 		  .arg( nTickOffset )
 		// 		  .arg( nnote->toQString( "", true ) ) );
 		
-		nnote->set_position( std::max( nnote->get_position() +
-									   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+		nnote->set_position( std::max( nnote->get_position() + nTickOffset,
 									   static_cast<long>(0) ) );
 		nnote->computeNoteStart();
 		
@@ -454,16 +457,16 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 		return 1;
 	}
 
-	long long nFrames;
+	long long nFrame;
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
-		nFrames = pAudioEngine->getFrames();
+		nFrame = pAudioEngine->getTransportPosition()->getFrame();
 	} else {
 		// use this to support realtime events when not playing
-		nFrames = pAudioEngine->getRealtimeFrames();
+		nFrame = pAudioEngine->getRealtimeFrame();
 	}
 
 	// Only if the Sampler has not started rendering the note yet we
@@ -474,21 +477,23 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	if ( ! pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		// DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
-		// 		 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
-		// 		 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
+		// DEBUGLOG(QString( "framepos: %1, note pos: %2, pAudioEngine->getTransportPosition()->getTickSize(): %3, pAudioEngine->getTransportPosition()->getTick(): %4, pAudioEngine->getTransportPosition()->getFrame(): %5, nNoteStartInFrames: %6 ")
+		// 		 .arg( nFrames).arg( pNote->get_position() )
+		//       .arg( pAudioEngine->getTransportPosition()->getTickSize() )
+		//       .arg( pAudioEngine->getTransportPosition()->getTick() )
+		//       .arg( pAudioEngine->getTransportPosition()->getFrame() )
 		// 		 .arg( nNoteStartInFrames )
 		// 		 .append( pNote->toQString( "", true ) ) );
 
-		if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
-			nInitialSilence = nNoteStartInFrames - nFrames;
+		if ( nNoteStartInFrames > nFrame ) {	// scrivo silenzio prima dell'inizio della nota
+			nInitialSilence = nNoteStartInFrames - nFrame;
 			
 			if ( nBufferSize < nInitialSilence ) {
 
 				if ( ! pNote->isPartiallyRendered() &&
-					 pNote->getNoteStart() > nFrames + nBufferSize ) {
+					 pNote->getNoteStart() > nFrame + nBufferSize ) {
 					// this note is not valid. it's in the future...let's skip it....
-					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFrames ).arg( pNote->getNoteStart() ) );
+					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFrame ).arg( pNote->getNoteStart() ) );
 
 					return true;
 				}
@@ -736,10 +741,13 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
+	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
+	const long long nFrameOffset =
+		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
+
 	if(pSample->get_sample_rate() == pAudioDriver->getSampleRate()){
-		//No resampling	
-		m_nPlayBackSamplePosition = pAudioEngine->getFrames() -
-			pAudioEngine->getFrameOffset();
+		// No resampling
+		m_nPlayBackSamplePosition = nFrame - nFrameOffset;
 	
 		nAvail_bytes = pSample->get_frames() - m_nPlayBackSamplePosition;
 		
@@ -787,11 +795,11 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
 		
 		
-		if( pAudioEngine->getFrames() == 0){
+		if ( nFrame == 0 ){
 			fSamplePos = 0;
 		} else {
-			fSamplePos = ( ( ( pAudioEngine->getFrames() - pAudioEngine->getFrameOffset() )
-							 /nBufferSize) * (nBufferSize * fStep));
+			fSamplePos = ( nFrame - nFrameOffset ) / nBufferSize *
+				nBufferSize * fStep;
 		}
 		
 		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
@@ -884,7 +892,6 @@ bool Sampler::renderNoteNoResample(
 )
 {
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	auto pInstrument = pNote->get_instrument();
 	bool retValue = true; // the note is ended
 
@@ -898,9 +905,9 @@ bool Sampler::renderNoteNoResample(
 		
 		double fTickMismatch;
 		nNoteLength =
-			pAudioEngine->computeFrameFromTick( pNote->get_position() +
-												nEffectiveDelay +
-												pNote->get_length(), &fTickMismatch ) -
+			TransportPosition::computeFrameFromTick( pNote->get_position() +
+													 nEffectiveDelay +
+													 pNote->get_length(), &fTickMismatch ) -
 			pNote->getNoteStart();
 	}
 
@@ -1080,7 +1087,6 @@ bool Sampler::renderNoteResample(
 )
 {
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	auto pInstrument = pNote->get_instrument();
 
 	int nNoteLength = -1;
@@ -1096,13 +1102,13 @@ bool Sampler::renderNoteResample(
 		}
 		
 		nNoteLength =
-			pAudioEngine->computeFrameFromTick( pNote->get_position() +
-												nEffectiveDelay +
-												pNote->get_length(), &fTickMismatch,
-												pSample->get_sample_rate() ) -
-			pAudioEngine->computeFrameFromTick( pNote->get_position() +
-												nEffectiveDelay, &fTickMismatch,
-												pSample->get_sample_rate() );
+			TransportPosition::computeFrameFromTick( pNote->get_position() +
+													 nEffectiveDelay +
+													 pNote->get_length(), &fTickMismatch,
+													 pSample->get_sample_rate() ) -
+			TransportPosition::computeFrameFromTick( pNote->get_position() +
+													 nEffectiveDelay, &fTickMismatch,
+													 pSample->get_sample_rate() );
 	}
 
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;

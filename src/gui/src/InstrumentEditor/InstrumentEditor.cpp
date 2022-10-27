@@ -517,7 +517,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	// update layer list
-	if ( m_pInstrument ) {
+	if ( m_pInstrument != nullptr ) {
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
@@ -959,7 +959,6 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 	// Ensure instrument pointer is current
 	m_pInstrument = pHydrogen->getSelectedInstrument();
-
 	if ( m_pInstrument == nullptr ) {
 		WARNINGLOG( "No instrument selected" );
 		return;

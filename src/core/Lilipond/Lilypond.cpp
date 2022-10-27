@@ -70,7 +70,7 @@ void H2Core::LilyPond::extractData( const Song &song ) {
 
 	// Get the main information about the music
 	const std::vector<PatternList *> *group = song.getPatternGroupVector();
-	if ( !group ) {
+	if ( !group || group->size() == 0 ) {
 		m_Measures.clear();
 		return;
 	}

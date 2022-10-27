@@ -39,6 +39,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Hydrogen.h>
 
 #include <QModelIndex>
@@ -175,7 +176,6 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 	
 	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return nullptr;
@@ -201,7 +201,6 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 void SampleEditor::getAllFrameInfos()
 {
 	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -429,7 +428,7 @@ void SampleEditor::createNewLayer()
 		pEditSample->set_velocity_envelope( *m_pTargetSampleView->get_velocity() );
 		pEditSample->set_pan_envelope( *m_pTargetSampleView->get_pan() );
 
-		if( ! pEditSample->load( pAudioEngine->getBpm() ) ){
+		if( ! pEditSample->load( pAudioEngine->getTransportPosition()->getBpm() ) ){
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -632,11 +631,11 @@ void SampleEditor::on_PlayPushButton_clicked()
 	}
 
 
-	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrame() + m_nSlframes;
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-		m_nRealtimeFrameEndForTarget = pAudioEngine->getRealtimeFrames() + (m_nSlframes * m_fRatio + 0.1);
+		m_nRealtimeFrameEndForTarget = pAudioEngine->getRealtimeFrame() + (m_nSlframes * m_fRatio + 0.1);
 	}else
 	{
 		m_nRealtimeFrameEndForTarget = m_nRealtimeFrameEnd;
@@ -656,6 +655,10 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	if ( pInstr == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
@@ -674,13 +677,13 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_fZoomfactor , nullptr);
 	m_pTimer->start(40);	// update ruler at 25 fps
-	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
 	PlayOrigPushButton->setText( QString( "Stop") );
 }
 
 void SampleEditor::updateMainsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames();
+	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
 	if ( realpos < m_nRealtimeFrameEnd ){
 		unsigned frame = m_nSlframes - ( m_nRealtimeFrameEnd  - realpos );
 		if ( m_bPlayButton == true ){
@@ -703,7 +706,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 
 void SampleEditor::updateTargetsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames();
+	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame();
 	unsigned targetSampleLength;
 	if ( __rubberband.use ){
 		targetSampleLength =  m_nSlframes * m_fRatio + 0.1;
@@ -938,7 +941,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 void SampleEditor::checkRatioSettings()
 {
 	//calculate ratio
-	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getBpm()
+	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->getBpm()
 		* __rubberband.divider;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;

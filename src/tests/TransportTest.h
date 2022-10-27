@@ -20,6 +20,8 @@
  *
  */
 
+#include <functional>
+
 #include <core/config.h>
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -29,17 +31,18 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TransportTest );
 	CPPUNIT_TEST( testFrameToTickConversion );
 	CPPUNIT_TEST( testTransportProcessing );
+	CPPUNIT_TEST( testTransportProcessingTimeline );
 	CPPUNIT_TEST( testTransportRelocation );
-	CPPUNIT_TEST( testComputeTickInterval );
+	CPPUNIT_TEST( testLoopMode );
 	CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
+	CPPUNIT_TEST( testPlaybackTrack );
+	CPPUNIT_TEST( testSampleConsistency );
 	CPPUNIT_TEST( testNoteEnqueuing );
+	CPPUNIT_TEST( testNoteEnqueuingTimeline );
 	CPPUNIT_TEST_SUITE_END();
-	
 private:
-	std::shared_ptr<H2Core::Song> m_pSongDemo;
-	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
-	std::shared_ptr<H2Core::Song> m_pSongNoteEnqueuing;
+	void perform( std::function<void()> func );
 
 public:
 	void setUp();
@@ -48,9 +51,21 @@ public:
 	void testFrameToTickConversion();
 
 	void testTransportProcessing();
+	void testTransportProcessingTimeline();
 	void testTransportRelocation();
-	void testComputeTickInterval();
+	void testLoopMode();
 	void testSongSizeChange();
 	void testSongSizeChangeInLoopMode();
+	/**
+	 * Checks whether the playback track is rendered properly and
+	 * whether it doesn't get affected by tempo markers.
+	 */
+	void testPlaybackTrack();
+	void testSampleConsistency();
 	void testNoteEnqueuing();
+	/**
+	 * Checks whether the order of notes enqueued and processed by the
+	 * Sampler is consistent on tempo change.
+	 */
+	void testNoteEnqueuingTimeline();
 };
