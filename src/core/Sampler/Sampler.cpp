@@ -108,8 +108,15 @@ Sampler::~Sampler()
  */
 float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
 
-void Sampler::process( uint32_t nFrames, std::shared_ptr<Song> pSong )
+void Sampler::process( uint32_t nFrames )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song" );
+		return;
+	}
+	
 	AudioOutput* pAudioOutpout = Hydrogen::get_instance()->getAudioOutput();
 	assert( pAudioOutpout );
 

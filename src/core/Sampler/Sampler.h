@@ -173,7 +173,7 @@ public:
 	Sampler();
 	~Sampler();
 
-	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
+	void process( uint32_t nFrames );
 
 	/**
 	 * @return True, if the #Sampler is still processing notes.
