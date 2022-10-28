@@ -201,25 +201,26 @@ void Sampler::noteOn(Note *pNote )
 	int nMuteGrp = pInstr->get_mute_group();
 	if ( nMuteGrp != -1 ) {
 		// remove all notes using the same mute group
-		for ( const auto& pNote: m_playingNotesQueue ) {	// delete older note
-			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
-				pNote->get_adsr()->release();
+		for ( const auto& pOtherNote: m_playingNotesQueue ) {	// delete older note
+			if ( ( pOtherNote->get_instrument() != pInstr )  &&
+				 ( pOtherNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
+				pOtherNote->get_adsr()->release();
 			}
 		}
 	}
 
 	//note off notes
-	if( pNote->get_note_off() ){
-		for ( const auto& pNote: m_playingNotesQueue ) {
-			if ( ( pNote->get_instrument() == pInstr ) ) {
+	if ( pNote->get_note_off() ){
+		for ( const auto& pOtherNote: m_playingNotesQueue ) {
+			if ( ( pOtherNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
-				pNote->get_adsr()->release();
+				pOtherNote->get_adsr()->release();
 			}
 		}
 	}
 
 	pInstr->enqueue();
-	if( !pNote->get_note_off() ){
+	if ( ! pNote->get_note_off() ){
 		m_playingNotesQueue.push_back( pNote );
 	}
 }
@@ -941,17 +942,19 @@ bool Sampler::renderNoteNoResample(
 		// PatternEditor. This will be used instead of the full sample
 		// length.
 
+		// Negative delay is already introduced into the note start
+		// used below in Note::computeNoteStart. We need to account
+		// for it in here to in order to get the length of the note
+		// right.
 		int nEffectiveDelay = 0;
 		if ( pNote->get_humanize_delay() < 0 ) {
 			nEffectiveDelay = pNote->get_humanize_delay();
 		}
 		
 		double fTickMismatch;
-		nNoteLength =
-			TransportPosition::computeFrameFromTick( pNote->get_position() +
-													 nEffectiveDelay +
-													 pNote->get_length(), &fTickMismatch ) -
-			pNote->getNoteStart();
+		nNoteLength = TransportPosition::computeFrameFromTick(
+			pNote->get_position() + nEffectiveDelay + pNote->get_length(),
+			&fTickMismatch ) - pNote->getNoteStart();
 	}
 	
 	// The number of frames of the sample left to process.
@@ -973,6 +976,7 @@ bool Sampler::renderNoteNoResample(
 	int nInitialBufferPos = nInitialSilence;
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
+	// Either end of buffer or end of sample prior within the buffer.
 	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
 
 	auto pSample_data_L = pSample->get_data_l();
