@@ -39,7 +39,7 @@ ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int
 	m_fSustain( sustain ),
 	m_nRelease( release ),
 	m_state( State::Attack ),
-	m_fTicks( 0.0 ),
+	m_fFramesInState( 0.0 ),
 	m_fValue( 0.0 ),
 	m_fReleaseValue( 0.0 ),
 	m_fQ( fAttackInit )
@@ -53,7 +53,7 @@ ADSR::ADSR( const std::shared_ptr<ADSR> other ) :
 	m_fSustain( other->m_fSustain ),
 	m_nRelease( other->m_nRelease ),
 	m_state( other->m_state ),
-	m_fTicks( other->m_fTicks ),
+	m_fFramesInState( other->m_fFramesInState ),
 	m_fValue( other->m_fValue ),
 	m_fReleaseValue( other->m_fReleaseValue )
 {
@@ -172,92 +172,93 @@ inline double applyExponential( const float fExponent, const float fXOffset, con
  * This function manages the current state of the ADSR state machine, and applies envelope calculations
  * appropriate to each phase.
  */
-bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep )
+bool ADSR::applyADSR( float *pLeft, float *pRight, int nFinalBufferPos, int nReleaseFrame, float fStep )
 {
-	int n = 0;
+	int nBufferPos = 0;
 
 	if ( m_state == State::Attack ) {
-		int nAttackFrames = std::min( nFrames, nReleaseFrame );
+		int nAttackFrames = std::min( nFinalBufferPos, nReleaseFrame );
 		if ( nAttackFrames * fStep > m_nAttack ) {
-			// Attack must end before nFrames, so trim it
+			// Attack must end before nFinalBufferPos, so trim it
 			nAttackFrames = ceil( m_nAttack / fStep );
 		}
 
-		m_fQ =  applyExponential( fAttackExponent, fAttackInit, 0.0, -1.0,
-								  pLeft, pRight, m_fQ, nAttackFrames, m_nAttack, fStep, &m_fValue );
+		m_fQ = applyExponential( fAttackExponent, fAttackInit, 0.0, -1.0,
+								  pLeft, pRight, m_fQ, nAttackFrames, m_nAttack,
+								 fStep, &m_fValue );
 
-		n += nAttackFrames;
+		nBufferPos += nAttackFrames;
 
-		m_fTicks += nAttackFrames * fStep;
+		m_fFramesInState += nAttackFrames * fStep;
 
-		if ( m_fTicks >= m_nAttack ) {
-			m_fTicks = 0;
+		if ( m_fFramesInState >= m_nAttack ) {
+			m_fFramesInState = 0;
 			m_state = State::Decay;
 			m_fQ = fDecayInit;
 		}
 	}
 
 	if ( m_state == State::Decay ) {
-		int nDecayFrames = std::min( nFrames, nReleaseFrame ) - n;
+		int nDecayFrames = std::min( nFinalBufferPos, nReleaseFrame ) - nBufferPos;
 		if ( nDecayFrames * fStep > m_nDecay ) {
 			nDecayFrames = ceil( m_nDecay / fStep );
 		}
 
 		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, m_fSustain, (1.0-m_fSustain),
-								 &pLeft[n], &pRight[n], m_fQ, nDecayFrames, m_nDecay, fStep, &m_fValue );
+								 &pLeft[nBufferPos], &pRight[nBufferPos], m_fQ, nDecayFrames, m_nDecay, fStep, &m_fValue );
 
-		n += nDecayFrames;
-		m_fTicks += nDecayFrames * fStep;
+		nBufferPos += nDecayFrames;
+		m_fFramesInState += nDecayFrames * fStep;
 
-		if ( m_fTicks >= m_nDecay ) {
-			m_fTicks = 0;
+		if ( m_fFramesInState >= m_nDecay ) {
+			m_fFramesInState = 0;
 			m_state = State::Sustain;
 		}
 	}
 
 	if ( m_state == State::Sustain ) {
 
-		int nSustainFrames = std::min( nFrames, nReleaseFrame ) - n;
+		int nSustainFrames = std::min( nFinalBufferPos, nReleaseFrame ) - nBufferPos;
 		if ( nSustainFrames != 0 ) {
 			m_fValue = m_fSustain;
 			if ( m_fSustain != 1.0 ) {
 				for ( int i = 0; i < nSustainFrames; i++ ) {
-					pLeft[ n + i ] *= m_fSustain;
-					pRight[ n + i ] *= m_fSustain;
+					pLeft[ nBufferPos + i ] *= m_fSustain;
+					pRight[ nBufferPos + i ] *= m_fSustain;
 				}
 			}
-			n += nSustainFrames;
+			nBufferPos += nSustainFrames;
 		}
 	}
 
-	if ( m_state != State::Release && m_state != State::Idle && n >= nReleaseFrame ) {
+	if ( m_state != State::Release && m_state != State::Idle && nBufferPos >= nReleaseFrame ) {
 		m_fReleaseValue = m_fValue;
 		m_state = State::Release;
-		m_fTicks = 0;
+		m_fFramesInState = 0;
 		m_fQ = fDecayInit;
 	}
 
 	if ( m_state == State::Release ) {
 
-		int nReleaseFrames = nFrames - n;
+		int nReleaseFrames = nFinalBufferPos - nBufferPos;
 		if ( nReleaseFrames * fStep > m_nRelease ) {
 			nReleaseFrames = ceil( m_nRelease / fStep );
 		}
 
 		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, 0.0, m_fReleaseValue,
-								 &pLeft[n], &pRight[n], m_fQ, nReleaseFrames, m_nRelease, fStep, &m_fValue );
+								 &pLeft[nBufferPos], &pRight[nBufferPos], m_fQ, nReleaseFrames, m_nRelease, fStep, &m_fValue );
 
-		n += nReleaseFrames;
-		m_fTicks += nReleaseFrames * fStep;
+		nBufferPos += nReleaseFrames;
+		m_fFramesInState += nReleaseFrames * fStep;
 		
-		if ( m_fTicks >= m_nRelease ) {
+		if ( m_fFramesInState >= m_nRelease ) {
 			m_state = State::Idle;
 		}
 	}
 
 	if ( m_state == State::Idle ) {
-		for ( ; n < nFrames; n++ ) {
-			pLeft[ n ] = pRight[ n ] = 0.0;
+		for ( ; nBufferPos < nFinalBufferPos; nBufferPos++ ) {
+			pLeft[ nBufferPos ] = pRight[ nBufferPos ] = 0.0;
 		}
 		return true;
 	}
@@ -267,7 +268,7 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 void ADSR::attack()
 {
 	m_state = State::Attack;
-	m_fTicks = 0;
+	m_fFramesInState = 0;
 	m_fQ = fAttackInit;
 }
 
@@ -282,7 +283,7 @@ float ADSR::release()
 	
 	m_fReleaseValue = m_fValue;
 	m_state = State::Release;
-	m_fTicks = 0;
+	m_fFramesInState = 0;
 	m_fQ = fDecayInit;
 	return m_fReleaseValue;
 }
@@ -315,7 +316,7 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRelease ) )
 			.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( StateToQString( m_state ) ) )
-			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTicks ) )
+			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fFramesInState ) )
 			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fValue ) )
 			.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fReleaseValue ) );
 	} else {
@@ -325,7 +326,7 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", sustain: %1" ).arg( m_fSustain ) )
 			.append( QString( ", release: %1" ).arg( m_nRelease ) )
 			.append( QString( ", state: %1" ).arg( StateToQString( m_state ) ) )
-			.append( QString( ", ticks: %1" ).arg( m_fTicks ) )
+			.append( QString( ", ticks: %1" ).arg( m_fFramesInState ) )
 			.append( QString( ", value: %1" ).arg( m_fValue ) )
 			.append( QString( ", release_value: %1\n" ).arg( m_fReleaseValue ) );
 	}

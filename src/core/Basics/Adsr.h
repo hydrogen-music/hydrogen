@@ -111,7 +111,18 @@ class ADSR : public Object<ADSR>
 		float m_fSustain;			///< Sustain level
 		unsigned int m_nRelease;		///< Release tick count
 		State m_state;      ///< current state
-		float m_fTicks;          ///< current tick count
+	/**
+	 * Tracks the number of frames passed in the current #m_state.
+	 *
+	 * It is used to determine whether ADSR processing should proceed
+	 * into the next state and required if multiple process cycles of
+	 * the #H2Core::Sampler render the same state.
+	 *
+	 * Note that it is given in float instead of integer (the basic
+	 * unit for frames in the #H2Core::AudioEngine) in order to
+	 * account for processing while resampling the original audio.
+	 */
+		float m_fFramesInState;          ///< current tick count
 		float m_fValue;          ///< current value
 		float m_fReleaseValue;  ///< value when the release state was entered
 
