@@ -958,9 +958,10 @@ bool Sampler::renderNoteNoResample(
 	}
 	
 	// The number of frames of the sample left to process.
-	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;
-
-	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {
+	int nRemainingFrames = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;
+	
+	int nAvail_bytes;
+	if ( nRemainingFrames > nBufferSize - nInitialSilence ) {
 		// It The number of frames of the sample left to process
 		// exceeds what's available in the current process cycle of
 		// the Sampler. Clip it.
@@ -971,6 +972,9 @@ bool Sampler::renderNoteNoResample(
 	else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
 		nAvail_bytes = nBufferSize - nInitialSilence;
+	}
+	else {
+		nAvail_bytes = nRemainingFrames;
 	}
 
 	int nInitialBufferPos = nInitialSilence;
@@ -1005,12 +1009,12 @@ bool Sampler::renderNoteNoResample(
 
 	float buffer_L[ MAX_BUFFER_SIZE ];
 	float buffer_R[ MAX_BUFFER_SIZE ];
-	int nNoteEnd;
+	int nNoteEnd = nInitialBufferPos + 1;
 	if ( nNoteLength == -1) {
-		nNoteEnd = pSelectedLayerInfo->SamplePosition + nFinalBufferPos + 1;
+		nNoteEnd += pSelectedLayerInfo->SamplePosition + nFinalBufferPos;
 	}
 	else {
-		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
+		nNoteEnd += nNoteLength - (int)pSelectedLayerInfo->SamplePosition;
 	}
 
 	int nSampleFrames = std::min( nFinalBufferPos,
@@ -1024,10 +1028,10 @@ bool Sampler::renderNoteNoResample(
 	for ( int nBufferPos = nSampleFrames; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
 		buffer_L[ nBufferPos ] = buffer_R[ nBufferPos ] = 0.0;
 	}
-
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd, 1 ) ) {
 		bRetValue = true;
 	}
+
 	bool bFilterIsActive = pInstrument->is_filter_active();
 	// Low pass resonant filter
 
@@ -1174,11 +1178,11 @@ bool Sampler::renderNoteResample(
 		static_cast<float>(pAudioDriver->getSampleRate()); // Adjust for audio driver sample rate
 
 	// The number of frames of the sample left to process.
-	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
-
+	int nRemainingFrames = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
 
 	bool bRetValue = true; // the note is ended
-	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {
+	int nAvail_bytes;
+	if ( nRemainingFrames > nBufferSize - nInitialSilence ) {
 		// It The number of frames of the sample left to process
 		// exceeds what's available in the current process cycle of
 		// the Sampler. Clip it.
@@ -1189,6 +1193,9 @@ bool Sampler::renderNoteResample(
 	else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
 		nAvail_bytes = nBufferSize - nInitialSilence;
+	}
+	else {
+		nAvail_bytes = nRemainingFrames;
 	}
 
 	int nInitialBufferPos = nInitialSilence;
@@ -1206,12 +1213,13 @@ bool Sampler::renderNoteResample(
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
-	int nNoteEnd;
+	int nNoteEnd = nInitialBufferPos + 1;
 	if ( nNoteLength == -1 ) {
-		nNoteEnd = nSampleFrames + 1;
+		nNoteEnd += nRemainingFrames;
 	}
 	else {
-		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
+		nNoteEnd += (int)( (float) ( nNoteLength -
+									 pSelectedLayerInfo->SamplePosition ) / fStep );
 	}
 
 
@@ -1316,7 +1324,7 @@ bool Sampler::renderNoteResample(
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd, fStep ) ) {
 		bRetValue = true;
 	}
-
+	
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
 
