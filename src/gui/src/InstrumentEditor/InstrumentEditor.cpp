@@ -202,14 +202,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// ADSR
 	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								  tr( "Attack" ), false );
+								  tr( "Length of Attack phase.\n\nValue" ), false );
 	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								 tr( "Decay" ), false );
+								 tr( "Length of Decay phase.\n\nValue" ), false );
 	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Sustain" ), false );
+								   tr( "Sample volume in Sustain phase.\n\nValue" ), false );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Release" ), false );
+								   tr( "Length of Release phase.\n\nValue" ), false );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	connect( m_pAttackRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
