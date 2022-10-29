@@ -41,10 +41,10 @@ class ADSR : public Object<ADSR>
 
 		/**
 		 * constructor
-		 * \param attack tick duration
-		 * \param decay tick duration
+		 * \param attack phase duration in frames
+		 * \param decay phase duration in frames
 		 * \param sustain level
-		 * \param release tick duration
+		 * \param release phase duration in frames
 		 */
 		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 
@@ -77,14 +77,33 @@ class ADSR : public Object<ADSR>
 
 		/**
 		 * Compute and apply successive ADSR values to stereo buffers.
+		 *
+		 * In case the ADSR still hold its default values, the
+		 * provided buffers aren't altered.
+		 *
+		 * Conceptionally it multiplies the first #m_nAttack frames of
+		 * a sample with a rising attack exponential, the successive
+		 * #m_nDecay frames with a falling decay exponential, and
+		 * remaining frames with #m_fSustain. Which of these steps are
+		 * covered in a run of applyADSR() depends on #m_state.
+		 *
+		 * If no note length was specified by the user in the GUI,
+		 * #m_fSustain will be applied will the end of the
+		 * corresponding sample and ADSR application won't enter
+		 * release phase which would apply a falling exponential for
+		 * #m_nRelease frames and zero all following frames.
+		 *
 		 * \param pLeft left-channel audio buffer
 		 * \param pRight right-channel audio buffer
-		 * \param nFrames number of frames of audio
-		 * \param nReleaseFrame frame number of the release point
-		 * \param fStep the increment to be added to m_fTicks
+		 * \param nFinalBufferPos Up to which frame @a pLeft and @a
+		 * pRight will be processed.
+		 * \param nReleaseFrame Frame number indicating the end of the
+		 * note or sample at which ADSR processing will enter the
+		 * release phase.
+		 * \param fStep the increment to be added to m_fFramesInState.
 		 */
 
-		bool applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep );
+		bool applyADSR( float *pLeft, float *pRight, int nFinalBufferPos, int nReleaseFrame, float fStep );
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -106,10 +125,10 @@ class ADSR : public Object<ADSR>
 		};
 	static QString StateToQString( State state );
 	
-		unsigned int m_nAttack;		///< Attack tick count
-		unsigned int m_nDecay;		///< Decay tick count
+		unsigned int m_nAttack;		///< Attack phase duration in frames
+		unsigned int m_nDecay;		///< Decay phase duration in frames
 		float m_fSustain;			///< Sustain level
-		unsigned int m_nRelease;		///< Release tick count
+		unsigned int m_nRelease;		///< Release phase duration in frames
 		State m_state;      ///< current state
 	/**
 	 * Tracks the number of frames passed in the current #m_state.
@@ -122,7 +141,7 @@ class ADSR : public Object<ADSR>
 	 * unit for frames in the #H2Core::AudioEngine) in order to
 	 * account for processing while resampling the original audio.
 	 */
-		float m_fFramesInState;          ///< current tick count
+		float m_fFramesInState;
 		float m_fValue;          ///< current value
 		float m_fReleaseValue;  ///< value when the release state was entered
 
