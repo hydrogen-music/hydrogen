@@ -2143,11 +2143,6 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	return nLeadLagFactor;
 }
 
-int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
 	// Ideally we just floor the provided tick. When relocating to
 	// a specific tick, it's converted counterpart is stored as the
 	// transport position in frames, which is then used to calculate
@@ -2157,7 +2152,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// 86753.999999934 when transport was relocated to 86754. As we do
 	// not want to cover notes prior to our current transport
 	// position, we have to account for such rounding errors.
-	auto coarseGrainTick = []( double fTick ) {
+double AudioEngine::coarseGrainTick( double fTick ) {
 		if ( std::ceil( fTick ) - fTick > 0 &&
 			 std::ceil( fTick ) - fTick < 1E-6 ) {
 			return std::floor( fTick ) + 1;
@@ -2165,7 +2160,12 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		else {
 			return std::floor( fTick );
 		}
-	};
+	}
+
+int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	double fTickStartComp, fTickEndComp;
 
@@ -2239,7 +2239,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 					 m_pQueuingPosition->getPatternTickPosition() ) ||
 				   pSong->getPatternGroupVector()->size() == 0 ) ) {
 
-				// DEBUGLOG( QString( "nPreviousPosition: %1, currt: %2, transport pos: %3, queuing pos: %4" )
+				// DEBUGLOG( QString( "nPreviousPosition: %1, curr: %2, transport pos: %3, queuing pos: %4" )
 				// 		 .arg( nPreviousPosition )
 				// 		 .arg( m_pQueuingPosition->getPatternStartTick() +
 				// 			   m_pQueuingPosition->getPatternTickPosition() )
