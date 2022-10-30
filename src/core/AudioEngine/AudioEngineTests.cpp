@@ -183,7 +183,7 @@ void AudioEngineTests::testTransportProcessing() {
 			nFrames = frameDist( randomEngine );
 			processTransport(
 				QString( "testTransportProcessing : song mode : variable tempo %1->%2" )
-				.arg( fLastBpm ).arg( fBpm ), nFrames, &nLastLookahead,
+				.arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' ), nFrames, &nLastLookahead,
 				&nLastTransportFrame, &nTotalFrames, &nLastQueuingTick,
 				&fLastTickIntervalEnd, true );
 		}
@@ -487,6 +487,8 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	double fTickStart, fTickEnd;
 	const long long nLeadLag =
 		pAE->computeTickInterval( &fTickStart, &fTickEnd, nFrames );
+	fTickStart = pAE->coarseGrainTick( fTickStart );
+	fTickEnd = pAE->coarseGrainTick( fTickEnd );
 
 	if ( bCheckLookahead ) {
 		// If this is the first call after a tempo change, the last
@@ -527,7 +529,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 			pTransportPos->getFrameOffsetTempo();
 
 	const int nNoteQueueUpdate =
-		static_cast<int>(std::floor( fTickEnd ) - std::floor( fTickStart ));
+		static_cast<int>( fTickEnd ) - static_cast<int>( fTickStart );
 	// We will only compare the queuing position in case interval
 	// in updateNoteQueue covers at least one tick and, thus,
 	// an update has actually taken place.
@@ -535,9 +537,12 @@ int AudioEngineTests::processTransport( const QString& sContext,
 		if ( pQueuingPos->getTick() - nNoteQueueUpdate !=
 			 *nLastQueuingTick ) {
 			AudioEngineTests::throwException(
-				QString( "[processTransport : queuing pos] [%1] inconsistent tick update. pQueuingPos->getTick(): %2, nNoteQueueUpdate: %3, nLastQueuingTick: %4" )
+				QString( "[processTransport : queuing pos] [%1] inconsistent tick update. pQueuingPos->getTick(): %2, nNoteQueueUpdate: %3, nLastQueuingTick: %4, fTickStart: %5, fTickEnd: %6, nFrames = %7, pTransportPos: %8, pQueuingPos: %9" )
 				.arg( sContext ).arg( pQueuingPos->getTick() )
-				.arg( nNoteQueueUpdate ).arg( *nLastQueuingTick ) );
+				.arg( nNoteQueueUpdate ).arg( *nLastQueuingTick )
+				.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
+				.arg( nFrames ).arg( pTransportPos->toQString() )
+				.arg( pQueuingPos->toQString() ) );
 		}
 	}
 	*nLastQueuingTick = pQueuingPos->getTick();
@@ -547,7 +552,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	// In combination with testNoteEnqueuing this should
 	// guarantuee that all note will be queued properly.
 	if ( std::abs( fTickStart - *fLastTickIntervalEnd ) > 1E-4 ||
-		 fTickStart >= fTickEnd ) {
+		 fTickStart > fTickEnd ) {
 		AudioEngineTests::throwException(
 			QString( "[processTransport : tick interval] [%1] inconsistent update. old: [ ... : %2 ], new: [ %3, %4 ], pTransportPos->getTickOffsetQueuing(): %5, diff: %6" )
 			.arg( sContext ).arg( *fLastTickIntervalEnd ).arg( fTickStart )

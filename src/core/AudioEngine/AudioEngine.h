@@ -445,6 +445,19 @@ private:
 
 	void resetOffsets();
 
+	/**
+	 * Ideally we just floor the provided tick. When relocating to a
+	 * specific tick, it's converted counterpart is stored as the
+	 * transport position in frames, which is then used to calculate
+	 * the tick start again. These conversions back and forth can
+	 * introduce rounding error that get larger for larger tick
+	 * numbers and could result in a computed start tick of
+	 * 86753.999999934 when transport was relocated to 86754. As we do
+	 * not want to cover notes prior to our current transport
+	 * position, we have to account for such rounding errors.
+	 */
+	double coarseGrainTick( double fTick );
+
 	void			clearNoteQueues();
 	/** Clear all audio buffers.
 	 */
