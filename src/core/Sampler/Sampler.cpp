@@ -651,40 +651,26 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 				fCostTrack_R = 0.0;
 			}
 
-		} else {	// Precompute some values...
+		} else {
+			float fMonoGain = 1.0;
 			if ( pInstr->get_apply_velocity() ) {
-				fCost_L *= pNote->get_velocity();		// note velocity
-				fCost_R *= pNote->get_velocity();		// note velocity
+				fMonoGain *= pNote->get_velocity();	// note velocity
 			}
 
+			fMonoGain *= fLayerGain;				// layer gain
+			fMonoGain *= pInstr->get_gain();		// instrument gain
+			fMonoGain *= pCompo->get_gain();		// Component gain
+			fMonoGain *= pMainCompo->get_volume();	// Component volument
+			fMonoGain *= pInstr->get_volume();		// instrument volume
+			fMonoGain *= pSong->getVolume();		// song volume
 
-			fCost_L *= fPan_L;							// pan
-			fCost_L *= fLayerGain;				// layer gain
-			fCost_L *= pInstr->get_gain();		// instrument gain
-
-			fCost_L *= pCompo->get_gain();		// Component gain
-			fCost_L *= pMainCompo->get_volume(); // Component volument
-
-			fCost_L *= pInstr->get_volume();		// instrument volume
-			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
-				 Preferences::JackTrackOutputMode::postFader ) {
-				fCostTrack_L = fCost_L * 2;
-			}
-			fCost_L *= pSong->getVolume();	// song volume
-
-			fCost_R *= fPan_R;							// pan
-			fCost_R *= fLayerGain;				// layer gain
-			fCost_R *= pInstr->get_gain();		// instrument gain
-
-			fCost_R *= pCompo->get_gain();		// Component gain
-			fCost_R *= pMainCompo->get_volume(); // Component volument
-
-			fCost_R *= pInstr->get_volume();		// instrument volume
+			fCost_L = fMonoGain * fPan_L;			// pan
+			fCost_R = fMonoGain * fPan_R;			// pan
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 				 Preferences::JackTrackOutputMode::postFader ) {
 				fCostTrack_R = fCost_R * 2;
+				fCostTrack_L = fCost_L * 2;
 			}
-			fCost_R *= pSong->getVolume();	// song pan
 		}
 
 		// direct track outputs only use velocity
