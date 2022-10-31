@@ -546,6 +546,18 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	// Pass fPan to the Pan Law
 	float fPan_L = panLaw( fPan, pSong );
 	float fPan_R = panLaw( -fPan, pSong );
+
+	// In PreFader mode of the per track output of the JACK driver we
+	// disregard the instrument pan along with all other settings
+	// available in the Mixer. The Note pan, however, will be used.
+	float fNotePan_L = 0;
+	float fNotePan_R = 0;
+	if ( pHydrogen->hasJackAudioDriver() &&
+		 Preferences::get_instance()->m_JackTrackOutputMode ==
+		 Preferences::JackTrackOutputMode::preFader ) {
+		fNotePan_L = panLaw( pNote->getPan(), pSong );
+		fNotePan_R = panLaw( -1 * pNote->getPan(), pSong );
+	}
 	//---------------------------------------------------------
 
 	auto pComponents = pInstr->get_components();
@@ -680,7 +692,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 				fCostTrack_L *= pNote->get_velocity();
 			}
 			fCostTrack_L *= fLayerGain;
+			
 			fCostTrack_R = fCostTrack_L;
+
+			fCostTrack_L *= fNotePan_L;
+			fCostTrack_R *= fNotePan_R;
 		}
 
 		// Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
