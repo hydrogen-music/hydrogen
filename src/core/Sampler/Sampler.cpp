@@ -676,7 +676,9 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		// direct track outputs only use velocity
 		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::preFader ) {
-			fCostTrack_L *= pNote->get_velocity();
+			if ( pInstr->get_apply_velocity() ) {
+				fCostTrack_L *= pNote->get_velocity();
+			}
 			fCostTrack_L *= fLayerGain;
 			fCostTrack_R = fCostTrack_L;
 		}
