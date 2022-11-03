@@ -1370,7 +1370,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		*pBuffer_R = m_pAudioDriver->getOut_R();
 	assert( pBuffer_L != nullptr && pBuffer_R != nullptr );
 
-	getSampler()->process( nFrames, pSong );
+	getSampler()->process( nFrames );
 	float* out_L = getSampler()->m_pMainOut_L;
 	float* out_R = getSampler()->m_pMainOut_R;
 	for ( unsigned i = 0; i < nFrames; ++i ) {

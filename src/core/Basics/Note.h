@@ -290,10 +290,6 @@ class Note : public H2Core::Object<Note>
 
 		/** get the ADSR of the note */
 		std::shared_ptr<ADSR> get_adsr() const;
-		/** call release on adsr */
-		//float release_adsr() const              { return __adsr->release(); }
-		/** call get value on adsr */
-		//float get_adsr_value(float v) const     { return __adsr->get_value( v ); }
 
 		/** return true if instrument, key and octave matches with internal
 		 * \param instrument the instrument to match with #__instrument
