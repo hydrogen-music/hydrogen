@@ -1156,17 +1156,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			}
 
 			if ( pSong->getHumanizeVelocityValue() != 0 ) {
-				const float fRandom = pSong->getHumanizeVelocityValue() * getGaussian( 0.2 );
-				pNote->set_velocity(
-							pNote->get_velocity()
-							+ ( fRandom
-								- ( pSong->getHumanizeVelocityValue() / 2.0 ) )
-							);
-				if ( pNote->get_velocity() > 1.0 ) {
-					pNote->set_velocity( 1.0 );
-				} else if ( pNote->get_velocity() < 0.0 ) {
-					pNote->set_velocity( 0.0 );
-				}
+				pNote->set_velocity( pNote->get_velocity() +
+									 pSong->getHumanizeVelocityValue() *
+									 getGaussian( 0.2 ) );
 			}
 
 			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
