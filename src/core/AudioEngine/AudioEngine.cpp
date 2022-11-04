@@ -1603,8 +1603,10 @@ void AudioEngine::updateSongSize() {
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	auto endOfSongReached = [&](){
-		stop();
-		stopPlayback();
+		if ( getState() == State::Playing ) {
+			stop();
+			stopPlayback();
+		}
 		locate( 0 );
 		
 		// WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
