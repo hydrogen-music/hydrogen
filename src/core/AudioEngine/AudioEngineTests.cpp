@@ -1172,6 +1172,334 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 }
+
+void AudioEngineTests::testHumanization() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pSampler = pAE->getSampler();
+	auto pTransportPos = pAE->getTransportPosition();
+	auto pPref = Preferences::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	pCoreActionController->activateLoopMode( false );
+	pCoreActionController->activateSongMode( true );
+
+	pAE->lock( RIGHT_HERE );
+
+	// For reset() the AudioEngine still needs to be in state
+	// Playing or Ready.
+	pAE->reset( false );
+	pAE->setState( AudioEngine::State::Testing );
+
+	// Rolls playback from beginning to the end of the song and
+	// captures all notes added to the Sampler.
+	auto getNotes = [&]( std::vector<std::shared_ptr<Note>> *notes ) {
+
+		AudioEngineTests::resetSampler( "testHumanization::getNotes" );
+
+		// Factor by which the number of frames processed when
+		// retrieving notes will be smaller than the buffer size. This
+		// vital because when using a large number of frames below the
+		// notes might already be processed and flushed from the
+		// Sampler before we had the chance to retrieve them.
+		const double fStep = 10.0;
+		const int nMaxCycles =
+			std::max( std::ceil( static_cast<double>(pAE->m_fSongSizeInTicks) /
+								 static_cast<double>(pPref->m_nBufferSize) * fStep *
+								 static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+					  static_cast<double>(pAE->m_fSongSizeInTicks) );
+		const uint32_t nFrames = static_cast<uint32_t>(
+			std::round( static_cast<double>(pPref->m_nBufferSize) / fStep ) );
+
+		pAE->locate( 0 );
+
+		QString sPlayingPatterns;
+		for ( const auto& pattern : *pTransportPos->getPlayingPatterns() ) {
+			sPlayingPatterns += " " + pattern->get_name();
+		}
+		
+		int nn = 0;
+		bool bEndOfSongReached = false;
+		while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ) {
+
+			if ( ! bEndOfSongReached ) {
+				if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
+					bEndOfSongReached = true;
+				}
+			}
+
+			pAE->processAudio( nFrames );
+			
+			AudioEngineTests::mergeQueues( notes,
+										   pSampler->getPlayingNotesQueue() );
+			
+			pAE->incrementTransportPosition( nFrames );
+
+			++nn;
+			if ( nn > nMaxCycles ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization::getNotes] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+					.arg( pTransportPos->getFrame() )
+					.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+					.arg( pTransportPos->getTickSize(), 0, 'f' )
+					.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+					.arg( nMaxCycles ) );
+			}
+		}
+	};
+
+	// Sets the rotaries of velocity and timinig humanization as well
+	// as of the pitch randomization of the Kick Instrument (used for
+	// the notes in the test song) to a particular value between 0 and
+	// 1.
+	auto setHumanization = [&]( double fValue ) {
+		fValue = std::clamp( fValue, 0.0, 1.0 );
+
+		pSong->setHumanizeTimeValue( fValue );
+		pSong->setHumanizeVelocityValue( fValue );
+
+		pSong->getInstrumentList()->get( 0 )->set_random_pitch_factor( fValue );
+	};
+
+	auto setSwing = [&]( double fValue ) {
+		fValue = std::clamp( fValue, 0.0, 1.0 );
+
+		pSong->setHumanizeTimeValue( fValue );
+		pSong->setHumanizeVelocityValue( fValue );
+		pSong->setSwingFactor( fValue );
+	};
+
+	// Reference notes with no humanization and property
+	// customization.
+	auto notesInSong = pSong->getAllNotes();
+
+	// First pattern is activated per default.
+	setHumanization( 0 );
+	setSwing( 0 );
+
+	std::vector<std::shared_ptr<Note>> notesReference;
+	getNotes( &notesReference );
+	
+	if ( notesReference.size() != notesInSong.size() ) {
+		AudioEngineTests::throwException(
+			QString( "[testHumanization] [references] Bad test setup. Mismatching number of notes [%1 : %2]" )
+			.arg( notesReference.size() )
+			.arg( notesInSong.size() ) );
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// Pattern 2 contains notes of the same instrument at the same
+	// positions but velocity, pan, leag&lag, and note key as well as
+	// note octave are all customized. Check whether these
+	// customizations reach the Sampler.
+	pAE->unlock();
+	pCoreActionController->toggleGridCell( 0, 0 );
+	pCoreActionController->toggleGridCell( 0, 1 );
+	pAE->lock( RIGHT_HERE );
+		
+	std::vector<std::shared_ptr<Note>> notesCustomized;
+	getNotes( &notesCustomized );
+
+	if ( notesReference.size() != notesCustomized.size() ) {
+		AudioEngineTests::throwException(
+			QString( "[testHumanization] [customization] Mismatching number of notes [%1 : %2]" )
+			.arg( notesReference.size() )
+			.arg( notesCustomized.size() ) );
+	}
+	
+	for ( int ii = 0; ii < notesReference.size(); ++ii ) {
+		auto pNoteReference = notesReference[ ii ];
+		auto pNoteCustomized = notesCustomized[ ii ];
+
+		if ( pNoteReference != nullptr && pNoteCustomized != nullptr ) {
+			if ( pNoteReference->get_velocity() ==
+				 pNoteCustomized->get_velocity() ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Velocity of note [%1] was not altered" )
+					.arg( ii ) );
+			} else if ( pNoteReference->get_lead_lag() ==
+				 pNoteCustomized->get_lead_lag() ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Lead Lag of note [%1] was not altered" )
+					.arg( ii ) );
+			} else if ( pNoteReference->getNoteStart() ==
+				 pNoteCustomized->getNoteStart() ) {
+				// The note start incorporates the lead & lag
+				// information and is the property used by the
+				// Sampler.
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Note start of note [%1] was not altered" )
+					.arg( ii ) );
+			} else if ( pNoteReference->getPan() ==
+				 pNoteCustomized->getPan() ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Pan of note [%1] was not altered" )
+					.arg( ii ) );
+			} else if ( pNoteReference->get_total_pitch() ==
+				 pNoteCustomized->get_total_pitch() ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [customization] Total Pitch of note [%1] was not altered" )
+					.arg( ii ) );
+			}
+		} else {
+			AudioEngineTests::throwException(
+				QString( "[testHumanization] [customization] Unable to access note [%1]" )
+				.arg( ii ) );
+		}
+			
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// Check whether deviations of the humanized/randomized properties
+	// are indeed distributed as a Gaussian with mean zero and an
+	// expected standard deviation.
+	//
+	// Switch back to pattern 1
+	pAE->unlock();
+	pCoreActionController->toggleGridCell( 0, 1 );
+	pCoreActionController->toggleGridCell( 0, 0 );
+	pAE->lock( RIGHT_HERE );
+
+	auto checkHumanization = [&]( double fValue, std::vector<std::shared_ptr<Note>>* pNotes ) {
+
+		if ( notesReference.size() != pNotes->size() ) {
+			AudioEngineTests::throwException(
+				QString( "[testHumanization] [humanization] Mismatching number of notes [%1 : %2]" )
+				.arg( notesReference.size() )
+				.arg( pNotes->size() ) );
+		}
+
+		auto checkDeviation = []( std::vector<float>* pDeviations, float fTargetSD, const QString& sContext ) {
+
+			float fMean = std::accumulate( pDeviations->begin(), pDeviations->end(),
+										   0.0, std::plus<float>() ) /
+				static_cast<float>( pDeviations->size() );
+
+			// Standard deviation
+			auto compVariance = [&]( float fValue, float fElement ) {
+				return fValue + ( fElement - fMean ) * ( fElement - fMean );
+			};
+			float fSD = std::sqrt( std::accumulate( pDeviations->begin(),
+													pDeviations->end(),
+													0.0, compVariance ) /
+								   static_cast<float>( pDeviations->size() ) );
+
+			// As we look at random numbers, the observed mean and
+			// standard deviation won't match. But there should be no
+			// more than 50% difference or something when wrong.
+			if ( std::abs( fMean ) > std::abs( fSD ) * 0.5 ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [%1] Mismatching mean [%2] != [0] with std. deviation [%3]" )
+					.arg( sContext ).arg( fMean, 0, 'E', -1 )
+					.arg( fSD, 0, 'E', -1 ) );
+			}
+			if ( std::abs( fSD - fTargetSD ) > fTargetSD * 0.5 ) {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [%1] Mismatching standard deviation [%2] != [%3], diff [%4]" )
+					.arg( sContext ).arg( fSD, 0, 'E', -1 )
+					.arg( fTargetSD, 0, 'E', -1 )
+					.arg( fSD - fTargetSD, 0, 'E', -1 ) );
+			}
+			
+		};
+		
+		std::vector<float> deviationsPitch( notesReference.size() );
+		std::vector<float> deviationsVelocity( notesReference.size() );
+		std::vector<float> deviationsTiming( notesReference.size() );
+
+		for ( int ii = 0; ii < pNotes->size(); ++ii ) {
+			auto pNoteReference = notesReference[ ii ];
+			auto pNoteHumanized = pNotes->at( ii );
+
+			if ( pNoteReference != nullptr && pNoteHumanized != nullptr ) {
+				deviationsVelocity[ ii ] =
+					pNoteReference->get_velocity() - pNoteHumanized->get_velocity();
+				deviationsPitch[ ii ] =
+					pNoteReference->get_pitch() - pNoteHumanized->get_pitch(); 
+				deviationsTiming[ ii ] =
+					pNoteReference->getNoteStart() - pNoteHumanized->getNoteStart();
+			} else {
+				AudioEngineTests::throwException(
+					QString( "[testHumanization] [swing] Unable to access note [%1]" )
+					.arg( ii ) );
+			}
+		}
+
+		// Within the audio engine every property has its own factor
+		// multiplied with the humanization value set via the
+		// GUI. With the latter ranging from 0 to 1 the factor
+		// represent the maximum standard deviation available.
+		checkDeviation( &deviationsVelocity, 0.2 * fValue, "velocity" );
+		checkDeviation( &deviationsTiming,
+						0.3 * AudioEngine::nMaxTimeHumanize * fValue, "timing" );
+		checkDeviation( &deviationsPitch, 0.4 * fValue, "pitch" );
+	};
+
+	setHumanization( 0.2 );
+	std::vector<std::shared_ptr<Note>> notesHumanizedWeak;
+	getNotes( &notesHumanizedWeak );
+
+	// qDebug() << "reference";
+	// for ( auto note : notesReference ) {
+	// 	qDebug() << note->toQString();
+	// }
+	// qDebug() << "custom";
+	// for ( auto note : notesCustomized ) {
+	// 	qDebug() << note->toQString();
+	// }
+	checkHumanization( 0.2, &notesHumanizedWeak );
+
+	setHumanization( 0.8 );
+	std::vector<std::shared_ptr<Note>> notesHumanizedStrong;
+	getNotes( &notesHumanizedStrong );
+	checkHumanization( 0.8, &notesHumanizedStrong );
+	
+	//////////////////////////////////////////////////////////////////
+	// Check whether swing works.
+	//
+	// There is still discussion about HOW the swing should work and
+	// whether the current implementation is valid. Therefore, this
+	// test will only check whether setting this option alters at
+	// least one note position
+
+	setHumanization( 0 );
+	setSwing( 0.5 );
+	std::vector<std::shared_ptr<Note>> notesSwing;
+	getNotes( &notesSwing );
+
+	if ( notesReference.size() != notesSwing.size() ) {
+		AudioEngineTests::throwException(
+			QString( "[testHumanization] [swing] Mismatching number of notes [%1 : %2]" )
+			.arg( notesReference.size() )
+			.arg( notesSwing.size() ) );
+	}
+
+	bool bNoteAltered = false;
+	for ( int ii = 0; ii < notesReference.size(); ++ii ) {
+		auto pNoteReference = notesReference[ ii ];
+		auto pNoteSwing = notesSwing[ ii ];
+
+		if ( pNoteReference != nullptr && pNoteSwing != nullptr ) {
+			if ( pNoteReference->getNoteStart() !=
+				 pNoteSwing->getNoteStart() ) {
+				bNoteAltered = true;
+			}
+		} else {
+			AudioEngineTests::throwException(
+				QString( "[testHumanization] [swing] Unable to access note [%1]" )
+				.arg( ii ) );
+		}
+	}
+	if ( ! bNoteAltered ) {
+		AudioEngineTests::throwException( "[testHumanization] [swing] No notes affected." );
+	}
+
+	//////////////////////////////////////////////////////////////////
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+}
 	
 void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList, std::vector<std::shared_ptr<Note>> newNotes ) {
 	bool bNoteFound;

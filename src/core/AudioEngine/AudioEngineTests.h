@@ -89,6 +89,11 @@ public:
 	 * Sampler is consistent on tempo change.
 	 */
 	static void testNoteEnqueuingTimeline();
+	/** 
+	 * Unit test checking that custom note properties take effect and
+	 * that humanization works as expected.
+	 */
+	static void testHumanization();
 	
 private:
 	static int processTransport( const QString& sContext,
