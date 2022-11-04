@@ -217,13 +217,6 @@ bool Note::isPartiallyRendered() const {
 }
 
 void Note::computeNoteStart() {
-	// Notes not inserted via the audio engine but directly, using
-	// e.g. the GUI, will be insert at position 0 and don't require a
-	// specific start position.
-	if ( __position == 0 ) {
-		return;
-	}
-	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
