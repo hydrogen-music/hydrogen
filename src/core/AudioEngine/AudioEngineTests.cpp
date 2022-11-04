@@ -1430,24 +1430,18 @@ void AudioEngineTests::testHumanization() {
 		// multiplied with the humanization value set via the
 		// GUI. With the latter ranging from 0 to 1 the factor
 		// represent the maximum standard deviation available.
-		checkDeviation( &deviationsVelocity, 0.2 * fValue, "velocity" );
+		checkDeviation( &deviationsVelocity,
+						AudioEngine::fHumanizeVelocitySD * fValue, "velocity" );
 		checkDeviation( &deviationsTiming,
-						0.3 * AudioEngine::nMaxTimeHumanize * fValue, "timing" );
-		checkDeviation( &deviationsPitch, 0.4 * fValue, "pitch" );
+						AudioEngine::fHumanizeTimingSD *
+						AudioEngine::nMaxTimeHumanize * fValue, "timing" );
+		checkDeviation( &deviationsPitch,
+						AudioEngine::fHumanizePitchSD * fValue, "pitch" );
 	};
 
 	setHumanization( 0.2 );
 	std::vector<std::shared_ptr<Note>> notesHumanizedWeak;
 	getNotes( &notesHumanizedWeak );
-
-	// qDebug() << "reference";
-	// for ( auto note : notesReference ) {
-	// 	qDebug() << note->toQString();
-	// }
-	// qDebug() << "custom";
-	// for ( auto note : notesCustomized ) {
-	// 	qDebug() << note->toQString();
-	// }
 	checkHumanization( 0.2, &notesHumanizedWeak );
 
 	setHumanization( 0.8 );

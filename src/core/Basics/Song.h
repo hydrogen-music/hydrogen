@@ -350,7 +350,19 @@ private:
 		 */
 		LoopMode		m_loopMode;
 		PatternMode		m_patternMode;
+		/**
+		 * Factor to scale the random contribution when humanizing
+		 * timing between 0 and #AudioEngine::fHumanizeTimingSD.
+		 *
+		 * Supported range [0,1].
+		 */
 		float			m_fHumanizeTimeValue;
+		/**
+		 * Factor to scale the random contribution when humanizing
+		 * velocity between 0 and #AudioEngine::fHumanizeVelocitySD.
+		 *
+		 * Supported range [0,1].
+		 */
 		float			m_fHumanizeVelocityValue;
 		float			m_fSwingFactor;
 		bool			m_bIsModified;

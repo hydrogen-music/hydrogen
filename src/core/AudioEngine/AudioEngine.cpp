@@ -1158,13 +1158,13 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			if ( pSong->getHumanizeVelocityValue() != 0 ) {
 				pNote->set_velocity( pNote->get_velocity() +
 									 pSong->getHumanizeVelocityValue() *
-									 getGaussian( 0.2 ) );
+									 getGaussian( AudioEngine::fHumanizeVelocitySD ) );
 			}
 
 			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
-			const float fRandomPitchFactor = pNote->get_instrument()->get_random_pitch_factor();
-			if ( fRandomPitchFactor != 0. ) {
-				fPitch += getGaussian( 0.4 ) * fRandomPitchFactor;
+			if ( pNote->get_instrument()->get_random_pitch_factor() != 0. ) {
+				fPitch += getGaussian( AudioEngine::fHumanizePitchSD ) *
+					pNote->get_instrument()->get_random_pitch_factor();
 			}
 			pNote->set_pitch( fPitch );
 
@@ -2381,11 +2381,10 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						* random variable.
 						*/
 						if ( pSong->getHumanizeTimeValue() != 0 ) {
-							nOffset += ( int )(
-										getGaussian( 0.3 )
-										* pSong->getHumanizeTimeValue()
-										* AudioEngine::nMaxTimeHumanize
-										);
+							nOffset += (int) (
+								getGaussian( AudioEngine::fHumanizeTimingSD ) *
+								pSong->getHumanizeTimeValue() *
+								AudioEngine::nMaxTimeHumanize );
 						}
 
 						// Lead or Lag
@@ -2592,7 +2591,10 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) );
+			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeTimingSD ) );
 		
 	}
 	else {
@@ -2647,7 +2649,10 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
 		}
 		sOutput.append( QString( "], m_pMetronomeInstrument: id = %1" ).arg( m_pMetronomeInstrument->get_id() ) )
-			.append( QString( ", nMaxTimeHumanize: id %1" ).arg( AudioEngine::nMaxTimeHumanize ) );
+			.append( QString( ", nMaxTimeHumanize: id %1" ).arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( ", fHumanizeVelocitySD: id %1" ).arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( ", fHumanizePitchSD: id %1" ).arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( ", fHumanizeTimingSD: id %1" ).arg( AudioEngine::fHumanizeTimingSD ) );
 	}
 	
 	return sOutput;

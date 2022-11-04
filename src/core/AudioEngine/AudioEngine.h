@@ -128,6 +128,36 @@ public:
 		Testing = 6
 	};
 
+	/**
+	 * Maximum value the standard deviation of the Gaussian
+	 * distribution the random velocity contribution will be drawn
+	 * from can take.
+	 *
+	 * The actual standard deviation used during processing is this
+	 * value multiplied with #Song::m_fHumanizeVelocityValue.
+	 */
+	static constexpr float fHumanizeVelocitySD = 0.2;
+	/**
+	 * Maximum value the standard deviation of the Gaussian
+	 * distribution the random pitch contribution will be drawn from
+	 * can take.
+	 *
+	 * The actual standard deviation used during processing is this
+	 * value multiplied with #Instrument::__random_pitch_factor of the
+	 * instrument associated with the particular #Note.
+	 */
+	static constexpr float fHumanizePitchSD = 0.4;
+	/**
+	 * Maximum value the standard deviation of the Gaussian
+	 * distribution the random pitch contribution will be drawn from
+	 * can take.
+	 *
+	 * The actual standard deviation used during processing is this
+	 * value multiplied with #Instrument::__random_pitch_factor of the
+	 * instrument associated with the particular #Note.
+	 */
+	static constexpr float fHumanizeTimingSD = 0.3;
+
 	AudioEngine();
 
 	~AudioEngine();
