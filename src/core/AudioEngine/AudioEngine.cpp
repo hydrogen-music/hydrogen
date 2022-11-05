@@ -43,6 +43,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Random.h>
 
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -65,32 +66,11 @@
 #include <core/Preferences/Preferences.h>
 
 #include <limits>
-#include <random>
 
 namespace H2Core
 {
 
 const int AudioEngine::nMaxTimeHumanize = 2000;
-
-inline int randomValue( int max )
-{
-	return rand() % max;
-}
-
-inline float getGaussian( float z )
-{
-	// gaussian distribution -- dimss
-	float x1, x2, w;
-	do {
-		x1 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
-		x2 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 );
-
-	w = sqrtf( ( -2.0 * logf( w ) ) / w );
-	return x1 * w * z + 0.0; // tunable
-}
-
 
 /** Gets the current time.
  * \return Current time obtained by gettimeofday()*/
@@ -1158,12 +1138,12 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			if ( pSong->getHumanizeVelocityValue() != 0 ) {
 				pNote->set_velocity( pNote->get_velocity() +
 									 pSong->getHumanizeVelocityValue() *
-									 getGaussian( AudioEngine::fHumanizeVelocitySD ) );
+									 Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
 			}
 
 			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
 			if ( pNote->get_instrument()->get_random_pitch_factor() != 0. ) {
-				fPitch += getGaussian( AudioEngine::fHumanizePitchSD ) *
+				fPitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
 					pNote->get_instrument()->get_random_pitch_factor();
 			}
 			pNote->set_pitch( fPitch );
@@ -2382,7 +2362,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						*/
 						if ( pSong->getHumanizeTimeValue() != 0 ) {
 							nOffset += (int) (
-								getGaussian( AudioEngine::fHumanizeTimingSD ) *
+								Random::getGaussian( AudioEngine::fHumanizeTimingSD ) *
 								pSong->getHumanizeTimeValue() *
 								AudioEngine::nMaxTimeHumanize );
 						}
