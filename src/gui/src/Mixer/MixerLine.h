@@ -134,7 +134,6 @@ signals:
 	void	knobChanged(MixerLine *ref, int nKnob);
 
 public slots:
-	void	playSampleBtnClicked();
 	void	muteBtnClicked();
 	void	soloBtnClicked();
 	void	faderChanged(WidgetWithInput *ref);

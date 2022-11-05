@@ -349,7 +349,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 
-	Note *pNote = new Note( pSelectedInstrument, 0, 1.0, 0.f, -1, 0.0 );
+	Note *pNote = new Note( pSelectedInstrument, 0, 0.0 );
+	pNote->set_note_off( true );
 	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
 }
 
