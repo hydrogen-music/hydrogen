@@ -1135,19 +1135,6 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				}
 			}
 
-			if ( pSong->getHumanizeVelocityValue() != 0 ) {
-				pNote->set_velocity( pNote->get_velocity() +
-									 pSong->getHumanizeVelocityValue() *
-									 Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
-			}
-
-			float fPitch = pNote->get_pitch();
-			if ( pNote->get_instrument()->get_random_pitch_factor() != 0. ) {
-				fPitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
-					pNote->get_instrument()->get_random_pitch_factor();
-			}
-			pNote->set_pitch( fPitch );
-
 			/*
 			 * Check if the current instrument has the property "Stop-Note" set.
 			 * If yes, a NoteOff note is generated automatically after each note.
@@ -2152,6 +2139,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		m_midiNoteQueue.pop_front();
 		pNote->get_instrument()->enqueue();
 		pNote->computeNoteStart();
+		pNote->humanize();
 		m_songNoteQueue.push( pNote );
 	}
 
@@ -2399,7 +2387,8 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 							pCopiedNote->set_velocity( pNote->get_velocity() *
 													   pAutomationPath->get_value( fPos ) );
 						}
-						pNote->get_instrument()->enqueue();
+						pCopiedNote->get_instrument()->enqueue();
+						pCopiedNote->humanize();
 						m_songNoteQueue.push( pCopiedNote );
 					}
 				}

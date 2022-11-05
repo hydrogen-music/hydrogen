@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+#include <core/Helpers/Random.h>
 #include <core/Helpers/Xml.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -412,6 +413,25 @@ float Note::get_total_pitch() const
 		fNotePitch += __instrument->get_pitch_offset();
 	}
 	return fNotePitch;
+}
+
+void Note::humanize() {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		const float fRandomVelocity = pSong->getHumanizeVelocityValue();
+		if ( fRandomVelocity != 0 ) {
+			__velocity += Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) *
+				fRandomVelocity;
+		}
+	}
+
+	if ( __instrument != nullptr ) {
+		const float fRandomPitch = __instrument->get_random_pitch_factor();
+		if ( fRandomPitch != 0 ) {
+			__pitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
+				fRandomPitch;
+			}
+	}
 }
 
 void Note::save_to( XMLNode* node )

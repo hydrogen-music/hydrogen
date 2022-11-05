@@ -333,6 +333,11 @@ class Note : public H2Core::Object<Note>
 	 * needs to be rerun.
 	 */
 	void computeNoteStart();
+
+	/**
+	 * Add random contributions to #__pitch and #__velocity.
+	 */
+	void humanize();
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
