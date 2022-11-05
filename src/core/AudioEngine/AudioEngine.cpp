@@ -122,6 +122,8 @@ AudioEngine::AudioEngine()
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
+	m_pMetronomeInstrument->set_volume(
+		Preferences::get_instance()->m_fMetronomeVolume );
 	
 	m_AudioProcessCallback = &audioEngine_process;
 
@@ -2251,8 +2253,6 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// Only trigger the sounds if the user enabled the
 			// metronome. 
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
-				m_pMetronomeInstrument->set_volume(
-					Preferences::get_instance()->m_fMetronomeVolume );
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
 												 nnTick,
 												 fVelocity,

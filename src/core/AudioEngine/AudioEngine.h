@@ -311,7 +311,7 @@ public:
 	MidiInput*		getMidiDriver() const;
 	MidiOutput*		getMidiOutDriver() const;
 	
-
+	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
 	
 	void raiseError( unsigned nErrorCode );
@@ -789,6 +789,9 @@ inline const std::shared_ptr<TransportPosition> AudioEngine::getTransportPositio
 }
 inline double AudioEngine::getSongSizeInTicks() const {
 	return m_fSongSizeInTicks;
+}
+inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
+	return m_pMetronomeInstrument;
 }
 };
 
