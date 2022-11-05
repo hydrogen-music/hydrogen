@@ -41,14 +41,14 @@ namespace H2Core
 
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch )
-	: __instrument( instrument ),
+Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
+	: __instrument( pInstrument ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
-	  __position( position ),
-	  __velocity( velocity ),
-	  __length( length ),
-	  __pitch( pitch ),
+	  __position( nPosition ),
+	  __velocity( fVelocity ),
+	  __length( nLength ),
+	  __pitch( fPitch ),
 	  __key( C ),
 	  __octave( P8 ),
 	  __adsr( nullptr ),
@@ -68,20 +68,20 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan("") )
 {
-	if ( __instrument != nullptr ) {
-		__adsr = __instrument->copy_adsr();
-		__instrument_id = __instrument->get_id();
+	if ( pInstrument != nullptr ) {
+		__adsr = pInstrument->copy_adsr();
+		__instrument_id = pInstrument->get_id();
 
-		for ( const auto& pCompo : *__instrument->get_components() ) {
-			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
-			sampleInfo->SelectedLayer = -1;
-			sampleInfo->SamplePosition = 0;
+		for ( const auto& pCompo : *pInstrument->get_components() ) {
+			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
+			pSampleInfo->SelectedLayer = -1;
+			pSampleInfo->SamplePosition = 0;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
+			__layers_selected[ pCompo->get_drumkit_componentID() ] = pSampleInfo;
 		}
 	}
 
-	setPan( pan ); // this checks the boundaries
+	setPan( fPan ); // this checks the boundaries
 }
 
 Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
@@ -402,6 +402,16 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 	}
 
 	return pSample;
+}
+
+float Note::get_total_pitch() const
+{
+	float fNotePitch = __octave * KEYS_PER_OCTAVE + __key + __pitch;
+
+	if ( __instrument != nullptr ) {
+		fNotePitch += __instrument->get_pitch_offset();
+	}
+	return fNotePitch;
 }
 
 void Note::save_to( XMLNode* node )

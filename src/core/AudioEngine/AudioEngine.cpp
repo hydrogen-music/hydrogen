@@ -1141,7 +1141,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 									 Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
 			}
 
-			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
+			float fPitch = pNote->get_pitch();
 			if ( pNote->get_instrument()->get_random_pitch_factor() != 0. ) {
 				fPitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
 					pNote->get_instrument()->get_random_pitch_factor();
@@ -1154,12 +1154,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			 */
 			auto pNoteInstrument = pNote->get_instrument();
 			if ( pNoteInstrument->is_stop_notes() ){
-				Note *pOffNote = new Note( pNoteInstrument,
-										   0.0,
-										   0.0,
-										   0.0,
-										   -1,
-										   0 );
+				Note *pOffNote = new Note( pNoteInstrument );
 				pOffNote->set_note_off( true );
 				m_pSampler->noteOn( pOffNote );
 				delete pOffNote;
@@ -2269,15 +2264,13 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// metronome. 
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
 				m_pMetronomeInstrument->set_volume(
-							Preferences::get_instance()->m_fMetronomeVolume
-							);
+					Preferences::get_instance()->m_fMetronomeVolume );
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
 												 nnTick,
 												 fVelocity,
 												 0.f, // pan
 												 -1,
-												 fPitch
-												 );
+												 fPitch );
 				m_pMetronomeInstrument->enqueue();
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );

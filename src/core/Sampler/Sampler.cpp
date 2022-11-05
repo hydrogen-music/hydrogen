@@ -1441,7 +1441,7 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
+void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -1450,7 +1450,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, length, 0 );
+		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, nLength );
 
 		stopPlayingNotes( m_pPreviewInstrument );
 		noteOn( pPreviewNote );
@@ -1473,7 +1473,7 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES );
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
