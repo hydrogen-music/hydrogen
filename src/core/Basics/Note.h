@@ -335,9 +335,18 @@ class Note : public H2Core::Object<Note>
 	void computeNoteStart();
 
 	/**
-	 * Add random contributions to #__pitch and #__velocity.
+	 * Add random contributions to #__pitch, #__humanize_delay, and
+	 * #__velocity.
 	 */
 	void humanize();
+
+	/**
+	 * Add swing contribution to #__humanize_delay.
+	 *
+	 * As the value applied is deterministic, it will not be handled
+	 * in humanice() but separately.
+	 */
+	void swing();
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -585,11 +594,6 @@ inline void Note::set_probability( float value )
 inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
 {
 	return __layers_selected[ CompoID ];
-}
-
-inline void Note::set_humanize_delay( int value )
-{
-	__humanize_delay = value;
 }
 
 inline int Note::get_humanize_delay() const

@@ -157,6 +157,11 @@ public:
 	 * instrument associated with the particular #Note.
 	 */
 	static constexpr float fHumanizeTimingSD = 0.3;
+	/**
+	 * Maximum time (in frames) a note's position can be off due to
+	 * the humanization (lead-lag).
+	 */
+	static constexpr int nMaxTimeHumanize = 2000;
 
 	AudioEngine();
 
@@ -666,11 +671,6 @@ private:
 	 * Pointer to the metronome.
 	 */
 	std::shared_ptr<Instrument>		m_pMetronomeInstrument;
-	/**
-	 * Maximum time (in frames) a note's position can be off due to
-	 * the humanization (lead-lag).
-	 */
-	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
 	double m_fLastTickEnd;

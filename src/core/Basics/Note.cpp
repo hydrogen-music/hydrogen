@@ -152,6 +152,17 @@ void Note::setPan( float val ) {
 	m_fPan = check_boundary( val, -1.0f, 1.0f );
 }
 
+void Note::set_humanize_delay( int nValue )
+{
+	// We do not perform bound checks with
+	// AudioEngine::nMaxTimeHumanize in here as different contribution
+	// could push the value first beyond and then within the bounds
+	// again. The clamping will be done in computeNoteStart() instead.
+	if ( nValue != __humanize_delay ) {
+		__humanize_delay = nValue;
+	}
+}
+
 void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 {
 	if ( pInstrumentList == nullptr ) {
@@ -225,12 +236,13 @@ void Note::computeNoteStart() {
 	m_nNoteStart =
 		TransportPosition::computeFrameFromTick( __position, &fTickMismatch );
 
-	// If there is a negative Humanize delay, take into account so
-	// we don't miss the time slice.  ignore positive delay, or we
-	// might end the queue processing prematurely based on NoteQueue
-	// placement.  the sampler handles positive delay.
-	if ( __humanize_delay < 0 ) {
-		m_nNoteStart += __humanize_delay;
+	m_nNoteStart += std::clamp( __humanize_delay,
+								-1 * AudioEngine::nMaxTimeHumanize,
+								AudioEngine::nMaxTimeHumanize );
+
+	// No note can start before the beginning of the song.
+	if ( m_nNoteStart < 0 ) {
+		m_nNoteStart = 0;
 	}
 	
 	if ( pHydrogen->isTimelineEnabled() ) {
@@ -416,21 +428,57 @@ float Note::get_total_pitch() const
 }
 
 void Note::humanize() {
+	// Due to the nature of the Gaussian distribution, the factors
+	// will also scale the standard deviations of the generated random
+	// variables.
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr ) {
-		const float fRandomVelocity = pSong->getHumanizeVelocityValue();
-		if ( fRandomVelocity != 0 ) {
-			__velocity += Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) *
-				fRandomVelocity;
+		const float fRandomVelocityFactor = pSong->getHumanizeVelocityValue();
+		if ( fRandomVelocityFactor != 0 ) {
+			set_velocity( __velocity + fRandomVelocityFactor *
+						  Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
+		}
+
+		const float fRandomTimeFactor = pSong->getHumanizeTimeValue();
+		if ( fRandomTimeFactor != 0 ) {
+			set_humanize_delay( __humanize_delay + fRandomTimeFactor *
+								AudioEngine::nMaxTimeHumanize *
+								Random::getGaussian( AudioEngine::fHumanizeTimingSD ) );
 		}
 	}
 
 	if ( __instrument != nullptr ) {
-		const float fRandomPitch = __instrument->get_random_pitch_factor();
-		if ( fRandomPitch != 0 ) {
+		const float fRandomPitchFactor = __instrument->get_random_pitch_factor();
+		if ( fRandomPitchFactor != 0 ) {
 			__pitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
-				fRandomPitch;
+				fRandomPitchFactor;
 			}
+	}
+}
+
+void Note::swing() {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
+		/* TODO: incorporate the factor MAX_NOTES / 32. either in
+		 * Song::m_fSwingFactor or make it a member variable.
+		 *
+		 * comment by oddtime: 32 depends on the fact that the swing
+		 * is applied to the upbeat 16th-notes.  (not to upbeat
+		 * 8th-notes as in jazz swing!).  however 32 could be changed
+		 * but must be >16, otherwise the max delay is too long and
+		 * the swing note could be played after the next downbeat!
+		 */
+		// If the Timeline is activated, the tick size may change at
+		// any point. Therefore, the length in frames of a 16-th note
+		// offset has to be calculated for a particular transport
+		// position and is not generally applicable.
+		double fTickMismatch;
+		set_humanize_delay( __humanize_delay +
+							( TransportPosition::computeFrameFromTick(
+								__position + MAX_NOTES / 32., &fTickMismatch ) -
+							  TransportPosition::computeFrameFromTick(
+								  __position, &fTickMismatch ) ) *
+							pSong->getSwingFactor() );
 	}
 }
 

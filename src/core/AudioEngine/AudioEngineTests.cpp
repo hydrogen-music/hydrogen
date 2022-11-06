@@ -1297,7 +1297,7 @@ void AudioEngineTests::testHumanization() {
 	pCoreActionController->toggleGridCell( 0, 0 );
 	pCoreActionController->toggleGridCell( 0, 1 );
 	pAE->lock( RIGHT_HERE );
-		
+
 	std::vector<std::shared_ptr<Note>> notesCustomized;
 	getNotes( &notesCustomized );
 
@@ -1792,7 +1792,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		}
 		AudioEngineTests::checkAudioConsistency(
 			notesSamplerPreToggle, notesSamplerPostToggle,
-			sNewContext + " : sampler queue", 0, false,
+			sNewContext + " : sampler queue", 0, true,
 			pTransportPos->getTickOffsetSongSize() );
 
 		// Column must be consistent. Unless the song length shrunk due to
@@ -1880,7 +1880,8 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		AudioEngineTests::checkAudioConsistency(
 			notesSamplerPostToggle, notesSamplerPostRolling,
 			QString( "toggleAndCheckConsistency::toggleAndCheck : %1 : rolling after toggle (%2,%3)" )
-			.arg( sContext ).arg( nToggleColumn ).arg( nToggleRow ), nBufferSize * 2 );
+			.arg( sContext ).arg( nToggleColumn ).arg( nToggleRow ),
+			nBufferSize * 2, true );
 	};
 
 	// Toggle the grid cell.
