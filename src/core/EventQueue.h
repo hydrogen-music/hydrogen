@@ -42,25 +42,30 @@ enum EventType {
 	EVENT_NONE,
 	EVENT_STATE,
 	/** 
-	 * The list of currently played patterns in changed.
+	 * The list of currently played patterns
+	 * (AudioEngine::getPlayingPatterns()) did change.
 	 *
-	 * In #Song::Mode::Song this is triggered every time the column of
-	 * the SongEditor grid changed. Either by rolling transport or by
-	 * relocation.
+	 * In #Song::Mode::Song this is triggered every time transport
+	 * reaches a new column of the SongEditor grid, either by rolling
+	 * or relocation. In #Song::PatternMode::Selected it's triggered
+	 * by selecting a different pattern and in
+	 * #Song::PatternMode::Stacked as soon as transport is looped to
+	 * the beginning after a pattern got activated or deactivated.
 	 *
-	 * It is handled by EventListener::patternChangedEvent().
+	 * It is handled by EventListener::playingPatternsChangedEvent().
 	 */
-	EVENT_PATTERN_CHANGED,
+	EVENT_PLAYING_PATTERNS_CHANGED,
+	/**
+	 * Used in #Song::PatternMode::Stacked to indicate that a either
+	 * AudioEngine::getNextPatterns() did change.
+	 *
+	 * It is handled by EventListener::nextPatternsChangedEvent().
+	 */
+	EVENT_NEXT_PATTERNS_CHANGED,
 	/**
 	 * A pattern was added, deleted, or modified.
 	 */
 	EVENT_PATTERN_MODIFIED,
-	/**
-	 * Used in stacked pattern mode to indicate that a either
-	 * AudioEngine::m_pNextPatterns or AudioEngine::m_pPlayingPatterns
-	 * changed.
-	 */
-	EVENT_STACKED_PATTERNS_CHANGED,
 	/** Another pattern was selected via MIDI or the GUI without
 	 * affecting the audio transport. While the selection in the
 	 * former case already happens in the GUI, this event will be used

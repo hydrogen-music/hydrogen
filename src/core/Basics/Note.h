@@ -290,10 +290,6 @@ class Note : public H2Core::Object<Note>
 
 		/** get the ADSR of the note */
 		std::shared_ptr<ADSR> get_adsr() const;
-		/** call release on adsr */
-		//float release_adsr() const              { return __adsr->release(); }
-		/** call get value on adsr */
-		//float get_adsr_value(float v) const     { return __adsr->get_value( v ); }
 
 		/** return true if instrument, key and octave matches with internal
 		 * \param instrument the instrument to match with #__instrument
@@ -304,6 +300,7 @@ class Note : public H2Core::Object<Note>
 
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const Note *pNote ) const;
+		bool match( const std::shared_ptr<Note> pNote ) const;
 
 		/**
 		 * compute left and right output based on filters
@@ -340,7 +337,7 @@ class Note : public H2Core::Object<Note>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
 		static inline double pitchToFrequency( double fPitch ) {
@@ -433,7 +430,7 @@ class Note : public H2Core::Object<Note>
 	*/
 	long long m_nNoteStart;
 	/**
-	 * TransportInfo::m_fTickSize used to calculate #m_nNoteStart.
+	 * TransportPosition::m_fTickSize used to calculate #m_nNoteStart.
 	 *
 	 * If #m_nNoteStart was calculated in the presence of an active
 	 * #Timeline, it will be set to -1.
@@ -679,6 +676,10 @@ inline bool Note::match( std::shared_ptr<Instrument> instrument, Key key, Octave
 }
 
 inline bool Note::match( const Note *pNote ) const
+{
+	return match( pNote->__instrument, pNote->__key, pNote->__octave );
+}
+inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	return match( pNote->__instrument, pNote->__key, pNote->__octave );
 }

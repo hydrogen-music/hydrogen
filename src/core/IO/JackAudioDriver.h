@@ -60,11 +60,11 @@ class InstrumentComponent;
  * _JackTransportRolling_ and the transport position is updated
  * according to the request.
  *
- * Also note that Hydrogen overwrites its local TransportInfo only
+ * Also note that Hydrogen overwrites its local TransportPosition only
  * with the transport position of the JACK server if there is a
  * mismatch due to a relocation triggered by another JACK
  * client. During normal transport the current position
- * TransportInfo::m_nFrames will be always the same as the one of JACK
+ * TransportPosition::m_nFrames will be always the same as the one of JACK
  * during a cycle and incremented by the buffer size in
  * audioEngine_process() at the very end of the cycle. The same
  * happens for the transport information of the JACK server but in
@@ -286,7 +286,7 @@ public:
 	 * #m_JackTransportPos and in #m_JackTransportState, and updates
 	 * the AudioEngine in case of a mismatch.
 	 */
-	void updateTransportInfo();
+	void updateTransportPosition();
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -558,14 +558,14 @@ private:
 	 * releasing Hydrogen in the later case, it won't advertise this
 	 * fact but simply won't call the JackTimebaseCallback()
 	 * anymore. But since this will be called in every cycle after
-	 * updateTransportInfo(), we can use this variable to determine if
+	 * updateTransportPosition(), we can use this variable to determine if
 	 * Hydrogen is still timebase master.
 	 *
 	 * As Hydrogen registered as timebase master using
 	 * initTimebaseMaster() it will be initialized with 1, decremented
-	 * in updateTransportInfo(), and reset to 1 in
+	 * in updateTransportPosition(), and reset to 1 in
 	 * JackTimebaseCallback(). Whenever it is zero in
-	 * updateTransportInfo(), #m_nTimebaseTracking will be updated
+	 * updateTransportPosition(), #m_nTimebaseTracking will be updated
 	 * accordingly.
 	 */
 	int				m_nTimebaseTracking;
@@ -611,7 +611,7 @@ public:
 
 	// Required since these functions are a friend of AudioEngine which
 	// need to be build even if no JACK support is desired.
-	void updateTransportInfo() {}
+	void updateTransportPosition() {}
 	void relocateUsingBBT() {}
 };
 

@@ -942,7 +942,7 @@ void PatternEditorPanel::patternModifiedEvent() {
 	selectedPatternChangedEvent();
 }
 
-void PatternEditorPanel::patternChangedEvent() {
+void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( Hydrogen::get_instance()->getPatternMode() ==
 		 Song::PatternMode::Stacked ) {
 		updateEditors( true );
