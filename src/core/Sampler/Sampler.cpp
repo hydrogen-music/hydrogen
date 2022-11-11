@@ -946,18 +946,16 @@ bool Sampler::renderNoteNoResample(
 		// PatternEditor. This will be used instead of the full sample
 		// length.
 
-		// Negative delay is already introduced into the note start
-		// used below in Note::computeNoteStart. We need to account
-		// for it in here to in order to get the length of the note
-		// right.
-		int nEffectiveDelay = 0;
-		if ( pNote->get_humanize_delay() < 0 ) {
-			nEffectiveDelay = pNote->get_humanize_delay();
-		}
+		// Delay is already introduced into the note start used below
+		// in Note::computeNoteStart. We need to account for it in
+		// here to in order to get the length of the note right.
+		const int nDelay = std::clamp(
+			pNote->get_humanize_delay(), -1 * AudioEngine::nMaxTimeHumanize,
+			AudioEngine::nMaxTimeHumanize );
 		
 		double fTickMismatch;
 		nNoteLength = TransportPosition::computeFrameFromTick(
-			pNote->get_position() + nEffectiveDelay + pNote->get_length(),
+			pNote->get_position() + nDelay + pNote->get_length(),
 			&fTickMismatch ) - pNote->getNoteStart();
 	}
 	
@@ -1160,18 +1158,19 @@ bool Sampler::renderNoteResample(
 		// length.
 		double fTickMismatch;
 
-		int nEffectiveDelay = 0;
-		if ( pNote->get_humanize_delay() < 0 ) {
-			nEffectiveDelay = pNote->get_humanize_delay();
-		}
+		// Delay is already introduced into the note start used below
+		// in Note::computeNoteStart. We need to account for it in
+		// here to in order to get the length of the note right.
+		const int nDelay = std::clamp(
+			pNote->get_humanize_delay(), -1 * AudioEngine::nMaxTimeHumanize,
+			AudioEngine::nMaxTimeHumanize );
 		
-		nNoteLength =
-			TransportPosition::computeFrameFromTick( pNote->get_position() +
-													 nEffectiveDelay +
+		nNoteLength = 
+			TransportPosition::computeFrameFromTick( pNote->get_position() + nDelay +
 													 pNote->get_length(), &fTickMismatch,
 													 pSample->get_sample_rate() ) -
-			TransportPosition::computeFrameFromTick( pNote->get_position() +
-													 nEffectiveDelay, &fTickMismatch,
+			TransportPosition::computeFrameFromTick( pNote->get_position() + nDelay,
+													 &fTickMismatch,
 													 pSample->get_sample_rate() );
 	}
 
@@ -1441,7 +1440,7 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
+void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -1450,7 +1449,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, length, 0 );
+		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, nLength );
 
 		stopPlayingNotes( m_pPreviewInstrument );
 		noteOn( pPreviewNote );
@@ -1473,7 +1472,7 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES );
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();

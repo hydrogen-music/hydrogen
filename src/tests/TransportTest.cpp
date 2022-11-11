@@ -263,6 +263,22 @@ void TransportTest::testNoteEnqueuingTimeline() {
 	}
 }		
 
+void TransportTest::testHumanization() {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	auto pSongHumanization =
+		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongHumanization != nullptr );
+	pHydrogen->getCoreActionController()->openSong( pSongHumanization );
+
+	// This test is quite time consuming.
+	std::vector<int> indices{ 1, 10 };
+	for ( auto ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		perform( &AudioEngineTests::testHumanization );
+	}
+}		
+
 void TransportTest::perform( std::function<void()> func ) {
 	try {
 		func();

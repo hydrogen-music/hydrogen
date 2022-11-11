@@ -43,6 +43,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Random.h>
 
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -65,32 +66,9 @@
 #include <core/Preferences/Preferences.h>
 
 #include <limits>
-#include <random>
 
 namespace H2Core
 {
-
-const int AudioEngine::nMaxTimeHumanize = 2000;
-
-inline int randomValue( int max )
-{
-	return rand() % max;
-}
-
-inline float getGaussian( float z )
-{
-	// gaussian distribution -- dimss
-	float x1, x2, w;
-	do {
-		x1 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
-		x2 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 );
-
-	w = sqrtf( ( -2.0 * logf( w ) ) / w );
-	return x1 * w * z + 0.0; // tunable
-}
-
 
 /** Gets the current time.
  * \return Current time obtained by gettimeofday()*/
@@ -142,6 +120,8 @@ AudioEngine::AudioEngine()
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
+	m_pMetronomeInstrument->set_volume(
+		Preferences::get_instance()->m_fMetronomeVolume );
 	
 	m_AudioProcessCallback = &audioEngine_process;
 
@@ -1155,39 +1135,13 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				}
 			}
 
-			if ( pSong->getHumanizeVelocityValue() != 0 ) {
-				const float fRandom = pSong->getHumanizeVelocityValue() * getGaussian( 0.2 );
-				pNote->set_velocity(
-							pNote->get_velocity()
-							+ ( fRandom
-								- ( pSong->getHumanizeVelocityValue() / 2.0 ) )
-							);
-				if ( pNote->get_velocity() > 1.0 ) {
-					pNote->set_velocity( 1.0 );
-				} else if ( pNote->get_velocity() < 0.0 ) {
-					pNote->set_velocity( 0.0 );
-				}
-			}
-
-			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
-			const float fRandomPitchFactor = pNote->get_instrument()->get_random_pitch_factor();
-			if ( fRandomPitchFactor != 0. ) {
-				fPitch += getGaussian( 0.4 ) * fRandomPitchFactor;
-			}
-			pNote->set_pitch( fPitch );
-
 			/*
 			 * Check if the current instrument has the property "Stop-Note" set.
 			 * If yes, a NoteOff note is generated automatically after each note.
 			 */
 			auto pNoteInstrument = pNote->get_instrument();
 			if ( pNoteInstrument->is_stop_notes() ){
-				Note *pOffNote = new Note( pNoteInstrument,
-										   0.0,
-										   0.0,
-										   0.0,
-										   -1,
-										   0 );
+				Note *pOffNote = new Note( pNoteInstrument );
 				pOffNote->set_note_off( true );
 				m_pSampler->noteOn( pOffNote );
 				delete pOffNote;
@@ -1603,8 +1557,10 @@ void AudioEngine::updateSongSize() {
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	auto endOfSongReached = [&](){
-		stop();
-		stopPlayback();
+		if ( getState() == State::Playing ) {
+			stop();
+			stopPlayback();
+		}
 		locate( 0 );
 		
 		// WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
@@ -2183,13 +2139,13 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		m_midiNoteQueue.pop_front();
 		pNote->get_instrument()->enqueue();
 		pNote->computeNoteStart();
+		pNote->humanize();
 		m_songNoteQueue.push( pNote );
 	}
 
 	if ( getState() != State::Playing && getState() != State::Testing ) {
 		return 0;
 	}
-	double fTickMismatch;
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
@@ -2294,16 +2250,12 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// Only trigger the sounds if the user enabled the
 			// metronome. 
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
-				m_pMetronomeInstrument->set_volume(
-							Preferences::get_instance()->m_fMetronomeVolume
-							);
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
 												 nnTick,
 												 fVelocity,
 												 0.f, // pan
 												 -1,
-												 fPitch
-												 );
+												 fPitch );
 				m_pMetronomeInstrument->enqueue();
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );
@@ -2345,95 +2297,52 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 					if ( pNote != nullptr ) {
 						pNote->set_just_recorded( false );
 						
-						/** Time Offset in frames (relative to sample rate)
-						*	Sum of 3 components: swing, humanized timing, lead_lag
-						*/
-						int nOffset = 0;
+						Note *pCopiedNote = new Note( pNote );
 
-					   /** Swing 16ths //
-						* delay the upbeat 16th-notes by a constant (manual) offset
+						// Lead or Lag.
+						// This property is set within the
+						// NotePropertiesRuler and only applies to
+						// notes picked up from patterns within
+						// Hydrogen during transport.
+						pCopiedNote->set_humanize_delay(
+							pCopiedNote->get_humanize_delay() + 
+							static_cast<int>(
+								static_cast<float>(pNote->get_lead_lag()) *
+								static_cast<float>(nLeadLagFactor) ));
+						
+						pCopiedNote->set_position( nnTick );
+						pCopiedNote->humanize();
+
+					   /** Swing 16ths
+						* delay the upbeat 16th-notes by a constant
+						* (manual) offset.
+						*
+						* This must done _after_ setting the position
+						* of the note.
 						*/
 						if ( ( ( m_pQueuingPosition->getPatternTickPosition() %
 								 ( MAX_NOTES / 16 ) ) == 0 ) &&
 							 ( ( m_pQueuingPosition->getPatternTickPosition() %
-								 ( MAX_NOTES / 8 ) ) != 0 ) &&
-							 pSong->getSwingFactor() > 0 ) {
-							/* TODO: incorporate the factor MAX_NOTES / 32. either in Song::m_fSwingFactor
-							* or make it a member variable.
-							* comment by oddtime:
-							* 32 depends on the fact that the swing is applied to the upbeat 16th-notes.
-							* (not to upbeat 8th-notes as in jazz swing!).
-							* however 32 could be changed but must be >16, otherwise the max delay is too long and
-							* the swing note could be played after the next downbeat!
-							*/
-							// If the Timeline is activated, the tick
-							// size may change at any
-							// point. Therefore, the length in frames
-							// of a 16-th note offset has to be
-							// calculated for a particular transport
-							// position and is not generally applicable.
-							nOffset +=
-								TransportPosition::computeFrameFromTick( nnTick + MAX_NOTES / 32.,
-																		 &fTickMismatch ) *
-								pSong->getSwingFactor() -
-								TransportPosition::computeFrameFromTick( nnTick, &fTickMismatch );
-						}
-
-						/* Humanize - Time parameter //
-						* Add a random offset to each note. Due to
-						* the nature of the Gaussian distribution,
-						* the factor Song::__humanize_time_value will
-						* also scale the variance of the generated
-						* random variable.
-						*/
-						if ( pSong->getHumanizeTimeValue() != 0 ) {
-							nOffset += ( int )(
-										getGaussian( 0.3 )
-										* pSong->getHumanizeTimeValue()
-										* AudioEngine::nMaxTimeHumanize
-										);
-						}
-
-						// Lead or Lag
-						// Add a constant offset timing.
-						nOffset += (int) ( pNote->get_lead_lag() * nLeadLagFactor );
-
-						// Lower bound of the offset. No note is
-						// allowed to start prior to the beginning of
-						// the song.
-						if( m_pQueuingPosition->getFrame() + nOffset < 0 ){
-							nOffset = -1 * m_pQueuingPosition->getFrame();
-						}
-
-						if ( nOffset > AudioEngine::nMaxTimeHumanize ) {
-							nOffset = AudioEngine::nMaxTimeHumanize;
-						} else if ( nOffset < -1 * AudioEngine::nMaxTimeHumanize ) {
-							nOffset = -AudioEngine::nMaxTimeHumanize;
+								 ( MAX_NOTES / 8 ) ) != 0 ) ) {
+							pCopiedNote->swing();
 						}
 						
-						Note *pCopiedNote = new Note( pNote );
-						pCopiedNote->set_humanize_delay( nOffset );
-						
-						pCopiedNote->set_position( nnTick );
-						// Important: this call has to be done _after_
-						// setting the position and the humanize_delay.
+						// This must be done _after_ setting the
+						// position, humanization, and swing.
 						pCopiedNote->computeNoteStart();
-
-						// DEBUGLOG( QString( "m_pQueuingPosition->getDoubleTick(): %1, m_pQueuingPosition->getFrame(): %2, m_pQueuingPosition->getColumn(): %3, original note position: %4, nOffset: %5" )
-						// 		  .arg( m_pQueuingPosition->getDoubleTick() )
-						// 		  .arg( m_pQueuingPosition->getFrame() )
-						// 		  .arg( m_pQueuingPosition->getColumn() )
-						// 		  .arg( pNote->get_position() )
-						// 		  .arg( nOffset )
-						// 		  .append( pCopiedNote->toQString("", true ) ) );
 						
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
 							const float fPos = static_cast<float>( m_pQueuingPosition->getColumn() ) +
 								pCopiedNote->get_position() % 192 / 192.f;
-							pCopiedNote->set_velocity( pNote->get_velocity() *
+							pCopiedNote->set_velocity( pCopiedNote->get_velocity() *
 													   pAutomationPath->get_value( fPos ) );
 						}
-						pNote->get_instrument()->enqueue();
+
+						// DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
+						// 		  .arg( m_pQueuingPosition->toQString() )
+						// 		  .arg( pCopiedNote->toQString() ) );
+						
+						pCopiedNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 					}
 				}
@@ -2458,14 +2367,8 @@ void AudioEngine::noteOn( Note *note )
 	m_midiNoteQueue.push_back( note );
 }
 
-bool AudioEngine::compare_pNotes::operator()(Note* pNote1, Note* pNote2)
-{
-	float fTickSize = Hydrogen::get_instance()->getAudioEngine()->
-		getTransportPosition()->getTickSize();
-	return (pNote1->get_humanize_delay() +
-			TransportPosition::computeFrame( pNote1->get_position(), fTickSize ) ) >
-		(pNote2->get_humanize_delay() +
-		 TransportPosition::computeFrame( pNote2->get_position(), fTickSize ) );
+bool AudioEngine::compare_pNotes::operator()(Note* pNote1, Note* pNote2) {
+	return pNote1->getNoteStart() > pNote2->getNoteStart();
 }
 
 void AudioEngine::play() {
@@ -2598,7 +2501,10 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) );
+			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeTimingSD ) );
 		
 	}
 	else {
@@ -2653,7 +2559,10 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
 		}
 		sOutput.append( QString( "], m_pMetronomeInstrument: id = %1" ).arg( m_pMetronomeInstrument->get_id() ) )
-			.append( QString( ", nMaxTimeHumanize: id %1" ).arg( AudioEngine::nMaxTimeHumanize ) );
+			.append( QString( ", nMaxTimeHumanize: id %1" ).arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( ", fHumanizeVelocitySD: id %1" ).arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( ", fHumanizePitchSD: id %1" ).arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( ", fHumanizeTimingSD: id %1" ).arg( AudioEngine::fHumanizeTimingSD ) );
 	}
 	
 	return sOutput;

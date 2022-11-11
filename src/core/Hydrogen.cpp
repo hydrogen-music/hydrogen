@@ -505,7 +505,6 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		nInstrumentNumber = m_nInstrumentLookupTable[ nInstrument ];
 	}
 	auto pInstr = pInstrumentList->get( nInstrumentNumber );
-
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieved instrument [%1]. Plays selected instrument: [%2]" )
 				  .arg( nInstrumentNumber )
@@ -595,7 +594,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan );
 
 			int divider = nNote / 12;
 			Note::Octave octave = (Note::Octave)(divider -3);
@@ -608,13 +607,13 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	else {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
-				Note *pNoteOff = new Note( pInstr, 0.0, 0.0, 0.0, -1, 0 );
+				Note *pNoteOff = new Note( pInstr );
 				pNoteOff->set_note_off( true );
 				midi_noteOn( pNoteOff );
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan );
 			midi_noteOn( pNote2 );
 		}
 	}

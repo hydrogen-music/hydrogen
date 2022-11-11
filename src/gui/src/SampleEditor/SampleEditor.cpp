@@ -603,9 +603,6 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	const float fPan = 0.f;
-	const int nLength = -1;
-	const float fPitch = 0.0f;
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
@@ -616,7 +613,15 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pInstr == nullptr ) {
 		return;
 	}
-	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, fPan, nLength, fPitch);
+	auto pCompo = pInstr->get_component( m_nSelectedComponent );
+	if ( pCompo == nullptr ) {
+		return;
+	}
+	auto pLayer = pCompo->get_layer( selectedLayer );
+	if ( pLayer == nullptr ) {
+		return;
+	}
+	Note *pNote = new Note( pInstr, 0, pLayer->get_end_velocity() - 0.01 );
 	pNote->set_specific_compo_id( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 

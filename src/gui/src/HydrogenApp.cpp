@@ -123,7 +123,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	addEventListener( this );
 
 	connect( this, &HydrogenApp::preferencesChanged,
-			 m_pMainForm, &MainForm::onPreferencesChanged );	
+			 m_pMainForm, &MainForm::onPreferencesChanged );
+	connect( this, &HydrogenApp::preferencesChanged,
+			 this, &HydrogenApp::onPreferencesChanged );
 }
 
 void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
@@ -1202,4 +1204,12 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	}
 	
 	return true;
+}
+
+void HydrogenApp::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->
+			getMetronomeInstrument()->set_volume(
+				Preferences::get_instance()->m_fMetronomeVolume );
+	}
 }

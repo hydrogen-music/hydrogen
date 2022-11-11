@@ -450,8 +450,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
-			const float fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch );
+			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
 		}
@@ -712,12 +711,12 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			nLength = 1;
 		}
 		
-		const float fPitch = 0.f;
-
-		if( pPattern ) {
-			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		if ( pPattern != nullptr ) {
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 			pNote->set_note_off( noteOff );
-			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
+			if( ! noteOff ) {
+				pNote->set_lead_lag( oldLeadLag );
+			}
 			pNote->set_key_octave( pressednotekey, pressedoctave );
 			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );

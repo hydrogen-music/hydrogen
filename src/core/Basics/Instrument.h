@@ -350,7 +350,13 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__filter_active;		///< is filter active?
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
-		float					__random_pitch_factor;	///< random pitch factor
+	/**
+	 * Factor to scale the random contribution when humanizing pitch
+	 * between 0 and #AudioEngine::fHumanizePitchSD.
+	 *
+	 * Supported range [0,1].
+	 */
+		float					__random_pitch_factor;
 		float					__pitch_offset;	///< instrument main pitch offset
 		int						__midi_out_note;		///< midi out note
 		int						__midi_out_channel;		///< midi out channel

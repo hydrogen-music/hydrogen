@@ -1650,6 +1650,21 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
+void CoreActionController::updatePreferences() {
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pAudioEngine->getMetronomeInstrument()->set_volume(
+		pPref->m_fMetronomeVolume );
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
+}
+
 void CoreActionController::insertRecentFile( const QString sFilename ){
 
 	auto pPref = Preferences::get_instance();
