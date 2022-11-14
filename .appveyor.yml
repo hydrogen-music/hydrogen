@@ -157,10 +157,17 @@ for:
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
 
-
     test_script: |-
 
-      TMPDIR=/tmp src/tests/tests --appveyor
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+
+      res=$?;
+      if [ "$res" != "0" ]; then
+          # The tests failed. Upload all output to ease debugging.
+          appveyor PushArtifact testOutput.log
+      fi
+
+      ( exit $res )
 
   - 
     cache: /Users/appveyor/cache_dir
@@ -263,9 +270,16 @@ for:
 
     test_script: |-
       cd build
-      TMPDIR=/tmp src/tests/tests --appveyor
+
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+
       res=$?
       wait
+
+      if [ "$res" != "0" ]; then
+          # The tests failed. Upload all output to ease debugging.
+          appveyor PushArtifact testOutput.log
+      fi
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
       ( exit $res )
 
@@ -332,7 +346,12 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor || cmd /c "exit /b 1"
+          src\tests\tests.exe --appveyor --output-file=testOutput.log
+
+          REM *** In case the test passed, we delete its output. If it fails, the
+          REM     script won't reach this point and the output will be uploaded later on ***
+          IF %ERRORLEVEL% EQU 0 (del testOutput.log)
+
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
           if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
@@ -368,9 +387,10 @@ on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
+
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win64.exe || cmd /c "exit /b 1"
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win32.exe || cmd /c "exit /b 1"
-
 
   - cmd: |
       if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
