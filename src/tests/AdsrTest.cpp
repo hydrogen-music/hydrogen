@@ -90,6 +90,7 @@ static void checkAllEqual( float *pfA, float fValue, int nFrames ) {
 /* Test basic ADSR functionality: apply an ADSR envelope to DC data, and check the properties of each
    phase. */
 void ADSRTest::testBasicADSR() {
+	___INFOLOG( "" );
 	const int N = 256;
 	const float fSustain = 0.75;
 	float a[5*N], b[5*N];
@@ -127,11 +128,13 @@ void ADSRTest::testBasicADSR() {
 	for ( int n = 4*N; n < 5*N - 1; n++ ) {
 		CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE( "idle", 0.0, a[n], delta );
 	}
+	___INFOLOG( "passed" );
 }
 
 
 /* Test that we get an equivalent envelope when it's computed in chunks rather than all at once. */
 void ADSRTest::testBufferChunks() {
+	___INFOLOG( "" );
 	const int N = 256;
 	const int nChunk = 16;
 	const float fSustain = 0.75;
@@ -156,11 +159,13 @@ void ADSRTest::testBufferChunks() {
 			checkEqual( a + n, c + n, nChunk );
 		}
 	}
+	___INFOLOG( "passed" );
 
 }
 
 
 void ADSRTest::testEarlyRelease() {
+	___INFOLOG( "" );
 	const int N = 256;
 	const float fSustain = 0.75;
 	float a[5*N], b[5*N];
@@ -221,11 +226,13 @@ void ADSRTest::testEarlyRelease() {
 
 	/* Idle */
 	checkAllEqual( a + nReleaseEnd, 0.0, 5 * N - nReleaseEnd );
+	___INFOLOG( "passed" );
 
 }
 
 void ADSRTest::testAttack()
 {
+	___INFOLOG( "" );
 	m_adsr->attack();
 
 	/* Attack */
@@ -240,11 +247,13 @@ void ADSRTest::testAttack()
 
 	/* Sustain */
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 4.0 ), delta );
+	___INFOLOG( "passed" );
 }
 
 
 void ADSRTest::testRelease()
 {
+	___INFOLOG( "" );
 	getValue( 1.1 ); // move past Attack
 	getValue( 2.1 ); // move past Decay
 	getValue( 0.1 ); // calculate and store sustain
@@ -259,4 +268,5 @@ void ADSRTest::testRelease()
 
 	/* Idle */
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 2.0 ), delta );
+	___INFOLOG( "passed" );
 }

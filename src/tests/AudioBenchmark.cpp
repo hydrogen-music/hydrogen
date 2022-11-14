@@ -169,6 +169,7 @@ void AudioBenchmark::audioBenchmark(void)
 	if ( !bEnabled ) {
 		return;
 	}
+	___INFOLOG( "" );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	qDebug() << "Benchmark ADSR method:";
@@ -217,4 +218,5 @@ void AudioBenchmark::audioBenchmark(void)
 	timeExport( 48000 );
 
 	qDebug() << "---";
+	___INFOLOG( "passed" );
 }
