@@ -36,6 +36,7 @@ public:
 	}
 	void testLanguageSelection()
 	{
+	___INFOLOG( "" );
 		// Find translations. i18n_dir() contains only the source *.ts
 		// files. Find the *.qm files for the translations relative to
 		// the build directory the tests are run from.
@@ -99,7 +100,8 @@ public:
 			QLocale l( sTr );
 			CPPUNIT_ASSERT( l.language() == QLocale::French );
 		}
-
+		
+	___INFOLOG( "passed" );
 	}
 };
 

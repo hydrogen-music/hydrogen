@@ -89,6 +89,7 @@ void OscServerTest::tearDown(){
 }
 
 void OscServerTest::testSessionManagement(){
+	___INFOLOG( "" );
 
 	// Create an object with which we will send messages to the custom
 	// OSC server.
@@ -115,6 +116,7 @@ void OscServerTest::testSessionManagement(){
 					 m_sValidPath.toLocal8Bit().data());
 	WAIT(m_sValidPath == m_pHydrogen->getSong()->getFilename());
 	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getFilename() );
+	___INFOLOG( "passed" );
 }
 
 #endif

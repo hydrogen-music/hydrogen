@@ -29,6 +29,7 @@ using namespace H2Core;
 
 void PatternTest::testPurgeInstrument()
 {
+	___INFOLOG( "" );
 	auto pInstrument = std::make_shared<Instrument>();
 	Note *pNote = new Note( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
 
@@ -40,4 +41,5 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( pPattern->find_note( 1, -1, pInstrument) == nullptr );
 
 	delete pPattern;
+	___INFOLOG( "passed" );
 }

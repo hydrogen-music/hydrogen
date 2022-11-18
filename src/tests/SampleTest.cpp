@@ -33,6 +33,7 @@ class SampleTest : public CppUnit::TestCase {
 
 	void testLoadInvalidSample()
 	{
+	___INFOLOG( "" );
 		std::shared_ptr<H2Core::Sample> pSample;
 		
 		//TC1: Sample does not exist
@@ -44,5 +45,6 @@ class SampleTest : public CppUnit::TestCase {
 		//TC2: Sample does exist, but is not a valid sample
 		pSample = H2Core::Sample::load( H2TEST_FILE("drumkits/baseKit/drumkit.xml") );
 		CPPUNIT_ASSERT(pSample == nullptr);
+	___INFOLOG( "passed" );
 	}
 };

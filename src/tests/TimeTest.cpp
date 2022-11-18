@@ -72,6 +72,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 }
 
 void TimeTest::testElapsedTime(){
+	___INFOLOG( "" );
 
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 0 ) - 0 ) < 0.0001 );
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
@@ -85,4 +86,5 @@ void TimeTest::testElapsedTime(){
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
+	___INFOLOG( "passed" );
 }

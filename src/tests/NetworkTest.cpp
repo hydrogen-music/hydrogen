@@ -23,7 +23,12 @@
 #include "NetworkTest.h"
 #include <QSslSocket>
 
+#include <core/Logger.h>
+#include <core/Object.h>
+
 
 void NetworkTest::testSslSupport(){
+	___INFOLOG( "" );
 	CPPUNIT_ASSERT( QSslSocket::supportsSsl() );
+	___INFOLOG( "passed" );
 }
