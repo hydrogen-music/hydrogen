@@ -124,12 +124,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
 	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
 			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
@@ -940,8 +942,11 @@ void PatternEditorPanel::patternModifiedEvent() {
 	selectedPatternChangedEvent();
 }
 
-void PatternEditorPanel::patternChangedEvent() {
-	updateEditors( true );
+void PatternEditorPanel::playingPatternsChangedEvent() {
+	if ( Hydrogen::get_instance()->getPatternMode() ==
+		 Song::PatternMode::Stacked ) {
+		updateEditors( true );
+	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
@@ -981,7 +986,6 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
-
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -1014,15 +1018,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	int nNewLength =
 		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
 
-	// Delete all notes that are not accessible anymore.
-	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( "remove excessive notes after pattern size change" );
-
-	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
-													   m_pPattern->get_length(),
-													   fNewDenominator,
-													   m_pPattern->get_denominator(),
-													   m_nSelectedPatternNumber ) );
+	if ( nNewLength == m_pPattern->get_length() ) {
+		return;
+	}
 
 	std::vector<Note*> excessiveNotes;
 	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
@@ -1033,6 +1031,23 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 			excessiveNotes.push_back( pNote );
 		}
 	}
+
+	// Delete all notes that are not accessible anymore.
+	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	if ( excessiveNotes.size() != 0 ) {
+		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2 (trimming %3 notes)" )
+								.arg( fNewNumerator ).arg( fNewDenominator )
+								.arg( excessiveNotes.size() ) );
+	} else {
+		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
+								.arg( fNewNumerator ).arg( fNewDenominator ) );
+	}
+
+	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
+													   m_pPattern->get_length(),
+													   fNewDenominator,
+													   m_pPattern->get_denominator(),
+													   m_nSelectedPatternNumber ) );
 
 	for ( auto pNote : excessiveNotes ) {
 		// Note is exceeding the new pattern length. It has to be

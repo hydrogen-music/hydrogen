@@ -25,6 +25,9 @@
 #include <cassert>
 #include <memory>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
+
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
@@ -214,7 +217,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 		}
 	}
 
-	auto pSong = Song::loadFrom( &songNode, bSilent );
+	auto pSong = Song::loadFrom( &songNode, sFilename, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setFilename( sFilename );
 	}
@@ -222,7 +225,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilename, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 	
@@ -262,6 +265,16 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
 													false, true, bSilent ) );
+	if ( sPlaybackTrack.left( 2 ) == "./" ||
+		 sPlaybackTrack.left( 2 ) == ".\\" ) {
+		// Playback track has been made portable by manually
+		// converting the absolute path stored by Hydrogen into a
+		// relative one.
+		QFileInfo info( sFilename );
+		sPlaybackTrack = info.absoluteDir()
+			.filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
+	}
+	
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&
@@ -424,12 +437,14 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, bool bSilent )
 
 		sLastLoadedDrumkitPath = sMostCommonDrumkit;
 	}
+	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
 	
 	if ( sLastLoadedDrumkitName.isEmpty() ) {
-		sLastLoadedDrumkitName = Drumkit::loadNameFrom( sLastLoadedDrumkitPath,
-														bSilent );
+		// Use the getter in here to support relative paths as well.
+		sLastLoadedDrumkitName =
+			Drumkit::loadNameFrom( pSong->getLastLoadedDrumkitPath(),
+								   bSilent );
 	}
-	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 
 	// Pattern list
@@ -1197,6 +1212,8 @@ void Song::setPanLawKNorm( float fKNorm ) {
 }
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
 	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );
@@ -1285,7 +1302,7 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 
 	// Load samples of all instruments.
 	m_pInstrumentList->load_samples(
-		Hydrogen::get_instance()->getAudioEngine()->getBpm() );
+		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 }
 
@@ -1419,6 +1436,11 @@ QString Song::makeComponentNameUnique( const QString& sName ) const {
 		}
 	}
 	return sName;
+}
+
+QString Song::getLastLoadedDrumkitPath() const
+{
+	return Filesystem::ensure_session_compatibility( m_sLastLoadedDrumkitPath );
 }
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {

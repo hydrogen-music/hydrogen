@@ -155,7 +155,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -354,6 +354,8 @@ void PianoRollEditor::createBackground()
 	
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
+
+	m_bBackgroundInvalid = false;
 }
 
 
@@ -412,6 +414,10 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	Note* pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
 											  notekey, octave );
@@ -444,8 +450,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
-			const float fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch );
+			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
 		}
@@ -600,6 +605,10 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nColumn = getColumn( ev->x() );
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return;
+	}
 
 	int nRow = std::floor(static_cast<float>(ev->y()) /
 						  static_cast<float>(m_nGridHeight));
@@ -664,7 +673,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
-	if ( pSelectedInstrument ) {
+	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Instrument [%1] could not be found" )
 				  .arg( selectedinstrument ) );
 		return;
@@ -702,12 +711,12 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			nLength = 1;
 		}
 		
-		const float fPitch = 0.f;
-
-		if( pPattern ) {
-			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		if ( pPattern != nullptr ) {
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 			pNote->set_note_off( noteOff );
-			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
+			if( ! noteOff ) {
+				pNote->set_lead_lag( oldLeadLag );
+			}
 			pNote->set_key_octave( pressednotekey, pressedoctave );
 			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );
@@ -808,6 +817,10 @@ void PianoRollEditor::deleteSelection()
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			DEBUGLOG( "No instrument selected" );
+			return;
+		}
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
@@ -1209,6 +1222,10 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	int w = 8;
 	int h = m_nGridHeight - 2;
 	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
+		return std::move( result );
+	}
 
 	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {
@@ -1250,7 +1267,7 @@ void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-		createBackground();
+		invalidateBackground();
 		update();
 	}
 }

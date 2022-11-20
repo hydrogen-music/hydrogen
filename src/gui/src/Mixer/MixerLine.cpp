@@ -75,7 +75,10 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPlaySampleBtn = new Button( this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "", false, QSize( 7, 7 ), tr( "Play sample" ) );
 	m_pPlaySampleBtn->move( 6, 1 );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
-	connect(m_pPlaySampleBtn, SIGNAL( clicked() ), this, SLOT( playSampleBtnClicked() ) );
+	connect(m_pPlaySampleBtn, &Button::clicked,
+			[&]() { emit noteOnClicked(this); });
+	connect(m_pPlaySampleBtn, &Button::rightClicked,
+			[&]() { emit noteOffClicked(this); });
 
 	// Trigger sample LED
 	m_pTriggerSampleLED = new LED( this, QSize( 5, 13 ) );
@@ -195,10 +198,6 @@ void MixerLine::updateMixerLine()
 		}
 	}
 	m_nPeakTimer++;
-}
-
-void MixerLine::playSampleBtnClicked() {
-	emit noteOnClicked(this);
 }
 
 void MixerLine::muteBtnClicked() {

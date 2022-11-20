@@ -282,7 +282,7 @@ class Instrument : public H2Core::Object<Instrument>
 		///< set the path of the related drumkit
 		void set_drumkit_path( const QString& sPath );
 		///< get the path of the related drumkits
-		const QString& get_drumkit_path() const;
+		QString get_drumkit_path() const;
 		///< set the name of the related drumkit
 		void set_drumkit_name( const QString& sName );
 		///< get the name of the related drumkits
@@ -350,7 +350,13 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__filter_active;		///< is filter active?
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
-		float					__random_pitch_factor;	///< random pitch factor
+	/**
+	 * Factor to scale the random contribution when humanizing pitch
+	 * between 0 and #AudioEngine::fHumanizePitchSD.
+	 *
+	 * Supported range [0,1].
+	 */
+		float					__random_pitch_factor;
 		float					__pitch_offset;	///< instrument main pitch offset
 		int						__midi_out_note;		///< midi out note
 		int						__midi_out_channel;		///< midi out channel
@@ -666,11 +672,6 @@ inline int Instrument::get_higher_cc() const
 inline void Instrument::set_drumkit_path( const QString& sPath )
 {
 	__drumkit_path = sPath;
-}
-
-inline const QString& Instrument::get_drumkit_path() const
-{
-	return __drumkit_path;
 }
 
 inline void Instrument::set_drumkit_name( const QString& sName )

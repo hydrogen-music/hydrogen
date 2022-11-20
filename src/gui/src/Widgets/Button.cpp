@@ -316,6 +316,9 @@ void Button::setAction( std::shared_ptr<Action> pAction ) {
 }
 
 void Button::mousePressEvent(QMouseEvent*ev) {
+	if ( ev->button() == Qt::RightButton ) {
+		emit rightClicked();
+	}
 
 	/*
 	*  Shift + Left-Click activate the midi learn widget

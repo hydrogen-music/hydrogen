@@ -145,9 +145,7 @@ private slots:
 	void onClick();
 
 signals:
-	void clicked(Button *pBtn);
-	void rightClicked(Button *pBtn);
-	void mousePress(Button *pBtn);
+	void rightClicked();
 
 private:
 	void updateStyleSheet();

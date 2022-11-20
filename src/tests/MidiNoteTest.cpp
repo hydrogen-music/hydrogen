@@ -79,6 +79,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 
 	void testLoadNewSong()
 	{
+	___INFOLOG( "" );
 		/* Read song with instruments that have assigned distinct
 		 * MIDI notes. Check that loading that song does not
 		 * change that mapping */
@@ -94,6 +95,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		ASSERT_INSTRUMENT_MIDI_NOTE( "Snare Rock", 40, instruments->get(1) );
 		ASSERT_INSTRUMENT_MIDI_NOTE( "Crash",      49, instruments->get(2) );
 		ASSERT_INSTRUMENT_MIDI_NOTE( "Ride Rock",  59, instruments->get(3) );
+	___INFOLOG( "passed" );
 	}
 
 private:

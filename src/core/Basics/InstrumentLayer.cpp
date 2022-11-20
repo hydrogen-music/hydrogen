@@ -26,6 +26,8 @@
 #include <core/Helpers/Xml.h>
 #include <core/Basics/Sample.h>
 #include <core/License.h>
+#include <core/Hydrogen.h>
+#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core
@@ -83,14 +85,51 @@ void InstrumentLayer::unload_sample()
 
 std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
+	QString sAbsoluteFilename = sFilename;
+
 	if ( ! Filesystem::file_exists( sFilename, true ) && ! sDrumkitPath.isEmpty() &&
 		 ! sFilename.startsWith( "/" ) ) {
+
+#ifdef H2CORE_HAVE_OSC
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			// If we use the NSM support and the sample files to save
+			// are corresponding to the drumkit linked/located in the
+			// session folder, we have to ensure the relative paths
+			// are loaded. This is vital in order to support
+			// renaming, duplicating, and porting sessions.
+
+			// QFileInfo::isRelative() can not be used in here as
+			// samples within drumkits within the user or system
+			// drumkit folder are stored relatively as well (by saving
+			// just the filename).
+			if ( sFilename.left( 2 ) == "./" ||
+				 sFilename.left( 2 ) == ".\\" ) {
+				// Removing the leading "." of the relative path in
+				// sFilename while still using the associated folder
+				// separator.
+				sAbsoluteFilename = NsmClient::get_instance()->getSessionFolderPath() +
+					sFilename.right( sFilename.size() - 1 );
+			}
+			else {
+				sFilename = sDrumkitPath + "/" + sFilename;
+				sAbsoluteFilename = sFilename;
+			}
+		}
+		else {
+			sFilename = sDrumkitPath + "/" + sFilename;
+			sAbsoluteFilename = sFilename;
+		}
+#else
 		sFilename = sDrumkitPath + "/" + sFilename;
+		sAbsoluteFilename = sFilename;
+#endif
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( Filesystem::file_exists( sFilename, true ) ) {
+	if ( Filesystem::file_exists( sAbsoluteFilename, true ) ) {
 		pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
 
 		// If 'ismodified' is not present, InstrumentLayer was stored as
@@ -162,6 +201,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 
 void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 {
+	auto pHydrogen = Hydrogen::get_instance();
 	auto pSample = get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "No sample associated with layer. Skipping it" );
@@ -172,9 +212,26 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 
 	QString sFilename;
 	if ( bFull ) {
-		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
-	} else {
-		sFilename = get_sample()->get_filename();
+
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			// If we use the NSM support and the sample files to save
+			// are corresponding to the drumkit linked/located in the
+			// session folder, we have to ensure the relative paths
+			// are written out. This is vital in order to support
+			// renaming, duplicating, and porting sessions.
+			if ( pSample->get_raw_filepath().startsWith( '.' ) ) {
+				sFilename = pSample->get_raw_filepath();
+			}
+			else {
+				sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+			}
+		}
+		else {
+			sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+		}
+	}
+	else {
+		sFilename = pSample->get_filename();
 	}
 	
 	layer_node.write_string( "filename", sFilename );

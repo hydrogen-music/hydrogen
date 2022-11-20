@@ -49,6 +49,7 @@ void FilesystemTest::tearDown() {
 
 void FilesystemTest::testPermissions(){
 #ifndef WIN32
+	___INFOLOG( "" );
 	CPPUNIT_ASSERT( ! Filesystem::file_exists( m_sNotExistingPath, true ) );
 	CPPUNIT_ASSERT( Filesystem::file_exists( m_sNoAccessPath, true ) );
 	CPPUNIT_ASSERT( ! Filesystem::file_readable( m_sNoAccessPath, true ) );
@@ -59,5 +60,6 @@ void FilesystemTest::testPermissions(){
 	CPPUNIT_ASSERT( Filesystem::file_exists( m_sTmpPath, true ) );
 	CPPUNIT_ASSERT( Filesystem::file_readable( m_sTmpPath, true ) );
 	CPPUNIT_ASSERT( Filesystem::file_writable( m_sTmpPath, true ) );
+	___INFOLOG( "passed" );
 #endif
 }

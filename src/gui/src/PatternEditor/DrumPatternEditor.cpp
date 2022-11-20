@@ -114,7 +114,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	// redraw all
-	createBackground();
+	invalidateBackground();
 	update();
 }
 
@@ -284,7 +284,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-	if ( nRow >= nInstruments ) {
+	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
 	}
 	
@@ -473,10 +473,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			nLength = 1;
 			fProbability = 1.0;
 		}
-
-		float fPitch = 0.f;
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -494,8 +492,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		}
 		// hear note
 		if ( listen && !isNoteOff ) {
-			fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch);
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength);
 			m_pAudioEngine->getSampler()->noteOn(pNote2);
 		}
 	}
@@ -1203,8 +1200,10 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
-	// p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
-	// 		   backgroundInactiveColor);
+	if ( m_nActiveWidth < m_nEditorWidth ) {
+		p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
+				   backgroundInactiveColor);
+	}
 
 	for ( int ii = 0; ii < nInstruments; ii++ ) {
 		int y = static_cast<int>(m_nGridHeight) * ii;
@@ -1274,6 +1273,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 }
 
 void DrumPatternEditor::createBackground() {
+	m_bBackgroundInvalid = false;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -1301,7 +1301,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
 		createBackground();
 	}
 	
@@ -1699,17 +1699,12 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 		return;
 	}
 
-	const float velocity = 0.8f;
-	const float fPan = 0.f;
-	const float fPitch = 0.0f;
-	const int nLength = -1;
-
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 	for (int i = 0; i < noteList.size(); i++ ) {
 
 		// create the new note
 		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position, velocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, position );
 		pPattern->insert_note( pNote );
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine

@@ -78,6 +78,7 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 
 void XmlTest::testDrumkit()
 {
+	___INFOLOG( "" );
 	QString sDrumkitPath = H2Core::Filesystem::tmp_dir()+"dk0";
 
 	std::shared_ptr<H2Core::Drumkit> pDrumkitLoaded = nullptr;
@@ -154,10 +155,12 @@ void XmlTest::testDrumkit()
 
 	// Cleanup
 	H2Core::Filesystem::rm( sDrumkitPath, true );
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::testShippedDrumkits()
 {
+	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
 	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
 		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
@@ -166,6 +169,7 @@ void XmlTest::testShippedDrumkits()
 								  H2Core::Filesystem::drumkit_xsd_path() ) );
 
 	}
+	___INFOLOG( "passed" );
 }
 
 //Load drumkit which includes instrument with invalid ADSR values.
@@ -174,6 +178,7 @@ void XmlTest::testShippedDrumkits()
 //					  correct ADSR values.
 void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 {
+	___INFOLOG( "" );
 	auto pTestHelper = TestHelper::get_instance();
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
 
@@ -213,9 +218,11 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 												   H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" ),
 												   true ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( backupFiles[ 0 ], false ) );
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::testDrumkitUpgrade() {
+	___INFOLOG( "" );
 	// For all drumkits in the legacy folder, check whether there are
 	// invalid. Then, we upgrade them to the most recent version and
 	// check whether there are valid and if a second upgrade is yields
@@ -321,10 +328,12 @@ void XmlTest::testDrumkitUpgrade() {
 		H2Core::Filesystem::rm( firstUpgrade.path(), true, true );
 		H2Core::Filesystem::rm( secondUpgrade.path(), true, true );
 	}
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::testPattern()
 {
+	___INFOLOG( "" );
 	QString sPatternPath = H2Core::Filesystem::tmp_dir()+"pat.h2pattern";
 
 	H2Core::Pattern* pPatternLoaded = nullptr;
@@ -366,17 +375,21 @@ void XmlTest::testPattern()
 	delete pPatternLoaded;
 	delete pPatternCopied;
 	delete pPatternNew;
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::checkTestPatterns()
 {
+	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
 	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
 							  H2Core::Filesystem::pattern_xsd_path() ) );
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::testPlaylist()
 {
+	___INFOLOG( "" );
 	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
 
 	H2Core::Playlist::create_instance();
@@ -391,6 +404,7 @@ void XmlTest::testPlaylist()
 
 	delete pPlaylistLoaded;
 	delete pPlaylistCurrent;
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::tearDown() {

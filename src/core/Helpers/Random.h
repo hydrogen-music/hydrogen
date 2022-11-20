@@ -1,6 +1,5 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -20,10 +19,32 @@
  *
  */
 
-#include "NetworkTest.h"
-#include <QSslSocket>
+#ifndef H2C_RANDOM_H
+#define H2C_RANDOM_H
 
+#include <core/Object.h>
 
-void NetworkTest::testSslSupport(){
-	CPPUNIT_ASSERT( QSslSocket::supportsSsl() );
-}
+namespace H2Core
+{
+
+/**
+ * Container for functions generating random number.
+ *
+ * \ingroup docCore
+ */
+class Random : public H2Core::Object<Random>
+{
+	H2_OBJECT(Random)
+public:
+	/**
+	 * Draws an uncorrelated random value from a Gaussian distribution
+	 * of mean 0 and @a fStandardDeviation.
+	 *
+	 * @param fStandardDeviation Defines the width of the distribution used.
+	 */
+	static float getGaussian( float fStandardDeviation );
+};
+
+};
+
+#endif  // H2C_RANDOM_H

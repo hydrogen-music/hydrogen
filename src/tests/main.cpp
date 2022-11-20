@@ -44,18 +44,23 @@
 #include <string.h>
 #endif
 
-
-void setupEnvironment(unsigned log_level)
+void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 {
 	/* Logger */
-	H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
+	H2Core::Logger* pLogger = nullptr;
+	if ( ! sLogFilePath.isEmpty() ) {
+		pLogger = H2Core::Logger::bootstrap( log_level, sLogFilePath, false );
+	}
+	else {
+		pLogger = H2Core::Logger::bootstrap( log_level );
+	}
 	/* Test helper */
 	TestHelper::createInstance();
 	TestHelper* test_helper = TestHelper::get_instance();
 	/* Base */
-	H2Core::Base::bootstrap( logger, true );
+	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
-	H2Core::Filesystem::bootstrap( logger, test_helper->getDataDir() );
+	H2Core::Filesystem::bootstrap( pLogger, test_helper->getDataDir() );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
@@ -92,25 +97,42 @@ int main( int argc, char **argv)
 
 	QCommandLineParser parser;
 	QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
-	QCommandLineOption appveyorOption( QStringList() << "appveyor", "Report test progress to AppVeyor build worker" );
+	QCommandLineOption appveyorOption( QStringList() << "appveyor", "Report test progress to AppVeyor build" );
 	QCommandLineOption benchmarkOption( QStringList() << "b" << "benchmark", "Run audio system benchmark" );
+	QCommandLineOption outputFileOption( QStringList() << "o" << "output-file", "If specified the output of the logger will not be directed to stdout but instead stored in a file (either plain file name or with relative of absolute path)",
+										 "Output File", "");
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
 	parser.addOption( appveyorOption );
 	parser.addOption( benchmarkOption );
+	parser.addOption( outputFileOption );
 	parser.process(app);
 	QString sVerbosityString = parser.value( verboseOption );
+
+	const QString sLogFile = parser.value( outputFileOption );
+	QString sLogFilePath = "";
+	if ( parser.isSet( outputFileOption ) ) {
+		if ( ! sLogFile.contains( QDir::separator() ) ) {
+			// A plain filename was provided. It will be placed in the
+			// current working directory.
+			sLogFilePath = QDir::currentPath() + QDir::separator() + sLogFile;
+		} else {
+			QFileInfo fi( sLogFile );
+			sLogFilePath = fi.absoluteFilePath();
+		}
+	}
+	
 	unsigned logLevelOpt = H2Core::Logger::None;
-	if( parser.isSet(verboseOption) ){
+	if( parser.isSet(verboseOption) || parser.isSet( outputFileOption ) ){
 		if( !sVerbosityString.isEmpty() )
 		{
 			logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
 		} else {
-			logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning|H2Core::Logger::Info;
 		}
 	}
 
-	setupEnvironment(logLevelOpt);
+	setupEnvironment( logLevelOpt, sLogFilePath );
 
 #ifdef HAVE_EXECINFO_H
 	signal(SIGSEGV, fatal_signal);
@@ -132,14 +154,18 @@ int main( int argc, char **argv)
 	std::unique_ptr<AppVeyor::BuildWorkerApiClient> appveyorApiClient;
 	std::unique_ptr<AppVeyorTestListener> avtl;
 	if( parser.isSet( appveyorOption )) {
-		qDebug() << "Enabled AppVeyor reporting";
 		appveyorApiClient.reset( new AppVeyor::BuildWorkerApiClient() );
 		avtl.reset( new AppVeyorTestListener( *appveyorApiClient ));
 		runner.eventManager().addListener( avtl.get() );
 	}
 	bool wasSuccessful = runner.run( "", false );
-	
 	auto stop = std::chrono::high_resolution_clock::now();
+
+	// Ensure the log is written properly
+	auto pLogger = H2Core::Logger::get_instance();
+	pLogger->flush();
+	delete pLogger;
+
 	auto durationSeconds = std::chrono::duration_cast<std::chrono::seconds>( stop - start );
 	auto durationMilliSeconds =
 		std::chrono::duration_cast<std::chrono::milliseconds>( stop - start ) -

@@ -22,6 +22,7 @@
 #include <QObject>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -151,6 +152,7 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_next_pattern, 1 ) ));
 	m_actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_only_next_pattern, 1 ) ));
 	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair( &MidiActionManager::select_next_pattern_cc_absolute, 0 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair( &MidiActionManager::select_only_next_pattern_cc_absolute, 0 ) ));
 	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair( &MidiActionManager::select_next_pattern_relative, 1 ) ));
 	m_actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
@@ -364,6 +366,24 @@ bool MidiActionManager::tap_tempo( std::shared_ptr<Action> , Hydrogen* pHydrogen
 }
 
 bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	return nextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
+}
+
+
+bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	return nextPatternSelection( pHydrogen->getSelectedPatternNumber() +
+								 pAction->getParameter1().toInt(&ok,10) );
+}
+
+bool MidiActionManager::select_next_pattern_cc_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	return nextPatternSelection( pAction->getValue().toInt(&ok,10) );
+}
+
+bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
 	// Preventive measure to avoid bad things.
@@ -371,25 +391,36 @@ bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hy
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
-	bool ok;
-	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pSong->getPatternList()->size() - 1 ||
-		row < 0 ) {
-		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
+    
+	if ( nPatternNumber > pSong->getPatternList()->size() - 1 ||
+		nPatternNumber < 0 ) {
+		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( nPatternNumber )
 				  .arg( pSong->getPatternList()->size() - 1 ) );
 		return false;
 	}
+	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		pHydrogen->setSelectedPatternNumber( row );
+		pHydrogen->setSelectedPatternNumber( nPatternNumber );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-		pHydrogen->toggleNextPattern( row );
+		pHydrogen->toggleNextPattern( nPatternNumber );
 	}
+	
 	return true;
 }
 
 bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	return onlyNextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
+}
+
+bool MidiActionManager::select_only_next_pattern_cc_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	return onlyNextPatternSelection( pAction->getValue().toInt(&ok,10) );
+}
+
+bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
 	// Preventive measure to avoid bad things.
@@ -398,80 +429,26 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 		return false;
 	}
 	
-	bool ok;
-	int nRow = pAction->getParameter1().toInt(&ok,10);
-	if ( nRow > pSong->getPatternList()->size() -1 ||
-		nRow < 0 ) {
+	if ( nPatternNumber > pSong->getPatternList()->size() -1 ||
+		nPatternNumber < 0 ) {
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 			ERRORLOG( QString( "Provided pattern number [%1] out of bound [0,%2]." )
-					  .arg( nRow )
+					  .arg( nPatternNumber )
 					  .arg( pSong->getPatternList()->size() - 1 ) );
 			return false;
 		}
 		else {
 			INFOLOG( QString( "Provided pattern number [%1] out of bound [0,%2]. All patterns will be deselected." )
-					 .arg( nRow )
+					 .arg( nPatternNumber )
 					 .arg( pSong->getPatternList()->size() - 1 ) );
 		}
 	}
 	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		return select_next_pattern( pAction, pHydrogen );
+		return nextPatternSelection( nPatternNumber );
 	}
 	
-	return pHydrogen->flushAndAddNextPattern( nRow );
-}
-
-bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	auto pSong = pHydrogen->getSong();
-	
-	// Preventive measure to avoid bad things.
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-	
-	bool ok;
-	if( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-		return true;
-	}
-	int row = pHydrogen->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-	if( row > pSong->getPatternList()->size() - 1 ||
-		row < 0 ) {
-		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
-				  .arg( pSong->getPatternList()->size() - 1 ) );
-		return false;
-	}
-	
-	pHydrogen->setSelectedPatternNumber( row );
-	return true;
-}
-
-bool MidiActionManager::select_next_pattern_cc_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-	
-	bool ok;
-	int row = pAction->getValue().toInt(&ok,10);
-	
-	if( row > pHydrogen->getSong()->getPatternList()->size() - 1 ||
-		row < 0 ) {
-		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
-				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
-		return false;
-	}
-	
-	if( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		pHydrogen->setSelectedPatternNumber( row );
-	}
-	else {
-		return true;// only usefully in normal pattern mode
-	}
-	
-	return true;
+	return pHydrogen->flushAndAddNextPattern( nPatternNumber );
 }
 
 bool MidiActionManager::select_and_play_pattern( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
@@ -950,6 +927,7 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	//this Action should be triggered only by CC commands
 
@@ -963,19 +941,23 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 	}
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
-		 pAudioEngine->getBpm() - mult > MIN_BPM ) {
+		 fBpm - mult > MIN_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 1*mult );
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm - 1*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 1*mult );
+		pHydrogen->getSong()->setBpm( fBpm - 1*mult );
 	}
 
 	if ( m_nLastBpmChangeCCParameter < cc_param
-		 && pAudioEngine->getBpm() + mult < MAX_BPM ) {
+		 && fBpm + mult < MAX_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 1*mult );
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm + 1*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 1*mult );
+		pHydrogen->getSong()->setBpm( fBpm + 1*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -997,6 +979,7 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	//this Action should be triggered only by CC commands
 	bool ok;
@@ -1009,18 +992,22 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 	}
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
-		 pAudioEngine->getBpm() - mult > MIN_BPM ) {
+		 fBpm - mult > MIN_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.01*mult );
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm - 0.01*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.01*mult );
+		pHydrogen->getSong()->setBpm( fBpm - 0.01*mult );
 	}
 	if ( m_nLastBpmChangeCCParameter < cc_param
-		 && pAudioEngine->getBpm() + mult < MAX_BPM ) {
+		 && fBpm + mult < MAX_BPM ) {
 		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.01*mult );
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm + 0.01*mult );
+		pAudioEngine->unlock();
 		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.01*mult );
+		pHydrogen->getSong()->setBpm( fBpm + 0.01*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -1038,14 +1025,17 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 	}
 	
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	// Use tempo in the next process cycle of the audio engine.
-	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 1*mult );
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( fBpm + 1*mult );
+	pAudioEngine->unlock();
 	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 1*mult );
+	pHydrogen->getSong()->setBpm( fBpm + 1*mult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -1060,14 +1050,17 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 	}
 	
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	// Use tempo in the next process cycle of the audio engine.
-	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 1*mult );
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( fBpm - 1*mult );
+	pAudioEngine->unlock();
 	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 1*mult );
+	pHydrogen->getSong()->setBpm( fBpm - 1*mult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -1081,7 +1074,8 @@ bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen 
 		return false;
 	}
 
-	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->getColumn() ) + 1;
+	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->
+							   getTransportPosition()->getColumn() ) + 1;
 	
 	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
@@ -1095,7 +1089,8 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 		return false;
 	}
 	
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() -1 );
+	pHydrogen->getCoreActionController()->locateToColumn(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() -1 );
 	return true;
 }
 

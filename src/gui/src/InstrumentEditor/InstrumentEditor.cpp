@@ -202,14 +202,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// ADSR
 	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								  tr( "Attack" ), false );
+								  tr( "Length of Attack phase.\n\nValue" ), false );
 	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								 tr( "Decay" ), false );
+								 tr( "Length of Decay phase.\n\nValue" ), false );
 	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Sustain" ), false );
+								   tr( "Sample volume in Sustain phase.\n\nValue" ), false );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Release" ), false );
+								   tr( "Length of Release phase.\n\nValue" ), false );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	connect( m_pAttackRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
@@ -517,14 +517,14 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	// update layer list
-	if ( m_pInstrument ) {
+	if ( m_pInstrument != nullptr ) {
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
-		m_pAttackRotary->setValue( sqrtf(m_pInstrument->get_adsr()->get_attack() / 100000.0) );
-		m_pDecayRotary->setValue( sqrtf(m_pInstrument->get_adsr()->get_decay() / 100000.0) );
-		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->get_sustain() );
-		float fTmp = m_pInstrument->get_adsr()->get_release() - 256.0;
+		m_pAttackRotary->setValue( sqrtf(m_pInstrument->get_adsr()->getAttack() / 100000.0) );
+		m_pDecayRotary->setValue( sqrtf(m_pInstrument->get_adsr()->getDecay() / 100000.0) );
+		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->getSustain() );
+		float fTmp = m_pInstrument->get_adsr()->getRelease() - 256.0;
 		if( fTmp < 0.0 ) {
 			fTmp = 0.0;
 		}
@@ -721,16 +721,16 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			m_pInstrument->set_filter_resonance( fVal );
 		}
 		else if ( pRotary == m_pAttackRotary ) {
-			m_pInstrument->get_adsr()->set_attack( fVal * fVal * 100000 );
+			m_pInstrument->get_adsr()->setAttack( fVal * fVal * 100000 );
 		}
 		else if ( pRotary == m_pDecayRotary ) {
-			m_pInstrument->get_adsr()->set_decay( fVal * fVal * 100000 );
+			m_pInstrument->get_adsr()->setDecay( fVal * fVal * 100000 );
 		}
 		else if ( pRotary == m_pSustainRotary ) {
-			m_pInstrument->get_adsr()->set_sustain( fVal );
+			m_pInstrument->get_adsr()->setSustain( fVal );
 		}
 		else if ( pRotary == m_pReleaseRotary ) {
-			m_pInstrument->get_adsr()->set_release( 256.0 + fVal * fVal * 100000 );
+			m_pInstrument->get_adsr()->setRelease( 256.0 + fVal * fVal * 100000 );
 		}
 		else if ( pRotary == m_pLayerGainRotary ) {
 			char tmp[20];
@@ -959,7 +959,6 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 	// Ensure instrument pointer is current
 	m_pInstrument = pHydrogen->getSelectedInstrument();
-
 	if ( m_pInstrument == nullptr ) {
 		WARNINGLOG( "No instrument selected" );
 		return;
