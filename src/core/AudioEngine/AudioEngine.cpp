@@ -1282,6 +1282,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->stopPlayback();
 		pAudioEngine->locate( 0 );
 
+		// Tell GUI to move the playhead position to the beginning of
+		// the song again since it only updates it in case transport
+		// is rolling.
+		EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
+
 		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
 

@@ -176,8 +176,9 @@ enum EventType {
 	/** Locks the PatternEditor on the pattern currently played back.*/
 	EVENT_PATTERN_EDITOR_LOCKED,
 	/** Triggered in case there is a relocation of the transport
-	 * position due to an user interaction or an incoming
-	 * MIDI/OSC/JACK command.
+	 * position while trasnsport is not rolling. This can be either
+	 * due to an user interaction or an incoming MIDI/OSC/JACK command
+	 * or at the very end of the song in song mode.
 	 */
 	EVENT_RELOCATION,
 	EVENT_SONG_SIZE_CHANGED,
