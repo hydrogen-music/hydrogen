@@ -213,6 +213,8 @@ class SongEditor : public QWidget
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
 		bool m_bEntered;
+
+	virtual void patternModifiedEvent() override;
 	
 	/** Cached position of the playhead.*/
 	float m_fTick;

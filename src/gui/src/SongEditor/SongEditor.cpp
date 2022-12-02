@@ -990,6 +990,13 @@ void SongEditor::updatePosition( float fTick ) {
 	}
 }
 
+void SongEditor::patternModifiedEvent() {
+	// This can change the length of one pattern in a column
+	// containing multiple ones.
+	invalidateBackground();
+	update();
+}
+
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
 	if ( m_bBackgroundInvalid ) {
