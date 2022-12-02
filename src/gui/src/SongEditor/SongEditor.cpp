@@ -1181,7 +1181,7 @@ void SongEditor::updateGridCells() {
 
 	for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
 		PatternList *pColumn = (*pColumns)[nColumn];
-		int nMaxLength = pColumn->longest_pattern_length();
+		int nMaxLength = pColumn->longest_pattern_length( true );
 
 		for ( uint nPat = 0; nPat < pColumn->size(); nPat++ ) {
 			Pattern *pPattern = (*pColumn)[ nPat ];
@@ -3135,7 +3135,7 @@ void SongEditorPositionRuler::updatePosition()
 
 	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
-		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
+		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length( true );
 		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
 			(float)nLength;
 	} else {

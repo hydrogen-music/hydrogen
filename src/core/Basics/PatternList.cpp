@@ -325,10 +325,20 @@ QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* igno
 	return unusedPatternNameCandidate;
 }
 
-int PatternList::longest_pattern_length() const {
+int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
-	for ( int i = 0; i < __patterns.size(); i++ ) {
-		nMax = std::max( nMax, __patterns[i]->get_length() );
+	for ( const auto ppPattern : __patterns ) {
+		if ( ppPattern->get_length() > nMax ) {
+			nMax = ppPattern->get_length();
+		}
+
+		if ( bIncludeVirtuals ) {
+			for ( const auto ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
+				if ( ppVirtualPattern->get_length() > nMax ) {
+					nMax = ppVirtualPattern->get_length();
+				}
+			}
+		}
 	}
 	return nMax;
 }
