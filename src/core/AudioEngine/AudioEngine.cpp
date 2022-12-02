@@ -605,7 +605,16 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
 									  fNewBpm, pSong->getResolution() );
 	// Nothing changed - avoid recomputing
+#ifndef WIN32
 	if ( fNewTickSize == fOldTickSize ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( fNewTickSize - fOldTickSize ) < 1e-2 ) {
+#endif
 		return;
 	}
 
@@ -1666,7 +1675,16 @@ void AudioEngine::updateSongSize() {
 	// Ensure the tick offset is calculated as well (we do not expect
 	// the tempo to change hence the following call is most likely not
 	// executed during updateTransportPosition()).
+#ifndef WIN32
 	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#endif
 		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
 	
@@ -1905,8 +1923,17 @@ void AudioEngine::handleTimelineChange() {
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
 	updateBpmAndTickSize( m_pTransportPosition );
 	updateBpmAndTickSize( m_pQueuingPosition );
-	
+
+#ifndef WIN32
 	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#endif
 		// As tempo did not change during the Timeline activation, no
 		// update of the offsets took place. This, however, is not
 		// good, as it makes a significant difference to be located at
