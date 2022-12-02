@@ -1788,7 +1788,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		// We omit the event when passing from one empty column to the
 		// next.
 		if ( pPos == m_pTransportPosition &&
-			 ( nPrevPatternNumber != 0 && pPlayingPatterns->size() != 0 ) ) {
+			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
 			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 		}
 	}
