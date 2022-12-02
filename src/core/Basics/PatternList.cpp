@@ -94,20 +94,20 @@ void PatternList::save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pIn
 	}
 }
 	
-void PatternList::add( Pattern* pPattern )
+void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 {
 	assertAudioEngineLocked();
 	if ( pPattern == nullptr ) {
 		ERRORLOG( "Provided pattern is invalid" );
 		return;
 	}
-	
+
 	// do nothing if already in __patterns
 	if ( index( pPattern ) != -1 ) {
 		INFOLOG( "Provided pattern is already contained" );
 		return;
 	}
-	else {
+	else if ( ! bAddVirtuals ) {
 		// Check whether the pattern is contained as a virtual
 		// pattern.
 		for ( const auto& ppPattern : __patterns ) {
@@ -132,6 +132,10 @@ void PatternList::add( Pattern* pPattern )
 	}
 	
 	__patterns.push_back( pPattern );
+
+	if ( bAddVirtuals ) {
+		pPattern->addFlattenedVirtualPatterns( this );
+	}
 }
 
 void PatternList::insert( int nIdx, Pattern* pPattern )

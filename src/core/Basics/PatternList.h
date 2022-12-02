@@ -80,8 +80,10 @@ class XMLNode;
 		/**
 		 * add a pattern to the list
 		 * \param pattern a pointer to the pattern to add
+		 * \param bAddVirtuals Whether virtual patterns contained in
+		 * @a pattern should be added too.
 		 */
-		void add( Pattern* pattern );
+	void add( Pattern* pattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
 		 * \param idx the index to insert the pattern at

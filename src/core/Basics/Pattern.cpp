@@ -341,7 +341,7 @@ void Pattern::flattened_virtual_patterns_compute()
 void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
 	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
 		 it!=__flattened_virtual_patterns.end(); ++it ) {
-		pPatternList->add( *it );
+		pPatternList->add( *it, true );
 	}
 }
 

@@ -1779,8 +1779,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		for ( const auto& ppattern : *( *( pSong->getPatternGroupVector() ) )[ nColumn ] ) {
 			if ( ppattern != nullptr ) {
-				pPlayingPatterns->add( ppattern );
-				ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+				pPlayingPatterns->add( ppattern, true );
 			}
 		}
 
@@ -1802,8 +1801,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 			 ! ( pPlayingPatterns->size() == 1 &&
 				 pPlayingPatterns->get( 0 ) == pSelectedPattern ) ) {
 			pPlayingPatterns->clear();
-			pPlayingPatterns->add( pSelectedPattern );
-			pSelectedPattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+			pPlayingPatterns->add( pSelectedPattern, true );
 
 			// GUI does not care about the internals of the audio
 			// engine and just moves along the transport position.
@@ -1824,9 +1822,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				if ( ( pPlayingPatterns->del( ppattern ) ) == nullptr ) {
 					// pPattern was not present yet. It will
-					// be added.
-					pPlayingPatterns->add( ppattern );
-					ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+					// be added
+					pPlayingPatterns->add( ppattern, true );
 				} else {
 					// pPattern was already present. It will
 					// be deleted.
