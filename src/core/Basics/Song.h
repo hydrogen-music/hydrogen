@@ -295,7 +295,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	
 private:
 

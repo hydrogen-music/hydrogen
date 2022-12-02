@@ -126,7 +126,7 @@ namespace H2Core
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
 		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default

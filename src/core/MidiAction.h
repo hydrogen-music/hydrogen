@@ -77,7 +77,7 @@ class Action : public H2Core::Object<Action> {
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
 		QString m_sType;

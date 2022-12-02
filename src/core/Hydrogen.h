@@ -474,7 +474,7 @@ void			previewSample( Sample *pSample );
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	/**

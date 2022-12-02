@@ -229,7 +229,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
 		int __length;                                           ///< the length of the pattern

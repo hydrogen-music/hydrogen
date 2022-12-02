@@ -187,7 +187,7 @@ class XMLNode;
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Iteration */
 		std::vector<Pattern*>::iterator begin();
