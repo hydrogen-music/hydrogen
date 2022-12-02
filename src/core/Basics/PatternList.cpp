@@ -113,7 +113,7 @@ void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 		for ( const auto& ppPattern : __patterns ) {
 			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
 			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
-				INFOLOG( "Provided pattern is already contained as virtual pattern" );
+				// Provided pattern is already contained as virtual pattern
 				return;
 			}
 		}
