@@ -1541,7 +1541,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	for ( int i = 0; i < nColumns; ++i ) {
 		PatternList *pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longest_pattern_length( true );
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1567,7 +1567,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
-				nPatternSize = pColumn->longest_pattern_length();
+				nPatternSize = pColumn->longest_pattern_length( true );
 			} else {
 				nPatternSize = MAX_NOTES;
 			}

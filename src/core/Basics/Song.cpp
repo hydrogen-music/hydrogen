@@ -154,7 +154,7 @@ long Song::lengthInTicks() const {
 	for ( int i = 0; i < nColumns; i++ ) {
 		PatternList *pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nSongLength += pColumn->longest_pattern_length();
+			nSongLength += pColumn->longest_pattern_length( true );
 		} else {
 			nSongLength += MAX_NOTES;
 		}
