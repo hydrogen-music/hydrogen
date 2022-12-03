@@ -95,7 +95,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pAudioEngine->getPlayingPatterns()->longest_pattern_length( true ) + 1,
+						  pAudioEngine->getPlayingPatterns()->longest_pattern_length() + 1,
 						  static_cast<float>(m_nActiveWidth) );
 		}
 		else {

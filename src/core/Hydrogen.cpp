@@ -437,7 +437,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 					pCurrentPattern = pPattern;
 				}
 			}
-			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length( true );
+			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
 		}
 		nTickInPattern -= nLookaheadTicks;
 		
@@ -1548,7 +1548,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	for ( int i = 0; i < nColumns; ++i ) {
 		PatternList *pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length( true );
+			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1574,7 +1574,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
-				nPatternSize = pColumn->longest_pattern_length( true );
+				nPatternSize = pColumn->longest_pattern_length();
 			} else {
 				nPatternSize = MAX_NOTES;
 			}
@@ -1627,7 +1627,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		
 		if( pColumn->size() > 0)
 		{
-			nPatternSize = pColumn->longest_pattern_length( true );
+			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}

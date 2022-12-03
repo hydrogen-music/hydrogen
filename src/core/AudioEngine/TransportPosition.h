@@ -360,6 +360,10 @@ private:
 	 * If transport is in #H2Core::Song::Mode::Song, it corresponds
 	 * to the patterns present in column #m_nColumn.
 	 *
+	 * Due to performance reasons no virtual patterns will be checked
+	 * and expanded in this list. Instead, all contained patterns have
+	 * to be added explicitly.
+	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */
 	PatternList*		m_pPlayingPatterns;

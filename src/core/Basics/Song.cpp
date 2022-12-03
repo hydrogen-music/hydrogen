@@ -154,7 +154,7 @@ long Song::lengthInTicks() const {
 	for ( int i = 0; i < nColumns; i++ ) {
 		PatternList *pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nSongLength += pColumn->longest_pattern_length( true );
+			nSongLength += pColumn->longest_pattern_length();
 		} else {
 			nSongLength += MAX_NOTES;
 		}
@@ -1393,7 +1393,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 				}
 			}
 
-			nColumnStartTick += pColumn->longest_pattern_length( true );
+			nColumnStartTick += pColumn->longest_pattern_length();
 		}
 	}
 	

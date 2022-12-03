@@ -515,7 +515,7 @@ void PatternEditorRuler::updateActiveRange() {
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	if ( pPlayingPatterns->size() != 0 ) {
-		nTicksInPattern = pPlayingPatterns->longest_pattern_length( true );
+		nTicksInPattern = pPlayingPatterns->longest_pattern_length();
 	}
 	
 	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
