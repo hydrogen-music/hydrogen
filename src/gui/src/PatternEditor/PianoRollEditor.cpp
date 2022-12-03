@@ -90,10 +90,12 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
 			m_pPattern->get_length();
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
+			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length() + 1,
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( true ) + 1,
 						  static_cast<float>(m_nActiveWidth) );
 		} else {
 			m_nEditorWidth = m_nActiveWidth;
