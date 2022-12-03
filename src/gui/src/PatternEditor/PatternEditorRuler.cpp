@@ -515,11 +515,14 @@ void PatternEditorRuler::updateActiveRange() {
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	if ( pPlayingPatterns->size() != 0 ) {
-		nTicksInPattern = pPlayingPatterns->longest_pattern_length();
+		// Virtual patterns are already expanded in the playing
+		// patterns and must not be considered when determining the
+		// longest one.
+		nTicksInPattern = pPlayingPatterns->longest_pattern_length( false );
 	}
-	
-	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
 
+	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
+	
 	if ( m_nWidthActive != nWidthActive ) {
 		m_nWidthActive = nWidthActive;
 

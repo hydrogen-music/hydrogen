@@ -93,9 +93,12 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
 			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
 			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
+			// Virtual patterns are already expanded in the playing
+			// patterns and must not be considered when determining
+			// the longest one.
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pAudioEngine->getPlayingPatterns()->longest_pattern_length() + 1,
+						  pAudioEngine->getPlayingPatterns()->longest_pattern_length( false ) + 1,
 						  static_cast<float>(m_nActiveWidth) );
 		}
 		else {
