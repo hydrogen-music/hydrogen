@@ -282,6 +282,10 @@ void* diskWriterDriver_thread( void* param )
 		EventQueue::get_instance()->push_event(
 			EVENT_PROGRESS, static_cast<int>( std::ceil( fPercent ) ) );
 	}
+
+	// Explicitly mark export as finished.
+	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+	
 	delete[] pData;
 	pData = nullptr;
 
