@@ -437,7 +437,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 					pCurrentPattern = pPattern;
 				}
 			}
-			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
+			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length( true );
 		}
 		nTickInPattern -= nLookaheadTicks;
 		
@@ -1627,7 +1627,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		
 		if( pColumn->size() > 0)
 		{
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longest_pattern_length( true );
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1635,37 +1635,6 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 	}
 
 	return totalTick;
-}
-
-long Hydrogen::getPatternLength( int nPattern ) const
-{
-	std::shared_ptr<Song> pSong = getSong();
-	
-	if ( pSong == nullptr ){
-		return -1;
-	}
-
-	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
-
-	int nPatternGroups = pColumns->size();
-	if ( nPattern >= nPatternGroups ) {
-		if ( pSong->isLoopEnabled() ) {
-			nPattern = nPattern % nPatternGroups;
-		} else {
-			return MAX_NOTES;
-		}
-	}
-
-	if ( nPattern < 1 ){
-		return MAX_NOTES;
-	}
-
-	PatternList* pPatternList = pColumns->at( nPattern - 1 );
-	if ( pPatternList->size() > 0 ) {
-		return pPatternList->longest_pattern_length();
-	} else {
-		return MAX_NOTES;
-	}
 }
 
 void Hydrogen::updateSongSize() {

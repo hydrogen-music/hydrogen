@@ -160,19 +160,6 @@ public:
 	 *  - >= 0 : the total number of ticks passed.
 	 */
 	long			getTickForColumn( int nColumn ) const;
-	/**
-	 * Get the length (in ticks) of the @a nPattern th pattern.
-	 *
-	 * \param nPattern Position + 1 of the desired PatternList.
-	 * \return 
-	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
-	 * than the length of the vector of the PatternList in
-	 * Song::m_pPatternGroupSequence or no Pattern could be found
-	 * in the PatternList at @a nPattern - 1.
-	 * - __else__ : length of first Pattern found at @a nPattern.
-	 */
-	long			getPatternLength( int nPattern ) const;
 
 	Song::Mode getMode() const;
 	/** Wrapper around Song::setMode() which also triggers
