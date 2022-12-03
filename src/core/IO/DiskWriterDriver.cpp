@@ -278,9 +278,11 @@ void* diskWriterDriver_thread( void* param )
 		}
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
-		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
-		EventQueue::get_instance()->push_event(
-			EVENT_PROGRESS, static_cast<int>( std::ceil( fPercent ) ) );
+		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
+										 ( float )nColumns * 100.0 );
+		if ( nPercent < 100 ) {
+			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
+		}
 	}
 
 	// Explicitly mark export as finished.
