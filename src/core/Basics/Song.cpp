@@ -1370,9 +1370,8 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 			// end of the song).
 			nColumnStartTick += MAX_NOTES;
 			continue;
-		} else {
-
-			pColumn->longest_pattern_length();
+		}
+		else {
 			for ( const auto& ppattern : *pColumn ) {
 				if ( ppattern != nullptr ) {
 					FOREACH_NOTE_CST_IT_BEGIN_END( ppattern->get_notes(), it ) {
@@ -1394,7 +1393,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 				}
 			}
 
-			nColumnStartTick += pColumn->longest_pattern_length();
+			nColumnStartTick += pColumn->longest_pattern_length( true );
 		}
 	}
 	
