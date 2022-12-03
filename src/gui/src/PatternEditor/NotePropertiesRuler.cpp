@@ -1465,6 +1465,10 @@ void NotePropertiesRuler::selectedInstrumentChangedEvent()
 	updateEditor();
 }
 
+void NotePropertiesRuler::songModeActivationEvent() {
+	updateEditor();
+}
+
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {

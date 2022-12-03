@@ -49,6 +49,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void songModeActivationEvent() override;
 		//~ Implements EventListener interface
 
 		void addOrDeleteNoteAction( int nColumn,

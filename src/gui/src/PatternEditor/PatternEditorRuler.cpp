@@ -566,7 +566,7 @@ void PatternEditorRuler::zoomOut()
 
 void PatternEditorRuler::songModeActivationEvent()
 {
-	updatePosition();
+	updateEditor( true );
 }
 
 void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )

@@ -1403,6 +1403,10 @@ void DrumPatternEditor::drumkitLoadedEvent() {
 	updateEditor();
 }
 
+void DrumPatternEditor::songModeActivationEvent() {
+	updateEditor();
+}
+
 ///NotePropertiesRuler undo redo action
 void DrumPatternEditor::undoRedoAction( int column,
 										PatternEditor::Mode mode,
