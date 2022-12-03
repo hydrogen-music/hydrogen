@@ -1340,7 +1340,14 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 		__song->setPatternMode( mode );
 		setIsModified( true );
 		
-		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
+			 mode == Song::PatternMode::Selected ) {
+			// Only update the playing patterns in selected pattern
+			// mode or if transport is not rolling. In stacked pattern
+			// mode with transport rolling
+			// AudioEngine::updatePatternTransportPosition() will call
+			// the functions and activate the next patterns once the
+			// current ones are looped.
 			m_pAudioEngine->updatePlayingPatterns();
 			m_pAudioEngine->clearNextPatterns();
 		}
