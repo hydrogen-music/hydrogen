@@ -175,7 +175,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaySelectedSingleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										 Button::Type::Push, "single_layer.svg",
 										 "", false, QSize( 17, 13 ),
-										 tr( "single pattern mode"),
+										 tr( "selected pattern mode"),
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
