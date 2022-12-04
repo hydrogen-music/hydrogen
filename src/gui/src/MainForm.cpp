@@ -24,6 +24,7 @@
 #include <core/Version.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Smf/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
@@ -1553,8 +1554,13 @@ void MainForm::onRestartAccelEvent()
 void MainForm::onBPMPlusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
-	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
+	
+	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
+	pAudioEngine->unlock();
+	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
@@ -1563,8 +1569,13 @@ void MainForm::onBPMPlusAccelEvent() {
 void MainForm::onBPMMinusAccelEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
-	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
+	
+	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
+	
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
+	pAudioEngine->unlock();
+	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
@@ -1903,12 +1914,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 			return true;
 			break;
 		}

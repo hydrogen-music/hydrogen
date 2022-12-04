@@ -27,6 +27,7 @@
 
 
 void MemoryLeakageTest::testConstructors() {
+	___INFOLOG( "" );
 	auto mapSnapshot = H2Core::Base::getObjectMap();
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 
@@ -241,9 +242,11 @@ void MemoryLeakageTest::testConstructors() {
 	pDrumkitProper = nullptr;
 	pSongProper = nullptr;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
+	___INFOLOG( "passed" );
 }
 
 void MemoryLeakageTest::testLoading() {
+	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode node;
 
@@ -445,6 +448,7 @@ void MemoryLeakageTest::testLoading() {
 		pCoreActionController->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
+	___INFOLOG( "passed" );
 }
 
 void MemoryLeakageTest::tearDown() {

@@ -39,8 +39,6 @@
 #include <cassert>
 #include <memory>
 
-inline int randomValue( int max );
-
 namespace H2Core
 {
 	class CoreActionController;

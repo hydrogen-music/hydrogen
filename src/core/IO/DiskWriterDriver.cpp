@@ -200,13 +200,12 @@ void* diskWriterDriver_thread( void* param )
 				nPatternLengthInFrames - nFrameNumber < pDriver->m_nBufferSize ){
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
-
 			};
 
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
-			while( ret != 0 ) {
+			while( ret == 2 ) {
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}
 
@@ -280,7 +279,8 @@ void* diskWriterDriver_thread( void* param )
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
 		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
+		EventQueue::get_instance()->push_event(
+			EVENT_PROGRESS, static_cast<int>( std::ceil( fPercent ) ) );
 	}
 	delete[] pData;
 	pData = nullptr;

@@ -284,7 +284,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-	if ( nRow >= nInstruments ) {
+	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
 	}
 	
@@ -473,10 +473,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			nLength = 1;
 			fProbability = 1.0;
 		}
-
-		float fPitch = 0.f;
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -494,8 +492,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		}
 		// hear note
 		if ( listen && !isNoteOff ) {
-			fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch);
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength);
 			m_pAudioEngine->getSampler()->noteOn(pNote2);
 		}
 	}
@@ -1702,17 +1699,12 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 		return;
 	}
 
-	const float velocity = 0.8f;
-	const float fPan = 0.f;
-	const float fPitch = 0.0f;
-	const int nLength = -1;
-
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 	for (int i = 0; i < noteList.size(); i++ ) {
 
 		// create the new note
 		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position, velocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, position );
 		pPattern->insert_note( pNote );
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine

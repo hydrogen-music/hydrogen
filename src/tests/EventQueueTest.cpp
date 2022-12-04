@@ -65,6 +65,7 @@ public:
 	}
 	
 	void testPushPop() {
+	___INFOLOG( "" );
 		Event ev;
 
 		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
@@ -81,9 +82,11 @@ public:
 			ev = m_pQ->pop_event();
 			CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 		}
+	___INFOLOG( "passed" );
 	}
 
 	void testOverflow() {
+	___INFOLOG( "" );
 		Event ev;
 
 		// Overfill queue
@@ -97,9 +100,11 @@ public:
 		}
 		ev = m_pQ->pop_event();
 		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+	___INFOLOG( "passed" );
 	}
 
 	void testThreadedAccess() {
+	___INFOLOG( "" );
 		pthread_t threads[ nThreads ];
 		int counters[ nThreads ];
 		int threadIds[ nThreads ];
@@ -132,6 +137,7 @@ public:
 		}
 		Event ev = m_pQ->pop_event();
 		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+	___INFOLOG( "passed" );
 	}
 
 };

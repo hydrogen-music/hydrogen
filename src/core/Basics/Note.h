@@ -86,21 +86,24 @@ class Note : public H2Core::Object<Note>
 
 		/**
 		 * constructor
-		 * \param instrument the instrument played by this note
-		 * \param position the position of the note within the pattern
-		 * \param velocity it's velocity
-		 * \param pan pan
-		 * \param length it's length
-		 * \param pitch it's pitch
+		 *
+		 * \param pInstrument the instrument played by this note
+		 * \param nPosition the position of the note within the pattern
+		 * \param fVelocity it's velocity
+		 * \param fFan pan
+		 * \param nLength Length of the note in frames. If set to -1,
+		 * the length of the #H2Core::Sample used during playback will
+		 * be used instead.
+		 * \param fPitch it's pitch
 		 */
-		Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch );
+	Note( std::shared_ptr<Instrument> pInstrument, int nPosition = 0, float fVelocity = 0.8, float fPan = 0.0, int nLength = -1, float fPitch = 0.0 );
 
 		/**
 		 * copy constructor with an optional parameter
-		 * \param other 
-		 * \param instrument if set will be used as note instrument
+		 * \param pOther 
+		 * \param pInstrument if set will be used as note instrument
 		 */
-		Note( Note* other, std::shared_ptr<Instrument> instrument=nullptr );
+		Note( Note* pOther, std::shared_ptr<Instrument> pInstrument = nullptr );
 		/** destructor */
 		~Note();
 
@@ -261,10 +264,12 @@ class Note : public H2Core::Object<Note>
 		 * __octave * KEYS_PER_OCTAVE + __key
 		 * \endcode */
 		float get_notekey_pitch() const;
-	        /** returns
-		 * \code{.cpp}
-		 * __octave * 12 + __key + __pitch 
-		 * \endcode*/ 
+	/**
+	 *
+	 * @returns
+	 * \code{.cpp}
+	 * __octave * 12 + __key + __pitch + __instrument->get_pitch_offset()
+	 * \endcode*/ 
 		float get_total_pitch() const;
 
 		/** return a string representation of key-octave */
@@ -290,10 +295,6 @@ class Note : public H2Core::Object<Note>
 
 		/** get the ADSR of the note */
 		std::shared_ptr<ADSR> get_adsr() const;
-		/** call release on adsr */
-		//float release_adsr() const              { return __adsr->release(); }
-		/** call get value on adsr */
-		//float get_adsr_value(float v) const     { return __adsr->get_value( v ); }
 
 		/** return true if instrument, key and octave matches with internal
 		 * \param instrument the instrument to match with #__instrument
@@ -304,6 +305,7 @@ class Note : public H2Core::Object<Note>
 
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const Note *pNote ) const;
+		bool match( const std::shared_ptr<Note> pNote ) const;
 
 		/**
 		 * compute left and right output based on filters
@@ -331,6 +333,20 @@ class Note : public H2Core::Object<Note>
 	 * needs to be rerun.
 	 */
 	void computeNoteStart();
+
+	/**
+	 * Add random contributions to #__pitch, #__humanize_delay, and
+	 * #__velocity.
+	 */
+	void humanize();
+
+	/**
+	 * Add swing contribution to #__humanize_delay.
+	 *
+	 * As the value applied is deterministic, it will not be handled
+	 * in humanice() but separately.
+	 */
+	void swing();
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -340,7 +356,7 @@ class Note : public H2Core::Object<Note>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
 		static inline double pitchToFrequency( double fPitch ) {
@@ -433,7 +449,7 @@ class Note : public H2Core::Object<Note>
 	*/
 	long long m_nNoteStart;
 	/**
-	 * TransportInfo::m_fTickSize used to calculate #m_nNoteStart.
+	 * TransportPosition::m_fTickSize used to calculate #m_nNoteStart.
 	 *
 	 * If #m_nNoteStart was calculated in the presence of an active
 	 * #Timeline, it will be set to -1.
@@ -580,11 +596,6 @@ inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID 
 	return __layers_selected[ CompoID ];
 }
 
-inline void Note::set_humanize_delay( int value )
-{
-	__humanize_delay = value;
-}
-
 inline int Note::get_humanize_delay() const
 {
 	return __humanize_delay;
@@ -655,11 +666,6 @@ inline float Note::get_notekey_pitch() const
 	return __octave * KEYS_PER_OCTAVE + __key;
 }
 
-inline float Note::get_total_pitch() const
-{
-	return __octave * KEYS_PER_OCTAVE + __key + __pitch;
-}
-
 inline void Note::set_key_octave( Key key, Octave octave )
 {
 	if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
@@ -679,6 +685,10 @@ inline bool Note::match( std::shared_ptr<Instrument> instrument, Key key, Octave
 }
 
 inline bool Note::match( const Note *pNote ) const
+{
+	return match( pNote->__instrument, pNote->__key, pNote->__octave );
+}
+inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	return match( pNote->__instrument, pNote->__key, pNote->__octave );
 }

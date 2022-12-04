@@ -186,6 +186,7 @@ signals:
 	 * underlying options in the Preferences class.
 	 */
 	void changePreferences( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
 	void propagatePreferences();

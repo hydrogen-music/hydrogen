@@ -229,7 +229,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPref = Preferences::get_instance();
 
 	pHydrogen->m_LastMidiEvent = "NOTE";

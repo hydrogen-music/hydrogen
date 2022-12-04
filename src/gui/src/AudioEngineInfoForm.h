@@ -46,7 +46,7 @@ class AudioEngineInfoForm :  public QWidget, public Ui_AudioEngineInfoForm_UI, p
 
 		// EventListener implementation
 	virtual void stateChangedEvent( H2Core::AudioEngine::State state) override;
-	virtual void patternChangedEvent() override;
+	virtual void playingPatternsChangedEvent() override;
 	virtual void updateSongEvent(int) override;
 		//~ EventListener implementation
 

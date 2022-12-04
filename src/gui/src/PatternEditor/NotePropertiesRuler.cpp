@@ -1322,6 +1322,10 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	if ( m_pPattern != nullptr ) {
 		auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			DEBUGLOG( "No instrument selected" );
+			return;
+		}
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 

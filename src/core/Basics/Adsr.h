@@ -41,10 +41,10 @@ class ADSR : public Object<ADSR>
 
 		/**
 		 * constructor
-		 * \param attack tick duration
-		 * \param decay tick duration
+		 * \param attack phase duration in frames
+		 * \param decay phase duration in frames
 		 * \param sustain level
-		 * \param release tick duration
+		 * \param release phase duration in frames
 		 */
 		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 
@@ -54,57 +54,56 @@ class ADSR : public Object<ADSR>
 		/** destructor */
 		~ADSR();
 
-		/**
-		 * __attack setter
-		 * \param value the new value
-		 */
-		void set_attack( unsigned int value );
-		/** __attack accessor */
-		unsigned int get_attack();
-		/**
-		 * __decay setter
-		 * \param value the new value
-		 */
-		void set_decay( unsigned int value );
-		/** __decay accessor */
-		unsigned int get_decay();
-		/**
-		 * __sustain setter
-		 * \param value the new value
-		 */
-		void set_sustain( float value );
-		/** __sustain accessor */
-		float get_sustain();
-		/**
-		 * __release setter
-		 * \param value the new value
-		 */
-		void set_release( unsigned int value );
-		/** __release accessor */
-		unsigned int get_release();
+		void setAttack( unsigned int value );
+		unsigned int getAttack();
+		void setDecay( unsigned int value );
+		unsigned int getDecay();
+		void setSustain( float value );
+		float getSustain();
+		void setRelease( unsigned int value );
+		unsigned int getRelease();
 
 		/**
-		 * sets state to ATTACK
+		 * Sets #m_state to #State::Attack
 		 */
 		void attack();
 		/**
-		 * sets state to RELEASE,
-		 * returns 0 if the state is IDLE,
-		 * __value if the state is RELEASE,
-		 * set state to RELEASE, save __release_value and return it.
+		 * Sets #m_state to #State::Release and return the current
+		 * #m_fReleaseValue.
+		 *
+		 * State setting is only applied if the ADSR is not in #State::Idle.
 		 * */
 		float release();
 
 		/**
 		 * Compute and apply successive ADSR values to stereo buffers.
+		 *
+		 * In case the ADSR still hold its default values, the
+		 * provided buffers aren't altered.
+		 *
+		 * Conceptionally it multiplies the first #m_nAttack frames of
+		 * a sample with a rising attack exponential, the successive
+		 * #m_nDecay frames with a falling decay exponential, and
+		 * remaining frames with #m_fSustain. Which of these steps are
+		 * covered in a run of applyADSR() depends on #m_state.
+		 *
+		 * If no note length was specified by the user in the GUI,
+		 * #m_fSustain will be applied will the end of the
+		 * corresponding sample and ADSR application won't enter
+		 * release phase which would apply a falling exponential for
+		 * #m_nRelease frames and zero all following frames.
+		 *
 		 * \param pLeft left-channel audio buffer
 		 * \param pRight right-channel audio buffer
-		 * \param nFrames number of frames of audio
-		 * \param nReleaseFrame frame number of the release point
-		 * \param fStep the increment to be added to __ticks
+		 * \param nFinalBufferPos Up to which frame @a pLeft and @a
+		 * pRight will be processed.
+		 * \param nReleaseFrame Frame number indicating the end of the
+		 * note or sample at which ADSR processing will enter the
+		 * release phase.
+		 * \param fStep the increment to be added to m_fFramesInState.
 		 */
 
-		bool applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep );
+		bool applyADSR( float *pLeft, float *pRight, int nFinalBufferPos, int nReleaseFrame, float fStep );
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -114,24 +113,37 @@ class ADSR : public Object<ADSR>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-		unsigned int __attack;		///< Attack tick count
-		unsigned int __decay;		///< Decay tick count
-		float __sustain;			///< Sustain level
-		unsigned int __release;		///< Release tick count
 		/** possible states */
-		enum ADSRState {
-			ATTACK=0,
-			DECAY,
-			SUSTAIN,
-			RELEASE,
-			IDLE
+		enum class State {
+			Attack = 0,
+			Decay,
+			Sustain,
+			Release,
+			Idle
 		};
-		ADSRState __state;      ///< current state
-		float __ticks;          ///< current tick count
-		float __value;          ///< current value
-		float __release_value;  ///< value when the release state was entered
+	static QString StateToQString( State state );
+	
+		unsigned int m_nAttack;		///< Attack phase duration in frames
+		unsigned int m_nDecay;		///< Decay phase duration in frames
+		float m_fSustain;			///< Sustain level
+		unsigned int m_nRelease;		///< Release phase duration in frames
+		State m_state;      ///< current state
+	/**
+	 * Tracks the number of frames passed in the current #m_state.
+	 *
+	 * It is used to determine whether ADSR processing should proceed
+	 * into the next state and required if multiple process cycles of
+	 * the #H2Core::Sampler render the same state.
+	 *
+	 * Note that it is given in float instead of integer (the basic
+	 * unit for frames in the #H2Core::AudioEngine) in order to
+	 * account for processing while resampling the original audio.
+	 */
+		float m_fFramesInState;
+		float m_fValue;          ///< current value
+		float m_fReleaseValue;  ///< value when the release state was entered
 
 		double m_fQ;				///< exponential decay state
 
@@ -140,44 +152,44 @@ class ADSR : public Object<ADSR>
 
 // DEFINITIONS
 
-inline void ADSR::set_attack( unsigned int value )
+inline void ADSR::setAttack( unsigned int value )
 {
-	__attack = value;
+	m_nAttack = value;
 }
 
-inline unsigned int ADSR::get_attack()
+inline unsigned int ADSR::getAttack()
 {
-	return __attack;
+	return m_nAttack;
 }
 
-inline void ADSR::set_decay( unsigned int value )
+inline void ADSR::setDecay( unsigned int value )
 {
-	__decay = value;
+	m_nDecay = value;
 }
 
-inline unsigned int ADSR::get_decay()
+inline unsigned int ADSR::getDecay()
 {
-	return __decay;
+	return m_nDecay;
 }
 
-inline void ADSR::set_sustain( float value )
+inline void ADSR::setSustain( float value )
 {
-	__sustain = value;
+	m_fSustain = value;
 }
 
-inline float ADSR::get_sustain()
+inline float ADSR::getSustain()
 {
-	return __sustain;
+	return m_fSustain;
 }
 
-inline void ADSR::set_release( unsigned int value )
+inline void ADSR::setRelease( unsigned int value )
 {
-	__release = value;
+	m_nRelease = value;
 }
 
-inline unsigned int ADSR::get_release()
+inline unsigned int ADSR::getRelease()
 {
-	return __release;
+	return m_nRelease;
 }
 
 };

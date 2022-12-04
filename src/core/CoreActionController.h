@@ -376,6 +376,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
+
+	/**
+	 * In case a different preferences file was loaded with Hydrogen
+	 * already fully set up this function refreshes all corresponding
+	 * values and informs the GUI.
+	 */
+	void updatePreferences();
 private:
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );
