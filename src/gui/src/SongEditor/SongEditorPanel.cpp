@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -175,7 +175,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaySelectedSingleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										 Button::Type::Push, "single_layer.svg",
 										 "", false, QSize( 17, 13 ),
-										 tr( "single pattern mode"),
+										 tr( "selected pattern mode"),
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {

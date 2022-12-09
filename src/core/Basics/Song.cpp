@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1370,9 +1370,8 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 			// end of the song).
 			nColumnStartTick += MAX_NOTES;
 			continue;
-		} else {
-
-			pColumn->longest_pattern_length();
+		}
+		else {
 			for ( const auto& ppattern : *pColumn ) {
 				if ( ppattern != nullptr ) {
 					FOREACH_NOTE_CST_IT_BEGIN_END( ppattern->get_notes(), it ) {

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1282,6 +1282,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->stopPlayback();
 		pAudioEngine->locate( 0 );
 
+		// Tell GUI to move the playhead position to the beginning of
+		// the song again since it only updates it in case transport
+		// is rolling.
+		EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
+
 		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
 
@@ -1507,7 +1512,8 @@ void AudioEngine::updateSongSize() {
 
 	auto updatePatternSize = []( std::shared_ptr<TransportPosition> pPos ) {
 		if ( pPos->getPlayingPatterns()->size() > 0 ) {
-			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length() );
+			// No virtual pattern resolution in here
+			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length( false ) );
 		} else {
 			pPos->setPatternSize( MAX_NOTES );
 		}
@@ -1779,8 +1785,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		for ( const auto& ppattern : *( *( pSong->getPatternGroupVector() ) )[ nColumn ] ) {
 			if ( ppattern != nullptr ) {
-				pPlayingPatterns->add( ppattern );
-				ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+				pPlayingPatterns->add( ppattern, true );
 			}
 		}
 
@@ -1789,7 +1794,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		// We omit the event when passing from one empty column to the
 		// next.
 		if ( pPos == m_pTransportPosition &&
-			 ( nPrevPatternNumber != 0 && pPlayingPatterns->size() != 0 ) ) {
+			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
 			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 		}
 	}
@@ -1802,8 +1807,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 			 ! ( pPlayingPatterns->size() == 1 &&
 				 pPlayingPatterns->get( 0 ) == pSelectedPattern ) ) {
 			pPlayingPatterns->clear();
-			pPlayingPatterns->add( pSelectedPattern );
-			pSelectedPattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+			pPlayingPatterns->add( pSelectedPattern, true );
 
 			// GUI does not care about the internals of the audio
 			// engine and just moves along the transport position.
@@ -1824,9 +1828,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				if ( ( pPlayingPatterns->del( ppattern ) ) == nullptr ) {
 					// pPattern was not present yet. It will
-					// be added.
-					pPlayingPatterns->add( ppattern );
-					ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+					// be added
+					pPlayingPatterns->add( ppattern, true );
 				} else {
 					// pPattern was already present. It will
 					// be deleted.
@@ -1844,7 +1847,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	}
 
 	if ( pPlayingPatterns->size() > 0 ) {
-		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length() );
+		// No virtual pattern resolution in here
+		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length( false ) );
 	} else {
 		pPos->setPatternSize( MAX_NOTES );
 	}
