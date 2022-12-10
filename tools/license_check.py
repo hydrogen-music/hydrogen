@@ -96,6 +96,6 @@ try:
     sys.exit( 0 )
     
 except Exception as error:
-    print( error.message )
+    print( error )
     sys.exit( 1 )
 
