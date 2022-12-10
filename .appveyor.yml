@@ -144,7 +144,7 @@ for:
     build_script: |-
       git submodule init && git submodule update
 
-      python3 tools/license_check.py
+      python3 tools/license_check.py || exit 1
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
