@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -24,8 +24,10 @@
 
 #include <cassert>
 
+#include <core/Helpers/Random.h>
 #include <core/Helpers/Xml.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -40,14 +42,14 @@ namespace H2Core
 
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch )
-	: __instrument( instrument ),
+Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
+	: __instrument( pInstrument ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
-	  __position( position ),
-	  __velocity( velocity ),
-	  __length( length ),
-	  __pitch( pitch ),
+	  __position( nPosition ),
+	  __velocity( fVelocity ),
+	  __length( nLength ),
+	  __pitch( fPitch ),
 	  __key( C ),
 	  __octave( P8 ),
 	  __adsr( nullptr ),
@@ -67,20 +69,20 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan("") )
 {
-	if ( __instrument != nullptr ) {
-		__adsr = __instrument->copy_adsr();
-		__instrument_id = __instrument->get_id();
+	if ( pInstrument != nullptr ) {
+		__adsr = pInstrument->copy_adsr();
+		__instrument_id = pInstrument->get_id();
 
-		for ( const auto& pCompo : *__instrument->get_components() ) {
-			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
-			sampleInfo->SelectedLayer = -1;
-			sampleInfo->SamplePosition = 0;
+		for ( const auto& pCompo : *pInstrument->get_components() ) {
+			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
+			pSampleInfo->SelectedLayer = -1;
+			pSampleInfo->SamplePosition = 0;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
+			__layers_selected[ pCompo->get_drumkit_componentID() ] = pSampleInfo;
 		}
 	}
 
-	setPan( pan ); // this checks the boundaries
+	setPan( fPan ); // this checks the boundaries
 }
 
 Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
@@ -150,6 +152,17 @@ void Note::setPan( float val ) {
 	m_fPan = check_boundary( val, -1.0f, 1.0f );
 }
 
+void Note::set_humanize_delay( int nValue )
+{
+	// We do not perform bound checks with
+	// AudioEngine::nMaxTimeHumanize in here as different contribution
+	// could push the value first beyond and then within the bounds
+	// again. The clamping will be done in computeNoteStart() instead.
+	if ( nValue != __humanize_delay ) {
+		__humanize_delay = nValue;
+	}
+}
+
 void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 {
 	if ( pInstrumentList == nullptr ) {
@@ -216,32 +229,30 @@ bool Note::isPartiallyRendered() const {
 }
 
 void Note::computeNoteStart() {
-	// Notes not inserted via the audio engine but directly, using
-	// e.g. the GUI, will be insert at position 0 and don't require a
-	// specific start position.
-	if ( __position == 0 ) {
-		return;
-	}
-	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	double fTickMismatch;
 	m_nNoteStart =
-		pAudioEngine->computeFrameFromTick( __position, &fTickMismatch );
-		
-	// If there is a negative Humanize delay, take into account so
-	// we don't miss the time slice.  ignore positive delay, or we
-	// might end the queue processing prematurely based on NoteQueue
-	// placement.  the sampler handles positive delay.
-	if ( __humanize_delay < 0 ) {
-		m_nNoteStart += __humanize_delay;
+		TransportPosition::computeFrameFromTick( __position, &fTickMismatch );
+
+	m_nNoteStart += std::clamp( __humanize_delay,
+								-1 * AudioEngine::nMaxTimeHumanize,
+								AudioEngine::nMaxTimeHumanize );
+
+	// No note can start before the beginning of the song.
+	if ( m_nNoteStart < 0 ) {
+		m_nNoteStart = 0;
 	}
 	
 	if ( pHydrogen->isTimelineEnabled() ) {
 		m_fUsedTickSize = -1;
 	} else {
-		m_fUsedTickSize = pAudioEngine->getTickSize();
+		// This is used for triggering recalculation in case the tempo
+		// changes where manually applied by the user. They are not
+		// dependent on a particular position of the transport (as
+		// Timeline is not activated).
+		m_fUsedTickSize = pAudioEngine->getTransportPosition()->getTickSize();
 	}
 }
 
@@ -404,6 +415,71 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 	}
 
 	return pSample;
+}
+
+float Note::get_total_pitch() const
+{
+	float fNotePitch = __octave * KEYS_PER_OCTAVE + __key + __pitch;
+
+	if ( __instrument != nullptr ) {
+		fNotePitch += __instrument->get_pitch_offset();
+	}
+	return fNotePitch;
+}
+
+void Note::humanize() {
+	// Due to the nature of the Gaussian distribution, the factors
+	// will also scale the standard deviations of the generated random
+	// variables.
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		const float fRandomVelocityFactor = pSong->getHumanizeVelocityValue();
+		if ( fRandomVelocityFactor != 0 ) {
+			set_velocity( __velocity + fRandomVelocityFactor *
+						  Random::getGaussian( AudioEngine::fHumanizeVelocitySD ) );
+		}
+
+		const float fRandomTimeFactor = pSong->getHumanizeTimeValue();
+		if ( fRandomTimeFactor != 0 ) {
+			set_humanize_delay( __humanize_delay + fRandomTimeFactor *
+								AudioEngine::nMaxTimeHumanize *
+								Random::getGaussian( AudioEngine::fHumanizeTimingSD ) );
+		}
+	}
+
+	if ( __instrument != nullptr ) {
+		const float fRandomPitchFactor = __instrument->get_random_pitch_factor();
+		if ( fRandomPitchFactor != 0 ) {
+			__pitch += Random::getGaussian( AudioEngine::fHumanizePitchSD ) *
+				fRandomPitchFactor;
+			}
+	}
+}
+
+void Note::swing() {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
+		/* TODO: incorporate the factor MAX_NOTES / 32. either in
+		 * Song::m_fSwingFactor or make it a member variable.
+		 *
+		 * comment by oddtime: 32 depends on the fact that the swing
+		 * is applied to the upbeat 16th-notes.  (not to upbeat
+		 * 8th-notes as in jazz swing!).  however 32 could be changed
+		 * but must be >16, otherwise the max delay is too long and
+		 * the swing note could be played after the next downbeat!
+		 */
+		// If the Timeline is activated, the tick size may change at
+		// any point. Therefore, the length in frames of a 16-th note
+		// offset has to be calculated for a particular transport
+		// position and is not generally applicable.
+		double fTickMismatch;
+		set_humanize_delay( __humanize_delay +
+							( TransportPosition::computeFrameFromTick(
+								__position + MAX_NOTES / 32., &fTickMismatch ) -
+							  TransportPosition::computeFrameFromTick(
+								  __position, &fTickMismatch ) ) *
+							pSong->getSwingFactor() );
+	}
 }
 
 void Note::save_to( XMLNode* node )

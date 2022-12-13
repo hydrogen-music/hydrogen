@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -21,6 +21,7 @@
  */
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -927,15 +928,15 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		pHydrogen->setMode( Song::Mode::Song );
 	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
-
-		// Add the selected pattern to playing ones.
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-			pAudioEngine->lock( RIGHT_HERE );
-			pAudioEngine->updatePlayingPatterns( 0, 0 );
-			pAudioEngine->unlock();
-		}
 	}
+
 	locateToColumn( 0 );
+
+	// Ensure the playing patterns are properly updated regardless of
+	// the state of transport before switching song modes.
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->updatePlayingPatterns();
+	pAudioEngine->unlock();
 	
 	return true;
 }
@@ -964,7 +965,8 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 		// If the transport was already looped at least once, disabling
 		// loop mode will result in immediate stop. Instead, we want to
 		// stop transport at the end of the song.
-		if ( pSong->lengthInTicks() < pAudioEngine->getTick() ) {
+		if ( pSong->lengthInTicks() <
+			 pAudioEngine->getTransportPosition()->getTick() ) {
 			pSong->setLoopMode( Song::LoopMode::Finishing );
 		} else {
 			pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -1359,16 +1361,14 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		return false;
 	}
 	
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	
 	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
-		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			INFOLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-					 .arg( nTotalTick ) );
+			ERRORLOG( QString( "Provided column [%1] violates the allowed range [0;%2). No relocation done." )
+					  .arg( nPatternGroup )
+					  .arg( pHydrogen->getSong()->getPatternGroupVector()->size() ) );
 			return false;
 		} else {
 			// In case of Pattern mode this is not a problem and we
@@ -1465,6 +1465,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
 
+
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
@@ -1506,6 +1507,19 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			}
 		}
 	}
+
+	PatternList* pColumn;
+	// Ensure there are no empty columns in the pattern group vector.
+	for ( int ii = pPatternGroupVector->size() - 1; ii >= 0; --ii ) {
+		pColumn = pPatternGroupVector->at( ii );
+		if ( pColumn->size() == 0 ) {
+			pPatternGroupVector->erase( pPatternGroupVector->begin() + ii );
+			delete pColumn;
+		}
+		else {
+			break;
+		}
+	}
 	
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( false );
@@ -1527,12 +1541,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// Ensure the pattern is not among the list of currently played
 	// patterns cached in the audio engine if transport is in pattern
 	// mode.
-	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
-		if ( pPlayingPatterns->get( ii ) == pPattern ) {
-			pAudioEngine->removePlayingPattern( ii );
-			break;
-		}
-	}
+	pAudioEngine->removePlayingPattern( pPattern );
 
 	// Delete the pattern from the list of available patterns.
 	pPatternList->del( pPattern );
@@ -1639,6 +1648,21 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	}
 
 	return true;
+}
+
+void CoreActionController::updatePreferences() {
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pAudioEngine->getMetronomeInstrument()->set_volume(
+		pPref->m_fMetronomeVolume );
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
 }
 
 void CoreActionController::insertRecentFile( const QString sFilename ){

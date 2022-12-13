@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,6 +29,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>
@@ -989,6 +990,13 @@ void SongEditor::updatePosition( float fTick ) {
 	}
 }
 
+void SongEditor::patternModifiedEvent() {
+	// This can change the length of one pattern in a column
+	// containing multiple ones.
+	invalidateBackground();
+	update();
+}
+
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
 	if ( m_bBackgroundInvalid ) {
@@ -1471,7 +1479,7 @@ SongEditorPatternList::~SongEditorPatternList()
 }
 
 
-void SongEditorPatternList::patternChangedEvent() {
+void SongEditorPatternList::playingPatternsChangedEvent() {
 	invalidateBackground();
 	update();
 }
@@ -1492,7 +1500,7 @@ void SongEditorPatternList::selectedPatternChangedEvent() {
 	update();
 }
 
-void SongEditorPatternList::stackedPatternsChangedEvent() {
+void SongEditorPatternList::nextPatternsChangedEvent() {
 	invalidateBackground();
 	update();
 }
@@ -2643,7 +2651,7 @@ void SongEditorPositionRuler::patternModifiedEvent() {
 	update();
 }
 
-void SongEditorPositionRuler::patternChangedEvent() {
+void SongEditorPositionRuler::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	update();
@@ -3125,20 +3133,22 @@ void SongEditorPositionRuler::updatePosition()
 	auto pPref = Preferences::get_instance();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
-	float fTick = m_pAudioEngine->getColumn();
-
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = std::max( m_pAudioEngine->getColumn(), 0 );
+	m_nColumn = std::max( m_pAudioEngine->getTransportPosition()->getColumn(), 0 );
+
+	float fTick = static_cast<float>(m_nColumn);
 
 	if ( pPatternGroupVector->size() > m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
-		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
+		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
+			(float)nLength;
 	} else {
 		// Empty column. Use the default length.
-		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
+		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
+			(float)MAX_NOTES;
 	}
 
 	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -70,6 +70,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	/* Test whether AutomationPaths are constructed correctly */
 	void testConstruction()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.2f, 0.8f, 0.6f);
 
 		CPPUNIT_ASSERT(p.empty());
@@ -88,6 +89,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.6,
 				static_cast<double>(p.get_default()),
 				delta);
+	___INFOLOG( "passed" );
 	}
 	
 
@@ -95,6 +97,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	   default value */
 	void testEmptyPath()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(0.0f, 1.0f, 0.0f);
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
@@ -128,12 +131,14 @@ class AutomationPathTest : public CppUnit::TestCase {
 				1.0,
 				static_cast<double>(p3.get_value(7.0f)),
 				delta);
+	___INFOLOG( "passed" );
 	}
 
 
 	/* Test getting value of an anchor point */
 	void testOnePoint()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
 		p.add_point(1.0f, 0.5f);
@@ -142,6 +147,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.5,
 				static_cast<double>(p.get_value(1.0f)),
 				delta);
+	___INFOLOG( "passed" );
 	}
 
 
@@ -149,6 +155,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	   i.e if returned value is defined by first point */
 	void testValueBeforeFirstPoint()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
 		p.add_point(1.0f, 0.5f);
@@ -160,6 +167,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.5,
 				static_cast<double>(p.get_value(0.0f)),
 				delta);
+	___INFOLOG( "passed" );
 	}
 
 
@@ -167,6 +175,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	   is defined by that value */
 	void testValueAfterLastPoint()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
 		p.add_point(1.0f, 0.4f);
@@ -176,12 +185,14 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.6,
 				static_cast<double>(p.get_value(3.0f)),
 				delta);
+	___INFOLOG( "passed" );
 	}
 
 
 	/* Test getting value between two anchor points */
 	void testMidpointValue()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
 		p.add_point(1.0f, 0.2f);
@@ -191,21 +202,25 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.3,
 				static_cast<double>(p.get_value(1.5f)),
 				delta);
+	___INFOLOG( "passed" );
 	}
 
 	
 	/* Test operator== and operator!= */
 	void testEmptyPathsEqual()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(-2.0f, 2.0f, 1.0f);
 		AutomationPath p2(-2.0f, 2.0f, 1.0f);
 
 		CPPUNIT_ASSERT(p1 == p2);
 		CPPUNIT_ASSERT(!(p1 != p2));
+	___INFOLOG( "passed" );
 	}
 
 	void testPathsEqual()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(-4.0f, 3.0f, 1.5f);
 		p1.add_point(1.0f, 0.0f);
 		p1.add_point(2.0f, 2.0f);
@@ -216,19 +231,23 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT(p1 == p2);
 		CPPUNIT_ASSERT(!(p1 != p2));
+	___INFOLOG( "passed" );
 	}
 
 	void testEmptyPathsNotEqual()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(-2.0f, 2.0f, 1.0f);
 		AutomationPath p2(-1.0f, 1.0f, 0.0f);
 
 		CPPUNIT_ASSERT(p1 != p2);
 		CPPUNIT_ASSERT(!(p1 == p2));
+	___INFOLOG( "passed" );
 	}
 
 	void testPathsNotEqual()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(-2.0f, 2.0f, 1.0f);
 		p1.add_point(1.0f, 0.0f);
 
@@ -237,10 +256,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT(p1 != p2);
 		CPPUNIT_ASSERT(!(p1 == p2));
+	___INFOLOG( "passed" );
 	}
 
 	void testIterator()
 	{
+	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 4.0f, 1.0f);
 		p.add_point(0.0f, 0.0f);
@@ -261,11 +282,13 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		i++;
 		CPPUNIT_ASSERT(i == p.end());
+	___INFOLOG( "passed" );
 	}
 
 
 	void testFindPointInEmptyPath()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 
 		auto iter = p.find(0.0f);
@@ -273,10 +296,12 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		auto iter2 = p.find(22.0f);
 		CPPUNIT_ASSERT(iter2 == p.end());
+	___INFOLOG( "passed" );
 	}
 
 	void testFindPoint()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 		p.add_point(4.0f, 0.5f);
 
@@ -288,11 +313,13 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		auto iter3 = p.find(3.6f);
 		CPPUNIT_ASSERT(iter3 == p.begin());
+	___INFOLOG( "passed" );
 	}
 
 
 	void testFindNotFound()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 		p.add_point(2.0f, 0.2f);
 
@@ -301,11 +328,13 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		auto iter2 = p.find(2.6f);
 		CPPUNIT_ASSERT(iter2 == p.end());
+	___INFOLOG( "passed" );
 	}
 
 
 	void testMovePoint()
 	{
+	___INFOLOG( "" );
 		typedef std::pair<const float,float> pair;
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 		p.add_point(5.0f, 0.5f);
@@ -318,11 +347,13 @@ class AutomationPathTest : public CppUnit::TestCase {
 				pair(6.0f, 1.0f),
 				*out
 		);
+	___INFOLOG( "passed" );
 	}
 
 
 	void testRemovePoint()
 	{
+	___INFOLOG( "" );
 		AutomationPath p(1.0f, 1.0f, 1.0f);
 		p.add_point(0.0f, 0.0f);
 
@@ -335,5 +366,6 @@ class AutomationPathTest : public CppUnit::TestCase {
 				static_cast<double>(p.get_value(0.0f)),
 				delta);
 
+	___INFOLOG( "passed" );
 	}
 };

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -186,6 +186,7 @@ signals:
 	 * underlying options in the Preferences class.
 	 */
 	void changePreferences( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
 	void propagatePreferences();

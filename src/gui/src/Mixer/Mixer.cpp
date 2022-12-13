@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -329,8 +329,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 	
-	const float fPitch = pSelectedInstrument->get_pitch_offset();
-	Note *pNote = new Note( pSelectedInstrument, 0, 1.0, 0.f, -1, fPitch );
+	Note *pNote = new Note( pSelectedInstrument, 0, 1.0 );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 }
 
@@ -350,8 +349,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 
-	const float fPitch = 0.0f;
-	Note *pNote = new Note( pSelectedInstrument, 0, 1.0, 0.f,-1, fPitch );
+	Note *pNote = new Note( pSelectedInstrument, 0, 0.0 );
+	pNote->set_note_off( true );
 	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
 }
 

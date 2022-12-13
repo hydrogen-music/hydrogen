@@ -1,3 +1,24 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
 #include "MemoryLeakageTest.h"
 
 #include <memory>
@@ -27,6 +48,7 @@
 
 
 void MemoryLeakageTest::testConstructors() {
+	___INFOLOG( "" );
 	auto mapSnapshot = H2Core::Base::getObjectMap();
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 
@@ -241,9 +263,11 @@ void MemoryLeakageTest::testConstructors() {
 	pDrumkitProper = nullptr;
 	pSongProper = nullptr;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
+	___INFOLOG( "passed" );
 }
 
 void MemoryLeakageTest::testLoading() {
+	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode node;
 
@@ -445,6 +469,7 @@ void MemoryLeakageTest::testLoading() {
 		pCoreActionController->setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
+	___INFOLOG( "passed" );
 }
 
 void MemoryLeakageTest::tearDown() {

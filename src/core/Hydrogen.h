@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -38,8 +38,6 @@
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
 #include <memory>
-
-inline int randomValue( int max );
 
 namespace H2Core
 {
@@ -162,19 +160,6 @@ public:
 	 *  - >= 0 : the total number of ticks passed.
 	 */
 	long			getTickForColumn( int nColumn ) const;
-	/**
-	 * Get the length (in ticks) of the @a nPattern th pattern.
-	 *
-	 * \param nPattern Position + 1 of the desired PatternList.
-	 * \return 
-	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
-	 * than the length of the vector of the PatternList in
-	 * Song::m_pPatternGroupSequence or no Pattern could be found
-	 * in the PatternList at @a nPattern - 1.
-	 * - __else__ : length of first Pattern found at @a nPattern.
-	 */
-	long			getPatternLength( int nPattern ) const;
 
 	Song::Mode getMode() const;
 	/** Wrapper around Song::setMode() which also triggers
@@ -476,7 +461,7 @@ void			previewSample( Sample *pSample );
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	/**

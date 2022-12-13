@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -80,6 +81,8 @@ public:
 
 	void setSize( QSize size );
 
+	bool getIsHovered() const;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void setValue( double fValue );
@@ -129,5 +132,8 @@ inline void LCDSpinBox::setKind( Kind kind ) {
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;
+}
+inline bool LCDSpinBox::getIsHovered() const {
+	return m_bEntered;
 }
 #endif

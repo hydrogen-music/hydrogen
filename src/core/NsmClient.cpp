@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -171,7 +171,8 @@ int NsmClient::OpenCallback( const char *name,
 void NsmClient::copyPreferences( const char* name ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
-	const auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 	
 	QFile preferences( H2Core::Filesystem::usr_config_path() );
 	if ( !preferences.exists() ) {
@@ -205,11 +206,7 @@ void NsmClient::copyPreferences( const char* name ) {
 		}
 	}
 
-	// If the GUI is active, we have to update it to reflect the
-	// changes in the preferences.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
-	}
+	pCoreActionController->updatePreferences();
 	
 	NsmClient::printMessage( "Preferences loaded!" );
 }

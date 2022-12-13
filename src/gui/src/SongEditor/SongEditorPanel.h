@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -98,7 +98,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		virtual void jackTimebaseStateChangedEvent() override;
 
-		virtual void patternChangedEvent() override;
+		virtual void playingPatternsChangedEvent() override;
 
 	virtual void patternEditorLockedEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;

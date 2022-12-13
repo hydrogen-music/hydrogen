@@ -3,6 +3,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,21 +27,18 @@ AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
 "theGreatWhiteShark"
+,"phil"
+,"Charbel Jacquin"
 ,"Colin McEwan"
 ,"Sebastian Moors"
 ,"oddtime"
-,"Varik Valefor"
-,"Olivier Humbert"
-,"Clara Hobbs"
-,"Przemysław Sitek"
-,"Charbel Jacquin"
-,"freddii"
-,"daryl"
-,"Jérémy Zurcher"
-,"Guocheng"
-,"David Runge"
-,"Darío Hereñú"
-,"Aaron"
+,"Julien de Kozak"
+,"luz paz"
+,"Paul Vint"
+,"Daniele Medri"
+,"Raphael Graf"
+,"Houston4444"
+,"Dan Church"
 };
 	m_pContributorList = std::make_shared<std::vector<QString>>(v);
 }

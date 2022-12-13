@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -41,6 +41,7 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 
 	void testRead()
 	{
+	___INFOLOG( "" );
 		QDomDocument doc;
 		QString xml = "<path><point x='2' y='4'/><point x='4' y='-2'/></path>";
 		CPPUNIT_ASSERT(doc.setContent(xml, false));
@@ -56,11 +57,13 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL(expect, path);
 		CPPUNIT_ASSERT_EQUAL(4.0f, path.get_value(2.0f));
 		CPPUNIT_ASSERT_EQUAL(-2.0f, path.get_value(4.0f));
+	___INFOLOG( "passed" );
 	}
 
 
 	void testWrite()
 	{
+	___INFOLOG( "" );
 		AutomationPath path(-1, 1, 0);
 		path.add_point(0.0f, 0.0f);
 		path.add_point(1.0f, 1.0f);
@@ -82,11 +85,13 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 				expect.toString(0).toStdString(),
 				doc.toString(0).toStdString()
 		);
+	___INFOLOG( "passed" );
 	}
 
 
 	void testRoundtripReadWrite()
 	{
+	___INFOLOG( "" );
 		AutomationPath p1(0, 10, 0);
 		p1.add_point(0.0f, 4.0f);
 		p1.add_point(1.0f, 8.0f);
@@ -104,6 +109,7 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 		serializer.read_automation_path(node, p2);
 
 		CPPUNIT_ASSERT_EQUAL(p1, p2);
+	___INFOLOG( "passed" );
 	}
 };
 

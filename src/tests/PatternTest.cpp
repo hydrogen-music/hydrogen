@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,6 +29,7 @@ using namespace H2Core;
 
 void PatternTest::testPurgeInstrument()
 {
+	___INFOLOG( "" );
 	auto pInstrument = std::make_shared<Instrument>();
 	Note *pNote = new Note( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
 
@@ -40,4 +41,5 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( pPattern->find_note( 1, -1, pInstrument) == nullptr );
 
 	delete pPattern;
+	___INFOLOG( "passed" );
 }

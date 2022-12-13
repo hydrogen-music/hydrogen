@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <cassert>
+#include <core/Smf/SMF.h>
 
 class TestHelper {
 	static TestHelper*	m_pInstance;
@@ -51,9 +52,32 @@ class TestHelper {
 	 * \return true on success
 	 */
 	static void varyAudioDriverConfig( int nIndex );
+
+	/**
+	 * Export Hydrogon song @a sSongFile to audio file @a sFileName;
+	 *
+	 * \param sSongFile Path to Hydrogen file
+	 * \param sFileName Output file name
+	 */
+	static void exportSong( const QString& sSongFile, const QString& sFileName );
+	/**
+	 * Export the current song within Hydrogen to audio file @a sFileName;
+	 *
+	 * \param sFileName Output file name
+	 */
+	static void exportSong( const QString& sFileName );
+
+	/**
+	 * Export Hydrogon song @a sSongFile to MIDI file @a sFileName
+	 * using writer @a writer.
+	 * \param sSongFile Path to Hydrogen file
+	 * \param sFileName Output file name
+	 * \param writer Writer.
+	 **/
+	static void exportMIDI( const QString& sSongFile, const QString& sFileName, H2Core::SMFWriter& writer );
 	
-		static void			createInstance();
-		static TestHelper*	get_instance();
+	static void			createInstance();
+	static TestHelper*	get_instance();
 };
 
 inline TestHelper*	TestHelper::get_instance() 

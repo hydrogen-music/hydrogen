@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,7 +33,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportInfo.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -486,7 +486,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	return true;
 }
 
-void JackAudioDriver::updateTransportInfo()
+void JackAudioDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
@@ -568,12 +568,13 @@ void JackAudioDriver::updateTransportInfo()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( pAudioEngine->getFrames() - pAudioEngine->getFrameOffset() !=
+	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
+		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
 		 m_JackTransportPos.frame ) {
 		
 		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
-		// 		 .arg( pAudioEngine->getFrames() )
-		// 		 .arg( pAudioEngine->getFrameOffset() )
+		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
+		// 		 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
 		// 		 .arg( m_JackTransportPos.frame ) );
 		
 		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
@@ -589,7 +590,7 @@ void JackAudioDriver::updateTransportInfo()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( pAudioEngine->getBpm() !=
+		if ( pAudioEngine->getTransportPosition()->getBpm() !=
 			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
 			 !compareAdjacentBBT() ) {
 			relocateUsingBBT();
@@ -1086,7 +1087,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
 	if ( pSong == nullptr ) {
 		// DEBUGLOG( "No song set." );
 		return;
@@ -1119,28 +1120,28 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	pJackPosition->beats_per_bar = fNumerator;
 	// Time signature "denominator"
 	pJackPosition->beat_type = fDenumerator;
-	pJackPosition->beats_per_minute = static_cast<double>(pAudioEngine->getBpm());
+	pJackPosition->beats_per_minute = static_cast<double>(pPos->getBpm());
 
-	if ( pAudioEngine->getFrames() < 1 ) {
+	if ( pPos->getFrame() < 1 ) {
 		pJackPosition->bar = 1;
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
 		pJackPosition->bar_start_tick = 0;
 	} else {
 		// +1 since the counting bars starts at 1.
-		pJackPosition->bar = pAudioEngine->getColumn() + 1;
+		pJackPosition->bar = pPos->getColumn() + 1;
 
 		// Number of ticks that have elapsed between frame 0 and the
 		// first beat of the next measure.
-		pJackPosition->bar_start_tick = pAudioEngine->getPatternStartTick();
+		pJackPosition->bar_start_tick = pPos->getPatternStartTick();
 
-		pJackPosition->beat = pAudioEngine->getPatternTickPosition() /
+		pJackPosition->beat = pPos->getPatternTickPosition() /
 			pJackPosition->ticks_per_beat;
 		// +1 since the counting beats starts at 1.
 		pJackPosition->beat++;
 
 		// Counting ticks starts at 0.
-		pJackPosition->tick = pAudioEngine->getPatternTickPosition();
+		pJackPosition->tick = pPos->getPatternTickPosition();
 				
 	}
 
@@ -1180,7 +1181,8 @@ void JackAudioDriver::printState() const {
 	std::cout << "\033[35m[Hydrogen] [JackAudioDriver state]"
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)
-			  << ", current pattern column: " << pHydrogen->getAudioEngine()->getColumn()
+			  << ", current pattern column: "
+			  << pHydrogen->getAudioEngine()->getTransportPosition()->getColumn()
 			  << "\33[0m" << std::endl;
 }
 

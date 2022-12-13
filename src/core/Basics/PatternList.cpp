@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -94,26 +94,26 @@ void PatternList::save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pIn
 	}
 }
 	
-void PatternList::add( Pattern* pPattern )
+void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 {
 	assertAudioEngineLocked();
 	if ( pPattern == nullptr ) {
 		ERRORLOG( "Provided pattern is invalid" );
 		return;
 	}
-	
+
 	// do nothing if already in __patterns
 	if ( index( pPattern ) != -1 ) {
 		INFOLOG( "Provided pattern is already contained" );
 		return;
 	}
-	else {
+	else if ( ! bAddVirtuals ) {
 		// Check whether the pattern is contained as a virtual
 		// pattern.
 		for ( const auto& ppPattern : __patterns ) {
 			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
 			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
-				INFOLOG( "Provided pattern is already contained as virtual pattern" );
+				// Provided pattern is already contained as virtual pattern
 				return;
 			}
 		}
@@ -132,6 +132,10 @@ void PatternList::add( Pattern* pPattern )
 	}
 	
 	__patterns.push_back( pPattern );
+
+	if ( bAddVirtuals ) {
+		pPattern->addFlattenedVirtualPatterns( this );
+	}
 }
 
 void PatternList::insert( int nIdx, Pattern* pPattern )
@@ -321,10 +325,20 @@ QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* igno
 	return unusedPatternNameCandidate;
 }
 
-int PatternList::longest_pattern_length() const {
+int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
-	for ( int i = 0; i < __patterns.size(); i++ ) {
-		nMax = std::max( nMax, __patterns[i]->get_length() );
+	for ( const auto ppPattern : __patterns ) {
+		if ( ppPattern->get_length() > nMax ) {
+			nMax = ppPattern->get_length();
+		}
+
+		if ( bIncludeVirtuals ) {
+			for ( const auto ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
+				if ( ppVirtualPattern->get_length() > nMax ) {
+					nMax = ppVirtualPattern->get_length();
+				}
+			}
+		}
 	}
 	return nMax;
 }

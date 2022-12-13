@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -341,7 +341,7 @@ void Pattern::flattened_virtual_patterns_compute()
 void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
 	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
 		 it!=__flattened_virtual_patterns.end(); ++it ) {
-		pPatternList->add( *it );
+		pPatternList->add( *it, true );
 	}
 }
 

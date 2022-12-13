@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -37,16 +37,19 @@ class NoteTest : public CppUnit::TestCase {
 
 	void testProbability()
 	{
+	___INFOLOG( "" );
 		Note n(nullptr, 0, 1.0f, 0.f, 1, 1.0f);
 		n.set_probability(0.75f);
 		CPPUNIT_ASSERT_EQUAL(0.75f, n.get_probability());
 
 		Note other(&n, nullptr);
 		CPPUNIT_ASSERT_EQUAL(0.75f, other.get_probability());
+	___INFOLOG( "passed" );
 	}
 
 	void testSerializeProbability()
 	{
+	___INFOLOG( "" );
 		QDomDocument doc;
 		QDomElement root = doc.createElement("note");
 		XMLNode node(root);
@@ -71,6 +74,7 @@ class NoteTest : public CppUnit::TestCase {
 
 		delete in;
 		delete out;
+	___INFOLOG( "passed" );
 	}
 };
 

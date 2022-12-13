@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -89,6 +89,7 @@ void OscServerTest::tearDown(){
 }
 
 void OscServerTest::testSessionManagement(){
+	___INFOLOG( "" );
 
 	// Create an object with which we will send messages to the custom
 	// OSC server.
@@ -115,6 +116,7 @@ void OscServerTest::testSessionManagement(){
 					 m_sValidPath.toLocal8Bit().data());
 	WAIT(m_sValidPath == m_pHydrogen->getSong()->getFilename());
 	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getFilename() );
+	___INFOLOG( "passed" );
 }
 
 #endif

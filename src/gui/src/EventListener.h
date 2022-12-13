@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,7 +29,8 @@ class EventListener
 {
 	public:
 	virtual void stateChangedEvent( H2Core::AudioEngine::State state) { UNUSED( state ); }
-		virtual void patternChangedEvent() {}
+	virtual void playingPatternsChangedEvent() {}
+	virtual void nextPatternsChangedEvent(){}
 		virtual void patternModifiedEvent() {}
 		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
@@ -65,7 +66,6 @@ class EventListener
 	virtual void playbackTrackChangedEvent(){}
 	virtual void soundLibraryChangedEvent(){}
 	virtual void nextShotEvent(){}
-	virtual void stackedPatternsChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

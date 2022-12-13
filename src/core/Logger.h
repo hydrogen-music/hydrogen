@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,10 +27,10 @@
 #include <list>
 #include <pthread.h>
 #include <memory>
+#include <QtCore/QString>
 
 #include <core/config.h>
 
-class QString;
 class QStringList;
 
 namespace H2Core {
@@ -59,14 +59,14 @@ class Logger {
 		 * create the logger instance if not exists, set the log level and return the instance
 		 * \param msk the logging level bitmask
 		 */
-		static Logger* bootstrap( unsigned msk );
+	static Logger* bootstrap( unsigned msk, const QString& sLogFilePath = QString(), bool bUseStdout = true );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */
-		static Logger* create_instance();
+	static Logger* create_instance( const QString& sLogFilePath = QString(), bool bUseStdout = true );
 		/**
 		 * Returns a pointer to the current H2Core::Logger
 		 * singleton stored in #__instance.
@@ -161,11 +161,13 @@ class Logger {
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
 		pthread_cond_t __messages_available;
+	QString m_sLogFilePath;
+	bool m_bUseStdout;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
-		Logger();
+	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true );
 
 #ifndef HAVE_SSCANF
 		/**

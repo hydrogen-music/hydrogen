@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -53,6 +53,7 @@ void CoreActionControllerTest::tearDown() {
 }
 
 void CoreActionControllerTest::testSessionManagement() {
+	___INFOLOG( "" );
 	
 	// ---------------------------------------------------------------
 	// Test CoreActionController::newSong()
@@ -126,9 +127,11 @@ void CoreActionControllerTest::testSessionManagement() {
 	// ---------------------------------------------------------------
 	
 	CPPUNIT_ASSERT( fileProperName.remove() );
+	___INFOLOG( "passed" );
 }
 
 void CoreActionControllerTest::testIsSongPathValid() {
+	___INFOLOG( "" );
 	
 	// Is not absolute.
 	CPPUNIT_ASSERT( !Filesystem::isSongPathValid( "test.h2song" ) );
@@ -139,4 +142,5 @@ void CoreActionControllerTest::testIsSongPathValid() {
 	QString sValidPath = QString( "%1/test.h2song" ).arg( QDir::tempPath() );
 	CPPUNIT_ASSERT( Filesystem::isSongPathValid( sValidPath ) );
 	
+	___INFOLOG( "passed" );
 }

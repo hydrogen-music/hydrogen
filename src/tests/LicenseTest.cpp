@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,6 +26,7 @@
 using namespace H2Core;
 
 void LicenseTest::testParsing() {
+	___INFOLOG( "" );
 
 	License licenseCC0_0("cc0");
 	CPPUNIT_ASSERT( licenseCC0_0.getType() == License::CC_0 );
@@ -96,9 +97,11 @@ void LicenseTest::testParsing() {
 	QString sLicense2_serialized( license2_parsed.getLicenseString() );
 	CPPUNIT_ASSERT( sLicense2_raw == sLicense2_serialized );
 	CPPUNIT_ASSERT( license2_parsed.getType() == License::CC_BY );
+	___INFOLOG( "passed" );
 }
 
 void LicenseTest::testOperators() {
+	___INFOLOG( "" );
 	License licenseCC0_0("cc0");
 	License licenseCC0_1("CC-0");
 	License licenseCC_BY("CC BY");
@@ -114,4 +117,5 @@ void LicenseTest::testOperators() {
 	License licenseBSD_2("bsd");
 	CPPUNIT_ASSERT( licenseBSD_0 == licenseBSD_1 );
 	CPPUNIT_ASSERT( licenseBSD_1 != licenseBSD_2 );
+	___INFOLOG( "passed" );
 }

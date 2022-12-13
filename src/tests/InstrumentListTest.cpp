@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -40,17 +40,20 @@ class InstrumentListTest : public CppUnit::TestCase {
 	public:
 	void test_one_instrument()
 	{
+	___INFOLOG( "" );
 		InstrumentList list;
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
 		pKick->set_midi_out_note(42);
 		list.add(pKick);
 
 		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
+	___INFOLOG( "passed" );
 	}
 
 
 	void test1()
 	{
+	___INFOLOG( "" );
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
@@ -67,11 +70,13 @@ class InstrumentListTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT_EQUAL( 3, list.size() );
 		CPPUNIT_ASSERT( list.has_all_midi_notes_same() );
+	___INFOLOG( "passed" );
 	}
 
 
 	void test2()
 	{
+	___INFOLOG( "" );
 		InstrumentList list;
 
 		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
@@ -92,11 +97,13 @@ class InstrumentListTest : public CppUnit::TestCase {
 
 		CPPUNIT_ASSERT_EQUAL( 4, list.size() );
 		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
+	___INFOLOG( "passed" );
 	}
 
 
 	void test3()
 	{
+	___INFOLOG( "" );
 		InstrumentList list;
 
 		list.add( std::make_shared<Instrument>() );
@@ -108,11 +115,13 @@ class InstrumentListTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL( 36, list.get(0)->get_midi_out_note() );
 		CPPUNIT_ASSERT_EQUAL( 37, list.get(1)->get_midi_out_note() );
 		CPPUNIT_ASSERT_EQUAL( 38, list.get(2)->get_midi_out_note() );
+	___INFOLOG( "passed" );
 	}
 	
 	//test is_valid_index
 	void test4()
 	{
+	___INFOLOG( "" );
 		InstrumentList list;
 
 		list.add( std::make_shared<Instrument>() );
@@ -120,6 +129,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT( list.is_valid_index(0) );
 		CPPUNIT_ASSERT( !list.is_valid_index(1) );
 		CPPUNIT_ASSERT( !list.is_valid_index(-42) );
+	___INFOLOG( "passed" );
 	}
 };
 

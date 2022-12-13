@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,7 +27,6 @@
 #include <chrono>
 #include <thread>
 #include <QtCore/QDir>
-#include <QtCore/QString>
 
 #ifdef WIN32
 #include <windows.h>
@@ -54,14 +53,11 @@ void* loggerThread_func( void* param ) {
 #endif
 	FILE* log_file = nullptr;
 	if ( logger->__use_file ) {
-
-		QString sLogFilename = Filesystem::log_file_path();
-				
-		log_file = fopen( sLogFilename.toLocal8Bit(), "w" );
-		if ( log_file ) {
-			fprintf( log_file, "Start logger" );
-		} else {
-			fprintf( stderr, "Error: can't open log file for writing...\n" );
+		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
+		if ( ! log_file ) {
+			fprintf( stderr,
+					 QString( "Error: can't open log file [%1] for writing...\n" )
+					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
 		}
 	}
 	Logger::queue_t* queue = &logger->__msg_queue;
@@ -74,7 +70,9 @@ void* loggerThread_func( void* param ) {
 		if( !queue->empty() ) {
 			for( it = last = queue->begin() ; it != queue->end() ; ++it ) {
 				last = it;
-				fprintf( stdout, "%s", it->toLocal8Bit().data() );
+				if ( logger->m_bUseStdout ) {
+					fprintf( stdout, "%s", it->toLocal8Bit().data() );
+				}
 				if( log_file ) {
 					fprintf( log_file, "%s", it->toLocal8Bit().data() );
 					fflush( log_file );
@@ -100,18 +98,35 @@ void* loggerThread_func( void* param ) {
 	return nullptr;
 }
 
-Logger* Logger::bootstrap( unsigned msk ) {
+Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath, bool bUseStdout ) {
 	Logger::set_bit_mask( msk );
-	return Logger::create_instance();
+	return Logger::create_instance( sLogFilePath, bUseStdout );
 }
 
-Logger* Logger::create_instance() {
-	if ( __instance == nullptr ) __instance = new Logger;
+Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout ) {
+	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout );
 	return __instance;
 }
 
-Logger::Logger() : __use_file( true ), __running( true ) {
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
+	__use_file( true ),
+	__running( true ),
+	m_sLogFilePath( sLogFilePath ),
+	m_bUseStdout( bUseStdout ) {
 	__instance = this;
+
+	// Sanity checks.
+	QFileInfo fiLogFile( m_sLogFilePath );
+	QFileInfo fiParentFolder( fiLogFile.absolutePath() );
+	if ( ( fiLogFile.exists() && ! fiLogFile.isWritable() ) ||
+		 ( ! fiLogFile.exists() && ! fiParentFolder.isWritable() ) ) {
+		m_sLogFilePath = "";
+	}
+	
+	if ( m_sLogFilePath.isEmpty() ) {
+		m_sLogFilePath = Filesystem::log_file_path();
+	}
+	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );

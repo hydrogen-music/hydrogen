@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -295,11 +295,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	
 private:
 
-	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, bool bSilent = false );
+	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
 	void writeTo( XMLNode* pNode, bool bSilent = false );
 
 	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
@@ -317,7 +317,7 @@ private:
 		/**
 		 * Current speed in beats per minutes.
 		 *
-		 * See TransportInfo::m_fBpm for how the handling of the
+		 * See TransportPosition::m_fBpm for how the handling of the
 		 * different tempo instances work.
 		 */
 		float m_fBpm;
@@ -350,7 +350,19 @@ private:
 		 */
 		LoopMode		m_loopMode;
 		PatternMode		m_patternMode;
+		/**
+		 * Factor to scale the random contribution when humanizing
+		 * timing between 0 and #AudioEngine::fHumanizeTimingSD.
+		 *
+		 * Supported range [0,1].
+		 */
 		float			m_fHumanizeTimeValue;
+		/**
+		 * Factor to scale the random contribution when humanizing
+		 * velocity between 0 and #AudioEngine::fHumanizeVelocitySD.
+		 *
+		 * Supported range [0,1].
+		 */
 		float			m_fHumanizeVelocityValue;
 		float			m_fSwingFactor;
 		bool			m_bIsModified;

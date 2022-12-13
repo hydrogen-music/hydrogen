@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -173,7 +173,7 @@ public:
 	Sampler();
 	~Sampler();
 
-	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
+	void process( uint32_t nFrames );
 
 	/**
 	 * @return True, if the #Sampler is still processing notes.
@@ -264,7 +264,12 @@ private:
 
 	bool processPlaybackTrack(int nBufferSize);
 
-	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
+    /**
+	 * Render a note
+	 *
+	 * @return false - the note is not ended, true - the note is ended
+	 */
+	bool renderNote( Note* pNote, unsigned nBufferSize );
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
@@ -279,8 +284,7 @@ private:
 		float cost_L,
 		float cost_R,
 		float cost_track_L,
-		float cost_track_R,
-		std::shared_ptr<Song> pSong
+		float cost_track_R
 	);
 
 	bool renderNoteResample(
@@ -295,8 +299,7 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		float fLayerPitch,
-		std::shared_ptr<Song> pSong
+		float fLayerPitch
 	);
 };
 

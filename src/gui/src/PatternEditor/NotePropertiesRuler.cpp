@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1322,6 +1322,10 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	if ( m_pPattern != nullptr ) {
 		auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		if ( pSelectedInstrument == nullptr ) {
+			DEBUGLOG( "No instrument selected" );
+			return;
+		}
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
@@ -1401,11 +1405,15 @@ void NotePropertiesRuler::updateEditor( bool )
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
 			m_pPattern->get_length();
 		
-		if ( pHydrogen->getPatternMode() ==
-			 Song::PatternMode::Stacked ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
+			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
+			// Virtual patterns are already expanded in the playing
+			// patterns and must not be considered when determining
+			// the longest one.
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length() + 1,
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
 						  static_cast<float>(m_nActiveWidth) );
 		} else {
 			m_nEditorWidth = m_nActiveWidth;
@@ -1457,6 +1465,10 @@ void NotePropertiesRuler::selectedPatternChangedEvent()
 
 void NotePropertiesRuler::selectedInstrumentChangedEvent()
 {
+	updateEditor();
+}
+
+void NotePropertiesRuler::songModeActivationEvent() {
 	updateEditor();
 }
 

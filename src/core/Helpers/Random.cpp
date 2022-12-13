@@ -1,7 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,10 +19,20 @@
  *
  */
 
-#include "NetworkTest.h"
-#include <QSslSocket>
+#include <core/Helpers/Random.h>
 
+namespace H2Core {
 
-void NetworkTest::testSslSupport(){
-	CPPUNIT_ASSERT( QSslSocket::supportsSsl() );
+float Random::getGaussian( float fStandardDeviation ) {
+	// gaussian distribution -- dimss
+	float x1, x2, w;
+	do {
+		x1 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
+		x2 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
+		w = x1 * x1 + x2 * x2;
+	} while ( w >= 1.0 );
+
+	w = sqrtf( ( -2.0 * logf( w ) ) / w );
+	return x1 * w * fStandardDeviation + 0.0; // tunable
 }
+};

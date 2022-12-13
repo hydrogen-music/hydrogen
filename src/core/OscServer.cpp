@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -552,12 +552,16 @@ void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	float fNewBpm = argv[0]->f;
 	fNewBpm = std::clamp( fNewBpm, static_cast<float>(MIN_BPM),
 						  static_cast<float>(MAX_BPM) );
 
-	pHydrogen->getAudioEngine()->setNextBpm( fNewBpm );
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->setNextBpm( fNewBpm );
+	pAudioEngine->unlock();
+		
 	pHydrogen->getSong()->setBpm( fNewBpm );
 
 	pHydrogen->setIsModified( true );

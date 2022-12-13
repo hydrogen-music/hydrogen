@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -36,6 +36,7 @@ public:
 	}
 	void testLanguageSelection()
 	{
+	___INFOLOG( "" );
 		// Find translations. i18n_dir() contains only the source *.ts
 		// files. Find the *.qm files for the translations relative to
 		// the build directory the tests are run from.
@@ -99,7 +100,8 @@ public:
 			QLocale l( sTr );
 			CPPUNIT_ASSERT( l.language() == QLocale::French );
 		}
-
+		
+	___INFOLOG( "passed" );
 	}
 };
 

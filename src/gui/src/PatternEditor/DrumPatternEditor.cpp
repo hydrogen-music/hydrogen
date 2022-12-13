@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -90,12 +90,18 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
 			m_pPattern->get_length();
 		
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
+			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
+			// Virtual patterns are already expanded in the playing
+			// patterns and must not be considered when determining
+			// the longest one.
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pAudioEngine->getPlayingPatterns()->longest_pattern_length() + 1,
+						  pAudioEngine->getPlayingPatterns()->longest_pattern_length( false ) + 1,
 						  static_cast<float>(m_nActiveWidth) );
-		} else {
+		}
+		else {
 			m_nEditorWidth = m_nActiveWidth;
 		}
 	}
@@ -284,7 +290,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-	if ( nRow >= nInstruments ) {
+	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
 	}
 	
@@ -473,10 +479,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			nLength = 1;
 			fProbability = 1.0;
 		}
-
-		float fPitch = 0.f;
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -494,8 +498,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		}
 		// hear note
 		if ( listen && !isNoteOff ) {
-			fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch);
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength);
 			m_pAudioEngine->getSampler()->noteOn(pNote2);
 		}
 	}
@@ -1403,6 +1406,10 @@ void DrumPatternEditor::drumkitLoadedEvent() {
 	updateEditor();
 }
 
+void DrumPatternEditor::songModeActivationEvent() {
+	updateEditor();
+}
+
 ///NotePropertiesRuler undo redo action
 void DrumPatternEditor::undoRedoAction( int column,
 										PatternEditor::Mode mode,
@@ -1702,17 +1709,12 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 		return;
 	}
 
-	const float velocity = 0.8f;
-	const float fPan = 0.f;
-	const float fPitch = 0.0f;
-	const int nLength = -1;
-
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 	for (int i = 0; i < noteList.size(); i++ ) {
 
 		// create the new note
 		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position, velocity, fPan, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, position );
 		pPattern->insert_note( pNote );
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine

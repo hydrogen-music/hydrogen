@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -70,7 +70,7 @@ void H2Core::LilyPond::extractData( const Song &song ) {
 
 	// Get the main information about the music
 	const std::vector<PatternList *> *group = song.getPatternGroupVector();
-	if ( !group ) {
+	if ( !group || group->size() == 0 ) {
 		m_Measures.clear();
 		return;
 	}

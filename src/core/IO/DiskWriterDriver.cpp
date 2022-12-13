@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -200,13 +200,12 @@ void* diskWriterDriver_thread( void* param )
 				nPatternLengthInFrames - nFrameNumber < pDriver->m_nBufferSize ){
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
-
 			};
 
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
-			while( ret != 0 ) {
+			while( ret == 2 ) {
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}
 
@@ -279,9 +278,16 @@ void* diskWriterDriver_thread( void* param )
 		}
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
-		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
+		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
+										 ( float )nColumns * 100.0 );
+		if ( nPercent < 100 ) {
+			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
+		}
 	}
+
+	// Explicitly mark export as finished.
+	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+	
 	delete[] pData;
 	pData = nullptr;
 

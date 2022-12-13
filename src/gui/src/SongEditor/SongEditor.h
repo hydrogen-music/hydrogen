@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -213,6 +213,8 @@ class SongEditor : public QWidget
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
 		bool m_bEntered;
+
+	virtual void patternModifiedEvent() override;
 	
 	/** Cached position of the playhead.*/
 	float m_fTick;
@@ -278,11 +280,11 @@ class SongEditorPatternList :  public QWidget
 		int getGridHeight() { return m_nGridHeight; }
 	
 	virtual void patternModifiedEvent() override;
-	virtual void patternChangedEvent() override;
+	virtual void playingPatternsChangedEvent() override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 	virtual void selectedPatternChangedEvent() override;
-	virtual void stackedPatternsChangedEvent() override;
+	virtual void nextPatternsChangedEvent() override;
 
 	public slots:
 		void patternPopup_edit();
@@ -366,7 +368,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		uint getGridWidth();
 		void setGridWidth (uint width);
 	virtual void tempoChangedEvent( int ) override;
-	virtual void patternChangedEvent() override;
+	virtual void playingPatternsChangedEvent() override;
 	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
 	virtual void songSizeChangedEvent() override;

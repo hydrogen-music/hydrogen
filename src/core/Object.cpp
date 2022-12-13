@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -202,7 +202,7 @@ QString Base::base_clock( const QString& sMsg )
 		// Clock is invoked for the first time.
 		sResult = "Start clocking";
 	} else {
-		sResult =  QString( "elapsed [%1]s" )
+		sResult =  QString( "elapsed [%1]ms" )
 			.arg( ( now.tv_sec - __last_clock.tv_sec ) * 1000.0 +
 				  ( now.tv_usec - __last_clock.tv_usec ) / 1000.0 );
 	}

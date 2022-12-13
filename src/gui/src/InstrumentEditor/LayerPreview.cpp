@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -218,7 +218,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	bool bSelectedLayerChanged = false;
 	
 	// select the last valid layer
-	if ( m_pInstrument ) {
+	if ( m_pInstrument != nullptr ) {
 		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 			auto p_compo = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( p_compo ) {
@@ -281,18 +281,15 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 
 void LayerPreview::mousePressEvent(QMouseEvent *ev)
 {
-	const unsigned nPosition = 0;
-	const float fPan = 0.f;
-	const int nLength = -1;
-	const float fPitch = 0.0f;
+	const int nPosition = 0;
 
-	if ( !m_pInstrument ) {
+	if ( m_pInstrument == nullptr ) {
 		return;
 	}
 	if ( ev->y() < 20 ) {
-		float fVelocity = (float)ev->x() / (float)width();
+		const float fVelocity = (float)ev->x() / (float)width();
 
-		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
 		pNote->set_specific_compo_id( m_nSelectedComponent );
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		
@@ -320,10 +317,11 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 		
 		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-		if(pCompo) {
+		if( pCompo != nullptr ) {
 			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan, nLength, fPitch );
+			if ( pLayer != nullptr ) {
+				const float fVelocity = pLayer->get_end_velocity() - 0.01;
+				Note *note = new Note( m_pInstrument, nPosition, fVelocity );
 				note->set_specific_compo_id( m_nSelectedComponent );
 				Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(note);
 				

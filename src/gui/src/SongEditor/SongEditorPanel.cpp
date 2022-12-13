@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -41,6 +41,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
@@ -174,7 +175,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaySelectedSingleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										 Button::Type::Push, "single_layer.svg",
 										 "", false, QSize( 17, 13 ),
-										 tr( "single pattern mode"),
+										 tr( "selected pattern mode"),
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
@@ -449,7 +450,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
 
-		int nPlayHeadPosition = pAudioEngine->getColumn() *
+		int nPlayHeadPosition = pAudioEngine->getTransportPosition()->getColumn() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
@@ -978,12 +979,22 @@ void SongEditorPanel::zoomOutBtnClicked()
 
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 {
-	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Fader* pFader = dynamic_cast<Fader*>( pRef );
-	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
-	if( pSong ){
-		pSong->setPlaybackTrackVolume( pFader->getValue() );
+	Fader* pFader = dynamic_cast<Fader*>( pRef );
+	const float fNewValue = std::round( pFader->getValue() * 100 ) / 100;
+
+	if ( pSong->getPlaybackTrackVolume() != fNewValue ) {
+		pSong->setPlaybackTrackVolume( fNewValue );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Playback volume set to" )
+			.append( QString( " [%1]" ).arg( fNewValue ) ),
+			"SongEditorPanel:PlaybackTrackVolume" );
 	}
 }
 
@@ -1138,7 +1149,7 @@ void SongEditorPanel::gridCellToggledEvent() {
 	updateAll();
 }
 
-void SongEditorPanel::patternChangedEvent() {
+void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.

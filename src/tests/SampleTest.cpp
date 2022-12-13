@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,6 +33,7 @@ class SampleTest : public CppUnit::TestCase {
 
 	void testLoadInvalidSample()
 	{
+	___INFOLOG( "" );
 		std::shared_ptr<H2Core::Sample> pSample;
 		
 		//TC1: Sample does not exist
@@ -44,5 +45,6 @@ class SampleTest : public CppUnit::TestCase {
 		//TC2: Sample does exist, but is not a valid sample
 		pSample = H2Core::Sample::load( H2TEST_FILE("drumkits/baseKit/drumkit.xml") );
 		CPPUNIT_ASSERT(pSample == nullptr);
+	___INFOLOG( "passed" );
 	}
 };

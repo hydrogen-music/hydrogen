@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -26,7 +26,6 @@
 #include <memory>
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
@@ -96,8 +95,6 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 
 void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
 {
-	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-
 	this->set_id( component->get_id() );
 	this->set_name( component->get_name() );
 	this->set_muted( component->is_muted() );

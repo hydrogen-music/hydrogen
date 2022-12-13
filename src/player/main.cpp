@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -30,6 +30,7 @@
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/MidiMap.h>
 
@@ -119,7 +120,8 @@ int main(int argc, char** argv){
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
+				cout << "Frame = " << hydrogen->getAudioEngine()->
+					getTransportPosition()->getFrame() << endl;
 				break;
 
 			case 'd':

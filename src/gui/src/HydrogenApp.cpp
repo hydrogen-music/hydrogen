@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -123,7 +123,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	addEventListener( this );
 
 	connect( this, &HydrogenApp::preferencesChanged,
-			 m_pMainForm, &MainForm::onPreferencesChanged );	
+			 m_pMainForm, &MainForm::onPreferencesChanged );
+	connect( this, &HydrogenApp::preferencesChanged,
+			 this, &HydrogenApp::onPreferencesChanged );
 }
 
 void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
@@ -716,8 +718,12 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
 				break;
 
-			case EVENT_PATTERN_CHANGED:
-				pListener->patternChangedEvent();
+			case EVENT_PLAYING_PATTERNS_CHANGED:
+				pListener->playingPatternsChangedEvent();
+				break;
+				
+			case EVENT_NEXT_PATTERNS_CHANGED:
+				pListener->nextPatternsChangedEvent();
 				break;
 
 			case EVENT_PATTERN_MODIFIED:
@@ -858,10 +864,6 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_NEXT_SHOT:
 				pListener->nextShotEvent();
-				break;
-				
-			case EVENT_STACKED_PATTERNS_CHANGED:
-				pListener->stackedPatternsChangedEvent();
 				break;
 
 			default:
@@ -1202,4 +1204,12 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	}
 	
 	return true;
+}
+
+void HydrogenApp::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->
+			getMetronomeInstrument()->set_volume(
+				Preferences::get_instance()->m_fMetronomeVolume );
+	}
 }

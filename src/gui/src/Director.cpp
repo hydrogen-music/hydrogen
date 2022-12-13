@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -60,6 +60,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Filesystem.h>
 
@@ -79,8 +80,8 @@ Director::Director ( QWidget* pParent )
 	
 	setWindowTitle ( tr ( "Director" ) );
 
-	m_fBpm = pAudioEngine->getBpm();
-	m_nBar = pAudioEngine->getColumn() + 1;
+	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
 	}
@@ -146,8 +147,8 @@ void Director::timelineUpdateEvent( int nValue ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	m_fBpm = pAudioEngine->getBpm();
-	m_nBar = pAudioEngine->getColumn() + 1;
+	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
+	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
@@ -174,7 +175,7 @@ void Director::metronomeEvent( int nValue )
 	//bpm
 	m_fBpm = pHydrogen->getSong()->getBpm();
 	//bar
-	m_nBar = pHydrogen->getAudioEngine()->getColumn() + 1;
+	m_nBar = pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;

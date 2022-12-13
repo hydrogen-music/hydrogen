@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -22,6 +22,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 
@@ -119,7 +120,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		pAudioEngine->unlock();
 	}
 
-	int nTick = pAudioEngine->getPatternTickPosition();
+	int nTick = pAudioEngine->getTransportPosition()->getPatternTickPosition();
 
 	if ( nTick != m_nTick || bForce ) {
 		int nDiff = m_fGridWidth * (nTick - m_nTick);
@@ -514,11 +515,14 @@ void PatternEditorRuler::updateActiveRange() {
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	if ( pPlayingPatterns->size() != 0 ) {
-		nTicksInPattern = pPlayingPatterns->longest_pattern_length();
+		// Virtual patterns are already expanded in the playing
+		// patterns and must not be considered when determining the
+		// longest one.
+		nTicksInPattern = pPlayingPatterns->longest_pattern_length( false );
 	}
-	
-	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
 
+	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
+	
 	if ( m_nWidthActive != nWidthActive ) {
 		m_nWidthActive = nWidthActive;
 
@@ -565,7 +569,7 @@ void PatternEditorRuler::zoomOut()
 
 void PatternEditorRuler::songModeActivationEvent()
 {
-	updatePosition();
+	updateEditor( true );
 }
 
 void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
