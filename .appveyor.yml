@@ -44,7 +44,6 @@ k# -----------
 environment:
   GENERATOR: "MinGW Makefiles"
   ARTIFACT_BRANCH: master-artifacts
-  TARGET_VERSION: '1.2.0'
   matrix:
 
     - job_name: 'Ubuntu 20.04'
@@ -69,6 +68,7 @@ environment:
 
       CHOCO_ARCH:
       PROGRAM_FILES: "Program Files"
+      TARGET_VERSION: '1.2.0'
 
     - job_name: 'Windows32'
       job_group: 'Windows'
@@ -84,6 +84,7 @@ environment:
 
       CHOCO_ARCH:  --x86
       PROGRAM_FILES: "Program Files (x86)"
+      TARGET_VERSION: '1.2.0'
 
 build:
   verbosity: detailed
