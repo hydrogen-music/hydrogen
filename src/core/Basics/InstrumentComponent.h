@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -81,7 +81,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
 		/** Component ID of the drumkit. It is set by

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by the Hydrogen Team
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -844,12 +845,22 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::vector<Pattern *> patterns;
 
-	// Add stacked-mode patterns
-	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+	// Add stacked-mode patterns as well as virtual ones.
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+		 ( m_pPattern != nullptr &&
+		   pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
+		   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
+			 
 		m_pAudioEngine->lock( RIGHT_HERE );
 		std::set< Pattern *> patternSet;
-		for ( const PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
-												 m_pAudioEngine->getNextPatterns() } ) {
+
+		std::vector<const PatternList*> patternLists;
+		patternLists.push_back( m_pAudioEngine->getPlayingPatterns() );
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			patternLists.push_back( m_pAudioEngine->getNextPatterns() );
+		}
+		
+		for ( const PatternList *pPatternList : patternLists ) {
 			for ( int i = 0; i <  pPatternList->size(); i++) {
 				Pattern *pPattern = pPatternList->get( i );
 				if ( pPattern != m_pPattern ) {

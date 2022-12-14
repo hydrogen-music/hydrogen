@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -49,6 +49,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void songModeActivationEvent() override;
 		//~ Implements EventListener interface
 
 		void addOrDeleteNoteAction( int nColumn,

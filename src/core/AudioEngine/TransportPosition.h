@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -359,6 +359,10 @@ private:
 	 *
 	 * If transport is in #H2Core::Song::Mode::Song, it corresponds
 	 * to the patterns present in column #m_nColumn.
+	 *
+	 * Due to performance reasons no virtual patterns will be checked
+	 * and expanded in this list. Instead, all contained patterns have
+	 * to be added explicitly.
 	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */

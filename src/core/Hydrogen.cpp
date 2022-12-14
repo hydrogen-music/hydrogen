@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1340,7 +1340,14 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 		__song->setPatternMode( mode );
 		setIsModified( true );
 		
-		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
+			 mode == Song::PatternMode::Selected ) {
+			// Only update the playing patterns in selected pattern
+			// mode or if transport is not rolling. In stacked pattern
+			// mode with transport rolling
+			// AudioEngine::updatePatternTransportPosition() will call
+			// the functions and activate the next patterns once the
+			// current ones are looped.
 			m_pAudioEngine->updatePlayingPatterns();
 			m_pAudioEngine->clearNextPatterns();
 		}
@@ -1628,37 +1635,6 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 	}
 
 	return totalTick;
-}
-
-long Hydrogen::getPatternLength( int nPattern ) const
-{
-	std::shared_ptr<Song> pSong = getSong();
-	
-	if ( pSong == nullptr ){
-		return -1;
-	}
-
-	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
-
-	int nPatternGroups = pColumns->size();
-	if ( nPattern >= nPatternGroups ) {
-		if ( pSong->isLoopEnabled() ) {
-			nPattern = nPattern % nPatternGroups;
-		} else {
-			return MAX_NOTES;
-		}
-	}
-
-	if ( nPattern < 1 ){
-		return MAX_NOTES;
-	}
-
-	PatternList* pPatternList = pColumns->at( nPattern - 1 );
-	if ( pPatternList->size() > 0 ) {
-		return pPatternList->longest_pattern_length();
-	} else {
-		return MAX_NOTES;
-	}
 }
 
 void Hydrogen::updateSongSize() {

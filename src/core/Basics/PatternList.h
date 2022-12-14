@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -80,8 +80,10 @@ class XMLNode;
 		/**
 		 * add a pattern to the list
 		 * \param pattern a pointer to the pattern to add
+		 * \param bAddVirtuals Whether virtual patterns contained in
+		 * @a pattern should be added too.
 		 */
-		void add( Pattern* pattern );
+	void add( Pattern* pattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
 		 * \param idx the index to insert the pattern at
@@ -169,9 +171,14 @@ class XMLNode;
 
 		/**
 		 * Get the length of the longest pattern in the list
+		 *
+		 * \param bIncludeVirtuals In case there are virtual patterns
+		 * present this argument specifies whether to include their
+		 * contained patterns as well.
+		 *
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
-		int longest_pattern_length() const;
+		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -180,7 +187,7 @@ class XMLNode;
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Iteration */
 		std::vector<Pattern*>::iterator begin();

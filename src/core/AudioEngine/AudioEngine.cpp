@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -605,7 +605,16 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
 									  fNewBpm, pSong->getResolution() );
 	// Nothing changed - avoid recomputing
+#ifndef WIN32
 	if ( fNewTickSize == fOldTickSize ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( fNewTickSize - fOldTickSize ) < 1e-2 ) {
+#endif
 		return;
 	}
 
@@ -1273,6 +1282,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->stopPlayback();
 		pAudioEngine->locate( 0 );
 
+		// Tell GUI to move the playhead position to the beginning of
+		// the song again since it only updates it in case transport
+		// is rolling.
+		EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
+
 		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
 
@@ -1498,7 +1512,8 @@ void AudioEngine::updateSongSize() {
 
 	auto updatePatternSize = []( std::shared_ptr<TransportPosition> pPos ) {
 		if ( pPos->getPlayingPatterns()->size() > 0 ) {
-			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length() );
+			// No virtual pattern resolution in here
+			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length( false ) );
 		} else {
 			pPos->setPatternSize( MAX_NOTES );
 		}
@@ -1666,7 +1681,16 @@ void AudioEngine::updateSongSize() {
 	// Ensure the tick offset is calculated as well (we do not expect
 	// the tempo to change hence the following call is most likely not
 	// executed during updateTransportPosition()).
+#ifndef WIN32
 	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#endif
 		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
 	
@@ -1761,8 +1785,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		for ( const auto& ppattern : *( *( pSong->getPatternGroupVector() ) )[ nColumn ] ) {
 			if ( ppattern != nullptr ) {
-				pPlayingPatterns->add( ppattern );
-				ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+				pPlayingPatterns->add( ppattern, true );
 			}
 		}
 
@@ -1771,7 +1794,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		// We omit the event when passing from one empty column to the
 		// next.
 		if ( pPos == m_pTransportPosition &&
-			 ( nPrevPatternNumber != 0 && pPlayingPatterns->size() != 0 ) ) {
+			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
 			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 		}
 	}
@@ -1784,8 +1807,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 			 ! ( pPlayingPatterns->size() == 1 &&
 				 pPlayingPatterns->get( 0 ) == pSelectedPattern ) ) {
 			pPlayingPatterns->clear();
-			pPlayingPatterns->add( pSelectedPattern );
-			pSelectedPattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+			pPlayingPatterns->add( pSelectedPattern, true );
 
 			// GUI does not care about the internals of the audio
 			// engine and just moves along the transport position.
@@ -1806,9 +1828,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				if ( ( pPlayingPatterns->del( ppattern ) ) == nullptr ) {
 					// pPattern was not present yet. It will
-					// be added.
-					pPlayingPatterns->add( ppattern );
-					ppattern->addFlattenedVirtualPatterns( pPlayingPatterns );
+					// be added
+					pPlayingPatterns->add( ppattern, true );
 				} else {
 					// pPattern was already present. It will
 					// be deleted.
@@ -1826,7 +1847,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	}
 
 	if ( pPlayingPatterns->size() > 0 ) {
-		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length() );
+		// No virtual pattern resolution in here
+		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length( false ) );
 	} else {
 		pPos->setPatternSize( MAX_NOTES );
 	}
@@ -1905,8 +1927,17 @@ void AudioEngine::handleTimelineChange() {
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
 	updateBpmAndTickSize( m_pTransportPosition );
 	updateBpmAndTickSize( m_pQueuingPosition );
-	
+
+#ifndef WIN32
 	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
+#else
+	// For some reason two identical numbers (according to their
+	// values when printing them) are not equal to each other in 32bit
+	// Windows. Course graining the tick change in here will do no
+	// harm except of for preventing tiny tempo changes. Integer value
+	// changes should not be affected.
+	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#endif
 		// As tempo did not change during the Timeline activation, no
 		// update of the offsets took place. This, however, is not
 		// good, as it makes a significant difference to be located at

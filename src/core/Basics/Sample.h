@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -102,7 +102,7 @@ class Sample : public H2Core::Object<Sample>
 				{
 					return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
 				}
-				QString toQString( const QString& sPrefix, bool bShort ) const;
+				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 		};
 
 		/** set of rubberband configuration flags */
@@ -126,7 +126,7 @@ class Sample : public H2Core::Object<Sample>
 				{
 					return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
 				}
-				QString toQString( const QString& sPrefix, bool bShort ) const;
+				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 		};
 
 		/**
@@ -277,7 +277,7 @@ class Sample : public H2Core::Object<Sample>
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
 		/**
 		 * apply #__loops transformation to the sample
