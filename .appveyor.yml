@@ -390,8 +390,8 @@ on_finish:
 
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.2-win64.exe || cmd /c "exit /b 1"
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.2-win32.exe || cmd /c "exit /b 1"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.2.0-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.2.0-win32.exe || cmd /c "exit /b 1"
 
   - cmd: |
       if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
