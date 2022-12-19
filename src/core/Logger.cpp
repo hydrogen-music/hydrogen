@@ -72,6 +72,7 @@ void* loggerThread_func( void* param ) {
 				last = it;
 				if ( logger->m_bUseStdout ) {
 					fprintf( stdout, "%s", it->toLocal8Bit().data() );
+					fflush( stdout );
 				}
 				if( log_file ) {
 					fprintf( log_file, "%s", it->toLocal8Bit().data() );
