@@ -1304,6 +1304,14 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	m_pInstrumentList->load_samples(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
+	// Remap instruments in pattern list to ensure component indices for SelectedLayerInfo's are up to date
+	// for the current kit.
+	for ( auto &pPattern : *m_pPatternList ) {
+		for ( auto &note : *pPattern->get_notes() ) {
+			note.second->map_instrument( m_pInstrumentList );
+		}
+	}
+
 }
 
 void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
