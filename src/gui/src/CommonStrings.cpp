@@ -39,7 +39,7 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button for bypassing an element. Its
 	  size is designed for a three characters.*/
 	m_sBypassButton = tr( "BYP" );
-	/*: Text displayed on the button for editin an element. Its
+	/*: Text displayed on the button for editing an element. Its
 	  size is designed for a four characters.*/
 	m_sEditButton = tr( "Edit" );
 	/*: Text displayed on the button to clear all patterns in the
