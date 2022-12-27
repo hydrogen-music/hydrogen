@@ -142,6 +142,8 @@ class PatternEditorInstrumentList :  public QWidget,
 
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dragMoveEvent(QDragMoveEvent *event) override;
+		virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
 	virtual void selectedInstrumentChangedEvent() override;
@@ -167,6 +169,12 @@ class PatternEditorInstrumentList :  public QWidget,
 		QPoint __drag_start_position;
 
 		InstrumentLine* createInstrumentLine();
+
+	enum DropTargetKind { None, Move, Insert };
+	void setDropTarget( DropTargetKind kind, int nDropTarget = -1, int nSource = -1 );
+	int m_nDropTarget;
+	int m_nDropSource;
+	DropTargetKind m_dropTargetKind;
 
 private:
 	void drawFocus( QPainter& painter );

@@ -876,8 +876,83 @@ void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 	event->acceptProposedAction();
 }
 
+void PatternEditorInstrumentList::dragMoveEvent(QDragMoveEvent *event)
+{
+	if ( ! event->mimeData()->hasFormat("text/plain") ) {
+		event->ignore();
+	}
+
+	QString sText = event->mimeData()->text();
+	if ( sText.startsWith( "move instrument:" ) ) {
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
+		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+
+		// Move InstrumentLines temporarily into new place
+		setDropTarget( DropTargetKind::Move, nTargetInstrument, nSourceInstrument );
+
+	} else if ( sText.startsWith( "importInstrument:" ) ) {
+		// Move existing InstrumentLines to show the gap where the new instrument will be inserted.
+		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		setDropTarget( DropTargetKind::Insert, nTargetInstrument );
+	} else {
+		setDropTarget( DropTargetKind::None );
+	}
+}
+
+void PatternEditorInstrumentList::dragLeaveEvent(QDragLeaveEvent *event)
+{
+	setDropTarget( DropTargetKind::None );
+}
+
+void PatternEditorInstrumentList::setDropTarget( DropTargetKind kind, int nDropTarget, int nSource )
+{
+	// Filter out non-changes
+	if ( kind == m_dropTargetKind && nDropTarget == m_nDropTarget && nSource == m_nDropSource ) {
+		return;
+	}
+	m_dropTargetKind = kind;
+	m_nDropTarget = nDropTarget;
+	m_nDropSource = nSource;
+	for ( int i = 0; i < MAX_INSTRUMENTS; i++ ) {
+		InstrumentLine *pInstrumentLine = m_pInstrumentLine[ i ];
+		if ( pInstrumentLine ) {
+			int nYPos = i;
+			switch ( kind ) {
+			case None:
+				nYPos = i;
+				break;
+			case Insert:
+				nYPos = i + ( i >= nDropTarget );
+				break;
+			case Move:
+				nYPos = i;
+				if ( i == nSource ) {
+					// Show the source at the drop target
+					nYPos = nDropTarget;
+				} else if ( nDropTarget < nSource ) {
+					// Moving up: shift intermediates down
+					if ( i >= nDropTarget && i <= nSource ) {
+						nYPos += 1;
+					}
+				} else if ( nDropTarget > nSource ) {
+					// Moving down: shift intermediates up
+					if ( i > nSource && i <= nDropTarget ) {
+						nYPos -= 1;
+					}
+				}
+			default:
+				;
+			}
+			pInstrumentLine->move( 0, m_nGridHeight * nYPos + 1 );
+		}
+	}
+}
+
+
 void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
+	setDropTarget( DropTargetKind::None );
 	//WARNINGLOG("Drop!");
 	if ( ! event->mimeData()->hasFormat("text/plain") ) {
 		event->ignore();
