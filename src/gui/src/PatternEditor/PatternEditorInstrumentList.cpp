@@ -876,31 +876,31 @@ void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 	event->acceptProposedAction();
 }
 
-void PatternEditorInstrumentList::dragMoveEvent(QDragMoveEvent *event)
+void PatternEditorInstrumentList::dragMoveEvent( QDragMoveEvent *pEvent )
 {
-	if ( ! event->mimeData()->hasFormat("text/plain") ) {
-		event->ignore();
+	if ( ! pEvent->mimeData()->hasFormat("text/plain") ) {
+		pEvent->ignore();
 	}
 
-	QString sText = event->mimeData()->text();
+	QString sText = pEvent->mimeData()->text();
 	if ( sText.startsWith( "move instrument:" ) ) {
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		int nTargetInstrument = pEvent->pos().y() / m_nGridHeight;
 
 		// Move InstrumentLines temporarily into new place
 		setDropTarget( DropTargetKind::Move, nTargetInstrument, nSourceInstrument );
 
 	} else if ( sText.startsWith( "importInstrument:" ) ) {
 		// Move existing InstrumentLines to show the gap where the new instrument will be inserted.
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		int nTargetInstrument = pEvent->pos().y() / m_nGridHeight;
 		setDropTarget( DropTargetKind::Insert, nTargetInstrument );
 	} else {
 		setDropTarget( DropTargetKind::None );
 	}
 }
 
-void PatternEditorInstrumentList::dragLeaveEvent(QDragLeaveEvent *event)
+void PatternEditorInstrumentList::dragLeaveEvent( QDragLeaveEvent *pEvent )
 {
 	setDropTarget( DropTargetKind::None );
 }

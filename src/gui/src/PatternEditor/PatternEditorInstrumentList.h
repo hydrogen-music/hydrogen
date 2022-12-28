@@ -109,8 +109,8 @@ public slots:
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void paintEvent( QPaintEvent* ev ) override;
 		H2Core::Pattern* getCurrentPattern();
 
@@ -142,8 +142,8 @@ class PatternEditorInstrumentList :  public QWidget,
 
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
-		virtual void dragMoveEvent(QDragMoveEvent *event) override;
-		virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
+		virtual void dragMoveEvent( QDragMoveEvent *pEvent ) override;
+		virtual void dragLeaveEvent( QDragLeaveEvent *event ) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
 	virtual void selectedInstrumentChangedEvent() override;

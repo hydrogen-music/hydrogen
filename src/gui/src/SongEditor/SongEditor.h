@@ -340,7 +340,7 @@ class SongEditorPatternList :  public QWidget
 		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
 		virtual void mouseMoveEvent(QMouseEvent *event) override;
-	virtual void leaveEvent( QEvent *ev );
+	virtual void leaveEvent( QEvent *ev ) override;
 
 	QPoint __drag_start_position;
 
