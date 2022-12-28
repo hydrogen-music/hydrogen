@@ -1799,6 +1799,37 @@ void SongEditorPatternList::createBackground()
 	}
 	m_pAudioEngine->unlock();
 
+	if ( m_nDropTarget >= 0 && m_nDropTarget < nPatterns ) {
+		switch ( m_dropTargetKind ) {
+		case DropTargetKind::None:
+			break;
+		case DropTargetKind::Insert:
+			// Add gap for new pattern
+			for ( int i = nPatterns-1; i > m_nDropTarget; i--) {
+				PatternArray[ i ] = PatternArray[ i-1 ];
+			}
+			PatternArray[ m_nDropTarget ].bActive = false;
+			PatternArray[ m_nDropTarget ].bNext = false;
+			PatternArray[ m_nDropTarget ].sPatternName = "";
+			break;
+		case DropTargetKind::Move:
+			{
+				PatternDisplayInfo Source = PatternArray[ m_nDropSource ];
+				if ( m_nDropTarget < m_nDropSource ) {
+					for ( int i = m_nDropSource; i > m_nDropTarget; --i ) {
+						PatternArray[ i ] = PatternArray[ i-1 ];
+					}
+				} else if ( m_nDropSource < m_nDropTarget ) {
+					for ( int i = m_nDropSource; i < m_nDropTarget; i++ ) {
+						PatternArray[ i ] = PatternArray[ i+1 ];
+					}
+				}
+				PatternArray[ m_nDropTarget ] = Source;
+				break;
+			}
+		}
+	}
+
 	/// paint the foreground (pattern name etc.)
 	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
@@ -2220,9 +2251,52 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 	}
 }
 
+void SongEditorPatternList::dragMoveEvent( QDragMoveEvent *pEvent )
+{
+	QString sText = pEvent->mimeData()->text();
+	const QMimeData* mimeData = pEvent->mimeData();
+
+	int nTargetPattern = 0;
+	if ( m_nGridHeight > 0 ) {
+		nTargetPattern = pEvent->pos().y() / m_nGridHeight;
+	}
+
+	if ( sText.startsWith( "move pattern:" ) ) {
+		QStringList tokens = sText.split( ":" );
+		bool bOK = true;
+		int nSourcePattern = tokens[1].toInt(&bOK);
+
+		setDropTarget( DropTargetKind::Move, nTargetPattern, nSourcePattern );
+	} else if ( sText.startsWith( "file://" ) ) {
+		setDropTarget( DropTargetKind::Insert, nTargetPattern );
+	}
+}
+
+
+void SongEditorPatternList::dragLeaveEvent( QDragLeaveEvent *pEvent )
+{
+	setDropTarget( DropTargetKind::None );
+}
+
+void SongEditorPatternList::setDropTarget( SongEditorPatternList::DropTargetKind kind, int nDropTarget, int nSource )
+{
+	// Filter out non-changes
+	if ( kind == m_dropTargetKind && nDropTarget == m_nDropTarget && nSource == m_nDropSource ) {
+		return;
+	}
+	m_dropTargetKind = kind;
+	m_nDropTarget = nDropTarget;
+	m_nDropSource = nSource;
+
+	// Now update
+	createBackground();
+	update();
+}
 
 void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
+	setDropTarget( DropTargetKind::None );
+
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	
 	QString sText = event->mimeData()->text();

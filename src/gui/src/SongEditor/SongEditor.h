@@ -299,6 +299,8 @@ class SongEditorPatternList :  public QWidget
 		void inlineEditingFinished();
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dragMoveEvent(QDragMoveEvent *event) override;
+		virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -325,7 +327,13 @@ class SongEditorPatternList :  public QWidget
 		H2Core::Pattern *	m_pPatternBeingEdited;
 
 		DragScroller *		m_pDragScroller;
-		
+
+		enum DropTargetKind { None, Move, Insert };
+		void setDropTarget( DropTargetKind kind, int nDropTarget = -1, int nSource = -1 );
+		int m_nDropTarget;
+		int m_nDropSource;
+		DropTargetKind m_dropTargetKind;
+
 		void inlineEditPatternName( int row );
 
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
