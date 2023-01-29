@@ -972,10 +972,15 @@ void AudioEngine::stopAudioDrivers()
 
 void AudioEngine::restartAudioDrivers()
 {
+	bool bPlaying = m_state == State::Playing;
 	if ( m_pAudioDriver != nullptr ) {
 		stopAudioDrivers();
 	}
 	startAudioDrivers();
+	if ( bPlaying ) {
+		this->startPlayback();
+	}
+
 }
 
 void AudioEngine::handleDriverChange() {
