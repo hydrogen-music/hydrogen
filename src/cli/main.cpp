@@ -20,6 +20,11 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#include <stdio.h>
+#endif
+
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
@@ -126,6 +131,16 @@ int main(int argc, char *argv[])
 	int nReturnCode = 0;
 	
 	try {
+#ifdef WIN32
+		// In case Hydrogen was started using a CLI attach its output to
+		// the latter. 
+		if ( AttachConsole(ATTACH_PARENT_PROCESS)) {
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+			freopen("CONIN$", "w", stdin);
+		}
+#endif
+	
 		// Options...
 		char *cp;
 		struct option *op;

@@ -41,6 +41,11 @@
 #include <core/Lash/LashClient.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#include <stdio.h>
+#endif
+
 #include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
@@ -188,6 +193,16 @@ public:
 
 int main(int argc, char *argv[])
 {
+
+#ifdef WIN32
+	// In case Hydrogen was started using a CLI attach its output to
+	// the latter. 
+	if ( AttachConsole(ATTACH_PARENT_PROCESS)) {
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
+		freopen("CONIN$", "w", stdin);
+	}
+#endif
 	Reporter::spawn( argc, argv );
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
