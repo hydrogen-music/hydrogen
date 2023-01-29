@@ -236,7 +236,13 @@ ELSE()
 	FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
 ENDIF()
 
-FIND_HELPER(JACK jack jack/jack.h jack)
+IF(WIN64)
+  #64bit Windows
+  FIND_HELPER(JACK jack jack/jack.h jack64)
+ELSE()
+  #32bit Windows and all other OS
+  FIND_HELPER(JACK jack jack/jack.h jack)
+ENDIF()
 CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
