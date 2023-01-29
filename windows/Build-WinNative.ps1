@@ -124,11 +124,12 @@ if($deploy)
     cd ../windows
 } 
 
-if(!$deploy -and !$build -and !$installdeps )
+if(!$deploy -and !$build -and !$installdeps -and !$test )
 {
     Write-Host 'Usage: '
     Write-Host 'Build-WinNative -build: Build hydrogen (64bit)'
     Write-Host 'Build-WinNative -build -32bit : Build hydrogen (32bit)'
+    Write-Host 'Build-WinNative -test : Run unit tests after successful build'
     Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman (64bit)'
     Write-Host 'Build-WinNative -installdeps -32bit: Install build dependencies via pacman (32bit)'
     Write-Host 'Build-WinNative -deploy: Create installer'
