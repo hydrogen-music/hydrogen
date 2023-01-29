@@ -20,6 +20,11 @@
  *
  */
 
+#ifdef WIN32
+#include <windows.h>
+#include <stdio.h>
+#endif
+
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -47,6 +52,16 @@ void usage()
 
 int main(int argc, char** argv){
 
+#ifdef WIN32
+	// In case Hydrogen was started using a CLI attach its output to
+	// the latter. 
+	if ( AttachConsole(ATTACH_PARENT_PROCESS)) {
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
+		freopen("CONIN$", "w", stdin);
+	}
+#endif
+	
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();
 	H2Core::Logger::set_bit_mask( logLevelOpt );
