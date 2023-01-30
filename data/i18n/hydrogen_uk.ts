@@ -168,6 +168,10 @@
         <source>Realtime frames</source>
         <translation>Вибірок в реальному часі</translation>
     </message>
+    <message>
+        <source>Latency (estimated)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
@@ -304,6 +308,570 @@
     </message>
 </context>
 <context>
+    <name>ColorSelectionButton</name>
+    <message>
+        <source>Pick a pattern color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CommonStrings</name>
+    <message>
+        <source>P</source>
+        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.
+----------
+Text displayed on the button indicating that the Beat Counter will start playing after setting the tempo. Its size is designed to hold one character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.
+----------
+Text displayed on the button indicating that the Beat Counter will only set tempo. Its size is designed to hold one character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>M</source>
+        <extracomment>Text displayed on the button for muting an instrument strip in the mixer. Its size is designed for a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
+        <translation type="unfinished">Приглушити</translation>
+    </message>
+    <message>
+        <source>BYP</source>
+        <extracomment>Text displayed on the button for bypassing an element. Its size is designed for a three characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <extracomment>Text displayed on the button to clear all patterns in the SongEditor. Its size is designed to hold five characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T</source>
+        <extracomment>Text displayed on the button to show the Timeline. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <extracomment>Text displayed on the button to activate the Timeline. Its size is designed to hold eight characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FX</source>
+        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <translation type="unfinished">Загальні</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <extracomment>Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished">Інструмент</translation>
+    </message>
+    <message>
+        <source>Sound Library</source>
+        <extracomment>Text displayed on the button to show the Sound Library in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
+        <translation type="unfinished">Шари</translation>
+    </message>
+    <message>
+        <source>Load Layer</source>
+        <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Layer</source>
+        <extracomment>Text displayed on the button to delete a layer into an instrument. Its size is designed to hold twelve characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Layer</source>
+        <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B
+C</source>
+        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R
+U
+B</source>
+        <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>J.Trans</source>
+        <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>J.Master</source>
+        <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
+        <translation type="unfinished">Мікшер</translation>
+    </message>
+    <message>
+        <source>Instrument Rack</source>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold 15 characters and is flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Text displayed on the button activating Pattern Mode for playback. Its size is designed to hold seven characters and is slightly flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song</source>
+        <extracomment>Text displayed on the button activating Song Mode for playback. Its size is designed to hold four characters and is slightly flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished">Атака</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished">Перше затухання</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">Стабільна фаза</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">Кінцеве затухання</translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">Канал</translation>
+    </message>
+    <message>
+        <source>Note</source>
+        <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Output</source>
+        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters. Designed to hold eleven characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <extracomment>Text displayed in the Instrument Editor in the row of the pitch widget. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coarse</source>
+        <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch in front of decimal point in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fine</source>
+        <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch after decimal point in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Text displayed below the rotary to adjust the random part of the instrument pitch in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the instrument gain in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute Group</source>
+        <extracomment>Text displayed below the LCD to set the mute group in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-Stop Note</source>
+        <extracomment>Text displayed next to the checkbox to activate the auto stop note feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply Velocity</source>
+        <extracomment>Text displayed next to the checkbox to activate the apply velocity feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HH Press. Grp</source>
+        <extracomment>Text displayed below the LCD to set the hihat pressure group in the Instrument Editor. Designed to hold 13 characters but is only moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Range</source>
+        <extracomment>Text displayed below the LCD to set the maximum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min Range</source>
+        <extracomment>Text displayed below the LCD to set the minimum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <extracomment>Text displayed below the rotary to adjust the cutoff frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <extracomment>Text displayed below the rotary to adjust the resonance frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L. Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the layer gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C. Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the component gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample Sel.</source>
+        <extracomment>Text displayed left of the sample selection LCD combo in the Instrument Editor. Designed to hold eleven characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Res</source>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hear</source>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quant</source>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <translation type="unfinished">Вхід</translation>
+    </message>
+    <message>
+        <source>MIDI-In</source>
+        <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <extracomment>Text displayed in the Player Control to indicate the CPU load. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM</source>
+        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished">уд/хв</translation>
+    </message>
+    <message>
+        <source>Hrs</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of hours passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of minutes passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sec</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of seconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1/1000</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished">1/1000</translation>
+    </message>
+    <message>
+        <source>Humanize</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the humanization rotaries. Designed to hold eight characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swing</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished">Свінг</translation>
+    </message>
+    <message>
+        <source>Timing</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the timing humanization rotary. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <translation type="unfinished">Сила натиску</translation>
+    </message>
+    <message>
+        <source>Master</source>
+        <extracomment>Text displayed as the title of the Master Mixer Strip. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <extracomment>Displayed in the tooltip of input widgets. Indicates the allowed values from minimum to maximum.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI</source>
+        <extracomment>Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bound to</source>
+        <extracomment>Displayed in the tooltip of input widgets. Body of the part associating the Action of the widget with the MIDI event and parameter it is bound to. It&apos;s full context is &quot;ACTION bound to [EVENT : PARAMETER]&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not bound</source>
+        <extracomment>Displayed in the tooltip of input widgets. Body of the part displaying the Action that is not associate to a MIDI event yet. It&apos;s full context is &quot;ACTION not bound&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It&apos;s not possible to change the pattern size when playing.</source>
+        <extracomment>Displayed on both LCDSpinBoxes used for the pattern size while playback is rolling.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show drumkit editor</source>
+        <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show piano roll editor</source>
+        <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
+        <translation type="unfinished">Показати матричний редактор</translation>
+    </message>
+    <message>
+        <source>Unable to start audio driver!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use the Preferences to select a different one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No audio driver set!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Register Hydrogen as JACK Timebase master</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK timebase support is disabled in the Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting...</source>
+        <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for MIDI input...</source>
+        <extracomment>Text displayed when using the MIDI learning capabilities of Hydrogen. Only displayed if the widget has an associated action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This element is not MIDI operable.</source>
+        <extracomment>Displayed in the popup window when using the MIDI learning capabilities of Hydrogen. Indicating that there is not Action which could be associated to a MIDI event.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on</source>
+        <extracomment>Displayed within a status message when activating a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>off</source>
+        <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
+        <translation type="unfinished">вимкн</translation>
+    </message>
+    <message>
+        <source>enabled</source>
+        <extracomment>Displayed within a status message when enabling a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>disabled</source>
+        <extracomment>Displayed within a status message when disabling a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the Timeline for custom tempo changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Timeline is only available in Song Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not compiled</source>
+        <extracomment>Displayed in the Preferences dialog in the info section for a particular driver in case it is not properly supported on the system.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <extracomment>Displayed in the Preferences dialog within a driver combobox in case no driver was selected.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Both buffer size and sample rate can only be altered in the configuration of the JACK server itself.</source>
+        <extracomment>Displayed in the Preferences dialog as a tooltip for both the sample rate combobox and buffer size spinbox.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">&amp;Гаразд</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">&amp;Записати</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">&amp;Скасувати</translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">&amp;Відмовитися від змін</translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">&amp;Програти</translation>
+    </message>
+    <message>
+        <source>Play &amp;original sample</source>
+        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translated</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License String</source>
+        <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License parsed from License String. You can use this combo box to overwrite the current license with a predefined one</source>
+        <extracomment>Tool tip used for the combo boxes in both the drumkit and song property dialog to set a predefined license type.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You used drumkit samples holding a &lt;b&gt;copyleft license&lt;/b&gt;. Be aware that &lt;b&gt;you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All license containing the letters &apos;CC BY&apos; &lt;b&gt;require you to give an attribution&lt;/b&gt; by naming drumkit, author, as well as the license itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License Warning</source>
+        <extracomment>Shown as title in dialogs used to inform the user about license issues and information.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit registered in the current song can not be found on disk.
+Please load an existing drumkit first.
+Current kit:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
@@ -318,8 +886,16 @@
         <translation>Назва компонента</translation>
     </message>
     <message>
-        <source>Set instrument volume [%1]</source>
-        <translation>Задати гучність інструмента [%1]</translation>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of component</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -354,10 +930,6 @@
     <name>DrumPatternEditor</name>
     <message>
         <source>Cannot paste multi-pattern selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to load instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -463,6 +1035,22 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No sample in the current song uses Rubberband</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your song uses samples of the following license:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Be sure you satisfy all license conditions and give the required attribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -670,31 +1258,48 @@ Overwrite the existing file?</source>
         <source>User data directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FxMixerLine</name>
     <message>
-        <source>FX on/off</source>
-        <translation>Ефекти увімкн/вимкн</translation>
+        <source>Filesystem is not writable!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Master output</source>
-        <translation>Загальний вихід</translation>
+        <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
-        <source>BPM</source>
-        <translation>уд/хв</translation>
-    </message>
-    <message>
         <source>Please enter a number within the range of </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Скасувати</translation>
+        <source>Edit Tempo Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Tempo Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alter tempo of selected tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set tempo of new tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move tempo marker to different column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set column of new tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There is already a tempo marker present at this Column. Please use left-click to edit it instead.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -711,24 +1316,6 @@ Overwrite the existing file?</source>
         <translation>Властивості звукової бібліотеки</translation>
     </message>
     <message>
-        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Ви можете зберігати зміни в інструментах тільки в поточній завантаженій бібліотеці.</translation>
-    </message>
-    <message>
-        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
-Are you sure?</source>
-        <translation>Увага! Змінення назви набору спричинить створення нового набору.
-Ви впевнені?</translation>
-    </message>
-    <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
         <source>Saving of this drumkit failed.</source>
         <translation>Не вдалось записати набір.</translation>
     </message>
@@ -740,13 +1327,45 @@ Are you sure?</source>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Файли зображень (*.png *.jpg *.jpeg)</translation>
     </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation type="unfinished">Інструмент</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished">Компонент</translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished">Ліцензія</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
-    <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation>Завантажено набір: [%1]</translation>
-    </message>
     <message>
         <source>Song Editor</source>
         <translation>Редактор композицій</translation>
@@ -762,10 +1381,6 @@ Are you sure?</source>
     <message>
         <source>modified</source>
         <translation>змінено</translation>
-    </message>
-    <message>
-        <source>Song saved.</source>
-        <translation type="unfinished">Композицію збережено.</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -788,6 +1403,26 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <source>Input Midi Note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>There are unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to recover them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit [%1] loaded from [%2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved as: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -806,22 +1441,6 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <message>
         <source>Filter resonance</source>
         <translation>Резонансний фільтр</translation>
-    </message>
-    <message>
-        <source>Attack</source>
-        <translation>Атака</translation>
-    </message>
-    <message>
-        <source>Decay</source>
-        <translation>Перше затухання</translation>
-    </message>
-    <message>
-        <source>Sustain</source>
-        <translation>Стабільна фаза</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Кінцеве затухання</translation>
     </message>
     <message>
         <source>Layer gain</source>
@@ -846,14 +1465,6 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <message>
         <source>Layer pitch (Fine)</source>
         <translation>Тон шару (точно)</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Загальні</translation>
-    </message>
-    <message>
-        <source>Layers</source>
-        <translation>Шари</translation>
     </message>
     <message>
         <source>New component name</source>
@@ -896,7 +1507,27 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>layer pitch: %1</source>
+        <source>Length of Attack phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length of Decay phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample volume in Sustain phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length of Release phase.
+
+Value</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -940,10 +1571,12 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
         <translation>Приглушити інструмент</translation>
     </message>
     <message>
         <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
         <translation>Соло</translation>
     </message>
     <message>
@@ -1010,16 +1643,8 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>Показати редактор інструментів</translation>
     </message>
     <message>
-        <source>Instrument</source>
-        <translation>Інструмент</translation>
-    </message>
-    <message>
         <source>Show sound library</source>
         <translation>Показати бібліотеку звуків</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>Бібліотека звуків</translation>
     </message>
 </context>
 <context>
@@ -1070,6 +1695,14 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <message>
         <source>Remove FX</source>
         <translation>Видалити ефект</translation>
+    </message>
+    <message>
+        <source>Input control param. value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output control param. value</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1262,10 +1895,6 @@ MIDI = %2</translation>
         <translation>&amp;Записати</translation>
     </message>
     <message>
-        <source>&amp;Discard</source>
-        <translation>&amp;Відмовитися від змін</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Записати композицію</translation>
     </message>
@@ -1296,10 +1925,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;About</source>
         <translation>&amp;Про програму</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1342,10 +1967,6 @@ MIDI = %2</translation>
         <translation>&amp;Довідка</translation>
     </message>
     <message>
-        <source>Song saved.</source>
-        <translation>Композицію збережено.</translation>
-    </message>
-    <message>
         <source>Unknown error %1</source>
         <translation>Невідома помилка %1</translation>
     </message>
@@ -1354,20 +1975,12 @@ MIDI = %2</translation>
         <translation>Очистити всі інструменти?</translation>
     </message>
     <message>
-        <source>Ok</source>
-        <translation>Гаразд</translation>
-    </message>
-    <message>
         <source>Could not save song.</source>
         <translation>Не вдалось зберегти композицію.</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Ви користуєтеся нестабільною версією Hydrogen. Допоможіть нам покращити її, надаючи до списку розсилання hydrogen-devel свої звіти про помилки і пропозиції. &lt;br&gt;&lt;br&gt;Дякуємо!</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Більше не показувати це повідомлення</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
@@ -1419,7 +2032,6 @@ Do you want to save the changes?
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Дії</translation>
-        <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -1509,10 +2121,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show &amp;Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1719,16 +2327,55 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Playing.</source>
         <translation type="unfinished">Відтворюється.</translation>
     </message>
+    <message>
+        <source>Song Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace current song with empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You won&apos;t be able to undo this action after saving the new song! Please export the current song from the session first in order to keep it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+There have been recent changes to the drumkit settings.
+The session needs to be saved before exporting will can be continued.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved into</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No pattern selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Demo Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Demo Song into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback track couldn&apos;t be read</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
     <message>
         <source>Set master volume [%1]</source>
         <translation>Задати загальну гучність [%1]</translation>
-    </message>
-    <message>
-        <source>Swing</source>
-        <translation>Свінг</translation>
     </message>
     <message>
         <source>Humanize time</source>
@@ -1739,39 +2386,32 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Олюднити силу</translation>
     </message>
     <message>
-        <source>Set humanize time parameter [%1]</source>
-        <translation>Встановити параметр «людського» часу [%1]</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [%1]</source>
-        <translation>Встановити параметр «людської»  сили натиску [%1]</translation>
-    </message>
-    <message>
         <source>Set swing factor [%1]</source>
         <translation>Встановити свінг-фактор [%1]</translation>
     </message>
-</context>
-<context>
-    <name>MidiSenseWidget</name>
     <message>
-        <source>This element is not midi operable.</source>
-        <translation>Цей елемент не обробляється в MIDI.</translation>
+        <source>Master volume</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Waiting for midi input...</source>
-        <translation>Очікування вводу MIDI...</translation>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>16th-note Swing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize time param [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize vel. param [%1]</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MidiTable</name>
-    <message>
-        <source>Event</source>
-        <translation>Подія</translation>
-    </message>
-    <message>
-        <source>Param.</source>
-        <translation>Парам.</translation>
-    </message>
     <message>
         <source>Action</source>
         <translation>Дія</translation>
@@ -1779,6 +2419,26 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>press button to record midi event</source>
         <translation>натисніть кнопку для запису MIDI-події</translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Para.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1800,14 +2460,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Показ піків інструментів = Вимкн</translation>
     </message>
     <message>
-        <source>Set FX %1 level </source>
-        <translation>Задати рівень ефекту %1</translation>
-    </message>
-    <message>
-        <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation>Задати рівень ефекту LADSPA (%1)</translation>
-    </message>
-    <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
         <translation>В цій версії Hydrogen не доступні ефекти LADSPA.</translation>
     </message>
@@ -1817,6 +2469,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Mixer Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set FX %1 level [%2] of instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1839,11 +2499,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Панорама</translation>
     </message>
     <message>
-        <source>Set instrument volume [%1]</source>
-        <translation>Задати гучність інструмента [%1]</translation>
+        <source>FX %1 send</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Instrument name</source>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1936,14 +2604,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set note velocity [%1]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit %1 property of %2 notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>B</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1991,6 +2651,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>C</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit [%1] property of [%2] notes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditor</name>
@@ -2023,7 +2687,51 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Don&apos;t show this message again</source>
+        <source>ticks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note panned to the right by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note panned to the left by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note centered</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Leading beat by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lagging beat by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note on beat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>octave</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability to</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2073,18 +2781,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Зменшити</translation>
     </message>
     <message>
-        <source>Is not possible to change the pattern size when playing.</source>
-        <translation>Під час відтворення розмір патерна змінювати не можна.</translation>
-    </message>
-    <message>
-        <source>Select pattern size</source>
-        <translation>Вибрати розмір патерна</translation>
-    </message>
-    <message>
-        <source>Select grid resolution</source>
-        <translation>Вибрати роздільність сітки</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>Не вибрано жодного патерна</translation>
     </message>
@@ -2123,10 +2819,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Probability</source>
         <translation>Ймовірність</translation>
-    </message>
-    <message>
-        <source>Unsupported note denominator. Click for more information.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>quarter</source>
@@ -2169,35 +2861,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished">вимкн</translation>
     </message>
     <message>
-        <source>Hydrogen can only represent notes as small as 1/%1 of a whole note, so note values must be multiple of this.
-Supported values are: 1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192</source>
+        <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New Pattern length (beats/note value)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Denominator value rejected.
-Limits: (0, %1]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern size too big.
-Maximum = 16/4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern length in 1/%1 notes is not supported. Length may be approximated.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern size was approximated.
-(resolution = %1 ticks/quarter note)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Text rejected</source>
+        <source>Pattern editor - No pattern selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2297,6 +2965,13 @@ Maximum = 16/4</source>
     </message>
 </context>
 <context>
+    <name>PlaybackTrackWaveDisplay</name>
+    <message>
+        <source>No playback track selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PlayerControl</name>
     <message>
         <source>Stop</source>
@@ -2325,10 +3000,6 @@ Maximum = 16/4</source>
     <message>
         <source>Pattern mode selected.</source>
         <translation>Вибрано режим патерна.</translation>
-    </message>
-    <message>
-        <source>New BPM value</source>
-        <translation>Нове значення уд/хв</translation>
     </message>
     <message>
         <source>Rewind</source>
@@ -2363,20 +3034,8 @@ Maximum = 16/4</source>
         <translation>Показати мікшер</translation>
     </message>
     <message>
-        <source>Mixer</source>
-        <translation>Мікшер</translation>
-    </message>
-    <message>
         <source>Show Instrument Rack</source>
         <translation>Показати стійку інструментів</translation>
-    </message>
-    <message>
-        <source>Instrument rack</source>
-        <translation>Стійка інструментів</translation>
-    </message>
-    <message>
-        <source>BeatCounter Panel on</source>
-        <translation>Увімкнути панель лічильника бітів</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -2432,19 +3091,6 @@ Maximum = 16/4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase master on/off</source>
-        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK timebase support is disabled in the Preferences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>JACK transport will work only with JACK driver.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2457,11 +3103,43 @@ Maximum = 16/4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase master mode = On</source>
+        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase master mode = Off</source>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2658,14 +3336,6 @@ Do you want to discard the changes?
 </translation>
     </message>
     <message>
-        <source>&amp;Discard</source>
-        <translation>&amp;Відмовитися від змін</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
@@ -2702,32 +3372,8 @@ The path to the script and the scriptname must be without whitespaces.</source>
 Перезапустити?</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
         <source>Automatic</source>
         <translation>Автоматично</translation>
-    </message>
-    <message>
-        <source>Steps</source>
-        <translation>Покроково</translation>
-    </message>
-    <message>
-        <source>Fixed</source>
-        <translation>Фіксовано</translation>
-    </message>
-    <message>
-        <source>Number of steps</source>
-        <translation>Число кроків</translation>
-    </message>
-    <message>
-        <source>Color (Hue value)</source>
-        <translation>Колір (тон)</translation>
     </message>
     <message>
         <source>Automatic driver selection</source>
@@ -2742,10 +3388,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The select port is unavailable. This instance uses the following temporary port instead:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2754,19 +3396,11 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Sound System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Simple audio driver [/dev/dsp]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not compiled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2791,6 +3425,278 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>PulseAudio Driver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For changes of the interface layout to take effect Hydrogen must be restarted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Загальні</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shadow Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Highlight Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Highlight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Inactive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tool Tip Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tool Tip Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widgets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accent Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Red Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spin Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spin Box Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playhead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song Editor</source>
+        <translation type="unfinished">Редактор композицій</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Row Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode On Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode Off Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Octave Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Full Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Default Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Half Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Zero Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to proceed?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Currently connected to device: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error starting audio driver</source>
+        <translation type="unfinished">Помилка при завантаженні звукового драйвера</translation>
+    </message>
+    <message>
+        <source>Unable to start audio driver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme couldn&apos;t be found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme imported from </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme can not be exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme exported to </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme reset</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2912,14 +3818,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Application font</source>
         <translation>Шрифт застосунку</translation>
-    </message>
-    <message>
-        <source>Mixer font</source>
-        <translation>Шрифт мікшера</translation>
-    </message>
-    <message>
-        <source>Select font</source>
-        <translation>Вибрати шрифт</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -3054,16 +3952,8 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Зі вкладками</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation>Напис</translation>
-    </message>
-    <message>
         <source>Coloring method for Song Editor elements</source>
         <translation>Спосіб фарбування в редакторі композицій</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Після змінення шрифту або розкладки інтерфейсу програму слід перезапустити.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&amp;OSC</source>
@@ -3123,7 +4013,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Use &amp;LASH</source>
-        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
+        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3202,17 +4092,133 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Prefer larger</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Numbers of autosaves per hour (set 0 to deactivated)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Latency target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icon color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of colors in Song Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used within listings, like for the names of the available Pattern and Instruments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used for larger buttons.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Appearance Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Add Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Move pattern list item ( %1, %2 )</source>
         <translation type="unfinished"></translation>
@@ -3243,14 +4249,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit timeline tempo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete timeline tempo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3314,10 +4312,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Change piano roll note length </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change note properties piano roll</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3337,39 +4331,47 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Move point</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Toggle Pattern ( %1, %2 )</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Reporter</name>
+    <message>
+        <source>Hydrogen exited abnormally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can check the Hydrogen issue tracker on Github to see if this issue is already known about. If not, you can report it there to help the development team get you back on track and improve Hydrogen for the future.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open log file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Github Issue tracker...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
     <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
-        <source>Close dialog! maybe there is some unsaved work on sample.
-Are you sure?</source>
-        <translation>Закрити діалог! Можливо, залишилась якась незбережена робота.
-Ви впевнені?</translation>
-    </message>
-    <message>
-        <source>Unsaved changes left. These changes will be lost. 
-Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>SampleEditor </source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Play</source>
-        <translation type="unfinished">&amp;Програти</translation>
-    </message>
-    <message>
-        <source>P&amp;lay original sample</source>
-        <translation type="unfinished">&amp;Зіграти початковий зразок</translation>
     </message>
     <message>
         <source>new sample length</source>
@@ -3785,32 +4787,12 @@ Are you sure?</source>
 Ви впевнені?</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
-        <source>stacked mode</source>
-        <translation>стековий режим</translation>
-    </message>
-    <message>
         <source>stacked pattern mode</source>
         <translation>режим стеку патернів</translation>
     </message>
     <message>
-        <source>single pattern mode</source>
-        <translation>режим одного патерна</translation>
-    </message>
-    <message>
         <source>Pattern %1</source>
         <translation>Патерн %1</translation>
-    </message>
-    <message>
-        <source>Enable time line edit</source>
-        <translation>Увімкнути редагування шкали часу</translation>
     </message>
     <message>
         <source>View playback track</source>
@@ -3837,19 +4819,15 @@ Are you sure?</source>
         <translation>Сила натиску</translation>
     </message>
     <message>
-        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <source>selected pattern mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
+        <source>Playback track volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> Timeline = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> Timeline = On</source>
+        <source>Playback volume set to</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3858,22 +4836,6 @@ Are you sure?</source>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
-    </message>
-    <message>
-        <source>Edit the bpm value for current beat</source>
-        <translation>Змінити значення уд/хв для поточної долі</translation>
-    </message>
-    <message>
-        <source>500,55</source>
-        <translation>500,55</translation>
-    </message>
-    <message>
-        <source>Edit beat in timeline</source>
-        <translation>Вказати долю на шкалі часу</translation>
-    </message>
-    <message>
-        <source>500</source>
-        <translation>500</translation>
     </message>
     <message>
         <source>Bar</source>
@@ -3938,18 +4900,6 @@ Are you sure?</source>
         <translation>Завантажити патерн</translation>
     </message>
     <message>
-        <source>Open Pattern</source>
-        <translation>Відкрити патерн</translation>
-    </message>
-    <message>
-        <source>Pattern 1</source>
-        <translation>Патерн 1</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>Без категорії</translation>
-    </message>
-    <message>
         <source>Virtual Pattern</source>
         <translation>Віртуальний патерн</translation>
     </message>
@@ -3958,14 +4908,6 @@ Are you sure?</source>
 Overwrite the existing pattern?</source>
         <translation>Такий файл патерна вже є.
 Перезаписати його?</translation>
-    </message>
-    <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
     </message>
     <message>
         <source>Export Pattern</source>
@@ -3993,6 +4935,17 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not save pattern to temporary directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SongEditorPositionRuler</name>
+    <message>
+        <source>The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4045,24 +4998,36 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
-        <source>Export Sound Library</source>
-        <translation>Експортувати бібліотеку звуків</translation>
-    </message>
-    <message>
         <source>Directory</source>
         <translation>Тека</translation>
     </message>
     <message>
-        <source>Couldn&apos;t create archive</source>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Експорт</translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit exported.</source>
+        <source>invalid drumkit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit not exported. Operation not supported.</source>
+        <source>The file [%1] does already exist and will be overwritten.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">Всі</translation>
     </message>
 </context>
 <context>
@@ -4070,10 +5035,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Export</source>
         <translation>Експорт</translation>
-    </message>
-    <message>
-        <source>Drumkit</source>
-        <translation>Набір</translation>
     </message>
     <message>
         <source>Component</source>
@@ -4272,14 +5233,6 @@ Overwrite the existing pattern?</source>
         <translation>Користувацькі набори</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>&amp;Гаразд</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Скасувати</translation>
-    </message>
-    <message>
         <source>Songs</source>
         <translation>Композиції</translation>
     </message>
@@ -4334,17 +5287,7 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation>Двічі клацніть, щоб розширити список</translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not implemented yet.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4371,10 +5314,6 @@ Current kit:</source>
         <translation>Скасувати</translation>
     </message>
     <message>
-        <source>Save changes made to instruments into sound library</source>
-        <translation>Зберегти в бібліотеці зміни, внесені в інструменти</translation>
-    </message>
-    <message>
         <source>Drumkit License</source>
         <translation>Ліцензія набору</translation>
     </message>
@@ -4389,6 +5328,10 @@ Current kit:</source>
     <message>
         <source>Image License</source>
         <translation>Ліцензія зображення</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4426,76 +5369,6 @@ Current kit:</source>
     </message>
 </context>
 <context>
-    <name>SoundLibrarySaveDialog</name>
-    <message>
-        <source>Save Sound Library</source>
-        <translation>Зберегти бібліотеку звуків</translation>
-    </message>
-    <message>
-        <source>Please supply at least a valid name</source>
-        <translation>Вкажіть принаймні коректну назву</translation>
-    </message>
-    <message>
-        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
-        <translation>Бібліотека з такою назвою вже є. Перезаписати наявну бібліотеку?</translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation>Не вдалось зберегти цю бібліотеку.</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>Відкрити зображення</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>Файли зображень (*.png *.jpg *.jpeg)</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibrarySaveDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Діалог</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Автор</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Інформація</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Скасувати</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Ліцензія</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Зберегти</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Зображення</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Огляд</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation>Ліцензія зображення</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
@@ -4522,6 +5395,19 @@ Current kit:</source>
     <message>
         <source>Cancel</source>
         <translation>Скасувати</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetWithLicenseProperty</name>
+    <message>
+        <source>Other</source>
+        <extracomment>Label used for all license not directly supported in Hydrogen&apos;s license combo box.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unspecified</source>
+        <extracomment>Label used if no license was specified.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

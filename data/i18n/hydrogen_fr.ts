@@ -347,7 +347,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>Edit</source>
-        <extracomment>Text displayed on the button for editin an element. Its size is designed for a four characters.</extracomment>
+        <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
         <translation>Édit</translation>
     </message>
     <message>
@@ -362,12 +362,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>Timeline</source>
-        <extracomment>Text displayed on the button to activate the Timeline. Its size is designed to hold three characters.</extracomment>
+        <extracomment>Text displayed on the button to activate the Timeline. Its size is designed to hold eight characters.</extracomment>
         <translation>LdT</translation>
     </message>
     <message>
         <source>FX</source>
-        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold eight characters.</extracomment>
+        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
         <translation>FX</translation>
     </message>
     <message>
@@ -768,7 +768,7 @@ B</translation>
     </message>
     <message>
         <source>The Timeline is only available in Song Mode</source>
-        <translation>La base de temps est uniquement disponible en mode morceau></translation>
+        <translation>La base de temps est uniquement disponible en mode morceau&gt;</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
@@ -2040,7 +2040,6 @@ Voulez-vous sauvegarder les changements?
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Défaire</translation>
-        <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
