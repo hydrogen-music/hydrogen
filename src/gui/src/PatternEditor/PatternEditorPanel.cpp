@@ -260,7 +260,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
 
 
-//~ RULER
+// ~ RULER
 
 
 // EDITOR _____________________________________
@@ -312,7 +312,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ EDITOR
+// ~ EDITOR
 
 
 
@@ -338,7 +338,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
 
-//~ INSTRUMENT LIST
+// ~ INSTRUMENT LIST
 
 
 
@@ -360,7 +360,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_VELOCITY EDITOR
+// ~ NOTE_VELOCITY EDITOR
 
 
 // NOTE_PAN EDITOR
@@ -382,7 +382,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_PAN EDITOR
+// ~ NOTE_PAN EDITOR
 
 
 // NOTE_LEADLAG EDITOR
@@ -404,7 +404,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_LEADLAG EDITOR
+// ~ NOTE_LEADLAG EDITOR
 
 
 // NOTE_NOTEKEY EDITOR
@@ -429,7 +429,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_NOTEKEY EDITOR
+// ~ NOTE_NOTEKEY EDITOR
 
 // NOTE_PROBABILITY EDITOR
 	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
@@ -449,7 +449,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_PROBABILITY EDITOR
+// ~ NOTE_PROBABILITY EDITOR
 
 
 
@@ -521,7 +521,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	pPropertiesVBox->addWidget( m_pPropertiesCombo );
 
-//~ NOTE_PROPERTIES BUTTONS
+// ~ NOTE_PROPERTIES BUTTONS
 
 
 // LAYOUT

@@ -2040,5 +2040,5 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	updateEditor();
 
 }
-///~undo / redo actions from pattern editor instrument list
+/// ~undo / redo actions from pattern editor instrument list
 ///==========================================================

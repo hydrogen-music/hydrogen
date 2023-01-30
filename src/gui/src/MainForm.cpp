@@ -341,7 +341,7 @@ void MainForm::createMenuBar()
 
 	updateRecentUsedSongList();
 	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this, SLOT( action_file_open_recent(QAction*) ) );
-	//~ FILE menu
+	// ~ FILE menu
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
@@ -435,7 +435,7 @@ void MainForm::createMenuBar()
 
 	m_pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
 
-	//~ Tools menu
+	// ~ Tools menu
 
 
 	Logger *pLogger = Logger::get_instance();
@@ -457,7 +457,7 @@ void MainForm::createMenuBar()
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		}
-		//~ DEBUG menu
+		// ~ DEBUG menu
 	}
 
 	// INFO menu
@@ -467,7 +467,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
 	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
 	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
-	//~ INFO menu
+	// ~ INFO menu
 }
 
 void MainForm::startAutosaveTimer() {

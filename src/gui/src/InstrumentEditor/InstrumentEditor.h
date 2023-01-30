@@ -69,7 +69,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int ) override;
 	virtual void instrumentParametersChangedEvent( int ) override;
-		//~ implements EventListener interface
+		// ~ implements EventListener interface
 		void update();
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
@@ -178,7 +178,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		LCDSpinBox *m_pHihatMaxRangeLCD;
 		ClickableLabel* m_pHihatMaxRangeLbl;
 
-		//~ Instrument properties
+		// ~ Instrument properties
 
 		// Layer properties
 		LayerPreview *m_pLayerPreview;
@@ -210,7 +210,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		Button *m_pRemoveLayerBtn;
 		Button *m_pSampleEditorBtn;
 		QCheckBox *m_pIsStopNoteCheckBox;
-		//~ Layer properties
+		// ~ Layer properties
 
 
 		// Component
@@ -221,7 +221,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		Rotary *m_pCompoGainRotary;
 		LCDDisplay *m_pCompoGainLCD;
-		//~ Component
+		// ~ Component
 
 		void setAutoVelocity();
 };
