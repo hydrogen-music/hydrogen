@@ -304,7 +304,7 @@
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation>Setze Anschlaghärte (Velocity= automatisch</translation>
+    <translation>Setze Anschlaghärte (Velocity) automatisch</translation>
     </message>
 </context>
 <context>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation>Stumm</translation>
+        <translation>Mute</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -348,7 +348,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Edit</source>
         <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
-        <translation>Ändern</translation>
+        <translation>Edit</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -408,7 +408,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation>Ändere Ebene</translation>
+        <translation>Edit Ebene</translation>
     </message>
     <message>
         <source>B
@@ -514,7 +514,7 @@ B</translation>
     <message>
         <source>Gain</source>
         <extracomment>Text displayed below the rotary to adjust the instrument gain in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
-        <translation>Verstärkung</translation>
+        <translation>Gain</translation>
     </message>
     <message>
         <source>Mute Group</source>
@@ -529,7 +529,7 @@ B</translation>
     <message>
         <source>Apply Velocity</source>
         <extracomment>Text displayed next to the checkbox to activate the apply velocity feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
-        <translation>Anschlag anwenden</translation>
+        <translation>Anschlag anw.</translation>
     </message>
     <message>
         <source>HH Press. Grp</source>
@@ -549,7 +549,7 @@ B</translation>
     <message>
         <source>Cutoff</source>
         <extracomment>Text displayed below the rotary to adjust the cutoff frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation>Overgrenze</translation>
+        <translation>Cutoff</translation>
     </message>
     <message>
         <source>Resonance</source>
@@ -574,7 +574,7 @@ B</translation>
     <message>
         <source>Size</source>
         <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
-        <translation>Größe</translation>
+        <translation>Länge</translation>
     </message>
     <message>
         <source>Res</source>
@@ -594,7 +594,7 @@ B</translation>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
-        <translation>Eingabe</translation>
+        <translation>Input</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -5405,12 +5405,12 @@ Would you like to keep or discard the remaining instruments and notes?
     <message>
         <source>Other</source>
         <extracomment>Label used for all license not directly supported in Hydrogen&apos;s license combo box.</extracomment>
-        <translation>Kennzeichnung, welche für alle Lizenzen verwendet wird, die nicht direkt in der Auswahlbox unterstützt werden.</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>Unspecified</source>
         <extracomment>Label used if no license was specified.</extracomment>
-        <translation>Kennzeichnung, die genutzt wird, wenn keine Lizenz spezifiert wurde.</translation>
+        <translation>Unspezifiziert</translation>
     </message>
 </context>
 </TS>
