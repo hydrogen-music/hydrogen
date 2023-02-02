@@ -67,7 +67,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	pTabButtonsPanel->setLayout( pTabHBox );
 
-//~ TAB buttons
+// ~ TAB buttons
 
 
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );

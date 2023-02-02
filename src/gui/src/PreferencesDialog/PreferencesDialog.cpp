@@ -779,7 +779,7 @@ void PreferencesDialog::updateDriverPreferences() {
 	default:
 		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
-	//~ JACK
+	// ~ JACK
 
 	if ( pPref->m_nBufferSize != bufferSizeSpinBox->value() ) {
 		pPref->m_nBufferSize = bufferSizeSpinBox->value();

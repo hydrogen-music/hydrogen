@@ -1170,7 +1170,7 @@ void SongEditor::createBackground()
 		p.drawLine( 0, y, (nMaxPatternSequence * m_nGridWidth), y );
 	}
 
-	//~ celle
+	// ~ celle
 	m_bSequenceChanged = true;
 
 }

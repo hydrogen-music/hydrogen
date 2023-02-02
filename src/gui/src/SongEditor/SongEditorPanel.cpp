@@ -285,7 +285,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	songModeActivationEvent();
 
-	//~ ZOOM
+	// ~ ZOOM
 
 	// PATTERN LIST
 	m_pPatternListScrollView = new WidgetScrollArea( nullptr );

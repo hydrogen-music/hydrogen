@@ -508,7 +508,7 @@ void Preferences::loadPreferences( bool bGlobal )
 									.arg( nBBTSync ) );
 						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 					}
-					//~ jack time master
+					// ~ jack time master
 
 					m_bJackTrackOuts = jackDriverNode.read_bool( "jack_track_outs", m_bJackTrackOuts, false, false );
 					m_bJackConnectDefaults = jackDriverNode.read_bool( "jack_connect_defaults", m_bJackConnectDefaults, false, false );
@@ -689,7 +689,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_countOffset = guiNode.read_int( "countoffset", 0, false, false );
 				m_startOffset = guiNode.read_int( "playoffset", 0, false, false );
 
-				//~ beatcounter
+				// ~ beatcounter
 
 				m_nAutosavesPerHour = guiNode.read_int( "autosavesPerHour", 60, false, false );
 				
@@ -995,7 +995,7 @@ bool Preferences::savePreferences()
 			}
 			jackDriverNode.write_int( "jack_bbt_sync", nBBTSync );
 			
-			//~ jack time master
+			// ~ jack time master
 
 			// jack default connection
 			jackDriverNode.write_bool( "jack_connect_defaults", m_bJackConnectDefaults );
@@ -1126,7 +1126,7 @@ bool Preferences::savePreferences()
 
 		guiNode.write_int( "countoffset", m_countOffset );
 		guiNode.write_int( "playoffset", m_startOffset );
-		//~ beatcounter
+		// ~ beatcounter
 
 		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
 

@@ -77,7 +77,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		void highlightPatternEditorLocked( bool bUseRedBackground );	
 		void restoreGroupVector( QString filename );
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
 		 * JACK timebase master is detected and enables it when it's
 		 * gone or Hydrogen itself becomes the timebase master.

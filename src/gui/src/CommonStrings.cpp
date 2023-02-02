@@ -49,10 +49,10 @@ CommonStrings::CommonStrings(){
 	  is designed to hold a single character.*/
 	m_sTimelineButton = tr( "T" );
 	/*: Text displayed on the button to activate the Timeline. Its size
-	  is designed to hold three characters.*/
+	  is designed to hold eight characters.*/
 	m_sTimelineBigButton = tr( "Timeline" );
 	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold eight characters.*/
+	  is designed to hold two characters.*/
 	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
