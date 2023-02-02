@@ -84,7 +84,7 @@ private slots:
 	void updatePlayerControl();
 	void jackTransportBtnClicked();
 	//jack time master
-	void jackMasterBtnClicked();	//~ jack time master
+	void jackMasterBtnClicked();	// ~ jack time master
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
@@ -99,7 +99,7 @@ private slots:
 	void bcbDownButtonClicked();
 	void bctUpButtonClicked();
 	void bctDownButtonClicked();
-	//~ beatcounter
+	// ~ beatcounter
 		
 	//rubberband
 	void rubberbandButtonToggle();
@@ -133,7 +133,7 @@ private:
 	Button *m_pBCTDownBtn;
 	Button *m_pBCBUpBtn;
 	Button *m_pBCBDownBtn;
-	//~ beatcounter
+	// ~ beatcounter
 
 	//rubberbandBPMChange
 	Button *m_pRubberBPMChange;
@@ -141,7 +141,7 @@ private:
 	Button *m_pJackTransportBtn;
 	//jack time master
 	Button *m_pJackMasterBtn;
-	//~ jack time master
+	// ~ jack time master
 
 	CpuLoadWidget *m_pCpuLoadWidget;
 	LED *m_pMidiActivityLED;
@@ -162,7 +162,7 @@ private:
 	QLabel *m_pBCDisplayZ;
 	QLabel *m_pBCDisplayB;
 	QLabel *m_pBCDisplayT;
-	//~ beatcounter
+	// ~ beatcounter
 
 	MetronomeLED *m_pMetronomeLED;
 	Button *m_pMetronomeBtn;

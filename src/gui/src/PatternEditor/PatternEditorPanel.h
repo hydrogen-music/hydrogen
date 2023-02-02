@@ -95,7 +95,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 
 		void ensureCursorVisible();
 		int getCursorPosition();
@@ -218,7 +218,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// TOOLBAR
 		QLabel *			m_pPatternNameLbl;
 		Button *			m_pRandomVelocityBtn;
-		//~ TOOLBAR
+		// ~ TOOLBAR
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
@@ -228,7 +228,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Cursor positioning
 		int					m_nCursorPosition;
 		int					m_nCursorIncrement;
-		//~ Cursor
+		// ~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;

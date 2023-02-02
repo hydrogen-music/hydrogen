@@ -503,7 +503,7 @@ private:
 	timeval 		m_CurrentTime;		///< timeval
 	int			m_nCoutOffset;		///ms default 0
 	int			m_nStartOffset;		///ms default 0
-	//~ beatcounter
+	// ~ beatcounter
 
 
 	// used for song export

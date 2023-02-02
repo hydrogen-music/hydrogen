@@ -124,7 +124,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 	virtual void songModeActivationEvent() override;
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 		
 		int m_nSelectedPatternNumber;
 

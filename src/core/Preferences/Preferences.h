@@ -155,7 +155,7 @@ public:
 
 	int					m_countOffset;
 	int					m_startOffset;
-	//~ beatcounter
+	// ~ beatcounter
 
 	std::list<QString> 		sServerList;
 	std::list<QString> 		m_patternCategories;
@@ -363,7 +363,7 @@ public:
 	 * registered as time master.
 	 */
 	int					m_bJackMasterMode;
-	//~ jack driver properties
+	// ~ jack driver properties
 
 	///Default text editor (used by Playlisteditor)
 	QString				m_sDefaultEditor;
@@ -774,11 +774,11 @@ private:
 	int						m_nExportSampleRateIdx;
 	int						m_nExportSampleDepthIdx;
 	int						m_nExportTemplateIdx;
-	//~ Export dialog
+	// ~ Export dialog
 
     // Export midi dialog
     int						m_nMidiExportMode;
-    //~ Export midi dialog
+    // ~ Export midi dialog
 	
 	/** Full path to local preferences file.
 	 *

@@ -1126,7 +1126,7 @@ bool Hydrogen::handleBeatCounter()
 	}
 	return true;
 }
-//~ m_nBeatCounter
+// ~ m_nBeatCounter
 
 void Hydrogen::offJackMaster()
 {

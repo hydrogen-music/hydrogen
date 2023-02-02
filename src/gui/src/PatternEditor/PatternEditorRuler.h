@@ -113,7 +113,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 };
 
 

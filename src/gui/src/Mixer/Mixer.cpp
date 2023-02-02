@@ -76,7 +76,7 @@ Mixer::Mixer( QWidget* pParent )
 		m_pMixerLine[ i ] = nullptr;
 	}
 
-//~ fader panel
+// ~ fader panel
 
 
 // fX frame
@@ -110,7 +110,7 @@ Mixer::Mixer( QWidget* pParent )
 	else {
 		m_pFXFrame->hide();
 	}
-//~ fX frame
+// ~ fX frame
 
 
 // Master frame
@@ -141,7 +141,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowPeaksBtn->move( 63, 259 );
 	m_pShowPeaksBtn->setChecked( (Preferences::get_instance())->showInstrumentPeaks() );
 	connect( m_pShowPeaksBtn, SIGNAL( clicked() ), this, SLOT( showPeaksBtnClicked() ));
-//~ Master frame
+// ~ Master frame
 
 
 	// LAYOUT!
