@@ -23,6 +23,7 @@
 #include "SoundLibraryExportDialog.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
@@ -71,6 +72,16 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		return;
 	}
 
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( ! Filesystem::dir_writable( drumkitPathTxt->text(), false ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  pCommonStrings->getFileDialogMissingWritePermissions(),
+							  QMessageBox::Ok );
+		return;
+	}
+
+
 	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
 		ERRORLOG( "User cancelled dialog due to licensing issues." );
 		return;
@@ -85,7 +96,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	} else {
 		sTargetComponent = componentList->currentText();
 	}
-
+		
 	// Check whether the resulting file does already exist and ask the
 	// user if it should be overwritten.
 	QString sTargetName = drumkitPathTxt->text() + "/" +
@@ -93,7 +104,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		Filesystem::drumkit_ext;
 	
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		QMessageBox msgBox;
 		msgBox.setWindowTitle("Hydrogen");
 		msgBox.setIcon( QMessageBox::Warning );
@@ -146,12 +156,20 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 		sPath = QDir::homePath();
 	}
 
-	QString filename = QFileDialog::getExistingDirectory( this, tr("Directory"), sPath );
-	if ( filename.isEmpty() ) {
-		drumkitPathTxt->setText( sPath );
-	} else {
-		drumkitPathTxt->setText( filename );
-		Preferences::get_instance()->setLastExportDrumkitDirectory( filename );
+	FileDialog fd(this);
+	fd.setFileMode( QFileDialog::Directory );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setDirectory( sPath );
+	fd.setWindowTitle( tr("Directory") );
+
+	if ( fd.exec() == QDialog::Accepted ) {
+		QString sFilename = fd.selectedFiles().first();
+		if ( sFilename.isEmpty() ) {
+			drumkitPathTxt->setText( sPath );
+		} else {
+			drumkitPathTxt->setText( sFilename );
+			Preferences::get_instance()->setLastExportDrumkitDirectory( sFilename );
+		}
 	}
 }
 
