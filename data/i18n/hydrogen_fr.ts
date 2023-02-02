@@ -768,7 +768,7 @@ B</translation>
     </message>
     <message>
         <source>The Timeline is only available in Song Mode</source>
-        <translation>La base de temps est uniquement disponible en mode morceau&gt;</translation>
+        <translation>La base de temps est uniquement disponible en mode morceau</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
