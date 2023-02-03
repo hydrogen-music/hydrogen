@@ -45,6 +45,7 @@
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
@@ -2198,7 +2199,7 @@ void PreferencesDialog::importTheme() {
 	}
 	
 	QString sTitle = tr( "Import Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -2253,7 +2254,7 @@ void PreferencesDialog::exportTheme() {
 		sPath = Filesystem::usr_theme_dir();
 	}
 	QString sTitle = tr( "Export Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::AnyFile );

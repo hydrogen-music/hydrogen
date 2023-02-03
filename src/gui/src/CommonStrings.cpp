@@ -334,6 +334,10 @@ CommonStrings::CommonStrings(){
 	m_sPatternLoadError = tr( "Unable to load pattern" );
 	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
+	/*: Error message shown when attempt to export a song, pattern,
+	  drumkit, MIDI etc. into a read-only folder.*/
+	m_sFileDialogMissingWritePermissions = tr( "You do not have permissions to write to the selected folder. Please select another one." );
+
 	/*: Displayed within a status message when activating a widget.*/
 	m_sStatusOn = tr( "on" );
 	/*: Displayed within a status message when deactivating a widget.*/

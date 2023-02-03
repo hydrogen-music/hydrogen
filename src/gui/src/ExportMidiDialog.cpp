@@ -20,11 +20,12 @@
  *
  */
 
-#include <QFileDialog>
 #include <QLabel>
 
 #include "ExportMidiDialog.h"
+#include "CommonStrings.h"
 #include "HydrogenApp.h"
+#include "Widgets/FileDialog.h"
 
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
@@ -125,7 +126,7 @@ void ExportMidiDialog::on_browseBtn_clicked()
 		sPath = Filesystem::usr_data_path();
 	}
 	
-	QFileDialog fd( this );
+	FileDialog fd( this );
 
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr("Midi file (*%1)").arg( m_sExtension ) );
@@ -177,12 +178,21 @@ void ExportMidiDialog::on_okBtn_clicked()
 		return;
 	}
 	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
 	saveSettingsToPreferences();
 
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );
+	
+	if ( ! Filesystem::dir_writable( qFile.absoluteDir().absolutePath(), false ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  pCommonStrings->getFileDialogMissingWritePermissions(),
+							  QMessageBox::Ok );
+		return;
+	}
 	
 	if ( qFile.exists() == true && m_bFileSelected == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );

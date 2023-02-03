@@ -304,7 +304,7 @@
     </message>
     <message>
         <source>Set automatic velocity</source>
-    <translation>Setze Anschlaghärte (Velocity) automatisch</translation>
+        <translation>Setze Anschlaghärte (Velocity) automatisch</translation>
     </message>
 </context>
 <context>
@@ -866,7 +866,7 @@ Are you sure?</source>
         <source>Drumkit registered in the current song can not be found on disk.
 Please load an existing drumkit first.
 Current kit:</source>
-<translation>Schlagzeug des aktuellen Liedes konnte nicht auf der Festplatte gefunden werden
+        <translation>Schlagzeug des aktuellen Liedes konnte nicht auf der Festplatte gefunden werden
 Bitte laden Sie erst ein existierendes Schlagzeug.
 Aktuelles:</translation>
     </message>
@@ -874,6 +874,11 @@ Aktuelles:</translation>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation>system</translation>
+    </message>
+    <message>
+        <source>You do not have permissions to write to the selected folder. Please select another one.</source>
+        <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
+        <translation>Der ausgewählte Ordner ist schreibgeschützt. Bitte wählen Sie einen anderen.</translation>
     </message>
 </context>
 <context>
@@ -1513,7 +1518,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <source>Length of Attack phase.
 
 Value</source>
-<translation>Länge der Attack Phase.
+        <translation>Länge der Attack Phase.
 
 Wert</translation>
     </message>
@@ -1521,7 +1526,7 @@ Wert</translation>
         <source>Length of Decay phase.
 
 Value</source>
-<translation>Länge der Decay (Abkling-) Phase.
+        <translation>Länge der Decay (Abkling-) Phase.
 
 Wert</translation>
     </message>
@@ -1529,7 +1534,7 @@ Wert</translation>
         <source>Sample volume in Sustain phase.
 
 Value</source>
-<translation>Sample Lautstärke in der Sustain Phase.
+        <translation>Sample Lautstärke in der Sustain Phase.
 
 Wert</translation>
     </message>
@@ -1537,7 +1542,7 @@ Wert</translation>
         <source>Length of Release phase.
 
 Value</source>
-<translation>Länge der Release (Abkling-) Phase.
+        <translation>Länge der Release (Abkling-) Phase.
 
 Wert</translation>
     </message>
@@ -2353,7 +2358,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 There have been recent changes to the drumkit settings.
 The session needs to be saved before exporting will can be continued.
 </source>
-<translation>
+        <translation>
 Es gibt ungespeicherte Änderungen in den Schlagzeug Eigenschaften.
 Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann.</translation>
     </message>

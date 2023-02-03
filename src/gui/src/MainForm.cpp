@@ -52,6 +52,7 @@
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
 #include "Widgets/InfoBar.h"
+#include "Widgets/FileDialog.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -694,7 +695,7 @@ void MainForm::action_file_save_as()
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -936,7 +937,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	}
 
 	QString title = tr( "Save Pattern as ..." );
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setWindowTitle( title );
 	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->get_name() );
@@ -999,7 +1000,8 @@ void MainForm::action_file_openPattern()
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode ( QFileDialog::ExistingFiles );
 	fd.setDirectory ( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
@@ -1060,7 +1062,8 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::songs_filter_name );
@@ -1996,7 +1999,7 @@ void MainForm::action_file_export_lilypond()
 		sPath = Filesystem::usr_data_path();
 	}
 
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr( "LilyPond file (*.ly)" ) );
 	fd.setDirectory( sPath );

@@ -20,7 +20,6 @@
  *
  */
 
-#include <QFileDialog>
 #include <QProgressBar>
 #include <QLabel>
 
@@ -28,6 +27,7 @@
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
+#include "Widgets/FileDialog.h"
 
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
@@ -228,7 +228,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 		sPath = QDir::homePath();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
 
 	if( templateCombo->currentIndex() <= 4 ) {
@@ -304,13 +304,22 @@ void ExportSongDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QFileInfo fileInfo( exportNameTxt->text() );
+	if ( ! Filesystem::dir_writable( fileInfo.absoluteDir().absolutePath(), false ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  pCommonStrings->getFileDialogMissingWritePermissions(),
+							  QMessageBox::Ok );
+		return;
+	}
+
 	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	auto pInstrumentList = pSong->getInstrumentList();
 
 	// License related export warnings
 	if ( pPref->m_bShowExportSongLicenseWarning ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		
 		QMessageBox licenseWarning( this );
 
@@ -387,7 +396,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		m_bExportTrackouts = false;
 
 		QString filename = exportNameTxt->text();
-		if ( QFileInfo( filename ).exists() == true && m_bQfileDialog == false ) {
+		if ( fileInfo.exists() == true && m_bQfileDialog == false ) {
 
 			int res;
 			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){

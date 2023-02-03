@@ -54,6 +54,7 @@ using namespace H2Core;
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
+#include "../Widgets/FileDialog.h"
 
 
 
@@ -1916,7 +1917,8 @@ void SongEditorPatternList::patternPopup_load()
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( sPath );

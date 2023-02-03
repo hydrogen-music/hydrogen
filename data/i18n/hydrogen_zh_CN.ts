@@ -873,6 +873,11 @@ Current kit:</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>You do not have permissions to write to the selected folder. Please select another one.</source>
+        <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
