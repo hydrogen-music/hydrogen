@@ -170,7 +170,10 @@
 		- Hydrogen is now able to handle multiple drumkits featuring the
 		  same name in the SoundLibrary. The drumkit's absolute path will be
 		  used as unique handler from now on.
-		- Mixing instruments from different drumkit in one Song works again
+		- Mixing instruments from different drumkit in one Song works
+		  again
+		- Hydrogen shows a now a warning dialog when exporting/saving date
+		  to read-only folders
 	* Crash reporting
 		- Fatal errors will now show a GUI report including details to report
 		  and potential hints about the cause
