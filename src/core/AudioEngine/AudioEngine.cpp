@@ -2325,8 +2325,9 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				// Loop over all notes at tick nPatternTickPosition
 				// (associated tick is determined by Note::__position
 				// at the time of insertion into the Pattern).
-				FOREACH_NOTE_CST_IT_BOUND(notes, it,
-										  m_pQueuingPosition->getPatternTickPosition()) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes, it,
+												 m_pQueuingPosition->getPatternTickPosition(),
+												 pPattern ) {
 					Note *pNote = it->second;
 					if ( pNote != nullptr ) {
 						pNote->set_just_recorded( false );

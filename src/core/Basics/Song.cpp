@@ -1382,7 +1382,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		else {
 			for ( const auto& ppattern : *pColumn ) {
 				if ( ppattern != nullptr ) {
-					FOREACH_NOTE_CST_IT_BEGIN_END( ppattern->get_notes(), it ) {
+					FOREACH_NOTE_CST_IT_BEGIN_LENGTH( ppattern->get_notes(), it, ppattern ) {
 						if ( it->second != nullptr ) {
 							// Use the copy constructor to not mess
 							// with the song itself.

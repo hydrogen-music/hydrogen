@@ -361,7 +361,7 @@ void PianoRollEditor::drawPattern()
 	for ( Pattern *pPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( pPattern == m_pPattern );
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, pPattern ) {
 			Note *note = it->second;
 			assert( note );
 			drawNote( note, &p, bIsForeground );
@@ -739,7 +739,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	Pattern *pPattern = pPatternList->get( nPattern );
 
-	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
 			 && pCandidateNote->get_octave() == octave

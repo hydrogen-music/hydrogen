@@ -1034,53 +1034,15 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
-	std::vector<Note*> excessiveNotes;
-	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
-	FOREACH_NOTE_IT_BEGIN_END( pNotes, it ) {
-		Note* pNote = it->second;
-		if ( pNote != nullptr &&
-			 pNote->get_position() >= nNewLength ) {
-			excessiveNotes.push_back( pNote );
-		}
-	}
-
-	// Delete all notes that are not accessible anymore.
 	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	if ( excessiveNotes.size() != 0 ) {
-		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2 (trimming %3 notes)" )
-								.arg( fNewNumerator ).arg( fNewDenominator )
-								.arg( excessiveNotes.size() ) );
-	} else {
-		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
-								.arg( fNewNumerator ).arg( fNewDenominator ) );
-	}
+	pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
+							.arg( fNewNumerator ).arg( fNewDenominator ) );
 
 	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
 													   m_pPattern->get_length(),
 													   fNewDenominator,
 													   m_pPattern->get_denominator(),
 													   m_nSelectedPatternNumber ) );
-
-	for ( auto pNote : excessiveNotes ) {
-		// Note is exceeding the new pattern length. It has to be
-		// removed.
-		pUndoStack->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-														pInstrumentList->index( pNote->get_instrument() ),
-														m_nSelectedPatternNumber,
-														pNote->get_length(),
-														pNote->get_velocity(),
-														pNote->getPan(),
-														pNote->get_lead_lag(),
-														pNote->get_key(),
-														pNote->get_octave(),
-														pNote->get_probability(),
-														true,
-														false,
-														false,
-														false,
-														pNote->get_note_off() ) );
-	}
-	
 	pUndoStack->endMacro();
 }
 

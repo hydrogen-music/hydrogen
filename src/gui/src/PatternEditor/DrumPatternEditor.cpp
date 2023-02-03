@@ -422,7 +422,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it, nColumn ) {
+		FOREACH_NOTE_IT_BOUND_END( notes, it, nColumn ) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -515,7 +515,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	auto pFromInstrument = pInstrumentList->get( nRow );
 	auto pToInstrument = pInstrumentList->get( nNewRow );
 
-	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pFromInstrument
 			 && pCandidateNote->get_key() == pNote->get_key()
@@ -891,7 +891,7 @@ void DrumPatternEditor::selectAll()
 	}
 	
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(m_pPattern->get_notes(), it, m_pPattern) {
 		m_selection.addToSelection( it->second );
 	}
 	m_selection.updateWidgetGroup();
@@ -1415,7 +1415,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 
 	if( pPattern != nullptr ) {
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		FOREACH_NOTE_CST_IT_BOUND_END(notes,it,column) {
 			Note *pNote = it->second;
 			assert( pNote );
 			assert( (int)pNote->get_position() == column );
@@ -1537,7 +1537,7 @@ void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*>
 
 				// Check if note is not present
 				Pattern::notes_t* notes = (Pattern::notes_t *)pat->get_notes();
-				FOREACH_NOTE_IT_BOUND(notes, it, pNote->get_position())
+				FOREACH_NOTE_IT_BOUND_END(notes, it, pNote->get_position())
 				{
 					Note *pFoundNote = it->second;
 					if (pFoundNote->get_instrument() == pNote->get_instrument())
@@ -1598,7 +1598,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 				// Check if note is not present
 				bool noteExists = false;
 				const Pattern::notes_t* notes = pat->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes, it, pNote->get_position())
+				FOREACH_NOTE_CST_IT_BOUND_END(notes, it, pNote->get_position())
 				{
 					Note *pFoundNote = it->second;
 					if (pFoundNote->get_instrument() == pNote->get_instrument())
@@ -1654,7 +1654,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 	for (int i = 0; i < noteList.size(); i++ ) {
 		int nColumn  = noteList.value(i).toInt();
 		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-		FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+		FOREACH_NOTE_IT_BOUND_END(notes,it,nColumn) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -1731,7 +1731,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 	int positionCount = 0;
 	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i, pPattern) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() ==  pSelectedInstrument) {
 				float velocity = noteVeloValue.value( positionCount ).toFloat();

@@ -243,7 +243,17 @@ class Pattern : public H2Core::Object<Pattern>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		int __length;                                           ///< the length of the pattern
+	/**
+	 * Determines the accessible range or notes within the
+	 * pattern.
+	 *
+	 * Notes are allow to be located at positions larger than
+	 * #__length. This can happen when programming a pattern and
+	 * decreasing its length later on. Those notes will be stored in
+	 * the associated .h2pattern and .h2song but won't be played back
+	 * or exported into a MIDI file. 
+	 */
+		int __length;
 		int __denominator;                                           ///< the meter denominator of the pattern used in meter (eg 4/4)
 		QString __name;                                         ///< the name of thepattern
 		QString __category;                                     ///< the category of the pattern
@@ -260,17 +270,41 @@ class Pattern : public H2Core::Object<Pattern>
 	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
 };
 
+/** Iterate over all provided notes in an immutable way. */
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
-#define FOREACH_NOTE_CST_IT_BOUND(_notes,_it,_bound) \
+/** Iterate over all notes in column @a _bound in an immutable way. */
+#define FOREACH_NOTE_CST_IT_BOUND_END(_notes,_it,_bound) \
 	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
 
+/** Iterate over all provided notes in a mutable way. */
 #define FOREACH_NOTE_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
-#define FOREACH_NOTE_IT_BOUND(_notes,_it,_bound) \
+/** Iterate over all notes in column @a _bound in a mutable way. */
+#define FOREACH_NOTE_IT_BOUND_END(_notes,_it,_bound)						\
 	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
+
+/** Iterate over all accessible notes between position 0 and length of
+ * @a _pattern in an immutable way. */
+#define FOREACH_NOTE_CST_IT_BEGIN_LENGTH(_notes,_it,_pattern)			\
+	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->get_length(); (_it)++ )
+
+/** Iterate over all notes in column @a _bound in an immutable way if
+ * it is contained in @a _pattern. */
+#define FOREACH_NOTE_CST_IT_BOUND_LENGTH(_notes,_it,_bound,_pattern) \
+	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
+
+/** Iterate over all accessible notes between position 0 and length of
+ * @a _pattern in a mutable way. */
+#define FOREACH_NOTE_IT_BEGIN_LENGTH(_notes,_it,_pattern) \
+	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->get_length(); (_it)++ )
+
+/** Iterate over all notes in column @a _bound in a mutable way if
+ * it is contained in @a _pattern. */
+#define FOREACH_NOTE_IT_BOUND_LENGTH(_notes,_it,_bound,_pattern) \
+	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
 
 // DEFINITIONS
 
