@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -605,15 +605,15 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
 									  fNewBpm, pSong->getResolution() );
 	// Nothing changed - avoid recomputing
-#ifndef WIN32
-	if ( fNewTickSize == fOldTickSize ) {
-#else
+#if defined(WIN32) and !defined(WIN64)
 	// For some reason two identical numbers (according to their
 	// values when printing them) are not equal to each other in 32bit
 	// Windows. Course graining the tick change in here will do no
 	// harm except of for preventing tiny tempo changes. Integer value
 	// changes should not be affected.
 	if ( std::abs( fNewTickSize - fOldTickSize ) < 1e-2 ) {
+#else
+	if ( fNewTickSize == fOldTickSize ) {
 #endif
 		return;
 	}
@@ -972,10 +972,15 @@ void AudioEngine::stopAudioDrivers()
 
 void AudioEngine::restartAudioDrivers()
 {
+	bool bPlaying = m_state == State::Playing;
 	if ( m_pAudioDriver != nullptr ) {
 		stopAudioDrivers();
 	}
 	startAudioDrivers();
+	if ( bPlaying ) {
+		this->startPlayback();
+	}
+
 }
 
 void AudioEngine::handleDriverChange() {
@@ -1677,19 +1682,19 @@ void AudioEngine::updateSongSize() {
 
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
 	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
-
-	// Ensure the tick offset is calculated as well (we do not expect
-	// the tempo to change hence the following call is most likely not
-	// executed during updateTransportPosition()).
-#ifndef WIN32
-	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
-#else
+	
+    // Ensure the tick offset is calculated as well (we do not expect
+    // the tempo to change hence the following call is most likely not
+    // executed during updateTransportPosition()).
+#if defined(WIN32) and !defined(WIN64)
 	// For some reason two identical numbers (according to their
 	// values when printing them) are not equal to each other in 32bit
 	// Windows. Course graining the tick change in here will do no
 	// harm except of for preventing tiny tempo changes. Integer value
 	// changes should not be affected.
 	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#else
+	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
 #endif
 		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
@@ -1928,15 +1933,15 @@ void AudioEngine::handleTimelineChange() {
 	updateBpmAndTickSize( m_pTransportPosition );
 	updateBpmAndTickSize( m_pQueuingPosition );
 
-#ifndef WIN32
-	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
-#else
+#if defined(WIN32) and !defined(WIN64)
 	// For some reason two identical numbers (according to their
 	// values when printing them) are not equal to each other in 32bit
 	// Windows. Course graining the tick change in here will do no
 	// harm except of for preventing tiny tempo changes. Integer value
 	// changes should not be affected.
 	if ( std::abs( m_pTransportPosition->getTickSize() - fOldTickSize ) < 1e-2 ) {
+#else
+	if ( fOldTickSize == m_pTransportPosition->getTickSize() ) {
 #endif
 		// As tempo did not change during the Timeline activation, no
 		// update of the offsets took place. This, however, is not

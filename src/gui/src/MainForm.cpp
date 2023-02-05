@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -52,6 +52,7 @@
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
 #include "Widgets/InfoBar.h"
+#include "Widgets/FileDialog.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -341,7 +342,7 @@ void MainForm::createMenuBar()
 
 	updateRecentUsedSongList();
 	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this, SLOT( action_file_open_recent(QAction*) ) );
-	//~ FILE menu
+	// ~ FILE menu
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
@@ -435,7 +436,7 @@ void MainForm::createMenuBar()
 
 	m_pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
 
-	//~ Tools menu
+	// ~ Tools menu
 
 
 	Logger *pLogger = Logger::get_instance();
@@ -457,7 +458,7 @@ void MainForm::createMenuBar()
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		}
-		//~ DEBUG menu
+		// ~ DEBUG menu
 	}
 
 	// INFO menu
@@ -467,7 +468,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
 	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
 	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
-	//~ INFO menu
+	// ~ INFO menu
 }
 
 void MainForm::startAutosaveTimer() {
@@ -694,7 +695,7 @@ void MainForm::action_file_save_as()
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -936,7 +937,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	}
 
 	QString title = tr( "Save Pattern as ..." );
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setWindowTitle( title );
 	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->get_name() );
@@ -999,7 +1000,8 @@ void MainForm::action_file_openPattern()
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode ( QFileDialog::ExistingFiles );
 	fd.setDirectory ( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
@@ -1060,7 +1062,8 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::songs_filter_name );
@@ -1996,7 +1999,7 @@ void MainForm::action_file_export_lilypond()
 		sPath = Filesystem::usr_data_path();
 	}
 
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr( "LilyPond file (*.ly)" ) );
 	fd.setDirectory( sPath );

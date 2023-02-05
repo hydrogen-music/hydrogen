@@ -62,28 +62,18 @@ environment:
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
-      LIBJACK: libjack64.dll
-      OPENSSL_DIR: OpenSSL-Win64
       LIBSSL: libssl-1_1-x64.dll
       LIBCRYPTO: libcrypto-1_1-x64.dll
-
-      CHOCO_ARCH:
-      PROGRAM_FILES: "Program Files"
 
     - job_name: 'Windows32'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw32'
-      MSYS_REPO: 'mingw-w64-i686'
+      MSYS_REPO: 'mingw32/mingw-w64-i686'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
-      LIBJACK: libjack.dll
-      OPENSSL_DIR: OpenSSL-Win32
       LIBSSL: libssl-1_1.dll
       LIBCRYPTO: libcrypto-1_1.dll
-
-      CHOCO_ARCH:  --x86
-      PROGRAM_FILES: "Program Files (x86)"
 
 build:
   verbosity: detailed
@@ -302,11 +292,6 @@ for:
 
           cmake --version
           g++ --version
-          choco install %CHOCO_ARCH% -y jack
-
-          REM *** Results are ignored since a dependency was not properly installed in 32 bit Windows. But the .dll files required are installed regardless, so we don't care.***
-
-          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 1"
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
@@ -319,6 +304,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q -y %MSYS_REPO%-qt5
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
 
           ccache -M 256M
           ccache -s
@@ -331,7 +317,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DJACK_INCLUDE_DIRS="c:/%PROGRAM_FILES%/JACK2/include" -DJACK_LIBRARIES="c:/%PROGRAM_FILES%/JACK2/lib/%LIBJACK%.a" -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -366,12 +352,9 @@ for:
           %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
           %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-%TARGET_VERSION%.dll
 
-          REM Chocolatey installs JACK dlls in c:\Windows, so
-          REM copy_third_party_libs.py thinks it's a system lib and
-          REM won't copy it.
-          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
-          copy c:\%OPENSSL_DIR%\%LIBSSL% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
-          copy c:\%OPENSSL_DIR%\%LIBCRYPTO% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          REM *** libcrypto and libssl are not picked up by the Python script above and needs to be copied manually ***
+          copy %MSYS%\bin\%LIBSSL% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          copy %MSYS%\bin\%LIBCRYPTO% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v

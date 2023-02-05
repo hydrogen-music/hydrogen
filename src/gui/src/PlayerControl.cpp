@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -53,7 +53,7 @@ using namespace H2Core;
 
 //beatconter global
 int bcDisplaystatus = 0;
-//~ beatcounter
+// ~ beatcounter
 
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
@@ -212,7 +212,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	
 
 
-//~ CONTROLS
+// ~ CONTROLS
 
 // BC on off
 	QWidget *pControlsBBTBConoffPanel = new QWidget( nullptr );
@@ -245,7 +245,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pBCOnOffBtn, SIGNAL( clicked(bool) ), this, SLOT( activateBeatCounter(bool) ));
 	pAction = std::make_shared<Action>("BEATCOUNTER");
 	m_pBCOnOffBtn->setAction( pAction );
-//~  BC on off
+// ~  BC on off
 
 //beatcounter
 	m_pControlsBCPanel = new PixmapWidget( nullptr );
@@ -312,7 +312,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
 	m_pBCSetPlayBtn->move( 64, 25 );
 	connect(m_pBCSetPlayBtn, SIGNAL( clicked() ), this, SLOT( bcSetPlayBtnClicked() ));
-//~ beatcounter
+// ~ beatcounter
 
 
 // BPM
@@ -375,7 +375,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeBtn->setAction( pAction );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 
-//~ BPM
+// ~ BPM
 
 
 // JACK
@@ -449,7 +449,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	connect(m_pJackMasterBtn, SIGNAL( clicked() ), this, SLOT( jackMasterBtnClicked() ));
 	m_pJackMasterBtn->move( 56, 24 );
-	//~ jack time master
+	// ~ jack time master
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
@@ -470,7 +470,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pMidiActivityLED->move( 11, 14 );
 	m_pCpuLoadWidget->move( 10, 3 );
-//~ JACK
+// ~ JACK
 
 
 	QWidget *pLcdBackGround = new QWidget( nullptr );
@@ -571,7 +571,7 @@ void PlayerControl::updatePlayerControl()
 			m_pBCSetPlayBtn->setChecked(true);
 		}
 	}
-	//~ beatcounter
+	// ~ beatcounter
 
 	// time
 	float fSeconds = m_pHydrogen->getAudioEngine()->getElapsedTime();
@@ -885,7 +885,7 @@ void PlayerControl::bctDownButtonClicked()
 	m_pBCDisplayT->setText( QString::number(tmp) );
 	m_pHydrogen->setNoteLength( (tmp) / 4 );
 }
-//~ beatcounter
+// ~ beatcounter
 
 
 
@@ -928,7 +928,7 @@ void PlayerControl::jackMasterBtnClicked()
 	}
 #endif
 }
-//~ jack time master
+// ~ jack time master
 
 void PlayerControl::fastForwardBtnClicked()
 {

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -198,7 +198,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pCutoffRotary->move( 109, 164 );
 	m_pResonanceRotary->move( 163, 164 );
-	//~ Filter
+	// ~ Filter
 
 	// ADSR
 	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
@@ -236,7 +236,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pReleaseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
 										pCommonStrings->getReleaseLabel() );
 	m_pReleaseLbl->move( 199, 78 );
-	//~ ADSR
+	// ~ ADSR
 
 	// instrument gain
 	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ), false, false );
@@ -316,7 +316,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
 											  pCommonStrings->getHihatMaxRangeLabel() );
 	m_pHihatMaxRangeLbl->move( 201, 327 );
-	//~ Instrument properties
+	// ~ Instrument properties
 
 	// LAYER properties
 	m_pLayerProp = new PixmapWidget( this );
@@ -451,7 +451,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 												pCommonStrings->getSampleSelectionLabel() );
 	m_pSampleSelectionLbl->move( 7, 436 );
 
-	//~ Layer properties
+	// ~ Layer properties
 
 	//component handling
 	QStringList itemsCompo;
@@ -474,7 +474,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( popCompo, SIGNAL( triggered(QAction*) ),
 			 this, SLOT( compoChangeAddDelete(QAction*) ) );
 	update();
-	//~component handling
+	// ~ component handling
 
 	showLayers( false );
 
@@ -529,13 +529,13 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			fTmp = 0.0;
 		}
 		m_pReleaseRotary->setValue( sqrtf(fTmp / 100000.0) );
-		//~ ADSR
+		// ~ ADSR
 
 		// filter
 		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-		//~ filter
+		// ~ filter
 
 		// pitch offset
 		char tmp[7];
@@ -674,7 +674,7 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-		//~ filter
+		// ~ filter
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );

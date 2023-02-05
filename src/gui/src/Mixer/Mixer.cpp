@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -76,7 +76,7 @@ Mixer::Mixer( QWidget* pParent )
 		m_pMixerLine[ i ] = nullptr;
 	}
 
-//~ fader panel
+// ~ fader panel
 
 
 // fX frame
@@ -110,7 +110,7 @@ Mixer::Mixer( QWidget* pParent )
 	else {
 		m_pFXFrame->hide();
 	}
-//~ fX frame
+// ~ fX frame
 
 
 // Master frame
@@ -141,7 +141,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowPeaksBtn->move( 63, 259 );
 	m_pShowPeaksBtn->setChecked( (Preferences::get_instance())->showInstrumentPeaks() );
 	connect( m_pShowPeaksBtn, SIGNAL( clicked() ), this, SLOT( showPeaksBtnClicked() ));
-//~ Master frame
+// ~ Master frame
 
 
 	// LAYOUT!

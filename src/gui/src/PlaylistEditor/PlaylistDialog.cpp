@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -41,12 +41,12 @@
 #include <core/Basics/Playlist.h>
 
 #include "../Widgets/Button.h"
+#include "../Widgets/FileDialog.h"
 
 #include <QTreeWidget>
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QHeaderView>
-#include <QFileDialog>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
@@ -264,7 +264,8 @@ void PlaylistDialog::addSong()
 		sPath = Filesystem::songs_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setWindowTitle( tr( "Add Song to PlayList" ) );
 	fd.setFileMode( QFileDialog::ExistingFiles );
 	fd.setNameFilter( Filesystem::songs_filter_name );
@@ -385,7 +386,8 @@ void PlaylistDialog::loadList()
 		sPath = Filesystem::playlists_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setWindowTitle( tr( "Load Playlist" ) );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
@@ -445,7 +447,7 @@ void PlaylistDialog::newScript()
 		sPath = Filesystem::scripts_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::scripts_filter_name );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
@@ -489,7 +491,8 @@ void PlaylistDialog::newScript()
 
 		static QString lastUsedDir = "/usr/bin/";
 
-		QFileDialog fd(this);
+		FileDialog fd(this);
+		fd.setAcceptMode( QFileDialog::AcceptOpen );
 		fd.setFileMode ( QFileDialog::ExistingFile );
 		fd.setDirectory ( lastUsedDir );
 
@@ -516,7 +519,7 @@ void PlaylistDialog::saveListAs()
 		sPath = Filesystem::playlists_dir();
 	}
 	
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setWindowTitle( tr( "Save Playlist" ) );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::playlists_filter_name );
@@ -572,7 +575,8 @@ void PlaylistDialog::loadScript()
 		sPath = Filesystem::scripts_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode ( QFileDialog::ExistingFile );
 	fd.setDirectory ( sPath );
 	fd.setNameFilter ( tr ( "Hydrogen Playlist (*.sh)" ) );
@@ -626,7 +630,8 @@ void PlaylistDialog::editScript()
 
 		static QString lastUsedDir = "/usr/bin/";
 
-		QFileDialog fd(this);
+		FileDialog fd(this);
+		fd.setAcceptMode( QFileDialog::AcceptOpen );
 		fd.setFileMode ( QFileDialog::ExistingFile );
 		fd.setDirectory ( lastUsedDir );
 

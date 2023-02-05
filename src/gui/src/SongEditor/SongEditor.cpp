@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -54,6 +54,7 @@ using namespace H2Core;
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
+#include "../Widgets/FileDialog.h"
 
 
 
@@ -1169,7 +1170,7 @@ void SongEditor::createBackground()
 		p.drawLine( 0, y, (nMaxPatternSequence * m_nGridWidth), y );
 	}
 
-	//~ celle
+	// ~ celle
 	m_bSequenceChanged = true;
 
 }
@@ -1947,7 +1948,8 @@ void SongEditorPatternList::patternPopup_load()
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( sPath );

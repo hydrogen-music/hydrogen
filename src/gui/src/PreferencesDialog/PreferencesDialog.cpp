@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -45,6 +45,7 @@
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
@@ -778,7 +779,7 @@ void PreferencesDialog::updateDriverPreferences() {
 	default:
 		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
-	//~ JACK
+	// ~ JACK
 
 	if ( pPref->m_nBufferSize != bufferSizeSpinBox->value() ) {
 		pPref->m_nBufferSize = bufferSizeSpinBox->value();
@@ -2198,7 +2199,7 @@ void PreferencesDialog::importTheme() {
 	}
 	
 	QString sTitle = tr( "Import Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -2253,7 +2254,7 @@ void PreferencesDialog::exportTheme() {
 		sPath = Filesystem::usr_theme_dir();
 	}
 	QString sTitle = tr( "Export Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::AnyFile );

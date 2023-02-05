@@ -1,6 +1,5 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -20,37 +19,26 @@
  *
  */
 
-#include <core/config.h>
-#include "Version.h"
+#ifndef FILEDIALOG_H
+#define FILEDIALOG_H
 
-namespace H2Core {
+#include <QDialog>
+#include <core/Object.h>
 
-static const std::string version = H2CORE_VERSION;
+/** Custom file dialog checking whether the user has write access to
+ * the selected folder before allowing to save a file.
+ */
+/** \ingroup docGUI docWidgets*/
+class FileDialog : public QFileDialog, public H2Core::Object<FileDialog>
+{
+    H2_OBJECT(FileDialog)
+	
+public:
 
-std::string get_version() {
-	return version;
-}
+	FileDialog( QWidget* pParent );
+	~FileDialog();
 
-bool version_older_than( int major, int minor, int patch ) {
-	if ( H2CORE_VERSION_MAJOR > major ) {
-		return true;
-	} else if ( H2CORE_VERSION_MAJOR < major ) {
-		return false;
-	} else {
-		if ( H2CORE_VERSION_MINOR > minor ) {
-			return true;
-		} else if ( H2CORE_VERSION_MINOR < minor ) {
-			return false;
-		} else {
-			if ( H2CORE_VERSION_PATCH > patch ) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-}
-
+public slots:
+	void accept();
 };
-
-/* vim: set softtabstop=4 noexpandtab: */
+#endif

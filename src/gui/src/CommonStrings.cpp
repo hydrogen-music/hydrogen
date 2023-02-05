@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -49,10 +49,10 @@ CommonStrings::CommonStrings(){
 	  is designed to hold a single character.*/
 	m_sTimelineButton = tr( "T" );
 	/*: Text displayed on the button to activate the Timeline. Its size
-	  is designed to hold three characters.*/
+	  is designed to hold eight characters.*/
 	m_sTimelineBigButton = tr( "Timeline" );
 	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold eight characters.*/
+	  is designed to hold two characters.*/
 	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
@@ -333,6 +333,10 @@ CommonStrings::CommonStrings(){
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
 	m_sInstrumentLoadError = tr( "Unable to load instrument" );
+
+	/*: Error message shown when attempt to export a song, pattern,
+	  drumkit, MIDI etc. into a read-only folder.*/
+	m_sFileDialogMissingWritePermissions = tr( "You do not have permissions to write to the selected folder. Please select another one." );
 
 	/*: Displayed within a status message when activating a widget.*/
 	m_sStatusOn = tr( "on" );
