@@ -61,7 +61,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
+	setMinimumHeight( m_nEditorHeight );
 
 	updateEditor();
 	show();
@@ -886,7 +886,8 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -1401,14 +1402,14 @@ void NotePropertiesRuler::updateEditor( bool )
 	m_nSelectedPatternNumber = nSelectedPatternNumber;
 
 	updateWidth();
+	resize( m_nEditorWidth, height() );
+
 	invalidateBackground();
 	update();
 }
 
 void NotePropertiesRuler::createBackground()
 {
-	resize( m_nEditorWidth, height() );
-	
 	qreal pixelRatio = devicePixelRatio();
 	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
 		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
@@ -1430,7 +1431,7 @@ void NotePropertiesRuler::createBackground()
 	else if ( m_mode == PatternEditor::Mode::NoteKey ) {
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
-	update();
+	
 	m_bBackgroundInvalid = false;
 }
 
