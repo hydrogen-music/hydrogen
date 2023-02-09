@@ -305,13 +305,11 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		m_pPattern = nullptr;
 	}
 
-	const int nPrevWidthActive = m_nWidthActive;
-	updateActiveRange();
+	const bool bActiveRangeUpdated = updateActiveRange();
 
 	updatePosition();
 	
-	if ( bRedrawAll ||
-		 nPrevWidthActive != m_nWidthActive ) {
+	if ( bRedrawAll || bActiveRangeUpdated ) {
 		invalidateBackground();
 		update( 0, 0, width(), height() );
 	}
@@ -513,7 +511,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	}
 }
 
-void PatternEditorRuler::updateActiveRange() {
+bool PatternEditorRuler::updateActiveRange() {
 	
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	int nTicksInPattern = MAX_NOTES;
@@ -526,7 +524,13 @@ void PatternEditorRuler::updateActiveRange() {
 		nTicksInPattern = pPlayingPatterns->longest_pattern_length( false );
 	}
 
-	m_nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
+	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
+	if ( m_nWidthActive != nWidthActive ) {
+		m_nWidthActive = nWidthActive;
+		return true;
+	}
+
+	return false;
 }
 
 void PatternEditorRuler::zoomIn()
@@ -578,6 +582,15 @@ void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
+}
+
+void PatternEditorRuler::playingPatternsChangedEvent() {
+	if ( ! PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
+		if ( updateActiveRange() ) {
+			invalidateBackground();
+			update();
+		}
+	}
 }
 
 void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
