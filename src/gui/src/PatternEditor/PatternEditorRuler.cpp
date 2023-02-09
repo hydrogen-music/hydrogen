@@ -77,6 +77,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	// Will set the active width and calls createBackground.
 	updateActiveRange();
+	invalidateBackground();
+	update();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -302,11 +304,14 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	else {
 		m_pPattern = nullptr;
 	}
+
+	const int nPrevWidthActive = m_nWidthActive;
 	updateActiveRange();
 
 	updatePosition();
 	
-	if (bRedrawAll) {
+	if ( bRedrawAll ||
+		 nPrevWidthActive != m_nWidthActive ) {
 		invalidateBackground();
 		update( 0, 0, width(), height() );
 	}
@@ -521,14 +526,7 @@ void PatternEditorRuler::updateActiveRange() {
 		nTicksInPattern = pPlayingPatterns->longest_pattern_length( false );
 	}
 
-	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
-	
-	if ( m_nWidthActive != nWidthActive ) {
-		m_nWidthActive = nWidthActive;
-
-		invalidateBackground();
-		update();
-	}
+	m_nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
 }
 
 void PatternEditorRuler::zoomIn()
@@ -539,7 +537,7 @@ void PatternEditorRuler::zoomIn()
 		m_fGridWidth *= 1.5;
 	}
 	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
-	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
+	resize( QSize( m_nRulerWidth, m_nRulerHeight ) );
 
 	updateActiveRange();
 	
