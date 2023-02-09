@@ -943,7 +943,7 @@ void PatternEditorPanel::patternModifiedEvent() {
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
@@ -957,7 +957,7 @@ void PatternEditorPanel::stackedModeActivationEvent( int ) {
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {
-	if ( PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }

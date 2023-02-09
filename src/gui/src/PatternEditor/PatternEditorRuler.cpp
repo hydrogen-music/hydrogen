@@ -585,7 +585,7 @@ void PatternEditorRuler::selectedPatternChangedEvent()
 }
 
 void PatternEditorRuler::playingPatternsChangedEvent() {
-	if ( ! PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
+	if ( ! PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
 		if ( updateActiveRange() ) {
 			invalidateBackground();
 			update();

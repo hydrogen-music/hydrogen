@@ -871,6 +871,17 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 		}
 		m_pAudioEngine->unlock();
 	}
+	else if ( m_pPattern != nullptr &&
+			  pHydrogen->getMode() == Song::Mode::Song &&
+			  m_pPattern->get_virtual_patterns()->size() > 0 ) {
+		// A virtual pattern was selected in song mode without the
+		// pattern editor being locked. Virtual patterns in selected
+		// pattern mode are handled using the playing pattern above.
+		for ( const auto ppVirtualPattern : *m_pPattern ) {
+			patterns.push_back( ppVirtualPattern );
+		}
+	}
+			  
 
 	if ( m_pPattern != nullptr ) {
 		patterns.push_back( m_pPattern );
@@ -879,12 +890,11 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	return patterns;
 }
 
-bool PatternEditor::isUsingAllPlayingPatterns( const H2Core::Pattern* pPattern ) {
+bool PatternEditor::isUsingAdditionalPatterns( const H2Core::Pattern* pPattern ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-		 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-		   pPattern->get_flattened_virtual_patterns()->size() > 0 ) ||
+		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
 		 ( pHydrogen->getMode() == Song::Mode::Song &&
 		   pHydrogen->isPatternEditorLocked() ) ) {
 		return true;
@@ -899,12 +909,20 @@ void PatternEditor::updateWidth() {
 	if ( m_pPattern != nullptr ) {
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
 			m_pPattern->get_length();
-			
-		if ( isUsingAllPlayingPatterns( m_pPattern ) ) {
-			// In case there are other patterns playing which are longer
-			// than the selected one, their notes will be placed using a
-			// different color set between m_nActiveWidth and
-			// m_nEditorWidth.
+		
+		// In case there are other patterns playing which are longer
+		// than the selected one, their notes will be placed using a
+		// different color set between m_nActiveWidth and
+		// m_nEditorWidth.
+		if ( pHydrogen->getMode() == Song::Mode::Song &&
+			 m_pPattern != nullptr && m_pPattern->isVirtual() &&
+			 ! pHydrogen->isPatternEditorLocked() ) {
+			m_nEditorWidth = 
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  m_pPattern->longestVirtualPatternLength() + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		}
+		else if ( isUsingAdditionalPatterns( m_pPattern ) ) {
 			m_nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
 						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,

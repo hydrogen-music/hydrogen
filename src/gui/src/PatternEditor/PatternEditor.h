@@ -194,10 +194,11 @@ public:
 		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
 	}
 	/**
-	 * Determines whether to pattern editor should show all playing
-	 * patterns or just the currently selected one.
+	 * Determines whether to pattern editor should show further
+	 * patterns (determined by getPattersToShow()) or just the
+	 * currently selected one.
 	 */
-	static bool isUsingAllPlayingPatterns( const H2Core::Pattern* pPattern );
+	static bool isUsingAdditionalPatterns( const H2Core::Pattern* pPattern );
 
 protected:
 
