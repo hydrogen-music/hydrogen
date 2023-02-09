@@ -943,20 +943,26 @@ void PatternEditorPanel::patternModifiedEvent() {
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
+	if ( PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
+	updateEditors( true );
+}
+
+void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updateEditors( true );
+}
+
+void PatternEditorPanel::songSizeChangedEvent() {
+	if ( PatternEditor::isUsingAllPlayingPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
 
-void PatternEditorPanel::stackedModeActivationEvent( int ) {
+void PatternEditorPanel::patternEditorLockedEvent() {
 	updateEditors( true );
 }
 

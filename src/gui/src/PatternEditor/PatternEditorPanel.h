@@ -95,6 +95,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;
+	virtual void songSizeChangedEvent() override;
+	virtual void patternEditorLockedEvent() override;
 		// ~ Implements EventListener interface
 
 		void ensureCursorVisible();

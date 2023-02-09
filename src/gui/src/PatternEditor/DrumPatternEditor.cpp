@@ -84,31 +84,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	}
 
 	updatePatternInfo();
-
-	if ( m_pPattern != nullptr ) {
-		
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pAudioEngine->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		}
-		else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
 
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1120,6 +1096,12 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		// markers for instruments which have more than one note in the same position (a chord or genuine
 		// duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
+			if ( posIt->first >= pPattern->get_length() ) {
+				// Notes are located beyond the active length of the
+				// editor and aren't visible even when drawn.
+				break;
+			}
+
 			int nPosition = posIt->second->get_position();
 
 			// Process all notes at this position
