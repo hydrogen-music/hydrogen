@@ -215,6 +215,8 @@ class SongEditor : public QWidget
 		bool m_bEntered;
 
 	virtual void patternModifiedEvent() override;
+	virtual void relocationEvent() override;
+	virtual void patternEditorLockedEvent() override;
 	
 	/** Cached position of the playhead.*/
 	float m_fTick;
@@ -285,6 +287,8 @@ class SongEditorPatternList :  public QWidget
 	virtual void stackedModeActivationEvent( int nValue ) override;
 	virtual void selectedPatternChangedEvent() override;
 	virtual void nextPatternsChangedEvent() override;
+	virtual void relocationEvent() override;
+	virtual void patternEditorLockedEvent() override;
 
 	public slots:
 		void patternPopup_edit();

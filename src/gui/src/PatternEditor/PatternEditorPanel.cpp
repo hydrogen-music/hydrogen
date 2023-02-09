@@ -966,6 +966,12 @@ void PatternEditorPanel::patternEditorLockedEvent() {
 	updateEditors( true );
 }
 
+void PatternEditorPanel::relocationEvent() {
+	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		updateEditors( true );
+	}
+}
+
 void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( m_pPattern == nullptr ) {
 		return;

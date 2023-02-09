@@ -998,6 +998,20 @@ void SongEditor::patternModifiedEvent() {
 	update();
 }
 
+void SongEditor::relocationEvent() {
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		invalidateBackground();
+		update();
+	}
+}
+
+void SongEditor::patternEditorLockedEvent() {
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		invalidateBackground();
+		update();
+	}
+}
+
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
 	if ( m_bBackgroundInvalid ) {
@@ -1504,6 +1518,20 @@ void SongEditorPatternList::selectedPatternChangedEvent() {
 void SongEditorPatternList::nextPatternsChangedEvent() {
 	invalidateBackground();
 	update();
+}
+
+void SongEditorPatternList::relocationEvent() {
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		invalidateBackground();
+		update();
+	}
+}
+
+void SongEditorPatternList::patternEditorLockedEvent() {
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		invalidateBackground();
+		update();
+	}
 }
 
 /// Single click, select the next pattern

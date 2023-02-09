@@ -1076,9 +1076,7 @@ void AudioEngine::handleSelectedPattern() {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	
-	if ( pHydrogen->isPatternEditorLocked() &&
-		 ( m_state == State::Playing ||
-		   m_state == State::Testing ) ) {
+	if ( pHydrogen->isPatternEditorLocked() ) {
 
 		// Default value is used to deselect the current pattern in
 		// case none was found.
