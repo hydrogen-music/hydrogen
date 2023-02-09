@@ -58,6 +58,11 @@ class Pattern : public H2Core::Object<Pattern>
 		typedef virtual_patterns_t::iterator virtual_patterns_it_t;
 		///< note set const iterator type;
 		typedef virtual_patterns_t::const_iterator virtual_patterns_cst_it_t;
+
+	/** allow iteration of all contained virtual patterns.*/
+	std::set<Pattern*>::iterator begin();
+	std::set<Pattern*>::iterator end();
+	
 		/**
 		 * constructor
 		 * \param name the name of the pattern
@@ -214,6 +219,12 @@ class Pattern : public H2Core::Object<Pattern>
 	 * Companion function of addFlattenedVirtualPatterns();
 	 */
 	void removeFlattenedVirtualPatterns( PatternList* pPatternList );
+
+	int longestVirtualPatternLength() const;
+	/**
+	 * Whether the pattern holds at least one virtual pattern.
+	 */
+	bool isVirtual() const;
 
 		/**
 		 * save the pattern within the given XMLNode

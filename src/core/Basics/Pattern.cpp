@@ -352,6 +352,30 @@ void Pattern::removeFlattenedVirtualPatterns( PatternList* pPatternList ) {
 	}
 }
 
+int Pattern::longestVirtualPatternLength() const {
+	int nMax = __length;
+	for ( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
+		 it!=__flattened_virtual_patterns.end(); ++it ) {
+		if ( (*it)->__length > nMax ) {
+			nMax = (*it)->__length;
+		}
+	}
+
+	return nMax;
+}
+
+bool Pattern::isVirtual() const {
+	return __flattened_virtual_patterns.size() > 0;
+}
+
+std::set<Pattern*>::iterator Pattern::begin() {
+	return __flattened_virtual_patterns.begin();
+}
+
+std::set<Pattern*>::iterator Pattern::end() {
+	return __flattened_virtual_patterns.end();
+}
+
 QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
