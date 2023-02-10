@@ -138,12 +138,21 @@ void* diskWriterDriver_thread( void* param )
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
+		pthread_exit( nullptr );
 		return nullptr;
 	}
 
 
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
-
+	if ( m_file == nullptr ) {
+		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
+					.arg( pDriver->m_sFilename )
+					.arg( sf_strerror( nullptr ) ) );
+		pthread_exit( nullptr );
+		return nullptr;
+	}
+	
+							  
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
@@ -264,9 +273,12 @@ void* diskWriterDriver_thread( void* param )
 				}
 			}
 			
-			int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				__ERRORLOG( "Error during sf_write_float" );
+				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
+							.arg( res )
+							.arg( nBufferWriteLength )
+							.arg( sf_strerror( nullptr ) ) );
 			}
 
 			// Sampler is still rendering notes put we seem to have

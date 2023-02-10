@@ -290,11 +290,11 @@ FOREACH( _pkg ${STATUS_LIST})
 ENDFOREACH()
 
 # LIBSNDFILE CHECKS
-STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIBSNDFILE_VERSION_OK)
+STRING( COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIBSNDFILE_VERSION_OK)
 IF(LIBSNDFILE_VERSION_OK)
-    SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
+    SET(LIBSNDFILE_MSG "${PC_LIBSNDFILE_VERSION}: libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${LIBSNDFILE_VERSION}")
+	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${PC_LIBSNDFILE_VERSION}")
 ENDIF()
 
 # RUBBERBAND information
