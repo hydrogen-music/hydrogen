@@ -26,7 +26,7 @@ macro(FIND_HELPER prefix pkg_name header lib)
         if(PKG_CONFIG_FOUND)
             pkg_check_modules(PC_${prefix} ${pkg_name})
         else()
-            MESSAGE(STATUS "Checking for module '${pkg_name}'")
+            MESSAGE(STATUS "Checking for module '${pkg_name}' without pkgconfig")
         endif()
         # find_path
         find_path(${prefix}_INCLUDE_DIRS
