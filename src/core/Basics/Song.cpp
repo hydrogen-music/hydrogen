@@ -299,12 +299,12 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 							 static_cast<int>( Song::ActionMode::selectMode ),
 							 false, false, bSilent ) ) );
 	pSong->setIsPatternEditorLocked( pRootNode->read_bool( "isPatternEditorLocked",
-														   false, false, false, bSilent ) );
+														   false, true, false, true ) );
 
 	bool bContainsIsTimelineActivated;
 	bool bIsTimelineActivated =
 		pRootNode->read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, false, false, bSilent );
+							  &bContainsIsTimelineActivated, true, false, true );
 	if ( ! bContainsIsTimelineActivated ) {
 		// .h2song file was created in an older version of
 		// Hydrogen. Using the Timeline state in the
