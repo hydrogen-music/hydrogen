@@ -160,7 +160,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	root.write_string( "drumkit_name", drumkit_name );
 	root.write_string( "author", author );							// FIXME this is never loaded back
-	root.write_string( "license", license.toQString() );
+	root.write_string( "license", license.getLicenseString() );
 	// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
