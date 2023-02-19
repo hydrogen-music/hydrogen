@@ -27,6 +27,7 @@
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace H2Core
@@ -42,8 +43,6 @@ namespace H2Core
 *
 */
 
-typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
-
 /** \ingroup docGUI*/
 class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
@@ -52,10 +51,10 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	soundLibraryInfoVector* getAllPatternInfos() const {
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
 		return m_patternInfoVector;
 	}
-	QStringList getAllPatternCategories() const {
+	QStringList getPatternCategories() const {
 		return m_patternCategories;
 	}
 
@@ -70,13 +69,13 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
-	void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
-	bool isPatternInstalled( const QString& sPatternName) const;
+	void loadPatternFromDirectory( const QString& path );
+	bool isPatternInstalled( const QString& sPatternName ) const;
 
 private:
 	std::map<QString,std::shared_ptr<Drumkit>> m_drumkitDatabase;
 	
-	soundLibraryInfoVector* m_patternInfoVector;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
 	QStringList m_patternCategories;
 
 	/**

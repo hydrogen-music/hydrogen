@@ -31,24 +31,16 @@ namespace H2Core
 
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
-	
-	m_patternInfoVector = new soundLibraryInfoVector();
 	update();
 }
 
 SoundLibraryDatabase::~SoundLibraryDatabase()
 {
-	//Clean up the patterns data structure
-	for ( auto pPatternInfo : *m_patternInfoVector ) {
-		delete pPatternInfo;
-	}
-	
-	delete m_patternInfoVector;
 }
 
 void SoundLibraryDatabase::printPatterns() const
 {
-	for ( const auto& pPatternInfo : *m_patternInfoVector ) {
+	for ( const auto& pPatternInfo : m_patternInfoVector ) {
 		INFOLOG( QString( "Name: [%1]" ).arg( pPatternInfo->getName() ) );
 	}
 
@@ -59,7 +51,7 @@ void SoundLibraryDatabase::printPatterns() const
 
 bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName ) const
 {
-	for ( const auto& pPatternInfo : *m_patternInfoVector ) {
+	for ( const auto& pPatternInfo : m_patternInfoVector ) {
 		if ( pPatternInfo->getName() == sPatternName ) {
 			return true;
 		}
@@ -186,30 +178,28 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 {
-	for ( auto ppPattern : *m_patternInfoVector ) {
-		delete ppPattern;
-	}
-	m_patternInfoVector->clear();
+	m_patternInfoVector.clear();
 	m_patternCategories = QStringList();
 
 	// search drumkit subdirectories within patterns user directory
 	foreach ( const QString& sDrumkit, Filesystem::pattern_drumkits() ) {
-		getPatternFromDirectory( Filesystem::patterns_dir( sDrumkit ), m_patternInfoVector);
+		loadPatternFromDirectory( Filesystem::patterns_dir( sDrumkit ) );
 	}
 	// search patterns user directory
-	getPatternFromDirectory( Filesystem::patterns_dir(), m_patternInfoVector);
+	loadPatternFromDirectory( Filesystem::patterns_dir() );
 
 	if ( bTriggerEvent ) {
 		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
 	}
 }
 
-void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* m_patternInfoVector )
+void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir )
 {
 	foreach ( const QString& sName, Filesystem::pattern_list( sPatternDir ) ) {
 		QString sFile = sPatternDir + sName;
-		SoundLibraryInfo* pSoundLibraryInfo = new SoundLibraryInfo( sFile );
-		m_patternInfoVector->push_back( pSoundLibraryInfo );
+		std::shared_ptr<SoundLibraryInfo> pSoundLibraryInfo =
+			std::make_shared<SoundLibraryInfo>( sFile );
+		m_patternInfoVector.push_back( pSoundLibraryInfo );
 		
 		if ( ! m_patternCategories.contains( pSoundLibraryInfo->getCategory() ) ) {
 			m_patternCategories << pSoundLibraryInfo->getCategory();

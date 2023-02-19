@@ -240,31 +240,28 @@ void SoundLibraryPanel::updateTree()
 			__pattern_item->setExpanded( __expand_pattern_list );
 			__pattern_item->setFont( 0, boldFont );
 		
-			soundLibraryInfoVector* allPatternDirList =
-				pSoundLibraryDatabase->getAllPatternInfos();
-			QStringList allCategoryNameList =
-				pSoundLibraryDatabase->getAllPatternCategories();
+			auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
+			QStringList patternCategories =
+				pSoundLibraryDatabase->getPatternCategories();
 
 			//now sorting via category
 
-			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
-				QString categoryName = allCategoryNameList[i];
+			for (uint i = 0; i < patternCategories.size(); ++i) {
+				QString categoryName = patternCategories[i];
 
 				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
 				pCategoryItem->setText( 0, categoryName  );
 
-				soundLibraryInfoVector::iterator mapIterator;
-				for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
-					{
-						QString patternCategory = (*mapIterator)->getCategory();
-						if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
-							QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-							pPatternItem->setText( 0, (*mapIterator)->getName());
-							pPatternItem->setText( 1, (*mapIterator)->getPath() );
-							pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( (*mapIterator)->getPath() ));
-							INFOLOG( "Path" +  (*mapIterator)->getPath() );
-						}
+				for ( const auto& pInfo : patternInfoVector ) {
+					QString patternCategory = pInfo->getCategory();
+					if ( ( patternCategory == categoryName ) ||
+						 ( patternCategory.isEmpty() && categoryName == "No category" ) ){
+						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+						pPatternItem->setText( 0, pInfo->getName());
+						pPatternItem->setText( 1, pInfo->getPath() );
+						pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( pInfo->getPath() ));
 					}
+				}
 			}
 		}
 	}
