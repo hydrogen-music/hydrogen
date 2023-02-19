@@ -126,12 +126,6 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, sDrumkitFile );
 	}
-
-	if ( ! bSilent ) {
-		INFOLOG( QString( "[%1] loaded from [%2]" )
-				 .arg( pDrumkit->get_name() )
-				 .arg( sDrumkitPath ) );
-	}
 	
 	return pDrumkit;
 }
@@ -149,7 +143,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	pDrumkit->__path = sDrumkitPath;
 	pDrumkit->__name = sDrumkitName;
 	pDrumkit->__author = node->read_string( "author", "undefined author",
-											true, true, bSilent );
+											true, true, true );
 	pDrumkit->__info = node->read_string( "info", "No information available.",
 										  true, true, bSilent  );
 

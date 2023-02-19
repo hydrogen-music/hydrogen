@@ -492,7 +492,8 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		auto pCompo = Legacy::loadInstrumentComponent( pNode, pInstrument->get_drumkit_path(),
 													   instrumentLicense, bSilent );
 		if ( pCompo == nullptr ) {
-			ERRORLOG( "Unable to load component. Aborting." );
+			ERRORLOG( QString( "Unable to load component for instrument [%1]. Aborting." )
+					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
 

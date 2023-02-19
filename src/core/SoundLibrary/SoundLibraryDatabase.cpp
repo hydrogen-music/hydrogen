@@ -99,6 +99,11 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 						  .arg( sDrumkitPath ) );
 				continue;
 			}
+			else {
+				INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
+						 .arg( pDrumkit->get_name() )
+						 .arg( sDrumkitPath ) );
+			}
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
