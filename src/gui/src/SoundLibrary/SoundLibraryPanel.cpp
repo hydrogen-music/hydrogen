@@ -246,8 +246,11 @@ void SoundLibraryPanel::updateTree()
 
 			//now sorting via category
 
-			for (uint i = 0; i < patternCategories.size(); ++i) {
-				QString categoryName = patternCategories[i];
+			/*: Base tooltip displayed when hovering over a pattern in
+			  the Sound Library. It indicates which drumkit the
+			  pattern was created with*/
+			QString sPatternTooltip = tr( "Created for drumkit" );
+			for ( const auto& categoryName : patternCategories ) {
 
 				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
 				pCategoryItem->setText( 0, categoryName  );
@@ -259,7 +262,9 @@ void SoundLibraryPanel::updateTree()
 						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 						pPatternItem->setText( 0, pInfo->getName());
 						pPatternItem->setText( 1, pInfo->getPath() );
-						pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( pInfo->getPath() ));
+						pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
+												  .arg( sPatternTooltip )
+												  .arg( pInfo->getDrumkitName() ) );
 					}
 				}
 			}

@@ -197,12 +197,19 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir 
 {
 	foreach ( const QString& sName, Filesystem::pattern_list( sPatternDir ) ) {
 		QString sFile = sPatternDir + sName;
-		std::shared_ptr<SoundLibraryInfo> pSoundLibraryInfo =
-			std::make_shared<SoundLibraryInfo>( sFile );
-		m_patternInfoVector.push_back( pSoundLibraryInfo );
+		std::shared_ptr<SoundLibraryInfo> pInfo =
+			std::make_shared<SoundLibraryInfo>();
+
+		if ( pInfo->load( sFile ) ) {
+			INFOLOG( QString( "Pattern [%1] of category [%2] loaded from [%3]" )
+					 .arg( pInfo->getName() ).arg( pInfo->getCategory() )
+					 .arg( sFile ) );
+			
+			m_patternInfoVector.push_back( pInfo );
 		
-		if ( ! m_patternCategories.contains( pSoundLibraryInfo->getCategory() ) ) {
-			m_patternCategories << pSoundLibraryInfo->getCategory();
+			if ( ! m_patternCategories.contains( pInfo->getCategory() ) ) {
+				m_patternCategories << pInfo->getCategory();
+			}
 		}
 	}
 }

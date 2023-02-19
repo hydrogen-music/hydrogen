@@ -189,28 +189,6 @@ void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> pInstrum
 	}
 }
 
-QString Pattern::loadDrumkitNameFrom( const QString& sPatternPath ) {
-
-	XMLDoc doc;
-	// We don't check the return value in here since even if the
-	// validation against the pattern XSD schema fails the document
-	// will still be read and the drumkit name might still be
-	// contained.
-	loadDoc( sPatternPath, nullptr, &doc, false );
-
-	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
-	if ( ! rootNode.isNull() ) {
-
-		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", false, false );
-		if ( sDrumkitName.isEmpty() ) {
-			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
-		}
-
-		return sDrumkitName;
-	}
-	return QString();
-}
-
 Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
 	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
