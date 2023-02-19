@@ -401,7 +401,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(m_pPattern->get_notes(), it, m_pPattern) {
 		if ( it->second->get_instrument() == pInstrument ) {
 			m_selection.addToSelection( it->second );
 		}
@@ -488,7 +488,7 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			// Already marked pNote as a duplicate of some other pNote. Skip it.
 			continue;
 		}
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+		FOREACH_NOTE_CST_IT_BOUND_END( m_pPattern->get_notes(), it, pNote->get_position() ) {
 			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
 			// sharing the same location might be selected; we count these as duplicates too. They will appear
 			// in both the duplicates and selection lists.
@@ -583,7 +583,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 	}
 	// Select the previously-selected notes
 	for ( auto pNote : selected ) {
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+		FOREACH_NOTE_CST_IT_BOUND_END( m_pPattern->get_notes(), it, pNote->get_position() ) {
 			if ( notesMatchExactly( it->second, pNote ) ) {
 				m_selection.addToSelection( it->second );
 				break;

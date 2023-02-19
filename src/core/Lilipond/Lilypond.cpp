@@ -132,7 +132,7 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 		if ( !pPatternNotes ) {
 			continue;
 		}
-		FOREACH_NOTE_CST_IT_BOUND( pPatternNotes, it, nNote ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPatternNotes, it, nNote, &pattern ) {
 			if ( Note *pNote = it->second ) {
 				int nId = pNote->get_instrument_id();
 				float fVelocity = pNote->get_velocity();

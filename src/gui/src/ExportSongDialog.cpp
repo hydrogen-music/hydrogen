@@ -451,7 +451,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
 		Pattern *pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it,pPattern) {
 			Note *pNote = it->second;
 			assert( pNote );
 

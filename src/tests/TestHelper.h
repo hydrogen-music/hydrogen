@@ -97,7 +97,7 @@ inline QString TestHelper::getTestDataDir() const
 
 inline QString TestHelper::getTestFile(const QString& file) const
 {
-	return m_sTestDataDir + "/" + file; 
+	return m_sTestDataDir + file; 
 }
 
 #define H2TEST_FILE(name) TestHelper::get_instance()->getTestFile(name)

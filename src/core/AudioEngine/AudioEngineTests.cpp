@@ -953,7 +953,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	int nLoops = 5;
 	notesInSong.clear();
 	for ( int ii = 0; ii < nLoops; ++ii ) {
-		FOREACH_NOTE_CST_IT_BEGIN_END( pPattern->get_notes(), it ) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( pPattern->get_notes(), it, pPattern ) {
 			if ( it->second != nullptr ) {
 				auto note = std::make_shared<Note>( it->second );
 				note->set_position( note->get_position() +

@@ -183,7 +183,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
 
 	//1. Check, if the drumkit has been loaded
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
@@ -201,15 +201,17 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	
 	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
 	
-	//3. Make sure that the original (invalid) file has been saved as
-	//a backup
-	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
-	CPPUNIT_ASSERT( backupFiles.size() == 1 );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
+	// 3. Make sure that the original (invalid) file has been saved as
+	// a backup.
+	if ( H2Core::Filesystem::dir_writable( H2TEST_FILE( "drumkits/invAdsrKit" ), true ) ) {
+		QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
+		CPPUNIT_ASSERT( backupFiles.size() == 1 );
+		CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
+	}
 
 	//4. Load the drumkit again to assure updated file is valid
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
-	backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
+	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( backupFiles.size() == 1 );
 	

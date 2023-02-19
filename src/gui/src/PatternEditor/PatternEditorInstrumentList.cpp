@@ -585,7 +585,7 @@ void InstrumentLine::functionFillNotes( int every )
 		for (int i = 0; i < nPatternSize; i += nResolution) {
 			bool noteAlreadyPresent = false;
 			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
 				Note *pNote = it->second;
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					// note already exists
@@ -645,7 +645,7 @@ void InstrumentLine::functionRandomizeVelocity()
 
 		for (int i = 0; i < nPatternSize; i += nResolution) {
 			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
 				Note *pNote = it->second;
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					float fVal = ( rand() % 100 ) / 100.0;

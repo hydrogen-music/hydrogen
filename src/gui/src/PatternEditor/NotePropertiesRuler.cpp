@@ -140,7 +140,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 			notes.push_back( it->second );
 		}
 	}
@@ -349,7 +349,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 	if ( ev->buttons() == Qt::NoButton ) {
 		int nColumn = getColumn( ev->x() );
 		bool bFound = false;
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 			bFound = true;
 			break;
 		}
@@ -401,7 +401,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	} else {
 		// No notes are selected. The target notes to adjust are all those at column given by 'x', so we preserve these.
 		int nColumn = getColumn( x );
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it,
+										  nColumn, m_pPattern ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
@@ -452,7 +453,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	bool bValueSet = false;
 
-	FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+	FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 		Note *pNote = it->second;
 
 		if ( pNote->get_instrument() != pSelectedInstrument &&
@@ -722,7 +723,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					notes.push_back( pNote );
 				}
 			} else {
-				FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, column ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, column, m_pPattern ) {
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
@@ -1082,12 +1083,12 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSelectedInstrument
@@ -1177,12 +1178,12 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
@@ -1331,7 +1332,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSelectedInstrument
@@ -1474,7 +1475,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 	r += QMargins( 4, 4, 4, 4 );
 
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 		if ( it->second->get_instrument() != pSelectedInstrument
 			 && !m_selection.isSelected( it->second ) ) {
 			continue;
