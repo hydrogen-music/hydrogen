@@ -61,7 +61,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
+	setMinimumHeight( m_nEditorHeight );
 
 	updateEditor();
 	show();
@@ -886,7 +886,8 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -1400,29 +1401,8 @@ void NotePropertiesRuler::updateEditor( bool )
 	}
 	m_nSelectedPatternNumber = nSelectedPatternNumber;
 
-	// update editor width
-	if ( m_pPattern != nullptr ) {
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		} else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
+	resize( m_nEditorWidth, height() );
 
 	invalidateBackground();
 	update();
@@ -1430,8 +1410,6 @@ void NotePropertiesRuler::updateEditor( bool )
 
 void NotePropertiesRuler::createBackground()
 {
-	resize( m_nEditorWidth, height() );
-	
 	qreal pixelRatio = devicePixelRatio();
 	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
 		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
@@ -1453,7 +1431,7 @@ void NotePropertiesRuler::createBackground()
 	else if ( m_mode == PatternEditor::Mode::NoteKey ) {
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
-	update();
+	
 	m_bBackgroundInvalid = false;
 }
 

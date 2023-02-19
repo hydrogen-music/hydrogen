@@ -289,10 +289,6 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
 
-		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
-		}
-
 		QBrush noteOffBrush( noteoffColor );
 		if ( !bIsForeground ) {
 			noteOffBrush.setStyle( Qt::Dense4Pattern );
@@ -845,34 +841,47 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::vector<Pattern *> patterns;
 
-	// Add stacked-mode patterns as well as virtual ones.
-	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-		 ( m_pPattern != nullptr &&
-		   pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-		   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			 
+	// When using song mode without the pattern editor being locked
+	// only the current pattern will be shown. In every other base
+	// remaining playing patterns not selected by the user are added
+	// as well.
+	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
+			 ! pHydrogen->isPatternEditorLocked() ) ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		std::set< Pattern *> patternSet;
+		if ( m_pAudioEngine->getPlayingPatterns()->size() > 0 ) {
+			std::set< Pattern *> patternSet;
 
-		std::vector<const PatternList*> patternLists;
-		patternLists.push_back( m_pAudioEngine->getPlayingPatterns() );
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-			patternLists.push_back( m_pAudioEngine->getNextPatterns() );
-		}
+			std::vector<const PatternList*> patternLists;
+			patternLists.push_back( m_pAudioEngine->getPlayingPatterns() );
+			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+				patternLists.push_back( m_pAudioEngine->getNextPatterns() );
+			}
 		
-		for ( const PatternList *pPatternList : patternLists ) {
-			for ( int i = 0; i <  pPatternList->size(); i++) {
-				Pattern *pPattern = pPatternList->get( i );
-				if ( pPattern != m_pPattern ) {
-					patternSet.insert( pPattern );
+			for ( const PatternList *pPatternList : patternLists ) {
+				for ( int i = 0; i <  pPatternList->size(); i++) {
+					Pattern *pPattern = pPatternList->get( i );
+					if ( pPattern != m_pPattern ) {
+						patternSet.insert( pPattern );
+					}
 				}
 			}
-		}
-		for ( Pattern *pPattern : patternSet ) {
-			patterns.push_back( pPattern );
+			for ( Pattern *pPattern : patternSet ) {
+				patterns.push_back( pPattern );
+			}
 		}
 		m_pAudioEngine->unlock();
 	}
+	else if ( m_pPattern != nullptr &&
+			  pHydrogen->getMode() == Song::Mode::Song &&
+			  m_pPattern->get_virtual_patterns()->size() > 0 ) {
+		// A virtual pattern was selected in song mode without the
+		// pattern editor being locked. Virtual patterns in selected
+		// pattern mode are handled using the playing pattern above.
+		for ( const auto ppVirtualPattern : *m_pPattern ) {
+			patterns.push_back( ppVirtualPattern );
+		}
+	}
+			  
 
 	if ( m_pPattern != nullptr ) {
 		patterns.push_back( m_pPattern );
@@ -881,6 +890,53 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	return patterns;
 }
 
+bool PatternEditor::isUsingAdditionalPatterns( const H2Core::Pattern* pPattern ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
+		 ( pHydrogen->getMode() == Song::Mode::Song &&
+		   pHydrogen->isPatternEditorLocked() ) ) {
+		return true;
+	}
+	
+	return false;
+}
+
+void PatternEditor::updateWidth() {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	if ( m_pPattern != nullptr ) {
+		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
+			m_pPattern->get_length();
+		
+		// In case there are other patterns playing which are longer
+		// than the selected one, their notes will be placed using a
+		// different color set between m_nActiveWidth and
+		// m_nEditorWidth.
+		if ( pHydrogen->getMode() == Song::Mode::Song &&
+			 m_pPattern != nullptr && m_pPattern->isVirtual() &&
+			 ! pHydrogen->isPatternEditorLocked() ) {
+			m_nEditorWidth = 
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  m_pPattern->longestVirtualPatternLength() + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		}
+		else if ( isUsingAdditionalPatterns( m_pPattern ) ) {
+			m_nEditorWidth =
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		}
+		else {
+			m_nEditorWidth = m_nActiveWidth;
+		}
+	}
+	else {
+		m_nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
+		m_nActiveWidth = m_nEditorWidth;
+	}
+}
 
 void PatternEditor::songModeActivationEvent()
 {

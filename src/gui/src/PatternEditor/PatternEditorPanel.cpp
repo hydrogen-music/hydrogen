@@ -943,21 +943,33 @@ void PatternEditorPanel::patternModifiedEvent() {
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
-		updateEditors( true );
-	}
+	updateEditors( true );
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
 	updateEditors( true );
+}
+
+void PatternEditorPanel::songSizeChangedEvent() {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+		updateEditors( true );
+	}
+}
+
+void PatternEditorPanel::patternEditorLockedEvent() {
+	updateEditors( true );
+}
+
+void PatternEditorPanel::relocationEvent() {
+	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		updateEditors( true );
+	}
 }
 
 void PatternEditorPanel::updatePatternSizeLCD() {

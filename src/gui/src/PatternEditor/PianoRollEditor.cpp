@@ -83,31 +83,7 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	// Ensure that m_pPattern is up to date.
 	updatePatternInfo();
-	
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	//	uint nEditorWidth;
-	if ( m_pPattern != nullptr ) {
-
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		} else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
 	
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;

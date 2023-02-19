@@ -902,8 +902,7 @@ void Hydrogen::restartLadspaFX()
 }
 
 void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
-	if ( isPatternEditorLocked() &&
-		 m_pAudioEngine->getState() == AudioEngine::State::Playing ) {
+	if ( isPatternEditorLocked() ) {
 		if ( bNeedsLock ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 		}

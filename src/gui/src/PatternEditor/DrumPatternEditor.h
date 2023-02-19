@@ -135,7 +135,16 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 
 	private:
 	void createBackground() override;
-		void drawNote( H2Core::Note* note, QPainter& painter, bool bIsForeground = true );
+	/**
+	 * Draw a note
+	 *
+	 * @param pNote Particular note to draw
+	 * @param painter Painting device
+	 * @param bIsForeground Whether the @a pNote is contained in the
+	 *   pattern currently shown in the pattern editor (the one
+	 *   selected in the song editor)
+	 */
+	void drawNote( H2Core::Note* pNote, QPainter& painter, bool bIsForeground = true );
 		void drawPattern( QPainter& painter );
 		void drawBackground( QPainter& pointer );
 		void drawFocus( QPainter& painter );
