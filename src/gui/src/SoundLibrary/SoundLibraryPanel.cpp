@@ -197,6 +197,7 @@ void SoundLibraryPanel::updateTree()
 			m_drumkitRegister[ sItemLabel ] = pDrumkitEntry.first;
 			
 			pDrumkitItem->setText( 0, sItemLabel );
+			pDrumkitItem->setToolTip( 0, pDrumkitEntry.first );
 			if ( ! m_bInItsOwnDialog ) {
 				auto pInstrList = pDrumkit->get_instruments();
 				for ( const auto& pInstrument : *pDrumkit->get_instruments() ) {
