@@ -123,7 +123,7 @@ Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pIns
 	Pattern* pPattern = new Pattern(
 	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, true ),
-	    node->read_string( "category", "unknown", false, false ),
+	    node->read_string( "category", "unknown", false, true, true ),
 	    node->read_int( "size", -1, false, false ),
 	    node->read_int( "denominator", 4, false, false )
 	);
@@ -160,7 +160,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	root.write_string( "drumkit_name", drumkit_name );
 	root.write_string( "author", author );							// FIXME this is never loaded back
-	root.write_string( "license", license.toQString() );
+	root.write_string( "license", license.getLicenseString() );
 	// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
@@ -187,28 +187,6 @@ void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> pInstrum
 			pNote->save_to( &note_node );
 		}
 	}
-}
-
-QString Pattern::loadDrumkitNameFrom( const QString& sPatternPath ) {
-
-	XMLDoc doc;
-	// We don't check the return value in here since even if the
-	// validation against the pattern XSD schema fails the document
-	// will still be read and the drumkit name might still be
-	// contained.
-	loadDoc( sPatternPath, nullptr, &doc, false );
-
-	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
-	if ( ! rootNode.isNull() ) {
-
-		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", false, false );
-		if ( sDrumkitName.isEmpty() ) {
-			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
-		}
-
-		return sDrumkitName;
-	}
-	return QString();
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict ) const

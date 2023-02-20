@@ -114,6 +114,11 @@
 		  different states: on, off, off next (pattern is played till the
 		  end and then turned off), and on next (pattern is played as soon
 		  as transport is looped again)
+		- In song mode the pattern editor can be locked meaning that
+		  always the bottom-most pattern of the current column the
+		  playhead resides in as well as all other playing notes are
+		  shown. Pattern selection is done automatically when moving into
+		  a different column.
 	* PatternEditor UX tweaks:
 		- Relocating transport by clicking the ruler is now supported
 		  (like in the SongEditor) and automatically switches transport
@@ -128,8 +133,9 @@
 		  both the drum pattern editor and the piano roll editor by
 		  right-clicking and dragging a note.
 		- All notes of the currently playing patterns will be hinted in
-		  stacked pattern mode. Even those exceeding the length of the
-		  current pattern.
+		  stacked pattern mode, when selecting a virtual pattern, or in
+		  case the pattern editor is locked in song mode. Even those notes
+		  exceeding the length of the current pattern are shown.
 	* OSC API
 		- Add command /Hydrogen/LOAD_DRUMKIT
 		- Add command /Hydrogen/UPGRADE_DRUMKIT

@@ -25,6 +25,7 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -758,7 +759,15 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 		// drumkit (using its name).
 		QString sDrumkitXMLPath = QString( "%1/%2" )
 				.arg( sDrumkitPath ).arg( "drumkit.xml" );
-		QString sSessionDrumkitName = Drumkit::loadNameFrom( sDrumkitPath );
+
+		QString sSessionDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+			if ( pDrumkit != nullptr ) {
+				sSessionDrumkitName = pDrumkit->get_name();
+			}
+		}
 
 		if ( dk_name == sSessionDrumkitName ) {
 				// The local drumkit seems legit.	

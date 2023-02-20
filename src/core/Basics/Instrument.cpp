@@ -458,19 +458,20 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		// directly.
 		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
 		if ( pSoundLibraryDatabase != nullptr ) {
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( pInstrument->get_drumkit_path() );
-			if ( pDrumkit != nullptr ) {
+
+			// It is important to _not_ load the drumkit into the
+			// database as this code is part of the drumkit load
+			// itself. In case two drumkits contain an instrument from
+			// each other an infinite loop would be created.
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
+				pInstrument->get_drumkit_path(), false );
+			if ( pDrumkit == nullptr ) {
+				// Drumkit is not present in the database yet. Load
+				// its license from disk.
+				instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
+			} else {
 				instrumentLicense = pDrumkit->get_license();
 			}
-		}
-
-		if ( instrumentLicense == License() ) {
-			if ( ! bSilent ) {
-				WARNINGLOG( QString( "No license could be retrieved from drumkit [%1] in database. Loading directly." )
-							.arg( pInstrument->get_drumkit_path() ) );
-			}
-			
-			instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
 		}
 	} else {
 		instrumentLicense = license;
@@ -492,7 +493,8 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		auto pCompo = Legacy::loadInstrumentComponent( pNode, pInstrument->get_drumkit_path(),
 													   instrumentLicense, bSilent );
 		if ( pCompo == nullptr ) {
-			ERRORLOG( "Unable to load component. Aborting." );
+			ERRORLOG( QString( "Unable to load component for instrument [%1]. Aborting." )
+					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
 

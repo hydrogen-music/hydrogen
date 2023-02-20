@@ -52,7 +52,7 @@ namespace H2Core
 				break;
 		}
 
-		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), false ) ) {
+		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), true ) ) {
 			return nullptr;
 		}
 

@@ -104,12 +104,6 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const;
 
-	/**
-	 * Retrieves the name of the associated drumkit contained in the
-	 * pattern XML file residing at @a sPatternPath.
-	 */
-	static QString loadDrumkitNameFrom( const QString& sPatternPath );
-
 		///< set the name of the pattern
 		void set_name( const QString& name );
 		///< get the name of the pattern

@@ -299,12 +299,12 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 							 static_cast<int>( Song::ActionMode::selectMode ),
 							 false, false, bSilent ) ) );
 	pSong->setIsPatternEditorLocked( pRootNode->read_bool( "isPatternEditorLocked",
-														   false, false, false, bSilent ) );
+														   false, true, false, true ) );
 
 	bool bContainsIsTimelineActivated;
 	bool bIsTimelineActivated =
 		pRootNode->read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, false, false, bSilent );
+							  &bContainsIsTimelineActivated, true, false, true );
 	if ( ! bContainsIsTimelineActivated ) {
 		// .h2song file was created in an older version of
 		// Hydrogen. Using the Timeline state in the
@@ -438,12 +438,22 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		sLastLoadedDrumkitPath = sMostCommonDrumkit;
 	}
 	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
-	
+
 	if ( sLastLoadedDrumkitName.isEmpty() ) {
-		// Use the getter in here to support relative paths as well.
-		sLastLoadedDrumkitName =
-			Drumkit::loadNameFrom( pSong->getLastLoadedDrumkitPath(),
-								   bSilent );
+		// The initial song is loaded after Hydrogen was
+		// bootstrap. So, the SoundLibrary should be present and
+		// filled with all available drumkits.
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+
+			// If it is not already present, we also load the last
+			// loaded drumkit into the database.
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
+				sLastLoadedDrumkitPath, true );
+			if ( pDrumkit != nullptr ) {
+				sLastLoadedDrumkitName = pDrumkit->get_name();
+			}
+		}
 	}
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 

@@ -85,18 +85,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
 	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
-
-	/**
-	 * Retrieve the name of a drumkit stored in @a sDrumkitDir.
-	 *
-	 * As the name of the drumkit can be set to arbitrary values, it
-	 * can not be assumed to be unique and does not qualify as unique
-	 * identifier of the kit. Instead, the location the drumkit is
-	 * loaded from/written to is used and this function maps it to the
-	 * corresponding drumkit name.
-	 */
-	static QString loadNameFrom( const QString& sDrumkitDir,
-								 bool bSilent = false );
 	
 	/**
 	 * Returns a version of #__name stripped of all whitespaces and

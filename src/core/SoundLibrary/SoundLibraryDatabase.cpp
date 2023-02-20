@@ -31,24 +31,16 @@ namespace H2Core
 
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
-	
-	m_patternInfoVector = new soundLibraryInfoVector();
 	update();
 }
 
 SoundLibraryDatabase::~SoundLibraryDatabase()
 {
-	//Clean up the patterns data structure
-	for ( auto pPatternInfo : *m_patternInfoVector ) {
-		delete pPatternInfo;
-	}
-	
-	delete m_patternInfoVector;
 }
 
 void SoundLibraryDatabase::printPatterns() const
 {
-	for ( const auto& pPatternInfo : *m_patternInfoVector ) {
+	for ( const auto& pPatternInfo : m_patternInfoVector ) {
 		INFOLOG( QString( "Name: [%1]" ).arg( pPatternInfo->getName() ) );
 	}
 
@@ -59,7 +51,7 @@ void SoundLibraryDatabase::printPatterns() const
 
 bool SoundLibraryDatabase::isPatternInstalled( const QString& sPatternName ) const
 {
-	for ( const auto& pPatternInfo : *m_patternInfoVector ) {
+	for ( const auto& pPatternInfo : m_patternInfoVector ) {
 		if ( pPatternInfo->getName() == sPatternName ) {
 			return true;
 		}
@@ -107,6 +99,11 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 						  .arg( sDrumkitPath ) );
 				continue;
 			}
+			else {
+				INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
+						 .arg( pDrumkit->get_name() )
+						 .arg( sDrumkitPath ) );
+			}
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
@@ -135,7 +132,7 @@ void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTri
 	}
 }
 
-std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkit ) {
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkit, bool bLoad ) {
 
 	// Convert supplied path or drumkit name into absolute path used
 	// either as ID to retrieve the drumkit from cache or for loading
@@ -162,6 +159,9 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 	if ( m_drumkitDatabase.find( sDrumkitPath ) ==
 		 m_drumkitDatabase.end() ) {
+		if ( ! bLoad ) {
+			return nullptr;
+		}
 
 		// Drumkit is not present in database yet. We attempt to load
 		// and add it.
@@ -186,33 +186,38 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 {
-	for ( auto ppPattern : *m_patternInfoVector ) {
-		delete ppPattern;
-	}
-	m_patternInfoVector->clear();
+	m_patternInfoVector.clear();
 	m_patternCategories = QStringList();
 
 	// search drumkit subdirectories within patterns user directory
 	foreach ( const QString& sDrumkit, Filesystem::pattern_drumkits() ) {
-		getPatternFromDirectory( Filesystem::patterns_dir( sDrumkit ), m_patternInfoVector);
+		loadPatternFromDirectory( Filesystem::patterns_dir( sDrumkit ) );
 	}
 	// search patterns user directory
-	getPatternFromDirectory( Filesystem::patterns_dir(), m_patternInfoVector);
+	loadPatternFromDirectory( Filesystem::patterns_dir() );
 
 	if ( bTriggerEvent ) {
 		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
 	}
 }
 
-void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* m_patternInfoVector )
+void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir )
 {
 	foreach ( const QString& sName, Filesystem::pattern_list( sPatternDir ) ) {
 		QString sFile = sPatternDir + sName;
-		SoundLibraryInfo* pSoundLibraryInfo = new SoundLibraryInfo( sFile );
-		m_patternInfoVector->push_back( pSoundLibraryInfo );
+		std::shared_ptr<SoundLibraryInfo> pInfo =
+			std::make_shared<SoundLibraryInfo>();
+
+		if ( pInfo->load( sFile ) ) {
+			INFOLOG( QString( "Pattern [%1] of category [%2] loaded from [%3]" )
+					 .arg( pInfo->getName() ).arg( pInfo->getCategory() )
+					 .arg( sFile ) );
+			
+			m_patternInfoVector.push_back( pInfo );
 		
-		if ( ! m_patternCategories.contains( pSoundLibraryInfo->getCategory() ) ) {
-			m_patternCategories << pSoundLibraryInfo->getCategory();
+			if ( ! m_patternCategories.contains( pInfo->getCategory() ) ) {
+				m_patternCategories << pInfo->getCategory();
+			}
 		}
 	}
 }
