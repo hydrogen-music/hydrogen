@@ -458,6 +458,7 @@ public:
 	/** Uses handleTimelineChange() */
 	friend bool CoreActionController::deleteTempoMarker( int );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
+	friend bool CoreActionController::activateSongMode( bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportPosition();
