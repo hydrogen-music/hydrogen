@@ -130,6 +130,11 @@ int NsmClient::OpenCallback( const char *name,
 	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
+		// Song loading itself does not add the drumkit found to the
+		// SoundLibraryDatabase (in order to avoid problem with cyclic
+		// dependencies between drumkits).
+		loadDrumkit();
+		
 		pSong = H2Core::Song::load( sSongPath );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
@@ -209,6 +214,29 @@ void NsmClient::copyPreferences( const char* name ) {
 	pCoreActionController->updatePreferences();
 	
 	NsmClient::printMessage( "Preferences loaded!" );
+}
+
+void NsmClient::loadDrumkit() {
+	
+	const auto pHydrogen = H2Core::Hydrogen::get_instance();
+	const QString sSessionFolder = NsmClient::get_instance()->getSessionFolderPath();
+	const QString sLinkedDrumkitPath = QString( "%1/%2" )
+		.arg( sSessionFolder ).arg( "drumkit" );
+	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
+
+	// Check whether the linked folder is valid.
+	if ( linkedDrumkitPathInfo.isSymLink() || 
+		 linkedDrumkitPathInfo.isDir() ) {
+
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sLinkedDrumkitPath );
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( "Unable to load drumkit from session folder" );
+		}
+	}
+	else {
+		ERRORLOG( "No valid drumkit found in session folder" );
+	}
 }
 
 void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
