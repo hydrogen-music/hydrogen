@@ -175,14 +175,16 @@ void SoundLibraryPanel::updateTree()
 		auto pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
 			QString sItemLabel = pDrumkit->get_name();
+			auto drumkitType =
+				Filesystem::determineDrumkitType( pDrumkitEntry.first );
 
 			QTreeWidgetItem* pDrumkitItem;
-			if ( pDrumkit->isUserDrumkit() ) {
-				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
-			} else {
+			if ( drumkitType == Filesystem::DrumkitType::System ) {
 				pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 				sItemLabel.append( QString( " (%1)" )
 								   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
+			} else {
+				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			}
 
 			// Ensure uniqueness of the label.

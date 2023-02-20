@@ -1361,14 +1361,17 @@ void MainForm::action_instruments_saveLibrary()
 	
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->
 		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
+	auto drumkitType = Filesystem::determineDrumkitType(
+		pHydrogen->getLastLoadedDrumkitPath() );
 
 	// In case the user does not have write access to the folder of
 	// pDrumkit, the save as dialog will be opened.
-	if ( pDrumkit != nullptr && pDrumkit->isUserDrumkit() ) {
+	if ( pDrumkit != nullptr &&
+		 ( drumkitType == Filesystem::DrumkitType::User ||
+		   drumkitType == Filesystem::DrumkitType::SessionReadWrite ) ) {
 		auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
-		
 		
 		if ( ! HydrogenApp::checkDrumkitLicense( pNewDrumkit ) ) {
 			ERRORLOG( "User cancelled dialog due to licensing issues." );

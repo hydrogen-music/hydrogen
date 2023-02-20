@@ -546,16 +546,6 @@ bool Drumkit::remove( const QString& sDrumkitDir )
 	Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	return true;
 }
-
-bool Drumkit::isUserDrumkit() const {
-	if ( __path.contains( Filesystem::sys_drumkits_dir() ) ) {
-		return false;
-	} else if ( ! Filesystem::dir_writable( __path ) ) {
-		return false;
-	}
-	
-	return true;
-}
 	
 bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
 {
