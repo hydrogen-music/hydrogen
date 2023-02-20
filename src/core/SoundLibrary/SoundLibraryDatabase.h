@@ -65,10 +65,10 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
-	 * @param sDrumkitPath Absolute path to the drumkit as unique
-	 * identifier
+	 * @param sDrumkitPath Absolute path to the drumkit directory
+	 *   (containing a drumkit.xml) file as unique identifier.
 	 * @param bLoad Whether the drumkit should be loaded into the
-	 * datebase in case it is not present yet.
+	 *   datebase in case it is not present yet.
 	 */
 	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath, bool bLoad = true );
 	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {

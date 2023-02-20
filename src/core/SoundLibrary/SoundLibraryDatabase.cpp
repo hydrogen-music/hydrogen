@@ -175,6 +175,10 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 		m_customDrumkitPaths << sDrumkitPath;
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+		
+		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
+				  .arg( pDrumkit->get_name() )
+				  .arg( sDrumkitPath ) );
 
 		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );
 		
