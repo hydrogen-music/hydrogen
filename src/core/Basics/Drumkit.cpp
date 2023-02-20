@@ -211,16 +211,6 @@ void Drumkit::load_samples()
 
 License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 {
-	// Try to retrieve the license from cache first.
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		auto pDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
-		if ( pDrumkit != nullptr ) {
-			return pDrumkit->get_license();
-		}
-	}
-
 	XMLDoc doc;
 	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -239,29 +229,6 @@ License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 	}
 
 	return std::move( License() );
-}
-
-QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
-
-	// Try to retrieve the name from cache first.
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		auto pDrumkit =
-			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitDir );
-		if ( pDrumkit != nullptr ) {
-			return pDrumkit->get_name();
-		}
-	}
-
-	// No entry in cache found. Loading it from disk
-	XMLDoc doc;
-	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
-		XMLNode root = doc.firstChildElement( "drumkit_info" );
-
-		return( root.read_string( "name", "", true, true, bSilent ) );
-	}
-
-	return "";
 }
 
 bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {

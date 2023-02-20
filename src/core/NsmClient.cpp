@@ -252,7 +252,15 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		}
 	    
 		if ( H2Core::Filesystem::drumkit_valid( sLinkedDrumkitPath ) ) {
-			const QString sLinkedDrumkitName = H2Core::Drumkit::loadNameFrom( sLinkedDrumkitPath );
+
+			QString sLinkedDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
+			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+			if ( pSoundLibraryDatabase != nullptr ) {
+				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLinkedDrumkitPath );
+				if ( pDrumkit != nullptr ) {
+					sLinkedDrumkitName = pDrumkit->get_name();
+				}
+			}
 	
 			if ( sLinkedDrumkitName == sDrumkitName ) {
 				bRelinkDrumkit = false;

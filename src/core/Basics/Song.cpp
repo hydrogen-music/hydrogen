@@ -438,12 +438,22 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		sLastLoadedDrumkitPath = sMostCommonDrumkit;
 	}
 	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
-	
+
 	if ( sLastLoadedDrumkitName.isEmpty() ) {
-		// Use the getter in here to support relative paths as well.
-		sLastLoadedDrumkitName =
-			Drumkit::loadNameFrom( pSong->getLastLoadedDrumkitPath(),
-								   bSilent );
+		// The initial song is loaded after Hydrogen was
+		// bootstrap. So, the SoundLibrary should be present and
+		// filled with all available drumkits.
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+
+			// If it is not already present, we also load the last
+			// loaded drumkit into the database.
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
+				sLastLoadedDrumkitPath, true );
+			if ( pDrumkit != nullptr ) {
+				sLastLoadedDrumkitName = pDrumkit->get_name();
+			}
+		}
 	}
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
 

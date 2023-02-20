@@ -132,7 +132,7 @@ void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTri
 	}
 }
 
-std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkit ) {
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumkit, bool bLoad ) {
 
 	// Convert supplied path or drumkit name into absolute path used
 	// either as ID to retrieve the drumkit from cache or for loading
@@ -159,6 +159,9 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 	if ( m_drumkitDatabase.find( sDrumkitPath ) ==
 		 m_drumkitDatabase.end() ) {
+		if ( ! bLoad ) {
+			return nullptr;
+		}
 
 		// Drumkit is not present in database yet. We attempt to load
 		// and add it.

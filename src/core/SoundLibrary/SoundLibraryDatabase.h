@@ -62,7 +62,15 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 
 	void updateDrumkits( bool bTriggerEvent = true );
 	void updateDrumkit( const QString& sDrumkitPath, bool bTriggerEvent = true );
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+	/**
+	 * Retrieve a drumkit from the database.
+	 *
+	 * @param sDrumkitPath Absolute path to the drumkit as unique
+	 * identifier
+	 * @param bLoad Whether the drumkit should be loaded into the
+	 * datebase in case it is not present yet.
+	 */
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath, bool bLoad = true );
 	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
