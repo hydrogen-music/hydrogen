@@ -425,6 +425,9 @@ CommonStrings::CommonStrings(){
 	/*: Suffix appended to a drumkit, song, or pattern name in case it
 	 * is found on system-level and is read-only. */
 	m_sSoundLibrarySystemSuffix = tr( "system" );
+	/*: Suffix appended to a drumkit that are loaded non-persistently
+	 *  into the current Hydrogen session. */
+	m_sSoundLibrarySessionSuffix = tr( "session" );
 }
 
 CommonStrings::~CommonStrings(){

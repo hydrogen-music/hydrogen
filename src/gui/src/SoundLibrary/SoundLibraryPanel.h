@@ -89,8 +89,9 @@ private:
 	QMenu* __pattern_menu;
 	QMenu* __pattern_menu_list;
 
-	QTreeWidgetItem* __system_drumkits_item;
-	QTreeWidgetItem* __user_drumkits_item;
+	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
+	QTreeWidgetItem* m_pTreeUserDrumkitsItem;
+	QTreeWidgetItem* m_pTreeSessionDrumkitsItem;
 	QTreeWidgetItem* __song_item;
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
