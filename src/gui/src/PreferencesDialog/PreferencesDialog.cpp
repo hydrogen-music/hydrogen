@@ -1134,6 +1134,25 @@ void PreferencesDialog::updateDriverInfo()
 	// Reset info text
 	updateDriverInfoLabel();
 
+	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
+	switch ( pPref->m_nSampleRate ) {
+	case 44100:
+		sampleRateComboBox->setCurrentIndex( 0 );
+		break;
+	case 48000:
+		sampleRateComboBox->setCurrentIndex( 1 );
+		break;
+	case 88200:
+		sampleRateComboBox->setCurrentIndex( 2 );
+		break;
+	case 96000:
+		sampleRateComboBox->setCurrentIndex( 3 );
+		break;
+	default:
+		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
+	}
+
+
 	if ( driverComboBox->currentText() == "Auto" ) {
 
 		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
