@@ -60,11 +60,16 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	connect( imageLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
 
-	bool bIsUserDrumkit = false;
+	bool bDrumkitWritable = false;
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
-		bIsUserDrumkit = pDrumkit->isUserDrumkit();
+		auto drumkitType = Filesystem::determineDrumkitType(
+			pDrumkit->get_path() );
+		if ( drumkitType == Filesystem::DrumkitType::User ||
+			 drumkitType == Filesystem::DrumkitType::SessionReadWrite ) {
+			bDrumkitWritable = true;
+		}
 
 		nameTxt->setText( pDrumkit->get_name() );
 
@@ -105,7 +110,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 
 	// In case the drumkit name is not locked/the dialog is used as
 	// "Save As" nothing needs to be disabled.
-	if ( ! bIsUserDrumkit && bDrumkitNameLocked ) {
+	if ( ! bDrumkitWritable && bDrumkitNameLocked ) {
 		QString sToolTip = tr( "The current drumkit is read-only. Please use Drumkits > Save As in the main menu to create a new one first." );
 		
 		// The drumkit is read-only. Thus we won't support altering

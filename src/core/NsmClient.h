@@ -122,6 +122,12 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 *
 		 * Sets #bNsmShutdown to true.*/
 		void shutdown();
+
+	/**
+	 * Checks whether there is a drumkit present in the session folder
+	 * and loads it into the #H2Core::SoundLibraryDatabase.
+	 */
+	static void loadDrumkit();
 	
 	/**
 	 * Responsible for linking a drumkit on user or system level into

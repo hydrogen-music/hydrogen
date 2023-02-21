@@ -1018,6 +1018,23 @@ QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
 
 	return sPath;
 }
+
+Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
+	if ( sPath.contains( Filesystem::sys_drumkits_dir() ) ) {
+		return DrumkitType::System;
+	}
+	else if ( sPath.contains( Filesystem::usr_drumkits_dir() ) ) {
+		return DrumkitType::User;
+	}
+	else {
+		if ( dir_writable( sPath, true ) ) {
+			return DrumkitType::SessionReadWrite;
+		} else {
+			return DrumkitType::SessionReadOnly;
+		}
+	}
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

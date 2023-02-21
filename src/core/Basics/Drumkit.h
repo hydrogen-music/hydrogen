@@ -216,12 +216,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
-		/**
-		 * \return Whether the associated files are located in the
-		 * user or the systems drumkit folder.
-		 */
-		bool isUserDrumkit() const;
-
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 

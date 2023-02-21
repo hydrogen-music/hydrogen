@@ -65,6 +65,25 @@ namespace H2Core
 		system = 2
 	};
 
+		/** Determines were to find a kit and whether it is writable
+		 *	by the current user.*/
+		enum class DrumkitType {
+			/** Kit was installed with Hydrogen, is automatically
+			 * loaded, and most probably readonly.*/
+			System = 0,
+			/** Kit was installed by the user, is automatically
+			 * loaded, and most probably writable.*/
+			User = 1,
+			/** Kit was loaded via a NSM session, OSC command, or CLI
+			 * option, only persist for the current Hydrogen session,
+			 * and is readonly.*/
+			SessionReadOnly = 2,
+			/** Kit was loaded via a NSM session, OSC command, or CLI
+			 * option, only persist for the current Hydrogen session,
+			 * and is writable.*/
+			SessionReadWrite = 3
+		};
+
 		static const QString songs_ext;
 		static const QString scripts_ext;
 		static const QString patterns_ext;
@@ -434,6 +453,12 @@ namespace H2Core
 		static const QString& getPreferencesOverwritePath();
 		/** \param sPath Sets m_sPreferencesOverwritePath*/
 		static void setPreferencesOverwritePath( const QString& sPath );
+
+		/**
+		 * @param sPath Absolute path to the drumkit folder containing
+		 *   a drumkit.xml file.
+		 */
+		static DrumkitType determineDrumkitType( const QString& sPath );
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
