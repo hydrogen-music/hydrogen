@@ -102,7 +102,6 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		// definition. It's probably an old one. load_from() will try
 		// to handle it regardlessly but we should upgrade it in order
 		// to avoid this in future loads.
-		
 		doc.read( sDrumkitFile, nullptr, bSilent );
 		
 		bReadingSuccessful = false;
@@ -124,7 +123,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	}
 	
 	if ( ! bReadingSuccessful && bUpgrade ) {
-		upgrade_drumkit( pDrumkit, sDrumkitFile );
+		upgrade_drumkit( pDrumkit, sDrumkitPath );
 	}
 	
 	return pDrumkit;
@@ -266,21 +265,22 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 void Drumkit::upgrade_drumkit(std::shared_ptr<Drumkit> pDrumkit, const QString& sDrumkitPath, bool bSilent )
 {
 	if ( pDrumkit != nullptr ) {
-		if ( ! Filesystem::file_exists( sDrumkitPath, true ) ) {
-			ERRORLOG( QString( "No drumkit found at path %1" ).arg( sDrumkitPath ) );
+		const QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
+		if ( ! Filesystem::file_exists( sDrumkitFile, true ) ) {
+			ERRORLOG( QString( "No drumkit.xml found in folder [%1]" ).arg( sDrumkitPath ) );
 			return;
 		}
-		QFileInfo fi( sDrumkitPath );
-		if ( ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) {
-			ERRORLOG( QString( "Drumkit %1 is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( sDrumkitPath ) );
+		
+		if ( ! Filesystem::dir_writable( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "Drumkit in [%1] is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( sDrumkitPath ) );
 			return;
 		}
 		if ( ! bSilent ) {
-			INFOLOG( QString( "Upgrading drumkit %1" ).arg( sDrumkitPath ) );
+			INFOLOG( QString( "Upgrading drumkit [%1]" ).arg( sDrumkitPath ) );
 		}
 
-		QString sBackupPath = Filesystem::drumkit_backup_path( sDrumkitPath );
-		Filesystem::file_copy( sDrumkitPath, sBackupPath,
+		QString sBackupFile = Filesystem::drumkit_backup_path( sDrumkitFile );
+		Filesystem::file_copy( sDrumkitFile, sBackupFile,
 		                       false /* do not overwrite existing
 										files */,
 							   bSilent );
@@ -320,6 +320,19 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 	QString sDrumkitFolder( sDrumkitPath );
 	if ( sDrumkitPath.isEmpty() ) {
 		sDrumkitFolder = __path;
+	}
+	else {
+		// We expect the path to a folder in sDrumkitPath. But in case
+		// the user or developer provided the path to the drumkit.xml
+		// file within this folder we don't play dumb as such things
+		// happen and are plausible when just looking at the
+		// function's signature
+		QFileInfo fi( sDrumkitPath );
+		if ( fi.isFile() && fi.fileName() == Filesystem::drumkit_xml() ) {
+			WARNINGLOG( QString( "Please provide the path to the drumkit folder instead to the drumkit.xml file within: [%1]" )
+					 .arg( sDrumkitPath ) );
+			sDrumkitFolder = fi.dir().absolutePath();
+		}
 	}
 	
 	if ( ! Filesystem::dir_exists( sDrumkitFolder, true ) &&
