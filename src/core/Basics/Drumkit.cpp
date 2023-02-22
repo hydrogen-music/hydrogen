@@ -157,7 +157,7 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	pDrumkit->set_image( node->read_string( "image", "",
 											true, true, true ) );
 	License imageLicense( node->read_string( "imageLicense", "undefined license",
-											 true, true, bSilent  ),
+											 true, true, true  ),
 						  pDrumkit->__author );
 	pDrumkit->set_image_license( imageLicense );
 

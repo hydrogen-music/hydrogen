@@ -382,7 +382,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	pInstrument->set_muted( pNode->read_bool( "isMuted", false,
 											 true, true, bSilent ) );
 	pInstrument->set_soloed( pNode->read_bool( "isSoloed", false,
-											  true, true, bSilent ) );
+											  true, false, true ) );
 	bool bFound, bFound2;
 	float fPan = pNode->read_float( "pan", 0.f, &bFound,
 								   true, true, true );
@@ -408,7 +408,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	pInstrument->set_filter_resonance( pNode->read_float( "filterResonance", 0.0f,
 														 true, false, bSilent ) );
 	pInstrument->set_pitch_offset( pNode->read_float( "pitchOffset", 0.0f,
-													 true, false, bSilent ) );
+													 true, false, true ) );
 	pInstrument->set_random_pitch_factor( pNode->read_float( "randomPitchFactor", 0.0f,
 															true, false, bSilent ) );
 	pInstrument->set_gain( pNode->read_float( "gain", 1.0f,
