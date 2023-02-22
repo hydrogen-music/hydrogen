@@ -1316,7 +1316,9 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
 
 	QString sTarget;
+	bool bInstall = false;
 	if ( sTargetDir.isEmpty() ) {
+		bInstall = true;
 		INFOLOG( QString( "Installing drumkit [%1]" ).arg( sDrumkitPath ) );
 		sTarget = Filesystem::usr_drumkits_dir();
 	} else {
@@ -1343,6 +1345,10 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;
+	}
+
+	if ( bInstall ) {
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	}
 
 	return true;
