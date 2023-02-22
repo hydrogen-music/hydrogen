@@ -363,18 +363,20 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
-		const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
-		const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
 
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
-		if ( pInstr == nullptr ) {
-			ERRORLOG( "No instrument selected" );
+		if ( pSong == nullptr ) {
+			ERRORLOG( "No song set yet" );
 			return;
 		}
+		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
+		if ( pInstr != nullptr && pInstr->hasSamples() ) {
 
-		Note *pNote = new Note( pInstr, 0, fVelocity);
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
+			const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
+			Note *pNote = new Note( pInstr, 0, fVelocity);
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		}
 		
 	} else if (ev->button() == Qt::RightButton ) {
 

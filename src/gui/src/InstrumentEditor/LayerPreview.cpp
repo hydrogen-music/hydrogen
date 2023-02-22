@@ -289,9 +289,11 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	if ( ev->y() < 20 ) {
 		const float fVelocity = (float)ev->x() / (float)width();
 
-		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
-		pNote->set_specific_compo_id( m_nSelectedComponent );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		if ( m_pInstrument->hasSamples() ) {
+			Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
+			pNote->set_specific_compo_id( m_nSelectedComponent );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		}
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);

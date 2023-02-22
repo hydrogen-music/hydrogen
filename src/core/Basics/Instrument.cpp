@@ -661,6 +661,22 @@ QString Instrument::get_drumkit_path() const
 	return Filesystem::ensure_session_compatibility( __drumkit_path );
 }
 
+bool Instrument::hasSamples() const {
+	for ( const auto& pComponent : *__components ) {
+		if ( pComponent != nullptr ) {
+			for ( const auto& pLayer : *pComponent ) {
+				if ( pLayer != nullptr ) {
+					if ( pLayer->get_sample() != nullptr ) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
