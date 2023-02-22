@@ -625,9 +625,16 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		float fLayerPitch = pLayer->get_pitch();
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
-			WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
-						.arg( pSelectedLayer->SamplePosition )
-						.arg( pSample->get_frames() ) );
+			// Due to rounding errors in renderNoteResample() the
+			// sample position can occassionaly exceed the maximum
+			// frames of a sample. AFAICS this is not itself
+			// harmful. So, we just log a warning if the difference is
+			// larger, which might be caused by a different problem.
+			if ( pSelectedLayer->SamplePosition >= pSample->get_frames() + 3 ) {
+				WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
+							.arg( pSelectedLayer->SamplePosition )
+							.arg( pSample->get_frames() ) );
+			}
 			nReturnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;

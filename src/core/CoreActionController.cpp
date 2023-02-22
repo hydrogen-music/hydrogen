@@ -924,17 +924,18 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	}		
 	
 	pHydrogen->sequencer_stop();
+
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->reset( true );
+	
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
 		pHydrogen->setMode( Song::Mode::Song );
 	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
 
-	locateToColumn( 0 );
-
 	// Ensure the playing patterns are properly updated regardless of
 	// the state of transport before switching song modes.
-	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->updatePlayingPatterns();
 	pAudioEngine->unlock();
 	
