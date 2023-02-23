@@ -1946,6 +1946,7 @@ void AudioEngine::updateVirtualPatterns() {
 	m_pQueuingPosition->getPlayingPatterns()->clear();
 
 	updatePlayingPatterns();
+	updateSongSize();
 }
 
 void AudioEngine::handleTimelineChange() {
