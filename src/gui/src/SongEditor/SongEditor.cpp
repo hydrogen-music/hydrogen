@@ -1750,8 +1750,14 @@ void SongEditorPatternList::createBackground()
 		return;
 	}
 	
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	int nPatterns = pSong->getPatternList()->size();
+	const std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	const auto pPatternList = pSong->getPatternList();
+	int nPatterns = pPatternList->size();
 	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
 
 	int newHeight = m_nGridHeight * nPatterns + 1;
@@ -1771,7 +1777,10 @@ void SongEditorPatternList::createBackground()
 
 	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor.darker( 120 );
 	QColor backgroundColorSelected = pPref->getColorTheme()->m_songEditor_selectedRowColor.darker( 114 );
-	QColor backgroundColorAlternate = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 132 );
+	QColor backgroundColorAlternate =
+		pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 132 );
+	QColor backgroundColorVirtual =
+		pPref->getColorTheme()->m_songEditor_virtualRowColor;
 
 	QPainter p( m_pBackgroundPixmap );
 
@@ -1788,11 +1797,18 @@ void SongEditorPatternList::createBackground()
 			Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
 									  backgroundColorSelected, false );
 		} else {
-			if ( ( ii % 2 ) == 0 ) {
+			const auto pPattern = pPatternList->get( ii );
+			if ( pPattern != nullptr && pPattern->isVirtual() ) {
+				Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
+										  backgroundColorVirtual,
+										  ii == m_nRowHovered );
+			}
+			else if ( ( ii % 2 ) == 0 ) {
 				Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
 										  backgroundColor,
 										  ii == m_nRowHovered );
-			} else {
+			}
+			else {
 				Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
 										  backgroundColorAlternate,
 										  ii == m_nRowHovered );

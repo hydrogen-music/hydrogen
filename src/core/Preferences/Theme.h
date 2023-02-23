@@ -48,6 +48,7 @@ public:
 	
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
+	QColor m_songEditor_virtualRowColor;
 	QColor m_songEditor_selectedRowColor;
 	QColor m_songEditor_selectedRowTextColor;
 	QColor m_songEditor_lineColor;
