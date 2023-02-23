@@ -431,6 +431,8 @@ public:
 	 * playing.
 	 */
 	void flushAndAddNextPattern( int nPatternNumber );
+
+	void updateVirtualPatterns();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

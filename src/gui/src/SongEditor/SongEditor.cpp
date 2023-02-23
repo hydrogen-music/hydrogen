@@ -1928,11 +1928,9 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 				}
 			}
 		}
-
-		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+		
+		m_pHydrogen->updateVirtualPatterns();
 	}
-
-	pPatternList->flattened_virtual_patterns_compute();
 	
 	delete pDialog;
 

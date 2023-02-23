@@ -268,8 +268,12 @@ void PatternList::move( int idx_a, int idx_b )
 
 void PatternList::flattened_virtual_patterns_compute()
 {
-	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_clear();
-	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_compute();
+	for ( int i=0 ; i<__patterns.size() ; i++ ) {
+		__patterns[i]->flattened_virtual_patterns_clear();
+	}
+	for ( int i=0 ; i<__patterns.size() ; i++ ) {
+		__patterns[i]->flattened_virtual_patterns_compute();
+	}
 }
 
 void PatternList::virtual_pattern_del( Pattern* pattern )

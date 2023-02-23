@@ -1668,6 +1668,27 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 	return pInstrument;
 }
 
+void Hydrogen::updateVirtualPatterns() {
+
+	if ( __song == nullptr ) {
+		ERRORLOG( "no song" );
+		return;
+	}
+	PatternList *pPatternList = __song->getPatternList();
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( "no pattern list");
+		return;
+	}
+	
+	pPatternList->flattened_virtual_patterns_compute();
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+	m_pAudioEngine->updateVirtualPatterns();
+	m_pAudioEngine->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
+}
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;

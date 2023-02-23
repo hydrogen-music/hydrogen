@@ -1927,6 +1927,27 @@ void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
 	flushAndAddNext( m_pQueuingPosition );
 }
 
+void AudioEngine::updateVirtualPatterns() {
+
+	if ( Hydrogen::get_instance()->getPatternMode() == Song::PatternMode::Stacked ) {
+		auto copyPlayingPatterns = [&]( std::shared_ptr<TransportPosition> pPos ) {
+			auto pPlayingPatterns = pPos->getPlayingPatterns();
+			auto pNextPatterns = pPos->getNextPatterns();
+
+			for ( const auto& ppPattern : *pPlayingPatterns ) {
+				pNextPatterns->add( ppPattern );
+			}
+		};
+		copyPlayingPatterns( m_pTransportPosition );
+		copyPlayingPatterns( m_pQueuingPosition );
+	}
+
+	m_pTransportPosition->getPlayingPatterns()->clear();
+	m_pQueuingPosition->getPlayingPatterns()->clear();
+
+	updatePlayingPatterns();
+}
+
 void AudioEngine::handleTimelineChange() {
 
 	// INFOLOG( QString( "before:\n%1\n%2" )
