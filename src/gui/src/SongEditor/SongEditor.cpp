@@ -1870,56 +1870,71 @@ void SongEditorPatternList::stackedModeActivationEvent( int ) {
 
 void SongEditorPatternList::patternPopup_virtualPattern()
 {
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song" );
+		return;
+	}
+	PatternList *pPatternList = pSong->getPatternList();
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( "no pattern list");
+		return;
+	}
+
 	setRowSelection( RowSelection::Dialog );
 	
-	VirtualPatternDialog *dialog = new VirtualPatternDialog( this );
-	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
-
-	dialog->patternList->setSortingEnabled(1);
-
-	std::shared_ptr<Song> song = m_pHydrogen->getSong();
-	PatternList *pPatternList = song->getPatternList();
+	VirtualPatternDialog* pDialog = new VirtualPatternDialog( this );
+	QListWidget* pPatternListWidget = pDialog->patternList;
+	pPatternListWidget->setSortingEnabled(1);
+	
 	auto pPatternClicked = pPatternList->get( m_nRowClicked );
 
 	std::map<QString, Pattern*> patternNameMap;
 
-	int listsize = pPatternList->size();
-	for (unsigned int index = 0; index < listsize; ++index) {
-		H2Core::Pattern *curPattern = pPatternList->get( index );
-		QString patternName = curPattern->get_name();
+	for ( const auto& pPattern : *pPatternList ) {
+		QString sPatternName = pPattern->get_name();
 
-		if (patternName == pPatternClicked->get_name()) {
+		if ( sPatternName == pPatternClicked->get_name() ) {
+			// Current pattern. A virtual pattern must not contain itself.
 			continue;
-		}//if
+		}
 
-		patternNameMap[patternName] = curPattern;
+		patternNameMap[ sPatternName ] = pPattern;
 
-		QListWidgetItem *newItem = new QListWidgetItem(patternName, dialog->patternList);
-		dialog->patternList->insertItem(0, newItem );
+		QListWidgetItem* pNewItem =
+			new QListWidgetItem( sPatternName, pPatternListWidget);
+		pPatternListWidget->insertItem( 0, pNewItem );
 
-		if (pPatternClicked->get_virtual_patterns()->find(curPattern) !=
-			pPatternClicked->get_virtual_patterns()->end()) {
-			newItem->setSelected( true );
-		}//if
-	}//for
+		if ( pPatternClicked->get_virtual_patterns()->find( pPattern ) !=
+			 pPatternClicked->get_virtual_patterns()->end() ) {
+			// pattern is already contained in virtual pattern.
+			pNewItem->setSelected( true );
+		}
+	}
 
-	if ( dialog->exec() == QDialog::Accepted ) {
+	if ( pDialog->exec() == QDialog::Accepted ) {
 		pPatternClicked->virtual_patterns_clear();
-		for (unsigned int index = 0; index < listsize-1; ++index) {
-			QListWidgetItem *listItem = dialog->patternList->item(index);
-			if (listItem->isSelected() == true) {
-				if (patternNameMap.find(listItem->text()) != patternNameMap.end()) {
-					pPatternClicked->virtual_patterns_add(patternNameMap[listItem->text()]);
-				}//if
-			}//if
-		}//for
+		for ( int ii = 0; ii < pPatternListWidget->count(); ++ii ) {
+			QListWidgetItem* pListItem = pPatternListWidget->item( ii );
+			if ( pListItem != nullptr && pListItem->isSelected() ) {
+				if ( patternNameMap.find( pListItem->text() ) !=
+					 patternNameMap.end() ) {
+					pPatternClicked->virtual_patterns_add(
+						patternNameMap[ pListItem->text() ] );
+				}
+				else {
+					ERRORLOG( QString( "Selected pattern [%1] could not be retrieved" )
+							  .arg( pListItem->text() ) );
+				}
+			}
+		}
 
-		pSEPanel->updateAll();
-	}//if
+		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	}
 
 	pPatternList->flattened_virtual_patterns_compute();
-
-	delete dialog;
+	
+	delete pDialog;
 
 	setRowSelection( RowSelection::None );
 }//patternPopup_virtualPattern
