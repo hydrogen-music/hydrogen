@@ -310,6 +310,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
 	 * @a sTargetDir.
 	 *
+	 * The function does not automatically load the extracted kit into
+	 * the current Hydrogen session in case a custom @a sTargetDir was
+	 * supplied. To do so, the name of the folder contained in the
+	 * tarball is required (might differ from the name of the tarball)
+	 * and it is not easily obtained.
+	 *
 	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
 	 * extension
 	 * \param sTargetDir Folder to extract the drumkit to. If the

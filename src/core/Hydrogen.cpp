@@ -585,8 +585,12 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 	}
 
-
 	// Play back the note.
+	if ( ! pInstr->hasSamples() ) {
+		pAudioEngine->unlock();
+		return;
+	}
+	
 	if ( bPlaySelectedInstrument ) {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstr ) ) {

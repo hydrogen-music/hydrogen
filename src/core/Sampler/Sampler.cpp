@@ -193,6 +193,10 @@ bool Sampler::isRenderingNotes() const {
 void Sampler::noteOn(Note *pNote )
 {
 	assert( pNote );
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	pNote->get_adsr()->attack();
 	auto pInstr = pNote->get_instrument();
@@ -1449,6 +1453,15 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 {
+	if ( m_pPreviewInstrument == nullptr ) {
+		ERRORLOG( "Invalid preview instrument" );
+		return;
+	}
+
+	if ( ! m_pPreviewInstrument->hasSamples() ) {
+		return;
+	}
+	
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
@@ -1470,6 +1483,15 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 
 void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 {
+	if ( pInstr == nullptr ) {
+		ERRORLOG( "Invalid instrument" );
+		return;
+	}
+
+	if ( ! pInstr->hasSamples() ) {
+		return;
+	}
+	
 	std::shared_ptr<Instrument> pOldPreview;
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 

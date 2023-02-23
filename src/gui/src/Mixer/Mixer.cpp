@@ -329,6 +329,12 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 	
+	if ( ! pSelectedInstrument->hasSamples() ) {
+		INFOLOG( QString( "Instrument [%1] does not contain any samples. No preview available" )
+				 .arg( pSelectedInstrument->get_name() ) );
+		return;
+	}
+	
 	Note *pNote = new Note( pSelectedInstrument, 0, 1.0 );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 }

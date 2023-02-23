@@ -431,7 +431,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	if ( pOldNote == nullptr ) {
 		// hear note
 		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() ) {
+		if ( pref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
