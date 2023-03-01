@@ -1178,9 +1178,9 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 	return true;
 }
 
-bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
+bool CoreActionController::validateDrumkit( const QString& sDrumkitPath, bool bCheckLegacyVersions ) {
 
-	INFOLOG( QString( "Validating kit [%1]." ).arg( sDrumkitPath ) );
+	INFOLOG( QString( "Validating kit [%1]" ).arg( sDrumkitPath ) );
 
 	QString sTemporaryFolder, sDrumkitDir;
 	// Whether the drumkit was provided as compressed .h2drumkit file.
@@ -1200,19 +1200,53 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
 		return false;
 	}
 
-	XMLDoc doc;
-	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ),
-					Filesystem::drumkit_xsd_path(), true ) ) {
-		ERRORLOG( QString( "Drumkit file [%1] does not comply with the current XSD definition" )
-				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+	auto validateXSD = [&]( const QString& sXSDPath, const QString& sContext ) {
+		
+		XMLDoc doc;
+		if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ),
+						sXSDPath, true ) ) {
+			ERRORLOG( QString( "Drumkit file [%1] does not comply with [%2] XSD definition" )
+					  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
+					  .arg( sContext ) );
+			return false;
+		}
+	
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+		if ( root.isNull() ) {
+			ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
+					  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+			return false;
+		}
+
+		INFOLOG( QString( "Drumkit file [%1] validates [%2] XSD definition" )
+				 .arg( Filesystem::drumkit_file( sDrumkitDir ) )
+				 .arg( sContext ) );
+		
+		return true;
+	};
+
+	bool bValid = validateXSD( Filesystem::drumkit_xsd_path(), "current" );
+	if ( ! bValid && ! bCheckLegacyVersions ) {
 		return false;
 	}
-	
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	if ( root.isNull() ) {
-		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
-				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-		return false;
+
+	if ( ! bValid && bCheckLegacyVersions ) {
+		const auto legacyXSDFiles = Filesystem::drumkit_xsd_legacy_paths();
+
+		for ( const auto& sPath : legacyXSDFiles ) {
+			QString sContext( sPath );
+			sContext.remove( Filesystem::xsd_dir() );
+			sContext.remove( Filesystem::drumkit_xsd() );
+
+			if ( validateXSD( sPath, sContext ) ) {
+				bValid = true;
+				break;
+			}
+		}
+
+		if ( ! bValid ) {
+			return false;
+		}
 	}
 
 	INFOLOG( QString( "Drumkit [%1] is valid!" )

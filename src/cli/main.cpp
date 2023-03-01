@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
 		auto pCoreActionController = pHydrogen->getCoreActionController();
 
 		if ( bValidateDrumkit ) {
-			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate ) ) {
+			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate, true ) ) {
 				nReturnCode = -1;
 
 				std::cout << "Provided drumkit [" <<

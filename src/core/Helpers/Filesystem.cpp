@@ -509,6 +509,10 @@ QString Filesystem::usr_click_file_path()
 	if( file_readable( __usr_data_path + CLICK_SAMPLE, true ) ) return __usr_data_path + CLICK_SAMPLE;
 	return click_file_path();
 }
+QString Filesystem::drumkit_xsd( )
+{
+	return DRUMKIT_XSD;
+}
 QString Filesystem::drumkit_xsd_path( )
 {
 	return xsd_dir() + DRUMKIT_XSD;
@@ -610,6 +614,10 @@ QString Filesystem::demos_dir()
 QString Filesystem::xsd_dir()
 {
 	return __sys_data_path + XSD;
+}
+QString Filesystem::xsd_legacy_dir()
+{
+	return xsd_dir() + "legacy";
 }
 QString Filesystem::tmp_dir()
 {
@@ -1033,6 +1041,25 @@ Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath )
 			return DrumkitType::SessionReadOnly;
 		}
 	}
+}
+
+QStringList Filesystem::drumkit_xsd_legacy_paths() {
+	const QDir legacyDir( xsd_legacy_dir() );
+
+	const QStringList legacyDirSubfolders =
+		legacyDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot,
+							 QDir::Name | QDir::Reversed );
+
+	QStringList drumkitXSDs;
+	for ( const auto& ffolder : legacyDirSubfolders ) {
+		const QDir folder( legacyDir.filePath( ffolder ) );
+		
+		if ( folder.exists( drumkit_xsd() ) ) {
+			drumkitXSDs << folder.filePath( drumkit_xsd() );
+		}
+	}
+
+	return std::move( drumkitXSDs );
 }
 
 };

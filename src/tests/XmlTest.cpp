@@ -241,7 +241,7 @@ void XmlTest::testDrumkitUpgrade() {
 
 		sDrumkitPath = H2TEST_FILE( "drumkits/legacyKits" ) + "/" + ssFile;
 
-		CPPUNIT_ASSERT( ! pCoreActionController->validateDrumkit( sDrumkitPath ) );
+		CPPUNIT_ASSERT( ! pCoreActionController->validateDrumkit( sDrumkitPath, false ) );
 
 		// The number of files within the drumkit has to be constant.
 		QTemporaryDir contentOriginal( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
@@ -268,7 +268,7 @@ void XmlTest::testDrumkitUpgrade() {
 		QString sUpgradedKit( firstUpgrade.path() + "/" +
 							  upgradeFolder.entryList( QDir::AllEntries |
 													   QDir::NoDotAndDotDot )[ 0 ] );
-		CPPUNIT_ASSERT( pCoreActionController->validateDrumkit( sUpgradedKit ) );
+		CPPUNIT_ASSERT( pCoreActionController->validateDrumkit( sUpgradedKit, false ) );
 		
 		QTemporaryDir contentUpgraded( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
 		contentUpgraded.setAutoRemove( false );

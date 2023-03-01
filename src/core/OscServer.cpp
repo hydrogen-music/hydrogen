@@ -1041,7 +1041,7 @@ void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ) );
+	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ), true );
 }
 
 void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
