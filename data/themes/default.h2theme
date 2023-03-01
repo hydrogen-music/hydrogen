@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hydrogen_theme>
- <version>1.1.1-'4228e825'</version>
+<hydrogen_theme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/theme">
+ <version>1.2.0-beta1</version>
  <colorTheme>
   <songEditor>
    <backgroundColor>128,134,152</backgroundColor>
    <alternateRowColor>106,111,126</alternateRowColor>
+   <virtualRowColor>120,112,97</virtualRowColor>
    <selectedRowColor>149,157,178</selectedRowColor>
    <selectedRowTextColor>0,0,0</selectedRowTextColor>
    <lineColor>54,57,67</lineColor>

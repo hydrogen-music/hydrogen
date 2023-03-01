@@ -452,6 +452,14 @@ void			previewSample( Sample *pSample );
 	 * later time.
 	 */
 	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
+
+	/**
+	 * Processes the patterns added to any virtual ones in the
+	 * #PatternList of the current #Song and ensure both the playing
+	 * pattern representation in the #AudioEngine and the GUI are
+	 * synced.
+	 */
+	void updateVirtualPatterns();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

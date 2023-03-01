@@ -1566,16 +1566,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			ppattern->virtual_patterns_del( *it );
 		}
 	}
-	pPatternList->flattened_virtual_patterns_compute();
 
+	pHydrogen->updateVirtualPatterns();
 	pHydrogen->setIsModified( true );
 	
 	delete pPattern;
-
-	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
-	}
+	
 	return true;
 }
 
