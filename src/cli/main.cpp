@@ -72,6 +72,7 @@ static struct option long_opts[] = {
 	{"help", 0, nullptr, 'h'},
 	{"install", required_argument, nullptr, 'i'},
 	{"check", required_argument, nullptr, 'c'},
+	{"legacy-check", required_argument, nullptr, 'l'},
 	{"upgrade", required_argument, nullptr, 'u'},
 	{"extract", required_argument, nullptr, 'x'},
 	{"target", required_argument, nullptr, 't'},
@@ -170,6 +171,7 @@ int main(int argc, char *argv[])
 		QString drumkitToLoad;
 		QString sDrumkitToValidate;
 		bool bValidateDrumkit = false;
+		bool bValidateLegacyKits = false;
 		QString sDrumkitToUpgrade;
 		bool bUpgradeDrumkit = false;
 		QString sDrumkitToExtract;
@@ -204,6 +206,12 @@ int main(int argc, char *argv[])
 				//validate h2drumkit
 				sDrumkitToValidate = makePathAbsolute( optarg );
 				bValidateDrumkit = true;
+				break;
+			case 'l':
+				//validate h2drumkit including legacy XSD definitions
+				sDrumkitToValidate = makePathAbsolute( optarg );
+				bValidateDrumkit = true;
+				bValidateLegacyKits = true;
 				break;
 			case 'u':
 				//upgrade h2drumkit
@@ -414,8 +422,9 @@ int main(int argc, char *argv[])
 		auto pCoreActionController = pHydrogen->getCoreActionController();
 
 		if ( bValidateDrumkit ) {
-			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate, true ) ) {
-				nReturnCode = -1;
+			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate,
+					 bValidateLegacyKits ) ) {
+				nReturnCode = 1;
 
 				std::cout << "Provided drumkit [" <<
 					sDrumkitToValidate.toLocal8Bit().data() << "] is INVALID!" << std::endl;
@@ -428,7 +437,7 @@ int main(int argc, char *argv[])
 		} else if ( bExtractDrumkit ) {
 			if ( ! pCoreActionController->extractDrumkit( sDrumkitToExtract,
 														  sTarget ) ) {
-				nReturnCode = -1;
+				nReturnCode = 1;
 
 				if ( sTarget.isEmpty() ) {
 					std::cout << "Unable to install drumkit [" <<
@@ -455,7 +464,7 @@ int main(int argc, char *argv[])
 		} else if ( bUpgradeDrumkit ) {
 			if ( ! pCoreActionController->upgradeDrumkit( sDrumkitToUpgrade,
 														  sTarget ) ) {
-				nReturnCode = -1;
+				nReturnCode = 1;
 
 				std::cout << "Unable to upgrade provided drumkit [" <<
 					sDrumkitToUpgrade.toLocal8Bit().data() << "]!" << std::endl;
@@ -627,6 +636,10 @@ void showUsage()
 	std::cout << "Drumkit handling:" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
 	std::cout << "   -c, --check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "                      against current drumkit format" << std::endl;
+	std::cout << "   -l, --legcay-check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "                             against current as well as legacy" << std::endl;
+	std::cout << "                             drumkit formats" << std::endl;
 	std::cout << "   -u, --upgrade FILE - upgrades a drumkit. FILE can be either" << std::endl;
 	std::cout << "                        an absolute path to a folder containing a" << std::endl;
 	std::cout << "                        drumkit, an absolute path to a drumkit file" << std::endl;
