@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -254,7 +254,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 
 			for ( unsigned nNote = 0; nNote < pPattern->get_length(); nNote++ ) {
 				const Pattern::notes_t* notes = pPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,nNote,pPattern) {
 					Note *pNote = it->second;
 					if ( pNote ) {
 						float rnd = (float)rand()/(float)RAND_MAX;

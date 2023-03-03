@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,7 +20,6 @@
  *
  */
 
-#include <QFileDialog>
 #include <QProgressBar>
 #include <QLabel>
 
@@ -28,6 +27,7 @@
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
+#include "Widgets/FileDialog.h"
 
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
@@ -228,7 +228,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 		sPath = QDir::homePath();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
 
 	if( templateCombo->currentIndex() <= 4 ) {
@@ -304,13 +304,22 @@ void ExportSongDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QFileInfo fileInfo( exportNameTxt->text() );
+	if ( ! Filesystem::dir_writable( fileInfo.absoluteDir().absolutePath(), false ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  pCommonStrings->getFileDialogMissingWritePermissions(),
+							  QMessageBox::Ok );
+		return;
+	}
+
 	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	auto pInstrumentList = pSong->getInstrumentList();
 
 	// License related export warnings
 	if ( pPref->m_bShowExportSongLicenseWarning ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		
 		QMessageBox licenseWarning( this );
 
@@ -387,7 +396,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		m_bExportTrackouts = false;
 
 		QString filename = exportNameTxt->text();
-		if ( QFileInfo( filename ).exists() == true && m_bQfileDialog == false ) {
+		if ( fileInfo.exists() == true && m_bQfileDialog == false ) {
 
 			int res;
 			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
@@ -442,7 +451,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
 		Pattern *pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it,pPattern) {
 			Note *pNote = it->second;
 			assert( pNote );
 

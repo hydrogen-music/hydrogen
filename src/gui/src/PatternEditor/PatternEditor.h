@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2020 by the Hydrogen Team
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -193,6 +193,12 @@ public:
 	int pitchToLine( int nPitch ) {
 		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
 	}
+	/**
+	 * Determines whether to pattern editor should show further
+	 * patterns (determined by getPattersToShow()) or just the
+	 * currently selected one.
+	 */
+	static bool isUsingAdditionalPatterns( const H2Core::Pattern* pPattern );
 
 protected:
 
@@ -260,7 +266,16 @@ protected:
 	//! Colour to use for outlining selected notes
 	QColor selectedNoteColor() const;
 
-	//! Draw a note
+	/**
+	 * Draw a note
+	 *
+	 * @param p Painting device
+	 * @param pos Center of the note to draw
+	 * @param pNote Particular note to draw
+	 * @param bIsForeground Whether the @a pNote is contained in the
+	 *   pattern currently shown in the pattern editor (the one
+	 *   selected in the song editor)
+	 */
 	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground = true ) const;
 
 	//! Get notes to show in pattern editor.
@@ -276,6 +291,12 @@ protected:
 	void invalidateBackground();
 	QPixmap *m_pBackgroundPixmap;
 	bool m_bBackgroundInvalid;
+
+	/**
+	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
+	 * state of the editor.
+	 */
+	void updateWidth();
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;

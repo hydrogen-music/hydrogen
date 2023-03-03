@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -499,7 +499,7 @@ void Note::save_to( XMLNode* node )
 Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent )
 {
 	bool bFound, bFound2;
-	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, bSilent );
+	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
@@ -507,6 +507,8 @@ Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instrument
 		float fPanR = node->read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
 		if ( bFound && bFound2 ) {
 			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+		} else {
+			WARNINGLOG( QString( "Neither `pan` nor `pan_L` and `pan_R` were found. Falling back to `pan = 0`" ) );
 		}
 	}
 

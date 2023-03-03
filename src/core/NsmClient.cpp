@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -130,6 +130,11 @@ int NsmClient::OpenCallback( const char *name,
 	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
+		// Song loading itself does not add the drumkit found to the
+		// SoundLibraryDatabase (in order to avoid problem with cyclic
+		// dependencies between drumkits).
+		loadDrumkit();
+		
 		pSong = H2Core::Song::load( sSongPath );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
@@ -211,6 +216,29 @@ void NsmClient::copyPreferences( const char* name ) {
 	NsmClient::printMessage( "Preferences loaded!" );
 }
 
+void NsmClient::loadDrumkit() {
+	
+	const auto pHydrogen = H2Core::Hydrogen::get_instance();
+	const QString sSessionFolder = NsmClient::get_instance()->getSessionFolderPath();
+	const QString sLinkedDrumkitPath = QString( "%1/%2" )
+		.arg( sSessionFolder ).arg( "drumkit" );
+	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
+
+	// Check whether the linked folder is valid.
+	if ( linkedDrumkitPathInfo.isSymLink() || 
+		 linkedDrumkitPathInfo.isDir() ) {
+
+		auto pDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sLinkedDrumkitPath );
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( "Unable to load drumkit from session folder" );
+		}
+	}
+	else {
+		ERRORLOG( "No valid drumkit found in session folder" );
+	}
+}
+
 void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -252,7 +280,15 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		}
 	    
 		if ( H2Core::Filesystem::drumkit_valid( sLinkedDrumkitPath ) ) {
-			const QString sLinkedDrumkitName = H2Core::Drumkit::loadNameFrom( sLinkedDrumkitPath );
+
+			QString sLinkedDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
+			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+			if ( pSoundLibraryDatabase != nullptr ) {
+				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLinkedDrumkitPath );
+				if ( pDrumkit != nullptr ) {
+					sLinkedDrumkitName = pDrumkit->get_name();
+				}
+			}
 	
 			if ( sLinkedDrumkitName == sDrumkitName ) {
 				bRelinkDrumkit = false;

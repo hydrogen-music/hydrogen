@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -452,6 +452,14 @@ void			previewSample( Sample *pSample );
 	 * later time.
 	 */
 	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
+
+	/**
+	 * Processes the patterns added to any virtual ones in the
+	 * #PatternList of the current #Song and ensure both the playing
+	 * pattern representation in the #AudioEngine and the GUI are
+	 * synced.
+	 */
+	void updateVirtualPatterns();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -503,7 +511,7 @@ private:
 	timeval 		m_CurrentTime;		///< timeval
 	int			m_nCoutOffset;		///ms default 0
 	int			m_nStartOffset;		///ms default 0
-	//~ beatcounter
+	// ~ beatcounter
 
 
 	// used for song export

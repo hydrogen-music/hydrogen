@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -535,7 +535,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 
 			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND( notes, it, nNote ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pCurrentPattern ) {
 					Note *pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
@@ -585,8 +585,12 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 	}
 
-
 	// Play back the note.
+	if ( ! pInstr->hasSamples() ) {
+		pAudioEngine->unlock();
+		return;
+	}
+	
 	if ( bPlaySelectedInstrument ) {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
@@ -902,8 +906,7 @@ void Hydrogen::restartLadspaFX()
 }
 
 void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
-	if ( isPatternEditorLocked() &&
-		 m_pAudioEngine->getState() == AudioEngine::State::Playing ) {
+	if ( isPatternEditorLocked() ) {
 		if ( bNeedsLock ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 		}
@@ -1126,7 +1129,7 @@ bool Hydrogen::handleBeatCounter()
 	}
 	return true;
 }
-//~ m_nBeatCounter
+// ~ m_nBeatCounter
 
 void Hydrogen::offJackMaster()
 {
@@ -1663,6 +1666,27 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 	}
 
 	return pInstrument;
+}
+
+void Hydrogen::updateVirtualPatterns() {
+
+	if ( __song == nullptr ) {
+		ERRORLOG( "no song" );
+		return;
+	}
+	PatternList *pPatternList = __song->getPatternList();
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( "no pattern list");
+		return;
+	}
+	
+	pPatternList->flattened_virtual_patterns_compute();
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+	m_pAudioEngine->updateVirtualPatterns();
+	m_pAudioEngine->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -215,6 +215,8 @@ class SongEditor : public QWidget
 		bool m_bEntered;
 
 	virtual void patternModifiedEvent() override;
+	virtual void relocationEvent() override;
+	virtual void patternEditorLockedEvent() override;
 	
 	/** Cached position of the playhead.*/
 	float m_fTick;
@@ -285,6 +287,8 @@ class SongEditorPatternList :  public QWidget
 	virtual void stackedModeActivationEvent( int nValue ) override;
 	virtual void selectedPatternChangedEvent() override;
 	virtual void nextPatternsChangedEvent() override;
+	virtual void relocationEvent() override;
+	virtual void patternEditorLockedEvent() override;
 
 	public slots:
 		void patternPopup_edit();

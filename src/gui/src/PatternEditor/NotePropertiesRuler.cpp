@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -61,7 +61,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
+	setMinimumHeight( m_nEditorHeight );
 
 	updateEditor();
 	show();
@@ -140,7 +140,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 			notes.push_back( it->second );
 		}
 	}
@@ -349,7 +349,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 	if ( ev->buttons() == Qt::NoButton ) {
 		int nColumn = getColumn( ev->x() );
 		bool bFound = false;
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 			bFound = true;
 			break;
 		}
@@ -401,7 +401,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	} else {
 		// No notes are selected. The target notes to adjust are all those at column given by 'x', so we preserve these.
 		int nColumn = getColumn( x );
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it,
+										  nColumn, m_pPattern ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
@@ -452,7 +453,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	bool bValueSet = false;
 
-	FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+	FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 		Note *pNote = it->second;
 
 		if ( pNote->get_instrument() != pSelectedInstrument &&
@@ -722,7 +723,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					notes.push_back( pNote );
 				}
 			} else {
-				FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, column ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, column, m_pPattern ) {
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
@@ -886,7 +887,8 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 
@@ -1081,12 +1083,12 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSelectedInstrument
@@ -1176,12 +1178,12 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
@@ -1330,7 +1332,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSelectedInstrument
@@ -1400,29 +1402,8 @@ void NotePropertiesRuler::updateEditor( bool )
 	}
 	m_nSelectedPatternNumber = nSelectedPatternNumber;
 
-	// update editor width
-	if ( m_pPattern != nullptr ) {
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		} else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
+	resize( m_nEditorWidth, height() );
 
 	invalidateBackground();
 	update();
@@ -1430,8 +1411,6 @@ void NotePropertiesRuler::updateEditor( bool )
 
 void NotePropertiesRuler::createBackground()
 {
-	resize( m_nEditorWidth, height() );
-	
 	qreal pixelRatio = devicePixelRatio();
 	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
 		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
@@ -1453,7 +1432,7 @@ void NotePropertiesRuler::createBackground()
 	else if ( m_mode == PatternEditor::Mode::NoteKey ) {
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
-	update();
+	
 	m_bBackgroundInvalid = false;
 }
 
@@ -1496,7 +1475,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 	r += QMargins( 4, 4, 4, 4 );
 
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 		if ( it->second->get_instrument() != pSelectedInstrument
 			 && !m_selection.isSelected( it->second ) ) {
 			continue;

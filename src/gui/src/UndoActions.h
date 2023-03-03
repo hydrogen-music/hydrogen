@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -353,7 +353,7 @@ private:
 	std::vector< QPoint > m_mergeCells;
 };
 
-//~song editor commands
+// ~song editor commands
 //=====================================================================================================================================
 //time line commands
 
@@ -456,7 +456,7 @@ private:
 	int m_nPosition;
 };
 
-//~time line commands
+// ~time line commands
 //=====================================================================================================================================
 //pattern editor commands
 
@@ -1147,7 +1147,7 @@ public:
 private:
 };
 
-//~pattern editor commands
+// ~pattern editor commands
 //=====================================================================================================================================
 //piano roll editor commands
 
@@ -1314,7 +1314,7 @@ class SE_moveNotePianoRollAction : public QUndoCommand
 
 };
 
-//~piano roll editor commands
+// ~piano roll editor commands
 //=====================================================================================================================================
 //Note Properties Ruler commands
 
@@ -1412,7 +1412,7 @@ private:
 	int __oldOctaveKeyVal;
 };
 
-//~Note Properties Ruler commands
+// ~Note Properties Ruler commands
 //=====================================================================================================================================
 
 

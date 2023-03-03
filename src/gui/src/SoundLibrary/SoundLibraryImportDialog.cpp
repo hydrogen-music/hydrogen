@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -25,6 +25,7 @@
 #include "SoundLibraryPanel.h"
 
 #include "../Widgets/DownloadWidget.h"
+#include "../Widgets/FileDialog.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
@@ -39,7 +40,6 @@
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QHeaderView>
-#include <QFileDialog>
 #include <QCryptographicHash>
 
 #include <memory>
@@ -687,7 +687,8 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 		sPath = QDir::homePath();
 	}
 
-	QFileDialog fd(this);
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd.setDirectory( sPath );

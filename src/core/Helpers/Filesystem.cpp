@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -25,6 +25,7 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -758,7 +759,15 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 		// drumkit (using its name).
 		QString sDrumkitXMLPath = QString( "%1/%2" )
 				.arg( sDrumkitPath ).arg( "drumkit.xml" );
-		QString sSessionDrumkitName = Drumkit::loadNameFrom( sDrumkitPath );
+
+		QString sSessionDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
+		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+		if ( pSoundLibraryDatabase != nullptr ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
+			if ( pDrumkit != nullptr ) {
+				sSessionDrumkitName = pDrumkit->get_name();
+			}
+		}
 
 		if ( dk_name == sSessionDrumkitName ) {
 				// The local drumkit seems legit.	
@@ -1009,6 +1018,23 @@ QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
 
 	return sPath;
 }
+
+Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
+	if ( sPath.contains( Filesystem::sys_drumkits_dir() ) ) {
+		return DrumkitType::System;
+	}
+	else if ( sPath.contains( Filesystem::usr_drumkits_dir() ) ) {
+		return DrumkitType::User;
+	}
+	else {
+		if ( dir_writable( sPath, true ) ) {
+			return DrumkitType::SessionReadWrite;
+		} else {
+			return DrumkitType::SessionReadOnly;
+		}
+	}
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

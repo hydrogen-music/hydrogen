@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -45,6 +45,7 @@
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
@@ -581,16 +582,17 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new ColorTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
 	new ColorTreeItem( 0x301, pTopLevelItem, tr( "Alternate Row" ) );
-	new ColorTreeItem( 0x302, pTopLevelItem, tr( "Selected Row" ) );
-	new ColorTreeItem( 0x303, pTopLevelItem, tr( "Selected Row Text" ) );
-	new ColorTreeItem( 0x304, pTopLevelItem, tr( "Line" ) );
-	new ColorTreeItem( 0x305, pTopLevelItem, tr( "Text" ) );
-	new ColorTreeItem( 0x306, pTopLevelItem, tr( "Automation Background" ) );
-	new ColorTreeItem( 0x307, pTopLevelItem, tr( "Automation Line" ) );
-	new ColorTreeItem( 0x308, pTopLevelItem, tr( "Automation Node" ) );
-	new ColorTreeItem( 0x309, pTopLevelItem, tr( "Stacked Mode On" ) );
-	new ColorTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode On Next" ) );
-	new ColorTreeItem( 0x30b, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
+	new ColorTreeItem( 0x302, pTopLevelItem, tr( "Virtual Row" ) );
+	new ColorTreeItem( 0x303, pTopLevelItem, tr( "Selected Row" ) );
+	new ColorTreeItem( 0x304, pTopLevelItem, tr( "Selected Row Text" ) );
+	new ColorTreeItem( 0x305, pTopLevelItem, tr( "Line" ) );
+	new ColorTreeItem( 0x306, pTopLevelItem, tr( "Text" ) );
+	new ColorTreeItem( 0x307, pTopLevelItem, tr( "Automation Background" ) );
+	new ColorTreeItem( 0x308, pTopLevelItem, tr( "Automation Line" ) );
+	new ColorTreeItem( 0x309, pTopLevelItem, tr( "Automation Node" ) );
+	new ColorTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode On" ) );
+	new ColorTreeItem( 0x30b, pTopLevelItem, tr( "Stacked Mode On Next" ) );
+	new ColorTreeItem( 0x30c, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
 	
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Pattern Editor" ) );
 	new ColorTreeItem( 0x400, pTopLevelItem, tr( "Background" ) );
@@ -778,7 +780,7 @@ void PreferencesDialog::updateDriverPreferences() {
 	default:
 		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
-	//~ JACK
+	// ~ JACK
 
 	if ( pPref->m_nBufferSize != bufferSizeSpinBox->value() ) {
 		pPref->m_nBufferSize = bufferSizeSpinBox->value();
@@ -1132,6 +1134,25 @@ void PreferencesDialog::updateDriverInfo()
 
 	// Reset info text
 	updateDriverInfoLabel();
+
+	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
+	switch ( pPref->m_nSampleRate ) {
+	case 44100:
+		sampleRateComboBox->setCurrentIndex( 0 );
+		break;
+	case 48000:
+		sampleRateComboBox->setCurrentIndex( 1 );
+		break;
+	case 88200:
+		sampleRateComboBox->setCurrentIndex( 2 );
+		break;
+	case 96000:
+		sampleRateComboBox->setCurrentIndex( 3 );
+		break;
+	default:
+		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
+	}
+
 
 	if ( driverComboBox->currentText() == "Auto" ) {
 
@@ -1829,16 +1850,17 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x209: return &pColorTheme->m_cursorColor;
 	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
 	case 0x301: return &pColorTheme->m_songEditor_alternateRowColor;
-	case 0x302: return &pColorTheme->m_songEditor_selectedRowColor;
-	case 0x303: return &pColorTheme->m_songEditor_selectedRowTextColor;
-	case 0x304: return &pColorTheme->m_songEditor_lineColor;
-	case 0x305: return &pColorTheme->m_songEditor_textColor;
-	case 0x306: return &pColorTheme->m_songEditor_automationBackgroundColor;
-	case 0x307: return &pColorTheme->m_songEditor_automationLineColor;
-	case 0x308: return &pColorTheme->m_songEditor_automationNodeColor;
-	case 0x309: return &pColorTheme->m_songEditor_stackedModeOnColor;
-	case 0x30a: return &pColorTheme->m_songEditor_stackedModeOnNextColor;
-	case 0x30b: return &pColorTheme->m_songEditor_stackedModeOffNextColor;
+	case 0x302: return &pColorTheme->m_songEditor_virtualRowColor;
+	case 0x303: return &pColorTheme->m_songEditor_selectedRowColor;
+	case 0x304: return &pColorTheme->m_songEditor_selectedRowTextColor;
+	case 0x305: return &pColorTheme->m_songEditor_lineColor;
+	case 0x306: return &pColorTheme->m_songEditor_textColor;
+	case 0x307: return &pColorTheme->m_songEditor_automationBackgroundColor;
+	case 0x308: return &pColorTheme->m_songEditor_automationLineColor;
+	case 0x309: return &pColorTheme->m_songEditor_automationNodeColor;
+	case 0x30a: return &pColorTheme->m_songEditor_stackedModeOnColor;
+	case 0x30b: return &pColorTheme->m_songEditor_stackedModeOnNextColor;
+	case 0x30c: return &pColorTheme->m_songEditor_stackedModeOffNextColor;
 	case 0x400: return &pColorTheme->m_patternEditor_backgroundColor;
 	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
 	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
@@ -1925,25 +1947,27 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x301:  pColorTheme->m_songEditor_alternateRowColor = color;
 		break;
-	case 0x302:  pColorTheme->m_songEditor_selectedRowColor = color;
+	case 0x302:  pColorTheme->m_songEditor_virtualRowColor = color;
 		break;
-	case 0x303:  pColorTheme->m_songEditor_selectedRowTextColor = color;
+	case 0x303:  pColorTheme->m_songEditor_selectedRowColor = color;
 		break;
-	case 0x304:  pColorTheme->m_songEditor_lineColor = color;
+	case 0x304:  pColorTheme->m_songEditor_selectedRowTextColor = color;
 		break;
-	case 0x305:  pColorTheme->m_songEditor_textColor = color;
+	case 0x305:  pColorTheme->m_songEditor_lineColor = color;
 		break;
-	case 0x306:  pColorTheme->m_songEditor_automationBackgroundColor = color;
+	case 0x306:  pColorTheme->m_songEditor_textColor = color;
 		break;
-	case 0x307:  pColorTheme->m_songEditor_automationLineColor = color;
+	case 0x307:  pColorTheme->m_songEditor_automationBackgroundColor = color;
 		break;
-	case 0x308:  pColorTheme->m_songEditor_automationNodeColor = color;
+	case 0x308:  pColorTheme->m_songEditor_automationLineColor = color;
 		break;
-	case 0x309:  pColorTheme->m_songEditor_stackedModeOnColor = color;
+	case 0x309:  pColorTheme->m_songEditor_automationNodeColor = color;
 		break;
-	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnColor = color;
 		break;
-	case 0x30b:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
+	case 0x30b:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+		break;
+	case 0x30c:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
 		break;
 	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
 		break;
@@ -2198,7 +2222,7 @@ void PreferencesDialog::importTheme() {
 	}
 	
 	QString sTitle = tr( "Import Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -2253,7 +2277,7 @@ void PreferencesDialog::exportTheme() {
 		sPath = Filesystem::usr_theme_dir();
 	}
 	QString sTitle = tr( "Export Theme" );
-	QFileDialog fd( this );
+	FileDialog fd( this );
 	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::AnyFile );

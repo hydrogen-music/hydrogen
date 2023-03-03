@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -67,8 +67,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __song_menu( nullptr )
  , __pattern_menu( nullptr )
  , __pattern_menu_list( nullptr )
- , __system_drumkits_item( nullptr )
- , __user_drumkits_item( nullptr )
+ , m_pTreeSystemDrumkitsItem( nullptr )
+ , m_pTreeUserDrumkitsItem( nullptr )
+ , m_pTreeSessionDrumkitsItem( nullptr )
  , __song_item( nullptr )
  , __pattern_item( nullptr )
  , __pattern_item_list( nullptr )
@@ -157,16 +158,13 @@ void SoundLibraryPanel::updateTree()
 
 	QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( childFont );
+	
+	m_pTreeSystemDrumkitsItem = nullptr;
+	m_pTreeUserDrumkitsItem = nullptr;
+	m_pTreeSessionDrumkitsItem = nullptr;
 
-	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
-	__system_drumkits_item->setText( 0, tr( "System drumkits" ) );
-	__system_drumkits_item->setExpanded( true );
-	__system_drumkits_item->setFont( 0, boldFont );
-
-	__user_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
-	__user_drumkits_item->setText( 0, tr( "User drumkits" ) );
-	__user_drumkits_item->setExpanded( true );
-	__user_drumkits_item->setFont( 0, boldFont );
+	// top-level drumkit items found
+	QList<QTreeWidgetItem*> drumkitItems;
 
 	// drumkit list
 	m_drumkitRegister.clear();
@@ -175,15 +173,40 @@ void SoundLibraryPanel::updateTree()
 		auto pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
 			QString sItemLabel = pDrumkit->get_name();
+			auto drumkitType =
+				Filesystem::determineDrumkitType( pDrumkitEntry.first );
 
 			QTreeWidgetItem* pDrumkitItem;
-			if ( pDrumkit->isUserDrumkit() ) {
-				pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
-			} else {
-				pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
+			if ( drumkitType == Filesystem::DrumkitType::System ) {
+				if ( m_pTreeSystemDrumkitsItem == nullptr ) {
+					m_pTreeSystemDrumkitsItem = new QTreeWidgetItem();
+					m_pTreeSystemDrumkitsItem->setText( 0, tr( "System drumkits" ) );
+					m_pTreeSystemDrumkitsItem->setFont( 0, boldFont );
+				}
+
+				pDrumkitItem = new QTreeWidgetItem( m_pTreeSystemDrumkitsItem );
 				sItemLabel.append( QString( " (%1)" )
 								   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
 			}
+			else if ( drumkitType == Filesystem::DrumkitType::User ) {
+				if ( m_pTreeUserDrumkitsItem == nullptr ) {
+					m_pTreeUserDrumkitsItem = new QTreeWidgetItem();
+					m_pTreeUserDrumkitsItem->setText( 0, tr( "User drumkits" ) );
+					m_pTreeUserDrumkitsItem->setFont( 0, boldFont );
+				}
+
+				pDrumkitItem = new QTreeWidgetItem( m_pTreeUserDrumkitsItem );
+			} else {
+				if ( m_pTreeSessionDrumkitsItem == nullptr ) {
+					m_pTreeSessionDrumkitsItem = new QTreeWidgetItem();
+					m_pTreeSessionDrumkitsItem->setText( 0, tr( "Session drumkits" ) );
+					m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
+				}
+				pDrumkitItem = new QTreeWidgetItem( m_pTreeSessionDrumkitsItem );
+				sItemLabel.append( QString( " (%1)" )
+								   .arg( pCommonStrings->getSoundLibrarySessionSuffix() ) );
+			}
+
 
 			// Ensure uniqueness of the label.
 			int nCount = 1;
@@ -197,6 +220,7 @@ void SoundLibraryPanel::updateTree()
 			m_drumkitRegister[ sItemLabel ] = pDrumkitEntry.first;
 			
 			pDrumkitItem->setText( 0, sItemLabel );
+			pDrumkitItem->setToolTip( 0, pDrumkitEntry.first );
 			if ( ! m_bInItsOwnDialog ) {
 				auto pInstrList = pDrumkit->get_instruments();
 				for ( const auto& pInstrument : *pDrumkit->get_instruments() ) {
@@ -210,6 +234,31 @@ void SoundLibraryPanel::updateTree()
 				}
 			}
 		}
+	}
+
+	// Ensure the ordering of the top-level nodes is always
+	// system > user > session
+	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
+		drumkitItems << m_pTreeSystemDrumkitsItem;
+	}
+	if ( m_pTreeUserDrumkitsItem != nullptr ) {
+		drumkitItems << m_pTreeUserDrumkitsItem;
+	}
+	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
+		drumkitItems << m_pTreeSessionDrumkitsItem;
+	}
+	__sound_library_tree->addTopLevelItems( drumkitItems );
+
+	// Ensure drumkit nodes are expanded (necessary when added as
+	// above.)
+	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
+		m_pTreeSystemDrumkitsItem->setExpanded( true );
+	}
+	if ( m_pTreeUserDrumkitsItem != nullptr ) {
+		m_pTreeUserDrumkitsItem->setExpanded( true );
+	}
+	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
+		m_pTreeSessionDrumkitsItem->setExpanded( true );
 	}
 
 	if ( ! m_bInItsOwnDialog ) {
@@ -240,31 +289,33 @@ void SoundLibraryPanel::updateTree()
 			__pattern_item->setExpanded( __expand_pattern_list );
 			__pattern_item->setFont( 0, boldFont );
 		
-			soundLibraryInfoVector* allPatternDirList =
-				pSoundLibraryDatabase->getAllPatternInfos();
-			QStringList allCategoryNameList =
-				pSoundLibraryDatabase->getAllPatternCategories();
+			auto patternInfoVector = pSoundLibraryDatabase->getPatternInfoVector();
+			QStringList patternCategories =
+				pSoundLibraryDatabase->getPatternCategories();
 
 			//now sorting via category
 
-			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
-				QString categoryName = allCategoryNameList[i];
+			/*: Base tooltip displayed when hovering over a pattern in
+			  the Sound Library. It indicates which drumkit the
+			  pattern was created with*/
+			QString sPatternTooltip = tr( "Created for drumkit" );
+			for ( const auto& categoryName : patternCategories ) {
 
 				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
 				pCategoryItem->setText( 0, categoryName  );
 
-				soundLibraryInfoVector::iterator mapIterator;
-				for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
-					{
-						QString patternCategory = (*mapIterator)->getCategory();
-						if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
-							QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-							pPatternItem->setText( 0, (*mapIterator)->getName());
-							pPatternItem->setText( 1, (*mapIterator)->getPath() );
-							pPatternItem->setToolTip( 0, Pattern::loadDrumkitNameFrom( (*mapIterator)->getPath() ));
-							INFOLOG( "Path" +  (*mapIterator)->getPath() );
-						}
+				for ( const auto& pInfo : patternInfoVector ) {
+					QString patternCategory = pInfo->getCategory();
+					if ( ( patternCategory == categoryName ) ||
+						 ( patternCategory.isEmpty() && categoryName == "No category" ) ){
+						QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+						pPatternItem->setText( 0, pInfo->getName());
+						pPatternItem->setText( 1, pInfo->getPath() );
+						pPatternItem->setToolTip( 0, QString( "%1 [%2]" )
+												  .arg( sPatternTooltip )
+												  .arg( pInfo->getDrumkitName() ) );
 					}
+				}
 			}
 		}
 	}
@@ -282,8 +333,9 @@ void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, Q
 		return;
 	}
 
-	if ( current->parent() == __system_drumkits_item ||
-		 current->parent() == __user_drumkits_item  ){
+	if ( current->parent() == m_pTreeSystemDrumkitsItem ||
+		 current->parent() == m_pTreeUserDrumkitsItem ||
+		 current->parent() == m_pTreeSessionDrumkitsItem ){
 			emit item_changed( true );
 	} else {
 		emit item_changed( false );
@@ -299,9 +351,15 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 	UNUSED( column );
 
 //	INFOLOG( "[on_DrumkitList_itemActivated]" );
-	if ( item == __system_drumkits_item ||
-		 item == __user_drumkits_item ||
-		 item == __system_drumkits_item->parent() ||
+	if ( item == m_pTreeSystemDrumkitsItem ||
+		 item == m_pTreeUserDrumkitsItem ||
+		 item == m_pTreeSessionDrumkitsItem ||
+		 ( ( m_pTreeSystemDrumkitsItem != nullptr &&
+			 item == m_pTreeSystemDrumkitsItem->parent() ) ||
+		   ( m_pTreeUserDrumkitsItem != nullptr &&
+			 item == m_pTreeUserDrumkitsItem->parent() ) ||
+		   ( m_pTreeSessionDrumkitsItem != nullptr &&
+			 item == m_pTreeSessionDrumkitsItem->parent() ) )||
 		 item->parent() == __song_item ||
 		 item == __song_item ||
 		 item == __pattern_item ||
@@ -313,8 +371,9 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		return;
 	}
 
-	if ( item->parent() == __system_drumkits_item ||
-		 item->parent() == __user_drumkits_item  ) {
+	if ( item->parent() == m_pTreeSystemDrumkitsItem ||
+		 item->parent() == m_pTreeUserDrumkitsItem  ||
+		 item->parent() == m_pTreeSessionDrumkitsItem  ) {
 		// Double clicking a drumkit
 	}
 	else {
@@ -353,10 +412,10 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	}
 	
 	if (
-		( __sound_library_tree->currentItem()->parent() == nullptr ) ||
-		( __sound_library_tree->currentItem() == __user_drumkits_item ) ||
-		( __sound_library_tree->currentItem() == __system_drumkits_item )
-	) {
+		__sound_library_tree->currentItem()->parent() == nullptr ||
+		__sound_library_tree->currentItem() == m_pTreeUserDrumkitsItem ||
+		__sound_library_tree->currentItem() == m_pTreeSystemDrumkitsItem ||
+		__sound_library_tree->currentItem() == m_pTreeSessionDrumkitsItem ) {
 		return;
 	}
 
@@ -368,13 +427,28 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 		__pattern_menu->popup( pos );
 	}
 
-	if ( __sound_library_tree->currentItem()->parent() == __user_drumkits_item ) {
+	if ( __sound_library_tree->currentItem()->parent() == m_pTreeUserDrumkitsItem ) {
 		__drumkit_menu->popup( pos );
 	}
 	
-
-	if ( __sound_library_tree->currentItem()->parent() == __system_drumkits_item ) {
+	if ( __sound_library_tree->currentItem()->parent() == m_pTreeSystemDrumkitsItem ) {
 		__drumkit_menu_system->popup( pos );
+	}
+	
+	// We do not provide distinct parent items for read-only and
+	// writable session drumkits as it would make the GUI unnecessary
+	// complex. Instead, the level of access for the current user is
+	// checked during runtime (which should be a very rare thing to do).
+	if ( __sound_library_tree->currentItem()->parent() == m_pTreeSessionDrumkitsItem ) {
+		const QString sDrumkitName = __sound_library_tree->currentItem()->text( 0 );
+		const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+		const auto drumkitType = Filesystem::determineDrumkitType( sDrumkitPath );
+		
+		if ( drumkitType == Filesystem::DrumkitType::SessionReadOnly ) {
+			__drumkit_menu_system->popup( pos );
+		} else {
+			__drumkit_menu->popup( pos );
+		}
 	}
 
 }
@@ -402,10 +476,9 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		return;
 	}
 
-	if (
-		( __sound_library_tree->currentItem()->parent() == __system_drumkits_item ) ||
-		( __sound_library_tree->currentItem()->parent() == __user_drumkits_item )
-	) {
+	if ( __sound_library_tree->currentItem()->parent() == m_pTreeSystemDrumkitsItem ||
+		 __sound_library_tree->currentItem()->parent() == m_pTreeUserDrumkitsItem ||
+		 __sound_library_tree->currentItem()->parent() == m_pTreeSessionDrumkitsItem ) {
  		// drumkit selection
 		//INFOLOG( "ho selezionato un drumkit (system)" );
 		return;
@@ -452,12 +525,12 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 			return;
 		}
 
-		QString sDrumkitName = __sound_library_tree->currentItem()->parent()->text(0);
-		QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-		QString sInstrumentName = ( __sound_library_tree->currentItem()->text(0) )
+		const QString sDrumkitName = __sound_library_tree->currentItem()->parent()->text(0);
+		const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+		const QString sInstrumentName = ( __sound_library_tree->currentItem()->text(0) )
 			.remove( 0, __sound_library_tree->currentItem()->text(0).indexOf( "] " ) + 2 );
 
-		QString sText = "importInstrument:" + sDrumkitPath + "::" + sInstrumentName;
+		const QString sText = "importInstrument:" + sDrumkitPath + "::" + sInstrumentName;
 
 		QDrag *pDrag = new QDrag(this);
 		QMimeData *pMimeData = new QMimeData;
@@ -577,13 +650,24 @@ void SoundLibraryPanel::update_background_color()
 
 void SoundLibraryPanel::restore_background_color()
 {
-	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-		( __system_drumkits_item->child( i ) )->setBackground( 0, QBrush() );		
+	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
+		for (int i = 0; i < m_pTreeSystemDrumkitsItem->childCount() ; i++){
+			( m_pTreeSystemDrumkitsItem->child( i ) )->setBackground( 0, QBrush() );		
+		}
 	}
 
-	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-		( __user_drumkits_item->child( i ) )->setBackground(0, QBrush() );
+	if ( m_pTreeUserDrumkitsItem != nullptr ) {
+		for (int i = 0; i < m_pTreeUserDrumkitsItem->childCount() ; i++){
+			( m_pTreeUserDrumkitsItem->child( i ) )->setBackground(0, QBrush() );
+		}
 	}
+
+	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
+		for (int i = 0; i < m_pTreeSessionDrumkitsItem->childCount() ; i++){
+			( m_pTreeSessionDrumkitsItem->child( i ) )->setBackground( 0, QBrush() );		
+		}
+	}
+
 }
 
 QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const {
@@ -614,32 +698,52 @@ void SoundLibraryPanel::change_background_color()
 				  .arg( sDrumkitPath ) );
 		return;
 	}
+
+	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
+		for ( int i = 0; i < m_pTreeSystemDrumkitsItem->childCount() ; i++){
+			if ( ( m_pTreeSystemDrumkitsItem->child( i ) )->text( 0 ) == sDrumkitLabel ){
+				( m_pTreeSystemDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+				return;
+			}
+		}
+	}
+
+	if ( m_pTreeUserDrumkitsItem != nullptr ) {
+		for (int i = 0; i < m_pTreeUserDrumkitsItem->childCount() ; i++){
+			if ( ( m_pTreeUserDrumkitsItem->child( i ))->text( 0 ) == sDrumkitLabel ){
+				( m_pTreeUserDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+				break;
+			}
+		}
+	}
 	
-	for ( int i = 0; i < __system_drumkits_item->childCount() ; i++){
-		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitLabel ){
-			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-			return;
+	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
+		for ( int i = 0; i < m_pTreeSessionDrumkitsItem->childCount() ; i++){
+			if ( ( m_pTreeSessionDrumkitsItem->child( i ) )->text( 0 ) == sDrumkitLabel ){
+				( m_pTreeSessionDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+				return;
+			}
 		}
 	}
-	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitLabel ){
-			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-			break;
-		}
-	}
+
 }
 
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
-	QString sDrumkitName = pItem->text(0);
+	const QString sDrumkitName = pItem->text(0);
+	const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
+	const auto drumkitType = Filesystem::determineDrumkitType( sDrumkitPath );
+	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	if ( pItem->parent() == __system_drumkits_item ) {
+	if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
+		 ( pItem->parent() == m_pTreeSessionDrumkitsItem &&
+		   drumkitType == Filesystem::DrumkitType::SessionReadOnly ) ) {
 		QMessageBox::warning( this, "Hydrogen", QString( "\"%1\" " )
 							  .arg(sDrumkitName)
-							  .append( tr( "is a system drumkit and can't be deleted.") ) );
+							  .append( tr( "is a read-only drumkit and can't be deleted.") ) );
 		return;
 	}
 
@@ -774,8 +878,7 @@ void SoundLibraryPanel::test_expandedItems()
 void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( __system_drumkits_item->child( 0 ) != nullptr &&
-		 ( changes & H2Core::Preferences::Changes::Font ) ) {
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
 		QFont font( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
@@ -783,20 +886,36 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 
 		int ii, jj;
 		QTreeWidgetItem* childNode;
-		__system_drumkits_item->setFont( 0, boldFont );
-		for ( ii = 0; ii < __system_drumkits_item->childCount(); ii++ ){ 
-			childNode = __system_drumkits_item->child( ii );
-			childNode->setFont( 0, font );
-			for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-				childNode->child( jj )->setFont( 0, font );
+		if ( m_pTreeSystemDrumkitsItem != nullptr ) {
+			m_pTreeSystemDrumkitsItem->setFont( 0, boldFont );
+			for ( ii = 0; ii < m_pTreeSystemDrumkitsItem->childCount(); ii++ ){ 
+				childNode = m_pTreeSystemDrumkitsItem->child( ii );
+				childNode->setFont( 0, font );
+				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+					childNode->child( jj )->setFont( 0, font );
+				}
 			}
 		}
-		__user_drumkits_item->setFont( 0, boldFont );
-		for ( ii = 0; ii < __user_drumkits_item->childCount(); ii++ ){ 
-			childNode = __user_drumkits_item->child( ii );
-			childNode->setFont( 0, font );
-			for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-				childNode->child( jj )->setFont( 0, font );
+
+		if ( m_pTreeUserDrumkitsItem != nullptr ) {
+			m_pTreeUserDrumkitsItem->setFont( 0, boldFont );
+			for ( ii = 0; ii < m_pTreeUserDrumkitsItem->childCount(); ii++ ){ 
+				childNode = m_pTreeUserDrumkitsItem->child( ii );
+				childNode->setFont( 0, font );
+				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+					childNode->child( jj )->setFont( 0, font );
+				}
+			}
+		}
+		
+		if ( m_pTreeSessionDrumkitsItem != nullptr ) {
+			m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
+			for ( ii = 0; ii < m_pTreeSessionDrumkitsItem->childCount(); ii++ ){ 
+				childNode = m_pTreeSessionDrumkitsItem->child( ii );
+				childNode->setFont( 0, font );
+				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+					childNode->child( jj )->setFont( 0, font );
+				}
 			}
 		}
 

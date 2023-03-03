@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -285,7 +285,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	songModeActivationEvent();
 
-	//~ ZOOM
+	// ~ ZOOM
 
 	// PATTERN LIST
 	m_pPatternListScrollView = new WidgetScrollArea( nullptr );

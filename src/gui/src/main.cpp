@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -39,6 +39,11 @@
 
 #ifdef H2CORE_HAVE_LASH
 #include <core/Lash/LashClient.h>
+#endif
+
+#ifdef WIN32
+#include <windows.h>
+#include <stdio.h>
 #endif
 
 #include <core/MidiMap.h>
@@ -188,6 +193,16 @@ public:
 
 int main(int argc, char *argv[])
 {
+
+#ifdef WIN32
+	// In case Hydrogen was started using a CLI attach its output to
+	// the latter. 
+	if ( AttachConsole(ATTACH_PARENT_PROCESS)) {
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
+		freopen("CONIN$", "w", stdin);
+	}
+#endif
 	Reporter::spawn( argc, argv );
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)

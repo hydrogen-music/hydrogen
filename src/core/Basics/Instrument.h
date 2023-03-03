@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -307,6 +307,10 @@ class Instrument : public H2Core::Object<Instrument>
 
 		bool has_missing_samples() const { return m_bHasMissingSamples; }
 		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
+
+	/** Whether the instrument contains at least one non-missing
+	 * sample */
+	bool hasSamples() const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

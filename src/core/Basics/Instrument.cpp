@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -382,7 +382,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	pInstrument->set_muted( pNode->read_bool( "isMuted", false,
 											 true, true, bSilent ) );
 	pInstrument->set_soloed( pNode->read_bool( "isSoloed", false,
-											  true, true, bSilent ) );
+											  true, false, true ) );
 	bool bFound, bFound2;
 	float fPan = pNode->read_float( "pan", 0.f, &bFound,
 								   true, true, true );
@@ -408,7 +408,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	pInstrument->set_filter_resonance( pNode->read_float( "filterResonance", 0.0f,
 														 true, false, bSilent ) );
 	pInstrument->set_pitch_offset( pNode->read_float( "pitchOffset", 0.0f,
-													 true, false, bSilent ) );
+													 true, false, true ) );
 	pInstrument->set_random_pitch_factor( pNode->read_float( "randomPitchFactor", 0.0f,
 															true, false, bSilent ) );
 	pInstrument->set_gain( pNode->read_float( "gain", 1.0f,
@@ -458,19 +458,20 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		// directly.
 		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
 		if ( pSoundLibraryDatabase != nullptr ) {
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( pInstrument->get_drumkit_path() );
-			if ( pDrumkit != nullptr ) {
+
+			// It is important to _not_ load the drumkit into the
+			// database as this code is part of the drumkit load
+			// itself. In case two drumkits contain an instrument from
+			// each other an infinite loop would be created.
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
+				pInstrument->get_drumkit_path(), false );
+			if ( pDrumkit == nullptr ) {
+				// Drumkit is not present in the database yet. Load
+				// its license from disk.
+				instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
+			} else {
 				instrumentLicense = pDrumkit->get_license();
 			}
-		}
-
-		if ( instrumentLicense == License() ) {
-			if ( ! bSilent ) {
-				WARNINGLOG( QString( "No license could be retrieved from drumkit [%1] in database. Loading directly." )
-							.arg( pInstrument->get_drumkit_path() ) );
-			}
-			
-			instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
 		}
 	} else {
 		instrumentLicense = license;
@@ -492,7 +493,8 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		auto pCompo = Legacy::loadInstrumentComponent( pNode, pInstrument->get_drumkit_path(),
 													   instrumentLicense, bSilent );
 		if ( pCompo == nullptr ) {
-			ERRORLOG( "Unable to load component. Aborting." );
+			ERRORLOG( QString( "Unable to load component for instrument [%1]. Aborting." )
+					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
 
@@ -657,6 +659,22 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitCompo
 QString Instrument::get_drumkit_path() const
 {
 	return Filesystem::ensure_session_compatibility( __drumkit_path );
+}
+
+bool Instrument::hasSamples() const {
+	for ( const auto& pComponent : *__components ) {
+		if ( pComponent != nullptr ) {
+			for ( const auto& pLayer : *pComponent ) {
+				if ( pLayer != nullptr ) {
+					if ( pLayer->get_sample() != nullptr ) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {

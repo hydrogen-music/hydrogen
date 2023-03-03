@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -83,31 +83,7 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	// Ensure that m_pPattern is up to date.
 	updatePatternInfo();
-	
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	//	uint nEditorWidth;
-	if ( m_pPattern != nullptr ) {
-
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		} else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
 	
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;
@@ -385,7 +361,7 @@ void PianoRollEditor::drawPattern()
 	for ( Pattern *pPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( pPattern == m_pPattern );
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, pPattern ) {
 			Note *note = it->second;
 			assert( note );
 			drawNote( note, &p, bIsForeground );
@@ -455,7 +431,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	if ( pOldNote == nullptr ) {
 		// hear note
 		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() ) {
+		if ( pref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
@@ -763,7 +739,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	Pattern *pPattern = pPatternList->get( nPattern );
 
-	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
 			 && pCandidateNote->get_octave() == octave

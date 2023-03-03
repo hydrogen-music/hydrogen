@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -84,31 +84,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	}
 
 	updatePatternInfo();
-
-	if ( m_pPattern != nullptr ) {
-		
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			m_pPattern->get_length();
-		
-		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-			 ( pHydrogen->getPatternMode() == Song::PatternMode::Selected &&
-			   m_pPattern->get_flattened_virtual_patterns()->size() > 0 ) ) {
-			// Virtual patterns are already expanded in the playing
-			// patterns and must not be considered when determining
-			// the longest one.
-			m_nEditorWidth =
-				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pAudioEngine->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
-		}
-		else {
-			m_nEditorWidth = m_nActiveWidth;
-		}
-	}
-	else {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
-		m_nActiveWidth = m_nEditorWidth;
-	}
+	updateWidth();
 
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -446,7 +422,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it, nColumn ) {
+		FOREACH_NOTE_IT_BOUND_END( notes, it, nColumn ) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -497,7 +473,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			pNote->set_just_recorded(true);
 		}
 		// hear note
-		if ( listen && !isNoteOff ) {
+		if ( listen && !isNoteOff && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength);
 			m_pAudioEngine->getSampler()->noteOn(pNote2);
 		}
@@ -539,7 +515,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	auto pFromInstrument = pInstrumentList->get( nRow );
 	auto pToInstrument = pInstrumentList->get( nNewRow );
 
-	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pFromInstrument
 			 && pCandidateNote->get_key() == pNote->get_key()
@@ -915,7 +891,7 @@ void DrumPatternEditor::selectAll()
 	}
 	
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(m_pPattern->get_notes(), it, m_pPattern) {
 		m_selection.addToSelection( it->second );
 	}
 	m_selection.updateWidgetGroup();
@@ -1120,6 +1096,12 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		// markers for instruments which have more than one note in the same position (a chord or genuine
 		// duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
+			if ( posIt->first >= pPattern->get_length() ) {
+				// Notes are located beyond the active length of the
+				// editor and aren't visible even when drawn.
+				break;
+			}
+
 			int nPosition = posIt->second->get_position();
 
 			// Process all notes at this position
@@ -1433,7 +1415,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 
 	if( pPattern != nullptr ) {
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		FOREACH_NOTE_CST_IT_BOUND_END(notes,it,column) {
 			Note *pNote = it->second;
 			assert( pNote );
 			assert( (int)pNote->get_position() == column );
@@ -1555,7 +1537,7 @@ void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*>
 
 				// Check if note is not present
 				Pattern::notes_t* notes = (Pattern::notes_t *)pat->get_notes();
-				FOREACH_NOTE_IT_BOUND(notes, it, pNote->get_position())
+				FOREACH_NOTE_IT_BOUND_END(notes, it, pNote->get_position())
 				{
 					Note *pFoundNote = it->second;
 					if (pFoundNote->get_instrument() == pNote->get_instrument())
@@ -1616,7 +1598,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 				// Check if note is not present
 				bool noteExists = false;
 				const Pattern::notes_t* notes = pat->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes, it, pNote->get_position())
+				FOREACH_NOTE_CST_IT_BOUND_END(notes, it, pNote->get_position())
 				{
 					Note *pFoundNote = it->second;
 					if (pFoundNote->get_instrument() == pNote->get_instrument())
@@ -1672,7 +1654,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 	for (int i = 0; i < noteList.size(); i++ ) {
 		int nColumn  = noteList.value(i).toInt();
 		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-		FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+		FOREACH_NOTE_IT_BOUND_END(notes,it,nColumn) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -1749,7 +1731,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 	int positionCount = 0;
 	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i, pPattern) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() ==  pSelectedInstrument) {
 				float velocity = noteVeloValue.value( positionCount ).toFloat();
@@ -2040,5 +2022,5 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	updateEditor();
 
 }
-///~undo / redo actions from pattern editor instrument list
+/// ~undo / redo actions from pattern editor instrument list
 ///==========================================================

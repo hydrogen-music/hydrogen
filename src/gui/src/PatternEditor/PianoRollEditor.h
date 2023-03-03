@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -50,7 +50,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 	virtual void songModeActivationEvent() override;
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 
 		void addOrDeleteNoteAction( int nColumn,
 									int pressedLine,
@@ -99,7 +99,16 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void createBackground() override;
 		void drawPattern();
 		void drawFocus( QPainter& painter );
-		void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
+		/**
+		 * Draw a note
+		 *
+		 * @param pNote Particular note to draw
+		 * @param pPainter Painting device
+		 * @param bIsForeground Whether the @a pNote is contained in the
+		 *   pattern currently shown in the pattern editor (the one
+		 *   selected in the song editor)
+		 */
+	void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave,

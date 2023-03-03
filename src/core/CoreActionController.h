@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -309,6 +309,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/**
 	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
 	 * @a sTargetDir.
+	 *
+	 * The function does not automatically load the extracted kit into
+	 * the current Hydrogen session in case a custom @a sTargetDir was
+	 * supplied. To do so, the name of the folder contained in the
+	 * tarball is required (might differ from the name of the tarball)
+	 * and it is not easily obtained.
 	 *
 	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
 	 * extension

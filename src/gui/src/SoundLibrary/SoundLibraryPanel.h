@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -89,8 +89,9 @@ private:
 	QMenu* __pattern_menu;
 	QMenu* __pattern_menu_list;
 
-	QTreeWidgetItem* __system_drumkits_item;
-	QTreeWidgetItem* __user_drumkits_item;
+	QTreeWidgetItem* m_pTreeSystemDrumkitsItem;
+	QTreeWidgetItem* m_pTreeUserDrumkitsItem;
+	QTreeWidgetItem* m_pTreeSessionDrumkitsItem;
 	QTreeWidgetItem* __song_item;
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;

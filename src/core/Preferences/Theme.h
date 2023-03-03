@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -48,6 +48,7 @@ public:
 	
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
+	QColor m_songEditor_virtualRowColor;
 	QColor m_songEditor_selectedRowColor;
 	QColor m_songEditor_selectedRowTextColor;
 	QColor m_songEditor_lineColor;

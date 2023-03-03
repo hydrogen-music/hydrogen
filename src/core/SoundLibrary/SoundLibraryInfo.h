@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -48,8 +48,15 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 	H2_OBJECT(SoundLibraryInfo)
 	public:
 		SoundLibraryInfo();
-		explicit SoundLibraryInfo( const QString& path);
 		~SoundLibraryInfo();
+
+	/**
+	 * Reads the content found in @a sPath.
+	 *
+	 * @param sPath Path to .h2pattern XML file
+	 * @return `true` on success
+	 */
+		bool load( const QString& sPath );
 
 		QString getName() const {
 			return m_sName;
@@ -130,6 +137,13 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 		QString getPath(){
 			return m_sPath;
 		}
+	
+		void setDrumkitName( const QString& sDrumkitName ){
+			m_sDrumkitName = sDrumkitName;
+		}
+		QString getDrumkitName(){
+			return m_sDrumkitName;
+		}
 
 
 	private:
@@ -143,6 +157,9 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 		QString m_sImage;
 		H2Core::License m_imageLicense;
 		QString m_sPath;
+
+	/** Drumkit the pattern was created with */
+	QString m_sDrumkitName;
 };
 }; // namespace H2Core
 

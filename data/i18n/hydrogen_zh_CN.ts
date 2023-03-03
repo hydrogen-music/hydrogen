@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE TS []>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
     <name>AboutDialog</name>
@@ -168,6 +168,10 @@
         <source>Frames</source>
         <translation>帧</translation>
     </message>
+    <message>
+        <source>Latency (estimated)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
@@ -304,6 +308,578 @@
     </message>
 </context>
 <context>
+    <name>ColorSelectionButton</name>
+    <message>
+        <source>Pick a pattern color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CommonStrings</name>
+    <message>
+        <source>P</source>
+        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.
+----------
+Text displayed on the button indicating that the Beat Counter will start playing after setting the tempo. Its size is designed to hold one character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.
+----------
+Text displayed on the button indicating that the Beat Counter will only set tempo. Its size is designed to hold one character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>M</source>
+        <extracomment>Text displayed on the button for muting an instrument strip in the mixer. Its size is designed for a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
+        <translation type="unfinished">静音</translation>
+    </message>
+    <message>
+        <source>BYP</source>
+        <extracomment>Text displayed on the button for bypassing an element. Its size is designed for a three characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <extracomment>Text displayed on the button to clear all patterns in the SongEditor. Its size is designed to hold five characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T</source>
+        <extracomment>Text displayed on the button to show the Timeline. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline</source>
+        <extracomment>Text displayed on the button to activate the Timeline. Its size is designed to hold eight characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FX</source>
+        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <translation type="unfinished">常规</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <extracomment>Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished">乐器</translation>
+    </message>
+    <message>
+        <source>Sound Library</source>
+        <extracomment>Text displayed on the button to show the Sound Library in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
+        <translation type="unfinished">层</translation>
+    </message>
+    <message>
+        <source>Load Layer</source>
+        <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Layer</source>
+        <extracomment>Text displayed on the button to delete a layer into an instrument. Its size is designed to hold twelve characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Layer</source>
+        <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B
+C</source>
+        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R
+U
+B</source>
+        <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>J.Trans</source>
+        <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>J.Master</source>
+        <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
+        <translation type="unfinished">混音器</translation>
+    </message>
+    <message>
+        <source>Instrument Rack</source>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold 15 characters and is flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern</source>
+        <extracomment>Text displayed on the button activating Pattern Mode for playback. Its size is designed to hold seven characters and is slightly flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song</source>
+        <extracomment>Text displayed on the button activating Song Mode for playback. Its size is designed to hold four characters and is slightly flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attack</source>
+        <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished">起音</translation>
+    </message>
+    <message>
+        <source>Decay</source>
+        <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished">衰减</translation>
+    </message>
+    <message>
+        <source>Sustain</source>
+        <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">延音</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">释音</translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <translation type="unfinished">通道</translation>
+    </message>
+    <message>
+        <source>Note</source>
+        <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Output</source>
+        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters. Designed to hold eleven characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <extracomment>Text displayed in the Instrument Editor in the row of the pitch widget. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coarse</source>
+        <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch in front of decimal point in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fine</source>
+        <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch after decimal point in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Text displayed below the rotary to adjust the random part of the instrument pitch in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the instrument gain in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute Group</source>
+        <extracomment>Text displayed below the LCD to set the mute group in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-Stop Note</source>
+        <extracomment>Text displayed next to the checkbox to activate the auto stop note feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply Velocity</source>
+        <extracomment>Text displayed next to the checkbox to activate the apply velocity feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HH Press. Grp</source>
+        <extracomment>Text displayed below the LCD to set the hihat pressure group in the Instrument Editor. Designed to hold 13 characters but is only moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Range</source>
+        <extracomment>Text displayed below the LCD to set the maximum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min Range</source>
+        <extracomment>Text displayed below the LCD to set the minimum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cutoff</source>
+        <extracomment>Text displayed below the rotary to adjust the cutoff frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resonance</source>
+        <extracomment>Text displayed below the rotary to adjust the resonance frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L. Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the layer gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C. Gain</source>
+        <extracomment>Text displayed below the rotary to adjust the component gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample Sel.</source>
+        <extracomment>Text displayed left of the sample selection LCD combo in the Instrument Editor. Designed to hold eleven characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Res</source>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hear</source>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quant</source>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <translation type="unfinished">输入</translation>
+    </message>
+    <message>
+        <source>MIDI-In</source>
+        <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <extracomment>Text displayed in the Player Control to indicate the CPU load. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM</source>
+        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished">BPM</translation>
+    </message>
+    <message>
+        <source>Hrs</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of hours passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of minutes passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sec</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of seconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1/1000</source>
+        <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
+        <translation type="unfinished">1/1000</translation>
+    </message>
+    <message>
+        <source>Humanize</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the humanization rotaries. Designed to hold eight characters but not that flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swing</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
+        <translation type="unfinished">摇摆</translation>
+    </message>
+    <message>
+        <source>Timing</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the timing humanization rotary. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <translation type="unfinished">力度</translation>
+    </message>
+    <message>
+        <source>Master</source>
+        <extracomment>Text displayed as the title of the Master Mixer Strip. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <extracomment>Displayed in the tooltip of input widgets. Indicates the allowed values from minimum to maximum.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI</source>
+        <extracomment>Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bound to</source>
+        <extracomment>Displayed in the tooltip of input widgets. Body of the part associating the Action of the widget with the MIDI event and parameter it is bound to. It&apos;s full context is &quot;ACTION bound to [EVENT : PARAMETER]&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>not bound</source>
+        <extracomment>Displayed in the tooltip of input widgets. Body of the part displaying the Action that is not associate to a MIDI event yet. It&apos;s full context is &quot;ACTION not bound&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It&apos;s not possible to change the pattern size when playing.</source>
+        <extracomment>Displayed on both LCDSpinBoxes used for the pattern size while playback is rolling.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show drumkit editor</source>
+        <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show piano roll editor</source>
+        <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
+        <translation type="unfinished">显示钢琴卷帘编辑器</translation>
+    </message>
+    <message>
+        <source>Unable to start audio driver!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use the Preferences to select a different one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No audio driver set!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Register Hydrogen as JACK Timebase master</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK timebase support is disabled in the Preferences</source>
+        <translation type="unfinished">在首选项中禁用了 JACK Timebase 支持</translation>
+    </message>
+    <message>
+        <source>Waiting...</source>
+        <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for MIDI input...</source>
+        <extracomment>Text displayed when using the MIDI learning capabilities of Hydrogen. Only displayed if the widget has an associated action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This element is not MIDI operable.</source>
+        <extracomment>Displayed in the popup window when using the MIDI learning capabilities of Hydrogen. Indicating that there is not Action which could be associated to a MIDI event.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load instrument</source>
+        <translation type="unfinished">无法加载乐器</translation>
+    </message>
+    <message>
+        <source>on</source>
+        <extracomment>Displayed within a status message when activating a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>off</source>
+        <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
+        <translation type="unfinished">关</translation>
+    </message>
+    <message>
+        <source>enabled</source>
+        <extracomment>Displayed within a status message when enabling a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>disabled</source>
+        <extracomment>Displayed within a status message when disabling a widget.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable the Timeline for custom tempo changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Timeline is only available in Song Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished">使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
+    </message>
+    <message>
+        <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not compiled</source>
+        <extracomment>Displayed in the Preferences dialog in the info section for a particular driver in case it is not properly supported on the system.</extracomment>
+        <translation type="unfinished">未编译</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <extracomment>Displayed in the Preferences dialog within a driver combobox in case no driver was selected.</extracomment>
+        <translation type="unfinished">无</translation>
+    </message>
+    <message>
+        <source>Both buffer size and sample rate can only be altered in the configuration of the JACK server itself.</source>
+        <extracomment>Displayed in the Preferences dialog as a tooltip for both the sample rate combobox and buffer size spinbox.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ok</source>
+        <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">确定(&amp;O)</translation>
+    </message>
+    <message>
+        <source>&amp;Save</source>
+        <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">保存(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">取消(&amp;C)</translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">丢弃(&amp;D)</translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished">播放(&amp;P)</translation>
+    </message>
+    <message>
+        <source>Play &amp;original sample</source>
+        <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translated</extracomment>
+        <translation type="unfinished">有未保存的更改。这些更改将丢失。
+是否确定？</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again</source>
+        <translation type="unfinished">不再显示此消息</translation>
+    </message>
+    <message>
+        <source>License String</source>
+        <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License parsed from License String. You can use this combo box to overwrite the current license with a predefined one</source>
+        <extracomment>Tool tip used for the combo boxes in both the drumkit and song property dialog to set a predefined license type.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You used drumkit samples holding a &lt;b&gt;copyleft license&lt;/b&gt;. Be aware that &lt;b&gt;you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All license containing the letters &apos;CC BY&apos; &lt;b&gt;require you to give an attribution&lt;/b&gt; by naming drumkit, author, as well as the license itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License Warning</source>
+        <extracomment>Shown as title in dialogs used to inform the user about license issues and information.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit registered in the current song can not be found on disk.
+Please load an existing drumkit first.
+Current kit:</source>
+        <translation type="unfinished">在磁盘上找不到在当前乐曲中注册的鼓组。
+请先加载现有鼓组。
+当前鼓组：</translation>
+    </message>
+    <message>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You do not have permissions to write to the selected folder. Please select another one.</source>
+        <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
@@ -318,8 +894,16 @@
         <translation>组件名称</translation>
     </message>
     <message>
-        <source>Set instrument volume [%1]</source>
-        <translation>设置乐器音量 [%1]</translation>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of component</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -355,10 +939,6 @@
     <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation>无法粘贴多样式选择</translation>
-    </message>
-    <message>
-        <source>Unable to load instrument</source>
-        <translation>无法加载乐器</translation>
     </message>
 </context>
 <context>
@@ -464,6 +1044,22 @@ Overwrite the existing file?</source>
 Overwrite the existing file?</source>
         <translation>文件 %1 存在。
 覆盖现有文件？</translation>
+    </message>
+    <message>
+        <source>No sample in the current song uses Rubberband</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your song uses samples of the following license:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Be sure you satisfy all license conditions and give the required attribution.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -644,8 +1240,8 @@ Overwrite the existing file?</source>
 <context>
     <name>FileBrowser</name>
     <message>
-        <source>%1&lt;br>%2 KHz&lt;br>%3 %4</source>
-        <translation>%1&lt;br>%2 赫兹&lt;br>%3 %4</translation>
+        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
+        <translation>%1&lt;br&gt;%2 赫兹&lt;br&gt;%3 %4</translation>
     </message>
 </context>
 <context>
@@ -670,31 +1266,48 @@ Overwrite the existing file?</source>
         <source>User data directory</source>
         <translation>用户数据目录</translation>
     </message>
-</context>
-<context>
-    <name>FxMixerLine</name>
     <message>
-        <source>FX on/off</source>
-        <translation>打开/关闭音效</translation>
+        <source>Filesystem is not writable!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Master output</source>
-        <translation>主输出</translation>
+        <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
-        <source>BPM</source>
-        <translation>BPM</translation>
-    </message>
-    <message>
         <source>Please enter a number within the range of </source>
         <translation>请输入在此范围内的数字 </translation>
     </message>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
+        <source>Edit Tempo Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Tempo Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alter tempo of selected tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set tempo of new tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move tempo marker to different column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set column of new tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There is already a tempo marker present at this Column. Please use left-click to edit it instead.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -719,26 +1332,44 @@ Overwrite the existing file?</source>
         <translation>图像文件（*.png *.jpg *.jpeg）</translation>
     </message>
     <message>
-        <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>无法实现，您只能将乐器内部的更改保存到当前加载的声音库中。</translation>
-    </message>
-    <message>
-        <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
-Are you sure?</source>
-        <translation>警告！更改鼓组名称将导致使用该名称创建新的鼓组。
-是否确定？</translation>
-    </message>
-    <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>Saving of this drumkit failed.</source>
         <translation>保存该鼓组失败。</translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation type="unfinished">乐器</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished">组件</translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished">许可协议</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -760,14 +1391,6 @@ Are you sure?</source>
         <translation>已修改</translation>
     </message>
     <message>
-        <source>Drumkit loaded: [%1]</source>
-        <translation>鼓组已加载：[%1]</translation>
-    </message>
-    <message>
-        <source>Song saved.</source>
-        <translation>乐曲已保存</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>加载乐曲时出错。</translation>
     </message>
@@ -785,20 +1408,36 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>只读乐曲。
 使用“另存为”作为自动保存选项。</translation>
     </message>
+    <message>
+        <source>There are unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to recover them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit [%1] loaded from [%2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved as: </source>
+        <translation type="unfinished">乐曲另存为： </translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>General</source>
-        <translation>常规</translation>
-    </message>
-    <message>
         <source>Show instrument properties</source>
         <translation>显示乐器属性</translation>
-    </message>
-    <message>
-        <source>Layers</source>
-        <translation>层</translation>
     </message>
     <message>
         <source>Show layers properties</source>
@@ -823,22 +1462,6 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <message>
         <source>Filter resonance</source>
         <translation>谐振过滤器</translation>
-    </message>
-    <message>
-        <source>Attack</source>
-        <translation>起音</translation>
-    </message>
-    <message>
-        <source>Decay</source>
-        <translation>衰减</translation>
-    </message>
-    <message>
-        <source>Sustain</source>
-        <translation>延音</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>释音</translation>
     </message>
     <message>
         <source>Instrument gain</source>
@@ -893,18 +1516,40 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>选择选择算法</translation>
     </message>
     <message>
-        <source>layer pitch: %1</source>
-        <translation>层音调：%1</translation>
+        <source>Length of Attack phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length of Decay phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample volume in Sustain phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length of Release phase.
+
+Value</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>InstrumentLine</name>
     <message>
         <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
         <translation>静音乐器</translation>
     </message>
     <message>
         <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
         <translation>独奏</translation>
     </message>
     <message>
@@ -1007,16 +1652,8 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>显示乐器编辑器</translation>
     </message>
     <message>
-        <source>Instrument</source>
-        <translation>乐器</translation>
-    </message>
-    <message>
         <source>Show sound library</source>
         <translation>显示声音库</translation>
-    </message>
-    <message>
-        <source>Sound library</source>
-        <translation>声音库</translation>
     </message>
 </context>
 <context>
@@ -1067,6 +1704,14 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <message>
         <source>No plugin</source>
         <translation>无插件</translation>
+    </message>
+    <message>
+        <source>Input control param. value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output control param. value</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1131,16 +1776,16 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Name:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>d&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>d&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Name:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### fx name
@@ -1149,44 +1794,44 @@ p, li { white-space: pre-wrap; }
 1</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Label:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Label:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### fx label</source>
         <translation>### fx label</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Type:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Type:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>ID:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>ID:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### fx type</source>
@@ -1197,16 +1842,16 @@ p, li { white-space: pre-wrap; }
         <translation>### fx ID</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Maker:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Maker:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### FX maker
@@ -1217,16 +1862,16 @@ p, li { white-space: pre-wrap; }
 2</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Copyright:&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-weight:600;&quot;>Copyright:&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### copyright
@@ -1289,7 +1934,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;Undo</source>
         <translation>撤销(&amp;U)</translation>
-        <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>Drum&amp;kits</source>
@@ -1346,10 +1990,6 @@ Are you sure you want to save?</source>
         <translation>无法保存乐曲。</translation>
     </message>
     <message>
-        <source>Song saved.</source>
-        <translation>乐曲已保存</translation>
-    </message>
-    <message>
         <source>Save Pattern as ...</source>
         <translation>样式另存为...</translation>
     </message>
@@ -1378,10 +2018,6 @@ Are you sure you want to save?</source>
         <translation>清除所有乐器？</translation>
     </message>
     <message>
-        <source>Ok</source>
-        <translation>确定</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>保存该库失败。</translation>
     </message>
@@ -1408,10 +2044,6 @@ Are you sure you want to save?</source>
     <message>
         <source>Set default values</source>
         <translation>设定默认值</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -1458,12 +2090,8 @@ Are you sure you want to save?</source>
         <translation>播放列表：设置乐曲编号 %1</translation>
     </message>
     <message>
-        <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br>&lt;br>Thank you!</source>
-        <translation>您使用的是 Hydrogen 开发版本，请帮助我们在 Hydrogen 开发邮件列表中报告错误或给出建议。&lt;br>&lt;br>感谢！</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>不再显示此消息</translation>
+        <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
+        <translation>您使用的是 Hydrogen 开发版本，请帮助我们在 Hydrogen 开发邮件列表中报告错误或给出建议。&lt;br&gt;&lt;br&gt;感谢！</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
@@ -1480,10 +2108,6 @@ Do you want to save the changes?
 </translation>
     </message>
     <message>
-        <source>&amp;Discard</source>
-        <translation>丢弃(&amp;D)</translation>
-    </message>
-    <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
@@ -1495,18 +2119,22 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation>替换为新乐曲(&amp;N)</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
         <translation>导入到会话(&amp;O)</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
         <translation>将最近导入到会话(&amp;R)</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
         <translation>从会话导出为(&amp;A)</translation>
     </message>
     <message>
@@ -1516,10 +2144,6 @@ Do you want to discard the changes?
     <message>
         <source>Save &amp;As...</source>
         <translation>另存为(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Show &amp;Info</source>
-        <translation>显示信息(&amp;I)</translation>
     </message>
     <message>
         <source>E&amp;xport Pattern As...</source>
@@ -1711,6 +2335,49 @@ LilyPond 导出是一项实验性功能。
         <source>Playing.</source>
         <translation>正在播放。</translation>
     </message>
+    <message>
+        <source>Song Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace current song with empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You won&apos;t be able to undo this action after saving the new song! Please export the current song from the session first in order to keep it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+There have been recent changes to the drumkit settings.
+The session needs to be saved before exporting will can be continued.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved into</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No pattern selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Demo Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Demo Song into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback track couldn&apos;t be read</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1723,35 +2390,32 @@ LilyPond 导出是一项实验性功能。
         <translation>人性化时间</translation>
     </message>
     <message>
-        <source>Swing</source>
-        <translation>摇摆</translation>
-    </message>
-    <message>
         <source>Set master volume [%1]</source>
         <translation>设置主音量 [%1]</translation>
-    </message>
-    <message>
-        <source>Set humanize time parameter [%1]</source>
-        <translation>设置人性化时间参数 [%1]</translation>
-    </message>
-    <message>
-        <source>Set humanize velocity parameter [%1]</source>
-        <translation>设置人性化力度参数 [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
         <translation>设置摇摆系数 [%1]</translation>
     </message>
-</context>
-<context>
-    <name>MidiSenseWidget</name>
     <message>
-        <source>This element is not midi operable.</source>
-        <translation>此元素不可以 MIDI 操作。</translation>
+        <source>Master volume</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Waiting for midi input...</source>
-        <translation>正在等待 MIDI 输入...</translation>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>16th-note Swing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize time param [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize vel. param [%1]</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1761,16 +2425,28 @@ LilyPond 导出是一项实验性功能。
         <translation>按下按钮以记录 MIDI 事件</translation>
     </message>
     <message>
-        <source>Event</source>
-        <translation>事件</translation>
-    </message>
-    <message>
-        <source>Param.</source>
-        <translation>参数</translation>
-    </message>
-    <message>
         <source>Action</source>
         <translation>操作</translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event Para.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1788,10 +2464,6 @@ LilyPond 导出是一项实验性功能。
         <translation>显示乐器峰值</translation>
     </message>
     <message>
-        <source>Set FX %1 level </source>
-        <translation>设定音效 %1 级别 </translation>
-    </message>
-    <message>
         <source>Show instrument peaks = On</source>
         <translation>显示乐器峰值：开</translation>
     </message>
@@ -1804,12 +2476,16 @@ LilyPond 导出是一项实验性功能。
         <translation>LADSPA 效果在此版本的 Hydrogen 中不可用。</translation>
     </message>
     <message>
-        <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation>设置 LADSPA 音效 (%1) 音量</translation>
-    </message>
-    <message>
         <source>Mixer Settings</source>
         <translation>混音器设置</translation>
+    </message>
+    <message>
+        <source>Set FX %1 level [%2] of instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1831,12 +2507,20 @@ LilyPond 导出是一项实验性功能。
         <translation>声相</translation>
     </message>
     <message>
-        <source>Set instrument volume [%1]</source>
-        <translation>设置乐器音量 [%1]</translation>
+        <source>FX %1 send</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Instrument name</source>
-        <translation>乐器名称</translation>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of instrument</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1928,14 +2612,6 @@ LilyPond 导出是一项实验性功能。
         <translation>清除选择</translation>
     </message>
     <message>
-        <source>Set note velocity [%1]</source>
-        <translation>设定音符力度 [%1]</translation>
-    </message>
-    <message>
-        <source>Edit %1 property of %2 notes</source>
-        <translation>编辑 %2 音符的 %1 属性</translation>
-    </message>
-    <message>
         <source>B</source>
         <translation>B</translation>
     </message>
@@ -1983,6 +2659,10 @@ LilyPond 导出是一项实验性功能。
         <source>C</source>
         <translation>C</translation>
     </message>
+    <message>
+        <source>Edit [%1] property of [%2] notes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditor</name>
@@ -2015,8 +2695,52 @@ LilyPond 导出是一项实验性功能。
         <translation>将这些音符放在此处将覆盖 %1 个重复的音符。</translation>
     </message>
     <message>
-        <source>Don&apos;t show this message again</source>
-        <translation>不再显示此消息</translation>
+        <source>ticks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note panned to the right by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note panned to the left by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note centered</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Leading beat by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lagging beat by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note on beat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>octave</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability to</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2031,14 +2755,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Loaded Soundlibrary</source>
         <translation>已加载的声音库</translation>
-    </message>
-    <message>
-        <source>Select pattern size</source>
-        <translation>选择样式大小</translation>
-    </message>
-    <message>
-        <source>Select grid resolution</source>
-        <translation>选择网格分辨率</translation>
     </message>
     <message>
         <source>Hear new notes</source>
@@ -2113,14 +2829,6 @@ LilyPond 导出是一项实验性功能。
         <translation>显示鼓编辑器</translation>
     </message>
     <message>
-        <source>Is not possible to change the pattern size when playing.</source>
-        <translation>播放时无法更改样式大小。</translation>
-    </message>
-    <message>
-        <source>Unsupported note denominator. Click for more information.</source>
-        <translation>不支持的音符分母。单击以获取更多信息。</translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation>四分</translation>
     </message>
@@ -2161,40 +2869,12 @@ LilyPond 导出是一项实验性功能。
         <translation>关</translation>
     </message>
     <message>
-        <source>Hydrogen can only represent notes as small as 1/%1 of a whole note, so note values must be multiple of this.
-Supported values are: 1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192</source>
-        <translation>Hydrogen 最小只能显示到全音符的 1 / ％1，因此音符值必须是这个值的倍数。
-支持的值为：1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192</translation>
+        <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New Pattern length (beats/note value)</source>
-        <translation>新样式长度（节拍/音符值）</translation>
-    </message>
-    <message>
-        <source>Denominator value rejected.
-Limits: (0, %1]</source>
-        <translation>分母值被拒绝。
-限制：(0, %1]</translation>
-    </message>
-    <message>
-        <source>Pattern size too big.
-Maximum = 16/4</source>
-        <translation>样式尺寸太大。
-最大值 = 16/4</translation>
-    </message>
-    <message>
-        <source>Pattern length in 1/%1 notes is not supported. Length may be approximated.</source>
-        <translation>不支持 1 / %1 音符中的样式长度。长度可以近似。</translation>
-    </message>
-    <message>
-        <source>Pattern size was approximated.
-(resolution = %1 ticks/quarter note)</source>
-        <translation>样式尺寸为近似值。
-（分辨率 = %1 TPQN)</translation>
-    </message>
-    <message>
-        <source>Text rejected</source>
-        <translation>文本被拒绝</translation>
+        <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2293,6 +2973,13 @@ Maximum = 16/4</source>
     </message>
 </context>
 <context>
+    <name>PlaybackTrackWaveDisplay</name>
+    <message>
+        <source>No playback track selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PlayerControl</name>
     <message>
         <source>Rewind</source>
@@ -2327,10 +3014,6 @@ Maximum = 16/4</source>
         <translation>乐曲模式</translation>
     </message>
     <message>
-        <source>BeatCounter Panel on</source>
-        <translation>打开节拍计数器面板</translation>
-    </message>
-    <message>
         <source>Set BPM / Set BPM and play</source>
         <translation>设置 BPM / 设置 BPM 并播放</translation>
     </message>
@@ -2347,16 +3030,8 @@ Maximum = 16/4</source>
         <translation>显示混音器</translation>
     </message>
     <message>
-        <source>Mixer</source>
-        <translation>混音器</translation>
-    </message>
-    <message>
         <source>Show Instrument Rack</source>
         <translation>显示乐器机架</translation>
-    </message>
-    <message>
-        <source>Instrument rack</source>
-        <translation>乐器机架</translation>
     </message>
     <message>
         <source>Record midi events = On</source>
@@ -2411,10 +3086,6 @@ Maximum = 16/4</source>
         <translation>使用 Rubberband 重新计算所有采样：关</translation>
     </message>
     <message>
-        <source>New BPM value</source>
-        <translation>新 BPM 值</translation>
-    </message>
-    <message>
         <source>Loop song = On</source>
         <translation>循环乐曲：开</translation>
     </message>
@@ -2424,19 +3095,8 @@ Maximum = 16/4</source>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation>打开/关闭 JACK 传输</translation>
-    </message>
-    <message>
-        <source>JACK Timebase master on/off</source>
-        <translation>打开/关闭JACK Timebase Master</translation>
-    </message>
-    <message>
-        <source>JACK timebase support is disabled in the Preferences</source>
-        <translation>在首选项中禁用了 JACK Timebase 支持</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation>使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
     </message>
     <message>
         <source>JACK transport will work only with JACK driver.</source>
@@ -2451,12 +3111,44 @@ Maximum = 16/4</source>
         <translation>JACK 传输模式：关</translation>
     </message>
     <message>
-        <source>JACK Timebase master mode = On</source>
-        <translation>JACK Timebase Master 模式：开</translation>
+        <source>Toggle the BeatCounter Panel</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase master mode = Off</source>
-        <translation>JACK Timebase Master 模式：关</translation>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2572,14 +3264,6 @@ Do you want to discard the changes?
 </translation>
     </message>
     <message>
-        <source>&amp;Discard</source>
-        <translation>丢弃(&amp;D)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>no Script</source>
         <translation>没有脚本</translation>
     </message>
@@ -2690,38 +3374,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>自动</translation>
     </message>
     <message>
-        <source>Steps</source>
-        <translation>步骤</translation>
-    </message>
-    <message>
-        <source>Fixed</source>
-        <translation>固定</translation>
-    </message>
-    <message>
-        <source>Slow</source>
-        <translation>缓慢</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>正常</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>快速</translation>
-    </message>
-    <message>
         <source>Driver restart required.
  Restart driver?</source>
         <translation>需要重新启动驱动。
  重新启动驱动？</translation>
-    </message>
-    <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
     </message>
     <message>
         <source>Automatic driver selection</source>
@@ -2730,14 +3386,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>请重新启动 Hydrogen 以启用/禁用 LASH 支持</translation>
-    </message>
-    <message>
-        <source>Number of steps</source>
-        <translation>步骤数量</translation>
-    </message>
-    <message>
-        <source>Color (Hue value)</source>
-        <translation>颜色（色相值）</translation>
     </message>
     <message>
         <source>Hydrogen must be restarted for language change to take effect</source>
@@ -2752,16 +3400,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>选择您的 MIDI 驱动</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
         <source>The select port is unavailable. This instance uses the following temporary port instead:</source>
         <translation>所选端口不可用。该实例改为使用以下临时端口：</translation>
-    </message>
-    <message>
-        <source>selected</source>
-        <translation>已选择</translation>
     </message>
     <message>
         <source>Open Sound System</source>
@@ -2770,10 +3410,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Simple audio driver [/dev/dsp]</source>
         <translation>简单音频驱动 [/dev/dsp]</translation>
-    </message>
-    <message>
-        <source>Not compiled</source>
-        <translation>未编译</translation>
     </message>
     <message>
         <source>JACK Audio Connection Kit Driver</source>
@@ -2798,6 +3434,278 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>PulseAudio Driver</source>
         <translation>PulseAudio 驱动</translation>
+    </message>
+    <message>
+        <source>For changes of the interface layout to take effect Hydrogen must be restarted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">常规</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shadow Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Highlight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Highlight Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Highlight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Inactive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tool Tip Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tool Tip Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widgets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accent Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Button Red Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spin Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spin Box Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playhead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song Editor</source>
+        <translation type="unfinished">乐曲编辑器</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Row Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automation Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode On Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Mode Off Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Octave Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Full Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Default Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Half Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note (Zero Velocity)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Line 6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to proceed?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Currently connected to device: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error starting audio driver</source>
+        <translation type="unfinished">启动音频驱动时出错</translation>
+    </message>
+    <message>
+        <source>Unable to start audio driver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme couldn&apos;t be found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme imported from </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme can not be exported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme exported to </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme reset</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3019,8 +3927,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>传入端口</translation>
     </message>
     <message>
-        <source>&lt;html>&lt;head/>&lt;body>&lt;p>Port which will be used to receive incoming OSC messages&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;html>&lt;head/>&lt;body>&lt;p>端口将被用于接收传入的OSC消息&lt;/p>&lt;/body>&lt;/html></translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;端口将被用于接收传入的OSC消息&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable OSC &amp;feedback</source>
@@ -3043,11 +3951,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>样式</translation>
     </message>
     <message>
-        <source>Select font</source>
-        <translation>选择字体</translation>
-    </message>
-    <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>测量衰减速度</translation>
     </message>
     <message>
@@ -3063,10 +3968,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>快速</translation>
     </message>
     <message>
-        <source>Mixer font</source>
-        <translation>混音器字体</translation>
-    </message>
-    <message>
         <source>Default interface layout</source>
         <translation>默认界面布局</translation>
     </message>
@@ -3079,16 +3980,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>标签式</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation>文字标签</translation>
-    </message>
-    <message>
         <source>Coloring method for Song Editor elements</source>
         <translation>乐曲编辑器元素的着色模式</translation>
-    </message>
-    <message>
-        <source>&lt;html>&lt;head/>&lt;body>&lt;p>&lt;span style=&quot; font-style:italic;&quot;>After changing a font or the interface layout the application must be restarted.&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;html>&lt;head/>&lt;body>&lt;p>&lt;span style=&quot; font-style:italic;&quot;>更改字体或界面布局后，必须重启应用程序。&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3128,6 +4021,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation>使用 &amp;LASH</translation>
     </message>
     <message>
@@ -3206,17 +4100,133 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Prefer larger</source>
         <translation>偏好较大的</translation>
     </message>
+    <message>
+        <source>Numbers of autosaves per hour (set 0 to deactivated)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Host API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Latency target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icon color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of colors in Song Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Black</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>White</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B</source>
+        <translation type="unfinished">B</translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished">G</translation>
+    </message>
+    <message>
+        <source>R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used within listings, like for the names of the available Pattern and Instruments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used for larger buttons.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Widget font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Appearance Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>Add Pattern ( %1, %2 )</source>
-        <translation>添加样式 ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Delete Pattern ( %1, %2 )</source>
-        <translation>删除样式 ( %1, %2 )</translation>
-    </message>
     <message>
         <source>Move pattern list item ( %1, %2 )</source>
         <translation>移动样式列表项目 ( %1, %2 )</translation>
@@ -3248,14 +4258,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Fill/remove range of pattern</source>
         <translation>填充/删除样式范围</translation>
-    </message>
-    <message>
-        <source>Edit timeline tempo</source>
-        <translation>编辑时间轴拍速</translation>
-    </message>
-    <message>
-        <source>Delete timeline tempo</source>
-        <translation>删除时间轴拍速</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -3318,10 +4320,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>添加钢琴辊 NOTE_OFF 音符 ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Change piano roll note length </source>
-        <translation>修改钢琴辊音符长度 </translation>
-    </message>
-    <message>
         <source>Change note properties piano roll</source>
         <translation>更改钢琴辊音符属性</translation>
     </message>
@@ -3341,40 +4339,47 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Move point</source>
         <translation>移动节点</translation>
     </message>
+    <message>
+        <source>Toggle Pattern ( %1, %2 )</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Reporter</name>
+    <message>
+        <source>Hydrogen exited abnormally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You can check the Hydrogen issue tracker on Github to see if this issue is already known about. If not, you can report it there to help the development team get you back on track and improve Hydrogen for the future.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open log file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Github Issue tracker...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
     <message>
-        <source>Unsaved changes left. These changes will be lost. 
-Are you sure?</source>
-        <translation>有未保存的更改。这些更改将丢失。
-是否确定？</translation>
-    </message>
-    <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Close dialog! maybe there is some unsaved work on sample.
-Are you sure?</source>
-        <translation>关闭对话框！也许有一些未保存的采样工作。
-是否确定？</translation>
-    </message>
-    <message>
         <source>SampleEditor </source>
         <translation>样本编辑器 </translation>
-    </message>
-    <message>
-        <source>&amp;Play</source>
-        <translation>播放(&amp;P)</translation>
-    </message>
-    <message>
-        <source>P&amp;lay original sample</source>
-        <translation>播放(&amp;L) 原采样</translation>
     </message>
     <message>
         <source>new sample length</source>
@@ -3416,18 +4421,18 @@ Are you sure?</source>
         <translation>调整采样循环的起始帧</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>Loop&lt;/span>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>mode&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>循环&lt;/span>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>mode&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;循环&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>set processing</source>
@@ -3446,18 +4451,18 @@ p, li { white-space: pre-wrap; }
         <translation>反复</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>Loop&lt;/span>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>Count&lt;/span>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>循环&lt;/span>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;span style=&quot; font-size:7pt;&quot;>Count&lt;/span>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;循环&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>loops</source>
@@ -3648,34 +4653,34 @@ p, li { white-space: pre-wrap; }
         <translation>清脆度： </translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&quot;Crispness&quot; levels:&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  0   equivalent to --no-transients --no-lamination --window-long&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  1   equivalent to --no-transients --no-lamination&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  2   equivalent to --no-transients&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  3   equivalent to --bl-transients&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  4   default processing options&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p>
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>you can find more information here:&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;>&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;>http://www.breakfastquay.com/rubberband/ &lt;/span>&lt;/a>&lt;/p>&lt;/body>&lt;/html></source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;>
-&lt;html>&lt;head>&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; />&lt;style type=&quot;text/css&quot;>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&quot;Crispness&quot; levels:&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  0   equivalent to --no-transients --no-lamination --window-long&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  1   equivalent to --no-transients --no-lamination&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  2   equivalent to --no-transients&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  3   equivalent to --bl-transients&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  4   default processing options&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p>
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>you can find more information here:&lt;/p>
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;>&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;>&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;>http://www.breakfastquay.com/rubberband/ &lt;/span>&lt;/a>&lt;/p>&lt;/body>&lt;/html></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>0</source>
@@ -3708,29 +4713,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>panorama</source>
         <translation>全景</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>用户手册</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>欢迎使用 Hydrogen</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>不再显示此消息</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>确定</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>文档索引</translation>
     </message>
 </context>
 <context>
@@ -3783,14 +4765,6 @@ p, li { white-space: pre-wrap; }
         <translation>乐曲编辑器</translation>
     </message>
     <message>
-        <source>Enable time line edit</source>
-        <translation>启用时间轴编辑</translation>
-    </message>
-    <message>
-        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
-        <translation>外部 JACK timebase master 存在时，禁用时间轴</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>清除样式序列</translation>
     </message>
@@ -3813,10 +4787,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Draw mode</source>
         <translation>绘图模式</translation>
-    </message>
-    <message>
-        <source>stacked mode</source>
-        <translation>堆叠模式</translation>
     </message>
     <message>
         <source>View playback track</source>
@@ -3853,32 +4823,20 @@ Are you sure?</source>
 是否确定？</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>stacked pattern mode</source>
         <translation>堆叠样式模式</translation>
     </message>
     <message>
-        <source>single pattern mode</source>
-        <translation>单一样式模式</translation>
+        <source>selected pattern mode</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation>使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
+        <source>Playback track volume</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> Timeline = Off</source>
-        <translation> 时间轴 = 关</translation>
-    </message>
-    <message>
-        <source> Timeline = On</source>
-        <translation> 时间轴 = 开</translation>
+        <source>Playback volume set to</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3886,22 +4844,6 @@ Are you sure?</source>
     <message>
         <source>Form</source>
         <translation>表单</translation>
-    </message>
-    <message>
-        <source>Edit the bpm value for current beat</source>
-        <translation>编辑当前节拍的BPM值</translation>
-    </message>
-    <message>
-        <source>500,55</source>
-        <translation>500.55</translation>
-    </message>
-    <message>
-        <source>Edit beat in timeline</source>
-        <translation>编辑时间轴中的节拍</translation>
-    </message>
-    <message>
-        <source>500</source>
-        <translation>500</translation>
     </message>
     <message>
         <source>Bar</source>
@@ -3974,10 +4916,6 @@ Are you sure?</source>
         <translation>虚拟样式</translation>
     </message>
     <message>
-        <source>Open Pattern</source>
-        <translation>打开样式</translation>
-    </message>
-    <message>
         <source>Could not export pattern.</source>
         <translation>无法导出样式。</translation>
     </message>
@@ -3992,24 +4930,8 @@ Overwrite the existing pattern?</source>
 覆盖现有样式？</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
-    </message>
-    <message>
-        <source>Pattern 1</source>
-        <translation>样式 1</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>未分类</translation>
     </message>
     <message>
         <source>Duplicate</source>
@@ -4022,6 +4944,17 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation>无法将样式保存到临时目录。</translation>
+    </message>
+    <message>
+        <source>Open Pattern to Replace </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SongEditorPositionRuler</name>
+    <message>
+        <source>The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4073,32 +5006,40 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
-        <source>Export Sound Library</source>
-        <translation>导出声音库</translation>
-    </message>
-    <message>
         <source>Directory</source>
         <translation>目录</translation>
     </message>
     <message>
-        <source>Couldn&apos;t create archive</source>
-        <translation>无法创建存档</translation>
+        <source>&amp;Export</source>
+        <translation type="unfinished">导出(&amp;E)</translation>
     </message>
     <message>
-        <source>Drumkit exported.</source>
-        <translation>鼓组已导出</translation>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit not exported. Operation not supported.</source>
-        <translation>鼓组未导出不支持该操作。</translation>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished">全部</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Drumkit</source>
-        <translation>鼓组</translation>
-    </message>
     <message>
         <source>Component</source>
         <translation>组件</translation>
@@ -4354,28 +5295,8 @@ Are you sure?</source>
 是否确定？</translation>
     </message>
     <message>
-        <source>&amp;Ok</source>
-        <translation>确定(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation>在磁盘上找不到在当前乐曲中注册的鼓组。
-请先加载现有鼓组。
-当前鼓组：</translation>
-    </message>
-    <message>
         <source>is a system drumkit and can&apos;t be deleted.</source>
         <translation>是一个系统鼓组，无法删除。</translation>
-    </message>
-    <message>
-        <source>Not implemented yet.</source>
-        <translation>尚未执行。</translation>
     </message>
 </context>
 <context>
@@ -4405,10 +5326,6 @@ Current kit:</source>
         <translation>取消</translation>
     </message>
     <message>
-        <source>Save changes made to instruments into sound library</source>
-        <translation>将对乐器所做的更改保存到声音库中</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>图像</translation>
     </message>
@@ -4419,6 +5336,10 @@ Current kit:</source>
     <message>
         <source>Image License</source>
         <translation>图像许可协议</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4456,76 +5377,6 @@ Current kit:</source>
     </message>
 </context>
 <context>
-    <name>SoundLibrarySaveDialog</name>
-    <message>
-        <source>Save Sound Library</source>
-        <translation>保存声音库</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>打开图像</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>图像文件（*.png *.jpg *.jpeg）</translation>
-    </message>
-    <message>
-        <source>Please supply at least a valid name</source>
-        <translation>请至少提供一个有效的名称</translation>
-    </message>
-    <message>
-        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
-        <translation>具有相同名称的库已经存在。您要覆盖现有库吗？</translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation>保存该库失败。</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibrarySaveDialog_UI</name>
-    <message>
-        <source>Dialog</source>
-        <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>保存 </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>作者</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>许可协议</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>信息</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>图像</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>浏览</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation>图像许可协议</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
@@ -4552,6 +5403,19 @@ Current kit:</source>
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetWithLicenseProperty</name>
+    <message>
+        <source>Other</source>
+        <extracomment>Label used for all license not directly supported in Hydrogen&apos;s license combo box.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unspecified</source>
+        <extracomment>Label used if no license was specified.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

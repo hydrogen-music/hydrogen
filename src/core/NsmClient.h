@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -122,6 +122,12 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 *
 		 * Sets #bNsmShutdown to true.*/
 		void shutdown();
+
+	/**
+	 * Checks whether there is a drumkit present in the session folder
+	 * and loads it into the #H2Core::SoundLibraryDatabase.
+	 */
+	static void loadDrumkit();
 	
 	/**
 	 * Responsible for linking a drumkit on user or system level into

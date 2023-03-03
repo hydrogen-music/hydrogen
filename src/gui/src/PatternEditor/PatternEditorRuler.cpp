@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -77,6 +77,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	// Will set the active width and calls createBackground.
 	updateActiveRange();
+	invalidateBackground();
+	update();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -302,11 +304,12 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	else {
 		m_pPattern = nullptr;
 	}
-	updateActiveRange();
+
+	const bool bActiveRangeUpdated = updateActiveRange();
 
 	updatePosition();
 	
-	if (bRedrawAll) {
+	if ( bRedrawAll || bActiveRangeUpdated ) {
 		invalidateBackground();
 		update( 0, 0, width(), height() );
 	}
@@ -508,7 +511,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	}
 }
 
-void PatternEditorRuler::updateActiveRange() {
+bool PatternEditorRuler::updateActiveRange() {
 	
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	int nTicksInPattern = MAX_NOTES;
@@ -522,13 +525,12 @@ void PatternEditorRuler::updateActiveRange() {
 	}
 
 	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
-	
 	if ( m_nWidthActive != nWidthActive ) {
 		m_nWidthActive = nWidthActive;
-
-		invalidateBackground();
-		update();
+		return true;
 	}
+
+	return false;
 }
 
 void PatternEditorRuler::zoomIn()
@@ -539,7 +541,7 @@ void PatternEditorRuler::zoomIn()
 		m_fGridWidth *= 1.5;
 	}
 	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
-	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
+	resize( QSize( m_nRulerWidth, m_nRulerHeight ) );
 
 	updateActiveRange();
 	
@@ -580,6 +582,15 @@ void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
+}
+
+void PatternEditorRuler::playingPatternsChangedEvent() {
+	if ( ! PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+		if ( updateActiveRange() ) {
+			invalidateBackground();
+			update();
+		}
+	}
 }
 
 void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )

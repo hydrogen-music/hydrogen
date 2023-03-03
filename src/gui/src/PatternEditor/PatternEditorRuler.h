@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -106,14 +106,15 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 	 */
 	int m_nWidthActive;
 	/** Updates #m_nWidthActive.*/
-	void updateActiveRange();
+	bool updateActiveRange();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
-		//~ Implements EventListener interface
+	virtual void playingPatternsChangedEvent() override;
+		// ~ Implements EventListener interface
 };
 
 

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,21 +33,17 @@ SoundLibraryInfo::SoundLibraryInfo()
 	//default constructor
 }
 
-SoundLibraryInfo::SoundLibraryInfo( const QString& sPath )
-{
-	/*
-	 *Use the provided file instantiate this object with the corresponding meta
-	 *data from either a drumkit, a pattern or a song.
-	 */
-	
+bool SoundLibraryInfo::load( const QString& sPath ) {
 	setPath( sPath );
 
 	XMLDoc doc;
 	if ( ! doc.read( sPath, nullptr, true ) ) {
 		ERRORLOG( QString( "Unable to load SoundLibraryInfo from [%1]" )
 				  .arg( sPath ) );
-		return;
+		return false;
 	}
+
+	bool bLoadingWorked = false;
 
 	XMLNode rootNode =  doc.firstChildElement( "drumkit_pattern" );
 	if ( ! rootNode.isNull() )
@@ -58,13 +54,21 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath )
 
 		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 		// Try legacy format fist.
-		setName( patternNode.read_string( "pattern_name", "", false, false ) );
+		setName( patternNode.read_string( "pattern_name", "", true, true ) );
 		if ( getName().isEmpty() ) {
 			// Try current format.
 			setName( patternNode.read_string( "name", "", false, false ) );
 		}
-		setInfo( patternNode.read_string( "info", "No information available.", false, false ) );
-		setCategory( patternNode.read_string( "category", "", false, false ) );
+		setInfo( patternNode.read_string( "info", "No information available.", false, true, true ) );
+		setCategory( patternNode.read_string( "category", "", false, true ) );
+
+		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", false, false );
+		if ( sDrumkitName.isEmpty() ) {
+			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
+		}
+		setDrumkitName( sDrumkitName );
+		
+		bLoadingWorked = true;
 	}
 
 
@@ -79,8 +83,8 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath )
 		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
 		setImage( rootNode.read_string( "image", "", false, false ) );
 		setImageLicense( H2Core::License( rootNode.read_string( "imageLicense", "", false, false ) ) );
-
-		//setCategory( rootNode.read_string( "category", "" ) );
+		
+		bLoadingWorked = true;
 	}
 
 	//Songs
@@ -92,8 +96,17 @@ SoundLibraryInfo::SoundLibraryInfo( const QString& sPath )
 		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
 		setName( rootNode.read_string( "name", "", false, false ) );
 		setInfo( rootNode.read_string( "info", "No information available.", false, false ) );
-		//setCategory( rootNode.read_string( "category", "" ) );
+
+		bLoadingWorked = true;
 	}
+
+	if ( ! bLoadingWorked ) {
+		ERRORLOG( QString( "[%1] could not be loaded as pattern, song, or drumkit" )
+				  .arg( sPath ) );
+		return false;
+	}
+
+	return true;
 }
 
 SoundLibraryInfo::~SoundLibraryInfo()

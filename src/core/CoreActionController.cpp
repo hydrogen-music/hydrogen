@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -924,17 +924,18 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	}		
 	
 	pHydrogen->sequencer_stop();
+
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->reset( true );
+	
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
 		pHydrogen->setMode( Song::Mode::Song );
 	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
 
-	locateToColumn( 0 );
-
 	// Ensure the playing patterns are properly updated regardless of
 	// the state of transport before switching song modes.
-	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->updatePlayingPatterns();
 	pAudioEngine->unlock();
 	
@@ -1315,7 +1316,9 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
 
 	QString sTarget;
+	bool bInstall = false;
 	if ( sTargetDir.isEmpty() ) {
+		bInstall = true;
 		INFOLOG( QString( "Installing drumkit [%1]" ).arg( sDrumkitPath ) );
 		sTarget = Filesystem::usr_drumkits_dir();
 	} else {
@@ -1342,6 +1345,10 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;
+	}
+
+	if ( bInstall ) {
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	}
 
 	return true;
@@ -1559,16 +1566,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			ppattern->virtual_patterns_del( *it );
 		}
 	}
-	pPatternList->flattened_virtual_patterns_compute();
 
+	pHydrogen->updateVirtualPatterns();
 	pHydrogen->setIsModified( true );
 	
 	delete pPattern;
-
-	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
-	}
+	
 	return true;
 }
 

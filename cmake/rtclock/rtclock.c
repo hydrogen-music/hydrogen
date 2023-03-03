@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
+#include <unistd.h>
 int main( int argc, char** argv, char** env ) {
     uint64_t dt;
     struct timespec t0,t1;

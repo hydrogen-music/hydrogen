@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -27,6 +27,7 @@
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace H2Core
@@ -42,8 +43,6 @@ namespace H2Core
 *
 */
 
-typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
-
 /** \ingroup docGUI*/
 class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
@@ -52,10 +51,10 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
-	soundLibraryInfoVector* getAllPatternInfos() const {
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
 		return m_patternInfoVector;
 	}
-	QStringList getAllPatternCategories() const {
+	QStringList getPatternCategories() const {
 		return m_patternCategories;
 	}
 
@@ -63,20 +62,28 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 
 	void updateDrumkits( bool bTriggerEvent = true );
 	void updateDrumkit( const QString& sDrumkitPath, bool bTriggerEvent = true );
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+	/**
+	 * Retrieve a drumkit from the database.
+	 *
+	 * @param sDrumkitPath Absolute path to the drumkit directory
+	 *   (containing a drumkit.xml) file as unique identifier.
+	 * @param bLoad Whether the drumkit should be loaded into the
+	 *   datebase in case it is not present yet.
+	 */
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath, bool bLoad = true );
 	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
-	void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
-	bool isPatternInstalled( const QString& sPatternName) const;
+	void loadPatternFromDirectory( const QString& path );
+	bool isPatternInstalled( const QString& sPatternName ) const;
 
 private:
 	std::map<QString,std::shared_ptr<Drumkit>> m_drumkitDatabase;
 	
-	soundLibraryInfoVector* m_patternInfoVector;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
 	QStringList m_patternCategories;
 
 	/**

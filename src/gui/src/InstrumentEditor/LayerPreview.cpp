@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -289,9 +289,11 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	if ( ev->y() < 20 ) {
 		const float fVelocity = (float)ev->x() / (float)width();
 
-		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
-		pNote->set_specific_compo_id( m_nSelectedComponent );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		if ( m_pInstrument->hasSamples() ) {
+			Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
+			pNote->set_specific_compo_id( m_nSelectedComponent );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		}
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);

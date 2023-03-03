@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -85,18 +85,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
 	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
-
-	/**
-	 * Retrieve the name of a drumkit stored in @a sDrumkitDir.
-	 *
-	 * As the name of the drumkit can be set to arbitrary values, it
-	 * can not be assumed to be unique and does not qualify as unique
-	 * identifier of the kit. Instead, the location the drumkit is
-	 * loaded from/written to is used and this function maps it to the
-	 * corresponding drumkit name.
-	 */
-	static QString loadNameFrom( const QString& sDrumkitDir,
-								 bool bSilent = false );
 	
 	/**
 	 * Returns a version of #__name stripped of all whitespaces and
@@ -227,12 +215,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		const License& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
-
-		/**
-		 * \return Whether the associated files are located in the
-		 * user or the systems drumkit folder.
-		 */
-		bool isUserDrumkit() const;
 
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -363,18 +363,20 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
-		const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
-		const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
 
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
-		if ( pInstr == nullptr ) {
-			ERRORLOG( "No instrument selected" );
+		if ( pSong == nullptr ) {
+			ERRORLOG( "No song set yet" );
 			return;
 		}
+		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
+		if ( pInstr != nullptr && pInstr->hasSamples() ) {
 
-		Note *pNote = new Note( pInstr, 0, fVelocity);
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
+			const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
+			Note *pNote = new Note( pInstr, 0, fVelocity);
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
+		}
 		
 	} else if (ev->button() == Qt::RightButton ) {
 
@@ -585,7 +587,7 @@ void InstrumentLine::functionFillNotes( int every )
 		for (int i = 0; i < nPatternSize; i += nResolution) {
 			bool noteAlreadyPresent = false;
 			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
 				Note *pNote = it->second;
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					// note already exists
@@ -645,7 +647,7 @@ void InstrumentLine::functionRandomizeVelocity()
 
 		for (int i = 0; i < nPatternSize; i += nResolution) {
 			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-			FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
 				Note *pNote = it->second;
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					float fVal = ( rand() % 100 ) / 100.0;

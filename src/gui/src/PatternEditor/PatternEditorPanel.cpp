@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -260,7 +260,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
 
 
-//~ RULER
+// ~ RULER
 
 
 // EDITOR _____________________________________
@@ -312,7 +312,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ EDITOR
+// ~ EDITOR
 
 
 
@@ -338,7 +338,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
 
-//~ INSTRUMENT LIST
+// ~ INSTRUMENT LIST
 
 
 
@@ -360,7 +360,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_VELOCITY EDITOR
+// ~ NOTE_VELOCITY EDITOR
 
 
 // NOTE_PAN EDITOR
@@ -382,7 +382,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_PAN EDITOR
+// ~ NOTE_PAN EDITOR
 
 
 // NOTE_LEADLAG EDITOR
@@ -404,7 +404,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_LEADLAG EDITOR
+// ~ NOTE_LEADLAG EDITOR
 
 
 // NOTE_NOTEKEY EDITOR
@@ -429,7 +429,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_NOTEKEY EDITOR
+// ~ NOTE_NOTEKEY EDITOR
 
 // NOTE_PROBABILITY EDITOR
 	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
@@ -449,7 +449,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-//~ NOTE_PROBABILITY EDITOR
+// ~ NOTE_PROBABILITY EDITOR
 
 
 
@@ -521,7 +521,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	pPropertiesVBox->addWidget( m_pPropertiesCombo );
 
-//~ NOTE_PROPERTIES BUTTONS
+// ~ NOTE_PROPERTIES BUTTONS
 
 
 // LAYOUT
@@ -943,21 +943,33 @@ void PatternEditorPanel::patternModifiedEvent() {
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
-		updateEditors( true );
-	}
+	updateEditors( true );
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
 	updateEditors( true );
+}
+
+void PatternEditorPanel::songSizeChangedEvent() {
+	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+		updateEditors( true );
+	}
+}
+
+void PatternEditorPanel::patternEditorLockedEvent() {
+	updateEditors( true );
+}
+
+void PatternEditorPanel::relocationEvent() {
+	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		updateEditors( true );
+	}
 }
 
 void PatternEditorPanel::updatePatternSizeLCD() {
@@ -1022,53 +1034,15 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
-	std::vector<Note*> excessiveNotes;
-	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
-	FOREACH_NOTE_IT_BEGIN_END( pNotes, it ) {
-		Note* pNote = it->second;
-		if ( pNote != nullptr &&
-			 pNote->get_position() >= nNewLength ) {
-			excessiveNotes.push_back( pNote );
-		}
-	}
-
-	// Delete all notes that are not accessible anymore.
 	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	if ( excessiveNotes.size() != 0 ) {
-		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2 (trimming %3 notes)" )
-								.arg( fNewNumerator ).arg( fNewDenominator )
-								.arg( excessiveNotes.size() ) );
-	} else {
-		pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
-								.arg( fNewNumerator ).arg( fNewDenominator ) );
-	}
+	pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
+							.arg( fNewNumerator ).arg( fNewDenominator ) );
 
 	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
 													   m_pPattern->get_length(),
 													   fNewDenominator,
 													   m_pPattern->get_denominator(),
 													   m_nSelectedPatternNumber ) );
-
-	for ( auto pNote : excessiveNotes ) {
-		// Note is exceeding the new pattern length. It has to be
-		// removed.
-		pUndoStack->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-														pInstrumentList->index( pNote->get_instrument() ),
-														m_nSelectedPatternNumber,
-														pNote->get_length(),
-														pNote->get_velocity(),
-														pNote->getPan(),
-														pNote->get_lead_lag(),
-														pNote->get_key(),
-														pNote->get_octave(),
-														pNote->get_probability(),
-														true,
-														false,
-														false,
-														false,
-														pNote->get_note_off() ) );
-	}
-	
 	pUndoStack->endMacro();
 }
 

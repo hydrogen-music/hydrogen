@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -77,7 +77,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		void highlightPatternEditorLocked( bool bUseRedBackground );	
 		void restoreGroupVector( QString filename );
-		//~ Implements EventListener interface
+		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
 		 * JACK timebase master is detected and enables it when it's
 		 * gone or Hydrogen itself becomes the timebase master.

@@ -1,7 +1,7 @@
 ﻿/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -193,6 +193,10 @@ bool Sampler::isRenderingNotes() const {
 void Sampler::noteOn(Note *pNote )
 {
 	assert( pNote );
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	pNote->get_adsr()->attack();
 	auto pInstr = pNote->get_instrument();
@@ -625,9 +629,16 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		float fLayerPitch = pLayer->get_pitch();
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
-			WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
-						.arg( pSelectedLayer->SamplePosition )
-						.arg( pSample->get_frames() ) );
+			// Due to rounding errors in renderNoteResample() the
+			// sample position can occassionaly exceed the maximum
+			// frames of a sample. AFAICS this is not itself
+			// harmful. So, we just log a warning if the difference is
+			// larger, which might be caused by a different problem.
+			if ( pSelectedLayer->SamplePosition >= pSample->get_frames() + 3 ) {
+				WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
+							.arg( pSelectedLayer->SamplePosition )
+							.arg( pSample->get_frames() ) );
+			}
 			nReturnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
@@ -1442,6 +1453,15 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 {
+	if ( m_pPreviewInstrument == nullptr ) {
+		ERRORLOG( "Invalid preview instrument" );
+		return;
+	}
+
+	if ( ! m_pPreviewInstrument->hasSamples() ) {
+		return;
+	}
+	
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
@@ -1463,6 +1483,15 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 
 void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 {
+	if ( pInstr == nullptr ) {
+		ERRORLOG( "Invalid instrument" );
+		return;
+	}
+
+	if ( ! pInstr->hasSamples() ) {
+		return;
+	}
+	
 	std::shared_ptr<Instrument> pOldPreview;
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 

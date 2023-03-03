@@ -236,7 +236,13 @@ ELSE()
 	FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
 ENDIF()
 
-FIND_HELPER(JACK jack jack/jack.h jack)
+IF(WIN64)
+  #64bit Windows
+  FIND_HELPER(JACK jack jack/jack.h jack64)
+ELSE()
+  #32bit Windows and all other OS
+  FIND_HELPER(JACK jack jack/jack.h jack)
+ENDIF()
 CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
@@ -284,11 +290,11 @@ FOREACH( _pkg ${STATUS_LIST})
 ENDFOREACH()
 
 # LIBSNDFILE CHECKS
-STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIBSNDFILE_VERSION_OK)
+STRING( COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIBSNDFILE_VERSION_OK)
 IF(LIBSNDFILE_VERSION_OK)
-    SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
+    SET(LIBSNDFILE_MSG "${PC_LIBSNDFILE_VERSION}: libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${LIBSNDFILE_VERSION}")
+	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${PC_LIBSNDFILE_VERSION}")
 ENDIF()
 
 # RUBBERBAND information

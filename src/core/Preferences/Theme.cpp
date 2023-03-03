@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -31,6 +31,7 @@ namespace H2Core
 ColorTheme::ColorTheme()
 	: m_songEditor_backgroundColor( QColor( 128, 134, 152 ) )
 	, m_songEditor_alternateRowColor( QColor( 106, 111, 126 ) )
+	, m_songEditor_virtualRowColor( QColor( 120, 112, 97 ) )
 	, m_songEditor_selectedRowColor( QColor( 149, 157, 178 ) )
 	, m_songEditor_selectedRowTextColor( QColor( 0, 0, 0 ) )
 	, m_songEditor_lineColor( QColor( 54, 57, 67 ) )
@@ -92,6 +93,7 @@ ColorTheme::ColorTheme()
 ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	: m_songEditor_backgroundColor( pOther->m_songEditor_backgroundColor )
 	, m_songEditor_alternateRowColor( pOther->m_songEditor_alternateRowColor )
+	, m_songEditor_virtualRowColor( pOther->m_songEditor_virtualRowColor )
 	, m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor )
 	, m_songEditor_selectedRowTextColor( pOther->m_songEditor_selectedRowTextColor )
 	, m_songEditor_lineColor( pOther->m_songEditor_lineColor )
@@ -213,6 +215,7 @@ Theme::Theme( const std::shared_ptr<Theme> pOther ) {
 void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_songEditor_backgroundColor = pOther->getColorTheme()->m_songEditor_backgroundColor;
 	m_pColorTheme->m_songEditor_alternateRowColor = pOther->getColorTheme()->m_songEditor_alternateRowColor;
+	m_pColorTheme->m_songEditor_virtualRowColor = pOther->getColorTheme()->m_songEditor_virtualRowColor;
 	m_pColorTheme->m_songEditor_selectedRowColor =
 		pOther->getColorTheme()->m_songEditor_selectedRowColor;
 	m_pColorTheme->m_songEditor_selectedRowTextColor =
@@ -316,6 +319,7 @@ void Theme::writeColorTheme( XMLNode* pParent, std::shared_ptr<Theme> pTheme )
 	XMLNode songEditorNode = colorThemeNode.createNode( "songEditor" );
 	songEditorNode.write_color( "backgroundColor", pColorTheme->m_songEditor_backgroundColor );
 	songEditorNode.write_color( "alternateRowColor", pColorTheme->m_songEditor_alternateRowColor );
+	songEditorNode.write_color( "virtualRowColor", pColorTheme->m_songEditor_virtualRowColor );
 	songEditorNode.write_color( "selectedRowColor",
 								 pColorTheme->m_songEditor_selectedRowColor );
 	songEditorNode.write_color( "selectedRowTextColor",
@@ -411,6 +415,9 @@ void Theme::readColorTheme( XMLNode parent, std::shared_ptr<Theme> pTheme )
 		pColorTheme->m_songEditor_alternateRowColor =
 			songEditorNode.read_color( "alternateRowColor",
 									   pColorTheme->m_songEditor_alternateRowColor, false, false );
+		pColorTheme->m_songEditor_virtualRowColor =
+			songEditorNode.read_color( "virtualRowColor",
+									   pColorTheme->m_songEditor_virtualRowColor, false, false );
 		pColorTheme->m_songEditor_selectedRowColor =
 			songEditorNode.read_color( "selectedRowColor",
 									   pColorTheme->m_songEditor_selectedRowColor, false, false );

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -95,7 +95,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;
-		//~ Implements EventListener interface
+	virtual void songSizeChangedEvent() override;
+	virtual void patternEditorLockedEvent() override;
+	virtual void relocationEvent() override;
+		// ~ Implements EventListener interface
 
 		void ensureCursorVisible();
 		int getCursorPosition();
@@ -218,7 +221,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// TOOLBAR
 		QLabel *			m_pPatternNameLbl;
 		Button *			m_pRandomVelocityBtn;
-		//~ TOOLBAR
+		// ~ TOOLBAR
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
@@ -228,7 +231,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Cursor positioning
 		int					m_nCursorPosition;
 		int					m_nCursorIncrement;
-		//~ Cursor
+		// ~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;

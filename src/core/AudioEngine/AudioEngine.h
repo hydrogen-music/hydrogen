@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -431,6 +431,8 @@ public:
 	 * playing.
 	 */
 	void flushAndAddNextPattern( int nPatternNumber );
+
+	void updateVirtualPatterns();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -458,6 +460,7 @@ public:
 	/** Uses handleTimelineChange() */
 	friend bool CoreActionController::deleteTempoMarker( int );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
+	friend bool CoreActionController::activateSongMode( bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportPosition();

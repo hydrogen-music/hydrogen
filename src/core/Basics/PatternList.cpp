@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -268,8 +268,12 @@ void PatternList::move( int idx_a, int idx_b )
 
 void PatternList::flattened_virtual_patterns_compute()
 {
-	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_clear();
-	for ( int i=0 ; i<__patterns.size() ; i++ ) __patterns[i]->flattened_virtual_patterns_compute();
+	for ( int i=0 ; i<__patterns.size() ; i++ ) {
+		__patterns[i]->flattened_virtual_patterns_clear();
+	}
+	for ( int i=0 ; i<__patterns.size() ; i++ ) {
+		__patterns[i]->flattened_virtual_patterns_compute();
+	}
 }
 
 void PatternList::virtual_pattern_del( Pattern* pattern )
