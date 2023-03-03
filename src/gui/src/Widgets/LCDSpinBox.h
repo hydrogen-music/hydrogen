@@ -70,12 +70,13 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true, bool bMinusOneAsOff = false );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = false, bool bMinusOneAsOff = false );
 	~LCDSpinBox();
 
 	void setType( Type type );
 	void setKind( Kind kind );
 	void setSize( QSize size );
+	void setModifyOnChange( bool bModifyOnChange );
 	
 	virtual QValidator::State validate( QString &text, int &pos ) const override;
 	
@@ -130,6 +131,9 @@ private:
 
 inline void LCDSpinBox::setKind( Kind kind ) {
 	m_kind = kind;
+}
+inline void LCDSpinBox::setModifyOnChange( bool bModifyOnChange ) {
+	m_bModifyOnChange = bModifyOnChange;
 }
 inline bool LCDSpinBox::getIsActive() const {
 	return m_bIsActive;

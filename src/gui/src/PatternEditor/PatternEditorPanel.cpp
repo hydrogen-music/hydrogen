@@ -118,14 +118,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
 
 	// PATTERN size
-	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
+	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0, true );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	
-	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
+	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192, true );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
 	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
