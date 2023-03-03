@@ -73,13 +73,14 @@ public:
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true, bool bMinusOneAsOff = false );
 	~LCDSpinBox();
 
+	void setType( Type type );
 	void setKind( Kind kind );
+	void setSize( QSize size );
+	
 	virtual QValidator::State validate( QString &text, int &pos ) const override;
 	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
-
-	void setSize( QSize size );
 
 	bool getIsHovered() const;
 

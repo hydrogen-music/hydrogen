@@ -120,7 +120,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// PATTERN size
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
-	m_pLCDSpinBoxNumerator->setDecimals( 16 );
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );

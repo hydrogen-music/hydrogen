@@ -31,7 +31,6 @@
 LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange, bool bMinusOneAsOff )
  : QDoubleSpinBox( pParent )
  , m_size( size )
- , m_type( type )
  , m_bEntered( false )
  , m_kind( Kind::Default )
  , m_bIsActive( true )
@@ -47,19 +46,32 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	adjustSize();
 	setFixedSize( m_size );
 
+	setType( type );
+	
 	updateStyleSheet();
 
 	connect( this, SIGNAL(valueChanged(double)), this,
                         SLOT(valueChanged(double)));
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &LCDSpinBox::onPreferencesChanged );
-		
+
 	setMaximum( fMax );
 	setMinimum( fMin );
 	setValue( fMin );
 }
 
 LCDSpinBox::~LCDSpinBox() {
+}
+
+void LCDSpinBox::setType( Type type ) {
+	m_type = type;
+
+	if ( type == Type::Int ) {
+		setDecimals( 0 );
+	}
+	else {
+		setDecimals( std::numeric_limits<double>::max_exponent );
+	}
 }
 
 void LCDSpinBox::setSize( QSize size ) {
@@ -82,7 +94,7 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 	static float fCumulatedDelta;
 
 	double fOldValue = value();
-	
+
 	if ( m_kind == Kind::PatternSizeDenominator ) {
 
 		// Cumulate scroll positions to provide a native feeling for
@@ -218,14 +230,9 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 	} else {
 		if ( m_type == Type::Int ) {
 			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
-		} else {
-			// Only show a larger precision than 2 digits after point
-			// if there are more than 2 non-zero digits after point.
-			if ( std::fmod( fValue * 100, 1 ) > 0 ) {
-				result = QString( "%1" ).arg( fValue, 0, 'f', 16 ) ;
-			} else {
-				result = QString( "%1" ).arg( fValue, 0, 'f', 2 ) ;
-			}
+		}
+		else {
+			result = QString( "%1" ).arg( fValue ) ;
 		}
 	}
 
