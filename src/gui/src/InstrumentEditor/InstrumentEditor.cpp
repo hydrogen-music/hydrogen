@@ -439,7 +439,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLCD->move( 155, 393 );
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
-	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ) );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ), true );
 	m_sampleSelectionAlg->move( 76, 432 );
 	m_sampleSelectionAlg->setToolTip( tr( "Select selection algorithm" ) );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );

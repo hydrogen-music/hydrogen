@@ -144,7 +144,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternSizeLbl->move( 2, 4 );
 	
 	// GRID resolution
-	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 209, 19 ) );
+	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 209, 19 ), true );
 	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
 								 .append( tr( "quarter" ) ) );
