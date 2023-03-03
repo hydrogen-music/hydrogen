@@ -2978,13 +2978,34 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	// Highlight hovered tick of the Timeline
 	if ( m_hoveredRow == HoveredRow::Tag ||
 		 ( m_hoveredRow == HoveredRow::TempoMarker &&
-		   m_pHydrogen->isTimelineEnabled() ) ) {
+		   m_pHydrogen->isTimelineEnabled() ) ||
+		 m_nActiveBpmWidgetColumn != -1 ) {
+
+		int nColumn;
+		if ( m_nActiveBpmWidgetColumn != -1 ) {
+			nColumn = m_nActiveBpmWidgetColumn;
+		} else {
+			nColumn = m_nHoveredColumn;
+		}
+		const int x = SongEditor::nMargin + nColumn * m_nGridWidth;
+
+		// Erase background tick lines to not get any interference.
+		painter.fillRect( x, 1, 1, 4,
+						  backgroundColorTempoMarkers );
+		painter.fillRect( x, height() / 2 - 5, 1, 4,
+						  backgroundColorTempoMarkers );
+
+		if ( m_hoveredRow == HoveredRow::TempoMarker ) {
+			// Erase the area of horizontal line above a tempo
+			// marker too. The associated highlight will be drawn later on.
+			painter.fillRect( x - 1, 1, m_nGridWidth - 1, 4,
+							  backgroundColorTempoMarkers );
+		}
 
 		painter.setPen( QPen( highlightColor, 1 ) );
-		int x = SongEditor::nMargin + m_nHoveredColumn * m_nGridWidth;
 
 		painter.drawLine( x, 1, x, 4 );
-		painter.drawLine( x, height() / 2 - 5, x, height() / 2 );
+		painter.drawLine( x, height() / 2 - 5, x, height() / 2 - 1 );
 	}
 
 	// Highlight tag
@@ -3046,6 +3067,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 				painter.setPen( QPen( highlightColor, 1 ) );
 			}
 			painter.drawRect( rect );
+
+			painter.drawLine( rect.x() + m_nGridWidth - m_nGridWidth / 2 + 1, 2,
+							  rect.x() + m_nGridWidth + m_nGridWidth / 2 - 6, 2 );
 
 			bTempoMarkerPresent = true;
 		}
@@ -3149,32 +3173,52 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pTimeline = pHydrogen->getTimeline();
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
-	QColor tempoMarkerColor;
-	tempoMarkerColor = pPref->getColorTheme()->m_songEditor_textColor;
+	// Only paint the special tempo marker in case Timeline is
+	// activated.
+	if ( tempoMarker->nColumn == 0 && pTimeline->isFirstTempoMarkerSpecial() &&
+		 ! pHydrogen->isTimelineEnabled() ) {
+		return;
+	}
+		
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		
+	QRect rect( SongEditor::nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+				tempoMarker->nColumn * m_nGridWidth + m_nGridWidth / 2,
+				6, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+
+	// Draw an additional small horizontal line at the top of the
+	// current column to better indicate the position of the tempo
+	// marker (for larger float values e.g. 130.67).
+	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
+
+	if ( tempoMarker->nColumn == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+		textColor = textColor.darker( 150 );
+	}
+			
+	if ( ! pHydrogen->isTimelineEnabled() ) {
+		QColor textColorAlpha( textColor );
+		textColorAlpha.setAlpha( 45 );
+		painter.setPen( textColorAlpha );
+	} else {
+		QColor tempoMarkerGridColor( textColor );
+		tempoMarkerGridColor.setAlpha( 170 );
+		painter.setPen( tempoMarkerGridColor );
+	}
+
+	painter.drawLine( rect.x() + m_nGridWidth - m_nGridWidth / 2 + 1, 2,
+					  rect.x() + m_nGridWidth + m_nGridWidth / 2 - 6, 2 );
+
+	QColor tempoMarkerColor( textColor );
 	if ( ! pHydrogen->isTimelineEnabled() ) {
 		tempoMarkerColor.setAlpha( 45 );
 	}
-	
-	if ( tempoMarker->nColumn == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
-		if ( ! pHydrogen->isTimelineEnabled() ) {
-			// Omit the special tempo marker.
-			return;
-		}
-		painter.setPen( tempoMarkerColor.darker( 150 ) );
-	} else {
-		painter.setPen( tempoMarkerColor );
-	}
+	painter.setPen( tempoMarkerColor );
 				
 	if ( bEmphasize ) {
 		font.setBold( true );
 	}
 	painter.setFont( font );
-		
-	QRect rect( SongEditor::nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
-				tempoMarker->nColumn * m_nGridWidth + m_nGridWidth / 2,
-				6, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
 				
 	char tempo[10];
 	sprintf( tempo, "%d",  static_cast<int>( tempoMarker->fBpm ) );
