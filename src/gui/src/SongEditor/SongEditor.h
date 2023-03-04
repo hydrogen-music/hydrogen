@@ -440,10 +440,26 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	virtual void leaveEvent( QEvent* ev ) override;
 	virtual bool event( QEvent* ev ) override;
 
+	/** Calculates the position in pixel required to the painter for a
+	 * particular @a nColumn of the grid.
+	 *
+	 * TODO: There needs to be some refactoring / common basis for
+	 * song (and pattern) editor classes.
+ 	 */
+	int columnToX( int nColumn ) const;
+	int xToColumn( int nX ) const;
+
 	void showToolTip( QHelpEvent* ev );
 
-	void drawTempoMarker( std::shared_ptr<const H2Core::Timeline::TempoMarker> tempoMarker,
+	void drawTempoMarker( std::shared_ptr<const H2Core::Timeline::TempoMarker> pTempoMarker,
 						  bool bEmphasize, QPainter& painter );
+	/**
+	 * @param pTempoMarker Associated #TempoMarker
+	 * @param bEmphasize Whether the text of @a pTempoMarker will be
+	 *   printed with bold font.
+	 */
+	QRect calcTempoMarkerRect( std::shared_ptr<const H2Core::Timeline::TempoMarker> pTempoMarker,
+		bool bEmphasize = false ) const;
 
 };
 
