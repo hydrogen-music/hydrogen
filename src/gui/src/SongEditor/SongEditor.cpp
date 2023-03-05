@@ -3164,6 +3164,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize ) const {
 	assert( pTempoMarker );
 
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	auto pPref = Preferences::get_instance();
 	auto weight = QFont::Normal;
 	if ( bEmphasize ) {
@@ -3175,7 +3176,20 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 
 	const int x = columnToX( pTempoMarker->nColumn );
 	const QString sText = QString( "%1" ).arg( pTempoMarker->fBpm, 0, 'f', 2 );
-	const int nWidth = QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width();
+	int nWidth = QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width();
+
+	// Check whether the full width would overlap with an adjacent
+	// tempo marker and trim it if necessary
+	const int nCoveredNeighborColumns = 
+		static_cast<int>(std::floor( static_cast<float>(nWidth) /
+									 static_cast<float>(m_nGridWidth) ) );
+	for ( int ii = 1; ii <= nCoveredNeighborColumns; ++ii ) {
+		if ( pTimeline->hasColumnTempoMarker( pTempoMarker->nColumn + ii ) ) {
+			nWidth = m_nGridWidth * ii;
+			break;
+		}
+	}
+	
 	QRect rect( x, 6, nWidth, 12 );
 
 	return std::move( rect );
@@ -3231,7 +3245,7 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 		font.setBold( true );
 	}
 	painter.setFont( font );
-	painter.drawText( rect, Qt::AlignCenter,
+	painter.drawText( rect, Qt::AlignLeft | Qt::AlignVCenter,
 					  QString( "%1" ).arg( pTempoMarker->fBpm, 0, 'f', 2 ) );
 
 	if ( bEmphasize ) {
