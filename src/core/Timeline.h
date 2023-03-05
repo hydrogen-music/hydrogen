@@ -81,6 +81,11 @@ public:
 		int		nColumn;		// beat position in timeline
 		float	fBpm;		// tempo in beats per minute
 
+		/**
+		 * @return A text representation of #fBpm limited to two
+		 *   decimals after point and trailing zeros removed.
+		 */
+		QString getPrettyString() const;
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 	};
 

@@ -3175,8 +3175,8 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 					  getPointSize( pPref->getFontSize() ), weight );
 
 	const int x = columnToX( pTempoMarker->nColumn );
-	const QString sText = QString( "%1" ).arg( pTempoMarker->fBpm, 0, 'f', 2 );
-	int nWidth = QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width();
+	int nWidth = QFontMetrics( font ).size(
+		Qt::TextSingleLine, pTempoMarker->getPrettyString() ).width();
 
 	// Check whether the full width would overlap with an adjacent
 	// tempo marker and trim it if necessary
@@ -3246,7 +3246,7 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	}
 	painter.setFont( font );
 	painter.drawText( rect, Qt::AlignLeft | Qt::AlignVCenter,
-					  QString( "%1" ).arg( pTempoMarker->fBpm, 0, 'f', 2 ) );
+					  pTempoMarker->getPrettyString() );
 
 	if ( bEmphasize ) {
 		font.setBold( false );
