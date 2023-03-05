@@ -2742,7 +2742,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		// became invalid.
 		m_hoveredRow = row;
 		m_nHoveredColumn = nColumn;
-		 
+
 		update();
 	}
 	
@@ -2767,7 +2767,8 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 
 bool SongEditorPositionRuler::event( QEvent* ev ) {
 	if ( ev->type() == QEvent::ToolTip ) {
-		showToolTip( dynamic_cast<QHelpEvent*>(ev) );
+		const auto helpEv = dynamic_cast<QHelpEvent*>(ev);
+		showToolTip( helpEv->pos(), helpEv->globalPos() );
 		return 0;
 	}
 
@@ -2798,21 +2799,34 @@ void SongEditorPositionRuler::updateSongEvent( int nValue ) {
 	}
 }
 
-void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
+void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& globalPos ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pTimeline = pHydrogen->getTimeline();
+
+	const int nColumn = std::max( xToColumn( pos.x() ), 0 );
 	
 	if ( pHydrogen->isTimelineEnabled() &&
 		 pTimeline->isFirstTempoMarkerSpecial() &&
 		 m_hoveredRow == HoveredRow::TempoMarker &&
-		 ev->x() < SongEditor::nMargin + m_nGridWidth ) { // first tempo marker 
-		QToolTip::showText( ev->globalPos(), tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ), this );
+		 pos.x() < columnToX( 1 ) ) { // first tempo marker 
+			const QString sBpm =
+				pTimeline->getTempoMarkerAtColumn( nColumn )->getPrettyString( -1 );
+		QToolTip::showText( globalPos, QString( "%1: %2" )
+							.arg( tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ) )
+							.arg( sBpm ), this );
 		
-	} else if ( m_hoveredRow == HoveredRow::Tag ) {
+	}
+	else if ( m_hoveredRow == HoveredRow::TempoMarker ) {
+		if ( pTimeline->hasColumnTempoMarker( nColumn ) ) {
+			const QString sBpm =
+				pTimeline->getTempoMarkerAtColumn( nColumn )->getPrettyString( -1 );
+			QToolTip::showText( globalPos, sBpm, this );
+		}
+	}
+	else if ( m_hoveredRow == HoveredRow::Tag ) {
 		// Row containing the tags
-		int nColumn = std::max( xToColumn( ev->x() ), 0 );
 		if ( pTimeline->hasColumnTag( nColumn ) ) {
-			QToolTip::showText( ev->globalPos(),
+			QToolTip::showText( globalPos,
 								pTimeline->getTagAtColumn( nColumn ), this );
 		}
 	}
@@ -3181,7 +3195,7 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 
 	const int x = columnToX( pTempoMarker->nColumn );
 	int nWidth = QFontMetrics( font ).size(
-		Qt::TextSingleLine, pTempoMarker->getPrettyString() ).width();
+		Qt::TextSingleLine, pTempoMarker->getPrettyString( 2 ) ).width();
 
 	// Check whether the full width would overlap with an adjacent
 	// tempo marker and trim it if necessary
@@ -3251,7 +3265,7 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	}
 	painter.setFont( font );
 	painter.drawText( rect, Qt::AlignLeft | Qt::AlignVCenter,
-					  pTempoMarker->getPrettyString() );
+					  pTempoMarker->getPrettyString( 2 ) );
 
 	if ( bEmphasize ) {
 		font.setBold( false );

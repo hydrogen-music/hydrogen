@@ -82,10 +82,13 @@ public:
 		float	fBpm;		// tempo in beats per minute
 
 		/**
-		 * @return A text representation of #fBpm limited to two
-		 *   decimals after point and trailing zeros removed.
+		 * @param nDecimals Number of digits after point.
+		 *
+		 * @return A text representation of #fBpm limited to @a
+		 *   nDecimals decimals after point and trailing zeros
+		 *   removed.
 		 */
-		QString getPrettyString() const;
+		QString getPrettyString( int nDecimals = 2 ) const;
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 	};
 

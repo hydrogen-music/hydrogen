@@ -449,7 +449,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	int columnToX( int nColumn ) const;
 	int xToColumn( int nX ) const;
 
-	void showToolTip( QHelpEvent* ev );
+	void showToolTip( const QPoint& pos, const QPoint& globalPos );
 
 	void drawTempoMarker( std::shared_ptr<const H2Core::Timeline::TempoMarker> pTempoMarker,
 						  bool bEmphasize, QPainter& painter );

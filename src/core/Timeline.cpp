@@ -272,22 +272,14 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-QString Timeline::TempoMarker::getPrettyString() const {
-	QString sOut = QString( "%1" ).arg( fBpm, 0, 'f', 2 );
+QString Timeline::TempoMarker::getPrettyString( int nDecimals ) const {
 
-	// Remove trailing zeros.
-	while ( sOut.size() > 0 ) {
-		if ( sOut.back() == "0" ) {
-			sOut.chop( 1 );
-		}
-		else if ( sOut.back() == "." ) {
-			sOut.chop( 1 );
-			break;
-		}
-		else {
-			break;
-		}
+	int nPrec = 7;
+	if ( nDecimals >= 0 ) {
+		nPrec = std::min( nDecimals + ( fBpm >= 100 ? 3 : 2 ),
+						  7 );
 	}
+	QString sOut = QString::number( fBpm, 'g', nPrec );
 
 	return std::move( sOut );
 }
