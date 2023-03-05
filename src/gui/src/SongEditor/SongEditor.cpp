@@ -3103,7 +3103,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 		if ( m_hoveredRow == HoveredRow::TempoMarker ||
 			 m_nActiveBpmWidgetColumn != -1 ) {
-			painter.drawRect( nCursorX, 6, m_nGridWidth - 5, 12 );
+			// Reset the background during highlight in order to
+			// indicate that no tempo marker is present in this
+			// column.
+			QRect hoveringRect( nCursorX, 6, m_nGridWidth - 5, 12 );
+			painter.fillRect( hoveringRect, backgroundColorTempoMarkers );
+			painter.drawRect( hoveringRect );
 		} else {
 			painter.drawRect( nCursorX, height() / 2 - 1 - m_nTagHeight,
 							  m_nGridWidth - 5, m_nTagHeight - 1 );
