@@ -1039,9 +1039,15 @@ void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 
 void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
+
+	bool bValidateLegacyKits = false;
+	if ( argc > 1 ) {
+		bValidateLegacyKits = argv[1]->f == 0 ? false : true;
+	}
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ) );
+	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ),
+								  bValidateLegacyKits );
 }
 
 void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1347,6 +1353,7 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "sf", VALIDATE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
 

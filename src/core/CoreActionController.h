@@ -304,8 +304,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Checks whether the provided drumkit in @a sDrumkitPath can be
 	 * found, can be loaded, and does comply with the current XSD
 	 * definition.
+	 *
+	 * @param sDrumkitPath Can be either an absolute path to a folder
+	 *   containing a drumkit file (drumkit.xml), an absolute path to a
+	 *   drumkit file itself, or an absolute file to a compressed
+	 *   drumkit (.h2drumkit).
+	 * @param bCheckLegacyVersions Whether just the current XSD
+	 *   definition or also all previous versions should be checked.
 	 */
-	bool validateDrumkit( const QString& sDrumkitPath );
+	bool validateDrumkit( const QString& sDrumkitPath, bool bCheckLegacyVersions = false );
 	/**
 	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
 	 * @a sTargetDir.
