@@ -382,7 +382,8 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	virtual void timelineActivationEvent() override;
 	virtual void timelineUpdateEvent( int nValue ) override;
 	virtual void jackTimebaseStateChangedEvent() override;
-													   
+
+	static int tickToColumn( float fTick, uint nGridWidth );
 
 	public slots:
 		void updatePosition();

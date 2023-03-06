@@ -976,9 +976,7 @@ void SongEditor::updatePosition( float fTick ) {
 	if ( fTick != m_fTick ) {
 		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
 		m_fTick = fTick;
-		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-								   m_fTick * static_cast<float>(m_nGridWidth) -
-								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nX = SongEditorPositionRuler::tickToColumn( m_fTick, m_nGridWidth );
 		int nOffset = Skin::getPlayheadShaftOffset();
 		QRect updateRect( nX + nOffset -2, 0, 4, height() );
 		update( updateRect );
@@ -1043,9 +1041,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 	}
 	// Draw playhead
 	if ( m_fTick != -1 ) {
-		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-								   m_fTick * static_cast<float>(m_nGridWidth) -
-								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nX = SongEditorPositionRuler::tickToColumn( m_fTick, m_nGridWidth );
 		int nOffset = Skin::getPlayheadShaftOffset();
 		Skin::setPlayheadPen( &painter, false );
 		painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
@@ -2985,8 +2981,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	// Draw playhead
 	if ( m_fTick != -1 ) {
-		int nX = 1 + columnToX( m_fTick ) -
-			static_cast<int>(static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nX = tickToColumn( m_fTick, m_nGridWidth );
 		int nShaftOffset = Skin::getPlayheadShaftOffset();
 		Skin::drawPlayhead( &painter, nX, height() / 2 + 2, false );
 		painter.drawLine( nX + nShaftOffset, 0, nX + nShaftOffset, height() );
@@ -3161,8 +3156,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		 m_hoveredRow == HoveredRow::Ruler &&
 		 m_nHoveredColumn <= m_nActiveColumns ) {
 
-		int x = 1 + columnToX( m_nHoveredColumn ) -
-			static_cast<int>(static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int x = tickToColumn( m_nHoveredColumn, m_nGridWidth );
 		int nShaftOffset = Skin::getPlayheadShaftOffset();
 		Skin::drawPlayhead( &painter, x, height() / 2 + 2, true );
 		painter.drawLine( x + nShaftOffset, 0, x + nShaftOffset, height() / 2 + 1 );
@@ -3313,8 +3307,7 @@ void SongEditorPositionRuler::updatePosition()
 		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
 
 		m_fTick = fTick;
-		int nX = 1 + columnToX( m_fTick ) -
-			static_cast<int>(static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nX = tickToColumn( m_fTick, m_nGridWidth );
 
 		QRect updateRect( nX -2, 0, 4 + Skin::nPlayheadWidth, height() );
 		update( updateRect );
@@ -3342,6 +3335,12 @@ int SongEditorPositionRuler::xToColumn( int nX ) const {
 		( static_cast<float>(nX) - static_cast<float>(SongEditor::nMargin)) /
 		static_cast<float>(m_nGridWidth));
 }
+int SongEditorPositionRuler::tickToColumn( float fTick, uint nGridWidth ) {
+	return static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   fTick * static_cast<float>(nGridWidth) -
+							 static_cast<float>(Skin::nPlayheadWidth) / 2 );
+}
+
 
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
 {
