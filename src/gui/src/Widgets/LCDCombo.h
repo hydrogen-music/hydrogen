@@ -38,10 +38,12 @@ class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, pu
 	Q_OBJECT
 
 public:
-	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = true );
+	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = false );
 	~LCDCombo();
 
 	void setSize( QSize size );
+	void setModifyOnChange( bool bModifyOnChange );
+	
 	virtual void showPopup() override;
 	void addItem(const QString &text, const QVariant &userData = QVariant());
 	
@@ -71,6 +73,9 @@ private:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 };
+inline void LCDCombo::setModifyOnChange( bool bModifyOnChange ) {
+	m_bModifyOnChange = bModifyOnChange;
+}
 inline bool LCDCombo::getIsActive() const {
 	return m_bIsActive;
 }

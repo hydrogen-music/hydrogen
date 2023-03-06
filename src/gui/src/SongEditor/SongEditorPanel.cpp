@@ -363,7 +363,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
-	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ) );
+	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ), true );
 	m_pAutomationCombo->setToolTip( tr("Adjust parameter values in time") );
 	m_pAutomationCombo->addItem( tr("Velocity") );
 	m_pAutomationCombo->setCurrentIndex( 0 );

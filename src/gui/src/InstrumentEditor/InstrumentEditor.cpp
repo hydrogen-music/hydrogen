@@ -119,7 +119,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										LCDSpinBox::Type::Int, 0, 100 );
+										LCDSpinBox::Type::Int, 0, 100, true );
 	m_pMidiOutNoteLCD->move( 161, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect( m_pMidiOutNoteLCD, SIGNAL( valueChanged( double ) ),
@@ -300,7 +300,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatGroupLbl->move( 22, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127 );
+										  LCDSpinBox::Type::Int, 0, 127, true );
 	m_pHihatMinRangeLCD->move( 138, 303 );
 	connect( m_pHihatMinRangeLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatMinRangeChanged( double ) ) );
@@ -309,7 +309,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMinRangeLbl->move( 136, 327 );
 
 	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127 );
+										  LCDSpinBox::Type::Int, 0, 127, true );
 	m_pHihatMaxRangeLCD->move( 203, 303 );
 	connect( m_pHihatMaxRangeLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatMaxRangeChanged( double ) ) );
@@ -439,7 +439,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLCD->move( 155, 393 );
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
-	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ) );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ), true );
 	m_sampleSelectionAlg->move( 76, 432 );
 	m_sampleSelectionAlg->setToolTip( tr( "Select selection algorithm" ) );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );

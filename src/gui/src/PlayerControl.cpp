@@ -332,7 +332,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	// LCD BPM SpinBox
 	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 30), LCDSpinBox::Type::Double,
 									   static_cast<double>( MIN_BPM ),
-									   static_cast<double>( MAX_BPM ) );
+									   static_cast<double>( MAX_BPM ), true );
 	m_pLCDBPMSpinbox->move( 36, 1 );
 	m_pLCDBPMSpinbox->setStyleSheet( m_pLCDBPMSpinbox->styleSheet().
 									 append( " QAbstractSpinBox {font-size: 16px;}" ) );
