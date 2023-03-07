@@ -60,7 +60,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 		}
 		
 		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-		pCompo->set_layer( InstrumentLayer::load_from( pNode,
+		pCompo->set_layer( InstrumentLayer::load_from( &layerNode,
 													   sDrumkitPath,
 													   drumkitLicense,
 													   bSilent ),
