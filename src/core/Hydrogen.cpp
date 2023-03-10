@@ -969,7 +969,8 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			// When restarting the audio driver after loading a new song under
 			// Non session management all ports have to be registered _prior_
 			// to the activation of the client.
-			if ( isUnderSessionManagement() ) {
+			if ( isUnderSessionManagement() &&
+				 getGUIState() != Hydrogen::GUIState::ready ) {
 				return;
 			}
 			auto pAudioEngine = m_pAudioEngine;
