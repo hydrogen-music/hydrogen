@@ -79,12 +79,6 @@ Director::Director ( QWidget* pParent )
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	setWindowTitle ( tr ( "Director" ) );
-
-	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
-	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
-	if ( m_nBar <= 0 ){
-		m_nBar = 1;
-	}
 	
 	m_nCounter = 1;	// to compute the right beat
 	m_Color = pPref->getColorTheme()->m_accentColor;
@@ -137,69 +131,59 @@ void Director::updateSongEvent( int nValue ) {
 			}
 		}
 
-		timelineUpdateEvent( 0 );
-
+		updateTags();
 		updateFontSize( FontUpdate::SongName );
 		update();
 	}
 }
 
 void Director::timelineUpdateEvent( int nValue ) {
-
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	m_fBpm = pAudioEngine->getTransportPosition()->getBpm();
-	m_nBar = pAudioEngine->getTransportPosition()->getColumn() + 1;
-
-	if ( m_nBar <= 0 ){
-		m_nBar = 1;
-	}
-
 	if ( updateTags() ) {
 		update();
 	}
 }
 
 bool Director::updateTags() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
+	
+	if ( m_fBpm != pPos->getBpm() ){
+		m_fBpm = pPos->getBpm();
+	}
+	if ( m_nBar != std::max( pPos->getColumn() + 1, 1 ) ) {
+		m_nBar = std::max( pPos->getColumn() + 1, 1 );
+	}
+	
 	// get tags
-	auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-	const bool bHasTag = pTimeline->hasColumnTag( m_nBar );
+	auto pTimeline = pHydrogen->getTimeline();
 
 	bool bRequiresUpdate = false;
-	if ( bHasTag && m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
+	if ( m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
 		m_sTagNext = pTimeline->getTagAtColumn( m_nBar );
-		updateFontSize( FontUpdate::TagCurrent );
-		bRequiresUpdate = true;
-	}
-	else if ( ! bHasTag && m_sTagNext.isEmpty() ) {
-		m_sTagNext = "";
-		updateFontSize( FontUpdate::TagCurrent );
+		updateFontSize( FontUpdate::TagNext );
 		bRequiresUpdate = true;
 	}
 	if ( m_sTagCurrent != pTimeline->getTagAtColumn( m_nBar - 1 ) ) {
 		m_sTagCurrent = pTimeline->getTagAtColumn( m_nBar - 1 );
-		updateFontSize( FontUpdate::TagNext );
+		updateFontSize( FontUpdate::TagCurrent );
 		bRequiresUpdate = true;
 	}
 
 	return bRequiresUpdate;
 }
 
+void Director::relocationEvent() {
+	if ( updateTags() ) {
+		update();
+	}
+}
+
 void Director::metronomeEvent( int nValue )
 {
-
-	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = H2Core::Preferences::get_instance();
 
-	//bpm
-	m_fBpm = pHydrogen->getSong()->getBpm();
-	//bar
-	m_nBar = pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1;
-
-	if ( m_nBar <= 0 ){
-		m_nBar = 1;
-	}
+	// also ensures m_fBpm is up-to-date
+	updateTags();
 
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( m_fBpm / 60 )) / 2 );
@@ -218,8 +202,6 @@ void Director::metronomeEvent( int nValue )
 		m_Color = pPref->getColorTheme()->m_accentColor;
 	}
 	
-	// get tags
-	updateTags();
 	update();
 }
 
@@ -232,7 +214,6 @@ void Director::updateMetronomBackground()
 }
 
 void Director::updateFontSize( FontUpdate update ) {
-
 	auto pPref = H2Core::Preferences::get_instance();
 	const QString sFontFamily = pPref->getApplicationFontFamily();
 

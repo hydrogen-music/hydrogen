@@ -48,6 +48,8 @@ public:
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void timelineUpdateEvent( int nValue ) override;
 	virtual void metronomeEvent( int nValue ) override;
+	virtual void relocationEvent() override;
+	
 	virtual void paintEvent( QPaintEvent*) override;
 	virtual void keyPressEvent( QKeyEvent* ev ) override;
 	virtual void closeEvent( QCloseEvent* ev ) override;
