@@ -93,12 +93,13 @@ Director::Director ( QWidget* pParent )
 
 	m_pTimer = new QTimer( this );
 	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
+
+	updateLabelContainers();
 }
 
 
 Director::~Director()
 {
-	//INFOLOG ( "DESTROY" );
 }
 
 void Director::keyPressEvent( QKeyEvent* ev )
@@ -138,6 +139,7 @@ void Director::updateSongEvent( int nValue ) {
 
 		timelineUpdateEvent( 0 );
 
+		updateFontSize( FontUpdate::SongName );
 		update();
 	}
 }
@@ -153,17 +155,35 @@ void Director::timelineUpdateEvent( int nValue ) {
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
 	}
-	
-	// get tags
-	auto pTimeline = pHydrogen->getTimeline();
 
-	if ( pTimeline->hasColumnTag( m_nBar ) ) {
-		m_sTAG = pTimeline->getTagAtColumn( m_nBar );
-	} else {
-		m_sTAG = "";
+	if ( updateTags() ) {
+		update();
 	}
-	m_sTAG2 = pTimeline->getTagAtColumn( m_nBar - 1 );
-	update();
+}
+
+bool Director::updateTags() {
+	// get tags
+	auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+	const bool bHasTag = pTimeline->hasColumnTag( m_nBar );
+
+	bool bRequiresUpdate = false;
+	if ( bHasTag && m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
+		m_sTagNext = pTimeline->getTagAtColumn( m_nBar );
+		updateFontSize( FontUpdate::TagCurrent );
+		bRequiresUpdate = true;
+	}
+	else if ( ! bHasTag && m_sTagNext.isEmpty() ) {
+		m_sTagNext = "";
+		updateFontSize( FontUpdate::TagCurrent );
+		bRequiresUpdate = true;
+	}
+	if ( m_sTagCurrent != pTimeline->getTagAtColumn( m_nBar - 1 ) ) {
+		m_sTagCurrent = pTimeline->getTagAtColumn( m_nBar - 1 );
+		updateFontSize( FontUpdate::TagNext );
+		bRequiresUpdate = true;
+	}
+
+	return bRequiresUpdate;
 }
 
 void Director::metronomeEvent( int nValue )
@@ -199,15 +219,7 @@ void Director::metronomeEvent( int nValue )
 	}
 	
 	// get tags
-	auto pTimeline = pHydrogen->getTimeline();
-
-	if ( pTimeline->hasColumnTag( m_nBar ) ) {
-		m_sTAG = pTimeline->getTagAtColumn( m_nBar );
-	} else {
-		m_sTAG = "";
-	}
-	m_sTAG2 = pTimeline->getTagAtColumn( m_nBar - 1 );
-	
+	updateTags();
 	update();
 }
 
@@ -219,25 +231,78 @@ void Director::updateMetronomBackground()
 	update();
 }
 
+void Director::updateFontSize( FontUpdate update ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	const QString sFontFamily = pPref->getApplicationFontFamily();
+
+	// Reduce the pixelsize of the font till it fits the width of its
+	// enclosing rectangle.
+	auto shrinkTillItFits = [&]( QFont* pFont, const QRect& rect, const QString& sLabel ) {
+		if ( sLabel.isEmpty() ) {
+			return;
+		}
+
+		while ( ( QFontMetrics( *pFont ).size( Qt::TextSingleLine, sLabel ).width() >
+				  rect.width() ) &&
+				pFont->pointSize() > 1 ) {
+			pFont->setPointSize( pFont->pointSize() - 1 );
+		}
+	};
+
+	if ( update & FontUpdate::SongName ) {
+		// Reset to default value
+		m_fontSongName = QFont( sFontFamily, height() * 14/100 );
+		shrinkTillItFits( &m_fontSongName, m_rectSongName, m_sSongName );
+	}
+
+	if ( update & FontUpdate::TagCurrent ) {
+		m_fontTagCurrent = QFont( sFontFamily, height() * 8/100 );
+		shrinkTillItFits( &m_fontTagCurrent, m_rectTagCurrent, m_sTagCurrent );
+	}
+
+	if ( update & FontUpdate::TagNext ) {
+		m_fontTagNext = QFont( sFontFamily, height() * 6/100 );
+		shrinkTillItFits( &m_fontTagNext, m_rectTagNext, m_sTagNext );
+	}
+}
+
+void Director::updateLabelContainers() {
+	m_rectSongName = QRect( QPoint( width() * 5/100 , height () * 2/100 ),
+						    QSize( width() * 90/100, height() * 21/100) );
+	m_rectTagCurrent = QRect( QPoint( width() * 5/100 , height() * 65/100 ),
+							  QSize( width() * 90/100, height() * 14/100) );
+	m_rectTagNext = QRect( QPoint( width() * 5/100 , height() * 83/100 ),
+						   QSize( width() * 90/100, height() * 11/100) );
+
+	updateFontSize( static_cast<FontUpdate>( FontUpdate::SongName |
+											 FontUpdate::TagCurrent |
+											 FontUpdate::TagNext ) );
+}
+
+void Director::resizeEvent( QResizeEvent* ev ) {
+	updateLabelContainers();
+
+	QDialog::resizeEvent( ev );
+}
 
 void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 
 	auto pPref = H2Core::Preferences::get_instance();
-	QString sFontFamily = pPref->getApplicationFontFamily();
+	const QString sFontFamily = pPref->getApplicationFontFamily();
 
 	//draw the songname
-	painter.setFont(QFont( sFontFamily, height() * 14/100 ));
-	QRect rect(QPoint( width() * 5/100 , height () * 2/100 ), QSize( width() * 90/100, height() * 21/100));
-	painter.drawText( rect, Qt::AlignCenter,  QString( m_sSongName ) );
+	painter.setFont( m_fontSongName );
+	painter.drawText( m_rectSongName, Qt::AlignCenter, m_sSongName );
 
 
 	//draw the metronome
-	
 	painter.setPen( QPen( pPref->getColorTheme()->m_highlightColor, 1 , Qt::SolidLine ) );
 	painter.setBrush( m_Color );
-	painter.drawRect (  m_nFlashingArea, height() * 25/100, width() * 42.5/100, height() * 35/100);
+	painter.drawRect( m_nFlashingArea, height() * 25/100, width() * 42.5/100,
+					  height() * 35/100);
 
 
 	//draw bars
@@ -251,20 +316,18 @@ void Director::paintEvent( QPaintEvent* ev )
 	QRect r2(QPoint( width() * 52.5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nCounter) );
 
-	if( m_sTAG == m_sTAG2 ){
-		m_sTAG2 = "";
+	if( m_sTagNext == m_sTagCurrent ){
+		m_sTagCurrent = "";
 	}
 	
 	//draw current bar tag
-	painter.setFont(QFont( sFontFamily, height() * 8/100 ));
-	QRect r3(QPoint ( width() * 5/100 , height() * 65/100 ), QSize( width() * 90/100, height() * 14/100));
-	painter.drawText( r3, Qt::AlignCenter, QString( (m_sTAG) ) );
+	painter.setFont( m_fontTagCurrent );
+	painter.drawText( m_rectTagCurrent, Qt::AlignCenter, m_sTagCurrent );
 
 	//draw next bar tag
 	painter.setPen( Skin::makeTextColorInactive( textColor ) );
-	painter.setFont(QFont( sFontFamily, height() * 6/100 ));
-	QRect r4(QPoint ( width() * 5/100 , height() * 83/100 ), QSize( width() * 90/100, height() * 11/100));
-	painter.drawText( r4, Qt::AlignCenter, QString( m_sTAG2 ) );
+	painter.setFont( m_fontTagNext );
+	painter.drawText( m_rectTagNext, Qt::AlignCenter, QString( m_sTagNext ) );
 }
 
 void Director::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
