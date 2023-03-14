@@ -47,8 +47,8 @@ public:
 
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void timelineUpdateEvent( int nValue ) override;
-	virtual void metronomeEvent( int nValue ) override;
-	virtual void relocationEvent() override;
+	virtual void bbtChangedEvent() override;
+	virtual void tempoChangedEvent( int nValue ) override;
 	
 	virtual void paintEvent( QPaintEvent*) override;
 	virtual void keyPressEvent( QKeyEvent* ev ) override;
@@ -78,7 +78,7 @@ private:
 	QTimer				*m_pTimer;
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
-	int					m_nCounter;
+	int					m_nBeat;
 	float				m_fBpm;
 	int					m_nBar;
 	int					m_nFlashingArea;

@@ -77,6 +77,8 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	}
 	m_nPatternSize = pOther->m_nPatternSize;
 	m_nLastLeadLagFactor = pOther->m_nLastLeadLagFactor;
+	m_nBar = pOther->m_nBar;
+	m_nBeat = pOther->m_nBeat;
 }
 
 void TransportPosition::reset() {
@@ -96,6 +98,8 @@ void TransportPosition::reset() {
 	m_pNextPatterns->clear();
 	m_nPatternSize = MAX_NOTES;
 	m_nLastLeadLagFactor = 0;
+	m_nBar = 1;
+	m_nBeat = 1;
 }
 
 void TransportPosition::setBpm( float fNewBpm ) {
@@ -185,6 +189,23 @@ void TransportPosition::setPatternSize( int nPatternSize ) {
 	}
 
 	m_nPatternSize = nPatternSize;
+}
+void TransportPosition::setBar( int nBar ) {
+	if ( nBar < 1 ) {
+		ERRORLOG( QString( "[%1] Provided bar [%2] it too small. Using [1] as a fallback instead." )
+				  .arg( m_sLabel ).arg( nBar ) );
+		nBar = 1;
+	}
+	m_nBar = nBar;
+}
+
+void TransportPosition::setBeat( int nBeat ) {
+	if ( nBeat < 1 ) {
+		ERRORLOG( QString( "[%1] Provided beat [%2] it too small. Using [1] as a fallback instead." )
+				  .arg( m_sLabel ).arg( nBeat ) );
+		nBeat = 1;
+	}
+	m_nBeat = nBeat;
 }
 				
 // This function uses the assumption that sample rate and resolution
@@ -635,7 +656,9 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			sOutput.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
 		}
 		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternSize ) )
-			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastLeadLagFactor ) );
+			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastLeadLagFactor ) )
+			.append( QString( "%1%2m_nBar: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBar ) )
+			.append( QString( "%1%2m_nBeat: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeat ) );
 	}
 	else {
 		sOutput = QString( "%1[TransportPosition]" ).arg( sPrefix )
@@ -659,7 +682,9 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			sOutput.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
 		}
 		sOutput.append( QString( ", m_nPatternSize: %1" ).arg( m_nPatternSize ) )
-			.append( QString( ", m_nLastLeadLagFactor: %1" ).arg( m_nLastLeadLagFactor ) );
+			.append( QString( ", m_nLastLeadLagFactor: %1" ).arg( m_nLastLeadLagFactor ) )
+			.append( QString( ", m_nBar: %1" ).arg( m_nBar ) )
+			.append( QString( ", m_nBeat: %1" ).arg( m_nBeat ) );
 
 	}
 	

@@ -61,6 +61,7 @@ class EventListener
 	virtual void drumkitLoadedEvent(){}
 	virtual void patternEditorLockedEvent(){}
 	virtual void relocationEvent(){}
+	virtual void bbtChangedEvent(){}
 	virtual void songSizeChangedEvent(){}
 	virtual void driverChangedEvent(){}
 	virtual void playbackTrackChangedEvent(){}

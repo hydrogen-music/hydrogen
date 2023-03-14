@@ -73,14 +73,15 @@ Director::Director ( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
-
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	setWindowTitle ( tr ( "Director" ) );
+
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pPos = H2Core::Hydrogen::get_instance()->getAudioEngine()
+		->getTransportPosition();
 	
-	m_nCounter = 1;	// to compute the right beat
+	m_nBar = pPos->getBar();
+	m_nBeat = pPos->getBeat();
 	m_Color = pPref->getColorTheme()->m_accentColor;
 	m_Color.setAlpha( 0 );
 	m_nFlashingArea = width() * 5/100;
@@ -106,6 +107,15 @@ void Director::keyPressEvent( QKeyEvent* ev )
 void Director::closeEvent( QCloseEvent* ev )
 {
 	HydrogenApp::get_instance()->showDirector();
+}
+
+void Director::tempoChangedEvent( int ) {
+	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
+	if ( m_fBpm != pPos->getBpm() ){
+		m_fBpm = pPos->getBpm();
+	}
+
+	bbtChangedEvent();
 }
 
 void Director::updateSongEvent( int nValue ) {
@@ -144,18 +154,7 @@ void Director::timelineUpdateEvent( int nValue ) {
 }
 
 bool Director::updateTags() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
-	
-	if ( m_fBpm != pPos->getBpm() ){
-		m_fBpm = pPos->getBpm();
-	}
-	if ( m_nBar != std::max( pPos->getColumn() + 1, 1 ) ) {
-		m_nBar = std::max( pPos->getColumn() + 1, 1 );
-	}
-	
-	// get tags
-	auto pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 
 	bool bRequiresUpdate = false;
 	if ( m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
@@ -172,36 +171,29 @@ bool Director::updateTags() {
 	return bRequiresUpdate;
 }
 
-void Director::relocationEvent() {
-	if ( updateTags() ) {
-		update();
-	}
-}
-
-void Director::metronomeEvent( int nValue )
+void Director::bbtChangedEvent()
 {
 	auto pPref = H2Core::Preferences::get_instance();
-
-	// also ensures m_fBpm is up-to-date
-	updateTags();
+	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
 
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( m_fBpm / 60 )) / 2 );
 	m_nFlashingArea = width() * 5/100;
 
-	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
+	m_nBar = pPos->getBar();
+	m_nBeat = pPos->getBeat();
+
+	if ( m_nBeat == 1 ) {	//foregroundcolor "rect" for first blink
 		m_Color = pPref->getColorTheme()->m_buttonRedColor;
-		m_nCounter = 1;
 	}
 	else {	//foregroundcolor "rect" for all other blinks
-		m_nCounter++;
-		if( m_nCounter %2 == 0 ) {
+		if ( m_nBeat %2 == 0 ) {
 			m_nFlashingArea = width() * 52.5/100;
 		}
-
 		m_Color = pPref->getColorTheme()->m_accentColor;
 	}
 	
+	updateTags();
 	update();
 }
 
@@ -265,6 +257,7 @@ void Director::resizeEvent( QResizeEvent* ev ) {
 	updateLabelContainers();
 
 	QDialog::resizeEvent( ev );
+	update();
 }
 
 void Director::paintEvent( QPaintEvent* ev )
@@ -295,7 +288,7 @@ void Director::paintEvent( QPaintEvent* ev )
 
 	//draw beats
 	QRect r2(QPoint( width() * 52.5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
-	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nCounter) );
+	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nBeat) );
 
 	if( m_sTagNext == m_sTagCurrent ){
 		m_sTagCurrent = "";
