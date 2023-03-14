@@ -27,6 +27,8 @@
 #include "ui_SongEditorPanelTagWidget_UI.h"
 #include <core/Object.h>
 
+#include <memory>
+
 ///
 ///
 namespace H2Core
@@ -52,12 +54,12 @@ class SongEditorPanelTagWidget :  public QDialog, public Ui_SongEditorPanelTagWi
 		void on_CancelBtn_clicked();
 		void on_okBtn_clicked();
 		void on_tagTableWidget_currentItemChanged( QTableWidgetItem * current, QTableWidgetItem * previous );
-		void  a_itemIsChanged(QTableWidgetItem *item);
 		
 	private:
-		int m_stimelineposition;
+		int m_nMaxRows;
+		int m_nTimelinePosition;
 		void createTheTagTableWidget();
-		QStringList __theChangedItems;
+		std::vector<QString> m_oldTags;
 };
 
 }

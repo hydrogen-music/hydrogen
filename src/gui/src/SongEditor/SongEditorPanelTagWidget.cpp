@@ -35,82 +35,58 @@
 namespace H2Core
 {
 
-SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
+SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int nBeat )
 	: QDialog( pParent )
-	, m_stimelineposition ( beat )
+	, m_nTimelinePosition( nBeat )
 {
+	m_nMaxRows = Preferences::get_instance()->getMaxBars();
 	setupUi( this );
 	
 	setWindowTitle( tr( "Tag" ) );
 	createTheTagTableWidget();
-
-	connect( tagTableWidget, SIGNAL( itemChanged ( QTableWidgetItem *  ) ), this, SLOT( a_itemIsChanged( QTableWidgetItem * ) ) );
 }
 
-
-
-SongEditorPanelTagWidget::~SongEditorPanelTagWidget()
-{
-	INFOLOG( "DESTROY" );
-}
-
-void SongEditorPanelTagWidget::a_itemIsChanged(QTableWidgetItem *item)
-{
-	__theChangedItems << QString( "%1" ).arg( item->row() );
+SongEditorPanelTagWidget::~SongEditorPanelTagWidget() {
 }
 
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pTimeline = pHydrogen->getTimeline();
-	int nMaxColumns = Preferences::get_instance()->getMaxBars();
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+
+	m_oldTags.resize( m_nMaxRows );
 	
-	for( int i = 0; i < nMaxColumns; i++ )
-	{
-		tagTableWidget->insertRow( i );
+	for ( int ii = 0; ii < m_nMaxRows; ii++ ) {
+		tagTableWidget->insertRow( ii );
+		m_oldTags[ ii ] = "";
 	}
 
 	auto tagVector = pTimeline->getAllTags();
 
 	//read the tag vector and fill all tags into items
-	if( tagVector.size() > 0 ){
-		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
+	bool bExistingTagClicked = false;
+
+	for ( const auto& ttag : tagVector ){
+		if ( ttag->nColumn < m_nMaxRows ) {
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
-			newTagItem->setText( QString( "%1" ).arg( tagVector[t]->sTag ) );
-			tagTableWidget->setItem( tagVector[t]->nColumn, 0, newTagItem );
-			tagTableWidget->setCurrentItem( newTagItem );
-			tagTableWidget->openPersistentEditor( newTagItem );
-		}
-	}
-	
-	// activate the clicked item and if you click on an existing tag
-	// fill in the old contend
-	if( tagVector.size() > 0 ){
-		int vpos = -1;
-		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
-		newTagItem2->setText( QString( "" ) );
-		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
-			if( tagVector[t]->nColumn == m_stimelineposition){
-				vpos = t;
+			newTagItem->setText( ttag->sTag );
+			tagTableWidget->setItem( ttag->nColumn, 0, newTagItem );
+			m_oldTags[ ttag->nColumn ] = ttag->sTag;
+
+			if ( ttag->nColumn == m_nTimelinePosition ) {
+				bExistingTagClicked = true;
+				tagTableWidget->setCurrentItem( newTagItem );
+				tagTableWidget->openPersistentEditor( newTagItem );
 			}
 		}
-
-		if( vpos >-1 ){
-			newTagItem2->setText( QString( "%1" ).arg( tagVector[vpos]->sTag ) );
-		}
-		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
-		tagTableWidget->setCurrentItem( newTagItem2 );
-		tagTableWidget->openPersistentEditor( newTagItem2 );
 	}
 
-	// add first tag
-	if( tagVector.size() == 0 ){
-		QTableWidgetItem *newTagItem3 = new QTableWidgetItem();
-		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem3 );
-		tagTableWidget->setCurrentItem( newTagItem3 );
-		tagTableWidget->openPersistentEditor( newTagItem3 );		
+	if ( ! bExistingTagClicked ) {
+		// Open an editor on a blank line
+		QTableWidgetItem *newBlankItem = new QTableWidgetItem();
+		tagTableWidget->setItem( m_nTimelinePosition , 0, newBlankItem );
+		tagTableWidget->setCurrentItem( newBlankItem );
+		tagTableWidget->openPersistentEditor( newBlankItem );
 	}
-
 }
 
 
@@ -122,29 +98,20 @@ void SongEditorPanelTagWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelTagWidget::on_okBtn_clicked()
 {
+	QTableWidgetItem* pCurrentItem = tagTableWidget->currentItem();
+	if ( pCurrentItem != nullptr ) {
+		tagTableWidget->closePersistentEditor( pCurrentItem );
+	}
+	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
-	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 
-	//oldText list contains all old item values. we need them for undo an item
-	QStringList sOldText;
-	if(tagVector.size() > 0){
-		for (int i = 0; i < nMaxColumns; i++){
-			sOldText << "";
-		}
-		for(int i = 0; i < tagVector.size(); ++i){
-			sOldText.replace(tagVector[i]->nColumn,
-							 tagVector[i]->sTag);
-		}
-	}
-
-	for( int i = 0; i < __theChangedItems.size() ; i++ )
-	{
-		int songPosition = __theChangedItems.value( i ).toInt();
-		QTableWidgetItem* pNewTagItem = tagTableWidget->item( songPosition, 0 );
-		if ( pNewTagItem ) {
-			SE_editTagAction *action = new SE_editTagAction( pNewTagItem->text() ,sOldText.value( songPosition ), songPosition );
+	for ( int ii = 0; ii < m_nMaxRows; ii++ ){
+		QTableWidgetItem* pTagItem = tagTableWidget->item( ii, 0 );
+		if ( pTagItem != nullptr && m_oldTags[ ii ] != pTagItem->text() ) {
+			SE_editTagAction *action =
+				new SE_editTagAction( pTagItem->text(), m_oldTags[ ii ], ii );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
