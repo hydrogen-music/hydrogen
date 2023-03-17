@@ -154,10 +154,30 @@ void Director::timelineUpdateEvent( int nValue ) {
 }
 
 bool Director::updateTags() {
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return false;
+	}
+	
+	const int nColumns = pSong->getPatternGroupVector()->size();
 
 	bool bRequiresUpdate = false;
-	if ( m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
+	// Note that bar = column + 1
+	if ( m_nBar == nColumns ) {
+		if ( pSong->getLoopMode() == Song::LoopMode::Enabled &&
+			 m_sTagNext != pTimeline->getTagAtColumn( 0 ) ) {
+			// We are in the last column and transport will be looped back
+			// to the beginning. Show the tag in the first column as the
+			// next one.
+			m_sTagNext = pTimeline->getTagAtColumn( 0 );
+			updateFontSize( FontUpdate::TagNext );
+			bRequiresUpdate = true;
+		}
+	}
+	else if ( m_sTagNext != pTimeline->getTagAtColumn( m_nBar ) ) {
 		m_sTagNext = pTimeline->getTagAtColumn( m_nBar );
 		updateFontSize( FontUpdate::TagNext );
 		bRequiresUpdate = true;
