@@ -2,10 +2,6 @@
 
 echo "Updating translation (*.ts) files"
 
-cd ../../src/gui
-
-
-
 if [ "$QTDIR" ]; then
 	LUPDATE="$QTDIR/bin/lupdate"
 	LRELEASE="$QTDIR/bin/lrelease"
@@ -14,17 +10,18 @@ else
 	LRELEASE=$(which lrelease)
 fi;
 
-UI=`find . | grep "\.ui$"`
-CPP=`find . | grep "\.cpp$"`
-H=`find . | grep "\.h$"`
-FILES="$UI $CPP $H"
+UI_GUI=`find ../../src/gui | grep "\.ui$"`
+CPP_GUI=`find ../../src/gui | grep "\.cpp$"`
+CPP_CORE=`find ../../src/core | grep "\.cpp$"`
+H_GUI=`find ../../src/gui | grep "\.h$"`
+H_CORE=`find ../../src/core | grep "\.h$"`
+FILES="$UI_GUI $CPP_GUI $CPP_CORE $H_GUI $H_CORE"
 
 CMD="$LUPDATE -noobsolete ${FILES} -ts"
 
-find ../../data/i18n/ -name "*.ts" -type f -exec $CMD {} \;
+find . -name "*.ts" -type f -exec $CMD {} \;
 
 echo "Creating *.qm files"
-cd ../../data/i18n
 $LRELEASE *.ts
 
 
