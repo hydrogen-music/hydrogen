@@ -62,6 +62,7 @@ Preferences::Preferences()
 {
 	__instance = this;
 	m_pTheme = std::make_shared<Theme>();
+	m_pShortcuts = std::make_shared<Shortcuts>();
 
 	// switch to enable / disable lash, only on h2 startup
 	m_brestartLash = false;
@@ -744,6 +745,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sDefaultEditor = filesNode.read_string( "defaulteditor", m_sDefaultEditor, false, true );
 			}
 
+			// Midi map
 			MidiMap::reset_instance();
 			MidiMap* mM = MidiMap::get_instance();
 
@@ -813,6 +815,10 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				WARNINGLOG( "midiMap node not found" );
 			}
+
+			// Shortcuts
+			m_pShortcuts = Shortcuts::loadFrom( &rootNode, false );
+			
 		} // rootNode
 		else {
 			WARNINGLOG( "hydrogen_preferences node not found" );
@@ -1221,6 +1227,9 @@ bool Preferences::savePreferences()
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
+
+	// Shortcuts
+	m_pShortcuts->saveTo( &rootNode );
 
 	return doc.write( sPreferencesFilename );
 }

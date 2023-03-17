@@ -37,6 +37,8 @@
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
 #include <core/NsmClient.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "AboutDialog.h"
@@ -1803,6 +1805,7 @@ void MainForm::initKeyInstMap()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
+	auto pShortcuts = Preferences::get_instance()->getShortcuts();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -1843,6 +1846,35 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			return true;
 		}
 
+		std::vector<Shortcuts::Action> actions = pShortcuts->getActions( k->key() );
+		for ( const auto& action : actions ) {
+			switch ( action ) {
+			case Shortcuts::Action::Null:
+				DEBUGLOG( "Null action" );
+				break;
+			case Shortcuts::Action::Save:
+				DEBUGLOG( "Save action" );
+				if ( k->modifiers() ==
+					 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
+					action_file_save_as();
+					return true;
+				}
+				else if ( k->modifiers() == Qt::ControlModifier ) {
+					action_file_save();
+					return true;
+				}
+			case Shortcuts::Action::Panic:
+				DEBUGLOG( "Panic action" );
+				//panic button stop all playing notes
+				pHydrogen->__panic();
+				//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
+				return true;
+			};
+		}
+		if ( actions.size() > 0 ) {
+			// Event consumed by the actions triggered above.
+			return true;
+		}
 
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
 		switch (k->key()) {
@@ -1904,17 +1936,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			return true; // eat event
 			break;
 
-		case Qt::Key_S:
-			if ( k->modifiers() ==
-				 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
-				action_file_save_as();
-				return true;
-			} else if ( k->modifiers() == Qt::ControlModifier ) {
-				action_file_save();
-				return true;
-			}
-			break;
-
 		case  Qt::Key_F5 :
 			if( Playlist::get_instance()->size() == 0) {
 				break;
@@ -1927,12 +1948,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				break;
 			}
 			return handleSelectNextPrevSongOnPlaylist( 1 );
-			break;
-
-		case  Qt::Key_F12 : //panic button stop all playing notes
-			pHydrogen->__panic();
-			//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
-			return true;
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
