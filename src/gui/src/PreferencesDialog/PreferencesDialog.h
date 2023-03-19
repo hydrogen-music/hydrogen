@@ -31,6 +31,7 @@
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/AlsaAudioDriver.h>
@@ -77,11 +78,13 @@ public:
  *
  * \ingroup docGUI docConfiguration
  */
-class ColorTreeItem : public QTreeWidgetItem {
+class IndexedTreeItem : public QTreeWidgetItem {
 
 public:
-	ColorTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel );
-	ColorTreeItem( int nId, QTreeWidget* pParent, QString sLabel );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels );
 	int getId() const;
 	
 private:
@@ -144,6 +147,8 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void onIconColorChanged(int);
 	void mixerFalloffComboBoxCurrentIndexChanged(int);
 	void uiScalingPolicyComboBoxCurrentIndexChanged(int);
+	void defineShortcut();
+	void clearShortcut();
 
 private:
 
@@ -158,7 +163,18 @@ private:
 	void updateDriverPreferences();
 	void updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme );
 
-	void setColorTreeItemDirty( ColorTreeItem* pItem );
+	void initializeShortcutsTab();
+	void updateShortcutsTab();
+	/**
+	 * Local copy of the shortcut map. It will be written back to
+	 * #Preferences in case #m_bShortcutsChanged and OK button is hit.
+	 */
+	std::shared_ptr<H2Core::Shortcuts> m_pShortcuts;
+	bool m_bShortcutsChanged;
+	std::vector<H2Core::Shortcuts::Category> m_shortcutCategories;
+	H2Core::Shortcuts::Category m_selectedCategory;
+
+	void setIndexedTreeItemDirty( IndexedTreeItem* pItem );
 	QColor* getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> uiStyle ) const;
 	void setColorById( int nId, const QColor& color, std::shared_ptr<H2Core::ColorTheme> uiStyle );
 	void updateColorTree();

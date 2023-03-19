@@ -28,6 +28,14 @@ namespace H2Core {
 Shortcuts::Shortcuts() {
 }
 
+Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
+	for ( const auto& it : pOther->m_actionInfoMap ) {
+		m_actionInfoMap[ it.first ] = it.second;
+	}
+	for ( const auto& it : pOther->m_actionsMap ) {
+		m_actionsMap[ it.first ] = it.second;
+	}
+}
 Shortcuts::~Shortcuts() {
 }
 
@@ -84,6 +92,26 @@ std::vector<Shortcuts::Action> Shortcuts::getActions( int nKey ) const {
 	}
 }
 
+void Shortcuts::deleteShortcut( Action action ) {
+	for ( const auto& it : m_actionsMap ) {
+		std::vector<Shortcuts::Action> v = it.second;
+		for ( std::vector<Shortcuts::Action>::iterator itAction = v.begin();
+			  itAction != v.end(); ++itAction ) {
+			if ( *itAction == action ) {
+				if ( v.size() == 1 ) {
+					// Just a single action assigned to this key, we
+					// remove it from the map.
+					m_actionsMap.erase( it.first );
+				}
+				else {
+					v.erase( itAction );
+				}
+				break;
+			}
+		}
+	}
+}
+
 Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
 	auto it = m_actionInfoMap.find( action );
 	if ( it != m_actionInfoMap.end() ) {
@@ -91,17 +119,70 @@ Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
 		return it->second;
 	}
 	else {
-		return (ActionInfo){ Category::HardCoded, "Null" };
+		return (ActionInfo){ Category::None, "" };
 	}
 }
 
-void Shortcuts::createActionInfoMap() {
+int Shortcuts::getKey( Action action ) const {
+	for ( const auto& it : m_actionsMap ) {
+		for ( const auto& aaction : it.second ) {
+			if ( aaction == action ) {
+				return it.first;
+			}
+		}
+	}
+	return -1;
+}
 
+void Shortcuts::createActionInfoMap() {
+	m_actionInfoMap.clear();
 	insertActionInfo( Shortcuts::Action::Panic, Category::Global,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Stop transport and all playing notes" ) );
-	insertActionInfo( Shortcuts::Action::Save, Category::Global,
+	insertActionInfo( Shortcuts::Action::Save, Category::Mixer,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Store all changes to the current song" ) );
 }
+
+QString Shortcuts::categoryToQString( Category category ) {
+	QString s;
+
+	switch ( category ) {
+	case Category::HardCoded:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Hard Coded" );
+		break;
+	case Category::None:
+		s = "";
+		break;
+	case Category::Global:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Global" );
+		break;
+	case Category::MainWindow:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Main Window" );
+		break;
+	case Category::Editors:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Editors" );
+		break;
+	case Category::VirtualKeyboard:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Virtual Keyboard" );
+		break;
+	case Category::Mixer:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Mixer" );
+		break;
+	case Category::PlaylistEditor:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "PlaylistEditor" );
+		break;
+	case Category::SampleEditor:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Sampler Editor" );
+		break;
+	case Category::Director:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Director" );
+		break;
+	case Category::All:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "All Categories" );
+		break;
+	};
+
+	return std::move( s );
+};
 
 void Shortcuts::insertShortcut( int nKey, Action action ) {
 	auto it = m_actionsMap.find( nKey );
@@ -159,14 +240,14 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[Shortcuts]" )
-			.append( QString( " m_actionInfoMap: [" ).arg( sPrefix ).arg( s ) );
+			.append( QString( " m_actionInfoMap: [" ) );
 		for ( const auto& it : m_actionInfoMap ) {
 			sOutput.append( QString( " , Action: %1 : [category: %2, sDescription: %3]" )
 							.arg( static_cast<int>(it.first) )
 							.arg( static_cast<int>(it.second.category) )
 							.arg( it.second.sDescription) );
 		}
-		sOutput.append( QString( "], m_actionsMap: [" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "], m_actionsMap: [" ) );
 		for ( const auto& it : m_actionsMap ) {
 			sOutput.append( QString( ", Key: %1 : [" ).arg( it.first ) );
 			for ( const auto& aaction : it.second ) {

@@ -39,10 +39,10 @@ class Shortcuts : public H2Core::Object<Shortcuts> {
 
 public:
 	enum class Action {
+		Panic = 8,
+		Save = 101,
 		/** null element indicating that no action was set*/
-		Null = 0,
-		Panic,
-		Save
+		Null = 1000
 	};
 
 	/** Scope the shortcut is applicable to*/
@@ -50,7 +50,8 @@ public:
 		/**
 		 * Those shortcuts are fixed and can not be edited by the user
 		 * in the #PreferencesDialog.*/
-		HardCoded = 0,
+		HardCoded = -1,
+		None = 0,
 		/** Enabled in all windows of Hydrogen */
 		Global = 1,
 		MainWindow = 2,
@@ -61,8 +62,12 @@ public:
 		Mixer = 5,
 		PlaylistEditor = 6,
 		SampleEditor = 7,
-		Director = 8
+		Director = 8,
+		/** Not intended to be assigned to a shortcut but used for
+			filtering instead.*/
+		All = 100
 	};
+	static QString categoryToQString( Category category );
 	
 	/** Some context for an #Action */
 	struct ActionInfo {
@@ -71,6 +76,7 @@ public:
 	};
 	
 	Shortcuts();
+	Shortcuts( const std::shared_ptr<Shortcuts> pOther );
 	~Shortcuts();
 
 	void saveTo( XMLNode* pNode );
@@ -83,24 +89,33 @@ public:
 	void createDefaultShortcuts();
 
 	std::vector<Action> getActions( int nKey ) const;
+	/**
+	 * Removes a single shortcut from #m_actionsMap.
+	 *
+	 * A Key can be assigned to multilpe actions but a specific action
+	 * just to a single key. 
+	 */
+	void deleteShortcut( Action action );
+	void insertShortcut( int nKey, Action action );
 	ActionInfo getActionInfo( Action action ) const;
 
-	const std::map<int, std::vector<Action>> getActionsMap() const;
+	int getKey( Action action ) const;
+
+	const std::map<Action, ActionInfo> getActionInfoMap() const;
 	
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 
 private:
 
 	void createActionInfoMap();
-	void insertShortcut( int nKey, Action action );
 	void insertActionInfo( Action action, Category category, const QString& sDescription );
 
 	std::map<Action, ActionInfo> m_actionInfoMap;
 	std::map<int, std::vector<Action>> m_actionsMap;
 };
 
-inline const std::map<int, std::vector<Shortcuts::Action>> Shortcuts::getActionsMap() const {
-	return m_actionsMap;
+inline const std::map<Shortcuts::Action, Shortcuts::ActionInfo> Shortcuts::getActionInfoMap() const {
+	return m_actionInfoMap;
 }
 };
 

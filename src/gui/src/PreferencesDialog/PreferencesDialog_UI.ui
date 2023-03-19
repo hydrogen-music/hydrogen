@@ -124,10 +124,10 @@
             <string>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</string>
            </property>
            <property name="minimum">
-            <number>-200</number>
+            <double>-200.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>200</number>
+            <double>200.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -144,10 +144,10 @@
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
            <property name="minimum">
-            <number>-500</number>
+            <double>-500.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>500</number>
+            <double>500.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -164,10 +164,10 @@
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
            <property name="minimum">
-            <number>1</number>
+            <double>1.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>800</number>
+            <double>800.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -177,10 +177,10 @@
             <string>Maximum number of instrument layers</string>
            </property>
            <property name="minimum">
-            <number>16</number>
+            <double>16.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>8192</number>
+            <double>8192.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -201,10 +201,10 @@
          <item row="4" column="0">
           <widget class="LCDSpinBox" name="autosaveSpinBox">
            <property name="maximum">
-            <number>360</number>
+            <double>360.000000000000000</double>
            </property>
            <property name="value">
-            <number>60</number>
+            <double>60.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -347,16 +347,16 @@
            <item row="6" column="1">
             <widget class="LCDSpinBox" name="bufferSizeSpinBox">
              <property name="minimum">
-              <number>16</number>
+              <double>16.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>5000</number>
+              <double>5000.000000000000000</double>
              </property>
              <property name="singleStep">
-              <number>100</number>
+              <double>100.000000000000000</double>
              </property>
              <property name="value">
-              <number>1024</number>
+              <double>1024.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -449,10 +449,10 @@
              <item>
               <widget class="LCDSpinBox" name="latencyTargetSpinBox">
                <property name="maximum">
-                <number>48000</number>
+                <double>48000.000000000000000</double>
                </property>
                <property name="value">
-                <number>100</number>
+                <double>100.000000000000000</double>
                </property>
               </widget>
              </item>
@@ -526,10 +526,10 @@
            <item row="0" column="1">
             <widget class="LCDSpinBox" name="maxVoicesTxt">
              <property name="minimum">
-              <number>1</number>
+              <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>512</number>
+              <double>512.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -539,10 +539,10 @@
               <bool>false</bool>
              </property>
              <property name="minimum">
-              <number>1</number>
+              <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>100</number>
+              <double>100.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -944,10 +944,10 @@
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="maximum">
-               <number>20000</number>
+               <double>20000.000000000000000</double>
               </property>
               <property name="value">
-               <number>9000</number>
+               <double>9000.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -1049,7 +1049,7 @@
         <item>
          <widget class="QTabWidget" name="AppearanceTabTabs">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="AppearanceInterfaceTab">
            <attribute name="title">
@@ -1127,16 +1127,15 @@
                 </layout>
                </item>
                <item row="9" column="2">
-                <widget class="LCDCombo" name="coloringMethodCombo">
-                </widget>
+                <widget class="LCDCombo" name="coloringMethodCombo"/>
                </item>
                <item row="11" column="2">
                 <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
                  <property name="minimum">
-                  <number>1</number>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <number>50</number>
+                  <double>50.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -1335,7 +1334,7 @@
               <item row="0" column="1">
                <widget class="LCDSpinBox" name="rval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1391,7 +1390,7 @@
               <item row="2" column="1">
                <widget class="LCDSpinBox" name="bval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1434,7 +1433,7 @@
               <item row="4" column="1">
                <widget class="LCDSpinBox" name="sval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1471,7 +1470,7 @@
               <item row="1" column="1">
                <widget class="LCDSpinBox" name="gval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1503,14 +1502,14 @@
               <item row="5" column="1">
                <widget class="LCDSpinBox" name="vval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
               <item row="3" column="1">
                <widget class="LCDSpinBox" name="hval">
                 <property name="maximum">
-                 <number>255</number>
+                 <double>255.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1685,6 +1684,269 @@
        </layout>
       </widget>
      </widget>
+     <widget class="QWidget" name="shortcutsTab">
+      <attribute name="title">
+       <string>Shortcuts</string>
+      </attribute>
+      <widget class="QWidget" name="verticalLayoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>631</width>
+         <height>541</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_13">
+        <property name="rightMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QTreeWidget" name="shortcutCategoryListView">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>false</bool>
+            </property>
+            <column>
+             <property name="text">
+              <string>Shortcut Category</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="shortcutListView">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>470</width>
+              <height>230</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="textElideMode">
+             <enum>Qt::ElideRight</enum>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <attribute name="headerCascadingSectionResizes">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="headerMinimumSectionSize">
+             <number>120</number>
+            </attribute>
+            <attribute name="headerDefaultSectionSize">
+             <number>120</number>
+            </attribute>
+            <attribute name="headerShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="headerStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Shortcut</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Description</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Category</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="shortcutKeyFilterLabel">
+            <property name="text">
+             <string>Shortcut</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="shortcutKeyFilter">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="shortcutDescriptionFilterLabel">
+            <property name="text">
+             <string>Description</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="shortcutDescriptionFilter"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="hLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>8</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="resetShortcutButton">
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>&amp;Reset all</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>60</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clearShortcutButton">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>&amp;Clear</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+C</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="defineShortcutButton">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>&amp;Define</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+D</string>
+            </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacer2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>30</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </widget>
    </item>
    <item>
@@ -1783,16 +2045,6 @@
    <header location="global">../src/Widgets/MidiTable.h</header>
   </customwidget>
   <customwidget>
-   <class>DeviceComboBox</class>
-   <extends>LCDCombo</extends>
-   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
-  </customwidget>
-  <customwidget>
-   <class>HostAPIComboBox</class>
-   <extends>LCDCombo</extends>
-   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
-  </customwidget>
-  <customwidget>
    <class>ColorSelectionButton</class>
    <extends>QWidget</extends>
    <header location="global">../src/Widgets/ColorSelectionButton.h</header>
@@ -1808,6 +2060,18 @@
    <class>LCDSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header location="global">../src/Widgets/LCDSpinBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DeviceComboBox</class>
+   <extends>LCDCombo</extends>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HostAPIComboBox</class>
+   <extends>LCDCombo</extends>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
