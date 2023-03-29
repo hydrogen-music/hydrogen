@@ -1402,8 +1402,6 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		return false;
 	}
 	
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	
 	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {

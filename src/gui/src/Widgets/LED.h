@@ -84,7 +84,7 @@ private slots:
 	void turnOff();
 	
 private:
-	bool m_bFirstBeat;
+	bool m_bFirstBar;
 	QTimer* m_pTimer;
 	std::chrono::milliseconds m_activityTimeout;
 	

@@ -76,6 +76,8 @@ public:
 	const PatternList* getNextPatterns() const;
 	int getPatternSize() const;
 	long long getLastLeadLagFactor() const;
+	int getBar() const;
+	int getBeat() const;
 
 	/**
 	 * Calculates tick equivalent of @a nFrame.
@@ -155,6 +157,8 @@ private:
 	void setNextPatterns( PatternList* pPatternList );
 	void setPatternSize( int nPatternSize );
 	void setLastLeadLagFactor( long long nValue );
+	void setBar( int nBar );
+	void setBeat( int nBeat );
 	
 	PatternList* getPlayingPatterns();
 	PatternList* getNextPatterns();
@@ -386,6 +390,19 @@ private:
 	 * #Song::Mode::Song).
 	 */
 	long long m_nLastLeadLagFactor;
+
+	/**
+	 * Last beat (column + 1) passed.
+	 *
+	 * Note that this variable starts at 1 not at 0.
+	 */
+	int m_nBar;
+	/**
+	 * Last bar passed since #m_nBar. A bar is composed of 48 ticks.
+	 *
+	 * Note that this variable starts at 1 not at 0.
+	 */
+	int m_nBeat;
 };
 
 inline const QString TransportPosition::getLabel() const {
@@ -456,6 +473,12 @@ inline long long TransportPosition::getLastLeadLagFactor() const {
 }
 inline void TransportPosition::setLastLeadLagFactor( long long nValue ) {
 	m_nLastLeadLagFactor = nValue;
+}
+inline int TransportPosition::getBar() const {
+	return m_nBar;
+}
+inline int TransportPosition::getBeat() const {
+	return m_nBeat;
 }
 };
 

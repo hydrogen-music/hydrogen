@@ -846,6 +846,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->relocationEvent();
 				break;
 				
+			case EVENT_BBT_CHANGED:
+				pListener->bbtChangedEvent();
+				break;
+
 			case EVENT_SONG_SIZE_CHANGED:
 				pListener->songSizeChangedEvent();
 				break;

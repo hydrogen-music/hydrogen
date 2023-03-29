@@ -469,6 +469,25 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	}
 
 	updateBpmAndTickSize( pPos );
+
+	// Beat - Bar (- Tick) information is a coarse grained position
+	// information and might not change on small position increments.
+	bool bBBTChanged = false;
+	if ( pPos->getColumn() + 1 != pPos->getBar() ) {
+		pPos->setBar( pPos->getColumn() + 1 );
+		bBBTChanged = true;
+	}
+
+	int nBeat = static_cast<int>(
+		std::floor(static_cast<float>(pPos->getPatternTickPosition()) /  48 )) + 1;
+	if ( pPos->getBeat() != nBeat ) {
+		pPos->setBeat( nBeat );
+		bBBTChanged = true;
+	}
+
+	if ( pPos == m_pTransportPosition && bBBTChanged ) {
+		EventQueue::get_instance()->push_event( EVENT_BBT_CHANGED, 0 );
+	}
 	
 	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
 	// 			.arg( fTick, 0, 'f' )
@@ -1163,6 +1182,11 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
 				continue;
+			}
+
+			if ( pNoteInstrument == m_pMetronomeInstrument ) {
+				m_pEventQueue->push_event( EVENT_METRONOME,
+										   pNote->get_pitch() == 0 ? 1 : 0 );
 			}
 
 			m_pSampler->noteOn( pNote );
@@ -2302,11 +2326,9 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			if ( nMetronomeTickPosition == 0 ) {
 				fPitch = 3;
 				fVelocity = 1.0;
-				EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 			} else {
 				fPitch = 0;
 				fVelocity = 0.8;
-				EventQueue::get_instance()->push_event( EVENT_METRONOME, 0 );
 			}
 			
 			// Only trigger the sounds if the user enabled the

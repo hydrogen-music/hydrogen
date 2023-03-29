@@ -26,6 +26,8 @@
 #include "../HydrogenApp.h"
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 
 LED::LED( QWidget *pParent, QSize size )
  : QWidget( pParent )
@@ -81,7 +83,7 @@ void LED::paintEvent( QPaintEvent* ev )
 
 MetronomeLED::MetronomeLED( QWidget *pParent, QSize size )
 	: LED( pParent, size )
-	, m_bFirstBeat( false )
+	, m_bFirstBar( false )
 	, m_activityTimeout( 250 )
 {
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -114,16 +116,8 @@ void MetronomeLED::metronomeEvent( int nValue ) {
 		return;
 	}
 	
-	if ( nValue == 2 ) { // 2 = set pattern position is not needed here
-		return;
-	}
-
 	m_bActivated = true;
-	if ( nValue == 1 ) {
-		m_bFirstBeat = true;
-	} else {
-		m_bFirstBeat = false;
-	}
+	m_bFirstBar = nValue == 0;
 	
 	update();
 
@@ -143,7 +137,7 @@ void MetronomeLED::paintEvent( QPaintEvent* ev )
 	if ( m_background != nullptr ) {
 
 		if ( m_bActivated ) {
-			if ( m_bFirstBeat ) {
+			if ( m_bFirstBar ) {
 				m_background->render( &painter, "layer3" );
 			} else {
 				m_background->render( &painter, "layer2" );

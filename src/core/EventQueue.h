@@ -85,29 +85,12 @@ enum EventType {
 	EVENT_XRUN,
 	EVENT_NOTEON,
 	EVENT_ERROR,
-	/** Event indicating the triggering of the
-	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
+	/**
+	 * Triggered when a metronome note is passed to the
+	 * #H2Core::Sampler.
 	 *
-	 * In AudioEngine::updateNoteQueue() the pushing of this Event is
-	 * decoupled from the creation and queuing of the corresponding
-	 * Note itself.
-	 *
-	 * In Director it triggers a change in the displayed column
-	 * number, tempo, and tag.
-	 *
-	 * The associated values do correspond to the following actions:
-	 * - 0: Beat at the beginning of a Pattern in
-	 *      audioEngine_updateNoteQueue(). The corresponding Note will
-	 *      be created with a pitch of 3 and velocity of 1.0.
-	 *      Sets MetronomeWidget::m_state to
-	 *      MetronomeWidget::METRO_ON and triggers
-	 *      MetronomeWidget::updateWidget().
-	 * - 1: Beat in the remainder of a Pattern in
-	 *      audioEngine_updateNoteQueue(). The corresponding Note will
-	 *      be created with a pitch of 0 and velocity of 0.8.
-	 *      Sets MetronomeWidget::m_state to
-	 *      MetronomeWidget::METRO_FIRST and triggers
-	 *      MetronomeWidget::updateWidget().
+	 * - 0 - First bar requiring a distinct sound
+	 * - 1 - All the other bars
 	 *
 	 * Handled by EventListener::metronomeEvent().
 	 */
@@ -181,6 +164,12 @@ enum EventType {
 	 * or at the very end of the song in song mode.
 	 */
 	EVENT_RELOCATION,
+	/**
+	 * The coarse grained transport position in beats and bars did
+	 * change. (Tick - the "T" in BBT - resolution is not implemented
+	 * yet as no part of the application requires it).
+	 */
+	EVENT_BBT_CHANGED,
 	EVENT_SONG_SIZE_CHANGED,
 	EVENT_DRIVER_CHANGED,
 	EVENT_PLAYBACK_TRACK_CHANGED,
