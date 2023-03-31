@@ -180,6 +180,7 @@
 		  again
 		- Hydrogen shows a now a warning dialog when exporting/saving date
 		  to read-only folders
+		- fix text overflow in Director
 	* Crash reporting
 		- Fatal errors will now show a GUI report including details to report
 		  and potential hints about the cause
