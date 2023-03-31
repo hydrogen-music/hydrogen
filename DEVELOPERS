@@ -73,7 +73,7 @@ order to make a release has several, easy-to-forget steps.  They are:
   1. Set the version
      a. Configure the correct version in CMakeLists.txt
 
-     b. Update linux/debian/changelog
+     b. Update ChangeLog
 
      c. Check if nothing has changed and update version and date in
         linux/hydrogen.1
@@ -84,9 +84,12 @@ order to make a release has several, easy-to-forget steps.  They are:
      GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
      contributors.
 
-  3. Commit your changes.
+  3. Add a corresponding version tag in the documentation and update
+     the submodule.
 
-  4. Make a tarball of the release (gzipped).  Use gzip instead of
+  4. Commit your changes.
+
+  5. Make a tarball of the release (gzipped).  Use gzip instead of
      bzip2 for the folks on Windows.  Tarballs should be named:
                    
                    +--- Release version
@@ -97,38 +100,42 @@ order to make a release has several, easy-to-forget steps.  They are:
 	
      Example: 'tar -pczf hydrogen-0.9.5.tar.gz hydrogen-0.9.5' 
 
-  5. If this is an RC release, the following steps are optional.
+  6. If this is an RC release, the following steps are optional.
 
-  6. In a clean directory, test build the tarball in as many ways as
+  7. In a clean directory, test build the tarball in as many ways as
      you can.  Call your friends.  Have a party.  Be sure to build
      packages on as many systems as possible.  Be sure to install
      and uninstall them, too.
 
-  7. If the release passes these "internal" tests, tag the
+  8. If the release passes these "internal" tests, tag the
      release.  Remember, after tagging the release you may not
      commit changes to the tag.
 
      git tag -a 0.9.4 -m "Tagging 0.9.4"
 
-  8. Build binary packages in Appveyor for Windows and macOS:
+  9. Build binary packages in Appveyor for Windows and macOS:
 
      - fast-forward merge (or force-push if necessary) releases/XXX to
        releases/XXX-artifacts, and ensure that the head commit is the
        one pointed to by the release tag above.
      - appveyor will build and keep the binary packages as artifacts.
 
-  9. If this is a major release (e.g. 0.9.4), then make a branch for
-     maintenance patches for your release.  If this is a maintenance
-     release (e.g. 0.9.4.1) then skip this step.
+  10. If this is a major release (e.g. 0.9.4), then make a branch for
+      maintenance patches for your release.  If this is a maintenance
+      release (e.g. 0.9.4.1) then skip this step.
 
-     git branch 0.9.4
-     git push origin 0.9.4
+      git branch 0.9.4
+      git push origin 0.9.4
 
-  10. Build a github release, incorporating binary packages, source package, tag and release announcement
+  11. Build a github release, incorporating binary packages, source
+      package, tag and release announcement.
 
-  11. Make release announcements on
+  12. Upload the release to SourceForge and make it the default download
+      for all supported platforms.
+
+  13. Make release announcements on
       - hydrogen-users@lists.sourceforge.net
       - hydrogen-music.org
 
-  12. Update Homebrew Hydrogen cask:
+  14. Update Homebrew Hydrogen cask:
       - PR against https://github.com/Homebrew/homebrew-cask/blob/master/Casks/hydrogen.rb
