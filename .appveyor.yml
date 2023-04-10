@@ -43,7 +43,7 @@
 
 environment:
   GENERATOR: "MinGW Makefiles"
-  ARTIFACT_BRANCH: master-artifacts
+  ARTIFACT_BRANCH: releases/1.2-artifacts
   TARGET_VERSION: '1.2.0'
   matrix:
 
