@@ -78,11 +78,6 @@ environment:
 build:
   verbosity: detailed
 
-matrix:
-  exclude:
-    - job_name: Windows32
-      branches: "master"
-
 # Upload artifacts in case either the branch is named *-artifacts or
 # HEAD is located on a tag (affects both Linux and Mac OS jobs).
 init:
@@ -290,8 +285,8 @@ for:
     before_build:
       cmd: |-
 
-          # Upload artifacts in case either the branch is named
-          # *-artifacts or HEAD is located on a tag.
+          REM *** Upload artifacts in case either the branch is named ***
+          REM *** *-artifacts or HEAD is located on a tag. ***
           if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
           if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
 
