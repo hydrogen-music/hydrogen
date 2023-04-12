@@ -79,7 +79,6 @@ private:
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
 	int					m_nBeat;
-	float				m_fBpm;
 	int					m_nBar;
 	int					m_nFlashingArea;
 	QString				m_sTagCurrent;

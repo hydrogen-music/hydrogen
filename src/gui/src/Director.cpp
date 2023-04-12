@@ -110,11 +110,6 @@ void Director::closeEvent( QCloseEvent* ev )
 }
 
 void Director::tempoChangedEvent( int ) {
-	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
-	if ( m_fBpm != pPos->getBpm() ){
-		m_fBpm = pPos->getBpm();
-	}
-
 	bbtChangedEvent();
 }
 
@@ -197,7 +192,7 @@ void Director::bbtChangedEvent()
 	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
 
 	// 1000 ms / bpm / 60s
-	m_pTimer->start( static_cast<int>( 1000 / ( m_fBpm / 60 )) / 2 );
+	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );
 	m_nFlashingArea = width() * 5/100;
 
 	m_nBar = pPos->getBar();
