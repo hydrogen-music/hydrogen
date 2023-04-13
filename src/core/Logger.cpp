@@ -55,7 +55,7 @@ void* loggerThread_func( void* param ) {
 	if ( logger->__use_file ) {
 		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
 		if ( ! log_file ) {
-			fprintf( stderr,
+			fprintf( stderr, "%s",
 					 QString( "Error: can't open log file [%1] for writing...\n" )
 					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
 		}
