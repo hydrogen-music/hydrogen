@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 ## Python script checking the coverage of the translation files.
 
