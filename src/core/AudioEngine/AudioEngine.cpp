@@ -470,15 +470,17 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 
 	updateBpmAndTickSize( pPos );
 
+
 	// Beat - Bar (- Tick) information is a coarse grained position
 	// information and might not change on small position increments.
 	bool bBBTChanged = false;
-	if ( pPos->getColumn() + 1 != pPos->getBar() ) {
-		pPos->setBar( pPos->getColumn() + 1 );
+	const int nBar = std::max( pPos->getColumn(), 0 ) + 1;
+	if ( nBar != pPos->getBar() ) {
+		pPos->setBar( nBar );
 		bBBTChanged = true;
 	}
 
-	int nBeat = static_cast<int>(
+	const int nBeat = static_cast<int>(
 		std::floor(static_cast<float>(pPos->getPatternTickPosition()) /  48 )) + 1;
 	if ( pPos->getBeat() != nBeat ) {
 		pPos->setBeat( nBeat );
