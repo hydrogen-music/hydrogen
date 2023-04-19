@@ -878,7 +878,7 @@ Kit actuel :</translation>
     <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vous n'avez pas le droit d'écriture dans le dossier sélectionné. Veuillez en sélectionner un autre.</translation>
     </message>
 </context>
 <context>
