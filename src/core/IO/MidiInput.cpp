@@ -260,9 +260,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
@@ -335,9 +335,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( nInstrument );
