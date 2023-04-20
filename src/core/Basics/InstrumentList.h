@@ -218,7 +218,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * Check whether the same MIDI note is assignedto every
 		 * instrument - that condition makes MIDI export unusable.
 		 * When so, assign each instrument consecutive MIDI note
-		 * starting from 36.
+		 * starting from #MIDI_DEFAULT_OFFSET.
 		 */
 		void fix_issue_307();
 
@@ -230,7 +230,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 
 		/**
 		 * Set each instrument consecuteve MIDI
-		 * out notes, starting from 36
+		 * out notes, starting from #MIDI_DEFAULT_OFFSET
 		 */
 		void set_default_midi_out_notes();
 		/** Formatted string version for debugging purposes.

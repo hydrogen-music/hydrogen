@@ -246,7 +246,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	static const float fPan = 0.f;
 
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
@@ -322,7 +322,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	int nNote = msg.m_nData1;
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){

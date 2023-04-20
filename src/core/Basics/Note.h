@@ -37,17 +37,21 @@
 #define OCTAVE_DEFAULT          0
 #define KEYS_PER_OCTAVE         12
 
-#define MIDI_MIDDLE_C           60
-#define MIDI_FACTOR             127
-
 #define VELOCITY_MIN            0.0f
 #define VELOCITY_MAX            1.0f
-#define PAN_MIN                 0.0f
-#define PAN_MAX                 0.5f
+#define PAN_MIN                 -1.0f
+#define PAN_MAX                 1.0f
 #define LEAD_LAG_MIN            -1.0f
 #define LEAD_LAG_MAX            1.0f
 
-/* Should equal (default __octave + OCTAVE_OFFSET) * KEYS_PER_OCTAVE + default __key */
+/**
+ * To match a more common range of MIDI note values, this constant
+ * is substracted from the incoming note key value before mapping
+ * it to an instrument of the current drumkit.
+ *
+ * Should equal (default __octave + OCTAVE_OFFSET) * KEYS_PER_OCTAVE +
+ * default __key
+ */
 #define MIDI_DEFAULT_OFFSET     36
 
 namespace H2Core
@@ -255,8 +259,7 @@ class Note : public H2Core::Object<Note>
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
 		int get_midi_key() const;
 		/** midi velocity accessor 
-		 * \code{.cpp}
-		 * __velocity * #MIDI_FACTOR
+		 * __velocity * 127
 		 * \endcode */
 		int get_midi_velocity() const;
 		/** note key pitch accessor
@@ -366,16 +369,16 @@ class Note : public H2Core::Object<Note>
 
 		static inline Octave pitchToOctave( int nPitch ) {
 			if ( nPitch >= 0 ) {
-				return (Octave)(nPitch / 12);
+				return (Octave)( nPitch / KEYS_PER_OCTAVE );
 			} else {
-				return (Octave)((nPitch-11) / 12);
+				return (Octave)((nPitch-11) / KEYS_PER_OCTAVE );
 			}
 		}
 		static inline Key pitchToKey( int nPitch ) {
-			return (Key)(nPitch - 12 * pitchToOctave( nPitch ));
+			return (Key)(nPitch - KEYS_PER_OCTAVE * pitchToOctave( nPitch ));
 		}
 		static inline int octaveKeyToPitch( Octave octave, Key key ) {
-			return 12 * (int)octave + (int)key;
+			return KEYS_PER_OCTAVE * (int)octave + (int)key;
 		}
 
 	/**
@@ -658,7 +661,7 @@ inline int Note::get_midi_key() const
 
 inline int Note::get_midi_velocity() const
 {
-	return __velocity * MIDI_FACTOR;
+	return __velocity * 127;
 }
 
 inline float Note::get_notekey_pitch() const
