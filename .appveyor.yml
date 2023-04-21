@@ -43,7 +43,7 @@
 
 environment:
   GENERATOR: "MinGW Makefiles"
-  ARTIFACT_BRANCH: master-artifacts
+  UPLOAD_ARTIFACTS: false
   TARGET_VERSION: '1.2.0'
   matrix:
 
@@ -78,10 +78,13 @@ environment:
 build:
   verbosity: detailed
 
-matrix:
-  exclude:
-    - job_name: Windows32
-      branches: "master"
+# Upload artifacts in case either the branch is named *-artifacts or
+# HEAD is located on a tag (affects both Linux and Mac OS jobs).
+init:
+  - sh: |-
+      if [[ "$APPVEYOR_REPO_TAG_NAME" || "$APPVEYOR_REPO_BRANCH" == *"-artifacts" ]]; then
+          UPLOAD_ARTIFACTS=true
+      fi
 
 for:
   - 
@@ -252,8 +255,7 @@ for:
         PATH="$(brew --prefix qt5)/bin:$PATH"
         ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
-        # deploy dmg only on branch $ARTIFACT_BRANCH
-        if [ "$APPVEYOR_REPO_BRANCH" = "$ARTIFACT_BRANCH" ]; then
+        if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
         fi
       ) || exit 1
@@ -283,7 +285,12 @@ for:
     before_build:
       cmd: |-
 
-          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32 appveyor exit
+          REM *** Upload artifacts in case either the branch is named ***
+          REM *** *-artifacts or HEAD is located on a tag. ***
+          if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
+          if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
+
+          if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 appveyor exit
 
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
@@ -321,7 +328,7 @@ for:
 
     build_script:
       - cmd: |-
-          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32 exit
+          if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 exit
 
           REM *** Build ***
           set VERBOSE=1
@@ -340,7 +347,7 @@ for:
           IF %ERRORLEVEL% EQU 0 (del testOutput.log)
 
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
-          if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
+          if %UPLOAD_ARTIFACTS%=="true" appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
@@ -368,13 +375,13 @@ for:
           ccache -s
 
 on_finish:
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
+  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
+  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win64.exe || cmd /c "exit /b 1"
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win32.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win32.exe || cmd /c "exit /b 1"
 
   - cmd: |
-      if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
+      if %UPLOAD_ARTIFACTS%=="true" curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
