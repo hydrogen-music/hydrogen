@@ -31,9 +31,17 @@ using namespace H2Core;
 
 class NoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( NoteTest );
+	CPPUNIT_TEST( testMidiDefaultOffset );
 	CPPUNIT_TEST( testProbability );
 	CPPUNIT_TEST( testSerializeProbability );
 	CPPUNIT_TEST_SUITE_END();
+
+	void testMidiDefaultOffset() {
+		___INFOLOG( "" );
+		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, KEYS_PER_OCTAVE *
+							  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
+		___INFOLOG( "passed" );
+	}
 
 	void testProbability()
 	{

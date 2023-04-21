@@ -877,6 +877,11 @@ Kit actual:</translation>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -3711,6 +3716,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Theme reset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Virtual Row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5299,8 +5308,17 @@ Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y ma
         <translation>Hacer doble clic para expandir la lista</translation>
     </message>
     <message>
-        <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation>es un drumkit del sistema y no se puede eliminar.</translation>
+        <source>Session drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created for drumkit</source>
+        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

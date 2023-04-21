@@ -149,7 +149,7 @@ void Note::set_lead_lag( float lead_lag )
 }
 
 void Note::setPan( float val ) {
-	m_fPan = check_boundary( val, -1.0f, 1.0f );
+	m_fPan = check_boundary( val, PAN_MIN, PAN_MAX );
 }
 
 void Note::set_humanize_delay( int nValue )

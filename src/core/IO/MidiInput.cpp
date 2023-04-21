@@ -246,7 +246,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	static const float fPan = 0.f;
 
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
@@ -260,9 +260,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
@@ -322,7 +322,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	int nNote = msg.m_nData1;
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
@@ -335,9 +335,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( nInstrument );
