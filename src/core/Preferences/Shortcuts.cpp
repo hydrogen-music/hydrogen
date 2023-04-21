@@ -20,16 +20,19 @@
  *
  */
 #include <QtGlobal>
-#include <QKeySequence>
 
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core {
-Shortcuts::Shortcuts() {
+Shortcuts::Shortcuts() :
+	m_bRequiresDefaults( false ) {
 }
 
 Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
+	m_bRequiresDefaults = pOther->m_bRequiresDefaults;
+	
 	for ( const auto& it : pOther->m_actionInfoMap ) {
 		m_actionInfoMap[ it.first ] = it.second;
 	}
@@ -45,7 +48,8 @@ void Shortcuts::saveTo( XMLNode* pNode ) {
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {
 			XMLNode shortcutNode = shortcutsNode.createNode( "shortcut" );
-			shortcutNode.write_int( "key", it.first );
+			shortcutNode.write_string( "keySequence",
+									   it.first.toString( QKeySequence::PortableText ) );
 			shortcutNode.write_int( "action", static_cast<int>(aaction) );
 		}
 	}
@@ -57,16 +61,34 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( XMLNode* pNode, bool bSilent ) {
 	
 	XMLNode shortcutsNode = pNode->firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		WARNINGLOG( "shortcut node not found" );
-		pShortcuts->createDefaultShortcuts();
+		if ( Hydrogen::get_instance() == nullptr ||
+			 Hydrogen::get_instance()->getGUIState() != H2Core::Hydrogen::GUIState::ready ) {
+			// No shortcuts found. We need to create the default ones. But
+			// it is essential that we do not do this right away. If no
+			// QApplication is present, Qt will segfault when attempting
+			// to access standard keys. Instead, this step will be delayed
+			// till after the bootstrap.
+			WARNINGLOG( "shortcut node not found." );
+			pShortcuts->m_bRequiresDefaults = true;
+		}
+		else {
+			pShortcuts->createDefaultShortcuts();
+		}
 	}
 	else {
 		XMLNode shortcutNode = shortcutsNode.firstChildElement( "shortcut" );
+
 		while ( ! shortcutNode.isNull() ) {
-			pShortcuts->insertShortcut( 
-				shortcutNode.read_int( "key", 0, false, false, bSilent ),
-				static_cast<Action>(shortcutNode.read_int( "action", 0,
-														   false, false, bSilent )) );
+			const auto keySequence = QKeySequence::fromString(
+				shortcutNode.read_string( "keySequence", "", false, false, bSilent ),
+				QKeySequence::PortableText );
+
+			if ( ! keySequence.isEmpty() ) {
+				pShortcuts->insertShortcut(
+					keySequence,
+					static_cast<Action>(shortcutNode.read_int( "action", 0,
+															   false, false, bSilent )) );
+			}
 			shortcutNode = shortcutNode.nextSiblingElement( "shortcut" );
 		}
 	}
@@ -79,8 +101,8 @@ void Shortcuts::createDefaultShortcuts() {
 	
 	// Global shortcuts
 	insertShortcut( Qt::Key_F12, Action::Panic );
-	insertShortcut( Qt::Key_S, Action::Save );
-	insertShortcut( Qt::Key_S+Qt::ControlModifier, Action::SaveAs );
+	insertShortcut( Qt::Key_S+Qt::ControlModifier, Action::Save );
+	insertShortcut( Qt::Key_S+Qt::ControlModifier+Qt::ShiftModifier, Action::SaveAs );
 	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
 	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
 	insertShortcut( Qt::Key_Space, Action::TogglePlayback );
@@ -100,8 +122,8 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_F5, Action::PlaylistPrevSong );
 }
 
-std::vector<Shortcuts::Action> Shortcuts::getActions( int nKey ) const {
-	auto it = m_actionsMap.find( nKey );
+std::vector<Shortcuts::Action> Shortcuts::getActions( QKeySequence keySequence ) const {
+	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
 		// Key found
 		return it->second;
@@ -143,7 +165,7 @@ Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
 	}
 }
 
-int Shortcuts::getKey( Action action ) const {
+QKeySequence Shortcuts::getKeySequence( Action action ) const {
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {
 			if ( aaction == action ) {
@@ -151,7 +173,7 @@ int Shortcuts::getKey( Action action ) const {
 			}
 		}
 	}
-	return -1;
+	return QKeySequence( "" );
 }
 
 void Shortcuts::createActionInfoMap() {
@@ -243,8 +265,8 @@ QString Shortcuts::categoryToQString( Category category ) {
 	return std::move( s );
 };
 
-void Shortcuts::insertShortcut( int nKey, Action action ) {
-	auto it = m_actionsMap.find( nKey );
+void Shortcuts::insertShortcut( QKeySequence keySequence, Action action ) {
+	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
 		// Key found
 
@@ -263,7 +285,7 @@ void Shortcuts::insertShortcut( int nKey, Action action ) {
 	else {
 		std::vector<Action> v;
 		v.push_back( action );
-		m_actionsMap[ nKey ] = v;
+		m_actionsMap[ keySequence ] = v;
 	}
 }
 
@@ -288,8 +310,9 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_actionsMap: \n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& it : m_actionsMap ) {
-			sOutput.append( QString( "%1%2%2Key: %3 : [" )
-							.arg( sPrefix ).arg( s ).arg( it.first ) );
+			sOutput.append( QString( "%1%2%2KeySequence: %3 : [" )
+							.arg( sPrefix ).arg( s )
+							.arg( it.first.toString( QKeySequence::PortableText ) ) );
 			for ( const auto& aaction : it.second ) {
 				sOutput.append( QString( ", Action: %1" )
 								.arg( static_cast<int>(aaction ) ) );
@@ -308,7 +331,8 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "], m_actionsMap: [" ) );
 		for ( const auto& it : m_actionsMap ) {
-			sOutput.append( QString( ", Key: %1 : [" ).arg( it.first ) );
+			sOutput.append( QString( ", KeySequence: %1 : [" )
+							.arg( it.first.toString( QKeySequence::PortableText ) ) );
 			for ( const auto& aaction : it.second ) {
 				sOutput.append( QString( ", Action: %1" )
 								.arg( static_cast<int>(aaction ) ) );

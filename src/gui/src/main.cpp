@@ -450,7 +450,14 @@ int main(int argc, char *argv[])
 		}
 
 		Skin::setPalette( pQApp );
-		setApplicationIcon(pQApp);
+		setApplicationIcon( pQApp );
+
+		// This must be done after creating a QApplication instance
+		// and setting its locale as some Qt standard keys are used as
+		// defaults.
+		if ( pPref->getShortcuts()->requiresDefaults() ) {
+			pPref->getShortcuts()->createDefaultShortcuts();
+		}
 
 		SplashScreen *pSplash = new SplashScreen();
 

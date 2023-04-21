@@ -2410,8 +2410,24 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = Preferences::get_instance()->getShortcuts();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	int nKey = pKeyEvent->key();
+	const Qt::KeyboardModifiers modifiers = pKeyEvent->modifiers();
+    if ( modifiers & Qt::ShiftModifier ) {
+        nKey += Qt::SHIFT;
+	}
+    if ( modifiers & Qt::ControlModifier ) {
+        nKey += Qt::CTRL;
+	}
+    if ( modifiers & Qt::AltModifier ) {
+        nKey += Qt::ALT;
+	}
+    if ( modifiers & Qt::MetaModifier ) {
+        nKey += Qt::META;
+	}
+	const auto keySequence = QKeySequence( nKey );
 	
-	const auto actions = pShortcuts->getActions( pKeyEvent->key() );
+	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {
 		switch ( action ) {
 		case Shortcuts::Action::Null:

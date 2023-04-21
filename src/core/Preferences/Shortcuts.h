@@ -24,6 +24,7 @@
 #define SHORTCUTS_H
 
 #include <QString>
+#include <QKeySequence>
 #include <map>
 #include <vector>
 #include <memory>
@@ -100,10 +101,14 @@ public:
 	/**
 	 * Creates the default key bindings as fallback when upgrading
 	 * from older versions or starting Hydrogen the first time.
+	 *
+	 * If no QApplication is present, Qt will segfault when attempting
+	 * to access standard keys as done within this functions. It has
+	 * to be used with care.
 	 */
 	void createDefaultShortcuts();
 
-	std::vector<Action> getActions( int nKey ) const;
+	std::vector<Action> getActions( QKeySequence keySequence ) const;
 	/**
 	 * Removes a single shortcut from #m_actionsMap.
 	 *
@@ -111,12 +116,14 @@ public:
 	 * just to a single key. 
 	 */
 	void deleteShortcut( Action action );
-	void insertShortcut( int nKey, Action action );
+	void insertShortcut( QKeySequence keySequence, Action action );
 	ActionInfo getActionInfo( Action action ) const;
 
-	int getKey( Action action ) const;
+	QKeySequence getKeySequence( Action action ) const;
 
 	const std::map<Action, ActionInfo> getActionInfoMap() const;
+
+	bool requiresDefaults() const;
 	
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 
@@ -126,11 +133,19 @@ private:
 	void insertActionInfo( Action action, Category category, const QString& sDescription );
 
 	std::map<Action, ActionInfo> m_actionInfoMap;
-	std::map<int, std::vector<Action>> m_actionsMap;
+	std::map<QKeySequence, std::vector<Action>> m_actionsMap;
+
+	/**
+	 * 
+	 */
+	bool m_bRequiresDefaults;
 };
 
 inline const std::map<Shortcuts::Action, Shortcuts::ActionInfo> Shortcuts::getActionInfoMap() const {
 	return m_actionInfoMap;
+}
+inline bool Shortcuts::requiresDefaults() const {
+	return m_bRequiresDefaults;
 }
 };
 

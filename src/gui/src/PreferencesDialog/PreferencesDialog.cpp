@@ -2524,7 +2524,7 @@ void PreferencesDialog::initializeShortcutsTab() {
 
 	shortcutListView->setSortingEnabled( true );
 
-	shortcutListView->header()->resizeSection( 0, 80 );
+	shortcutListView->header()->resizeSection( 0, 70 );
 	shortcutListView->header()->resizeSection( 1, 200 );
 	// shortcutListView->header()->resizeSection( 2, 120 );
 
@@ -2544,20 +2544,17 @@ void PreferencesDialog::updateShortcutsTab() {
 		if ( m_selectedCategory == Shortcuts::Category::All ||
 			 m_selectedCategory == it.second.category ) {
 
-			const int nKey = m_pShortcuts->getKey( it.first );
-			QString sKey = "";
-			if ( nKey != -1 ) {
-				sKey = QKeySequence( nKey ).toString();
-			}
+			const QKeySequence keySequence = m_pShortcuts->getKeySequence( it.first );
+			QString sKeySequence = keySequence.toString( QKeySequence::PortableText );
 
 			// Filter by line edit
 			if ( ( sDescriptionFilter.isEmpty() ||
 				   it.second.sDescription.contains( sDescriptionFilter,
 													Qt::CaseInsensitive ) ) &&
 				 ( sKeyFilter.isEmpty() ||
-				   sKey.contains( sKeyFilter, Qt::CaseInsensitive ) ) ) {
+				   sKeySequence.contains( sKeyFilter, Qt::CaseInsensitive ) ) ) {
 
-				QStringList labels = { sKey, it.second.sDescription,
+				QStringList labels = { sKeySequence, it.second.sDescription,
 									   Shortcuts::categoryToQString( it.second.category ) };
 				new IndexedTreeItem( static_cast<int>(it.first), shortcutListView,
 								   labels );
@@ -2580,7 +2577,7 @@ void PreferencesDialog::defineShortcut() {
 	}
 
 	auto pShortcutCaptureDialog = new ShortcutCaptureDialog( this );
-	int nKey = pShortcutCaptureDialog->exec();
+	const int nKey = pShortcutCaptureDialog->exec();
 
 	// It's essential to manually delete the dialog or its event loop
 	// will throw an exception when open and close it (more or less)
@@ -2594,10 +2591,10 @@ void PreferencesDialog::defineShortcut() {
 	if ( ! m_bShortcutsChanged ) {
 		m_bShortcutsChanged = true;
 	}
-	auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+	const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
 
 	m_pShortcuts->deleteShortcut( selectedAction );
-	m_pShortcuts->insertShortcut( nKey, selectedAction );
+	m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
 
 	updateShortcutsTab();
 }
