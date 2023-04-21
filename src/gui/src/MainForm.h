@@ -195,11 +195,6 @@ public slots:
 		
 		void closeEvent( QCloseEvent* ev ) override;
 
-		void onPlayStopAccelEvent();
-		void onRestartAccelEvent();
-		void onBPMPlusAccelEvent();
-		void onBPMMinusAccelEvent();
-
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
 		void onLashPollTimer();
@@ -292,8 +287,6 @@ public slots:
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;
 
-		bool handleSelectNextPrevSongOnPlaylist(int step);
-
 		/**
 		 * Relocates to current position of the cursor and starts
 		 * playback if the transport isn't rolling yet.
@@ -332,6 +325,8 @@ public slots:
 	 *   not, it will be passed on to other widgets.
 	 */
 	bool handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent );
+
+	bool nullDriverCheck();
 };
 
 #endif

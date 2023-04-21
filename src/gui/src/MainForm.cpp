@@ -1546,11 +1546,7 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	}
 }
 	
-
-// keybindings..
-
-void MainForm::onPlayStopAccelEvent()
-{
+bool MainForm::nullDriverCheck() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( pHydrogen->getAudioOutput() == nullptr ||
@@ -1559,59 +1555,10 @@ void MainForm::onPlayStopAccelEvent()
 							  QString( "%1\n%2" )
 							  .arg( pCommonStrings->getAudioDriverNotPresent() )
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
-		return;
+		return false;
 	}
-		
-	switch ( pHydrogen->getAudioEngine()->getState() ) {
-	case H2Core::AudioEngine::State::Ready:
-		pHydrogen->sequencer_play();
-		break;
 
-	case H2Core::AudioEngine::State::Playing:
-		pHydrogen->sequencer_stop();
-		break;
-
-	default:
-		ERRORLOG( "Unkown state" );
-	}
-}
-
-
-
-void MainForm::onRestartAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( 0 );
-}
-
-
-
-void MainForm::onBPMPlusAccelEvent() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
-
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
-	pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
-}
-
-
-
-void MainForm::onBPMMinusAccelEvent() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
-	pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	return true;
 }
 
 void MainForm::updateRecentUsedSongList()
@@ -2286,25 +2233,6 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
-{
-	auto pPlaylist = Playlist::get_instance();
-	if ( pPlaylist->size() == 0 ) {
-		return false;
-	}
-	
-	const int nPlaylistSize = pPlaylist->size();
-	const int nSongnumber = pPlaylist->getActiveSongNumber();
-	
-	if( nSongnumber+step >= 0 && nSongnumber+step <= nPlaylistSize-1 ){
-		pPlaylist->setNextSongByNumber( nSongnumber + step );
-	} else {
-		return false;
-	}
-
-	return true;
-}
-
 void MainForm::action_banks_properties() {
 	editDrumkitProperties( true );
 }
@@ -2359,17 +2287,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	HydrogenApp* pApp = HydrogenApp::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pCommonStrings = pApp->getCommonStrings();
-
-	if ( pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-		QMessageBox::warning( this, "Hydrogen",
-							  QString( "%1\n%2" )
-							  .arg( pCommonStrings->getAudioDriverNotPresent() )
-							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
-		return;
-	}
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
@@ -2400,16 +2317,15 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
-		pApp->showStatusBarMessage( tr("Playing.") );
 	}
 }
 
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
-	DEBUGLOG("");
 
 	auto pShortcuts = Preferences::get_instance()->getShortcuts();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pActionManager = MidiActionManager::get_instance();
 
 	int nKey = pKeyEvent->key();
 	const Qt::KeyboardModifiers modifiers = pKeyEvent->modifiers();
@@ -2456,11 +2372,16 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			break;
 
 		case Shortcuts::Action::TogglePlayback:
-			onPlayStopAccelEvent();
+			if ( nullDriverCheck() ) {
+				auto pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+				pActionManager->handleAction( pAction );
+			}
 			break;
 
 		case Shortcuts::Action::TogglePlaybackAtCursor:
-			startPlaybackAtCursor( pQObject );
+			if ( nullDriverCheck() ) {
+				startPlaybackAtCursor( pQObject );
+			}
 			break;
 
 		case Shortcuts::Action::BeatCounter:
@@ -2471,35 +2392,47 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pHydrogen->onTapTempoAccelEvent();
 			break;
 
-		case Shortcuts::Action::BPMIncrease:
-			onBPMPlusAccelEvent();
+		case Shortcuts::Action::BPMIncrease: {
+			auto pAction = std::make_shared<Action>( "BPM_INCR" );
+			pAction->setParameter1( QString::number( 0.1 ) );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 
-		case Shortcuts::Action::BPMDecrease:
-			onBPMMinusAccelEvent();
+		case Shortcuts::Action::BPMDecrease: {
+			auto pAction = std::make_shared<Action>( "BPM_DECR" );
+			pAction->setParameter1( QString::number( 0.1 ) );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 
 		case Shortcuts::Action::JumpToStart:
-			onRestartAccelEvent();
+			pCoreActionController->locateToColumn( 0 );
 			break;
 
-		case Shortcuts::Action::JumpBarForward:
-			pCoreActionController->locateToColumn(
-				pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+		case Shortcuts::Action::JumpBarForward: {
+			auto pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 
-		case Shortcuts::Action::JumpBarBackward:
-			pCoreActionController->locateToColumn(
-				pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+		case Shortcuts::Action::JumpBarBackward: {
+			auto pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 
-		case Shortcuts::Action::PlaylistNextSong:
-			handleSelectNextPrevSongOnPlaylist( 1 );
+		case Shortcuts::Action::PlaylistNextSong: {
+			auto pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 
-		case Shortcuts::Action::PlaylistPrevSong:
-			handleSelectNextPrevSongOnPlaylist( -1 );
+		case Shortcuts::Action::PlaylistPrevSong: {
+			auto pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+			pActionManager->handleAction( pAction );
 			break;
+		}
 		}
 	}
 
