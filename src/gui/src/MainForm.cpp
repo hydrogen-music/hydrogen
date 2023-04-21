@@ -2435,7 +2435,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			break;
 				
 		case Shortcuts::Action::Save:
-			DEBUGLOG( "Save action" );
 			action_file_save();
 			break;
 
@@ -2444,20 +2443,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			break;
 				
 		case Shortcuts::Action::Panic:
-			DEBUGLOG( "Panic action" );
 			//panic button stop all playing notes
 			pHydrogen->__panic();
 			break;
 
 		case Shortcuts::Action::Undo:
-			DEBUGLOG( "Undo action" );
-			pKeyEvent->accept();
 			action_undo();
 			break;
 
 		case Shortcuts::Action::Redo:
-			DEBUGLOG( "Redo action" );
-			pKeyEvent->accept();
 			action_redo();
 			break;
 
@@ -2511,6 +2505,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 	if ( actions.size() > 0 ) {
 		// Event consumed by the actions triggered above.
+		pKeyEvent->accept();
 		return true;
 	}
 
