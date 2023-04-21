@@ -20,6 +20,7 @@
  *
  */
 #include <QtGlobal>
+#include <QKeySequence>
 
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
@@ -76,8 +77,27 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( XMLNode* pNode, bool bSilent ) {
 void Shortcuts::createDefaultShortcuts() {
 	m_actionsMap.clear();
 	
+	// Global shortcuts
 	insertShortcut( Qt::Key_F12, Action::Panic );
 	insertShortcut( Qt::Key_S, Action::Save );
+	insertShortcut( Qt::Key_S+Qt::ControlModifier, Action::SaveAs );
+	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
+	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
+	insertShortcut( Qt::Key_Space, Action::TogglePlayback );
+#ifndef Q_OS_MACX
+	insertShortcut( Qt::Key_Space+Qt::ControlModifier, Action::TogglePlaybackAtCursor );
+#else
+	insertShortcut( Qt::Key_Space+Qt::AltModifier, Action::TogglePlaybackAtCursor );
+#endif
+	insertShortcut( Qt::Key_Comma, Action::BeatCounter );
+	insertShortcut( Qt::Key_Backslash, Action::TapTempo );
+	insertShortcut( Qt::Key_Plus, Action::BPMIncrease );
+	insertShortcut( Qt::Key_Minus, Action::BPMDecrease );
+	insertShortcut( Qt::Key_Backspace, Action::JumpToStart );
+	insertShortcut( Qt::Key_F10, Action::JumpBarForward );
+	insertShortcut( Qt::Key_F9, Action::JumpBarBackward );
+	insertShortcut( Qt::Key_F6, Action::PlaylistNextSong );
+	insertShortcut( Qt::Key_F5, Action::PlaylistPrevSong );
 }
 
 std::vector<Shortcuts::Action> Shortcuts::getActions( int nKey ) const {
@@ -137,9 +157,48 @@ int Shortcuts::getKey( Action action ) const {
 void Shortcuts::createActionInfoMap() {
 	m_actionInfoMap.clear();
 	insertActionInfo( Shortcuts::Action::Panic, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Stop transport and all playing notes" ) );
-	insertActionInfo( Shortcuts::Action::Save, Category::Mixer,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Store all changes to the current song" ) );
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Stop transport and all playing notes" ) );
+	insertActionInfo( Shortcuts::Action::Save, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Store all modifications to the current song" ) );
+	insertActionInfo( Shortcuts::Action::SaveAs, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Store all modifications to a new song" ) );
+	insertActionInfo( Shortcuts::Action::Undo, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Undo the last modification" ) );
+	insertActionInfo( Shortcuts::Action::Redo, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Redo the last modification" ) );
+	insertActionInfo( Shortcuts::Action::TogglePlayback, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle playback" ) );
+	insertActionInfo( Shortcuts::Action::TogglePlaybackAtCursor, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Toggle playback at keyboard cursor" ) );
+	insertActionInfo( Shortcuts::Action::BeatCounter, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Trigger BeatCounter" ) );
+	insertActionInfo( Shortcuts::Action::TapTempo, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Trigger Tap Tempo" ) );
+	insertActionInfo( Shortcuts::Action::BPMIncrease, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Increase tempo" ) );
+	insertActionInfo( Shortcuts::Action::BPMDecrease, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Decrease tempo" ) );
+	insertActionInfo( Shortcuts::Action::JumpToStart, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Move playhead to the beginnning of the song" ) );
+	insertActionInfo( Shortcuts::Action::JumpBarForward, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Move playhead one bar forward" ) );
+	insertActionInfo( Shortcuts::Action::JumpBarBackward, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Move playhead one bar backward" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistNextSong, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Select next song in playlist" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistPrevSong, Category::Global,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Select previous song in playlist" ) );
 }
 
 QString Shortcuts::categoryToQString( Category category ) {

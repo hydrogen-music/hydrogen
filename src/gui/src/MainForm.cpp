@@ -1551,17 +1551,28 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 void MainForm::onPlayStopAccelEvent()
 {
-	switch ( Hydrogen::get_instance()->getAudioEngine()->getState() ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( "%1\n%2" )
+							  .arg( pCommonStrings->getAudioDriverNotPresent() )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		return;
+	}
+		
+	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case H2Core::AudioEngine::State::Ready:
-		Hydrogen::get_instance()->sequencer_play();
+		pHydrogen->sequencer_play();
 		break;
 
 	case H2Core::AudioEngine::State::Playing:
-		Hydrogen::get_instance()->sequencer_stop();
+		pHydrogen->sequencer_stop();
 		break;
 
 	default:
-		ERRORLOG( "[MainForm::onPlayStopAccelEvent()] Unhandled case." );
+		ERRORLOG( "Unkown state" );
 	}
 }
 
@@ -1805,7 +1816,6 @@ void MainForm::initKeyInstMap()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
-	auto pShortcuts = Preferences::get_instance()->getShortcuts();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -1834,160 +1844,15 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 	} else if ( e->type() == QEvent::KeyPress ) {
 		// special processing for key press
-		QKeyEvent *k = (QKeyEvent *)e;
+		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
+		assert( pKeyEvent != nullptr );
 
-		if ( k->matches( QKeySequence::StandardKey::Undo ) ) {
-			k->accept();
-			action_undo();
-			return true;
-		} else if ( k->matches( QKeySequence::StandardKey::Redo ) ) {
-			k->accept();
-			action_redo();
-			return true;
-		}
-
-		std::vector<Shortcuts::Action> actions = pShortcuts->getActions( k->key() );
-		for ( const auto& action : actions ) {
-			switch ( action ) {
-			case Shortcuts::Action::Null:
-				DEBUGLOG( "Null action" );
-				break;
-			case Shortcuts::Action::Save:
-				DEBUGLOG( "Save action" );
-				if ( k->modifiers() ==
-					 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
-					action_file_save_as();
-					return true;
-				}
-				else if ( k->modifiers() == Qt::ControlModifier ) {
-					action_file_save();
-					return true;
-				}
-			case Shortcuts::Action::Panic:
-				DEBUGLOG( "Panic action" );
-				//panic button stop all playing notes
-				pHydrogen->__panic();
-				//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
-				return true;
-			};
-		}
-		if ( actions.size() > 0 ) {
-			// Event consumed by the actions triggered above.
-			return true;
-		}
-
-		// qDebug( "Got key press for instrument '%c'", k->ascii() );
-		switch (k->key()) {
-		case Qt::Key_Space:
-
-			// Hint that something is wrong in case there is no proper audio
-			// driver set.
-			if ( pHydrogen->getAudioOutput() == nullptr ||
-				 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-				QMessageBox::warning( this, "Hydrogen",
-									  QString( "%1\n%2" )
-									  .arg( pCommonStrings->getAudioDriverNotPresent() )
-									  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
-				return true;
-			}
-
-			switch ( k->modifiers() ) {
-			case Qt::NoModifier:
-				onPlayStopAccelEvent();
-				break;
-
-#ifndef Q_OS_MACX
-			case Qt::ControlModifier:
-				startPlaybackAtCursor( o );
-				break;
-			}
-#else
-			case Qt::AltModifier:
-				startPlaybackAtCursor( o );
-				break;
-			}
-#endif
-			
-			return true; // eat event
-			break;
-
-		case Qt::Key_Comma:
-			pHydrogen->handleBeatCounter();
-			return true; // eat even
-			break;
-
-		case Qt::Key_Backspace:
-			onRestartAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Plus:
-			onBPMPlusAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Minus:
-			onBPMMinusAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Backslash:
-			pHydrogen->onTapTempoAccelEvent();
-			return true; // eat event
-			break;
-
-		case  Qt::Key_F5 :
-			if( Playlist::get_instance()->size() == 0) {
-				break;
-			}
-			return handleSelectNextPrevSongOnPlaylist( -1 );
-			break;
-
-		case  Qt::Key_F6 :
-			if( Playlist::get_instance()->size() == 0) {
-				break;
-			}
-			return handleSelectNextPrevSongOnPlaylist( 1 );
-			break;
-
-		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
-			return true;
-			break;
-
-		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
-			return true;
-			break;
-		}
-
-		// virtual keyboard handling
-		if  ( k->modifiers() == Qt::NoModifier ) {
-			std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-			if (found != keycodeInstrumentMap.end()) {
-				//			INFOLOG( "[eventFilter] virtual keyboard event" );
-				// insert note at the current column in time
-				// if event recording enabled
-				int row = (*found).second;
-
-				float velocity = 0.8;
-
-				pHydrogen->addRealtimeNote( row, velocity, 0.f, false,
-											row + MIDI_DEFAULT_OFFSET );
-
-				return true; // eat event
-			}
-		}
-		return false; // let it go
+		return handleKeyEvent( o, pKeyEvent );
 	}
 	else {
 		return false; // standard event processing
 	}
 }
-
-
-
-
 
 /// print the object map
 void MainForm::action_debug_printObjects()
@@ -2423,11 +2288,16 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
-	int nPlaylistSize = Playlist::get_instance()->size();
-	int nSongnumber = Playlist::get_instance()->getActiveSongNumber();
+	auto pPlaylist = Playlist::get_instance();
+	if ( pPlaylist->size() == 0 ) {
+		return false;
+	}
+	
+	const int nPlaylistSize = pPlaylist->size();
+	const int nSongnumber = pPlaylist->getActiveSongNumber();
 	
 	if( nSongnumber+step >= 0 && nSongnumber+step <= nPlaylistSize-1 ){
-		Playlist::get_instance()->setNextSongByNumber( nSongnumber + step );
+		pPlaylist->setNextSongByNumber( nSongnumber + step );
 	} else {
 		return false;
 	}
@@ -2490,6 +2360,16 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pCommonStrings = pApp->getCommonStrings();
+
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( "%1\n%2" )
+							  .arg( pCommonStrings->getAudioDriverNotPresent() )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		return;
+	}
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
@@ -2522,4 +2402,120 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		pHydrogen->sequencer_play();
 		pApp->showStatusBarMessage( tr("Playing.") );
 	}
+}
+
+bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
+	DEBUGLOG("");
+
+	auto pShortcuts = Preferences::get_instance()->getShortcuts();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	
+	const auto actions = pShortcuts->getActions( pKeyEvent->key() );
+	for ( const auto& action : actions ) {
+		switch ( action ) {
+		case Shortcuts::Action::Null:
+			DEBUGLOG( "Null action" );
+			break;
+				
+		case Shortcuts::Action::Save:
+			DEBUGLOG( "Save action" );
+			action_file_save();
+			break;
+
+		case Shortcuts::Action::SaveAs:
+			action_file_save_as();
+			break;
+				
+		case Shortcuts::Action::Panic:
+			DEBUGLOG( "Panic action" );
+			//panic button stop all playing notes
+			pHydrogen->__panic();
+			break;
+
+		case Shortcuts::Action::Undo:
+			DEBUGLOG( "Undo action" );
+			pKeyEvent->accept();
+			action_undo();
+			break;
+
+		case Shortcuts::Action::Redo:
+			DEBUGLOG( "Redo action" );
+			pKeyEvent->accept();
+			action_redo();
+			break;
+
+		case Shortcuts::Action::TogglePlayback:
+			onPlayStopAccelEvent();
+			break;
+
+		case Shortcuts::Action::TogglePlaybackAtCursor:
+			startPlaybackAtCursor( pQObject );
+			break;
+
+		case Shortcuts::Action::BeatCounter:
+			pHydrogen->handleBeatCounter();
+			break;
+
+		case Shortcuts::Action::TapTempo:
+			pHydrogen->onTapTempoAccelEvent();
+			break;
+
+		case Shortcuts::Action::BPMIncrease:
+			onBPMPlusAccelEvent();
+			break;
+
+		case Shortcuts::Action::BPMDecrease:
+			onBPMMinusAccelEvent();
+			break;
+
+		case Shortcuts::Action::JumpToStart:
+			onRestartAccelEvent();
+			break;
+
+		case Shortcuts::Action::JumpBarForward:
+			pCoreActionController->locateToColumn(
+				pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+			break;
+
+		case Shortcuts::Action::JumpBarBackward:
+			pCoreActionController->locateToColumn(
+				pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+			break;
+
+		case Shortcuts::Action::PlaylistNextSong:
+			handleSelectNextPrevSongOnPlaylist( 1 );
+			break;
+
+		case Shortcuts::Action::PlaylistPrevSong:
+			handleSelectNextPrevSongOnPlaylist( -1 );
+			break;
+		}
+	}
+
+	if ( actions.size() > 0 ) {
+		// Event consumed by the actions triggered above.
+		return true;
+	}
+
+
+	// virtual keyboard handling
+	if  ( pKeyEvent->modifiers() == Qt::NoModifier ) {
+		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( pKeyEvent->key() );
+		if (found != keycodeInstrumentMap.end()) {
+			//			INFOLOG( "[eventFilter] virtual keyboard event" );
+			// insert note at the current column in time
+			// if event recording enabled
+			int row = (*found).second;
+
+			float velocity = 0.8;
+
+			pHydrogen->addRealtimeNote( row, velocity, 0.f, false,
+										row + MIDI_DEFAULT_OFFSET );
+
+			return true; // eat event
+		}
+	}
+
+	return false;
 }

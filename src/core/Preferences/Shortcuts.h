@@ -39,10 +39,25 @@ class Shortcuts : public H2Core::Object<Shortcuts> {
 
 public:
 	enum class Action {
-		Panic = 8,
-		Save = 101,
+		Panic					 = 100,
+		Save					 = 101,
+		SaveAs					 = 102,
+		Undo					 = 103,
+		Redo					 = 104,
+		TogglePlayback			 = 105,
+		TogglePlaybackAtCursor	 = 106,
+		BeatCounter				 = 107,
+		TapTempo				 = 108,
+		BPMIncrease				 = 109,
+		BPMDecrease				 = 110,
+		JumpToStart				 = 111,
+		JumpBarForward			 = 112,
+		JumpBarBackward			 = 113,
+		PlaylistNextSong		 = 114,
+		PlaylistPrevSong		 = 115,
+		
 		/** null element indicating that no action was set*/
-		Null = 1000
+		Null					 = 1000
 	};
 
 	/** Scope the shortcut is applicable to*/

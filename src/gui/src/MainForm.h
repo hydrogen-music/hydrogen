@@ -324,6 +324,14 @@ public slots:
 		the users uses "Save As" multiple autosave files would be
 		written unless we take care of them.*/
 	QString m_sPreviousAutoSaveFilename;
+
+	/**
+	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
+	 *
+	 * @return Indicates whether or not key event was consumed. If
+	 *   not, it will be passed on to other widgets.
+	 */
+	bool handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent );
 };
 
 #endif
