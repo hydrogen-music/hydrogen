@@ -1075,29 +1075,78 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 }
 
 bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
-	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->
-							   getTransportPosition()->getColumn() ) + 1;
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pSong->getMode() == Song::Mode::Pattern ) {
+		// Restart transport at the beginning of the pattern
+		pHydrogen->getCoreActionController()->locateToColumn( 0 );
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			pAudioEngine->lock( RIGHT_HERE );
+			pAudioEngine->updatePlayingPatterns();
+			pAudioEngine->unlock();
+		}
+	}
+	else {
+		const int nTotalColumns = pSong->getPatternGroupVector()->size();
+		int nNewColumn = 1 +
+			std::max( 0, pAudioEngine->getTransportPosition()->getColumn() );
+		if ( nNewColumn >= nTotalColumns ) {
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				// Transport exceeds length of the song and is wrapped
+				// to the beginning again.
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+			}
+			else {
+				// With loop mode disabled this command won't have any
+				// effect in the last column.
+			}
+		}
+		else {
+			pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
+		}
+	}
 	
-	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
-	pHydrogen->getCoreActionController()->locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() -1 );
+
+	if ( pSong->getMode() == Song::Mode::Pattern ) {
+		// Restart transport at the beginning of the pattern. Does not
+		// trigger activation of pending stacked patterns.
+		pHydrogen->getCoreActionController()->locateToColumn( 0 );
+	}
+	else {
+		int nNewColumn = pHydrogen->getAudioEngine()->
+			getTransportPosition()->getColumn() - 1;
+
+		if ( nNewColumn < 0 ) {
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				// In case the song is looped, assume periodic
+				// boundary conditions and move to the last column.
+				pHydrogen->getCoreActionController()->locateToColumn(
+					pSong->getPatternGroupVector()->size() - 1 );
+			}
+			else {
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+			}
+		}
+		else {
+			pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
+		}
+	}
 	return true;
 }
 
