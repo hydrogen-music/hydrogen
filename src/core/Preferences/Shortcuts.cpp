@@ -98,6 +98,28 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( XMLNode* pNode, bool bSilent ) {
 
 void Shortcuts::createDefaultShortcuts() {
 	m_actionsMap.clear();
+
+	// POSIX Locale for keyboardlayout QWERTZ: de_DE, de_AT, de_LU, de_CH, de
+	//   locale for keyboardlayout AZERTY: fr_BE, fr_CA, fr_FR, fr_LU, fr_CH
+	//   locale for keyboardlayout QWERTY: en_GB, en_US, en_ZA, usw.
+	const QString sLocaleName = QLocale::system().name();
+
+	enum class locales {
+		de,
+		fr,
+		en
+	};
+	
+	locales locale;
+	if ( sLocaleName.contains( "de" ) || sLocaleName.contains( "DE" ) ) {
+		locale = locales::de;
+	}
+	else if ( sLocaleName.contains( "fr" ) || sLocaleName.contains( "FR" ) ) {
+		locale = locales::fr;
+	}
+	else {
+		locale = locales::en;
+	}
 	
 	// Global shortcuts
 	insertShortcut( Qt::Key_F12, Action::Panic );
@@ -120,6 +142,56 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_F9, Action::JumpBarBackward );
 	insertShortcut( Qt::Key_F6, Action::PlaylistNextSong );
 	insertShortcut( Qt::Key_F5, Action::PlaylistPrevSong );
+
+	// Virtual MIDI keyboard
+	switch ( locale ) {
+	case locales::de:
+		insertShortcut( Qt::Key_Y, Action::VK_C2 );
+		break;
+	case locales::fr:
+		insertShortcut( Qt::Key_W, Action::VK_C2 );
+		break;
+	default:
+		insertShortcut( Qt::Key_Z, Action::VK_C2 );
+	}
+	insertShortcut( Qt::Key_S, Action::VK_C_sharp2 );
+	insertShortcut( Qt::Key_X, Action::VK_D2 );
+	insertShortcut( Qt::Key_D, Action::VK_D_sharp2 );
+	insertShortcut( Qt::Key_C, Action::VK_E2 );
+	insertShortcut( Qt::Key_V, Action::VK_F2 );
+	insertShortcut( Qt::Key_G, Action::VK_F_sharp2 );
+	insertShortcut( Qt::Key_B, Action::VK_G2 );
+	insertShortcut( Qt::Key_H, Action::VK_G_sharp2 );
+	insertShortcut( Qt::Key_N, Action::VK_A2 );
+	insertShortcut( Qt::Key_J, Action::VK_A_sharp2 );
+	switch ( locale ) {
+	case locales::fr:
+		insertShortcut( Qt::Key_Question, Action::VK_B2 );
+		insertShortcut( Qt::Key_A, Action::VK_C3 );
+		insertShortcut( Qt::Key_2, Action::VK_C_sharp3 );
+		insertShortcut( Qt::Key_Z, Action::VK_D3 );
+		break;
+	default:
+		insertShortcut( Qt::Key_M, Action::VK_B2 );
+		insertShortcut( Qt::Key_Q, Action::VK_C3 );
+		insertShortcut( Qt::Key_2, Action::VK_C_sharp3 );
+		insertShortcut( Qt::Key_W, Action::VK_D3 );
+	}
+	insertShortcut( Qt::Key_3, Action::VK_D_sharp3 );
+	insertShortcut( Qt::Key_E, Action::VK_E3 );
+	insertShortcut( Qt::Key_R, Action::VK_F3 );
+	insertShortcut( Qt::Key_5, Action::VK_F_sharp3 );
+	insertShortcut( Qt::Key_T, Action::VK_G3 );
+	insertShortcut( Qt::Key_6, Action::VK_G_sharp3 );
+	switch ( locale ) {
+	case locales::de:
+		insertShortcut( Qt::Key_Z, Action::VK_A3 );
+		break;
+	default:
+		insertShortcut( Qt::Key_Y, Action::VK_A3 );
+	}
+	insertShortcut( Qt::Key_7, Action::VK_A_sharp3 );
+	insertShortcut( Qt::Key_U, Action::VK_B3 );
 }
 
 std::vector<Shortcuts::Action> Shortcuts::getActions( QKeySequence keySequence ) const {
@@ -178,6 +250,8 @@ QKeySequence Shortcuts::getKeySequence( Action action ) const {
 
 void Shortcuts::createActionInfoMap() {
 	m_actionInfoMap.clear();
+
+	// Global shortcuts
 	insertActionInfo( Shortcuts::Action::Panic, Category::Global,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Stop transport and all playing notes" ) );
@@ -221,6 +295,56 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::PlaylistPrevSong, Category::Global,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Playlist: select previous song" ) );
+
+	// Virtual MIDI keyboard
+	insertActionInfo( Shortcuts::Action::VK_C2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "C2" ) );
+	insertActionInfo( Shortcuts::Action::VK_C_sharp2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "C#2" ) );
+	insertActionInfo( Shortcuts::Action::VK_D2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "D2" ) );
+	insertActionInfo( Shortcuts::Action::VK_D_sharp2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "D#2" ) );
+	insertActionInfo( Shortcuts::Action::VK_E2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "E2" ) );
+	insertActionInfo( Shortcuts::Action::VK_F2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "F2" ) );
+	insertActionInfo( Shortcuts::Action::VK_F_sharp2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "F#2" ) );
+	insertActionInfo( Shortcuts::Action::VK_G2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "G2" ) );
+	insertActionInfo( Shortcuts::Action::VK_G_sharp2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "G#2" ) );
+	insertActionInfo( Shortcuts::Action::VK_A2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "A2" ) );
+	insertActionInfo( Shortcuts::Action::VK_A_sharp2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "A#2" ) );
+	insertActionInfo( Shortcuts::Action::VK_B2, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "B2" ) );
+	insertActionInfo( Shortcuts::Action::VK_C3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "C3" ) );
+	insertActionInfo( Shortcuts::Action::VK_C_sharp3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "C#3" ) );
+	insertActionInfo( Shortcuts::Action::VK_D3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "D3" ) );
+	insertActionInfo( Shortcuts::Action::VK_D_sharp3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "D#3" ) );
+	insertActionInfo( Shortcuts::Action::VK_E3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "E3" ) );
+	insertActionInfo( Shortcuts::Action::VK_F3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "F3" ) );
+	insertActionInfo( Shortcuts::Action::VK_F_sharp3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "F#3" ) );
+	insertActionInfo( Shortcuts::Action::VK_G3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "G3" ) );
+	insertActionInfo( Shortcuts::Action::VK_G_sharp3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "G#3" ) );
+	insertActionInfo( Shortcuts::Action::VK_A3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "A3" ) );
+	insertActionInfo( Shortcuts::Action::VK_A_sharp3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "A#3" ) );
+	insertActionInfo( Shortcuts::Action::VK_B3, Category::VirtualKeyboard,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "B3" ) );
 }
 
 QString Shortcuts::categoryToQString( Category category ) {

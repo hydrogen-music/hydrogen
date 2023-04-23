@@ -154,8 +154,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 
 	h2app->showStatusBarMessage( tr("Hydrogen Ready.") );
 
-	initKeyInstMap();
-
 	// we need to do all this to support the keyboard playing
 	// for all the window modes
 	h2app->getMixer()->installEventFilter (this);
@@ -1660,107 +1658,6 @@ void MainForm::onFixMissingSamples()
 	m_pMissingSamplesInfoBar->hide();
 }
 
-
-void MainForm::initKeyInstMap()
-{
-
-	QString loc = QLocale::system().name();
-	int instr = 0;
-
-	///POSIX Locale
-	//locale for keyboardlayout QWERTZ
-	// de_DE, de_AT, de_LU, de_CH, de
-
-	//locale for keyboardlayout AZERTY
-	// fr_BE, fr_CA, fr_FR, fr_LU, fr_CH
-
-	//locale for keyboardlayout QWERTY
-	// en_GB, en_US, en_ZA, usw.
-
-	if ( loc.contains( "de" ) || loc.contains( "DE" )){ ///QWERTZ
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}
-	else if ( loc.contains( "fr" ) || loc.contains( "FR" )){ ///AZERTY
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_Question] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_A] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}else
-	{ /// default QWERTY
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}
-}
-
-
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -2345,94 +2242,108 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	
 	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {
-		switch ( action ) {
-		case Shortcuts::Action::Null:
-			DEBUGLOG( "Null action" );
-			break;
+
+		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_C2) &&
+			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_B3) ) {
+			// Virtual keyboard
+			pHydrogen->addRealtimeNote(
+				static_cast<int>(action) - 400, // instrument
+				0.8,							// velocity
+				0.f,							// pan
+				false,							// note off
+				static_cast<int>(action) - 400 + MIDI_DEFAULT_OFFSET );
+		}
+		else {
+			
+			switch ( action ) {
+			case Shortcuts::Action::Null:
+				DEBUGLOG( "Null action" );
+				break;
 				
-		case Shortcuts::Action::Save:
-			action_file_save();
-			break;
+			case Shortcuts::Action::Save:
+				action_file_save();
+				break;
 
-		case Shortcuts::Action::SaveAs:
-			action_file_save_as();
-			break;
+			case Shortcuts::Action::SaveAs:
+				action_file_save_as();
+				break;
 				
-		case Shortcuts::Action::Panic:
-			//panic button stop all playing notes
-			pHydrogen->__panic();
-			break;
+			case Shortcuts::Action::Panic:
+				//panic button stop all playing notes
+				pHydrogen->__panic();
+				break;
 
-		case Shortcuts::Action::Undo:
-			action_undo();
-			break;
+			case Shortcuts::Action::Undo:
+				action_undo();
+				break;
 
-		case Shortcuts::Action::Redo:
-			action_redo();
-			break;
+			case Shortcuts::Action::Redo:
+				action_redo();
+				break;
 
-		case Shortcuts::Action::TogglePlayback:
-			if ( nullDriverCheck() ) {
-				auto pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+			case Shortcuts::Action::TogglePlayback:
+				if ( nullDriverCheck() ) {
+					auto pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+					pActionManager->handleAction( pAction );
+				}
+				break;
+
+			case Shortcuts::Action::TogglePlaybackAtCursor:
+				if ( nullDriverCheck() ) {
+					startPlaybackAtCursor( pQObject );
+				}
+				break;
+
+			case Shortcuts::Action::BeatCounter:
+				pHydrogen->handleBeatCounter();
+				break;
+
+			case Shortcuts::Action::TapTempo:
+				pHydrogen->onTapTempoAccelEvent();
+				break;
+
+			case Shortcuts::Action::BPMIncrease: {
+				auto pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction->setParameter1( QString::number( 0.1 ) );
 				pActionManager->handleAction( pAction );
+				break;
 			}
-			break;
 
-		case Shortcuts::Action::TogglePlaybackAtCursor:
-			if ( nullDriverCheck() ) {
-				startPlaybackAtCursor( pQObject );
+			case Shortcuts::Action::BPMDecrease: {
+				auto pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction->setParameter1( QString::number( 0.1 ) );
+				pActionManager->handleAction( pAction );
+				break;
 			}
-			break;
 
-		case Shortcuts::Action::BeatCounter:
-			pHydrogen->handleBeatCounter();
-			break;
+			case Shortcuts::Action::JumpToStart:
+				pCoreActionController->locateToColumn( 0 );
+				break;
 
-		case Shortcuts::Action::TapTempo:
-			pHydrogen->onTapTempoAccelEvent();
-			break;
+			case Shortcuts::Action::JumpBarForward: {
+				auto pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
+				pActionManager->handleAction( pAction );
+				break;
+			}
 
-		case Shortcuts::Action::BPMIncrease: {
-			auto pAction = std::make_shared<Action>( "BPM_INCR" );
-			pAction->setParameter1( QString::number( 0.1 ) );
-			pActionManager->handleAction( pAction );
-			break;
-		}
+			case Shortcuts::Action::JumpBarBackward: {
+				auto pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
+				pActionManager->handleAction( pAction );
+				break;
+			}
 
-		case Shortcuts::Action::BPMDecrease: {
-			auto pAction = std::make_shared<Action>( "BPM_DECR" );
-			pAction->setParameter1( QString::number( 0.1 ) );
-			pActionManager->handleAction( pAction );
-			break;
-		}
+			case Shortcuts::Action::PlaylistNextSong: {
+				auto pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+				pActionManager->handleAction( pAction );
+				break;
+			}
 
-		case Shortcuts::Action::JumpToStart:
-			pCoreActionController->locateToColumn( 0 );
-			break;
-
-		case Shortcuts::Action::JumpBarForward: {
-			auto pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
-
-		case Shortcuts::Action::JumpBarBackward: {
-			auto pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
-
-		case Shortcuts::Action::PlaylistNextSong: {
-			auto pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
-
-		case Shortcuts::Action::PlaylistPrevSong: {
-			auto pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
+			case Shortcuts::Action::PlaylistPrevSong: {
+				auto pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+				pActionManager->handleAction( pAction );
+				break;
+			}
+			}
 		}
 	}
 
@@ -2440,25 +2351,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		// Event consumed by the actions triggered above.
 		pKeyEvent->accept();
 		return true;
-	}
-
-
-	// virtual keyboard handling
-	if  ( pKeyEvent->modifiers() == Qt::NoModifier ) {
-		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( pKeyEvent->key() );
-		if (found != keycodeInstrumentMap.end()) {
-			//			INFOLOG( "[eventFilter] virtual keyboard event" );
-			// insert note at the current column in time
-			// if event recording enabled
-			int row = (*found).second;
-
-			float velocity = 0.8;
-
-			pHydrogen->addRealtimeNote( row, velocity, 0.f, false,
-										row + MIDI_DEFAULT_OFFSET );
-
-			return true; // eat event
-		}
 	}
 
 	return false;

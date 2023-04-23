@@ -24,6 +24,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
 #include <QDomDocument>
 
@@ -32,6 +33,7 @@ using namespace H2Core;
 class NoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( NoteTest );
 	CPPUNIT_TEST( testMidiDefaultOffset );
+	CPPUNIT_TEST( testVirtualKeyboard );
 	CPPUNIT_TEST( testProbability );
 	CPPUNIT_TEST( testSerializeProbability );
 	CPPUNIT_TEST_SUITE_END();
@@ -40,6 +42,15 @@ class NoteTest : public CppUnit::TestCase {
 		___INFOLOG( "" );
 		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, KEYS_PER_OCTAVE *
 							  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
+		___INFOLOG( "passed" );
+	}
+
+	/** Check whether notes entered via the virtual keyboard can be
+	 * handled properly */
+	void testVirtualKeyboard() {
+		___INFOLOG( "" );
+		CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_C2), 400 );
+		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, 36 ); // MIDI note C2
 		___INFOLOG( "passed" );
 	}
 

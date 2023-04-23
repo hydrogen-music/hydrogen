@@ -276,9 +276,6 @@ public slots:
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
-		std::map<int,int>  keycodeInstrumentMap;
-		void initKeyInstMap();
-
 		QString getAutoSaveFilename();
 	#ifdef H2CORE_HAVE_LASH
 		QTimer *lashPollTimer;

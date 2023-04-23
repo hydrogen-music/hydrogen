@@ -56,6 +56,32 @@ public:
 		JumpBarBackward			 = 113,
 		PlaylistNextSong		 = 114,
 		PlaylistPrevSong		 = 115,
+
+		// Virtual MIDI keyboard
+		VK_C2					 = 400,
+		VK_C_sharp2				 = 401,
+		VK_D2					 = 402,
+		VK_D_sharp2				 = 403,
+		VK_E2					 = 404,
+		VK_F2					 = 405,
+		VK_F_sharp2				 = 406,
+		VK_G2					 = 407,
+		VK_G_sharp2				 = 408,
+		VK_A2					 = 409,
+		VK_A_sharp2				 = 410,
+		VK_B2					 = 411,
+		VK_C3					 = 412,
+		VK_C_sharp3				 = 413,
+		VK_D3					 = 414,
+		VK_D_sharp3				 = 415,
+		VK_E3					 = 416,
+		VK_F3					 = 417,
+		VK_F_sharp3				 = 418,
+		VK_G3					 = 419,
+		VK_G_sharp3				 = 420,
+		VK_A3					 = 421,
+		VK_A_sharp3				 = 422,
+		VK_B3					 = 423,
 		
 		/** null element indicating that no action was set*/
 		Null					 = 1000
