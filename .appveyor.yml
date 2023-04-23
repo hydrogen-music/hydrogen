@@ -376,8 +376,7 @@ for:
 
 on_finish:
   - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
-  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
-  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeConfigureLog.yaml
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
   - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win64.exe || cmd /c "exit /b 1"
