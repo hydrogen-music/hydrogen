@@ -18,3 +18,7 @@ hydrogen.*
 *.so
 *.make
 *.swp
+
+GPATH
+GRTAGS
+GTAGS
