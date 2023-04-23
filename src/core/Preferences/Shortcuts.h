@@ -40,22 +40,79 @@ class Shortcuts : public H2Core::Object<Shortcuts> {
 
 public:
 	enum class Action {
+		// (once defined as) Global shortcuts
 		Panic					 = 100,
-		Save					 = 101,
-		SaveAs					 = 102,
-		Undo					 = 103,
-		Redo					 = 104,
-		TogglePlayback			 = 105,
-		TogglePlaybackAtCursor	 = 106,
-		BeatCounter				 = 107,
-		TapTempo				 = 108,
-		BPMIncrease				 = 109,
-		BPMDecrease				 = 110,
-		JumpToStart				 = 111,
-		JumpBarForward			 = 112,
-		JumpBarBackward			 = 113,
-		PlaylistNextSong		 = 114,
-		PlaylistPrevSong		 = 115,
+		TogglePlayback			 = 101,
+		TogglePlaybackAtCursor	 = 102,
+		BeatCounter				 = 103,
+		TapTempo				 = 104,
+		BPMIncrease				 = 105,
+		BPMDecrease				 = 106,
+		JumpToStart				 = 107,
+		JumpBarForward			 = 108,
+		JumpBarBackward			 = 109,
+		PlaylistNextSong		 = 110,
+		PlaylistPrevSong		 = 111,
+
+		// MainForm actions
+		NewSong					 = 200,
+		OpenSong				 = 201,
+		EditSongProperties		 = 202,
+		OpenDemoSong			 = 203,
+		SaveSong				 = 204,
+		SaveAsSong				 = 205,
+		OpenPattern				 = 206,
+		ExportPattern			 = 207,
+		ExportSong				 = 208,
+		ExportMIDI				 = 209,
+		ExportLilyPond			 = 210,
+		Quit					 = 211,
+		
+		Undo					 = 212,
+		Redo					 = 213,
+		ShowUndoHistory			 = 214,
+		
+		NewDrumkit				 = 215,
+		OpenDrumkit				 = 216,
+		EditDrumkitProperties	 = 217,
+		SaveDrumkit				 = 218,
+		SaveAsDrumkit			 = 219,
+		ExportDrumkit			 = 220,
+		ImportDrumkit			 = 221,
+		ImportOnlineDrumkit		 = 222,
+		
+		AddInstrument			 = 223,
+		ClearAllInstruments		 = 224,
+		AddComponent			 = 225,
+		
+		ShowPlaylist			 = 226,
+		ShowDirector			 = 227,
+		ShowMixer				 = 228,
+		ShowInstrumentRack		 = 229,
+		ShowAutomation			 = 230,
+		ShowTimeline			 = 231,
+		ShowPlaybackTrack		 = 232,
+		ShowFullscreen			 = 233,
+		
+		InputInstrument			 = 234,
+		InputDrumkit			 = 235,
+		ShowPreferencesDialog	 = 236,
+		
+		ShowAudioEngineInfo		 = 237,
+		ShowFilesystemInfo		 = 238,
+		LogLevelNone			 = 239,
+		LogLevelError			 = 240,
+		LogLevelWarning			 = 241,
+		LogLevelInfo			 = 242,
+		LogLevelDebug			 = 243,
+		OpenLogFile				 = 244,
+		DebugPrintObjects		 = 245,
+		
+		OpenManual				 = 246,
+		ShowAbout				 = 247,
+		ShowReportBug			 = 248,
+		ShowDonate				 = 249,
+		
 
 		// Virtual MIDI keyboard
 		VK_C2					 = 400,
@@ -96,7 +153,7 @@ public:
 		None = 0,
 		/** Enabled in all windows of Hydrogen */
 		Global = 1,
-		MainWindow = 2,
+		MainForm = 2,
 		/** Enabled in both pattern and song editor*/
 		Editors = 3,
 		/** Shortcuts associated with the virtual keyboard */

@@ -2500,7 +2500,7 @@ void PreferencesDialog::initializeShortcutsTab() {
 
 	m_shortcutCategories = {
 		Shortcuts::Category::Global,
-		Shortcuts::Category::MainWindow,
+		Shortcuts::Category::MainForm,
 		Shortcuts::Category::Editors,
 		Shortcuts::Category::VirtualKeyboard,
 		Shortcuts::Category::Mixer,
