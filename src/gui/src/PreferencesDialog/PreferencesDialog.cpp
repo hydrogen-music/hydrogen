@@ -2528,7 +2528,7 @@ void PreferencesDialog::initializeShortcutsTab() {
 	shortcutListView->header()->resizeSection( 1, 200 );
 	// shortcutListView->header()->resizeSection( 2, 120 );
 
-	shortcutListView->sortByColumn( 1, Qt::AscendingOrder );
+	shortcutListView->sortByColumn( 2, Qt::AscendingOrder );
 }
 
 void PreferencesDialog::updateShortcutsTab() {
