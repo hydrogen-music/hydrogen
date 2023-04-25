@@ -330,11 +330,9 @@ void MainForm::createMenuBar()
 	m_pFileMenu->addAction( sLabelOpen, this,
 							SLOT( action_file_open() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
-	if ( ! bUnderSessionManagement ) {
-		m_pFileMenu->addAction( sLabelOpenDemo, this,
-								SLOT( action_file_openDemo() ),
+	m_pFileMenu->addAction( sLabelOpenDemo, this,
+							SLOT( action_file_openDemo() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::OpenDemoSong ) );
-	}
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
