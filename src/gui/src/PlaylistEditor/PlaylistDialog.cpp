@@ -33,6 +33,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -75,39 +76,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	installEventFilter( this );
 
-	// menubar
 	m_pMenubar = new QMenuBar( this );
-
-	// Playlist menu
-	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
-
-	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "Ctrl+A" ) );
-	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "Ctrl+Alt+A" ) );
-	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence::Delete );
-	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "Ctrl+N" ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "Ctrl+O" ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ), QKeySequence( "Ctrl+S" ) );
-	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this, SLOT( saveListAs() ), QKeySequence( "Ctrl+Shift+S" ) );
-	m_pPlaylistMenu->setFont( font );
-
-#ifdef WIN32
-	//no scripts under windows
-#else
-	// Script menu
-	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
-
-	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->setFont( font );
-#endif
-
+	populateMenuBar();
+	
 	// CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
 	pControlsPanel->setFixedSize( 119, 32 );
@@ -237,7 +208,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	connect(m_pTimer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
 	m_pTimer->start( 1000 );	// update player control at 1 fps
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlaylistDialog::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &PlaylistDialog::onPreferencesChanged );
 }
 
 PlaylistDialog::~PlaylistDialog()
@@ -245,11 +217,61 @@ PlaylistDialog::~PlaylistDialog()
 	INFOLOG ( "DESTROY" );
 }
 
-void PlaylistDialog::keyPressEvent( QKeyEvent* ev )
-{
-	if(ev->key() == Qt::Key_Escape) {
-		HydrogenApp::get_instance()->showPlaylistDialog();
-	}
+void PlaylistDialog::populateMenuBar() {
+	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pShortcuts = pPref->getShortcuts();
+	const QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	
+	// menubar
+	m_pMenubar->clear();
+
+	// Playlist menu
+	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
+
+	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this,
+								SLOT( addSong() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
+	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this,
+								SLOT( addCurrentSong() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
+	m_pPlaylistMenu->addSeparator();				// -----
+	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this,
+								SLOT( removeFromList() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
+	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
+								SLOT( clearPlaylist() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
+	m_pPlaylistMenu->addSeparator();
+	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
+	m_pPlaylistMenu->addSeparator();
+	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
+	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this,
+								SLOT( saveListAs() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
+	m_pPlaylistMenu->setFont( font );
+
+#ifndef WIN32
+	// Script menu
+	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
+
+	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this,
+							  SLOT( loadScript() ),
+							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
+	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this,
+							  SLOT( editScript() ),
+							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
+	m_pScriptMenu->addSeparator();
+	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this,
+							  SLOT( removeScript() ),
+							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
+	m_pScriptMenu->addSeparator();
+	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this,
+							  SLOT( newScript() ),
+							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
+	m_pScriptMenu->setFont( font );
+#endif
 }
 
 void PlaylistDialog::closeEvent( QCloseEvent* ev )
@@ -905,30 +927,110 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 {
 	UNUSED ( o );
 	if ( e->type() == QEvent::KeyPress ) {
-		QKeyEvent *k = ( QKeyEvent * ) e;
+		// special processing for key press
+		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
+		assert( pKeyEvent != nullptr );
 
-		switch ( k->key() ) {
-		case  Qt::Key_F5 :
-			if(    Playlist::get_instance()->size() == 0 
-				|| Playlist::get_instance()->getActiveSongNumber() <=0) {
-				break;
-			}
+		return handleKeyEvent( pKeyEvent );
+	}
 
-			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
-			return true;
-			break;
-		case  Qt::Key_F6 :
-			if(		Playlist::get_instance()->size() == 0
-				||	Playlist::get_instance()->getActiveSongNumber() >= Playlist::get_instance()->size() -1) {
-				break;
-			}
-			
-			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
-			return true;
+	return false;
+}
+
+bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
+	auto pShortcuts = Preferences::get_instance()->getShortcuts();
+	auto pActionManager = MidiActionManager::get_instance();
+	
+	int nKey = pKeyEvent->key();
+
+	if ( nKey == Qt::Key_Escape ) {
+		// Close window when hitting ESC.
+		HydrogenApp::get_instance()->showPlaylistDialog();
+		return true;
+	}
+	
+	const Qt::KeyboardModifiers modifiers = pKeyEvent->modifiers();
+    if ( modifiers & Qt::ShiftModifier ) {
+        nKey += Qt::SHIFT;
+	}
+    if ( modifiers & Qt::ControlModifier ) {
+        nKey += Qt::CTRL;
+	}
+    if ( modifiers & Qt::AltModifier ) {
+        nKey += Qt::ALT;
+	}
+    if ( modifiers & Qt::MetaModifier ) {
+        nKey += Qt::META;
+	}
+	const auto keySequence = QKeySequence( nKey );
+	
+	const auto actions = pShortcuts->getActions( keySequence );
+	for ( const auto& action : actions ) {
+		
+		switch ( action ) {
+		case Shortcuts::Action::PlaylistNextSong: {
+			auto pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+			pActionManager->handleAction( pAction );
 			break;
 		}
-	} else {
-		return false; // standard event processing
+
+		case Shortcuts::Action::PlaylistPrevSong: {
+			auto pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+			pActionManager->handleAction( pAction );
+			break;
+		}
+		case Shortcuts::Action::PlaylistAddSong:
+			addSong();
+			break;
+			
+		case Shortcuts::Action::PlaylistAddCurrentSong:
+			addCurrentSong();
+			break;
+			
+		case Shortcuts::Action::PlaylistRemoveSong:
+			removeFromList();
+			break;
+			
+		case Shortcuts::Action::NewPlaylist:
+			clearPlaylist();
+			break;
+			
+		case Shortcuts::Action::OpenPlaylist:
+			loadList();
+			break;
+			
+		case Shortcuts::Action::SavePlaylist:
+			saveList();
+			break;
+			
+		case Shortcuts::Action::SaveAsPlaylist:
+			saveListAs();
+			break;
+
+#ifndef WIN32
+		case Shortcuts::Action::PlaylistAddScript:
+			loadScript();
+			break;
+			
+		case Shortcuts::Action::PlaylistEditScript:
+			editScript();
+			break;
+			
+		case Shortcuts::Action::PlaylistRemoveScript:
+			removeScript();
+			break;
+			
+		case Shortcuts::Action::PlaylistCreateScript:
+			newScript();
+			break;
+		}
+#endif
+	}
+
+	if ( actions.size() > 0 ) {
+		// Event consumed by the actions triggered above.
+		pKeyEvent->accept();
+		return true;
 	}
 
 	return false;
@@ -1001,5 +1103,9 @@ void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes 
 			pNode = m_pPlaylistTree->itemBelow( pNode );
 		}
 		
+	}
+	
+	if ( changes & H2Core::Preferences::Changes::ShortcutTab ) {
+		populateMenuBar();
 	}
 }

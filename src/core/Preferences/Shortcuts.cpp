@@ -218,6 +218,18 @@ void Shortcuts::createDefaultShortcuts() {
 	}
 	insertShortcut( Qt::Key_7, Action::VK_A_sharp3 );
 	insertShortcut( Qt::Key_U, Action::VK_B3 );
+
+	// Playlist Editor
+	insertShortcut( Qt::Key_A + Qt::ControlModifier, Action::PlaylistAddSong );
+	insertShortcut( Qt::Key_A + Qt::ControlModifier + Qt::AltModifier,
+					Action::PlaylistAddCurrentSong );
+	insertShortcut( QKeySequence::StandardKey::Delete, Action::PlaylistRemoveSong );
+	insertShortcut( Qt::Key_N + Qt::ControlModifier, Action::NewPlaylist );
+	insertShortcut( Qt::Key_O + Qt::ControlModifier, Action::OpenPlaylist );
+	insertShortcut( Qt::Key_S + Qt::ControlModifier, Action::SavePlaylist );
+	insertShortcut( Qt::Key_S + Qt::ControlModifier + Qt::ShiftModifier,
+					Action::SaveAsPlaylist );
+
 }
 
 std::vector<Shortcuts::Action> Shortcuts::getActions( QKeySequence keySequence ) const {
@@ -518,6 +530,44 @@ void Shortcuts::createActionInfoMap() {
 					  QT_TRANSLATE_NOOP( "Shortcuts", "A#3" ) );
 	insertActionInfo( Shortcuts::Action::VK_B3, Category::VirtualKeyboard,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "B3" ) );
+
+	// Playlist Editor
+	insertActionInfo( Shortcuts::Action::PlaylistAddSong, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Add song to Playlist" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistAddCurrentSong, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Add current song to Playlist" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistRemoveSong, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Remove song from Playlist" ) );
+	insertActionInfo( Shortcuts::Action::NewPlaylist, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Create new Playlist" ) );
+	insertActionInfo( Shortcuts::Action::OpenPlaylist, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Open Playlist from disk" ) );
+	insertActionInfo( Shortcuts::Action::SavePlaylist, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Save modifications to Playlist" ) );
+	insertActionInfo( Shortcuts::Action::SaveAsPlaylist, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Save modifications to new Playlist" ) );
+
+#ifndef WIN32
+	insertActionInfo( Shortcuts::Action::PlaylistAddScript, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Add script to Playlist" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistEditScript, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Edit script" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistRemoveScript, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Remove script from Playlist" ) );
+	insertActionInfo( Shortcuts::Action::PlaylistCreateScript, Category::PlaylistEditor,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Create script for Playlist" ) );
+#endif
 }
 
 QString Shortcuts::categoryToQString( Category category ) {

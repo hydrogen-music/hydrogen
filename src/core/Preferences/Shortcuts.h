@@ -139,6 +139,20 @@ public:
 		VK_A3					 = 421,
 		VK_A_sharp3				 = 422,
 		VK_B3					 = 423,
+
+		// Playlist editor
+		PlaylistAddSong			 = 600,
+		PlaylistAddCurrentSong	 = 601,
+		PlaylistRemoveSong		 = 602,
+		NewPlaylist				 = 603,
+		OpenPlaylist			 = 604,
+		SavePlaylist			 = 605,
+		SaveAsPlaylist			 = 606,
+		
+		PlaylistAddScript	 	 = 607,
+		PlaylistEditScript		 = 608,
+		PlaylistRemoveScript	 = 609,
+		PlaylistCreateScript	 = 610,
 		
 		/** null element indicating that no action was set*/
 		Null					 = 1000
