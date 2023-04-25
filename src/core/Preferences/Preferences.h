@@ -134,7 +134,9 @@ public:
 		/** Any option in the MIDI tab appeared.*/
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
-		OscTab = 0x040
+		OscTab = 0x040,
+		/** At least one shortcut was changed.*/
+		ShortcutTab = 0x080,
 	};
 
 	bool				__playsamplesonclicking; // audio file browser

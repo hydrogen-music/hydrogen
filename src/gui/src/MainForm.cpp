@@ -268,10 +268,11 @@ MainForm::~MainForm()
 ///
 void MainForm::createMenuBar()
 {
+	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pShortcuts = pPref->getShortcuts();
 	// menubar
 	QMenuBar *pMenubar = new QMenuBar( this );
 	pMenubar->setObjectName( "MainMenu" );
-	setMenuBar( pMenubar );
 
 	// FILE menu
 	m_pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
@@ -315,52 +316,64 @@ void MainForm::createMenuBar()
 	}
 	
 	m_pFileMenu->addAction( sLabelNew, this,
-							SLOT( action_file_new() ) );
+							SLOT( action_file_new() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 	
 	m_pFileMenu->addAction( tr( "Song Properties" ), this,
-							SLOT( action_file_songProperties() ) );
+							SLOT( action_file_songProperties() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( sLabelOpen, this,
-							SLOT( action_file_open() ) );
+							SLOT( action_file_open() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
 	if ( ! bUnderSessionManagement ) {
 		m_pFileMenu->addAction( sLabelOpenDemo, this,
-								SLOT( action_file_openDemo() ) );
+								SLOT( action_file_openDemo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenDemoSong ) );
 	}
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( tr( "&Save" ), this,
-							SLOT( action_file_save() ) );
+							SLOT( action_file_save() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::SaveSong ) );
 	m_pFileMenu->addAction( sLabelSaveAs, this,
-							SLOT( action_file_save_as() ) );
+							SLOT( action_file_save_as() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::SaveAsSong ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( tr ( "Open &Pattern" ), this,
-							SLOT ( action_file_openPattern() ) );
+							SLOT ( action_file_openPattern() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
 	m_pFileMenu->addAction( tr( "E&xport Pattern As..." ), this,
-							SLOT( action_file_export_pattern_as() ) );
+							SLOT( action_file_export_pattern_as() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportPattern ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( tr( "Export &MIDI File" ), this,
-							SLOT( action_file_export_midi() ) );
+							SLOT( action_file_export_midi() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportMIDI ) );
 	m_pFileMenu->addAction( tr( "&Export Song" ), this,
-							SLOT( action_file_export() ) );
+							SLOT( action_file_export() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportSong ) );
 	m_pFileMenu->addAction( tr( "Export &LilyPond File" ), this,
-							SLOT( action_file_export_lilypond() ) );
+							SLOT( action_file_export_lilypond() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportLilyPond ) );
 
 
 #ifndef Q_OS_MACX
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( tr("&Quit"), this,
-							SLOT( action_file_exit() ) );
+							SLOT( action_file_exit() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Quit ) );
 #endif
 
 	updateRecentUsedSongList();
@@ -370,100 +383,131 @@ void MainForm::createMenuBar()
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
-	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ) );
-	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ) );
-	m_pUndoMenu->addAction( tr( "Undo &History" ),
-							this, SLOT( openUndoStack() ) );
+	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
 	m_pDrumkitsMenu->addAction( tr( "&New" ), this,
-								SLOT( action_instruments_clearAll() ) );
+								SLOT( action_instruments_clearAll() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
 	m_pDrumkitsMenu->addAction( tr( "&Open" ), this,
-								SLOT( action_banks_open() ) );
+								SLOT( action_banks_open() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
 	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this,
-								SLOT( action_banks_properties() ) );
+								SLOT( action_banks_properties() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
 	m_pDrumkitsMenu->addAction( tr( "&Save" ), this,
-								SLOT( action_instruments_saveLibrary() ) );
+								SLOT( action_instruments_saveLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
 	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this,
-								SLOT( action_instruments_saveAsLibrary() ) );
+								SLOT( action_instruments_saveAsLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
 	m_pDrumkitsMenu->addAction( tr( "&Export" ), this,
-								SLOT( action_instruments_exportLibrary() ) );
+								SLOT( action_instruments_exportLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
 	m_pDrumkitsMenu->addAction( tr( "&Import" ), this,
-								SLOT( action_instruments_importLibrary() ) );
+								SLOT( action_instruments_importLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
 	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this,
-								SLOT( action_instruments_onlineImportLibrary() ) );
+								SLOT( action_instruments_onlineImportLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
 
 	// INSTRUMENTS MENU
 	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
 	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this,
-								   SLOT( action_instruments_addInstrument() ) );
+								   SLOT( action_instruments_addInstrument() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
 	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this,
-								   SLOT( action_instruments_clearAll() ) );
+								   SLOT( action_instruments_clearAll() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::ClearAllInstruments ) );
 
 	m_pInstrumentsMenu->addSeparator();				// -----
 
 	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this,
-								   SLOT( action_instruments_addComponent() ) );
+								   SLOT( action_instruments_addComponent() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
 	m_pViewPlaylistEditorAction =
 		m_pViewMenu->addAction( tr("Play&list Editor"), this,
-								SLOT( action_window_showPlaylistDialog() ) );
+								SLOT( action_window_showPlaylistDialog() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
 	m_pViewDirectorAction =
 		m_pViewMenu->addAction( tr("&Director"), this,
-								SLOT( action_window_show_DirectorWidget() ) );
+								SLOT( action_window_show_DirectorWidget() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) );
 	m_pViewDirectorAction->setCheckable( true );
 
 	m_pFileMenu->addSeparator();
 	m_pViewMixerAction =
 		m_pViewMenu->addAction( tr("&Mixer"), this,
-								SLOT( action_window_showMixer() ) );
+								SLOT( action_window_showMixer() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
 	m_pViewMixerInstrumentRackAction =
 		m_pViewMenu->addAction( tr("&Instrument Rack"), this,
-								SLOT( action_window_showInstrumentRack() ) );
+								SLOT( action_window_showInstrumentRack() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
-	update_instrument_checkbox( Preferences::get_instance()->getInstrumentRackProperties().visible );
+	update_instrument_checkbox( pPref->getInstrumentRackProperties().visible );
 
 	m_pViewAutomationPathAction =
 		m_pViewMenu->addAction( tr("&Automation Path"), this,
-								SLOT( action_window_showAutomationArea() ) );
+								SLOT( action_window_showAutomationArea() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) );
 	m_pViewAutomationPathAction->setCheckable( true );
-	update_automation_checkbox();
+	if ( pPref->getShowAutomationArea() ){
+		m_pViewAutomationPathAction->setChecked(true);	
+	} else {
+		m_pViewAutomationPathAction->setChecked(false);
+	}
 
 	m_pViewMenu->addSeparator();				// -----
 
 	m_pViewTimelineAction =
 		m_pViewMenu->addAction( tr("&Timeline"), this,
-								SLOT( action_window_showTimeline() ) );
+								SLOT( action_window_showTimeline() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowTimeline ) );
 	m_pViewTimelineAction->setCheckable( true );
 	
 	m_pViewPlaybackTrackAction =
 		m_pViewMenu->addAction( tr("&Playback Track"), this,
-								SLOT( action_window_showPlaybackTrack() ) );
+								SLOT( action_window_showPlaybackTrack() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
 
 	m_pViewPlaybackTrackActionGroup = new QActionGroup( this );
 	m_pViewPlaybackTrackActionGroup->addAction( m_pViewTimelineAction );
 	m_pViewPlaybackTrackActionGroup->addAction( m_pViewPlaybackTrackAction );
-	update_playback_track_group();
+
+	// Note that the ActionGroup unchecks the other menu item automatically
+	if ( pPref->getShowPlaybackTrack() ) {
+		m_pViewPlaybackTrackAction->setChecked( true );
+	} else {
+		m_pViewTimelineAction->setChecked( true );
+	}
 
 	m_pViewMenu->addSeparator();				// -----
 
 	m_pViewMenu->addAction( tr("&Full screen"), this,
-							SLOT( action_window_toggleFullscreen() ) );
+							SLOT( action_window_toggleFullscreen() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowFullscreen ) );
 
 
 	// Options menu
@@ -472,25 +516,28 @@ void MainForm::createMenuBar()
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
 	m_pInstrumentAction =
 		m_pInputModeMenu->addAction( tr( "&Instrument" ), this,
-									 SLOT( action_inputMode_instrument() ) );
+									 SLOT( action_inputMode_instrument() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::InputInstrument ) );
 	m_pInstrumentAction->setCheckable( true );
 
 	m_pDrumkitAction =
 		m_pInputModeMenu->addAction( tr( "&Drumkit" ), this,
-									 SLOT( action_inputMode_drumkit() ) );
+									 SLOT( action_inputMode_drumkit() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
 	m_pDrumkitAction->setCheckable( true );
 
-	if( Preferences::get_instance()->__playselectedinstrument )
-	{
+	if ( pPref->__playselectedinstrument ) {
 		m_pInstrumentAction->setChecked( true );
 		m_pDrumkitAction->setChecked (false );
-	} else {
+	}
+	else {
 		m_pInstrumentAction->setChecked( false );
 		m_pDrumkitAction->setChecked (true );
 	}
 
 	m_pOptionsMenu->addAction( tr("&Preferences"), this,
-							   SLOT( showPreferencesDialog() ) );
+							   SLOT( showPreferencesDialog() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) );
 
 	// ~ Tools menu
 
@@ -500,28 +547,37 @@ void MainForm::createMenuBar()
 		// DEBUG menu
 		m_pDebugMenu = pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this,
-								 SLOT( action_debug_showAudioEngineInfo() ) );
+								 SLOT( action_debug_showAudioEngineInfo() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::ShowAudioEngineInfo ) );
 		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this,
-								 SLOT( action_debug_showFilesystemInfo() ) );
+								 SLOT( action_debug_showFilesystemInfo() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::ShowFilesystemInfo ) );
 		
 		m_pLogLevelMenu = m_pDebugMenu->addMenu( tr( "&Log Level" ) );		
 		m_pLogLevelMenu->addAction( tr( "&None" ), this,
-									SLOT( action_debug_logLevel_none() ) );
+									SLOT( action_debug_logLevel_none() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelNone ) );
 		m_pLogLevelMenu->addAction( tr( "&Error" ), this,
-									SLOT( action_debug_logLevel_error() ) );
+									SLOT( action_debug_logLevel_error() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelError ) );
 		m_pLogLevelMenu->addAction( tr( "&Warning" ), this,
-									SLOT( action_debug_logLevel_warn() ) );
+									SLOT( action_debug_logLevel_warn() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelWarning ) );
 		m_pLogLevelMenu->addAction( tr( "&Info" ), this,
-									SLOT( action_debug_logLevel_info() ) );
+									SLOT( action_debug_logLevel_info() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelInfo ) );
 		m_pLogLevelMenu->addAction( tr( "&Debug" ), this,
-									SLOT( action_debug_logLevel_debug() ) );
+									SLOT( action_debug_logLevel_debug() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelDebug ) );
 		
 		m_pDebugMenu->addAction( tr( "&Open Log File" ), this,
-								 SLOT( action_debug_openLogfile()) );
+								 SLOT( action_debug_openLogfile() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::OpenLogFile ) );
 		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "&Print Objects" ), this,
-									 SLOT( action_debug_printObjects() ) );
+									 SLOT( action_debug_printObjects() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::DebugPrintObjects ) );
 		}
 		// ~ DEBUG menu
 	}
@@ -529,13 +585,18 @@ void MainForm::createMenuBar()
 	// INFO menu
 	m_pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
 	m_pInfoMenu->addAction( tr("User &Manual"), this,
-							SLOT( showUserManual() ) );
+							SLOT( showUserManual() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenManual ) );
 	m_pInfoMenu->addSeparator();
-	m_pInfoMenu->addAction( tr("&About"), this,
-							SLOT( action_help_about() ) );
-	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ) );
-	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ) );
+	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowAbout ) );
+	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowReportBug ) );
+	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowDonate ) );
 	// ~ INFO menu
+
+	setMenuBar( pMenubar );
 }
 
 void MainForm::startAutosaveTimer() {
@@ -1510,29 +1571,6 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
-void MainForm::update_automation_checkbox()
-{
-	Preferences *pref = Preferences::get_instance();
-	
-	if(pref->getShowAutomationArea()){
-		m_pViewAutomationPathAction->setChecked(true);	
-	} else {
-		m_pViewAutomationPathAction->setChecked(false);
-	}
-}
-
-void MainForm::update_playback_track_group()
-{
-	Preferences *pPref = Preferences::get_instance();
-
-	// Note that the ActionGroup unchecks the other menu item automatically
-	if ( pPref->getShowPlaybackTrack() ) {
-		m_pViewPlaybackTrackAction->setChecked( true );
-	} else {
-		m_pViewTimelineAction->setChecked( true );
-	}
-}
-
 void MainForm::savePreferences() {
 	// save window properties in the preferences files
 	Preferences *pPreferences = Preferences::get_instance();
@@ -1600,6 +1638,10 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::GeneralTab ) {
 		startAutosaveTimer();
+	}
+	
+	if ( changes & H2Core::Preferences::Changes::ShortcutTab ) {
+		createMenuBar();
 	}
 }
 	

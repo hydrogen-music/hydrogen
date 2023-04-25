@@ -1129,6 +1129,9 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	if ( m_bShortcutsChanged ) {
 		pPref->setShortcuts( m_pShortcuts );
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::ShortcutTab );
 	}
 
 	//////////////////////////////////////////////////////////////////
