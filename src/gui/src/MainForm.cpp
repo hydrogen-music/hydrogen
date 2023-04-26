@@ -163,7 +163,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 	h2app->getDirector()->installEventFilter(this);
-	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));

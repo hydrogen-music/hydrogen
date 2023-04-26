@@ -23,6 +23,7 @@
 
 #include "PlaylistDialog.h"
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "../CommonStrings.h"
 #include "../InstrumentRack.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
@@ -931,7 +932,9 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
 		assert( pKeyEvent != nullptr );
 
-		return handleKeyEvent( pKeyEvent );
+		if ( ! handleKeyEvent( pKeyEvent ) ) {
+			return HydrogenApp::get_instance()->getMainForm()->eventFilter( o, e );
+		}
 	}
 
 	return false;
@@ -963,71 +966,72 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
         nKey += Qt::META;
 	}
 	const auto keySequence = QKeySequence( nKey );
+	bool bHandled = false;
 	
 	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {
 		
 		switch ( action ) {
-		case Shortcuts::Action::PlaylistNextSong: {
-			auto pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
-
-		case Shortcuts::Action::PlaylistPrevSong: {
-			auto pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
-			pActionManager->handleAction( pAction );
-			break;
-		}
 		case Shortcuts::Action::PlaylistAddSong:
 			addSong();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::PlaylistAddCurrentSong:
 			addCurrentSong();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::PlaylistRemoveSong:
 			removeFromList();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::NewPlaylist:
 			clearPlaylist();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::OpenPlaylist:
 			loadList();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::SavePlaylist:
 			saveList();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::SaveAsPlaylist:
 			saveListAs();
+			bHandled = true;
 			break;
 
 #ifndef WIN32
 		case Shortcuts::Action::PlaylistAddScript:
 			loadScript();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::PlaylistEditScript:
 			editScript();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::PlaylistRemoveScript:
 			removeScript();
+			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::PlaylistCreateScript:
 			newScript();
+			bHandled = true;
 			break;
 		}
 #endif
 	}
 
-	if ( actions.size() > 0 ) {
+	if ( bHandled ) {
 		// Event consumed by the actions triggered above.
 		pKeyEvent->accept();
 		return true;
