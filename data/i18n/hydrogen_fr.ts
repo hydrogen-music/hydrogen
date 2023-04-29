@@ -878,7 +878,12 @@ Kit actuel :</translation>
     <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation>Vous n'avez pas le droit d'écriture dans le dossier sélectionné. Veuillez en sélectionner un autre.</translation>
+        <translation>Vous n&apos;avez pas le droit d&apos;écriture dans le dossier sélectionné. Veuillez en sélectionner un autre.</translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation>session</translation>
     </message>
 </context>
 <context>
@@ -3735,6 +3740,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Theme reset</source>
         <translation>Réinitialisation du thème</translation>
     </message>
+    <message>
+        <source>Virtual Row</source>
+        <translation>Rangée virtuelle</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5324,8 +5333,17 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
         <translation>Double-clic pour étendre la liste</translation>
     </message>
     <message>
-        <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation>est un kit de batterie système et ne peut pas être supprimé.</translation>
+        <source>Session drumkits</source>
+        <translation>Kits de batterie de session</translation>
+    </message>
+    <message>
+        <source>Created for drumkit</source>
+        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
+        <translation>Créé pour le kit de batterie</translation>
+    </message>
+    <message>
+        <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation>est un kit de batterie en lecture seule et ne peut être supprimé.</translation>
     </message>
 </context>
 <context>
