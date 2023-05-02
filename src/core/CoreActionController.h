@@ -420,6 +420,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
 											  QString* sDrumkitDir, QString* sTemporaryFolder );
+
+	/**
+	 * Set's song-level tempo of the #AudioEngine and stores the value
+	 * in the current #Song.
+	 */
+	void setBpm( float fBpm );
+
 private:
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );

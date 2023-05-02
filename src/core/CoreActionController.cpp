@@ -1707,4 +1707,30 @@ void CoreActionController::insertRecentFile( const QString sFilename ){
 
 	pPref->setRecentFiles( recentFiles );
 }
+
+void CoreActionController::setBpm( float fBpm ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set yet" );
+		return;
+	}
+
+	fBpm = std::clamp( fBpm, static_cast<float>(MIN_BPM),
+						  static_cast<float>(MAX_BPM) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->setNextBpm( fBpm );
+	pAudioEngine->unlock();
+
+	// Store it's value in the .h2song file.
+	pHydrogen->getSong()->setBpm( fBpm );
+
+	pHydrogen->setIsModified( true );
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+}
 }

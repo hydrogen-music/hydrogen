@@ -769,15 +769,10 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 }
 
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
-	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	if ( m_pLCDBPMSpinbox->getIsActive() &&
 		 m_bLCDBPMSpinboxIsArmed ) {
-		// Store it's value in the .h2song file.
-		m_pHydrogen->getSong()->setBpm( static_cast<float>( fNewBpmValue ) );
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( static_cast<float>( fNewBpmValue ) );
-		pAudioEngine->unlock();
+		m_pHydrogen->getCoreActionController()->
+			setBpm( static_cast<float>( fNewBpmValue ) );
 	}
 }
 
