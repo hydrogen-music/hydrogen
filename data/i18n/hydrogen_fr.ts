@@ -2602,7 +2602,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <name>MixerSettingsDialog_UI</name>
     <message>
         <source>Select Pan Law:</source>
-        <translation>Sélectionner la loi le panoramique</translation>
+        <translation>Sélectionner la loi de panoramique :</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
