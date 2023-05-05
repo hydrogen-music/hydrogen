@@ -38,6 +38,7 @@
 
 #include <QDir>
 #include <QTemporaryDir>
+#include <QTime>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
@@ -244,7 +245,10 @@ void XmlTest::testDrumkitUpgrade() {
 		CPPUNIT_ASSERT( ! pCoreActionController->validateDrumkit( sDrumkitPath, false ) );
 
 		// The number of files within the drumkit has to be constant.
-		QTemporaryDir contentOriginal( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		QTemporaryDir contentOriginal( H2Core::Filesystem::tmp_dir() +
+									   "testDrumkitUpgrade_orig-" +
+									   QTime::currentTime().toString( "hh:mm:ss.zzz" ) +
+									   "-XXXXXX" );
 		contentOriginal.setAutoRemove( false );
 		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sDrumkitPath,
 															   contentOriginal.path() ) );
@@ -256,7 +260,10 @@ void XmlTest::testDrumkitUpgrade() {
 		// Upgrade the legacy kit and store the result in a temporary
 		// folder (they will be automatically removed by Qt as soon as
 		// the variable gets out of scope)
-		QTemporaryDir firstUpgrade( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		QTemporaryDir firstUpgrade( H2Core::Filesystem::tmp_dir() +
+									"testDrumkitUpgrade_firstUpgrade-" +
+									QTime::currentTime().toString( "hh:mm:ss.zzz" ) +
+									"-XXXXXX" );
 		firstUpgrade.setAutoRemove( false );
 		CPPUNIT_ASSERT( pCoreActionController->upgradeDrumkit( sDrumkitPath,
 															   firstUpgrade.path() ) );
@@ -269,8 +276,40 @@ void XmlTest::testDrumkitUpgrade() {
 							  upgradeFolder.entryList( QDir::AllEntries |
 													   QDir::NoDotAndDotDot )[ 0 ] );
 		CPPUNIT_ASSERT( pCoreActionController->validateDrumkit( sUpgradedKit, false ) );
+
+		// Check whether the drumkit call be loaded properly.
+		bool b;
+		QString s1, s2;
+		auto pDrumkit =
+			pCoreActionController->retrieveDrumkit( firstUpgrade.path() + "/" + ssFile,
+													&b, &s1, &s2 );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+		if ( pDrumkit->get_name() == "Boss DR-110" ) {
+			// For our default kit we put in some prior knowledge to
+			// check whether the upgrade process produce the expected
+			// results.
+			auto pInstrumentList = pDrumkit->get_instruments();
+			CPPUNIT_ASSERT( pInstrumentList != nullptr );
+			CPPUNIT_ASSERT( pInstrumentList->size() == 6 );
+
+			auto pInstrument = pInstrumentList->get( 0 );
+			CPPUNIT_ASSERT( pInstrument != nullptr );
+
+			auto pComponents = pInstrument->get_components();
+			CPPUNIT_ASSERT( pComponents != nullptr );
+			CPPUNIT_ASSERT( pComponents->size() == 1 );
+
+			auto pComponent = pComponents->at( 0 );
+			CPPUNIT_ASSERT( pComponent != nullptr );
+			
+			auto pLayers = pComponent->get_layers();
+			CPPUNIT_ASSERT( pLayers.size() == 2 );
+		}
 		
-		QTemporaryDir contentUpgraded( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		QTemporaryDir contentUpgraded( H2Core::Filesystem::tmp_dir() +
+									"testDrumkitUpgrade_contentUpgraded-" +
+									QTime::currentTime().toString( "hh:mm:ss.zzz" ) +
+									"-XXXXXX" );
 		contentUpgraded.setAutoRemove( false );
 		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sUpgradedKit,
 															   contentUpgraded.path() ) );
@@ -296,7 +335,10 @@ void XmlTest::testDrumkitUpgrade() {
 
 		// Now we upgrade the upgraded drumkit again and bit-compare
 		// the results.
-		QTemporaryDir secondUpgrade( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		QTemporaryDir secondUpgrade( H2Core::Filesystem::tmp_dir() +
+									"testDrumkitUpgrade_secondUpgrade-" +
+									QTime::currentTime().toString( "hh:mm:ss.zzz" ) +
+									 "-XXXXXX" );
 		secondUpgrade.setAutoRemove( false );
 		CPPUNIT_ASSERT( pCoreActionController->upgradeDrumkit( sUpgradedKit,
 															   secondUpgrade.path() ) );
@@ -308,7 +350,10 @@ void XmlTest::testDrumkitUpgrade() {
 								upgradeFolder.entryList( QDir::AllEntries |
 														 QDir::NoDotAndDotDot )[ 0 ] );
 
-		QTemporaryDir contentValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		QTemporaryDir contentValidation( H2Core::Filesystem::tmp_dir() +
+										 "testDrumkitUpgrade_contentValidation-" +
+										 QTime::currentTime().toString( "hh:mm:ss.zzz" ) +
+										 "-XXXXXX" );
 		contentValidation.setAutoRemove( false );
 		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sUpgradedKit,
 															   contentValidation.path() ) );

@@ -1259,10 +1259,10 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 
-	// We do not attempt to retrieve the drumkit from disk since this
-	// function is intended to be used for validating or upgrading
-	// drumkits via CLI or OSC command. It should always refer to the
-	// latest copy found on disk.
+	// We do not attempt to retrieve the drumkit from SoundLibrary
+	// since this function is intended to be used for validating or
+	// upgrading drumkits via CLI or OSC command. It should always
+	// refer to the latest copy found on disk.
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
