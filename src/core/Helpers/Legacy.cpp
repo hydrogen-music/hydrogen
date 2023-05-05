@@ -53,18 +53,32 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 
 	if ( pNode->firstChildElement( "filename" ).isNull() ) {
 		// not that old but no component yet.
+		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+
 		XMLNode layerNode = pNode->firstChildElement( "layer" );
-		if ( layerNode.isNull() ) {
+		int nLayer = 0;
+		while ( ! layerNode.isNull() ) {
+			if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
+				ERRORLOG( QString( "Layer #%1 >= m_nMaxLayers (%2). This as well as all further layers will be omitted." )
+						  .arg( nLayer )
+						  .arg( InstrumentComponent::getMaxLayers() ) );
+				break;
+			}
+
+			auto pLayer = InstrumentLayer::load_from( &layerNode, sDrumkitPath,
+													  drumkitLicense, bSilent );
+			if ( pLayer != nullptr ) {
+				pCompo->set_layer( pLayer, nLayer );
+				nLayer++;
+			}
+			layerNode = layerNode.nextSiblingElement( "layer" );
+		}
+		
+		if ( nLayer == 0 ) {
 			ERRORLOG( "Unable to load instrument component. Neither 'filename', 'instrumentComponent', nor 'layer' node found. Aborting." );
 			return nullptr;
 		}
 		
-		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-		pCompo->set_layer( InstrumentLayer::load_from( &layerNode,
-													   sDrumkitPath,
-													   drumkitLicense,
-													   bSilent ),
-						   0 );
 		return pCompo;
 	}
 	else {
