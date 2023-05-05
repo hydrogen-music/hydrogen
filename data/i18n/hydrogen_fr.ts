@@ -2602,7 +2602,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <name>MixerSettingsDialog_UI</name>
     <message>
         <source>Select Pan Law:</source>
-        <translation>Sélectionner la loi le panoramique</translation>
+        <translation>Sélectionner la loi de panoramique :</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2818,8 +2818,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Velocite</translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>Pan</source>
@@ -2839,8 +2838,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>NoteKey</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Numero de note</translation>
+        <translation>Numéro de note</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -2852,8 +2850,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Probability</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Probabilite</translation>
+        <translation>Probabilité</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -3034,8 +3031,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translatorcomment>Faute sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Mode motif selectionne.</translation>
+        <translation>Mode motif sélectionné.</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -3091,8 +3087,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation> Compter et regler les BPM</translation>
+        <translation> Compter et régler les BPM</translation>
     </message>
     <message>
         <source>Record</source>
@@ -3100,13 +3095,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Enregistrer les evenements MIDI = actif</translation>
+        <translation>Enregistrer les événements MIDI = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Enregistrer les evenements MIDI = inactif</translation>
+        <translation>Enregistrer les événements MIDI = inactif</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
@@ -3114,13 +3107,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
+        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translatorcomment>Fautes sur l&apos;accent aigu et l&apos;apostrophe manquant faites exprès car c&apos;est sur l&apos;affichage LCD et les accents et l&apos;apostrophe n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
+        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -4861,8 +4852,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Velocite</translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>selected pattern mode</source>
