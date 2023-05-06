@@ -241,8 +241,11 @@ void TransportTest::testSampleConsistency() {
 
 	// Apply drumkit containing the long sample to be tested.
 	pCoreActionController->setDrumkit( sDrumkitDir, true );
-	
+
+	qDebug() << "[TransportTest::testSampleConsistency] start export";
 	TestHelper::exportSong( sOutFile );
+	qDebug() << "[TransportTest::testSampleConsistency] done exporting";
+	
 	H2TEST_ASSERT_AUDIO_FILES_DATA_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
