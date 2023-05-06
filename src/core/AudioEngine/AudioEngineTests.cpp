@@ -1221,7 +1221,8 @@ void AudioEngineTests::testHumanization() {
 		
 		int nn = 0;
 		bool bEndOfSongReached = false;
-		while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ) {
+		while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
+				pAE->getEnqueuedNotesNumber() > 0 ) {
 
 			if ( ! bEndOfSongReached ) {
 				if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
@@ -1265,8 +1266,6 @@ void AudioEngineTests::testHumanization() {
 	auto setSwing = [&]( double fValue ) {
 		fValue = std::clamp( fValue, 0.0, 1.0 );
 
-		pSong->setHumanizeTimeValue( fValue );
-		pSong->setHumanizeVelocityValue( fValue );
 		pSong->setSwingFactor( fValue );
 	};
 
