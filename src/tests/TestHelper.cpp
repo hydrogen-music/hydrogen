@@ -252,13 +252,18 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 	while ( ! bDone ) {
 		H2Core::Event event = pQueue->pop_event();
 
-		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
-			bDone = true;
+		if (event.type == H2Core::EVENT_PROGRESS) {
+			qDebug() << "[TestHelper::exportSong] progress: " << event.value;
+			if ( event.value == 100 ) {
+				qDebug() << "[TestHelper::exportSong] done";
+				bDone = true;
+			}
 		}
 		else if ( event.type == H2Core::EVENT_NONE ) {
 			usleep(100 * 1000);
 		}
 	}
+	qDebug() << "[TestHelper::exportSong] stopping export";
 	pHydrogen->stopExportSession();
 
 	auto t1 = std::chrono::high_resolution_clock::now();

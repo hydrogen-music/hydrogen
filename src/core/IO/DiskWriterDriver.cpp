@@ -293,12 +293,15 @@ void* diskWriterDriver_thread( void* param )
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
 		if ( nPercent < 100 ) {
+			qDebug() << "[diskWriterDriver_thread] nPrecent: " << nPercent;
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
 		}
 	}
 
 	// Explicitly mark export as finished.
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+	
+	qDebug() << "[diskWriterDriver_thread] done";
 	
 	delete[] pData;
 	pData = nullptr;
