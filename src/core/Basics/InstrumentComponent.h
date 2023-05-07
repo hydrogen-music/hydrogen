@@ -56,6 +56,15 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
 		std::shared_ptr<InstrumentLayer>	get_layer( int idx );
+	/**
+	 * Get all initialized layers.
+	 *
+	 * In it's current design #__layers is always of #MAX_LAYERS
+	 * length and all layer not used are set to nullptr. This
+	 * convenience function is used to query only those
+	 * #InstrumentLayer which were properly initialized.
+	 */
+	const std::vector<std::shared_ptr<InstrumentLayer>> get_layers() const;
 		void				set_layer( std::shared_ptr<InstrumentLayer> layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
@@ -136,7 +145,6 @@ inline std::shared_ptr<InstrumentLayer> InstrumentComponent::get_layer( int idx 
 	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
-
 };
 
 
