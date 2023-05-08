@@ -1228,12 +1228,12 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 
 bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> actions ) {
 
-	bool bResult = true;
+	bool bResult = false;
 	
 	for ( const auto& action : actions ) {
 		if ( action != nullptr ) {
-			if ( ! handleAction( action ) ) {
-				bResult = false;
+			if ( handleAction( action ) ) {
+				bResult = true;
 			}
 		}
 	}
