@@ -178,6 +178,16 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	return sOutput;
 }
 
+const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_layers() const {
+	std::vector<std::shared_ptr<InstrumentLayer>> layersUsed;
+	for ( const auto& layer : __layers ) {
+		if ( layer != nullptr ) {
+			layersUsed.push_back( layer );
+		}
+	}
+	
+	return layersUsed;
+}
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {
 	return __layers.begin();
 }
