@@ -2,6 +2,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Fix loading of legacy drumkits. All layers but the first one
+		  were dropped during drumkit upgrade (#1759)
+		- Fix MIDI input handling with "Discard MIDI messages after action
+		  has been triggered" checked. Incoming NOTEON message were
+		  dropped without triggering a sound (#1751)
 		- Fix beat and bar calculation in pattern mode (#1741)
 		- Fix compilation in GCC with -Werror=format-security (#1739)
 		- Explicit usage of Python3 in stats.py script
