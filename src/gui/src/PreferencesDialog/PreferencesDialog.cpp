@@ -2502,14 +2502,13 @@ void PreferencesDialog::initializeShortcutsTab() {
 	shortcutCategoryListView->clear();
 
 	m_shortcutCategories = {
-		Shortcuts::Category::Global,
-		Shortcuts::Category::MainForm,
-		Shortcuts::Category::Editors,
+		Shortcuts::Category::CommandNoArgs,
+		Shortcuts::Category::Command1Args,
+		Shortcuts::Category::Command2Args,
+		Shortcuts::Category::CommandManyArgs,
+		Shortcuts::Category::MainMenu,
 		Shortcuts::Category::VirtualKeyboard,
-		Shortcuts::Category::Mixer,
 		Shortcuts::Category::PlaylistEditor,
-		Shortcuts::Category::SampleEditor,
-		Shortcuts::Category::Director,
 		Shortcuts::Category::All };
 
 	IndexedTreeItem* pItem;

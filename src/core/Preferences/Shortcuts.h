@@ -40,79 +40,95 @@ class Shortcuts : public H2Core::Object<Shortcuts> {
 
 public:
 	enum class Action {
-		// (once defined as) Global shortcuts
-		Panic					 = 100,
-		TogglePlayback			 = 101,
-		TogglePlaybackAtCursor	 = 102,
-		BeatCounter				 = 103,
-		TapTempo				 = 104,
-		BPMIncrease				 = 105,
-		BPMDecrease				 = 106,
-		JumpToStart				 = 107,
-		JumpBarForward			 = 108,
-		JumpBarBackward			 = 109,
-		PlaylistNextSong		 = 110,
-		PlaylistPrevSong		 = 111,
+		// Command-based shortcuts with 0 arguments
+		FirstWith0Args			 =   0,
+		Panic					 =   1,
+		Play					 =   2,
+		Pause					 =   3,
+		Stop					 =   4,
+		PlayPauseToggle			 =   5,
+		PlayStopToggle			 =   6,
+		PlayPauseToggleAtCursor	 =   7,
 
-		// MainForm actions
-		NewSong					 = 200,
-		OpenSong				 = 201,
-		EditSongProperties		 = 202,
-		OpenDemoSong			 = 203,
-		SaveSong				 = 204,
-		SaveAsSong				 = 205,
-		OpenPattern				 = 206,
-		ExportPattern			 = 207,
-		ExportSong				 = 208,
-		ExportMIDI				 = 209,
-		ExportLilyPond			 = 210,
-		Quit					 = 211,
+		RecordReady				 =   8,
+		RecordStrobe			 =   9,
+		RecordStrobeToggle		 =  10,
+		RecordExit				 =  11,
+
+		MasterMute				 =  12,
+		MasterUnmute			 =  13,
+		MasterMuteToggle		 =  14,
+		MasterVolumeIncrease	 =  15,
+		MasterVolumeDecrease	 =  16,
+
+		JumpToStart				 =  17,
+		JumpBarForward			 =  18,
+		JumpBarBackward			 =  19,
+
+		BPMIncreaseCoarse		 =  20,
+		BPMDecreaseCoarse		 =  21,
+		BPMIncreaseFine			 =  22,
+		BPMDecreaseFine			 =  23,
+
+		BeatCounter				 =  24,
+		TapTempo				 =  25,
+
+		PlaylistNextSong		 =  26,
+		PlaylistPrevSong		 =  27,
+
+		TimelineToggle			 =  28,
+		MetronomeToggle			 =  29,
+		JackTransportToggle		 =  30,
+		JackTimebaseToggle		 =  31,
+		SongModeToggle			 =  32,
+		LoopModeToggle			 =  33,
+
+		LastWith0Args			 =  99,
+
+		// Command-based shortcuts with 1 arguments
+		FirstWith1Args			 = 100,
+		BPM						 = 101,
+		MasterVolume			 = 102,
+		JumpToBar				 = 103,
+
+		SelectNextPattern		 = 104,
+		SelectOnlyNextPattern	 = 105,
+		SelectAndPlayPattern	 = 106,
+
+		PlaylistSong			 = 107,
+
+		TimelineDeleteMarker	 = 108,
+		TimelineDeleteTag		 = 109,
+
+		SelectInstrument		 = 110,
+		StripVolumeIncrease		 = 112,
+		StripVolumeDecrease		 = 113,
+		StripMuteToggle			 = 114,
+		StripSoloToggle			 = 115,
+
+		LastWith1Args			 = 199,
+
+		// Command-based shortcuts with 2 arguments
+		FirstWith2Args			 = 200,
+		StripVolume				 = 201,
+		StripPan				 = 202,
+		StripFilterCutoff		 = 203,
+
+		TimelineAddMarker		 = 204,
+		TimelineAddTag			 = 205,
+
+		ToggleGridCell			 = 206,
+
+		LastWith2Args			 = 299,
+
+		// Command-based shortcuts with 3 arguments
+		FirstWithManyArgs		 = 300,
+		LayerPitch				 = 301,
+		LayerGain				 = 302,
 		
-		Undo					 = 212,
-		Redo					 = 213,
-		ShowUndoHistory			 = 214,
-		
-		NewDrumkit				 = 215,
-		OpenDrumkit				 = 216,
-		EditDrumkitProperties	 = 217,
-		SaveDrumkit				 = 218,
-		SaveAsDrumkit			 = 219,
-		ExportDrumkit			 = 220,
-		ImportDrumkit			 = 221,
-		ImportOnlineDrumkit		 = 222,
-		
-		AddInstrument			 = 223,
-		ClearAllInstruments		 = 224,
-		AddComponent			 = 225,
-		
-		ShowPlaylist			 = 226,
-		ShowDirector			 = 227,
-		ShowMixer				 = 228,
-		ShowInstrumentRack		 = 229,
-		ShowAutomation			 = 230,
-		ShowTimeline			 = 231,
-		ShowPlaybackTrack		 = 232,
-		ShowFullscreen			 = 233,
-		
-		InputInstrument			 = 234,
-		InputDrumkit			 = 235,
-		ShowPreferencesDialog	 = 236,
-		
-		ShowAudioEngineInfo		 = 237,
-		ShowFilesystemInfo		 = 238,
-		LogLevelNone			 = 239,
-		LogLevelError			 = 240,
-		LogLevelWarning			 = 241,
-		LogLevelInfo			 = 242,
-		LogLevelDebug			 = 243,
-		OpenLogFile				 = 244,
-		DebugPrintObjects		 = 245,
-		
-		OpenManual				 = 246,
-		ShowAbout				 = 247,
-		ShowReportBug			 = 248,
-		ShowDonate				 = 249,
-		
+		StripEffectLevel		 = 303,
+
+		LastWithManyArgs		 = 399,
 
 		// Virtual MIDI keyboard
 		VK_C2					 = 400,
@@ -140,6 +156,65 @@ public:
 		VK_A_sharp3				 = 422,
 		VK_B3					 = 423,
 
+		// MainForm actions
+		NewSong					 = 500,
+		OpenSong				 = 501,
+		EditSongProperties		 = 502,
+		OpenDemoSong			 = 503,
+		SaveSong				 = 504,
+		SaveAsSong				 = 505,
+		OpenPattern				 = 506,
+		ExportPattern			 = 507,
+		ExportSong				 = 508,
+		ExportMIDI				 = 509,
+		ExportLilyPond			 = 510,
+		Quit					 = 511,
+
+		Undo					 = 512,
+		Redo					 = 513,
+		ShowUndoHistory			 = 514,
+
+		NewDrumkit				 = 515,
+		OpenDrumkit				 = 516,
+		EditDrumkitProperties	 = 517,
+		SaveDrumkit				 = 518,
+		SaveAsDrumkit			 = 519,
+		ExportDrumkit			 = 520,
+		ImportDrumkit			 = 521,
+		ImportOnlineDrumkit		 = 522,
+
+		AddInstrument			 = 523,
+		ClearAllInstruments		 = 524,
+		AddComponent			 = 525,
+
+		ShowPlaylist			 = 526,
+		ShowDirector			 = 527,
+		ShowMixer				 = 528,
+		ShowInstrumentRack		 = 529,
+		ShowAutomation			 = 530,
+		ShowTimeline			 = 531,
+		ShowPlaybackTrack		 = 532,
+		ShowFullscreen			 = 533,
+
+		InputInstrument			 = 534,
+		InputDrumkit			 = 535,
+		ShowPreferencesDialog	 = 536,
+
+		ShowAudioEngineInfo		 = 537,
+		ShowFilesystemInfo		 = 538,
+		LogLevelNone			 = 539,
+		LogLevelError			 = 540,
+		LogLevelWarning			 = 541,
+		LogLevelInfo			 = 542,
+		LogLevelDebug			 = 543,
+		OpenLogFile				 = 544,
+		DebugPrintObjects		 = 545,
+
+		OpenManual				 = 546,
+		ShowAbout				 = 547,
+		ShowReportBug			 = 548,
+		ShowDonate				 = 549,
+
 		// Playlist editor
 		PlaylistAddSong			 = 600,
 		PlaylistAddCurrentSong	 = 601,
@@ -148,34 +223,29 @@ public:
 		OpenPlaylist			 = 604,
 		SavePlaylist			 = 605,
 		SaveAsPlaylist			 = 606,
-		
+
 		PlaylistAddScript	 	 = 607,
 		PlaylistEditScript		 = 608,
 		PlaylistRemoveScript	 = 609,
 		PlaylistCreateScript	 = 610,
-		
+
 		/** null element indicating that no action was set*/
 		Null					 = 1000
 	};
 
 	/** Scope the shortcut is applicable to*/
 	enum class Category {
-		/**
-		 * Those shortcuts are fixed and can not be edited by the user
-		 * in the #PreferencesDialog.*/
-		HardCoded = -1,
-		None = 0,
+		None = -1,
+		CommandNoArgs = 0,
 		/** Enabled in all windows of Hydrogen */
-		Global = 1,
-		MainForm = 2,
-		/** Enabled in both pattern and song editor*/
-		Editors = 3,
+		Command1Args = 1,
+		Command2Args = 2,
+		/** Core commands */
+		CommandManyArgs = 3,
 		/** Shortcuts associated with the virtual keyboard */
 		VirtualKeyboard = 4,
-		Mixer = 5,
+		MainMenu = 5,
 		PlaylistEditor = 6,
-		SampleEditor = 7,
-		Director = 8,
 		/** Not intended to be assigned to a shortcut but used for
 			filtering instead.*/
 		All = 100

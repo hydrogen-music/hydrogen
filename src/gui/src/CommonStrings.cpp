@@ -423,6 +423,46 @@ CommonStrings::CommonStrings(){
 	/*: Suffix appended to a drumkit that are loaded non-persistently
 	 *  into the current Hydrogen session. */
 	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Label shown in the input capture dialog for querying a new
+	  tempo value. */
+	m_sInputCaptureBpm = tr( "BPM" );
+	/*: Label shown in the input capture dialog for querying a new
+	  volume value. */
+	m_sInputCaptureVolume = tr( "Volume" );
+	/*: Label shown in the input capture dialog for querying a
+	  column number of the song editor grid value. */
+	m_sInputCaptureColumn = tr( "Column number" );
+	/*: Label shown in the input capture dialog for querying a
+	  pattern number. */
+	m_sInputCapturePattern = tr( "Pattern number" );
+	/*: Label shown in the input capture dialog for querying a
+	  song number of the current playlist. */
+	m_sInputCaptureSong = tr( "Song number" );
+	/*: Label shown in the input capture dialog for querying an
+	  instrument number of the current drumkit. */
+	m_sInputCaptureInstrument = tr( "Instrument number" );
+	/*: Label shown in the input capture dialog for querying a
+	  component number of the specified instrument. */
+	m_sInputCaptureComponent = tr( "Component number" );
+	/*: Label shown in the input capture dialog for querying a
+	  layer number of the specified instrument component. */
+	m_sInputCaptureLayer = tr( "Layer number" );
+	/*: Label shown in the input capture dialog for querying a
+	  FX level of the specified FX. */
+	m_sInputCaptureFXLevel = tr( "FX level" );
+	/*: Label shown in the input capture dialog for querying a
+	  FX number of the specified instrument. */
+	m_sInputCaptureFXNumber = tr( "FX number" );
+	/*: Label shown in the input capture dialog for querying a
+	  new pan value for a specified instrument. */
+	m_sInputCapturePan = tr( "Pan" );
+	/*: Label shown in the input capture dialog for querying a
+	  new filter cutoff value for a specified instrument. */
+	m_sInputCaptureFilterCutoff = tr( "Filter cutoff" );
+	/*: Label shown in the input capture dialog for querying
+	  text content for a new tag. */
+	m_sInputCaptureTag = tr( "Tag text" );
 }
 
 CommonStrings::~CommonStrings(){

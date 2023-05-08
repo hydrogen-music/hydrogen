@@ -128,16 +128,16 @@ void Shortcuts::createDefaultShortcuts() {
 					Action::SaveAsSong );
 	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
 	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
-	insertShortcut( Qt::Key_Space, Action::TogglePlayback );
+	insertShortcut( Qt::Key_Space, Action::PlayPauseToggle );
 #ifndef Q_OS_MACX
-	insertShortcut( Qt::Key_Space + Qt::ControlModifier, Action::TogglePlaybackAtCursor );
+	insertShortcut( Qt::Key_Space + Qt::ControlModifier, Action::PlayPauseToggleAtCursor );
 #else
-	insertShortcut( Qt::Key_Space + Qt::AltModifier, Action::TogglePlaybackAtCursor );
+	insertShortcut( Qt::Key_Space + Qt::AltModifier, Action::PlayPauseToggleAtCursor );
 #endif
 	insertShortcut( Qt::Key_Comma, Action::BeatCounter );
 	insertShortcut( Qt::Key_Backslash, Action::TapTempo );
-	insertShortcut( Qt::Key_Plus, Action::BPMIncrease );
-	insertShortcut( Qt::Key_Minus, Action::BPMDecrease );
+	insertShortcut( Qt::Key_Plus, Action::BPMIncreaseCoarse );
+	insertShortcut( Qt::Key_Minus, Action::BPMDecreaseCoarse );
 	insertShortcut( Qt::Key_Backspace, Action::JumpToStart );
 	insertShortcut( Qt::Key_F10, Action::JumpBarForward );
 	insertShortcut( Qt::Key_F9, Action::JumpBarBackward );
@@ -289,195 +289,304 @@ QKeySequence Shortcuts::getKeySequence( Action action ) const {
 void Shortcuts::createActionInfoMap() {
 	m_actionInfoMap.clear();
 
-	// Global shortcuts
-	insertActionInfo( Shortcuts::Action::Panic, Category::Global,
+	// Core commands
+	insertActionInfo( Shortcuts::Action::Panic, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Stop transport and all playing notes" ) );
-	insertActionInfo( Shortcuts::Action::TogglePlayback, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Playback toggling" ) );
-	insertActionInfo( Shortcuts::Action::TogglePlaybackAtCursor, Category::Global,
+	insertActionInfo( Shortcuts::Action::Play, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Start playback" ) );
+	insertActionInfo( Shortcuts::Action::Pause, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Pause playback" ) );
+	insertActionInfo( Shortcuts::Action::Stop, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Stop playback" ) );
+	insertActionInfo( Shortcuts::Action::PlayPauseToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Play/Pause playback toggling" ) );
+	insertActionInfo( Shortcuts::Action::PlayStopToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Play/Stop playback toggling" ) );
+	insertActionInfo( Shortcuts::Action::PlayPauseToggleAtCursor, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Playback toggling at keyboard cursor" ) );
-	insertActionInfo( Shortcuts::Action::BeatCounter, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "BeatCounter trigger" ) );
-	insertActionInfo( Shortcuts::Action::TapTempo, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Tap Tempo trigger" ) );
-	insertActionInfo( Shortcuts::Action::BPMIncrease, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM increase" ) );
-	insertActionInfo( Shortcuts::Action::BPMDecrease, Category::Global,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM decrease" ) );
-	insertActionInfo( Shortcuts::Action::JumpToStart, Category::Global,
+										 "Play/Pause playback toggling at keyboard cursor" ) );
+	
+	insertActionInfo( Shortcuts::Action::RecordReady, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Record toggling (if playback isn't running)" ) );
+	insertActionInfo( Shortcuts::Action::RecordStrobe, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Record activation" ) );
+	insertActionInfo( Shortcuts::Action::RecordStrobeToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Record toggling" ) );
+	insertActionInfo( Shortcuts::Action::RecordExit, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Record deactivation" ) );
+	
+	insertActionInfo( Shortcuts::Action::MasterMute, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Mute master output" ) );
+	insertActionInfo( Shortcuts::Action::MasterUnmute, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Unmute master output" ) );
+	insertActionInfo( Shortcuts::Action::MasterMuteToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Mute toggling of master output" ) );
+	insertActionInfo( Shortcuts::Action::MasterVolumeIncrease, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Increase volume of master output" ) );
+	insertActionInfo( Shortcuts::Action::MasterVolumeDecrease, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Decrease volume of master output" ) );
+	
+	insertActionInfo( Shortcuts::Action::JumpToStart, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Move playhead to the beginnning of the song" ) );
-	insertActionInfo( Shortcuts::Action::JumpBarForward, Category::Global,
+	insertActionInfo( Shortcuts::Action::JumpBarForward, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Move playhead one bar forward" ) );
-	insertActionInfo( Shortcuts::Action::JumpBarBackward, Category::Global,
+	insertActionInfo( Shortcuts::Action::JumpBarBackward, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Move playhead one bar backward" ) );
-	insertActionInfo( Shortcuts::Action::PlaylistNextSong, Category::Global,
+	
+	insertActionInfo( Shortcuts::Action::BPMIncreaseCoarse, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM increase (coarse)" ) );
+	insertActionInfo( Shortcuts::Action::BPMDecreaseCoarse, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM decrease (coarse)" ) );
+	insertActionInfo( Shortcuts::Action::BPMIncreaseFine, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM increase (fine)" ) );
+	insertActionInfo( Shortcuts::Action::BPMDecreaseFine, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "BPM decrease (fine)" ) );
+	
+	insertActionInfo( Shortcuts::Action::BeatCounter, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "BeatCounter trigger" ) );
+	insertActionInfo( Shortcuts::Action::TapTempo, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Tap Tempo trigger" ) );
+	
+	insertActionInfo( Shortcuts::Action::PlaylistNextSong, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Playlist: select next song" ) );
-	insertActionInfo( Shortcuts::Action::PlaylistPrevSong, Category::Global,
+	insertActionInfo( Shortcuts::Action::PlaylistPrevSong, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Playlist: select previous song" ) );
+	
+	insertActionInfo( Shortcuts::Action::TimelineToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle Timeline" ) );
+	insertActionInfo( Shortcuts::Action::MetronomeToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle Metronome" ) );
+	insertActionInfo( Shortcuts::Action::JackTransportToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle JACK Transport" ) );
+	insertActionInfo( Shortcuts::Action::JackTimebaseToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle JACK Timebase support" ) );
+	insertActionInfo( Shortcuts::Action::SongModeToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle song/pattern mode" ) );
+	insertActionInfo( Shortcuts::Action::LoopModeToggle, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle loop mode" ) );
 
-	// MainForm
-	insertActionInfo( Shortcuts::Action::NewSong, Category::MainForm,
+	// commands with 1 argument
+	insertActionInfo( Shortcuts::Action::BPM, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set BPM" ) );
+	insertActionInfo( Shortcuts::Action::MasterVolume, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set volume of master output" ) );
+	insertActionInfo( Shortcuts::Action::JumpToBar, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set playhead position" ) );
+	
+	insertActionInfo( Shortcuts::Action::SelectNextPattern, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Select next pattern" ) );
+	insertActionInfo( Shortcuts::Action::SelectOnlyNextPattern, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Select only next pattern" ) );
+	insertActionInfo( Shortcuts::Action::SelectAndPlayPattern, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Select next pattern and start playback" ) );
+
+	insertActionInfo( Shortcuts::Action::PlaylistSong, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Select Playlist song" ) );
+	
+	insertActionInfo( Shortcuts::Action::TimelineDeleteMarker, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Timeline: delete tempo marker" ) );
+	insertActionInfo( Shortcuts::Action::TimelineDeleteTag, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Timeline: delete tag" ) );
+
+	insertActionInfo( Shortcuts::Action::SelectInstrument, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set current instrument" ) );
+	insertActionInfo( Shortcuts::Action::StripVolumeIncrease, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Increase volume of instrument" ) );
+	insertActionInfo( Shortcuts::Action::StripVolumeDecrease, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Decrease volume of instrument" ) );
+	insertActionInfo( Shortcuts::Action::StripMuteToggle, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle instrument solo" ) );
+	insertActionInfo( Shortcuts::Action::StripSoloToggle, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle instrument mute" ) );
+	
+	// commands with 2 argument
+	insertActionInfo( Shortcuts::Action::StripVolume, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument volume" ) );
+	insertActionInfo( Shortcuts::Action::StripPan, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument pan" ) );
+	insertActionInfo( Shortcuts::Action::StripFilterCutoff, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument filter cutoff" ) );
+
+	insertActionInfo( Shortcuts::Action::TimelineAddMarker, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Timeline: add tempo marker" ) );
+	insertActionInfo( Shortcuts::Action::TimelineAddTag, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Timeline: add tag" ) );
+
+	insertActionInfo( Shortcuts::Action::ToggleGridCell, Category::Command2Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle cell in song editor grid" ) );
+
+	// commands with many argument
+	insertActionInfo( Shortcuts::Action::LayerPitch, Category::CommandManyArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer pitch" ) );
+	insertActionInfo( Shortcuts::Action::LayerGain, Category::CommandManyArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer gain" ) );
+	
+	insertActionInfo( Shortcuts::Action::StripEffectLevel, Category::CommandManyArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument FX aux level" ) );
+	
+	// MainMenu
+	insertActionInfo( Shortcuts::Action::NewSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Create empty song" ) );
-	insertActionInfo( Shortcuts::Action::OpenSong, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open song from disk" ) );
-	insertActionInfo( Shortcuts::Action::EditSongProperties, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::EditSongProperties, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Edit song properties" ) );
-	insertActionInfo( Shortcuts::Action::OpenDemoSong, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenDemoSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open demo song" ) );
-	insertActionInfo( Shortcuts::Action::SaveSong, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::SaveSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Save all modifications to the current song" ) );
-	insertActionInfo( Shortcuts::Action::SaveAsSong, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::SaveAsSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Save all modifications to a new song" ) );
-	insertActionInfo( Shortcuts::Action::OpenPattern, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenPattern, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open pattern from disk" ) );
-	insertActionInfo( Shortcuts::Action::ExportPattern, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ExportPattern, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Write pattern to disk" ) );
-	insertActionInfo( Shortcuts::Action::ExportSong, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ExportSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to audio file" ) );
-	insertActionInfo( Shortcuts::Action::ExportMIDI, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ExportMIDI, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to MIDI file" ) );
-	insertActionInfo( Shortcuts::Action::ExportLilyPond, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ExportLilyPond, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to LilyPond file" ) );
-	insertActionInfo( Shortcuts::Action::Quit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::Quit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Quit Hydrogen" ) );
 	
-	insertActionInfo( Shortcuts::Action::Undo, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::Undo, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Undo the last modification" ) );
-	insertActionInfo( Shortcuts::Action::Redo, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::Redo, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Redo the last modification" ) );
-	insertActionInfo( Shortcuts::Action::ShowUndoHistory, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowUndoHistory, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show modification history" ) );
 
-	insertActionInfo( Shortcuts::Action::NewDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::NewDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Create empty drumkit" ) );
-	insertActionInfo( Shortcuts::Action::OpenDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open drumkit from soundlibrary" ) );
-	insertActionInfo( Shortcuts::Action::EditDrumkitProperties, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::EditDrumkitProperties, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Edit drumkit properties" ) );
-	insertActionInfo( Shortcuts::Action::SaveDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::SaveDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Save modifications to current drumkit" ) );
-	insertActionInfo( Shortcuts::Action::SaveAsDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::SaveAsDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Save modifications to new drumkit" ) );
-	insertActionInfo( Shortcuts::Action::ExportDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ExportDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export drumkit to disk" ) );
-	insertActionInfo( Shortcuts::Action::ImportDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ImportDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Import drumkit from disk" ) );
-	insertActionInfo( Shortcuts::Action::ImportOnlineDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ImportOnlineDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Import drumkit from server" ) );
 
-	insertActionInfo( Shortcuts::Action::AddInstrument, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::AddInstrument, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Add instrument to current drumkit" ) );
-	insertActionInfo( Shortcuts::Action::ClearAllInstruments, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ClearAllInstruments, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Clear all instruments in current drumkit" ) );
-	insertActionInfo( Shortcuts::Action::AddComponent, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::AddComponent, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Add component to current drumkit" ) );
 
-	insertActionInfo( Shortcuts::Action::ShowPlaylist, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowPlaylist, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show playlist editor" ) );
-	insertActionInfo( Shortcuts::Action::ShowDirector, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowDirector, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show director" ) );
-	insertActionInfo( Shortcuts::Action::ShowMixer, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowMixer, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show mixer" ) );
-	insertActionInfo( Shortcuts::Action::ShowInstrumentRack, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowInstrumentRack, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show instrument rack" ) );
-	insertActionInfo( Shortcuts::Action::ShowAutomation, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowAutomation, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show automation path" ) );
-	insertActionInfo( Shortcuts::Action::ShowTimeline, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowTimeline, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show timeline" ) );
-	insertActionInfo( Shortcuts::Action::ShowPlaybackTrack, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowPlaybackTrack, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show playback track" ) );
-	insertActionInfo( Shortcuts::Action::ShowFullscreen, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowFullscreen, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Toggle fullscreen mode" ) );
 	
-	insertActionInfo( Shortcuts::Action::InputInstrument, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::InputInstrument, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Use instrument mode for MIDI input" ) );
-	insertActionInfo( Shortcuts::Action::InputDrumkit, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::InputDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Use drumkit mode for MIDI input" ) );
-	insertActionInfo( Shortcuts::Action::ShowPreferencesDialog, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowPreferencesDialog, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show preferences dialog" ) );
 
-	insertActionInfo( Shortcuts::Action::ShowAudioEngineInfo, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowAudioEngineInfo, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show audio engine info dialog" ) );
-	insertActionInfo( Shortcuts::Action::ShowFilesystemInfo, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowFilesystemInfo, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show filesystem info dialog" ) );
-	insertActionInfo( Shortcuts::Action::LogLevelNone, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::LogLevelNone, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Log Level = None" ) );
-	insertActionInfo( Shortcuts::Action::LogLevelError, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::LogLevelError, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Log Level = Error" ) );
-	insertActionInfo( Shortcuts::Action::LogLevelWarning, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::LogLevelWarning, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Log Level = Warning" ) );
-	insertActionInfo( Shortcuts::Action::LogLevelInfo, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::LogLevelInfo, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Log Level = Info" ) );
-	insertActionInfo( Shortcuts::Action::LogLevelDebug, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::LogLevelDebug, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Log Level = Debug" ) );
-	insertActionInfo( Shortcuts::Action::OpenLogFile, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenLogFile, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open log file" ) );
-	insertActionInfo( Shortcuts::Action::DebugPrintObjects, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::DebugPrintObjects, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Print object debug count to log" ) );
 
-	insertActionInfo( Shortcuts::Action::OpenManual, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::OpenManual, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Open user manual" ) );
-	insertActionInfo( Shortcuts::Action::ShowAbout, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowAbout, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show about dialog" ) );
-	insertActionInfo( Shortcuts::Action::ShowReportBug, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowReportBug, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Report bug in web browser" ) );
-	insertActionInfo( Shortcuts::Action::ShowDonate, Category::MainForm,
+	insertActionInfo( Shortcuts::Action::ShowDonate, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Show donate dialog" ) );
 
@@ -574,35 +683,29 @@ QString Shortcuts::categoryToQString( Category category ) {
 	QString s;
 
 	switch ( category ) {
-	case Category::HardCoded:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Hard Coded" );
-		break;
 	case Category::None:
 		s = "";
 		break;
-	case Category::Global:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Global" );
+	case Category::CommandNoArgs:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Commands (0 args)" );
 		break;
-	case Category::MainForm:
+	case Category::Command1Args:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Commands (1 arg)" );
+		break;
+	case Category::Command2Args:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Commands (2 args)" );
+		break;
+	case Category::CommandManyArgs:
+		s = QT_TRANSLATE_NOOP( "Shortcuts", "Commands (many args)" );
+		break;
+	case Category::MainMenu:
 		s = QT_TRANSLATE_NOOP( "Shortcuts", "Main Window" );
-		break;
-	case Category::Editors:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Editors" );
 		break;
 	case Category::VirtualKeyboard:
 		s = QT_TRANSLATE_NOOP( "Shortcuts", "Virtual Keyboard" );
 		break;
-	case Category::Mixer:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Mixer" );
-		break;
 	case Category::PlaylistEditor:
 		s = QT_TRANSLATE_NOOP( "Shortcuts", "PlaylistEditor" );
-		break;
-	case Category::SampleEditor:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Sampler Editor" );
-		break;
-	case Category::Director:
-		s = QT_TRANSLATE_NOOP( "Shortcuts", "Director" );
 		break;
 	case Category::All:
 		s = QT_TRANSLATE_NOOP( "Shortcuts", "All Categories" );
