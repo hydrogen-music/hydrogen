@@ -72,7 +72,9 @@ Sample::Sample( const QString& filepath, const License& license, int frames, int
 	__is_modified( false ),
 	m_license( license )
 {
-	assert( filepath.lastIndexOf( "/" ) >0 );
+	if ( filepath.lastIndexOf( "/" ) <= 0 ) {
+		WARNINGLOG( QString( "Provided filepath [%1] does not seem like an absolute path. Sample will most probably be unable to load." ) );
+	}
 }
 
 Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
@@ -159,7 +161,7 @@ bool Sample::load( float fBpm )
 	// Opens file in read-only mode.
 	SNDFILE* file = sf_open( get_filepath().toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
-		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( get_filepath() ) );
+		ERRORLOG( QString( "Error loading file %1" ).arg( get_filepath() ) );
 		return false;
 	}
 	
