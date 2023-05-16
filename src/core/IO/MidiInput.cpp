@@ -117,23 +117,24 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::START: /* Start from position 0 */
-				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-					pHydrogen->getCoreActionController()->locateToColumn( 0 );
-					pHydrogen->sequencer_play();
-				}
-				break;
+			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+				auto pAction = std::make_shared<Action>("PLAY");
+				MidiActionManager::get_instance()->handleAction( pAction );
+			}
+			break;
 
-		case MidiMessage::CONTINUE: /* Just start */
-				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-					pHydrogen->sequencer_play();
-				}
-				break;
+		case MidiMessage::CONTINUE: /* Just start */ {
+			auto pAction = std::make_shared<Action>("PLAY");
+			MidiActionManager::get_instance()->handleAction( pAction );
+			break;
+		}
 
-		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
-				if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-					pHydrogen->sequencer_stop();
-				}
-				break;
+		case MidiMessage::STOP: /* Stop in current position i.e. Pause */ {
+			auto pAction = std::make_shared<Action>("PAUSE");
+			MidiActionManager::get_instance()->handleAction( pAction );
+			break;
+		}
 
 		case MidiMessage::CHANNEL_PRESSURE:
 		case MidiMessage::PITCH_WHEEL:
