@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include <QString>
+
 namespace H2Core
 {
 
@@ -52,6 +54,7 @@ public:
 		SONG_POS,
 		QUARTER_FRAME
 	};
+	static QString TypeToQString( MidiMessageType type );
 
 	MidiMessageType m_type;
 	int m_nData1;
@@ -65,6 +68,59 @@ public:
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}
 };
+
+inline QString MidiMessage::TypeToQString( MidiMessageType type ) {
+	QString sType;
+	switch( type ) {
+	case MidiMessageType::SYSEX:
+		sType = "SYSEX";
+		break;
+	case MidiMessageType::NOTE_ON:
+		sType = "NOTE_ON";
+		break;
+	case MidiMessageType::NOTE_OFF:
+		sType = "NOTE_OFF";
+		break;
+	case MidiMessageType::POLYPHONIC_KEY_PRESSURE:
+		sType = "POLYPHONIC_KEY_PRESSURE";
+		break;
+	case MidiMessageType::CONTROL_CHANGE:
+		sType = "CONTROL_CHANGE";
+		break;
+	case MidiMessageType::PROGRAM_CHANGE:
+		sType = "PROGRAM_CHANGE";
+		break;
+	case MidiMessageType::CHANNEL_PRESSURE:
+		sType = "CHANNEL_PRESSURE";
+		break;
+	case MidiMessageType::PITCH_WHEEL:
+		sType = "PITCH_WHEEL";
+		break;
+	case MidiMessageType::SYSTEM_EXCLUSIVE:
+		sType = "SYSTEM_EXCLUSIVE";
+		break;
+	case MidiMessageType::START:
+		sType = "START";
+		break;
+	case MidiMessageType::CONTINUE:
+		sType = "CONTINUE";
+		break;
+	case MidiMessageType::STOP:
+		sType = "STOP";
+		break;
+	case MidiMessageType::SONG_POS:
+		sType = "SONG_POS";
+		break;
+	case MidiMessageType::QUARTER_FRAME:
+		sType = "QUARTER_FRAME";
+		break;
+	case MidiMessageType::UNKNOWN:
+	default:
+		sType = "Unknown MIDI message type";
+	}
+
+	return std::move( sType );
+}
 
 
 /** \ingroup docCore docMIDI */

@@ -53,9 +53,10 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( QString( "[start of handleMidiMessage] channel: %1, val1: %2, val2: %3" )
+		INFOLOG( QString( "Incoming message of channel: %1, val1: %2, val2: %3, type: %4" )
 				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
-				 .arg( msg.m_nData2 ) );
+				 .arg( msg.m_nData2 )
+				 .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -96,48 +97,26 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::NOTE_ON:
-				INFOLOG("This is a NOTE ON message.");
 				handleNoteOnMessage( msg );
 				break;
 
 		case MidiMessage::NOTE_OFF:
-				INFOLOG("This is a NOTE OFF message.");
 				handleNoteOffMessage( msg, false );
 				break;
 
 		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-				//ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
-				INFOLOG( QString( "[handleMidiMessage] POLYPHONIC_KEY_PRESSURE Parameter: %1, Value: %2")
-					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 				handlePolyphonicKeyPressureMessage( msg );
 				break;
 
 		case MidiMessage::CONTROL_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2")
-					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 				handleControlChangeMessage( msg );
 				break;
 
 		case MidiMessage::PROGRAM_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE Value: %1" )
-					.arg( msg.m_nData1 ) );
 				handleProgramChangeMessage( msg );
 				break;
 
-		case MidiMessage::CHANNEL_PRESSURE:
-				ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
-				break;
-
-		case MidiMessage::PITCH_WHEEL:
-				ERRORLOG( "PITCH_WHEEL event not handled yet" );
-				break;
-
-		case MidiMessage::SYSTEM_EXCLUSIVE:
-				ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
-				break;
-
 		case MidiMessage::START: /* Start from position 0 */
-				INFOLOG( "START event" );
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->getCoreActionController()->locateToColumn( 0 );
 					pHydrogen->sequencer_play();
@@ -145,35 +124,41 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::CONTINUE: /* Just start */
-				ERRORLOG( "CONTINUE event" );
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_play();
 				}
 				break;
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
-				INFOLOG( "STOP event" );
 				if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_stop();
 				}
 				break;
 
+		case MidiMessage::CHANNEL_PRESSURE:
+		case MidiMessage::PITCH_WHEEL:
+		case MidiMessage::SYSTEM_EXCLUSIVE:
 		case MidiMessage::SONG_POS:
-				ERRORLOG( "SONG_POS event not handled yet" );
-				break;
-
 		case MidiMessage::QUARTER_FRAME:
-				WARNINGLOG( "QUARTER_FRAME event not handled yet" );
-				break;
+			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
+					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+			break;
 
 		case MidiMessage::UNKNOWN:
-				ERRORLOG( "Unknown midi message" );
-				break;
+			ERRORLOG( "Unknown midi message" );
+			break;
 
 		default:
-				ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
+			ERRORLOG( QString( "unhandled midi message type: %1 (%2)" )
+					  .arg( static_cast<int>( msg.m_type ) )
+					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 		}
-		INFOLOG("[end of handleMidiMessage]");
+
+		// Two spaces after "msg." in a row to align message parameters
+		INFOLOG( QString( "DONE handling msg.  channel: %1, val1: %2, val2: %3, type: %4" )
+				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
+				 .arg( msg.m_nData2 )
+				 .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
