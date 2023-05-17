@@ -70,7 +70,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		// exclude all midi channel filter independent messages
 		int type = msg.m_type;
 		if (  MidiMessage::SYSEX == type
-		   || MidiMessage::SYSTEM_EXCLUSIVE == type
 		   || MidiMessage::START == type
 		   || MidiMessage::CONTINUE == type
 		   || MidiMessage::STOP == type
@@ -138,7 +137,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::CHANNEL_PRESSURE:
 		case MidiMessage::PITCH_WHEEL:
-		case MidiMessage::SYSTEM_EXCLUSIVE:
 		case MidiMessage::SONG_POS:
 		case MidiMessage::QUARTER_FRAME:
 			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
