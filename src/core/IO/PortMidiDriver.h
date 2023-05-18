@@ -54,6 +54,8 @@ public:
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
 
+	static QString translatePmError( PmError err );
+
 private:
 
 };
