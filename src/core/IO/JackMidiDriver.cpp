@@ -444,7 +444,7 @@ JackMidiDriver::getOutputPortList()
 void
 JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 {
-	if (sPortName == "None") {
+	if ( sPortName == Preferences::getNullMidiPort() ) {
 		nClient = -1;
 		nPort = -1;
 		return;

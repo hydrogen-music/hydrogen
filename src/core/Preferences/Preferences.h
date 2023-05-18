@@ -221,6 +221,18 @@ public:
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
+	/**
+	 * Choice of #m_sMidiPortName and #m_sMidiOutputPortName in case
+	 * no port/device was selected.
+	 *
+	 * Pinning its value to "None" will prevent Hydrogen to connect to
+	 * ports/devices using this exact name but is still done for
+	 * backward compatibility.
+	 */
+	static QString getNullMidiPort() {
+		return "None";
+	}
+	
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;

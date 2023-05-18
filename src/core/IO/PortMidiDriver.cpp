@@ -187,13 +187,15 @@ void PortMidiDriver::open()
 		}
 		else {
 			if ( pInfo->input == TRUE ) {
-				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
+				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 &&
+					 sMidiPortName != Preferences::getNullMidiPort() ) {
 					nDeviceId = i;
 				}
 			}
 	
 			if ( pInfo->output == TRUE ) {
-				if ( strcmp( pInfo->name, sMidiOutputPortName.toLocal8Bit().constData() ) == 0 ) {
+				if ( strcmp( pInfo->name, sMidiOutputPortName.toLocal8Bit().constData() ) == 0 &&
+					 sMidiOutputPortName != Preferences::getNullMidiPort() ) {
 					nOutDeviceId = i;
 				}
 			}
@@ -252,7 +254,7 @@ void PortMidiDriver::open()
 	}
 	else {
 		// If no input device was selected, there is no error in here.
-		if ( ! sMidiPortName.isEmpty() ) {
+		if ( sMidiPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI input device [%1] not found." )
 					  .arg( sMidiPortName ) );
 		}
@@ -279,7 +281,7 @@ void PortMidiDriver::open()
 	}
 	else {
 		// If no output device was selected, there is no error in here.
-		if ( ! sMidiOutputPortName.isEmpty() ) {
+		if ( sMidiOutputPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI output device [%1] not found." )
 						.arg( sMidiOutputPortName ) );
 		}

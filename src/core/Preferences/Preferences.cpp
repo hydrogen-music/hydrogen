@@ -167,8 +167,8 @@ Preferences::Preferences()
 	// (although MIDI won't work in this case).
 	m_sMidiDriver = QString( "ALSA" );
 #endif
-	m_sMidiPortName = QString("None");
-	m_sMidiOutputPortName = QString("None");
+	m_sMidiPortName = QString( Preferences::getNullMidiPort() );
+	m_sMidiOutputPortName = QString( Preferences::getNullMidiPort() );
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
 	m_bMidiFixedMapping = false;
@@ -554,8 +554,10 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( m_sAudioDriver == "CoreMidi" ) {
 						m_sAudioDriver = "CoreMIDI";
 					}
-					m_sMidiPortName = midiDriverNode.read_string( "port_name", "None", false, false );
-					m_sMidiOutputPortName = midiDriverNode.read_string( "output_port_name", "None", false, false );
+					m_sMidiPortName = midiDriverNode.read_string(
+						"port_name", Preferences::getNullMidiPort(), false, false );
+					m_sMidiOutputPortName = midiDriverNode.read_string(
+						"output_port_name", Preferences::getNullMidiPort(), false, false );
 					m_nMidiChannelFilter = midiDriverNode.read_int( "channel_filter", -1, false, false );
 					m_bMidiNoteOffIgnore = midiDriverNode.read_bool( "ignore_note_off", true, false, false );
 					m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool( "discard_note_after_action", true, false, false );

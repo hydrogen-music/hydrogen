@@ -466,7 +466,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 		return;
 	}
 
-	if ( sPortName == "None" ) {
+	if ( sPortName == Preferences::getNullMidiPort() ) {
 		nClient = -1;
 		nPort = -1;
 		return;
