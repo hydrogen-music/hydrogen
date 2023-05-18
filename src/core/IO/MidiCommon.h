@@ -47,7 +47,6 @@ public:
 		PROGRAM_CHANGE,
 		CHANNEL_PRESSURE,
 		PITCH_WHEEL,
-		SYSTEM_EXCLUSIVE,
 		START,
 		CONTINUE,
 		STOP,
@@ -95,9 +94,6 @@ inline QString MidiMessage::TypeToQString( MidiMessageType type ) {
 		break;
 	case MidiMessageType::PITCH_WHEEL:
 		sType = "PITCH_WHEEL";
-		break;
-	case MidiMessageType::SYSTEM_EXCLUSIVE:
-		sType = "SYSTEM_EXCLUSIVE";
 		break;
 	case MidiMessageType::START:
 		sType = "START";

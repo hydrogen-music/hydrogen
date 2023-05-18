@@ -87,7 +87,7 @@ void* PortMidiDriver_thread( void* param )
 					msg.m_type = MidiMessage::PITCH_WHEEL;
 				} else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
 					msg.m_nChannel = nEventType - 240;
-					msg.m_type = MidiMessage::SYSTEM_EXCLUSIVE;
+					msg.m_type = MidiMessage::SYSEX;
 				} else {
 					__ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
 					__INFOLOG( "MIDI msg: " );
