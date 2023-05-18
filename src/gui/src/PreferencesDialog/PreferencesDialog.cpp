@@ -836,11 +836,7 @@ void PreferencesDialog::on_okBtn_clicked()
 											pCommonStrings->getButtonOk(),
 											pCommonStrings->getButtonCancel(),
 											nullptr, 1 );
-		if ( res == 0 ) {
-			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartDrivers();
-			QApplication::restoreOverrideCursor();			
-		} else {
+		if ( res != 0 ) {
 			// Don't save the Preferences and don't close the PreferencesDialog
 			return;
 		}
@@ -1104,6 +1100,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 
 	pPref->setTheme( m_pCurrentTheme );
+
+	if ( m_bNeedDriverRestart ) {
+		// Restart audio and MIDI drivers now that we updated all
+		// values in Preferences.
+		QApplication::setOverrideCursor( Qt::WaitCursor );
+		pHydrogen->restartDrivers();
+		QApplication::restoreOverrideCursor();
+	}
 
 	pH2App->changePreferences( m_changes );
 	
