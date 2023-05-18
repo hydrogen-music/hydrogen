@@ -38,7 +38,6 @@
 
 #include <porttime.h>
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
-#define TIME_START Pt_Start(1, 0, 0) /* timer started w/millisecond accuracy */
 
 #include <pthread.h>
 
@@ -112,7 +111,7 @@ void* PortMidiDriver_thread( void* param )
 		else {
 			// An error occurred, e.g. a buffer overflow.
 			__ERRORLOG( QString( "Error in Pm_Read: [%1]" )
-						.arg( Pm_GetErrorText( length ) );
+						.arg( Pm_GetErrorText( static_cast<PmError>(length) ) ) );
 		}
 	}
 
@@ -129,13 +128,21 @@ PortMidiDriver::PortMidiDriver()
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
 {
-	Pm_Initialize();
+	PmError err = Pm_Initialize();
+	if ( err != pmNoError ) {
+		ERRORLOG( QString( "Error in Pm_Initialize: [%1]" )
+				  .arg( Pm_GetErrorText( err ) ) );
+	}
 }
 
 
 PortMidiDriver::~PortMidiDriver()
 {
-	Pm_Terminate();
+	PmError err = Pm_Terminate();
+	if ( err != pmNoError ) {
+		ERRORLOG( QString( "Error in Pm_Terminate: [%1]" )
+				  .arg( Pm_GetErrorText( err ) ) );
+	}
 }
 
 void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
@@ -176,8 +183,9 @@ void PortMidiDriver::open()
 		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
 		
 		if ( pInfo == nullptr ) {
-			ERRORLOG( "Could not open input device" );
-		} else {
+			ERRORLOG( QString( "Could not open input device [%1]" ).arg( i ) );
+		}
+		else {
 			if ( pInfo->input == TRUE ) {
 				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
 					nDeviceId = i;
@@ -189,6 +197,13 @@ void PortMidiDriver::open()
 					nOutDeviceId = i;
 				}
 			}
+			INFOLOG( QString( "%1%2%3%4device called [%5] using [%6] MIDI API" )
+					 .arg( nDeviceId == i || nOutDeviceId == i ? "Using " :
+						   "Found available " )
+					 .arg( pInfo->is_virtual == TRUE ? "virtual " : "" )
+					 .arg( pInfo->input == TRUE ? "input " : "" )
+					 .arg( pInfo->output == TRUE ? "output " : "" )
+					 .arg( pInfo->name ).arg( pInfo->interf ) );
 		}
 	}
 
@@ -199,8 +214,26 @@ void PortMidiDriver::open()
 			ERRORLOG( "Error opening midi input device" );
 		}
 
-		//INFOLOG( string( "Device: " ).append( info->interf ).append( " " ).append( info->name ) );
-		TIME_START;
+		// Timer started with 1ms accuracy without any callback
+		PtError startErr = Pt_Start( 1, 0, 0 );
+		if ( startErr != ptNoError ) {
+			QString sError;
+			switch( startErr ) {
+			case ptHostError:
+				sError = QString( "Host error" );
+				break;
+			case ptAlreadyStarted:
+				sError = QString( "Cannot start timer because it is already started" );
+				break;
+			case ptAlreadyStopped:
+				sError = QString( "Cannot stop timer because it is already stopped" );
+				break;
+			case ptInsufficientMemory:
+				sError = QString( "Memory could not be allocated" );
+				break;
+			}
+			ERRORLOG( QString( "Error in Pt_Start: [%1]" ).arg( sError ) );
+		}
 
 		PmError err = Pm_OpenInput(
 								   &m_pMidiIn,
@@ -216,8 +249,13 @@ void PortMidiDriver::open()
 					  .arg( Pm_GetErrorText( err ) ) );
 			m_pMidiIn = nullptr;
 		}
-	} else {
-		INFOLOG( "Midi input device not found." );
+	}
+	else {
+		// If no input device was selected, there is no error in here.
+		if ( ! sMidiPortName.isEmpty() ) {
+			WARNINGLOG( QString( "MIDI input device [%1] not found." )
+					  .arg( sMidiPortName ) );
+		}
 		m_pMidiIn = nullptr;
 	}
 
@@ -238,12 +276,17 @@ void PortMidiDriver::open()
 					  .arg( Pm_GetErrorText( err ) ) );
 			m_pMidiOut = nullptr;
 		}
-	} else {
-		INFOLOG( "Midi output device not found." );
+	}
+	else {
+		// If no output device was selected, there is no error in here.
+		if ( ! sMidiOutputPortName.isEmpty() ) {
+			WARNINGLOG( QString( "MIDI output device [%1] not found." )
+						.arg( sMidiOutputPortName ) );
+		}
 		m_pMidiOut = nullptr;
 	}
 
-	if ( m_pMidiOut || m_pMidiIn ) {
+	if ( m_pMidiOut != nullptr || m_pMidiIn != nullptr ) {
 		m_bRunning = true;
 
 		pthread_attr_t attr;
@@ -275,7 +318,7 @@ std::vector<QString> PortMidiDriver::getInputPortList()
 	for ( int i = 0; i < nDevices; i++ ) {
 		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
 		if ( pInfo == nullptr ) {
-			ERRORLOG( "Could not open output device" );
+			ERRORLOG( QString( "Could not open output device [%1]" ).arg( i ) );
 		} else if ( pInfo->output == TRUE ) {
 			INFOLOG( pInfo->name );
 			portList.push_back( pInfo->name );
@@ -293,7 +336,7 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 	for ( int i = 0; i < nDevices; i++ ) {
 		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
 		if ( pInfo == nullptr ) {
-			ERRORLOG( "Could not open input device" );
+			ERRORLOG( QString( "Could not open input device [%1]" ).arg( i ) );
 		} else if ( pInfo->input == TRUE ) {
 			INFOLOG( pInfo->name );
 			portList.push_back( pInfo->name );
@@ -311,7 +354,7 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 	}
 
 	int channel = pNote->get_instrument()->get_midi_out_channel();
-	if (channel < 0) {
+	if ( channel < 0 ) {
 		return;
 	}
 
@@ -323,11 +366,19 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 
 	//Note off
 	event.message = Pm_Message(0x80 | channel, key, velocity);
-	Pm_Write(m_pMidiOut, &event, 1);
+	PmError err = Pm_Write(m_pMidiOut, &event, 1);
+	if ( err != pmNoError ) {
+		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
+				  .arg( Pm_GetErrorText( err ) ) );
+	}
 
 	//Note on
 	event.message = Pm_Message(0x90 | channel, key, velocity);
-	Pm_Write(m_pMidiOut, &event, 1);
+	err = Pm_Write(m_pMidiOut, &event, 1);
+	if ( err != pmNoError ) {
+		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
+				  .arg( Pm_GetErrorText( err ) ) );
+	}
 }
 
 void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
@@ -337,19 +388,20 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 		return;
 	}
 
-//	int channel = pNote->get_instrument()->get_midi_out_channel();
-	if (channel < 0) {
+	if ( channel < 0 ) {
 		return;
 	}
-
-//	int velocity = pNote->get_midi_velocity();
 
 	PmEvent event;
 	event.timestamp = 0;
 
 	//Note off
 	event.message = Pm_Message(0x80 | channel, key, velocity);
-	Pm_Write(m_pMidiOut, &event, 1);
+	PmError err = Pm_Write(m_pMidiOut, &event, 1);
+	if ( err != pmNoError ) {
+		ERRORLOG( QString( "Error in Pm_Write: [%1]" )
+				  .arg( Pm_GetErrorText( err ) ) );
+	}
 }
 
 void PortMidiDriver::handleQueueAllNoteOff()
@@ -376,7 +428,12 @@ void PortMidiDriver::handleQueueAllNoteOff()
 
 		//Note off
 		event.message = Pm_Message(0x80 | channel, key, 0);
-		Pm_Write(m_pMidiOut, &event, 1);
+		PmError err = Pm_Write(m_pMidiOut, &event, 1);
+		if ( err != pmNoError ) {
+			ERRORLOG( QString( "Error for instrument [%1] in Pm_Write: [%2]" )
+					  .arg( pCurInst->get_name() )
+					  .arg( Pm_GetErrorText( err ) ) );
+		}
 	}
 }
 };
