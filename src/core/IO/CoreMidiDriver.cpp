@@ -101,8 +101,6 @@ CoreMidiDriver::CoreMidiDriver()
 {
 	
 	OSStatus err = noErr;
-
-	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	if ( err != noErr ) {
 		ERRORLOG( QString( "Cannot create CoreMIDI client: %1" ).arg( err ));
@@ -156,7 +154,8 @@ void CoreMidiDriver::open()
 			char cmName[64];
 			err = CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
 			QString h2MidiPortName = cmName;
-			if ( h2MidiPortName == sMidiPortName ) {
+			if ( h2MidiPortName == sMidiPortName &&
+				 sMidiPortName != Preferences::getNullMidiPort() ) {
 				MIDIPortConnectSource ( h2InputRef, cmH2Src, NULL );
 				m_bRunning = true;
 			}
