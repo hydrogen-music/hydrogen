@@ -118,17 +118,6 @@ inline QString MidiMessage::TypeToQString( MidiMessageType type ) {
 	return std::move( sType );
 }
 
-
-/** \ingroup docCore docMIDI */
-class MidiPortInfo
-{
-public:
-	QString m_sName;
-	int m_nClient;
-	int m_nPort;
-};
-
-
 };
 
 #endif
