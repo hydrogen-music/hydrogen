@@ -111,7 +111,7 @@ void* PortMidiDriver_thread( void* param )
 		else {
 			// An error occurred, e.g. a buffer overflow.
 			__ERRORLOG( QString( "Error in Pm_Read: [%1]" )
-						.arg( Pm_GetErrorText( static_cast<PmError>(length) ) ) );
+						.arg( PortMidiDriver::translatePmError( static_cast<PmError>(length) ) ) );
 		}
 	}
 
@@ -131,7 +131,7 @@ PortMidiDriver::PortMidiDriver()
 	PmError err = Pm_Initialize();
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Initialize: [%1]" )
-				  .arg( Pm_GetErrorText( err ) ) );
+				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 }
 
@@ -141,7 +141,7 @@ PortMidiDriver::~PortMidiDriver()
 	PmError err = Pm_Terminate();
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Terminate: [%1]" )
-				  .arg( Pm_GetErrorText( err ) ) );
+				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 }
 
@@ -248,7 +248,7 @@ void PortMidiDriver::open()
 
 		if ( err != pmNoError ) {
 			ERRORLOG( QString( "Error in Pm_OpenInput: [%1]" )
-					  .arg( Pm_GetErrorText( err ) ) );
+					  .arg( PortMidiDriver::translatePmError( err ) ) );
 			m_pMidiIn = nullptr;
 		}
 	}
@@ -275,7 +275,7 @@ void PortMidiDriver::open()
 
 		if ( err != pmNoError ) {
 			ERRORLOG( QString( "Error in Pm_OpenOutput: [%1]" )
-					  .arg( Pm_GetErrorText( err ) ) );
+					  .arg( PortMidiDriver::translatePmError( err ) ) );
 			m_pMidiOut = nullptr;
 		}
 	}
@@ -307,7 +307,7 @@ void PortMidiDriver::close()
 		PmError err = Pm_Close( m_pMidiIn );
 		if ( err != pmNoError ) {
 			ERRORLOG( QString( "Error in Pm_Close: [%1]" )
-					  .arg( Pm_GetErrorText( err ) ) );
+					  .arg( PortMidiDriver::translatePmError( err ) ) );
 		}
 	}
 }
@@ -371,7 +371,7 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
-				  .arg( Pm_GetErrorText( err ) ) );
+				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 
 	//Note on
@@ -379,7 +379,7 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 	err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
-				  .arg( Pm_GetErrorText( err ) ) );
+				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 }
 
@@ -402,7 +402,7 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )
-				  .arg( Pm_GetErrorText( err ) ) );
+				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 }
 
@@ -434,9 +434,22 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		if ( err != pmNoError ) {
 			ERRORLOG( QString( "Error for instrument [%1] in Pm_Write: [%2]" )
 					  .arg( pCurInst->get_name() )
-					  .arg( Pm_GetErrorText( err ) ) );
+					  .arg( PortMidiDriver::translatePmError( err ) ) );
 		}
 	}
+}
+
+QString PortMidiDriver::translatePmError( PmError err ) {
+	QString sRes( Pm_GetErrorText( err ) );
+	if ( err == pmHostError ) {
+		// Get OS-dependent part of the error messages, e.g. something
+		// went wrong in the underlying ALSA driver.
+		char *msg;
+		Pm_GetHostErrorText( msg, 100 );
+		sRes.append( QString( ": [%1]" ).arg( msg ) );
+	}
+
+	return std::move( sRes );
 }
 };
 
