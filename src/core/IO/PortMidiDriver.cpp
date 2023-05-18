@@ -57,57 +57,62 @@ void* PortMidiDriver_thread( void* param )
 	int length;
 	PmEvent buffer[1];
 	while ( instance->m_bRunning ) {
-		status = Pm_Poll( instance->m_pMidiIn );
-		if ( status == TRUE ) {
-			length = Pm_Read( instance->m_pMidiIn, buffer, 1 );
-			if ( length > 0 ) {
-				MidiMessage msg;
+		length = Pm_Read( instance->m_pMidiIn, buffer, 1 );
+		if ( length > 0 ) {
+			// New MIDI data available
+			MidiMessage msg;
 
-				int nEventType = Pm_MessageStatus( buffer[0].message );
-				if ( ( nEventType >= 128 ) && ( nEventType < 144 ) ) {	// note off
-					msg.m_nChannel = nEventType - 128;
-					msg.m_type = MidiMessage::NOTE_OFF;
-				} else if ( ( nEventType >= 144 ) && ( nEventType < 160 ) ) {	// note on
-					msg.m_nChannel = nEventType - 144;
-					msg.m_type = MidiMessage::NOTE_ON;
-				} else if ( ( nEventType >= 160 ) && ( nEventType < 176 ) ) {	// Polyphonic Key Pressure (After-touch)
-					msg.m_nChannel = nEventType - 160;
-					msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
-				} else if ( ( nEventType >= 176 ) && ( nEventType < 192 ) ) {	// Control Change
-					msg.m_nChannel = nEventType - 176;
-					msg.m_type = MidiMessage::CONTROL_CHANGE;
-				} else if ( ( nEventType >= 192 ) && ( nEventType < 208 ) ) {	// Program Change
-					msg.m_nChannel = nEventType - 192;
-					msg.m_type = MidiMessage::PROGRAM_CHANGE;
-				} else if ( ( nEventType >= 208 ) && ( nEventType < 224 ) ) {	// Channel Pressure (After-touch)
-					msg.m_nChannel = nEventType - 208;
-					msg.m_type = MidiMessage::CHANNEL_PRESSURE;
-				} else if ( ( nEventType >= 224 ) && ( nEventType < 240 ) ) {	// Pitch Wheel Change
-					msg.m_nChannel = nEventType - 224;
-					msg.m_type = MidiMessage::PITCH_WHEEL;
-				} else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
-					msg.m_nChannel = nEventType - 240;
-					msg.m_type = MidiMessage::SYSEX;
-				} else {
-					__ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
-					__INFOLOG( "MIDI msg: " );
-					__INFOLOG( QString::number( buffer[0].timestamp ) );
-					__INFOLOG( QString::number( Pm_MessageStatus( buffer[0].message ) ) );
-					__INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
-					__INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
-				}
-
-				msg.m_nData1 = Pm_MessageData1( buffer[0].message );
-				msg.m_nData2 = Pm_MessageData2( buffer[0].message );
-
-				instance->handleMidiMessage( msg );
+			int nEventType = Pm_MessageStatus( buffer[0].message );
+			if ( ( nEventType >= 128 ) && ( nEventType < 144 ) ) {	// note off
+				msg.m_nChannel = nEventType - 128;
+				msg.m_type = MidiMessage::NOTE_OFF;
+			} else if ( ( nEventType >= 144 ) && ( nEventType < 160 ) ) {	// note on
+				msg.m_nChannel = nEventType - 144;
+				msg.m_type = MidiMessage::NOTE_ON;
+			} else if ( ( nEventType >= 160 ) && ( nEventType < 176 ) ) {	// Polyphonic Key Pressure (After-touch)
+				msg.m_nChannel = nEventType - 160;
+				msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
+			} else if ( ( nEventType >= 176 ) && ( nEventType < 192 ) ) {	// Control Change
+				msg.m_nChannel = nEventType - 176;
+				msg.m_type = MidiMessage::CONTROL_CHANGE;
+			} else if ( ( nEventType >= 192 ) && ( nEventType < 208 ) ) {	// Program Change
+				msg.m_nChannel = nEventType - 192;
+				msg.m_type = MidiMessage::PROGRAM_CHANGE;
+			} else if ( ( nEventType >= 208 ) && ( nEventType < 224 ) ) {	// Channel Pressure (After-touch)
+				msg.m_nChannel = nEventType - 208;
+				msg.m_type = MidiMessage::CHANNEL_PRESSURE;
+			} else if ( ( nEventType >= 224 ) && ( nEventType < 240 ) ) {	// Pitch Wheel Change
+				msg.m_nChannel = nEventType - 224;
+				msg.m_type = MidiMessage::PITCH_WHEEL;
+			} else if ( ( nEventType >= 240 ) && ( nEventType < 256 ) ) {	// System Exclusive
+				msg.m_nChannel = nEventType - 240;
+				msg.m_type = MidiMessage::SYSEX;
+			} else {
+				__ERRORLOG( "Unhandled midi message type: " + QString::number( nEventType ) );
+				__INFOLOG( "MIDI msg: " );
+				__INFOLOG( QString::number( buffer[0].timestamp ) );
+				__INFOLOG( QString::number( Pm_MessageStatus( buffer[0].message ) ) );
+				__INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
+				__INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
 			}
-		} else {
+
+			msg.m_nData1 = Pm_MessageData1( buffer[0].message );
+			msg.m_nData2 = Pm_MessageData2( buffer[0].message );
+
+			instance->handleMidiMessage( msg );
+		}
+		else if ( length == 0 ) {
+			// No data available
 #ifdef WIN32
 			Sleep( 1 );
 #else
 			usleep( 100 );
 #endif
+		}
+		else {
+			// An error occurred, e.g. a buffer overflow.
+			__ERRORLOG( QString( "Error in Pm_Read: [%1]" )
+						.arg( Pm_GetErrorText( length ) );
 		}
 	}
 
@@ -207,7 +212,8 @@ void PortMidiDriver::open()
 								   );
 
 		if ( err != pmNoError ) {
-			ERRORLOG( "Error in Pm_OpenInput" );
+			ERRORLOG( QString( "Error in Pm_OpenInput: [%1]" )
+					  .arg( Pm_GetErrorText( err ) ) );
 			m_pMidiIn = nullptr;
 		}
 	} else {
@@ -228,7 +234,8 @@ void PortMidiDriver::open()
 									);
 
 		if ( err != pmNoError ) {
-			ERRORLOG( "Error in Pm_OpenInput" );
+			ERRORLOG( QString( "Error in Pm_OpenOutput: [%1]" )
+					  .arg( Pm_GetErrorText( err ) ) );
 			m_pMidiOut = nullptr;
 		}
 	} else {
@@ -254,7 +261,8 @@ void PortMidiDriver::close()
 		pthread_join( PortMidiDriverThread, nullptr );
 		PmError err = Pm_Close( m_pMidiIn );
 		if ( err != pmNoError ) {
-			ERRORLOG( "Error in Pm_OpenInput" );
+			ERRORLOG( QString( "Error in Pm_Close: [%1]" )
+					  .arg( Pm_GetErrorText( err ) ) );
 		}
 	}
 }
@@ -371,7 +379,6 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		Pm_Write(m_pMidiOut, &event, 1);
 	}
 }
-
 };
 
 #endif	// H2CORE_HAVE_PORTMIDI
