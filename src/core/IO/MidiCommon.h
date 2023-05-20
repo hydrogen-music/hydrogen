@@ -66,69 +66,20 @@ public:
 			, m_nData1( -1 )
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}
+
+	/** Reset message */
+	void clear();
+
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 *   every new line
+	 * \param bShort Instead of the whole content of all classes
+	 *   stored as members just a single unique identifier will be
+	 *   displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
-
-inline QString MidiMessage::TypeToQString( MidiMessageType type ) {
-	QString sType;
-	switch( type ) {
-	case MidiMessageType::SYSEX:
-		sType = "SYSEX";
-		break;
-	case MidiMessageType::NOTE_ON:
-		sType = "NOTE_ON";
-		break;
-	case MidiMessageType::NOTE_OFF:
-		sType = "NOTE_OFF";
-		break;
-	case MidiMessageType::POLYPHONIC_KEY_PRESSURE:
-		sType = "POLYPHONIC_KEY_PRESSURE";
-		break;
-	case MidiMessageType::CONTROL_CHANGE:
-		sType = "CONTROL_CHANGE";
-		break;
-	case MidiMessageType::PROGRAM_CHANGE:
-		sType = "PROGRAM_CHANGE";
-		break;
-	case MidiMessageType::CHANNEL_PRESSURE:
-		sType = "CHANNEL_PRESSURE";
-		break;
-	case MidiMessageType::PITCH_WHEEL:
-		sType = "PITCH_WHEEL";
-		break;
-	case MidiMessageType::START:
-		sType = "START";
-		break;
-	case MidiMessageType::CONTINUE:
-		sType = "CONTINUE";
-		break;
-	case MidiMessageType::STOP:
-		sType = "STOP";
-		break;
-	case MidiMessageType::SONG_POS:
-		sType = "SONG_POS";
-		break;
-	case MidiMessageType::QUARTER_FRAME:
-		sType = "QUARTER_FRAME";
-		break;
-	case MidiMessageType::UNKNOWN:
-	default:
-		sType = "Unknown MIDI message type";
-	}
-
-	return std::move( sType );
-}
-
-
-/** \ingroup docCore docMIDI */
-class MidiPortInfo
-{
-public:
-	QString m_sName;
-	int m_nClient;
-	int m_nPort;
-};
-
-
 };
 
 #endif
