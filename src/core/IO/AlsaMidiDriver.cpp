@@ -281,10 +281,30 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 				msg.m_nChannel = ev->data.control.channel;
 				break;
 
+			case SND_SEQ_EVENT_PGMCHANGE:
+				msg.m_type = MidiMessage::PROGRAM_CHANGE;
+				msg.m_nData1 = ev->data.control.value;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
+
 			case SND_SEQ_EVENT_KEYPRESS:
 				msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
 				msg.m_nData1 = ev->data.note.note;
 				msg.m_nData2 = ev->data.note.velocity;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
+
+			case SND_SEQ_EVENT_CHANPRESS:
+				msg.m_type = MidiMessage::CHANNEL_PRESSURE;
+				msg.m_nData1 = ev->data.control.param;
+				msg.m_nData2 = ev->data.control.value;
+				msg.m_nChannel = ev->data.control.channel;
+				break;
+
+			case SND_SEQ_EVENT_PITCHBEND:
+				msg.m_type = MidiMessage::PITCH_WHEEL;
+				msg.m_nData1 = ev->data.control.param;
+				msg.m_nData2 = ev->data.control.value;
 				msg.m_nChannel = ev->data.control.channel;
 				break;
 
@@ -305,14 +325,30 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 
 			case SND_SEQ_EVENT_QFRAME:
 				msg.m_type = MidiMessage::QUARTER_FRAME;
-				break;
-
-			case SND_SEQ_EVENT_CLOCK:
-				//cout << "!!! Midi CLock" << endl;
+				msg.m_nData1 = ev->data.control.value;
+				msg.m_nData2 = ev->data.control.param;
 				break;
 
 			case SND_SEQ_EVENT_SONGPOS:
 				msg.m_type = MidiMessage::SONG_POS;
+				msg.m_nData1 = ev->data.control.value;
+				msg.m_nData2 = ev->data.control.param;
+				break;
+
+			case SND_SEQ_EVENT_SONGSEL:
+				msg.m_type = MidiMessage::SONG_SELECT;
+				msg.m_nData1 = ev->data.control.value;
+				msg.m_nData2 = ev->data.control.param;
+				break;
+
+			case SND_SEQ_EVENT_TUNE_REQUEST:
+				msg.m_type = MidiMessage::TUNE_REQUEST;
+				msg.m_nData1 = ev->data.control.value;
+				msg.m_nData2 = ev->data.control.param;
+				break;
+
+			case SND_SEQ_EVENT_CLOCK:
+				msg.m_type = MidiMessage::TIMING_CLOCK;
 				break;
 
 			case SND_SEQ_EVENT_START:
@@ -327,13 +363,12 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 				msg.m_type = MidiMessage::STOP;
 				break;
 
-			case SND_SEQ_EVENT_PITCHBEND:
+			case SND_SEQ_EVENT_SENSING:
+				msg.m_type = MidiMessage::ACTIVE_SENSING;
 				break;
 
-			case SND_SEQ_EVENT_PGMCHANGE:
-				msg.m_type = MidiMessage::PROGRAM_CHANGE;
-				msg.m_nData1 = ev->data.control.value;
-				msg.m_nChannel = ev->data.control.channel;
+			case SND_SEQ_EVENT_RESET:
+				msg.m_type = MidiMessage::RESET;
 				break;
 
 			case SND_SEQ_EVENT_CLIENT_EXIT:
@@ -346,9 +381,6 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 
 			case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
 				INFOLOG( "SND_SEQ_EVENT_PORT_UNSUBSCRIBED" );
-				break;
-
-			case SND_SEQ_EVENT_SENSING:
 				break;
 
 			default:
