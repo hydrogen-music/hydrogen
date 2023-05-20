@@ -55,6 +55,16 @@ public:
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
 
 	static QString translatePmError( PmError err );
+	/**
+	 * Appends the content of @a msg to #MidiMessage::m_sysexData of
+	 * @a pMidiMessage till 247 (EOX - end of exclusion) is
+	 * encountered.
+	 *
+	 * @returns `true` - in case all SysEx data is gathered and @a
+	 *   pMidiMessage can be considered complete or `false` if there
+	 *   is still pending data.
+	 */
+	static bool appendSysExData( MidiMessage* pMidiMessage, PmMessage msg );
 
 private:
 
