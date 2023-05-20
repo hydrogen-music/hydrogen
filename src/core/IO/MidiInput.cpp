@@ -53,10 +53,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( QString( "Incoming message of channel: %1, val1: %2, val2: %3, type: %4" )
-				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
-				 .arg( msg.m_nData2 )
-				 .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+		INFOLOG( QString( "Incoming message: [%1]" ).arg( msg.toQString() ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -154,10 +151,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		// Two spaces after "msg." in a row to align message parameters
-		INFOLOG( QString( "DONE handling msg.  channel: %1, val1: %2, val2: %3, type: %4" )
-				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
-				 .arg( msg.m_nData2 )
-				 .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+		INFOLOG( QString( "DONE handling msg:  [%1]" ).arg( msg.toQString() ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
