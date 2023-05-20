@@ -2,6 +2,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Support "START", "CONTINUE", and "STOP" type System Realtime
+		  MIDI messages in PortMidi and CoreMidi.
+		- Fix MIDI action binding to incoming MMC_DEFERRED_PLAY event.
 		- Fix missing MIDI driver restart when adjusting corresponding
 		  parameters in Preferences.
 		- Fix MIDI Machine Control (MMC) event type handling on Windows

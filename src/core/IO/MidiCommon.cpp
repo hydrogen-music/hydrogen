@@ -129,7 +129,7 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " %1" ).arg( dd ) );
 			}
 		}
-		sOutput.append( "]\n" );
+		sOutput.append( "]" );
 	}
 	else {
 		sOutput = QString( "[MidiMessage] " )
@@ -148,7 +148,7 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " %1" ).arg( dd ) );
 			}
 		}
-		sOutput.append( "]\n" );
+		sOutput.append( "]" );
 	}
 	
 	return sOutput;
