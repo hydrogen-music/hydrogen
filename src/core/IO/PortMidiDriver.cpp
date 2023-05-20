@@ -87,7 +87,7 @@ void* PortMidiDriver_thread( void* param )
 					sysExMsg.clear();
 				}
 
-				if ( ( nEventType >= 240 ) && ( nEventType < 248 ) ) {
+				if ( nEventType == 240 ) {
 					// New SysEx message
 					sysExMsg.m_type = MidiMessage::SYSEX;
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
@@ -98,30 +98,7 @@ void* PortMidiDriver_thread( void* param )
 				else {
 					// Other MIDI message consisting only of a single PmEvent.
 					MidiMessage msg;
-
-					if ( ( nEventType >= 128 ) && ( nEventType < 144 ) ) {	// note off
-						msg.m_nChannel = nEventType - 128;
-						msg.m_type = MidiMessage::NOTE_OFF;
-					} else if ( ( nEventType >= 144 ) && ( nEventType < 160 ) ) {	// note on
-						msg.m_nChannel = nEventType - 144;
-						msg.m_type = MidiMessage::NOTE_ON;
-					} else if ( ( nEventType >= 160 ) && ( nEventType < 176 ) ) {	// Polyphonic Key Pressure (After-touch)
-						msg.m_nChannel = nEventType - 160;
-						msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
-					} else if ( ( nEventType >= 176 ) && ( nEventType < 192 ) ) {	// Control Change
-						msg.m_nChannel = nEventType - 176;
-						msg.m_type = MidiMessage::CONTROL_CHANGE;
-					} else if ( ( nEventType >= 192 ) && ( nEventType < 208 ) ) {	// Program Change
-						msg.m_nChannel = nEventType - 192;
-						msg.m_type = MidiMessage::PROGRAM_CHANGE;
-					} else if ( ( nEventType >= 208 ) && ( nEventType < 224 ) ) {	// Channel Pressure (After-touch)
-						msg.m_nChannel = nEventType - 208;
-						msg.m_type = MidiMessage::CHANNEL_PRESSURE;
-					} else if ( ( nEventType >= 224 ) && ( nEventType < 240 ) ) {	// Pitch Wheel Change
-						msg.m_nChannel = nEventType - 224;
-						msg.m_type = MidiMessage::PITCH_WHEEL;
-					}
-
+					msg.setType( nEventType );
 					msg.m_nData1 = Pm_MessageData1( buffer[0].message );
 					msg.m_nData2 = Pm_MessageData2( buffer[0].message );
 					instance->handleMidiMessage( msg );
