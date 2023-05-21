@@ -96,6 +96,7 @@ void AudioEngineTests::testFrameToTickConversion() {
 
 void AudioEngineTests::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -115,6 +116,7 @@ void AudioEngineTests::testTransportProcessing() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -163,6 +165,7 @@ void AudioEngineTests::testTransportProcessing() {
 	}
 
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	resetVariables();
 
 	float fBpm;
@@ -275,6 +278,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -326,6 +330,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	// "classical" bpm change".
 
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	resetVariables();
 
 	float fBpm;
@@ -376,6 +381,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 
 void AudioEngineTests::testLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -389,6 +395,7 @@ void AudioEngineTests::testLoopMode() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -578,6 +585,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 
 void AudioEngineTests::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -593,6 +601,7 @@ void AudioEngineTests::testTransportRelocation() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while relocating
@@ -649,6 +658,7 @@ void AudioEngineTests::testTransportRelocation() {
 	}
 
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 }
@@ -663,6 +673,7 @@ void AudioEngineTests::testSongSizeChange() {
 	
 	pAE->lock( RIGHT_HERE );
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 	
@@ -702,6 +713,7 @@ void AudioEngineTests::testSongSizeChange() {
 
 void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -712,7 +724,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 	pAE->lock( RIGHT_HERE );
 
-	const int nColumns = pHydrogen->getSong()->getPatternGroupVector()->size();
+	const int nColumns = pSong->getPatternGroupVector()->size();
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -722,6 +734,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	const uint32_t nFrames = 500;
@@ -806,6 +819,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while using a
@@ -1015,6 +1029,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 
 	pAE->lock( RIGHT_HERE );
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	nLoops = 1;
@@ -1086,6 +1101,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	// For reset() the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 	AudioEngineTests::resetSampler( __PRETTY_FUNCTION__ );
 
@@ -1190,6 +1206,7 @@ void AudioEngineTests::testHumanization() {
 	// For reset() the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Testing );
 
 	// Rolls playback from beginning to the end of the song and
@@ -1892,6 +1909,7 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 
 void AudioEngineTests::resetSampler( const QString& sContext ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pPref = Preferences::get_instance();
@@ -1930,6 +1948,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	}
 	
 	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 }
 
 void AudioEngineTests::throwException( const QString& sMsg ) {
