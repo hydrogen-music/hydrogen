@@ -53,7 +53,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( QString( "Incoming message: [%1]" ).arg( msg.toQString() ) );
+		INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -136,6 +136,11 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::PITCH_WHEEL:
 		case MidiMessage::SONG_POS:
 		case MidiMessage::QUARTER_FRAME:
+		case MidiMessage::SONG_SELECT:
+		case MidiMessage::TUNE_REQUEST:
+		case MidiMessage::TIMING_CLOCK:
+		case MidiMessage::ACTIVE_SENSING:
+		case MidiMessage::RESET:
 			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 			break;
@@ -151,7 +156,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		// Two spaces after "msg." in a row to align message parameters
-		INFOLOG( QString( "DONE handling msg:  [%1]" ).arg( msg.toQString() ) );
+		INFOLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
@@ -362,94 +367,74 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
 
-	if ( msg.m_sysexData.size() == 6 ) {
-		if (
-			( msg.m_sysexData[0] == 240 ) &&
-			( msg.m_sysexData[1] == 127 ) &&
-					//( msg.m_sysexData[2] == 0 ) &&
-			( msg.m_sysexData[3] == 6 ) ) {
+	if ( msg.m_sysexData.size() == 6 && 
+		 msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 6 ) {
+		// MIDI Machine Control (MMC) message
 
+		QString sMMCtype;
+		switch ( msg.m_sysexData[4] ) {
+		case 1:	// STOP
+			sMMCtype = "MMC_STOP";
+			break;
 
-			switch ( msg.m_sysexData[4] ) {
+		case 2:	// PLAY
+			sMMCtype = "MMC_PLAY";
+			break;
 
-			case 1:	// STOP
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_STOP";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_STOP"));
-				break;
-			}
+		case 3:	//DEFERRED PLAY
+			sMMCtype = "MMC_DEFERRED_PLAY";
+			break;
 
-			case 2:	// PLAY
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
-				break;
-			}
+		case 4:	// FAST FWD
+			sMMCtype = "MMC_FAST_FORWARD";
+			break;
 
-			case 3:	//DEFERRED PLAY
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
-				break;
-			}
+		case 5:	// REWIND
+			sMMCtype = "MMC_REWIND";
+			break;
 
-			case 4:	// FAST FWD
-				pHydrogen->m_LastMidiEvent = "MMC_FAST_FORWARD";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_FAST_FORWARD"));
-				break;
+		case 6:	// RECORD STROBE (PUNCH IN)
+			sMMCtype = "MMC_RECORD_STROBE";
+			break;
 
-			case 5:	// REWIND
-				pHydrogen->m_LastMidiEvent = "MMC_REWIND";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_REWIND"));
-				break;
+		case 7:	// RECORD EXIT (PUNCH OUT)
+			sMMCtype = "MMC_RECORD_EXIT";
+			break;
 
-			case 6:	// RECORD STROBE (PUNCH IN)
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_STROBE";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_STROBE"));
-				break;
+		case 8:	// RECORD READY
+			sMMCtype = "MMC_RECORD_READY";
+			break;
 
-			case 7:	// RECORD EXIT (PUNCH OUT)
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_EXIT";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_EXIT"));
-				break;
-
-			case 8:	// RECORD READY
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_READY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_READY"));
-				break;
-
-			case 9:	//PAUSE
-				pHydrogen->m_LastMidiEvent = "MMC_PAUSE";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PAUSE"));
-				break;
-
-			default:
-				WARNINGLOG( "Unknown MMC Command" );
-//					midiDump( buf, nBytes );
-			}
+		case 9:	//PAUSE
+			sMMCtype = "MMC_PAUSE";
+			break;
 		}
-	} else if ( msg.m_sysexData.size() == 13 ) {
-		ERRORLOG( "MMC GOTO Message not implemented yet" );
-//		midiDump( buf, nBytes );
-		//int id = buf[2];
-		int hr = msg.m_sysexData[7];
-		int mn = msg.m_sysexData[8];
-		int sc = msg.m_sysexData[9];
-		int fr = msg.m_sysexData[10];
-		int ff = msg.m_sysexData[11];
-		char tmp[200];
-		sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
-		INFOLOG( tmp );
 
-	} else {
-		// sysex dump
-		QString sDump;
-		char tmpChar[64];
-		for ( int i = 0; i < ( int )msg.m_sysexData.size(); ++i ) {
-			sprintf( tmpChar, "%X ", ( int )msg.m_sysexData[ i ] );
-			sDump += tmpChar;
+		if ( ! sMMCtype.isEmpty() ) {
+			INFOLOG( QString( "MIDI Machine Control command: [%1]" )
+					 .arg( sMMCtype ) );
+			pHydrogen->m_LastMidiEvent = sMMCtype;
+			pMidiActionManager->handleActions( pMidiMap->getMMCActions( sMMCtype ) );
 		}
-		WARNINGLOG( QString( "Unknown SysEx message: (%1) [%2]" ).arg( msg.m_sysexData.size() ).arg( sDump ) );
+		else {
+			WARNINGLOG( "Unknown MIDI Machine Control (MMC) Command" );
+		}
+	}
+	else if ( msg.m_sysexData.size() == 13 && 
+			  msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 68 ) {
+		WARNINGLOG( "MMC GOTO Message not implemented yet" );
+		// int hr = msg.m_sysexData[7];
+		// int mn = msg.m_sysexData[8];
+		// int sc = msg.m_sysexData[9];
+		// int fr = msg.m_sysexData[10];
+		// int ff = msg.m_sysexData[11];
+		// char tmp[200];
+		// sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
+		// INFOLOG( tmp );
+	}
+	else {
+		WARNINGLOG( QString( "Unsupported SysEx message: [%1]" )
+					.arg( msg.toQString() ) );
 	}
 }
 

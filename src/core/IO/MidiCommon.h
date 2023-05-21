@@ -51,7 +51,12 @@ public:
 		CONTINUE,
 		STOP,
 		SONG_POS,
-		QUARTER_FRAME
+		QUARTER_FRAME,
+		SONG_SELECT,
+		TUNE_REQUEST,
+		TIMING_CLOCK,
+		ACTIVE_SENSING,
+		RESET
 	};
 	static QString TypeToQString( MidiMessageType type );
 
@@ -69,6 +74,14 @@ public:
 
 	/** Reset message */
 	void clear();
+
+	/**
+	 * Derives and set #m_type (and if applicable #m_nChannel) using
+	 * the @a statusByte of an incoming MIDI message. The particular
+	 * values are defined by the MIDI standard and do not dependent on
+	 * the individual drivers.
+	 */
+	void setType( int nStatusByte );
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
