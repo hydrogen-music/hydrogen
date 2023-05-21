@@ -295,6 +295,9 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fLastTickEnd = 0;
 	m_bLookaheadApplied = false;
 
+	m_fSongSizeInTicks = MAX_NOTES;
+	setNextBpm( 120 );
+
 	m_pTransportPosition->reset();
 	m_pQueuingPosition->reset();
 
