@@ -107,7 +107,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	pMidiOutLbl->move( 22, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 15,
+										   LCDSpinBox::Type::Int, -1, 16,
 										   true, true );
 	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
