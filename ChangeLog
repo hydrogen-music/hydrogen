@@ -2,6 +2,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Fix MIDI note output for channel 16 (previously only channel
+		  1-15 were accessible in the InstrumentEditor).
 		- Fix spurious tempo changes to 120bpm when switching songs
 		  (#1779)
 		- Support "START", "CONTINUE", and "STOP" type System Realtime
