@@ -31,7 +31,14 @@
 class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
-	Action( QString sType = "NOTHING" );
+	static QString getNullActionType() {
+		return "NOTHING";
+	}
+
+	Action( QString sType = getNullActionType() );
+
+	/** Checks whether m_sType is of getNullActionType() */
+	bool isNull() const;
 
 		void setParameter1( QString text ){
 			m_sParameter1 = text;

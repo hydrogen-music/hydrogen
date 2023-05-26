@@ -76,6 +76,10 @@ Action::Action( QString sType ) {
 	m_sValue = "0";
 }
 
+bool Action::isNull() const {
+	return m_sType == Action::getNullActionType();
+}
+
 QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -88,11 +92,11 @@ QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter3 ) );
 	} else {
 		sOutput = QString( "[Action]" )
-			.append( QString( "m_sType: %1\n" ).arg( m_sType ) )
-			.append( QString( "m_sValue: %1\n" ).arg( m_sValue ) )
-			.append( QString( "m_sParameter1: %1\n" ).arg( m_sParameter1 ) )
-			.append( QString( "m_sParameter2: %1\n" ).arg( m_sParameter2 ) )
-			.append( QString( "m_sParameter3: %1\n" ).arg( m_sParameter3 ) );
+			.append( QString( " m_sType: %1" ).arg( m_sType ) )
+			.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
+			.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
+			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
+			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) );
 	}
 	
 	return sOutput;

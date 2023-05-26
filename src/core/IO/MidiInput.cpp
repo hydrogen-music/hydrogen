@@ -187,7 +187,7 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
 	for ( auto action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != "NOTHING" ) {
+		if ( action->getType() != Action::getNullActionType() ) {
 			action->setValue( QString::number( msg.m_nData1 ) );
 			pMidiActionManager->handleAction( action );
 		}
