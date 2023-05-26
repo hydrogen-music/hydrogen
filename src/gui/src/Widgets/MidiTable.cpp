@@ -240,7 +240,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for ( const auto& action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != "NOTHING" ) {
+		if ( action->getType() != Action::getNullActionType() ) {
 			insertNewRow( action, "PROGRAM_CHANGE", 0 );
 		}
 	}
@@ -342,7 +342,7 @@ void MidiTable::updateRow( int nRow ) {
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
 	LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
 	LCDSpinBox* pActionSpinner3 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType == "NOTHING" || sActionType.isEmpty() ) {
+	if ( sActionType == Action::getNullActionType() || sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();
 		pActionSpinner3->hide();

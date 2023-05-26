@@ -1170,7 +1170,7 @@ bool Preferences::savePreferences()
 	for( const auto& it : mmcMap ){
 		QString event = it.first;
 		auto pAction = it.second;
-		if ( pAction->getType() != "NOTHING" ){
+		if ( pAction->getType() != Action::getNullActionType() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "mmcEvent" , event );
@@ -1184,7 +1184,7 @@ bool Preferences::savePreferences()
 	for ( const auto& it : mM->getNoteActionMap() ){
 		int nNote = it.first;
 		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != Action::getNullActionType()) {
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "noteEvent" , QString("NOTE") );
@@ -1199,7 +1199,7 @@ bool Preferences::savePreferences()
 	for( const auto& it : mM->getCCActionMap() ){
 		int nParameter = it.first;
 		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != Action::getNullActionType()) {
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "ccEvent" , QString("CC") );
@@ -1212,7 +1212,7 @@ bool Preferences::savePreferences()
 	}
 
 	for ( const auto action : mM->getPCActions() ) {
-		if( action != nullptr && action->getType() != "NOTHING") {
+		if( action != nullptr && action->getType() != Action::getNullActionType()) {
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "pcEvent" , QString("PROGRAM_CHANGE") );
