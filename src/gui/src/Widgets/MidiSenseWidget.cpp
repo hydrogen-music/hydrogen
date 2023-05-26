@@ -22,9 +22,11 @@
 
 #include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
-#include <core/Hydrogen.h>
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+
+#include <core/Hydrogen.h>
+#include <core/EventQueue.h>
 
 MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction): QDialog( pParent )
 {
@@ -107,17 +109,28 @@ void MidiSenseWidget::updateMidi(){
 			pAction->setParameter2( m_pAction->getParameter2() );
 			pAction->setParameter3( m_pAction->getParameter3() );
 
+			bool bEventRegistered = true;
+
 			if( m_sLastMidiEvent.left(2) == "CC" ){
 				pMidiMap->registerCCEvent( m_LastMidiEventParameter , pAction );
-			} else if( m_sLastMidiEvent.left(3) == "MMC" ){
+			}
+			else if( m_sLastMidiEvent.left(3) == "MMC" ){
 				pMidiMap->registerMMCEvent( m_sLastMidiEvent , pAction );
-			} else if( m_sLastMidiEvent.left(4) == "NOTE" ){
+			}
+			else if( m_sLastMidiEvent.left(4) == "NOTE" ){
 				pMidiMap->registerNoteEvent( m_LastMidiEventParameter , pAction );
-			} else if (m_sLastMidiEvent.left(14) == "PROGRAM_CHANGE" ){
+			}
+			else if (m_sLastMidiEvent.left(14) == "PROGRAM_CHANGE" ){
 				pMidiMap->registerPCEvent( pAction );
-			} else {
+			}
+			else {
+				bEventRegistered = false;
 				/* In all other cases, the midiMap cares for deleting the pointer */
 			}
+			if ( bEventRegistered ) {
+				H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
+			}
+
 		}
 
 		close();

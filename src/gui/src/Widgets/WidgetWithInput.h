@@ -91,8 +91,6 @@ public:
 	int getScrollSpeedFast() const;
 	void setScrollSpeedFast( int nScrollSpeedFast ) const;
 
-	void setAction( std::shared_ptr<Action> pAction );
-
 signals:
 	void valueChanged(WidgetWithInput *ref);	
 
@@ -105,7 +103,7 @@ protected:
 	virtual void leaveEvent( QEvent *ev );
 	virtual void keyPressEvent( QKeyEvent *ev );
 
-	void updateTooltip();
+	void updateTooltip() override;
 	
 	bool m_bUseIntSteps;
 	QString m_sBaseTooltip;
@@ -135,9 +133,6 @@ protected:
 	/** Number of seconds before #m_sInputBuffer will be flushed
 		(happens asynchronically whenever the next key input occurs.)*/
 	double m_inputBufferTimeout;
-
-	QString m_sRegisteredMidiEvent;
-	int m_nRegisteredMidiParameter;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/

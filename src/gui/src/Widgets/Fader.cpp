@@ -156,16 +156,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
-
-		// Store the registered MIDI event and parameter in order to
-		// show them in the tooltip. Looking them up in the MidiMap
-		// using the Action associated to the Widget might not yield a
-		// unique result since the Action can be registered from the
-		// PreferencesDialog as well.
-		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->m_LastMidiEvent;
-		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->m_nLastMidiEventParameter;
 		m_bIgnoreMouseMove = true;
-		updateTooltip();
 	}
 	else {
 		setCursor( QCursor( Qt::SizeVerCursor ) );

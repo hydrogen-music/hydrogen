@@ -118,7 +118,6 @@ public:
 	Button& operator=( const Button& rhs ) = delete;
 
 	void setBaseToolTip( const QString& sNewTip );
-	void setAction( std::shared_ptr<Action> pAction );
 	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
@@ -150,7 +149,7 @@ signals:
 private:
 	void updateStyleSheet();
 	void updateFont();
-	void updateTooltip();
+	void updateTooltip() override;
 	void updateIcon();
 
 	bool m_bUseRedBackground;
@@ -158,9 +157,7 @@ private:
 	QSize m_size;
 	QSize m_iconSize;
 	QString m_sBaseTooltip;
-	QString m_sRegisteredMidiEvent;
 	QString m_sIcon;
-	int m_nRegisteredMidiParameter;
 	int m_nFixedFontSize;
 
 	int m_nBorderRadius;

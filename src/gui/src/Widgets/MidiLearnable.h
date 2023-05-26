@@ -25,33 +25,58 @@
 #define MIDILEARNABLE_H
 
 #include <memory>
+#include <vector>
+#include <QString>
 #include <core/MidiAction.h>
 
+#include "../EventListener.h"
 
-
-/*
-  Every widget which supports MidiLearn should derive from this Class.
-*/
-
-/** \ingroup docGUI docWidgets docMIDI*/
-class MidiLearnable
+/**
+ * Every widget which supports MidiLearn should derive from this
+ * Class.
+ *
+ * MIDI-learnable widgets serve as a more convenient interface to the
+ * #MidiTable provided in the #PreferencesDialog. Instead of
+ * assigning a MIDI message type and parameter e.g. STRIP_SOLO_TOGGLE
+ * and specify the strip number to 2, one can also SHIFT - left click
+ * the solo button of the second strip and send the MIDI event.
+ *
+ * \ingroup docGUI docWidgets docMIDI
+ */
+class MidiLearnable : EventListener
 {
 public:
-    MidiLearnable(){
-		m_pAction = nullptr;
-	}
+    MidiLearnable();
+	~MidiLearnable();
 
-    void setAction( std::shared_ptr<Action> pAction ){
-		m_pAction = pAction;
-    }
+    void setAction( std::shared_ptr<Action> pAction );
 
     std::shared_ptr<Action> getAction() const {
 		return m_pAction;
     }
 
+	/**
+	 * Update #m_registeredMidiEvents since the underlying
+	 * #H2Core::MidiMap changed.
+	 */
+	void midiMapChangedEvent() override;
+
+	/**
+	 * Indicates child class to recalculate its tool tip in case
+	 * #m_registeredMidiEvents changed.
+	 */
+	virtual void updateTooltip(){};
 
 protected:
     std::shared_ptr<Action> m_pAction;
+
+	/**
+	 * Stores all MIDI events mapped to #m_pAction.
+	 *
+	 * It consists of pairs of MIDI event strings ("NOTE", "CC", "PC",
+	 * "MMC_x") and the associated MIDI parameter.
+	 */ 
+	std::vector<std::pair<QString,int>> m_registeredMidiEvents;
 };
 
 #endif // MIDILEARNABLE_H

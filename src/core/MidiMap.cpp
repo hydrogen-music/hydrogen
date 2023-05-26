@@ -151,6 +151,7 @@ void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<Action> pAction )
 	}
 
 	m_ccActionMap.insert( { nParameter, pAction } );
+	
 }
 
 void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
@@ -238,70 +239,102 @@ std::vector<int> MidiMap::findCCValuesByActionType( QString sActionType ) {
 	return std::move( values );
 }
 
+std::vector<std::pair<QString,int>> MidiMap::getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const {
+	std::vector<std::pair<QString,int>> midiEvents;
+
+	if ( pAction != nullptr && ! pAction->isNull() ) {
+		for ( const auto& [nParam, ppAction] : m_noteActionMap ) {
+			if ( ! ppAction->isNull() && ppAction == pAction ) {
+				midiEvents.push_back( std::make_pair( "NOTE", nParam ) );
+			}
+		}
+		for ( const auto& [nParam, ppAction] : m_ccActionMap ) {
+			if ( ! ppAction->isNull() && ppAction == pAction ) {
+				midiEvents.push_back( std::make_pair( "CC", nParam ) );
+			}
+		}
+		for ( const auto& [sType, ppAction] : m_mmcActionMap ) {
+			if ( ! ppAction->isNull() && ppAction == pAction ) {
+				midiEvents.push_back( std::make_pair( sType, 0 ) );
+			}
+		}
+		for ( const auto& ppAction : m_pcActionVector ) {
+			INFOLOG( QString( "%1 vs %2" ).arg( pAction->toQString() ).arg( ppAction->toQString() ) );
+			if ( ! ppAction->isNull() && ppAction == pAction ) {
+				WARNINGLOG( "check" );
+				midiEvents.push_back(
+					std::make_pair( "PROGRAM_CHANGE", 0 ) );
+			}
+		}
+	}
+
+	return std::move( midiEvents );
+}
+
 QString MidiMap::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiMap]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_noteActionMap:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& element : m_noteActionMap ) {
-			if ( ! element.second->isNull() ) {
+		for ( const auto& [nParam, ppAction] : m_noteActionMap ) {
+			if ( ! ppAction->isNull() ) {
 				sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-								.arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+								.arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( "%1%2m_ccActionMap:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& element : m_ccActionMap ) {
-			if ( ! element.second->isNull() ) {
+		for ( const auto& [nParam, ppAction] : m_ccActionMap ) {
+			if ( ! ppAction->isNull() ) {
 				sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-								.arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+								.arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( "%1%2m_mmcActionMap:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& element : m_mmcActionMap ) {
-			if ( ! element.second->isNull() ) {
+		for ( const auto& [nParam, ppAction] : m_mmcActionMap ) {
+			if ( ! ppAction->isNull() ) {
 				sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-								.arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+								.arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( "%1%2m_pcActionVector:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& action : m_pcActionVector ) {
-			if ( ! action->isNull() ) {
+		for ( const auto& ppAction : m_pcActionVector ) {
+			if ( ! ppAction->isNull() ) {
 				sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-								.arg( action->toQString( "", true ) ) );
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 	}
 	else {
 
 		sOutput = QString( "[MidiMap] m_noteActionMap: [" );
-		for ( const auto& element : m_noteActionMap ) {
-			if ( ! element.second->isNull() ) {
-				sOutput.append( QString( "%1: %2, " ).arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+		for ( const auto& [nParam, ppAction] : m_noteActionMap ) {
+			if ( ! ppAction->isNull() ) {
+				sOutput.append( QString( "%1: %2, " ).arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( "], m_ccActionMap: [" ) );
-		for ( const auto& element : m_ccActionMap ) {
-			if ( ! element.second->isNull() ) {
-				sOutput.append( QString( "%1: %2, " ).arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+		for ( const auto& [nParam, ppAction] : m_ccActionMap ) {
+			if ( ! ppAction->isNull() ) {
+				sOutput.append( QString( "%1: %2, " ).arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( "], m_mmcActionMap: [" ) );
-		for ( const auto& element : m_mmcActionMap ) {
-			if ( ! element.second->isNull() ) {
-				sOutput.append( QString( "%1: %2, " ).arg( element.first )
-								.arg( element.second->toQString( "", true ) ) );
+		for ( const auto& [nParam, ppAction] : m_mmcActionMap ) {
+			if ( ! ppAction->isNull() ) {
+				sOutput.append( QString( "%1: %2, " ).arg( nParam )
+								.arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( QString( ", m_pcActionVector: [" ) );
-		for ( const auto& action : m_pcActionVector ) {
-			if ( ! action->isNull() ) {
-				sOutput.append( QString( "%1, " ).arg( action->toQString( "", true ) ) );
+		for ( const auto& ppAction : m_pcActionVector ) {
+			if ( ! ppAction->isNull() ) {
+				sOutput.append( QString( "%1, " ).arg( ppAction->toQString( "", true ) ) );
 			}
 		}
 		sOutput.append( "]" );
