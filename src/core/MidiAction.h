@@ -36,6 +36,7 @@ class Action : public H2Core::Object<Action> {
 	}
 
 	Action( QString sType = getNullActionType() );
+	Action( std::shared_ptr<Action> pOther );
 
 	/** Checks whether m_sType is of getNullActionType() */
 	bool isNull() const;

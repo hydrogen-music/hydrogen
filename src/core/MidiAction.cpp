@@ -76,6 +76,14 @@ Action::Action( QString sType ) {
 	m_sValue = "0";
 }
 
+Action::Action( std::shared_ptr<Action> pOther ) {
+	m_sType = pOther->m_sType;
+	m_sParameter1 = pOther->m_sParameter1;
+	m_sParameter2 = pOther->m_sParameter2;
+	m_sParameter3 = pOther->m_sParameter3;
+	m_sValue = pOther->m_sValue;
+}
+
 bool Action::isNull() const {
 	return m_sType == Action::getNullActionType();
 }
