@@ -166,10 +166,12 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getCCActions( msg.m_nData1 ) ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
-
-		pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			pMidiActionManager->handleAction( pNewAction );
+		}
 	}
 
 	if(msg.m_nData1 == 04){
@@ -186,10 +188,11 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != Action::getNullActionType() ) {
-			action->setValue( QString::number( msg.m_nData1 ) );
-			pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData1 ) );
+			pMidiActionManager->handleAction( pNewAction );
 		}
 	}
 
@@ -217,11 +220,16 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pHydrogen->m_LastMidiEvent = "NOTE";
 	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
-	auto actions = pMidiMap->getNoteActions( msg.m_nData1 );
-	for ( auto action : actions ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
+	bool bActionSuccess = false;
+	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			if ( pMidiActionManager->handleAction( pNewAction ) ) {
+				bActionSuccess = true;
+			}
+		}
 	}
-	bool bActionSuccess = pMidiActionManager->handleActions( actions );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
