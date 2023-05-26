@@ -89,6 +89,13 @@ public:
 		
 	std::vector<int> findCCValuesByActionParam1( QString sActionType, QString sParam1 );
 	std::vector<int> findCCValuesByActionType( QString sActionType );
+
+	/**
+	 * @returns a list of all MIDI events registered to a particular
+	 *   @a pAction grouped in MIDI event type name and MIDI event
+	 *   parameter pairs.
+	 */
+	std::vector<std::pair<QString,int>> getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
