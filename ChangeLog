@@ -2,6 +2,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Fix superfluous MIDI event - Action bindings. An incoming MIDI
+		  event can be mapped to an Action only once.
 		- Fix tool tips of MIDI-learnable widgets. All bounded MIDI events
 		  will be shown.
 		- Fix MIDI note output for channel 16 (previously only channel
