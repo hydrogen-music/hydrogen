@@ -77,6 +77,14 @@ class Action : public H2Core::Object<Action> {
 			return m_sType;
 		}
 
+	/**
+	 * @returns whether the current action and @a pOther identically
+	 *   in all member except of #m_sValue. If true, they are associated
+	 *   with the same widget. The value will differ depending on the
+	 *   incoming MIDI event.
+	 */
+	bool isEquivalentTo( std::shared_ptr<Action> pOther );
+
 	friend bool operator ==(const Action& lhs, const Action& rhs ) {
 		return ( lhs.m_sType == rhs.m_sType &&
 				 lhs.m_sParameter1 == rhs.m_sParameter1 &&
