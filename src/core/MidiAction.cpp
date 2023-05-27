@@ -88,6 +88,17 @@ bool Action::isNull() const {
 	return m_sType == Action::getNullActionType();
 }
 
+bool Action::isEquivalentTo( std::shared_ptr<Action> pOther ) {
+	if ( pOther == nullptr ) {
+		return false;
+	}
+	
+	return ( m_sType == pOther->m_sType &&
+			 m_sParameter1 == pOther->m_sParameter1 &&
+			 m_sParameter2 == pOther->m_sParameter2 &&
+			 m_sParameter3 == pOther->m_sParameter3 );
+}
+
 QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
