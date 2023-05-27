@@ -37,6 +37,7 @@ namespace H2Core
 class MidiMessage
 {
 public:
+	/** All possible types of incoming MIDI messages.*/
 	enum MidiMessageType {
 		UNKNOWN,
 		SYSEX,
@@ -59,6 +60,29 @@ public:
 		RESET
 	};
 	static QString TypeToQString( MidiMessageType type );
+
+	/** Subset of incoming MIDI events that will be handled by
+		Hydrogen. */
+	enum class Event {
+		Null,
+		Note,
+		CC,
+		PC,
+		MmcStop,
+		MmcPlay,
+		MmcPause,
+		MmcDeferredPlay,
+		MmcFastForward,
+		MmcRewind,
+		MmcRecordStrobe,
+		MmcRecordExit,
+		MmcRecordReady
+	};
+	static QString EventToQString( Event event );
+	static Event QStringToEvent( const QString& sEvent );
+	/** Retrieve the string representation for all available
+	 * #Event. */
+	static QStringList getEventList();
 
 	MidiMessageType m_type;
 	int m_nData1;

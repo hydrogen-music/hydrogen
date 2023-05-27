@@ -213,8 +213,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool gain_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 
-		QStringList m_eventList;
-
 		int m_nLastBpmChangeCCParameter;
 
 	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
@@ -255,10 +253,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		QStringList getActionList(){
 			return m_actionList;
-		}
-
-		QStringList getEventList(){
-			return m_eventList;
 		}
 	/**
 	 * \return -1 in case the @a couldn't be found.
