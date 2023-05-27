@@ -337,10 +337,20 @@ void Button::updateTooltip() {
 		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
 					 .arg( m_pAction->getType() ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
-			for ( const auto& event : m_registeredMidiEvents ) {
-				sTip.append( QString( "\n%1 [%2 : %3]" )
-							 .arg( pCommonStrings->getMidiTooltipBound() )
-							 .arg( event.first ).arg( event.second ) );
+			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
+				if ( event == H2Core::MidiMessage::Event::Note ||
+					 event == H2Core::MidiMessage::Event::CC ) {
+					sTip.append( QString( "\n%1 [%2 : %3]" )
+								 .arg( pCommonStrings->getMidiTooltipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) )
+								 .arg( nnParam ) );
+				}
+				else {
+					// PC and MMC_x do not have a parameter.
+					sTip.append( QString( "\n%1 [%2]" )
+								 .arg( pCommonStrings->getMidiTooltipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
+				}
 			}
 		}
 		else {

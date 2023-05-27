@@ -28,6 +28,7 @@
 #include <vector>
 #include <QString>
 #include <core/MidiAction.h>
+#include <core/IO/MidiCommon.h>
 
 #include "../EventListener.h"
 
@@ -73,10 +74,10 @@ protected:
 	/**
 	 * Stores all MIDI events mapped to #m_pAction.
 	 *
-	 * It consists of pairs of MIDI event strings ("NOTE", "CC", "PC",
-	 * "MMC_x") and the associated MIDI parameter.
+	 * It consists of pairs of MIDI events and the associated MIDI
+	 * parameter.
 	 */ 
-	std::vector<std::pair<QString,int>> m_registeredMidiEvents;
+	std::vector<std::pair<H2Core::MidiMessage::Event,int>> m_registeredMidiEvents;
 };
 
 #endif // MIDILEARNABLE_H

@@ -1162,64 +1162,60 @@ bool Preferences::savePreferences()
 	// MidiMap to be initialized.
 	MidiMap::create_instance();
 	MidiMap * mM = MidiMap::get_instance();
-	auto mmcMap = mM->getMMCActionMap();
 
 	//---- MidiMap ----
 	XMLNode midiEventMapNode = rootNode.createNode( "midiEventMap" );
 
-	for( const auto& it : mmcMap ){
-		QString event = it.first;
-		auto pAction = it.second;
-		if ( pAction->getType() != Action::getNullActionType() ){
+	for( const auto& [ssType, ppAction] : mM->getMMCActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "mmcEvent" , event );
-			midiEventNode.write_string( "action" , pAction->getType());
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string( "mmcEvent" , ssType );
+			midiEventNode.write_string( "action" , ppAction->getType());
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for ( const auto& it : mM->getNoteActionMap() ){
-		int nNote = it.first;
-		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != Action::getNullActionType()) {
+	for ( const auto& [nnPitch, ppAction] : mM->getNoteActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "noteEvent" , QString("NOTE") );
-			midiEventNode.write_int( "eventParameter" , nNote );
-			midiEventNode.write_string( "action" , pAction->getType() );
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string(
+				"noteEvent", MidiMessage::EventToQString( MidiMessage::Event::Note ) );
+			midiEventNode.write_int( "eventParameter" , nnPitch );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for( const auto& it : mM->getCCActionMap() ){
-		int nParameter = it.first;
-		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != Action::getNullActionType()) {
+	for ( const auto& [nnParam, ppAction] : mM->getCCActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "ccEvent" , QString("CC") );
-			midiEventNode.write_int( "eventParameter" , nParameter );
-			midiEventNode.write_string( "action" , pAction->getType() );
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string(
+				"ccEvent", MidiMessage::EventToQString( MidiMessage::Event::CC ) );
+			midiEventNode.write_int( "eventParameter" , nnParam );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for ( const auto action : mM->getPCActions() ) {
-		if( action != nullptr && action->getType() != Action::getNullActionType()) {
+	for ( const auto& ppAction : mM->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "pcEvent" , QString("PROGRAM_CHANGE") );
-			midiEventNode.write_string( "action" , action->getType() );
-			midiEventNode.write_string( "parameter" , action->getParameter1() );
-			midiEventNode.write_string( "parameter2" , action->getParameter2() );
-			midiEventNode.write_string( "parameter3" , action->getParameter3() );
+			midiEventNode.write_string(
+				"pcEvent", MidiMessage::EventToQString( MidiMessage::Event::PC ) );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 

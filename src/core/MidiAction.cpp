@@ -198,20 +198,6 @@ MidiActionManager::MidiActionManager() {
 	for ( const auto& ppAction : m_actionMap ) {
 		m_actionList << ppAction.first;
 	}
-
-	m_eventList << ""
-			  << "MMC_PLAY"
-			  << "MMC_DEFERRED_PLAY"
-			  << "MMC_STOP"
-			  << "MMC_FAST_FORWARD"
-			  << "MMC_REWIND"
-			  << "MMC_RECORD_STROBE"
-			  << "MMC_RECORD_EXIT"
-			  << "MMC_RECORD_READY"
-			  << "MMC_PAUSE"
-			  << "NOTE"
-			  << "CC"
-			  << "PROGRAM_CHANGE";
 }
 
 

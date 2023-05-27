@@ -106,6 +106,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
+					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
 					 , m_CurrentTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
@@ -1741,7 +1742,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
+		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
@@ -1793,7 +1795,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( " nullptr" ) );
 		}
-		sOutput.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
+		sOutput.append( QString( ", lastMidiEvent: %1" )
+						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );

@@ -29,6 +29,7 @@
 #include <memory>
 #include <core/Object.h>
 #include <core/MidiAction.h>
+#include <core/IO/MidiCommon.h>
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
@@ -40,17 +41,25 @@ class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 		explicit MidiSenseWidget(QWidget*,bool bDirectWrite = false , std::shared_ptr<Action> pAction = nullptr);
 		~MidiSenseWidget();
 
-		QString		m_sLastMidiEvent;
-		int			m_LastMidiEventParameter;
-	
+		H2Core::MidiMessage::Event getLastMidiEvent() const;
+		int getLastMidiEventParameter() const;
+
 	private slots:
 		void		updateMidi();
 
 	private:
-		QTimer*		m_pUpdateTimer;
-		QLabel*		m_pURLLabel;
-		std::shared_ptr<Action>		m_pAction;
-		bool		m_bDirectWrite;
+		H2Core::MidiMessage::Event 		m_lastMidiEvent;
+		int								m_nLastMidiEventParameter;
+		QTimer*							m_pUpdateTimer;
+		QLabel*							m_pURLLabel;
+		std::shared_ptr<Action>			m_pAction;
+		bool							m_bDirectWrite;
 };
 
+inline H2Core::MidiMessage::Event MidiSenseWidget::getLastMidiEvent() const {
+	return m_lastMidiEvent;
+}
+inline int MidiSenseWidget::getLastMidiEventParameter() const {
+	return m_nLastMidiEventParameter;
+}
 #endif
