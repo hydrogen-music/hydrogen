@@ -586,6 +586,12 @@ private:
 	 */
 	void handleDriverChange();
 
+	/**
+	 * Called whenever Hydrogen switches from #Song::Mode::Song into
+	 * #Song::Mode::Pattern or the other way around.
+	 */
+	void switchMode();
+
 	Sampler* 			m_pSampler;
 	Synth* 				m_pSynth;
 	AudioOutput *		m_pAudioDriver;

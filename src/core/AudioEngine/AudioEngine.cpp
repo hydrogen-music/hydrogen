@@ -1129,6 +1129,19 @@ void AudioEngine::handleSelectedPattern() {
 	}
 }
 
+void AudioEngine::switchMode() {
+	reset( true );
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	m_fSongSizeInTicks = pSong->lengthInTicks();
+	setNextBpm( pSong->getBpm() );
+}
+
 void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -1499,18 +1512,19 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Reset (among other things) the transport position. This causes
 	// the locate() call below to update the playing patterns.
 	reset( false );
-
-	pHydrogen->renameJackPorts( pNewSong );
+	setNextBpm( pNewSong->getBpm() );
 	m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
 
-	setState( State::Ready );
+	pHydrogen->renameJackPorts( pNewSong );
 
-	setNextBpm( pNewSong->getBpm() );
+	setState( State::Ready );
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
 	pHydrogen->setTimeline( pNewSong->getTimeline() );
 	pHydrogen->getTimeline()->activate();
+
+	updateSongSize();
 
 	this->unlock();
 }
