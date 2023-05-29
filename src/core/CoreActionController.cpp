@@ -911,8 +911,9 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
@@ -926,17 +927,16 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	pHydrogen->sequencer_stop();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->reset( true );
-	
+
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
 		pHydrogen->setMode( Song::Mode::Song );
-	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
+	}
+	else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
+	
+	pAudioEngine->switchMode();
 
-	// Ensure the playing patterns are properly updated regardless of
-	// the state of transport before switching song modes.
-	pAudioEngine->updatePlayingPatterns();
 	pAudioEngine->unlock();
 	
 	return true;
