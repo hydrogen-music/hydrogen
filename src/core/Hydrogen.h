@@ -29,6 +29,7 @@
 #include <core/Object.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
+#include <core/IO/MidiCommon.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -104,8 +105,10 @@ public:
 	void			midi_noteOn( Note *note );
 
 	///Last received midi message
-	QString			m_LastMidiEvent;
-	int				m_nLastMidiEventParameter;
+	MidiMessage::Event	getLastMidiEvent() const;
+	void				setLastMidiEvent( MidiMessage::Event event );
+	int					getLastMidiEventParameter() const;
+	void				setLastMidiEventParameter( int nParam );
 
 	/** Wrapper around AudioEngine::toggleNextPattern().*/
 	void			toggleNextPattern( int nPatternNumber );
@@ -607,6 +610,12 @@ private:
 
 	void __kill_instruments();
 
+	/**
+	 * Cache last incoming MIDI event to be used in #MidiSenseWidget.
+	 */
+	MidiMessage::Event m_lastMidiEvent;
+	int					m_nLastMidiEventParameter;
+
 };
 
 
@@ -663,6 +672,18 @@ inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 }
 inline bool Hydrogen::getSessionIsExported() const {
 	return m_bSessionIsExported;
+}
+inline MidiMessage::Event Hydrogen::getLastMidiEvent() const {
+	return m_lastMidiEvent;
+}
+inline void Hydrogen::setLastMidiEvent( MidiMessage::Event event ) {
+	m_lastMidiEvent = event;
+}
+inline int Hydrogen::getLastMidiEventParameter() const {
+	return m_nLastMidiEventParameter;
+}
+inline void	Hydrogen::setLastMidiEventParameter( int nParam ) {
+	m_nLastMidiEventParameter = nParam;
 }
 };
 

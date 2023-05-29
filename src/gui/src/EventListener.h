@@ -67,6 +67,7 @@ class EventListener
 	virtual void playbackTrackChangedEvent(){}
 	virtual void soundLibraryChangedEvent(){}
 	virtual void nextShotEvent(){}
+	virtual void midiMapChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

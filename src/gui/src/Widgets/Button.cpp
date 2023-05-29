@@ -40,8 +40,6 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_type( type )
 	, m_iconSize( iconSize )
 	, m_sBaseTooltip( sBaseTooltip )
-	, m_sRegisteredMidiEvent( "" )
-	, m_nRegisteredMidiParameter( 0 )
 	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
@@ -310,11 +308,6 @@ void Button::setBaseToolTip( const QString& sNewTip ) {
 	updateTooltip();
 }
 
-void Button::setAction( std::shared_ptr<Action> pAction ) {
-	m_pAction = pAction;
-	updateTooltip();
-}
-
 void Button::mousePressEvent(QMouseEvent*ev) {
 	if ( ev->button() == Qt::RightButton ) {
 		emit rightClicked();
@@ -327,16 +320,6 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	if ( ev->button() == Qt::LeftButton && ( ev->modifiers() & Qt::ShiftModifier ) ){
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
-
-		// Store the registered MIDI event and parameter in order to
-		// show them in the tooltip. Looking them up in the MidiMap
-		// using the Action associated to the Widget might not yield a
-		// unique result since the Action can be registered from the
-		// PreferencesDialog as well.
-		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->m_LastMidiEvent;
-		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->m_nLastMidiEventParameter;
-		
-		updateTooltip();
 		return;
 	}
 
@@ -353,10 +336,24 @@ void Button::updateTooltip() {
 	if ( m_pAction != nullptr ) {
 		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
 					 .arg( m_pAction->getType() ) );
-		if ( ! m_sRegisteredMidiEvent.isEmpty() ) {
-			sTip.append( QString( "%1 [%2 : %3]" ).arg( pCommonStrings->getMidiTooltipBound() )
-						 .arg( m_sRegisteredMidiEvent ).arg( m_nRegisteredMidiParameter ) );
-		} else {
+		if ( m_registeredMidiEvents.size() > 0 ) {
+			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
+				if ( event == H2Core::MidiMessage::Event::Note ||
+					 event == H2Core::MidiMessage::Event::CC ) {
+					sTip.append( QString( "\n%1 [%2 : %3]" )
+								 .arg( pCommonStrings->getMidiTooltipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) )
+								 .arg( nnParam ) );
+				}
+				else {
+					// PC and MMC_x do not have a parameter.
+					sTip.append( QString( "\n%1 [%2]" )
+								 .arg( pCommonStrings->getMidiTooltipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
+				}
+			}
+		}
+		else {
 			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
 		}
 	}

@@ -76,6 +76,29 @@ Action::Action( QString sType ) {
 	m_sValue = "0";
 }
 
+Action::Action( std::shared_ptr<Action> pOther ) {
+	m_sType = pOther->m_sType;
+	m_sParameter1 = pOther->m_sParameter1;
+	m_sParameter2 = pOther->m_sParameter2;
+	m_sParameter3 = pOther->m_sParameter3;
+	m_sValue = pOther->m_sValue;
+}
+
+bool Action::isNull() const {
+	return m_sType == Action::getNullActionType();
+}
+
+bool Action::isEquivalentTo( std::shared_ptr<Action> pOther ) {
+	if ( pOther == nullptr ) {
+		return false;
+	}
+	
+	return ( m_sType == pOther->m_sType &&
+			 m_sParameter1 == pOther->m_sParameter1 &&
+			 m_sParameter2 == pOther->m_sParameter2 &&
+			 m_sParameter3 == pOther->m_sParameter3 );
+}
+
 QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -88,11 +111,11 @@ QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter3 ) );
 	} else {
 		sOutput = QString( "[Action]" )
-			.append( QString( "m_sType: %1\n" ).arg( m_sType ) )
-			.append( QString( "m_sValue: %1\n" ).arg( m_sValue ) )
-			.append( QString( "m_sParameter1: %1\n" ).arg( m_sParameter1 ) )
-			.append( QString( "m_sParameter2: %1\n" ).arg( m_sParameter2 ) )
-			.append( QString( "m_sParameter3: %1\n" ).arg( m_sParameter3 ) );
+			.append( QString( " m_sType: %1" ).arg( m_sType ) )
+			.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
+			.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
+			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
+			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) );
 	}
 	
 	return sOutput;
@@ -175,20 +198,6 @@ MidiActionManager::MidiActionManager() {
 	for ( const auto& ppAction : m_actionMap ) {
 		m_actionList << ppAction.first;
 	}
-
-	m_eventList << ""
-			  << "MMC_PLAY"
-			  << "MMC_DEFERRED_PLAY"
-			  << "MMC_STOP"
-			  << "MMC_FAST_FORWARD"
-			  << "MMC_REWIND"
-			  << "MMC_RECORD_STROBE"
-			  << "MMC_RECORD_EXIT"
-			  << "MMC_RECORD_READY"
-			  << "MMC_PAUSE"
-			  << "NOTE"
-			  << "CC"
-			  << "PROGRAM_CHANGE";
 }
 
 

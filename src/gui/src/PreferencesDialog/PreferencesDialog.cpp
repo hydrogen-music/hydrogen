@@ -35,6 +35,7 @@
 #include <QTreeWidgetItemIterator>
 #include "../Widgets/MidiTable.h"
 
+#include <core/EventQueue.h>
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiInput.h>
@@ -135,7 +136,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	: QDialog( parent )
 	, m_pCurrentColor( nullptr )
 	, m_nCurrentId( 0 )
-	, m_changes( H2Core::Preferences::Changes::None ) {
+	, m_changes( H2Core::Preferences::Changes::None )
+	, m_bMidiTableChanged( false ) {
 	
 	m_pCurrentTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
 	m_pPreviousTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
@@ -438,6 +440,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 				 m_changes =
 					 static_cast<H2Core::Preferences::Changes>(
 							m_changes | H2Core::Preferences::Changes::MidiTab );
+				 m_bMidiTableChanged = true;
 			 });
 
 	//////
@@ -906,6 +909,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	mM->reset_instance();
 
 	midiTable->saveMidiTable();
+	if ( m_bMidiTableChanged ) {
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
+	}
 
 	if ( m_pMidiDriverComboBox->currentText() == "ALSA" &&
 		 pPref->m_sMidiDriver != "ALSA" ) {

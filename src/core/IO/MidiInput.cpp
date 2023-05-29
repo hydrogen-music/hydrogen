@@ -166,18 +166,20 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getCCActions( msg.m_nData1 ) ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
-
-		pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			pMidiActionManager->handleAction( pNewAction );
+		}
 	}
 
 	if(msg.m_nData1 == 04){
 		__hihat_cc_openess = msg.m_nData2;
 	}
 
-	pHydrogen->m_LastMidiEvent = "CC";
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );
+	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
 }
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
@@ -186,15 +188,16 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != "NOTHING" ) {
-			action->setValue( QString::number( msg.m_nData1 ) );
-			pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData1 ) );
+			pMidiActionManager->handleAction( pNewAction );
 		}
 	}
 
-	pHydrogen->m_LastMidiEvent = "PROGRAM_CHANGE";
-	pHydrogen->m_nLastMidiEventParameter = 0;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::PC );
+	pHydrogen->setLastMidiEventParameter( 0 );
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -214,14 +217,19 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
-	pHydrogen->m_LastMidiEvent = "NOTE";
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
+	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
 
-	auto actions = pMidiMap->getNoteActions( msg.m_nData1 );
-	for ( auto action : actions ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
+	bool bActionSuccess = false;
+	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			if ( pMidiActionManager->handleAction( pNewAction ) ) {
+				bActionSuccess = true;
+			}
+		}
 	}
-	bool bActionSuccess = pMidiActionManager->handleActions( actions );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
@@ -364,56 +372,59 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
-
 
 	if ( msg.m_sysexData.size() == 6 && 
 		 msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 6 ) {
 		// MIDI Machine Control (MMC) message
 
+		MidiMessage::Event event = MidiMessage::Event::Null;
 		QString sMMCtype;
 		switch ( msg.m_sysexData[4] ) {
 		case 1:	// STOP
-			sMMCtype = "MMC_STOP";
+			event = MidiMessage::Event::MmcStop;
 			break;
 
 		case 2:	// PLAY
-			sMMCtype = "MMC_PLAY";
+			event = MidiMessage::Event::MmcPlay;
 			break;
 
 		case 3:	//DEFERRED PLAY
-			sMMCtype = "MMC_DEFERRED_PLAY";
+			event = MidiMessage::Event::MmcDeferredPlay;
 			break;
 
 		case 4:	// FAST FWD
-			sMMCtype = "MMC_FAST_FORWARD";
+			event = MidiMessage::Event::MmcFastForward;
 			break;
 
 		case 5:	// REWIND
-			sMMCtype = "MMC_REWIND";
+			event = MidiMessage::Event::MmcRewind;
 			break;
 
 		case 6:	// RECORD STROBE (PUNCH IN)
-			sMMCtype = "MMC_RECORD_STROBE";
+			event = MidiMessage::Event::MmcRecordStrobe;
 			break;
 
 		case 7:	// RECORD EXIT (PUNCH OUT)
-			sMMCtype = "MMC_RECORD_EXIT";
+			event = MidiMessage::Event::MmcRecordExit;
 			break;
 
 		case 8:	// RECORD READY
-			sMMCtype = "MMC_RECORD_READY";
+			event = MidiMessage::Event::MmcRecordReady;
 			break;
 
 		case 9:	//PAUSE
-			sMMCtype = "MMC_PAUSE";
+			event = MidiMessage::Event::MmcPause;
 			break;
 		}
 
-		if ( ! sMMCtype.isEmpty() ) {
+		if ( event != MidiMessage::Event::Null ) {
+			const QString sMMCtype = MidiMessage::EventToQString( event );
 			INFOLOG( QString( "MIDI Machine Control command: [%1]" )
 					 .arg( sMMCtype ) );
-			pHydrogen->m_LastMidiEvent = sMMCtype;
+			
+			pHydrogen->setLastMidiEvent( event );
+			pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
+			
 			pMidiActionManager->handleActions( pMidiMap->getMMCActions( sMMCtype ) );
 		}
 		else {

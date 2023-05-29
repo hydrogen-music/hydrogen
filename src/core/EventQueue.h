@@ -174,7 +174,8 @@ enum EventType {
 	EVENT_DRIVER_CHANGED,
 	EVENT_PLAYBACK_TRACK_CHANGED,
 	EVENT_SOUND_LIBRARY_CHANGED,
-	EVENT_NEXT_SHOT
+	EVENT_NEXT_SHOT,
+	EVENT_MIDI_MAP_CHANGED
 };
 
 /** Basic building block for the communication between the core of

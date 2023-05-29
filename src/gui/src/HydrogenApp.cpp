@@ -870,6 +870,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->nextShotEvent();
 				break;
 
+			case EVENT_MIDI_MAP_CHANGED:
+				pListener->midiMapChangedEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

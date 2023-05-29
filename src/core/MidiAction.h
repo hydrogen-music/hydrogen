@@ -31,7 +31,15 @@
 class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
-	Action( QString sType = "NOTHING" );
+	static QString getNullActionType() {
+		return "NOTHING";
+	}
+
+	Action( QString sType = getNullActionType() );
+	Action( std::shared_ptr<Action> pOther );
+
+	/** Checks whether m_sType is of getNullActionType() */
+	bool isNull() const;
 
 		void setParameter1( QString text ){
 			m_sParameter1 = text;
@@ -68,6 +76,43 @@ class Action : public H2Core::Object<Action> {
 		QString getType() const {
 			return m_sType;
 		}
+
+	/**
+	 * @returns whether the current action and @a pOther identically
+	 *   in all member except of #m_sValue. If true, they are associated
+	 *   with the same widget. The value will differ depending on the
+	 *   incoming MIDI event.
+	 */
+	bool isEquivalentTo( std::shared_ptr<Action> pOther );
+
+	friend bool operator ==(const Action& lhs, const Action& rhs ) {
+		return ( lhs.m_sType == rhs.m_sType &&
+				 lhs.m_sParameter1 == rhs.m_sParameter1 &&
+				 lhs.m_sParameter2 == rhs.m_sParameter2 &&
+				 lhs.m_sParameter3 == rhs.m_sParameter3 &&
+				 lhs.m_sValue == rhs.m_sValue );
+	}
+	friend bool operator !=(const Action& lhs, const Action& rhs ) {
+		return ( lhs.m_sType != rhs.m_sType ||
+				 lhs.m_sParameter1 != rhs.m_sParameter1 ||
+				 lhs.m_sParameter2 != rhs.m_sParameter2 ||
+				 lhs.m_sParameter3 != rhs.m_sParameter3 ||
+				 lhs.m_sValue != rhs.m_sValue );
+	}
+	friend bool operator ==(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+		return ( lhs->m_sType == rhs->m_sType &&
+				 lhs->m_sParameter1 == rhs->m_sParameter1 &&
+				 lhs->m_sParameter2 == rhs->m_sParameter2 &&
+				 lhs->m_sParameter3 == rhs->m_sParameter3 &&
+				 lhs->m_sValue == rhs->m_sValue );
+	}
+	friend bool operator !=(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+		return ( lhs->m_sType != rhs->m_sType ||
+				 lhs->m_sParameter1 != rhs->m_sParameter1 ||
+				 lhs->m_sParameter2 != rhs->m_sParameter2 ||
+				 lhs->m_sParameter3 != rhs->m_sParameter3 ||
+				 lhs->m_sValue != rhs->m_sValue );
+	}
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -168,8 +213,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool gain_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 
-		QStringList m_eventList;
-
 		int m_nLastBpmChangeCCParameter;
 
 	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
@@ -210,10 +253,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		QStringList getActionList(){
 			return m_actionList;
-		}
-
-		QStringList getEventList(){
-			return m_eventList;
 		}
 	/**
 	 * \return -1 in case the @a couldn't be found.

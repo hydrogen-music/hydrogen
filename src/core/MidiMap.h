@@ -27,6 +27,7 @@
 #include <map>
 #include <cassert>
 #include <core/Object.h>
+#include <core/IO/MidiCommon.h>
 
 #include <QtCore/QMutex>
 
@@ -89,6 +90,23 @@ public:
 		
 	std::vector<int> findCCValuesByActionParam1( QString sActionType, QString sParam1 );
 	std::vector<int> findCCValuesByActionType( QString sActionType );
+
+	/**
+	 * @returns a list of all MIDI events registered to a particular
+	 *   @a pAction grouped in MIDI event type name and MIDI event
+	 *   parameter pairs.
+	 */
+	std::vector<std::pair<H2Core::MidiMessage::Event,int>> getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const;
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	MidiMap();
 
