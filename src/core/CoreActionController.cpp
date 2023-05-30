@@ -210,7 +210,7 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 			pHydrogen->setSelectedInstrumentNumber( nStrip );
 		}
 
-		return sendStripPanSymFeedback( nStrip );
+		return sendStripPanFeedback( nStrip );
 	}
 
 	return false;
@@ -399,33 +399,6 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 
 		return handleOutgoingControlChanges( ccParamValues,
 											 pInstr->getPanWithRangeFrom0To1() * 127 );
-	}
-
-	return false;
-}
-
-bool CoreActionController::sendStripPanSymFeedback( int nStrip ) {
-	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-
-#ifdef H2CORE_HAVE_OSC
-		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "PAN_ABSOLUTE_SYM" );
-		
-			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setValue( QString("%1")
-									   .arg( pInstr->getPan() ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
-		}
-#endif
-	
-		MidiMap* pMidiMap = MidiMap::get_instance();
-		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE_SYM"),
-																   QString("%1").arg( nStrip ) );
-
-		return handleOutgoingControlChanges( ccParamValues,
-											 pInstr->getPan() * 127 );
 	}
 
 	return false;
