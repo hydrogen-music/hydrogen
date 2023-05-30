@@ -1209,8 +1209,12 @@ bool MidiActionManager::toggle_metronome( std::shared_ptr<Action> , Hydrogen* pH
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+
+	// Use the wrapper in CAC over a plain setting of the parameter in
+	// order to send MIDI feedback
+	pHydrogen->getCoreActionController()->setMetronomeIsActive( 
+		! Preferences::get_instance()->m_bUseMetronome );
 	
-	Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 	return true;
 }
 
