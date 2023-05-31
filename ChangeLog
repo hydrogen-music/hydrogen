@@ -10,8 +10,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  will be shown.
 		- Fix MIDI note output for channel 16 (previously only channel
 		  1-15 were accessible in the InstrumentEditor).
-		- Fix spurious tempo changes to 120bpm when switching songs
-		  (#1779)
+		- Fix spurious tempo changes to 120bpm when switching songs or
+		  between pattern and song mode (#1779 and #1785)
 		- Support "START", "CONTINUE", and "STOP" type System Realtime
 		  MIDI messages in PortMidi and CoreMidi.
 		- Fix MIDI action binding to incoming MMC_DEFERRED_PLAY event.
