@@ -61,6 +61,7 @@ void* diskWriterDriver_thread( void* param )
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
+	qDebug() << "[diskWriterDriver_thread] started";
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
@@ -142,16 +143,17 @@ void* diskWriterDriver_thread( void* param )
 		return nullptr;
 	}
 
-
+	qDebug() << "[diskWriterDriver_thread] setup";
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
 	if ( m_file == nullptr ) {
 		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
 					.arg( pDriver->m_sFilename )
 					.arg( sf_strerror( nullptr ) ) );
+		qDebug() << "[diskWriterDriver_thread] ERROR: unable to create file";
 		pthread_exit( nullptr );
 		return nullptr;
 	}
-	
+	qDebug() << "[diskWriterDriver_thread] file created";
 							  
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
@@ -182,6 +184,13 @@ void* diskWriterDriver_thread( void* param )
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
+
+		qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
+			patternPosition << ", nColumns: " << nColumns <<
+			", nPatternSize: " << nPatternSize <<
+			", fBpm: " << fBpm <<
+			", fTicksize: " << fTicksize;
+			
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
@@ -274,6 +283,7 @@ void* diskWriterDriver_thread( void* param )
 			}
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			qDebug() << "[diskWriterDriver_thread] data written: " << res;
 			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
 							.arg( res )
