@@ -184,6 +184,13 @@ void* diskWriterDriver_thread( void* param )
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
+
+		qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
+			patternPosition << ", nColumns: " << nColumns <<
+			", nPatternSize: " << nPatternSize <<
+			", fBpm: " << fBpm <<
+			", fTicksize: " << fTicksize;
+			
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
@@ -276,6 +283,7 @@ void* diskWriterDriver_thread( void* param )
 			}
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			qDebug() << "[diskWriterDriver_thread] data written: " << res;
 			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
 							.arg( res )
