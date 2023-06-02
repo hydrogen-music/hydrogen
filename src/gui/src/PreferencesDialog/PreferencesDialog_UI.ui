@@ -1874,7 +1874,7 @@
           <item>
            <widget class="QPushButton" name="resetShortcutButton">
             <property name="toolTip">
-             <string/>
+             <string>Restores the default values for all shortcuts</string>
             </property>
             <property name="text">
              <string>&amp;Reset all</string>
@@ -1902,6 +1902,9 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="toolTip">
+             <string>Removes keybinding of selected shortcut</string>
+            </property>
             <property name="text">
              <string>&amp;Clear</string>
             </property>
@@ -1915,6 +1918,9 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="toolTip">
+             <string/>
+            </property>
             <property name="text">
              <string>&amp;Define</string>
             </property>
@@ -1923,6 +1929,16 @@
             </property>
             <property name="default">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="duplicateActionsButton">
+            <property name="toolTip">
+             <string>Add additional rows for the select actions to allow them to be bound to further shortcuts</string>
+            </property>
+            <property name="text">
+             <string>Duplicate</string>
             </property>
            </widget>
           </item>

@@ -244,25 +244,34 @@ std::vector<Shortcuts::Action> Shortcuts::getActions( QKeySequence keySequence )
 	}
 }
 
-void Shortcuts::deleteShortcut( Action action ) {
-	for ( const auto& it : m_actionsMap ) {
-		std::vector<Shortcuts::Action> v = it.second;
-		for ( std::vector<Shortcuts::Action>::iterator itAction = v.begin();
-			  itAction != v.end(); ++itAction ) {
-			if ( *itAction == action ) {
-				if ( v.size() == 1 ) {
-					// Just a single action assigned to this key, we
-					// remove it from the map.
-					m_actionsMap.erase( it.first );
+void Shortcuts::deleteShortcut( QKeySequence keySequence, Action action ) {
+	for ( auto it = m_actionsMap.begin(); it != m_actionsMap.end(); ) {
+		if ( it->first == keySequence ) {
+			for ( std::vector<Shortcuts::Action>::iterator itAction = it->second.begin();
+				  itAction != it->second.end(); ) {
+				if ( *itAction == action ) {
+					itAction = it->second.erase( itAction );
 				}
 				else {
-					v.erase( itAction );
+					++itAction;
 				}
-				break;
 			}
+			
+			if ( it->second.size() == 0 ) {
+				// No more actions assigned to this shortcut. Delete
+				// it altogether.
+				it = m_actionsMap.erase( it );
+			}
+			else {
+				++it;
+			}
+		}
+		else {
+			++it;
 		}
 	}
 }
+
 
 Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
 	auto it = m_actionInfoMap.find( action );
@@ -284,6 +293,24 @@ QKeySequence Shortcuts::getKeySequence( Action action ) const {
 		}
 	}
 	return QKeySequence( "" );
+}
+
+std::vector<QKeySequence> Shortcuts::getKeySequences( Action action ) const {
+	std::vector<QKeySequence> keySequences;
+	
+	for ( const auto& [kkeySequence, aactions] : m_actionsMap ) {
+		for ( const auto& aaction : aactions ) {
+			if ( aaction == action ) {
+				keySequences.push_back( kkeySequence );
+			}
+		}
+	}
+
+	if ( keySequences.size() == 0 ) {
+		keySequences.push_back( QKeySequence( "" ) );
+	}
+	
+	return keySequences;
 }
 
 void Shortcuts::createActionInfoMap() {
@@ -767,7 +794,7 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( ", Action: %1" )
 								.arg( static_cast<int>(aaction ) ) );
 			}
-			sOutput.append( "]" );
+			sOutput.append( "]\n" );
 		}
 	}
 	else {

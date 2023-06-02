@@ -2347,6 +2347,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
         nKey += Qt::META;
 	}
 	const auto keySequence = QKeySequence( nKey );
+	if ( keySequence == QKeySequence( "" ) ) {
+		return false;
+	}
 	
 	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {

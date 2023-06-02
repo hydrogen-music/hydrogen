@@ -2474,6 +2474,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 }
 
 void PreferencesDialog::initializeShortcutsTab() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	// Change the selected category by clicking
 	connect( shortcutCategoryListView, &QTreeWidget::itemClicked,
@@ -2489,16 +2490,23 @@ void PreferencesDialog::initializeShortcutsTab() {
 	connect( shortcutDescriptionFilter, &QLineEdit::textEdited, [=]() {
 		updateShortcutsTab(); });
 
+	// Set up button list
 	connect( shortcutListView, SIGNAL( itemDoubleClicked( QTreeWidgetItem*, int ) ),
 			 this, SLOT( defineShortcut() ) );
 	connect( defineShortcutButton, SIGNAL( clicked() ),
 			 this, SLOT( defineShortcut() ) );
 	connect( clearShortcutButton, SIGNAL( clicked() ),
 			 this, SLOT( clearShortcut() ) );
+	connect( duplicateActionsButton, SIGNAL( clicked() ),
+			 this, SLOT( duplicateActions() ) );
 	connect( resetShortcutButton, &QPushButton::clicked, [=]() {
 		m_pShortcuts->createDefaultShortcuts();
 		updateShortcutsTab(); } );
-	
+
+	defineShortcutButton->setToolTip(
+		pCommonStrings->getPreferencesShortcutCapture() );
+
+	// Set up tree view
 	shortcutCategoryListView->clear();
 
 	m_shortcutCategories = {
@@ -2525,6 +2533,8 @@ void PreferencesDialog::initializeShortcutsTab() {
 	updateShortcutsTab();
 
 	shortcutListView->setSortingEnabled( true );
+	// Allow selection of multiple columns at once.
+	shortcutListView->setSelectionMode( QAbstractItemView::ExtendedSelection );
 
 	shortcutListView->header()->resizeSection( 0, 70 );
 	shortcutListView->header()->resizeSection( 1, 200 );
@@ -2541,25 +2551,28 @@ void PreferencesDialog::updateShortcutsTab() {
 	const QString sKeyFilter = shortcutKeyFilter->text();
 	const QString sDescriptionFilter = shortcutDescriptionFilter->text();
 
-	for ( const auto& it : actionInfoMap ) {
+	for ( const auto& [aaction, aactionInfo] : actionInfoMap ) {
 		// Filter by selected category
 		if ( m_selectedCategory == Shortcuts::Category::All ||
-			 m_selectedCategory == it.second.category ) {
+			 m_selectedCategory == aactionInfo.category ) {
 
-			const QKeySequence keySequence = m_pShortcuts->getKeySequence( it.first );
-			QString sKeySequence = keySequence.toString( QKeySequence::PortableText );
+			const std::vector<QKeySequence> keySequences =
+				m_pShortcuts->getKeySequences( aaction );
+			for ( const auto& kkeySequence : keySequences ) {
+				QString sKeySequence = kkeySequence.toString( QKeySequence::PortableText );
 
-			// Filter by line edit
-			if ( ( sDescriptionFilter.isEmpty() ||
-				   it.second.sDescription.contains( sDescriptionFilter,
-													Qt::CaseInsensitive ) ) &&
-				 ( sKeyFilter.isEmpty() ||
-				   sKeySequence.contains( sKeyFilter, Qt::CaseInsensitive ) ) ) {
+				// Filter by line edit
+				if ( ( sDescriptionFilter.isEmpty() ||
+					   aactionInfo.sDescription.contains( sDescriptionFilter,
+														  Qt::CaseInsensitive ) ) &&
+					 ( sKeyFilter.isEmpty() ||
+					   sKeySequence.contains( sKeyFilter, Qt::CaseInsensitive ) ) ) {
 
-				QStringList labels = { sKeySequence, it.second.sDescription,
-									   Shortcuts::categoryToQString( it.second.category ) };
-				new IndexedTreeItem( static_cast<int>(it.first), shortcutListView,
-								   labels );
+					QStringList labels = { sKeySequence, aactionInfo.sDescription,
+										   Shortcuts::categoryToQString( aactionInfo.category ) };
+					new IndexedTreeItem( static_cast<int>(aaction),
+										 shortcutListView, labels );
+				}
 			}
 		}
 	}
@@ -2567,63 +2580,119 @@ void PreferencesDialog::updateShortcutsTab() {
 
 void PreferencesDialog::defineShortcut() {
 
-	auto items = shortcutListView->selectedItems();
-	if ( items.size() == 0 || items.at( 0 ) == nullptr ) {
-		return;
-	}
-	auto pSelectedItem = static_cast<IndexedTreeItem*>(items.at( 0 ));
+	const auto items = shortcutListView->selectedItems();
 
-	// Check whether there is a shortcut assigned to the current item
-	if ( pSelectedItem == nullptr ) {
+	// Sanity check before asking the user to capture a shortcut.
+	if ( items.size() == 0 ) {
 		return;
 	}
 
+	bool bValidItem = false;
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+		else {
+			bValidItem = true;
+		}
+	}
+	if ( ! bValidItem ) {
+		return;
+	}
+
+	// Capture a shortcut which will be assigned to all selected actions.
 	auto pShortcutCaptureDialog = new ShortcutCaptureDialog( this );
 	const int nKey = pShortcutCaptureDialog->exec();
-
 	// It's essential to manually delete the dialog or its event loop
 	// will throw an exception when open and close it (more or less)
 	// three times in a row.
 	delete pShortcutCaptureDialog;
+
 	if ( nKey <= 0 ) {
 		// Rejected using e.g. pressing ESC.
 		return;
 	}
+	
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+	
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
 
-	if ( ! m_bShortcutsChanged ) {
-		m_bShortcutsChanged = true;
+		// Check whether there is a shortcut assigned to the current item
+		if ( pSelectedItem == nullptr ) {
+			return;
+		}
+
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+
+		// Remove the old definition of the selected row.
+		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
+									  selectedAction );
+		m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
 	}
-	const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
-
-	m_pShortcuts->deleteShortcut( selectedAction );
-	m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
 
 	updateShortcutsTab();
 }
 
-/**
- * Removes the shortcut associated with a specific action.
- */
 void PreferencesDialog::clearShortcut() {
 
-	auto items = shortcutListView->selectedItems();
-	if ( items.size() == 0 || items.at( 0 ) == nullptr ) {
-		return;
+	const auto items = shortcutListView->selectedItems();
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+
+		// Check whether there is a shortcut assigned to the current item
+		if ( pSelectedItem == nullptr || pSelectedItem->text( 0 ).isEmpty() ) {
+			continue;
+		}
+
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
+
+		auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+
+		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
+									  selectedAction );
 	}
-	auto pSelectedItem = static_cast<IndexedTreeItem*>(items.at( 0 ));
 
-	// Check whether there is a shortcut assigned to the current item
-	if ( pSelectedItem == nullptr || pSelectedItem->text( 0 ).isEmpty() ) {
-		return;
+	updateShortcutsTab();
+}
+
+void PreferencesDialog::duplicateActions() {
+
+	const auto selectedItems = shortcutListView->selectedItems();
+	for ( const auto& iitem : selectedItems ) {
+		
+		if ( iitem == nullptr ) {
+			continue;
+		}
+
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+		if ( pSelectedItem == nullptr ) {
+			ERRORLOG( "Unable to cast selected item" );
+			continue;
+		}
+
+		if ( pSelectedItem->text( 0 ).isEmpty() ) {
+			// There is no shortcut assigned to this action. No need
+			// to duplicate it.
+			continue;
+		}
+
+		// Create an empty shortcut binding for the event to introduce
+		// an additional row.
+		m_pShortcuts->insertShortcut( QKeySequence( "" ),
+									  static_cast<Shortcuts::Action>(pSelectedItem->getId()));
 	}
-
-	if ( ! m_bShortcutsChanged ) {
-		m_bShortcutsChanged = true;
-	}
-
-	auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
-
-	m_pShortcuts->deleteShortcut( selectedAction );
 
 	updateShortcutsTab();
 }

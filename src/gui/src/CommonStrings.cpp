@@ -357,6 +357,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed in the Preferences dialog as a tooltip for both the
 	  sample rate combobox and buffer size spinbox.*/
 	m_sPreferencesJackTooltip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
+	/*: Displayed both as tooltip in the Preferences dialog >
+	  Shortcuts tab as well as window title.*/
+	m_sPreferencesShortcutCapture = tr( "Define a keybinding for the selected shortcut" );
 
 	/*: Text displayed on a Ok button of a dialog. The character after
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself

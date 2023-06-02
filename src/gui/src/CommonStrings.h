@@ -153,6 +153,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
 	const QString& getPreferencesJackTooltip() const { return m_sPreferencesJackTooltip; }
+	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
 	const QString& getButtonSave() const { return m_sButtonSave; }
@@ -303,6 +304,7 @@ private:
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;
 	QString m_sPreferencesJackTooltip;
+	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;
 	QString m_sButtonSave;

@@ -966,6 +966,9 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
         nKey += Qt::META;
 	}
 	const auto keySequence = QKeySequence( nKey );
+	if ( keySequence == QKeySequence( "" ) ) {
+		return false;
+	}
 	bool bHandled = false;
 	
 	const auto actions = pShortcuts->getActions( keySequence );

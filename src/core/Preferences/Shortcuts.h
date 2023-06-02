@@ -277,16 +277,28 @@ public:
 
 	std::vector<Action> getActions( QKeySequence keySequence ) const;
 	/**
-	 * Removes a single shortcut from #m_actionsMap.
-	 *
-	 * A Key can be assigned to multilpe actions but a specific action
-	 * just to a single key. 
+	 * Removes mapping between @a keySequence and @a action in
+	 * #m_actionsMap.
 	 */
-	void deleteShortcut( Action action );
+	void deleteShortcut( QKeySequence keySequence, Action action );
 	void insertShortcut( QKeySequence keySequence, Action action );
 	ActionInfo getActionInfo( Action action ) const;
 
+	/**
+	 * Returns the first (or primary) key sequence mapped to an @a
+	 * action.
+	 *
+	 * It is possible to map several shortcuts to a single action but,
+	 * however, it is not possible to display more than one as hint in
+	 * the generated GUI menus. Only the first one is used for this
+	 * purpose.
+	 */
 	QKeySequence getKeySequence( Action action ) const;
+
+	/**
+	 * Returns all key sequences mapped to an @a action.
+	 */
+	std::vector<QKeySequence> getKeySequences( Action action ) const;
 
 	const std::map<Action, ActionInfo> getActionInfoMap() const;
 

@@ -26,13 +26,15 @@
  */
 
 #include "ShortcutCaptureDialog.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
 
 ShortcutCaptureDialog::ShortcutCaptureDialog( QWidget* pParent )
 	: QDialog( pParent ),
 	  m_nKey( -1 ) {
 
-	/*: Window title of the shortcut capture dialog*/
-	setWindowTitle( tr( "ShortcutCaptureDialog" ) );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	setWindowTitle( pCommonStrings->getPreferencesShortcutCapture() );
 
 	QHBoxLayout* pHBoxLayout = new QHBoxLayout( this );
 	setLayout( pHBoxLayout );

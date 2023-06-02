@@ -148,7 +148,15 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void mixerFalloffComboBoxCurrentIndexChanged(int);
 	void uiScalingPolicyComboBoxCurrentIndexChanged(int);
 	void defineShortcut();
+	/** Removes the shortcut associated with a specific action.*/
 	void clearShortcut();
+	/** Adds an additional instance of an action in the shortcut
+	 * table.
+	 *
+	 * Per default each will be just present once. This way multiple
+	 * shortcuts can be assigned to the same action.
+	 */
+	void duplicateActions();
 
 private:
 
