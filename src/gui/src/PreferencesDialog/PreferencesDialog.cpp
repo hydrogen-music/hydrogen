@@ -537,13 +537,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ColorSelectionButton* bbutton =
 			new ColorSelectionButton( this, m_pCurrentTheme->getInterfaceTheme()->m_patternColors[ ii ],
 									  nButtonSize );
-		bbutton->hide();
+		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
 				 &PreferencesDialog::onColorSelectionClicked );
 		colorSelectionGrid->addWidget( bbutton,
 									   std::floor( static_cast<float>( ii ) /
 												   static_cast<float>( nButtonsPerLine ) ),
-									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
+									   (ii % nButtonsPerLine) + 1,
+									   Qt::AlignRight ); //+1 to take the hspace into account.
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 	
@@ -1655,9 +1656,9 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 	m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors = nIndex;
 	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
 		if ( ii < nIndex ) {
-			m_colorSelectionButtons[ ii ]->show();
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		} else {
-			m_colorSelectionButtons[ ii ]->hide();
+			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	}
 
@@ -1693,14 +1694,14 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
 		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->hide();
+			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	} else {
 		coloringMethodAuxSpinBox->show();
 		coloringMethodAuxLabel->show();
 		colorSelectionLabel->show();
 		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}
 
@@ -2429,7 +2430,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 			ColorSelectionButton* bbutton =
 				new ColorSelectionButton( this, pTheme->getInterfaceTheme()->m_patternColors[ ii ],
 										  nButtonSize );
-			bbutton->hide();
+			bbutton->pretendToHide();
 			connect( bbutton, &ColorSelectionButton::colorChanged, this,
 					 &PreferencesDialog::onColorSelectionClicked );
 			colorSelectionGrid->addWidget( bbutton,

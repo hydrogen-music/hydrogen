@@ -1036,7 +1036,7 @@
        <item>
         <widget class="QTabWidget" name="AppearanceTabTabs">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="AppearanceInterfaceTab">
           <attribute name="title">
@@ -1226,21 +1226,7 @@
               </widget>
              </item>
              <item row="13" column="2">
-              <layout class="QGridLayout" name="colorSelectionGrid">
-               <item row="0" column="0">
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
+              <layout class="QGridLayout" name="colorSelectionGrid"/>
              </item>
             </layout>
            </item>
