@@ -214,25 +214,20 @@ CommonStrings::CommonStrings(){
 	 that flexible.*/
 	m_sSampleSelectionLabel = tr( "Sample Sel." );
 	/*: Text displayed left of the pattern size LCD combo in the panel
-	 of the Pattern Editor. Designed to hold four characters but not
-	 that flexible.*/
+	 of the Pattern Editor.*/
 	m_sPatternSizeLabel = tr( "Size" );
 	/*: Text displayed left of the resolution LCD combo in the panel
-	 of the Pattern Editor. Designed to hold three characters but not
-	 that flexible.*/
+	 of the Pattern Editor.*/
 	m_sResolutionLabel = tr( "Res" );
 	/*: Text displayed left of the button to activate the playback of
-	 inserted notes in the panel of the Pattern Editor. Designed to
-	 hold four characters but not that flexible.*/
+	 inserted notes in the panel of the Pattern Editor.*/
 	m_sHearNotesLabel = tr( "Hear" );
 	/*: Text displayed left of the button to toggle the quantization
-	 in the panel of the Pattern Editor. Designed to hold five
-	 characters but not that flexible.*/
+	 in the panel of the Pattern Editor.*/
 	m_sQuantizeEventsLabel = tr( "Quant" );
 	/*: Text displayed left of the button to switch between the
 	 Drum Pattern Editor and the Piano Roll Editor in the panel
-	 of the Pattern Editor. Designed to hold five characters but not
-	 that flexible.*/
+	 of the Pattern Editor.*/
 	m_sShowPianoLabel = tr( "Input" );
 	/*: Text displayed in the Player Control to indicate incoming MIDI
 	  events. Designed to hold seven characters but not that

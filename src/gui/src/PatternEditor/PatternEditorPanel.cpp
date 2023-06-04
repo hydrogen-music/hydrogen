@@ -80,6 +80,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_nCursorPosition = 0;
 	m_nCursorIncrement = 0;
 
+	// Spacing between a label and the widget to its label.
+	const int nLabelSpacing = 6;
 // Editor TOP
 	
 	m_pEditorTop1 = new QWidget( nullptr );
@@ -113,38 +115,52 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
 	m_pSizeResol->setObjectName( "sizeResol" );
-	m_pSizeResol->setFixedSize( 406, 20 );
+	m_pSizeResol->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	m_pSizeResol->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
 
+	QHBoxLayout* pSizeResolLayout = new QHBoxLayout( m_pSizeResol );
+	pSizeResolLayout->setContentsMargins( 2, 0, 2, 0 );
+	pSizeResolLayout->setSpacing( 2 );
+
 	// PATTERN size
-	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0, true );
+	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
+	m_pPatternSizeLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	pSizeResolLayout->addWidget( m_pPatternSizeLbl );
+	
+	m_pLCDSpinBoxNumerator = new LCDSpinBox( this, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0, true );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
-	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
+	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
+			
+	QLabel* pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
+	pLabel1->resize( QSize( 20, 17 ) );
+	pLabel1->setText( "/" );
+	pLabel1->setFont( boldFont );
+	pLabel1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
+	pLabel1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pSizeResolLayout->addWidget( pLabel1 );
 	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192, true );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
-	m_pLCDSpinBoxDenominator->move( 106, 0 );
 	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
-			
-	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
-	label1->resize( QSize( 20, 17 ) );
-	label1->move( 100, 4 );
-	label1->setText( "/" );
-	label1->setFont( boldFont );
-	label1->setStyleSheet( label1->styleSheet().
-						   append( " QLabel { color: #191919; }" ) );
-	label1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
-	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 30, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
-	m_pPatternSizeLbl->move( 2, 4 );
+	m_pLCDSpinBoxDenominator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
+	pSizeResolLayout->addSpacing( nLabelSpacing );
 	
 	// GRID resolution
-	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 209, 19 ), true );
+	m_pResolutionLbl = new ClickableLabel( m_pSizeResol, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
+	m_pResolutionLbl->setAlignment( Qt::AlignRight );
+	m_pResolutionLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	pSizeResolLayout->addWidget( m_pResolutionLbl );
+	
+	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 0, 0 ), true );
+	// Large enough for "1/32T" to be fully visible at large font size.
 	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
 								 .append( tr( "quarter" ) ) );
@@ -167,52 +183,71 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 								 .append( tr( "thirty-second triplet" ) ) );
 	m_pResolutionCombo->insertSeparator( 10 );
 	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
-	m_pResolutionCombo->move( 190, 1 );
+	m_pResolutionCombo->setMinimumSize( QSize( 24, 18 ) );
+	m_pResolutionCombo->setMaximumSize( QSize( 500, 18 ) );
+	m_pResolutionCombo->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
 	// is triggered from inside PatternEditorPanel()
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
-	m_pResolutionLbl = new ClickableLabel( m_pSizeResol, QSize( 28, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
-	m_pResolutionLbl->setAlignment( Qt::AlignRight );
-	m_pResolutionLbl->move( 155, 4 );
+	pSizeResolLayout->addWidget( m_pResolutionCombo );
 
-
-	m_pRec = new QGroupBox( nullptr );
-	m_pRec->setFixedSize( 210, 20 );
+	m_pRec = new QWidget( nullptr );
+	m_pRec->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pRec );
+	
+	QHBoxLayout* pRecLayout = new QHBoxLayout( m_pRec );
+	pRecLayout->setContentsMargins( 2, 0, 2, 0 );
+	pRecLayout->setSpacing( 2 );
 
 	// Hear notes btn
+	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl->setAlignment( Qt::AlignRight );
+	m_pHearNotesLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pHearNotesLbl );
+	
 	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle,
 								  "speaker.svg", "", false, QSize( 15, 13 ),
 								  tr( "Hear new notes" ), false, true );
-	m_pHearNotesBtn->move( 42, 1 );
 	connect( m_pHearNotesBtn, SIGNAL( clicked() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
-	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 36, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
-	m_pHearNotesLbl->setAlignment( Qt::AlignRight );
-	m_pHearNotesLbl->move( 3, 4 );
-
+	m_pHearNotesBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pHearNotesBtn );
+	pRecLayout->addSpacing( nLabelSpacing );
 
 	// quantize
+	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
+	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
+	m_pQuantizeEventsLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pQuantizeEventsLbl );
+	
 	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ),
 									   Button::Type::Toggle, "quantization.svg",
 									   "", false, QSize( 15, 14 ),
 									   tr( "Quantize keyboard/midi events to grid" ),
 									   false, true );
-	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ), this, SLOT( quantizeEventsBtnClick() ) );
-	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 44, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
-	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
-	m_pQuantizeEventsLbl->move( 64, 4 );
+	m_pQuantizeEventsBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pQuantizeEventsBtn );
+	pRecLayout->addSpacing( nLabelSpacing );
 
 	// Editor mode
+	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
+	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
+	m_pShowPianoLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pShowPianoLbl );
+
 	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
-	__show_drum_btn->move( 178, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
+	__show_drum_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( __show_drum_btn );
+
+	m_pEditorTop1_hbox_2->addStretch();
+	
 	// Since the button to activate the piano roll is shown
 	// initially, both buttons get the same tooltip. Actually only the
 	// last one does need a tooltip since it will be shown regardless
@@ -224,9 +259,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_piano_btn->setObjectName( "ShowPianoBtn" );
 	__show_piano_btn->hide();
 	connect( __show_piano_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
-	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 40, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
-	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
-	m_pShowPianoLbl->move( 135, 4 );
+	__show_piano_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( __show_piano_btn );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
@@ -531,7 +565,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->setMargin( 0 );
 
 	pGrid->addWidget( m_pEditorTop1, 0, 0 );
-	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 3 );
+	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
 	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
 
