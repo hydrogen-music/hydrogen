@@ -185,7 +185,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
 	m_pResolutionCombo->setMinimumSize( QSize( 24, 18 ) );
 	m_pResolutionCombo->setMaximumSize( QSize( 500, 18 ) );
-	m_pResolutionCombo->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
+	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	// is triggered from inside PatternEditorPanel()
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
 	pSizeResolLayout->addWidget( m_pResolutionCombo );
