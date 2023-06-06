@@ -602,6 +602,9 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong, bool bRelinking
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
+
+	// As we just set a fresh song, we can mark it not modified
+	pHydrogen->setIsModified( false );
 	
 	return true;
 }

@@ -2,6 +2,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Fix spurious marking of opened songs as modified.
 		- Fix MIDI (output) feedback for metronome toggling and pan
 		  setting.
 		- Fix superfluous MIDI event - Action bindings. An incoming MIDI
