@@ -501,6 +501,11 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		selectedInstrumentChangedEvent();
+
+		// The function call above sets some spurious isModified when
+		// updating the states of the widgets. This has to be reset
+		// for a freshly loaded song.
+		H2Core::Hydrogen::get_instance()->setIsModified( false );
 	}
 }
 
@@ -510,7 +515,6 @@ void InstrumentEditor::drumkitLoadedEvent() {
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
