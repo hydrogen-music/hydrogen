@@ -236,9 +236,6 @@ MainForm::~MainForm()
 		file.remove();
 	}
 
-	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
-
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
@@ -1491,6 +1488,11 @@ void MainForm::savePreferences() {
 }
 
 void MainForm::closeAll(){
+	// Store the last playlist in the Preferences in order to allow to
+	// reopen it at startup.
+	Preferences::get_instance()->setLastPlaylistFilename(
+		Playlist::get_instance()->getFilename() );
+
 	savePreferences();
 	m_pQApp->quit();
 }
