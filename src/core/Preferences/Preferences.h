@@ -541,6 +541,9 @@ public:
 	WindowProperties	getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
+	WindowProperties	getPlaylistDialogProperties();
+	void				setPlaylistDialogProperties( const WindowProperties& prop );
+
 	const std::shared_ptr<ColorTheme>	getColorTheme() const;
 	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
@@ -760,6 +763,7 @@ private:
 	WindowProperties		instrumentRackProperties;
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
+	WindowProperties		m_playlistDialogProperties;
 
 	QString					m_sPreferredLanguage;
 
@@ -1320,6 +1324,13 @@ inline WindowProperties Preferences::getLadspaProperties( unsigned nFX ) {
 }
 inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperties& prop ) {
 	m_ladspaProperties[nFX] = prop;
+}
+
+inline WindowProperties Preferences::getPlaylistDialogProperties() {
+	return m_playlistDialogProperties;
+}
+inline void Preferences::setPlaylistDialogProperties( const WindowProperties& prop ) {
+	m_playlistDialogProperties = prop;
 }
 
 inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {

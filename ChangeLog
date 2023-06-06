@@ -2,6 +2,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
+		- Fix reopening of last used Playlist. In addition, in case the
+		  PlaylistDialog was opened at the end of the last session - when
+		  "Reopen last used playlist" is checked in the Preferences - the
+		  dialog will be reopened too at the same position.
 		- Fix spurious marking of opened songs as modified.
 		- Fix MIDI (output) feedback for metronome toggling and pan
 		  setting.

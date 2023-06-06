@@ -202,11 +202,21 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if(	pPref->isRestoreLastPlaylistEnabled()
-		&& ! pPref->getLastPlaylistFilename().isEmpty() ){
-		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( pPref->getLastPlaylistFilename() );
-		if( !loadlist ){
-			_ERRORLOG ( "Error loading the playlist" );
+	if ( pPref->isRestoreLastPlaylistEnabled() &&
+		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
+		bool bLoadSuccessful = h2app->getPlayListDialog()->loadListByFileName(
+			pPref->getLastPlaylistFilename() );
+		if ( bLoadSuccessful ) {
+			if ( pPref->getPlaylistDialogProperties().visible ){
+				// If there was a playlist used during the last
+				// session and it was still visible/shown when closing
+				// Hydrogen, bring it up again.
+				action_window_showPlaylistDialog();
+			}
+		}
+		else {
+			_ERRORLOG( QString( "Unable to load last playlist [%1]" )
+					   .arg( pPref->getLastPlaylistFilename() ) );
 		}
 	}
 
@@ -1479,6 +1489,9 @@ void MainForm::savePreferences() {
 	pPreferences->setInstrumentRackProperties( h2app->getWindowProperties( h2app->getInstrumentRack() ) );
 	// save audio engine info properties
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
+
+	pPreferences->setPlaylistDialogProperties(
+		h2app->getWindowProperties( h2app->getPlayListDialog() ) );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
