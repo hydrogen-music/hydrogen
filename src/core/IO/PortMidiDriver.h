@@ -67,7 +67,8 @@ public:
 	static bool appendSysExData( MidiMessage* pMidiMessage, PmMessage msg );
 
 private:
-
+	int m_nVirtualInputDeviceId;
+	int m_nVirtualOutputDeviceId;
 };
 
 };

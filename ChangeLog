@@ -1,4 +1,10 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.3.0
+	* PortMidi driver does open a input/output port which can be
+		discovered and connected to by other applications when port was
+		set to "None" in the Preferences (not supported on Windows).
+
+XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes

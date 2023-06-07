@@ -143,6 +143,8 @@ PortMidiDriver::PortMidiDriver()
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
+		, m_nVirtualInputDeviceId( -1 )
+		, m_nVirtualOutputDeviceId( -1 )
 {
 	PmError err = Pm_Initialize();
 	if ( err != pmNoError ) {
@@ -224,8 +226,55 @@ void PortMidiDriver::open()
 		}
 	}
 
+	// In case the user did not select any input or output device to
+	// connect to, we create virtual input or output devices. These
+	// will allow external applications to connect to Hydrogen
+	// themselves. In the code above only Hydrogen itself is able to
+	// establish a connection but can not be discovered externally.
+	//
+	// This feature is not supported on Windows (by PortMidi).
+#ifndef WIN32
+	if ( nDeviceId == -1 ) {
+#ifdef __APPLE__
+		// macOS
+		nDeviceId = Pm_CreateVirtualInput( "Hydrogen MIDI-in", "CoreMIDI", NULL );
+#else
+		// Linux
+		nDeviceId = Pm_CreateVirtualInput( "Hydrogen MIDI-in", "ALSA", NULL );
+#endif
+		if ( nDeviceId < 0 ) {
+			ERRORLOG( QString( "Unable to create virtual input: [%1]" )
+					  .arg( PortMidiDriver::translatePmError(
+								static_cast<PmError>(nDeviceId) ) ) );
+		}
+		else {
+			m_nVirtualInputDeviceId = nDeviceId;
+		}
+	}
+#endif
+
+#ifndef WIN32
+	if ( nOutDeviceId == -1 ) {
+#ifdef __APPLE__
+		// macOS
+		nOutDeviceId = Pm_CreateVirtualOutput( "Hydrogen MIDI-out", "CoreMIDI", NULL );
+#else
+		// Linux
+		nOutDeviceId = Pm_CreateVirtualOutput( "Hydrogen MIDI-out", "ALSA", NULL );
+#endif
+		if ( nOutDeviceId < 0 ) {
+			ERRORLOG( QString( "Unable to create virtual output: [%1]" )
+					  .arg( PortMidiDriver::translatePmError(
+								static_cast<PmError>(nOutDeviceId) ) ) );
+		}
+		else {
+			m_nVirtualOutputDeviceId = nOutDeviceId;
+		}
+	}
+#endif
+
 	// Open input device if found
-	if ( nDeviceId != -1 ) {
+	if ( nDeviceId >= 0 ) {
 		const PmDeviceInfo *info = Pm_GetDeviceInfo( nDeviceId );
 		if ( info == nullptr ) {
 			ERRORLOG( "Error opening midi input device" );
@@ -277,7 +326,7 @@ void PortMidiDriver::open()
 	}
 
 	// Open output device if found
-	if ( nOutDeviceId != -1 ) {
+	if ( nOutDeviceId >= 0 ) {
 		PmError err = Pm_OpenOutput(
 									&m_pMidiOut,
 									nOutDeviceId,
@@ -319,10 +368,40 @@ void PortMidiDriver::close()
 	if ( m_bRunning ) {
 		m_bRunning = false;
 		pthread_join( PortMidiDriverThread, nullptr );
-		PmError err = Pm_Close( m_pMidiIn );
-		if ( err != pmNoError ) {
-			ERRORLOG( QString( "Error in Pm_Close: [%1]" )
-					  .arg( PortMidiDriver::translatePmError( err ) ) );
+
+		PmError err;
+		if ( m_pMidiIn != nullptr ) {
+			err = Pm_Close( m_pMidiIn );
+			if ( err != pmNoError ) {
+				ERRORLOG( QString( "Unable to close PortMidi input device: [%1]" )
+						  .arg( PortMidiDriver::translatePmError( err ) ) );
+			}
+		}
+		if ( m_pMidiOut != nullptr ) {
+			err = Pm_Close( m_pMidiOut );
+			if ( err != pmNoError ) {
+				ERRORLOG( QString( "Unable to close PortMidi output device: [%1]" )
+						  .arg( PortMidiDriver::translatePmError( err ) ) );
+			}
+		}
+
+		// In case virtual devices were created, we have to take care
+		// of deleting them ourselves
+		if ( m_nVirtualInputDeviceId != -1 ) {
+			err = Pm_DeleteVirtualDevice( m_nVirtualInputDeviceId );
+			if ( err != pmNoError ) {
+				ERRORLOG( QString( "Unable to delete virtual input device: [%1]" )
+						  .arg( PortMidiDriver::translatePmError( err ) ) );
+			}
+			m_nVirtualInputDeviceId = -1;
+		}
+		if ( m_nVirtualOutputDeviceId != -1 ) {
+			err = Pm_DeleteVirtualDevice( m_nVirtualOutputDeviceId );
+			if ( err != pmNoError ) {
+				ERRORLOG( QString( "Unable to delete virtual output device: [%1]" )
+						  .arg( PortMidiDriver::translatePmError( err ) ) );
+			}
+			m_nVirtualOutputDeviceId = -1;
 		}
 	}
 }
@@ -331,14 +410,24 @@ std::vector<QString> PortMidiDriver::getInputPortList()
 {
 	std::vector<QString> portList;
 
-	int nDevices = Pm_CountDevices();
-	for ( int i = 0; i < nDevices; i++ ) {
-		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
-		if ( pInfo == nullptr ) {
-			ERRORLOG( QString( "Could not open output device [%1]" ).arg( i ) );
-		} else if ( pInfo->output == TRUE ) {
-			INFOLOG( pInfo->name );
-			portList.push_back( pInfo->name );
+	const int nDevices = Pm_CountDevices();
+	for ( int ii = 0; ii < nDevices; ii++ ) {
+		if ( ii != m_nVirtualInputDeviceId && ii != m_nVirtualOutputDeviceId ) {
+			// Be sure to avoid a potential virtual device created by
+			// Hydrogen itself (it can not possibly be connected to
+			// since those virtual devices are deleted when restarting
+			// the PortMidiDriver - which is done to establish a
+			// connection). Also, there is no real use case and an
+			// extreme risk to lock Hydrogen due to MIDI signal
+			// feedback loops.
+			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
+			if ( pInfo == nullptr ) {
+				ERRORLOG( QString( "Could not open output device [%1]" ).arg( ii ) );
+			}
+			else if ( pInfo->output == TRUE ) {
+				INFOLOG( pInfo->name );
+				portList.push_back( pInfo->name );
+			}
 		}
 	}
 
@@ -349,14 +438,24 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 {
 	std::vector<QString> portList;
 
-	int nDevices = Pm_CountDevices();
-	for ( int i = 0; i < nDevices; i++ ) {
-		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
-		if ( pInfo == nullptr ) {
-			ERRORLOG( QString( "Could not open input device [%1]" ).arg( i ) );
-		} else if ( pInfo->input == TRUE ) {
-			INFOLOG( pInfo->name );
-			portList.push_back( pInfo->name );
+	const int nDevices = Pm_CountDevices();
+	for ( int ii = 0; ii < nDevices; ii++ ) {
+		if ( ii != m_nVirtualInputDeviceId && ii != m_nVirtualOutputDeviceId ) {
+			// Be sure to avoid a potential virtual device created by
+			// Hydrogen itself (it can not possibly be connected to
+			// since those virtual devices are deleted when restarting
+			// the PortMidiDriver - which is done to establish a
+			// connection). Also, there is no real use case and an
+			// extreme risk to lock Hydrogen due to MIDI signal
+			// feedback loops.
+			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
+			if ( pInfo == nullptr ) {
+				ERRORLOG( QString( "Could not open input device [%1]" ).arg( ii ) );
+			}
+			else if ( pInfo->input == TRUE ) {
+				INFOLOG( pInfo->name );
+				portList.push_back( pInfo->name );
+			}
 		}
 	}
 
