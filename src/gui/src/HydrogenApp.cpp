@@ -112,6 +112,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
+	WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
+	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetX + SetY );
+
 	m_pDirector = new Director( nullptr );
 
 	// Initially keyboard cursor is hidden.

@@ -202,11 +202,21 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if(	pPref->isRestoreLastPlaylistEnabled()
-		&& ! pPref->getLastPlaylistFilename().isEmpty() ){
-		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( pPref->getLastPlaylistFilename() );
-		if( !loadlist ){
-			_ERRORLOG ( "Error loading the playlist" );
+	if ( pPref->isRestoreLastPlaylistEnabled() &&
+		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
+		bool bLoadSuccessful = h2app->getPlayListDialog()->loadListByFileName(
+			pPref->getLastPlaylistFilename() );
+		if ( bLoadSuccessful ) {
+			if ( pPref->getPlaylistDialogProperties().visible ){
+				// If there was a playlist used during the last
+				// session and it was still visible/shown when closing
+				// Hydrogen, bring it up again.
+				action_window_showPlaylistDialog();
+			}
+		}
+		else {
+			_ERRORLOG( QString( "Unable to load last playlist [%1]" )
+					   .arg( pPref->getLastPlaylistFilename() ) );
 		}
 	}
 
@@ -236,9 +246,6 @@ MainForm::~MainForm()
 		QFile file( getAutoSaveFilename() );
 		file.remove();
 	}
-
-	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -1483,6 +1490,9 @@ void MainForm::savePreferences() {
 	// save audio engine info properties
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
+	pPreferences->setPlaylistDialogProperties(
+		h2app->getWindowProperties( h2app->getPlayListDialog() ) );
+
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -1492,6 +1502,11 @@ void MainForm::savePreferences() {
 }
 
 void MainForm::closeAll(){
+	// Store the last playlist in the Preferences in order to allow to
+	// reopen it at startup.
+	Preferences::get_instance()->setLastPlaylistFilename(
+		Playlist::get_instance()->getFilename() );
+
 	savePreferences();
 	m_pQApp->quit();
 }
