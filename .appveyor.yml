@@ -44,7 +44,7 @@
 environment:
   GENERATOR: "MinGW Makefiles"
   UPLOAD_ARTIFACTS: false
-  TARGET_VERSION: '1.2.0'
+  TARGET_VERSION: '1.2.1'
   matrix:
 
     - job_name: 'Ubuntu 20.04'

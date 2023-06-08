@@ -4,7 +4,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		discovered and connected to by other applications when port was
 		set to "None" in the Preferences (not supported on Windows).
 
-XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
 	* Update French translation
 	* Bugfixes
