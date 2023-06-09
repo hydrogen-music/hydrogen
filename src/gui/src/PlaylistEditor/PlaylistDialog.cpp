@@ -1032,8 +1032,8 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 			newScript();
 			bHandled = true;
 			break;
-		}
 #endif
+		}
 	}
 
 	if ( bHandled ) {
