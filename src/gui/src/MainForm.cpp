@@ -2469,10 +2469,15 @@ void MainForm::quitEvent( int ) {
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
@@ -2480,8 +2485,26 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			pCoreActionController->activateSongMode( true );
 		}
 
-		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-		pCoreActionController->locateToColumn( nCursorColumn );
+		const int nCursorColumn =
+			pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+
+		// Within the core locating to a position beyond the length of
+		// the song with loop mode enabled is a valid
+		// operation. The resulting location will the wrapped as if
+		// transport was looped. This is important when allowing
+		// external applications to relocate but it is not what we
+		// want in here.
+		if ( nCursorColumn >= pSong->getPatternGroupVector()->size() ) {
+			ERRORLOG( QString( "Cursor column [%1] is outside of the current song [0,%2]" )
+					  .arg( nCursorColumn )
+					  .arg( pSong->getPatternGroupVector()->size() - 1 ) );
+			return;
+		}
+		
+		if ( ! pCoreActionController->locateToColumn( nCursorColumn ) ) {
+			// Cursor is at a position it is not allowed to locate to.
+			return;
+		}
 			
 	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
 		// Covers both the PatternEditor and the
@@ -2494,9 +2517,12 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
+		const int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
 		
-		pCoreActionController->locateToTick( nCursorColumn );
+		if ( ! pCoreActionController->locateToTick( nCursorColumn ) ) {
+			// Cursor is at a position it is not allowed to locate to.
+			return;
+		}
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
