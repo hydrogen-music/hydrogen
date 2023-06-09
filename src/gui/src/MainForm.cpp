@@ -2401,6 +2401,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::SelectNextPattern:
 			case Shortcuts::Action::SelectOnlyNextPattern:
 			case Shortcuts::Action::SelectAndPlayPattern:
+				if ( action == Shortcuts::Action::SelectNextPattern ) {
+					sAction = "SELECT_NEXT_PATTERN";
+				} else if ( action == Shortcuts::Action::SelectOnlyNextPattern ) {
+					sAction = "SELECT_ONLY_NEXT_PATTERN";
+				} else if ( action == Shortcuts::Action::SelectAndPlayPattern ) {
+					sAction = "SELECT_AND_PLAY_PATTERN";
+				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
 				fMax = static_cast<float>(pSong->getPatternList()->size()) - 1;
@@ -2438,6 +2445,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sLabel = pCommonStrings->getInputCaptureInstrument();
 				fMax = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
 				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly prepared" )
+							.arg( static_cast<int>(action) ) );
 			}
 
 			auto pInputCaptureDialog =
@@ -2455,6 +2465,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::JumpToBar:
 				pCoreActionController->locateToColumn( sArg.toInt() );
 				break;
+			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
 				auto pAction = std::make_shared<Action>( sAction );
 				pAction->setValue( sArg );
@@ -2487,7 +2498,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::TimelineDeleteTag:
 				pCoreActionController->deleteTag( sArg.toInt() );
 				break;
-				
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
 			}
 		}
 		else if ( static_cast<int>(action) >
@@ -2547,6 +2560,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 					sLabel2 = pCommonStrings->getInputCapturePattern();
 					fMax2 = static_cast<float>(pSong->getPatternList()->size()) - 1;
 				}
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly prepared" )
+							.arg( static_cast<int>(action) ) );
 			}
 
 			// Capture arguments
@@ -2586,6 +2603,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::ToggleGridCell:
 				pCoreActionController->toggleGridCell( sArg1.toInt(), sArg2.toInt() );
 				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
 			}
 		}
 		else if ( action == Shortcuts::Action::StripEffectLevel ) {
@@ -3005,6 +3025,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::ShowDonate:
 				action_donate();
 				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
 			}
 
 			if ( pAction != nullptr ) {

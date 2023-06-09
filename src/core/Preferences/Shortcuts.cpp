@@ -429,9 +429,9 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::StripVolumeDecrease, Category::Command1Args,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Decrease volume of instrument" ) );
 	insertActionInfo( Shortcuts::Action::StripMuteToggle, Category::Command1Args,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle instrument solo" ) );
-	insertActionInfo( Shortcuts::Action::StripSoloToggle, Category::Command1Args,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle instrument mute" ) );
+	insertActionInfo( Shortcuts::Action::StripSoloToggle, Category::Command1Args,
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle instrument solo" ) );
 	
 	// commands with 2 argument
 	insertActionInfo( Shortcuts::Action::StripVolume, Category::Command2Args,
