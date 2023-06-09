@@ -2502,6 +2502,9 @@ void PreferencesDialog::initializeShortcutsTab() {
 			 this, SLOT( duplicateActions() ) );
 	connect( resetShortcutButton, &QPushButton::clicked, [=]() {
 		m_pShortcuts->createDefaultShortcuts();
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
 		updateShortcutsTab(); } );
 
 	defineShortcutButton->setToolTip(
