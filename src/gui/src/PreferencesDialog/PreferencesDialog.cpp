@@ -2502,6 +2502,11 @@ void PreferencesDialog::initializeShortcutsTab() {
 			 this, SLOT( duplicateActions() ) );
 	connect( resetShortcutButton, &QPushButton::clicked, [=]() {
 		m_pShortcuts->createDefaultShortcuts();
+		// Reset selection as it would be too expensive to check for
+		// all currently selected items that would change and we do
+		// not want selection artifacts either.
+		shortcutListView->clear();
+		
 		if ( ! m_bShortcutsChanged ) {
 			m_bShortcutsChanged = true;
 		}
@@ -2550,10 +2555,35 @@ void PreferencesDialog::initializeShortcutsTab() {
 void PreferencesDialog::updateShortcutsTab() {
 	auto actionInfoMap = m_pShortcuts->getActionInfoMap();
 
+	// For interactions like adjusting filtering this function will
+	// remember all currently selected items itself. If another
+	// function did already filled the shortcut selection cache, we
+	// won't alter it..
+	if ( m_lastShortcutsSelected.size() == 0 ) {
+		const auto items = shortcutListView->selectedItems();
+		for ( const auto& iitem : items ) {
+			if ( iitem == nullptr ) {
+				continue;
+			}
+	
+			auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+			if ( pSelectedItem == nullptr ) {
+				return;
+			}
+
+			m_lastShortcutsSelected.emplace_back(
+				std::make_pair( static_cast<Shortcuts::Action>(pSelectedItem->getId()),
+								QKeySequence( pSelectedItem->text( 0 ) ) ) );
+		}
+	}
+
+	// Reset the view and clear all selections.
 	shortcutListView->clear();
 
 	const QString sKeyFilter = shortcutKeyFilter->text();
 	const QString sDescriptionFilter = shortcutDescriptionFilter->text();
+
+	IndexedTreeItem* pCurrentItem = nullptr;
 
 	for ( const auto& [aaction, aactionInfo] : actionInfoMap ) {
 		// Filter by selected category
@@ -2574,12 +2604,34 @@ void PreferencesDialog::updateShortcutsTab() {
 
 					QStringList labels = { sKeySequence, aactionInfo.sDescription,
 										   Shortcuts::categoryToQString( aactionInfo.category ) };
-					new IndexedTreeItem( static_cast<int>(aaction),
-										 shortcutListView, labels );
+					auto pItem = new IndexedTreeItem( static_cast<int>(aaction),
+													  shortcutListView, labels );
+
+					// In case the item was previously selected, we
+					// select it again
+					for ( const auto& [llastAction, llastKeySequence] : m_lastShortcutsSelected ) {
+						if ( llastAction == aaction &&
+							 llastKeySequence == kkeySequence ) {
+							pItem->setSelected( true );
+							pCurrentItem = pItem;
+						}
+					}
 				}
 			}
 		}
 	}
+
+	// Only in case just a single item is selected by the user we will
+	// set it as current item. We must do so or keyboard focus moves
+	// unexpectedly to the first column. But when dealing with
+	// multiple items setting a current item would clear the selection
+	// for all others.
+	if ( m_lastShortcutsSelected.size() < 2 ) {
+		shortcutListView->setCurrentItem( pCurrentItem );
+	}
+	
+	// Reset the cached item selection.
+	m_lastShortcutsSelected.clear();
 }
 
 void PreferencesDialog::defineShortcut() {
@@ -2638,6 +2690,10 @@ void PreferencesDialog::defineShortcut() {
 		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
 									  selectedAction );
 		m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
+
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, QKeySequence( nKey ) ) );
 	}
 
 	updateShortcutsTab();
@@ -2662,10 +2718,13 @@ void PreferencesDialog::clearShortcut() {
 			m_bShortcutsChanged = true;
 		}
 
-		auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+		const auto keySequence = QKeySequence( pSelectedItem->text( 0 ) );
+		m_pShortcuts->deleteShortcut( keySequence, selectedAction );
 
-		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
-									  selectedAction );
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, keySequence ) );
 	}
 
 	updateShortcutsTab();
@@ -2692,10 +2751,15 @@ void PreferencesDialog::duplicateActions() {
 			continue;
 		}
 
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+
 		// Create an empty shortcut binding for the event to introduce
 		// an additional row.
-		m_pShortcuts->insertShortcut( QKeySequence( "" ),
-									  static_cast<Shortcuts::Action>(pSelectedItem->getId()));
+		m_pShortcuts->insertShortcut( QKeySequence( "" ), selectedAction );
+
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, QKeySequence( "" ) ) );
 	}
 
 	updateShortcutsTab();

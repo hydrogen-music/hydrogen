@@ -181,6 +181,11 @@ private:
 	bool m_bShortcutsChanged;
 	std::vector<H2Core::Shortcuts::Category> m_shortcutCategories;
 	H2Core::Shortcuts::Category m_selectedCategory;
+	/**
+	 * Used to maintain the selection of items done by the user when
+	 * updating/recreating the shortcut table.
+	 */
+	std::vector<std::pair<H2Core::Shortcuts::Action,QKeySequence>> m_lastShortcutsSelected;
 
 	void setIndexedTreeItemDirty( IndexedTreeItem* pItem );
 	QColor* getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> uiStyle ) const;
