@@ -64,7 +64,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 {
 
 	setupUi ( this );
-	
+	// Required for the widget to receive key press events (this is
+	// not working within table widgets, which spans most parts).
+	setFocusPolicy( Qt::StrongFocus );
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
