@@ -2354,8 +2354,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {
 
-		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_C2) &&
-			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_B3) ) {
+		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
+			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
 			// Virtual keyboard
 			
 			pHydrogen->addRealtimeNote(

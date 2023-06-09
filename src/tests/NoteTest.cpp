@@ -49,7 +49,7 @@ class NoteTest : public CppUnit::TestCase {
 	 * handled properly */
 	void testVirtualKeyboard() {
 		___INFOLOG( "" );
-		CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_C2), 400 );
+		CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_36_C2), 400 );
 		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, 36 ); // MIDI note C2
 		___INFOLOG( "passed" );
 	}
