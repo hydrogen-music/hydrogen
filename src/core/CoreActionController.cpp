@@ -963,7 +963,7 @@ void CoreActionController::toggleLoopMode() {
 	if ( pSong->getLoopMode() != Song::LoopMode::Enabled ) {
 		activateLoopMode( true );
 	} else {
-		activateLoopMode( true );
+		activateLoopMode( false );
 	}
 }
 

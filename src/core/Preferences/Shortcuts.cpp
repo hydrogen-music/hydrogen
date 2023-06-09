@@ -319,7 +319,7 @@ void Shortcuts::createActionInfoMap() {
 	// Core commands
 	insertActionInfo( Shortcuts::Action::Panic, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Stop transport and all playing notes" ) );
+										 "Pause transport and stop all playing notes" ) );
 	insertActionInfo( Shortcuts::Action::Play, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Start playback" ) );
 	insertActionInfo( Shortcuts::Action::Pause, Category::CommandNoArgs,
@@ -327,12 +327,12 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::Stop, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Stop playback" ) );
 	insertActionInfo( Shortcuts::Action::PlayPauseToggle, Category::CommandNoArgs,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Play/Pause playback toggling" ) );
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Start/Pause playback" ) );
 	insertActionInfo( Shortcuts::Action::PlayStopToggle, Category::CommandNoArgs,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Play/Stop playback toggling" ) );
+					  QT_TRANSLATE_NOOP( "Shortcuts", "Start/Stop playback" ) );
 	insertActionInfo( Shortcuts::Action::PlayPauseToggleAtCursor, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Play/Pause playback toggling at keyboard cursor" ) );
+										 "Start playback at keyboard cursor" ) );
 	
 	insertActionInfo( Shortcuts::Action::RecordReady, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
