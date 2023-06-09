@@ -3,6 +3,19 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* PortMidi driver does open a input/output port which can be
 		discovered and connected to by other applications when port was
 		set to "None" in the Preferences (not supported on Windows).
+	* Added
+		- All keyboard shortcuts including the virtual keyboard can now be
+		  customized in Preferences > Shortcuts.
+		- Most actions available via MIDI or OSC can also be assigned to a
+		  keyboard shortcut. If those actions require input arguments,
+		  they are retrieved using popup dialogs.
+	* Changed
+		- Preferences dialog can now be smoothly resized.
+		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as
+		  their OSC counterparts - do now wrap transport around the
+		  beginning and end of a song if loop mode is enabled. In pattern
+		  mode they move transport to be beginning and next is updating
+		  pending stacked patterns.
 	* Fixed
 		- Instrument/strip-specific actions, like MIDI action
 		  `STRIP_MUTE_TOGGLE`, did void the instrument selection of the
