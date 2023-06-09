@@ -8,6 +8,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  `STRIP_MUTE_TOGGLE`, did void the instrument selection of the
 		  Instrument Editor if the specified instrument was not the
 		  currently selected one.
+		- Do not start playback at cursor when cursor in Song Editor is
+		  beyond the current song length.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
