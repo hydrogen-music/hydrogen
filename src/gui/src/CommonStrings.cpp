@@ -435,37 +435,58 @@ CommonStrings::CommonStrings(){
 	m_sInputCaptureVolume = tr( "Volume" );
 	/*: Label shown in the input capture dialog for querying a
 	  column number of the song editor grid value. */
-	m_sInputCaptureColumn = tr( "Column number" );
+	m_sInputCaptureColumn = tr( "Column Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  pattern number. */
-	m_sInputCapturePattern = tr( "Pattern number" );
+	m_sInputCapturePattern = tr( "Pattern Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  song number of the current playlist. */
-	m_sInputCaptureSong = tr( "Song number" );
+	m_sInputCaptureSong = tr( "Song Number" );
 	/*: Label shown in the input capture dialog for querying an
 	  instrument number of the current drumkit. */
-	m_sInputCaptureInstrument = tr( "Instrument number" );
+	m_sInputCaptureInstrument = tr( "Instrument Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  component number of the specified instrument. */
-	m_sInputCaptureComponent = tr( "Component number" );
+	m_sInputCaptureComponent = tr( "Component Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  layer number of the specified instrument component. */
-	m_sInputCaptureLayer = tr( "Layer number" );
+	m_sInputCaptureLayer = tr( "Layer Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  FX level of the specified FX. */
-	m_sInputCaptureFXLevel = tr( "FX level" );
+	m_sInputCaptureFXLevel = tr( "FX Level" );
 	/*: Label shown in the input capture dialog for querying a
 	  FX number of the specified instrument. */
-	m_sInputCaptureFXNumber = tr( "FX number" );
+	m_sInputCaptureFXNumber = tr( "FX Number" );
 	/*: Label shown in the input capture dialog for querying a
 	  new pan value for a specified instrument. */
 	m_sInputCapturePan = tr( "Pan" );
 	/*: Label shown in the input capture dialog for querying a
 	  new filter cutoff value for a specified instrument. */
-	m_sInputCaptureFilterCutoff = tr( "Filter cutoff" );
+	m_sInputCaptureFilterCutoff = tr( "Filter Cutoff" );
 	/*: Label shown in the input capture dialog for querying
 	  text content for a new tag. */
-	m_sInputCaptureTag = tr( "Tag text" );
+	m_sInputCaptureTag = tr( "Tag Text" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures. It will be append with the
+	  particular instrument parameter to adjust, like " Pan". */
+	m_sInputCaptureTitleInstrument = tr( "Adjust Instrument" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures.*/
+	m_sInputCaptureTitleMarker = tr( "Add Tempo Marker" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures.*/
+	m_sInputCaptureTitleTag = tr( "Add Tag" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures.*/
+	m_sInputCaptureTitleGridCell = tr( "Toggle Grid Cell" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures.*/
+	m_sInputCaptureTitleFX = tr( "Adjust FX Level" );
+	/*: Label shown as a title in the input capture dialog for actions
+	  requiring multiple input captures. It will be append with the
+	  particular instrument layer parameter to adjust, like "
+	  Gain". */
+	m_sInputCaptureTitleInstrumentLayer = tr( "Adjust Instrument Layer" );
 }
 
 CommonStrings::~CommonStrings(){

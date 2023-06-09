@@ -22,8 +22,9 @@
 
 #include "InputCaptureDialog.h"
 
-InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sLabel, Type type, float fMin, float fMax )
+InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle, const QString& sLabel, Type type, float fMin, float fMax )
 	: QDialog( pParent ),
+	  m_sTitle( sTitle ),
 	  m_sLabel( sLabel ),
 	  m_type( type ),
 	  m_fMin( fMin ),
@@ -35,12 +36,25 @@ InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sLabel,
 	QVBoxLayout* pVBoxLayout = new QVBoxLayout( this );
 	setLayout( pVBoxLayout );
 
+	if ( ! m_sTitle.isEmpty() ) {
+		m_pLabelTitle = new QLabel( sTitle, this );
+		m_pLabelTitle->setAlignment( Qt::AlignCenter );
+		m_pLabelTitle->setMargin( 5 );
+		m_pLabelTitle->setStyleSheet( "QLabel { font-weight: bold; }" );
+		pVBoxLayout->addWidget( m_pLabelTitle );
+	}
+
 	m_pLabel = new QLabel( sLabel, this );
 	m_pLabel->setAlignment( Qt::AlignCenter );
 	pVBoxLayout->addWidget( m_pLabel );
 
 	m_pLineEdit = new QLineEdit();
 	pVBoxLayout->addWidget( m_pLineEdit );
+
+	if ( m_type == Type::IntMidi ) {
+		m_fMin = 0;
+		m_fMax = 127;
+	}
 	
 	m_pLabelBounds = new QLabel( QString( "[%1,%2]" ).arg( m_fMin ).arg( m_fMax ), this );
 	m_pLabelBounds->setAlignment( Qt::AlignCenter );

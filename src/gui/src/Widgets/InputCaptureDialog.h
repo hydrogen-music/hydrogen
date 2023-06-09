@@ -42,7 +42,7 @@ public:
 		String,
 	};
 
-	InputCaptureDialog( QWidget* pParent, const QString& sLabel, Type type, float fMin = 0, float fMax = 0 );
+	InputCaptureDialog( QWidget* pParent, const QString& sTitle, const QString& sLabel, Type type, float fMin = 0, float fMax = 0 );
 	~InputCaptureDialog();
 
 	QString text() const;
@@ -51,10 +51,15 @@ protected:
 	void keyPressEvent( QKeyEvent* ev );
 
 	QLabel* m_pLabel;
+	QLabel* m_pLabelTitle;
 	QLabel* m_pLabelBounds;
 	QLineEdit* m_pLineEdit;
-	
+
+	/** Used to identify a particular input within an action*/
 	QString m_sLabel;
+	/** Used to identify the overall action which may encompass
+	 * multiple input captures */
+	QString m_sTitle;
 	Type m_type;
 	float m_fMax;
 	float m_fMin;

@@ -2438,7 +2438,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sLabel, inputType, fMin, fMax );
+				new InputCaptureDialog( this, "", sLabel, inputType, fMin, fMax );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2499,12 +2499,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			float fMin1 = 0;
 			float fMax2 = 1;
 			float fMin2 = 0;
-			QString sAction, sLabel1, sAction2, sLabel2;
+			QString sAction, sLabel1, sAction2, sLabel2, sTitle;
 			
 			switch ( action ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff:
+				sTitle = pCommonStrings->getInputCaptureTitleInstrument();
 				if ( action == Shortcuts::Action::StripVolume ) {
 					sAction = "STRIP_VOLUME_ABSOLUTE";
 					sLabel1 = pCommonStrings->getInputCaptureVolume();
@@ -2517,6 +2518,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";
 					sLabel1 = pCommonStrings->getInputCaptureFilterCutoff();
 				}
+				sTitle.append( QString( " %1" ).arg( sLabel1 ) );
 				inputType2 = InputCaptureDialog::Type::Int;
 				sLabel2 = pCommonStrings->getInputCaptureInstrument();
 				fMax2 = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
@@ -2530,16 +2532,19 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				fMax1 = static_cast<float>(pSong->getPatternGroupVector()->size()) - 1;
 
 				if ( action == Shortcuts::Action::TimelineAddTag ) {
+					sTitle = pCommonStrings->getInputCaptureTitleTag();
 					inputType2 = InputCaptureDialog::Type::String;
 					sLabel2 = pCommonStrings->getInputCaptureTag();
 				}
 				else if ( action == Shortcuts::Action::TimelineAddMarker ) {
+					sTitle = pCommonStrings->getInputCaptureTitleMarker();
 					inputType2 = InputCaptureDialog::Type::Float;
 					sLabel2 = pCommonStrings->getInputCaptureBpm();
 					fMin2 = static_cast<float>(MIN_BPM);
 					fMax2 = static_cast<float>(MAX_BPM);
 				}
 				else if ( action == Shortcuts::Action::ToggleGridCell ) {
+					sTitle = pCommonStrings->getInputCaptureTitleGridCell();
 					inputType2 = InputCaptureDialog::Type::Int;
 					sLabel2 = pCommonStrings->getInputCapturePattern();
 					fMax2 = static_cast<float>(pSong->getPatternList()->size()) - 1;
@@ -2548,7 +2553,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture arguments
 			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sLabel1, inputType1, fMin1, fMax1 );
+				new InputCaptureDialog( this, sTitle, sLabel1, inputType1, fMin1, fMax1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2556,7 +2561,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			delete pInputCaptureDialog;
 			
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, sLabel2, inputType2, fMin2, fMax2 );
+				new InputCaptureDialog( this, sTitle, sLabel2, inputType2, fMin2, fMax2 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2587,12 +2592,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		}
 		else if ( action == Shortcuts::Action::StripEffectLevel ) {
 			// Core actions with three input arguments
-			
+
+			const QString sTitle = pCommonStrings->getInputCaptureTitleFX();
 			const QString sAction = "EFFECT_LEVEL_ABSOLUTE";
 
 			// Capture new parameter value
 			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureFXLevel(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXLevel(),
 										InputCaptureDialog::Type::IntMidi );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
@@ -2602,7 +2608,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture instrument number
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureInstrument(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
 										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
@@ -2619,7 +2625,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture FX number
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureFXNumber(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXNumber(),
 										InputCaptureDialog::Type::Int, 0,
 										static_cast<float>(MAX_FX) - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
@@ -2640,6 +2646,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Core actions with more than three input arguments
 			
 			QString sAction, sLabel;
+			QString sTitle = pCommonStrings->getInputCaptureTitleInstrumentLayer();
 
 			if ( action == Shortcuts::Action::LayerPitch ) {
 				sAction = "PITCH_LEVEL_ABSOLUTE";
@@ -2649,10 +2656,11 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sAction = "GAIN_LEVEL_ABSOLUTE";
 				sLabel = pCommonStrings->getGainLabel();
 			}
+			sTitle.append( QString( " %1" ).arg( sLabel ) );
 
 			// Capture new parameter value
 			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sLabel, InputCaptureDialog::Type::IntMidi );
+				new InputCaptureDialog( this, sTitle, sLabel, InputCaptureDialog::Type::IntMidi );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2661,7 +2669,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture instrument number
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureInstrument(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
 										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
@@ -2678,7 +2686,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture component number
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureComponent(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureComponent(),
 										InputCaptureDialog::Type::Int, 0,
 										pInstrument->get_components()->size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
@@ -2695,7 +2703,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Capture layer number
 			pInputCaptureDialog =
-				new InputCaptureDialog( this, pCommonStrings->getInputCaptureLayer(),
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureLayer(),
 										InputCaptureDialog::Type::Int, 0,
 										pComponent->get_layers().size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
