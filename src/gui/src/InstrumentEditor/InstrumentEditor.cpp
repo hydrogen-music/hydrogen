@@ -666,19 +666,22 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	
 	// Check if either this particular line or all lines should be updated.
-	if ( m_pInstrument != nullptr &&
-		 ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
-		   nInstrumentNumber == -1 ) ) {
+	if ( m_pInstrument != nullptr ) {
+		if ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
+			 nInstrumentNumber == -1 ) {
 
-		if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
-			m_pNameLbl->setText( m_pInstrument->get_name() );
+			if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
+				m_pNameLbl->setText( m_pInstrument->get_name() );
+			}
+
+			// filter
+			m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+			m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+			m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+			// ~ filter
 		}
-
-		// filter
-		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
-		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-		// ~ filter
+		// In case nInstrumentNumber does not belong to the currently
+		// selected instrument we don't have to do anything.
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );

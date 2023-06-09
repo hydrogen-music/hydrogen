@@ -3,6 +3,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* PortMidi driver does open a input/output port which can be
 		discovered and connected to by other applications when port was
 		set to "None" in the Preferences (not supported on Windows).
+	* Fixed
+		- Instrument/strip-specific actions, like MIDI action
+		  `STRIP_MUTE_TOGGLE`, did void the instrument selection of the
+		  Instrument Editor if the specified instrument was not the
+		  currently selected one.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
