@@ -466,27 +466,6 @@ CommonStrings::CommonStrings(){
 	/*: Label shown in the input capture dialog for querying
 	  text content for a new tag. */
 	m_sInputCaptureTag = tr( "Tag Text" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures. It will be append with the
-	  particular instrument parameter to adjust, like " Pan". */
-	m_sInputCaptureTitleInstrument = tr( "Adjust Instrument" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures.*/
-	m_sInputCaptureTitleMarker = tr( "Add Tempo Marker" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures.*/
-	m_sInputCaptureTitleTag = tr( "Add Tag" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures.*/
-	m_sInputCaptureTitleGridCell = tr( "Toggle Grid Cell" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures.*/
-	m_sInputCaptureTitleFX = tr( "Adjust FX Level" );
-	/*: Label shown as a title in the input capture dialog for actions
-	  requiring multiple input captures. It will be append with the
-	  particular instrument layer parameter to adjust, like "
-	  Gain". */
-	m_sInputCaptureTitleInstrumentLayer = tr( "Adjust Instrument Layer" );
 }
 
 CommonStrings::~CommonStrings(){

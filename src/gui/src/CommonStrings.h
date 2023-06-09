@@ -194,12 +194,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCapturePan() const { return m_sInputCapturePan; }
 	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
-	const QString& getInputCaptureTitleInstrument() const { return m_sInputCaptureTitleInstrument; }
-	const QString& getInputCaptureTitleMarker() const { return m_sInputCaptureTitleMarker; }
-	const QString& getInputCaptureTitleTag() const { return m_sInputCaptureTitleTag; }
-	const QString& getInputCaptureTitleGridCell() const { return m_sInputCaptureTitleGridCell; }
-	const QString& getInputCaptureTitleFX() const { return m_sInputCaptureTitleFX; }
-	const QString& getInputCaptureTitleInstrumentLayer() const { return m_sInputCaptureTitleInstrumentLayer; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -354,11 +348,5 @@ private:
 	QString m_sInputCapturePan;
 	QString m_sInputCaptureFilterCutoff;
 	QString m_sInputCaptureTag;
-	QString m_sInputCaptureTitleInstrument;
-	QString m_sInputCaptureTitleMarker;
-	QString m_sInputCaptureTitleTag;
-	QString m_sInputCaptureTitleGridCell;
-	QString m_sInputCaptureTitleFX;
-	QString m_sInputCaptureTitleInstrumentLayer;
 };
 #endif

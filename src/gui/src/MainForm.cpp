@@ -2354,6 +2354,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	const auto actions = pShortcuts->getActions( keySequence );
 	for ( const auto& action : actions ) {
 
+		const QString sTitle =
+			pShortcuts->getActionInfoMap().at( action ).sDescription;
+		
 		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
 			// Virtual keyboard
@@ -2438,7 +2441,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, "", sLabel, inputType, fMin, fMax );
+				new InputCaptureDialog( this, sTitle, sLabel, inputType, fMin, fMax );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2499,13 +2502,12 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			float fMin1 = 0;
 			float fMax2 = 1;
 			float fMin2 = 0;
-			QString sAction, sLabel1, sAction2, sLabel2, sTitle;
+			QString sAction, sLabel1, sAction2, sLabel2;
 			
 			switch ( action ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff:
-				sTitle = pCommonStrings->getInputCaptureTitleInstrument();
 				if ( action == Shortcuts::Action::StripVolume ) {
 					sAction = "STRIP_VOLUME_ABSOLUTE";
 					sLabel1 = pCommonStrings->getInputCaptureVolume();
@@ -2518,7 +2520,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";
 					sLabel1 = pCommonStrings->getInputCaptureFilterCutoff();
 				}
-				sTitle.append( QString( " %1" ).arg( sLabel1 ) );
 				inputType2 = InputCaptureDialog::Type::Int;
 				sLabel2 = pCommonStrings->getInputCaptureInstrument();
 				fMax2 = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
@@ -2532,19 +2533,16 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				fMax1 = static_cast<float>(pSong->getPatternGroupVector()->size()) - 1;
 
 				if ( action == Shortcuts::Action::TimelineAddTag ) {
-					sTitle = pCommonStrings->getInputCaptureTitleTag();
 					inputType2 = InputCaptureDialog::Type::String;
 					sLabel2 = pCommonStrings->getInputCaptureTag();
 				}
 				else if ( action == Shortcuts::Action::TimelineAddMarker ) {
-					sTitle = pCommonStrings->getInputCaptureTitleMarker();
 					inputType2 = InputCaptureDialog::Type::Float;
 					sLabel2 = pCommonStrings->getInputCaptureBpm();
 					fMin2 = static_cast<float>(MIN_BPM);
 					fMax2 = static_cast<float>(MAX_BPM);
 				}
 				else if ( action == Shortcuts::Action::ToggleGridCell ) {
-					sTitle = pCommonStrings->getInputCaptureTitleGridCell();
 					inputType2 = InputCaptureDialog::Type::Int;
 					sLabel2 = pCommonStrings->getInputCapturePattern();
 					fMax2 = static_cast<float>(pSong->getPatternList()->size()) - 1;
@@ -2593,7 +2591,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		else if ( action == Shortcuts::Action::StripEffectLevel ) {
 			// Core actions with three input arguments
 
-			const QString sTitle = pCommonStrings->getInputCaptureTitleFX();
 			const QString sAction = "EFFECT_LEVEL_ABSOLUTE";
 
 			// Capture new parameter value
@@ -2646,7 +2643,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			// Core actions with more than three input arguments
 			
 			QString sAction, sLabel;
-			QString sTitle = pCommonStrings->getInputCaptureTitleInstrumentLayer();
 
 			if ( action == Shortcuts::Action::LayerPitch ) {
 				sAction = "PITCH_LEVEL_ABSOLUTE";
@@ -2656,7 +2652,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sAction = "GAIN_LEVEL_ABSOLUTE";
 				sLabel = pCommonStrings->getGainLabel();
 			}
-			sTitle.append( QString( " %1" ).arg( sLabel ) );
 
 			// Capture new parameter value
 			auto pInputCaptureDialog =
