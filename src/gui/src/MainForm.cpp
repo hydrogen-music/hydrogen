@@ -1786,7 +1786,9 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 		return true;
 
-	} else if ( e->type() == QEvent::KeyPress ) {
+	} else if ( e->type() == QEvent::KeyPress ||
+				// Required to support all key pressed in PlaylistDialog.
+				e->type() == QEvent::ShortcutOverride ) {
 		// special processing for key press
 		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
 		assert( pKeyEvent != nullptr );
