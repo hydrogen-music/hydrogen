@@ -929,7 +929,9 @@ void PlaylistDialog::updateActiveSongNumber()
 bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 {
 	UNUSED ( o );
-	if ( e->type() == QEvent::KeyPress ) {
+	if ( e->type() == QEvent::KeyPress ||
+		 // required to pass all key presses to the MainForm
+		 e->type() == QEvent::ShortcutOverride ) {
 		// special processing for key press
 		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
 		assert( pKeyEvent != nullptr );
