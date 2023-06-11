@@ -100,7 +100,7 @@ libraries and development header files installed on your system:
 - ALSA (Advanced Linux Sound Architecture)
 - OSS
 - PortAudio (v18, not v19)
-- PortMIDI
+- PortMIDI (>=2.0.1)
 - CoreAudio (OS X)
 - CoreMidi (OS X)
 
