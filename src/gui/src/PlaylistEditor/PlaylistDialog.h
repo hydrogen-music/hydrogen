@@ -56,7 +56,6 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
-		virtual void keyPressEvent( QKeyEvent* ev ) override;
 		virtual void closeEvent( QCloseEvent* ev ) override;
 		virtual bool eventFilter ( QObject *o, QEvent *e ) override;
 	
@@ -84,6 +83,8 @@ public slots:
 
 	private:
 
+	void populateMenuBar();
+	bool handleKeyEvent( QKeyEvent* pKeyEvent );
 		void updatePlayListNode( QString file );
 		void updatePlayListVector();
 		void setFirstItemCurrent();

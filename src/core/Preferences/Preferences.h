@@ -28,7 +28,9 @@
 #include <cassert>
 #include <memory>
 
-#include "Theme.h"
+#include <core/Preferences/Theme.h>
+#include <core/Preferences/Shortcuts.h>
+
 #include <core/MidiAction.h>
 #include <core/Globals.h>
 #include <core/Object.h>
@@ -132,7 +134,9 @@ public:
 		/** Any option in the MIDI tab appeared.*/
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
-		OscTab = 0x040
+		OscTab = 0x040,
+		/** At least one shortcut was changed.*/
+		ShortcutTab = 0x080,
 	};
 
 	bool				__playsamplesonclicking; // audio file browser
@@ -669,6 +673,9 @@ public:
 
 	const std::shared_ptr<Theme> getTheme() const;
 	void setTheme( const std::shared_ptr<Theme> pTheme );
+
+	const std::shared_ptr<Shortcuts> getShortcuts() const;
+	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
 	
 private:
 	/**
@@ -679,6 +686,7 @@ private:
 	static Preferences *		__instance;
 
 	std::shared_ptr<Theme>		m_pTheme;
+	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
@@ -1451,6 +1459,13 @@ inline void Preferences::setTheme( const std::shared_ptr<Theme> pTheme ) {
 }
 inline const std::shared_ptr<Theme> Preferences::getTheme() const {
 	return m_pTheme;
+}
+
+inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
+	return m_pShortcuts;
+}
+inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
+	m_pShortcuts = pShortcuts;
 }
 };
 

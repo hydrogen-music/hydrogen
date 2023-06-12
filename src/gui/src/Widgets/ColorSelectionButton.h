@@ -48,12 +48,49 @@ public:
 
 	QColor getColor() const;
 	void setColor( const QColor& color );
+
+	/** see #m_bHiding */
+	void pretendToHide();
+	/** see #m_bHiding */
+	void pretendToShow();
 	
 signals:
 	void colorChanged();
 
 private:
 	bool m_bMouseOver;
+	/**
+	 * To allow buttons to be listed in a grid within a grid inside
+	 * the PreferencesDialog > Appearance > Interface tab, a small
+	 * hack is required.
+	 *
+	 * Using the regular show() and hide() methods when increasing the
+	 * number of colors in the Song Editor, both spacing and placement
+	 * of the buttons will be really awkward. I would like to put them
+	 * in a right-aligned horizontal list spanning multiple rows with
+	 * buttons having a constant spacing between them. However, when
+	 * when using a regular QGridLayout and having, say, 2 buttons - 2
+	 * colors in the song editor - and all the others are hidden, Qt
+	 * will create two columns of same size taking all the space and
+	 * put the buttons into them. The result looks like one button is
+	 * placed on the right border (what we expect) and the other one
+	 * right into the middle of the field of the outer grid (what we
+	 * do not expect). This looks awkward until enough buttons are
+	 * shown to fill one entire line.
+	 *
+	 * Introducing spacers, column stretching, or similar things lead
+	 * to the buttons being pushed slightly outside the outer grid
+	 * layout. When resizing the preferences dialog only the button
+	 * list was changing position which was really ugly.
+	 *
+	 * As a work around, we do not hide any of the buttons but just
+	 * paint them transparently as if they are not there. This we call
+	 * #m_bHiding and trigger it with #pretendToHide() and
+	 * #pretendToShow(). We always have a sufficient amount of colors
+	 * to fill a row and expanding of the dialog works like a charm
+	 * again.
+	 */
+	bool m_bHiding;
 
 	virtual void mousePressEvent(QMouseEvent *ev) override;
 	virtual void enterEvent(QEvent *ev) override;

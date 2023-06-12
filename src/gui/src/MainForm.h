@@ -80,6 +80,8 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
+		bool eventFilter( QObject *o, QEvent *e ) override;
+
 public slots:
 		void showPreferencesDialog();
 		void showUserManual();
@@ -175,8 +177,6 @@ public slots:
 
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
-		void update_automation_checkbox();
-		void update_playback_track_group();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -194,11 +194,6 @@ public slots:
 		
 		
 		void closeEvent( QCloseEvent* ev ) override;
-
-		void onPlayStopAccelEvent();
-		void onRestartAccelEvent();
-		void onBPMPlusAccelEvent();
-		void onBPMMinusAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
@@ -279,11 +274,6 @@ public slots:
 		
 		void checkNecessaryDirectories();
 
-		bool eventFilter( QObject *o, QEvent *e ) override;
-
-		std::map<int,int>  keycodeInstrumentMap;
-		void initKeyInstMap();
-
 		QString getAutoSaveFilename();
 	#ifdef H2CORE_HAVE_LASH
 		QTimer *lashPollTimer;
@@ -291,8 +281,6 @@ public slots:
 
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;
-
-		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 		/**
 		 * Relocates to current position of the cursor and starts
@@ -324,6 +312,16 @@ public slots:
 		the users uses "Save As" multiple autosave files would be
 		written unless we take care of them.*/
 	QString m_sPreviousAutoSaveFilename;
+
+	/**
+	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
+	 *
+	 * @return Indicates whether or not key event was consumed. If
+	 *   not, it will be passed on to other widgets.
+	 */
+	bool handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent );
+
+	bool nullDriverCheck();
 };
 
 #endif

@@ -183,6 +183,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateTimeline( bool bActivate );
+		void toggleTimeline();
 		/**
 		 * Adds a tempo marker to the Timeline.
 		 *
@@ -235,6 +236,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateJackTransport( bool bActivate );
+	void toggleJackTransport();
 		/**
 		 * (De)activates the usage of Jack timebase master.
 		 *
@@ -247,6 +249,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateJackTimebaseMaster( bool bActivate );
+	void toggleJackTimebaseMaster();
 
 		/**
 		 * Switches between Song and Pattern mode of playback.
@@ -257,6 +260,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateSongMode( bool bActivate );
+	void toggleSongMode();
 	     /**
 		 * Toggle loop mode of playback.
 		 *
@@ -265,6 +269,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate );
+	void toggleLoopMode();
 	/** Wrapper around setDrumkit() that allows loading drumkits by
 	 *	name or path.
 	 *
@@ -420,6 +425,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
 											  QString* sDrumkitDir, QString* sTemporaryFolder );
+
+	/**
+	 * Set's song-level tempo of the #AudioEngine and stores the value
+	 * in the current #Song.
+	 */
+	void setBpm( float fBpm );
+
 private:
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );

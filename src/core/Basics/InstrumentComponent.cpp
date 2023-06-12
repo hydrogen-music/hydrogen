@@ -178,6 +178,17 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	return sOutput;
 }
 
+const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_layers() const {
+	std::vector<std::shared_ptr<InstrumentLayer>> layersUsed;
+	for ( const auto& layer : __layers ) {
+		if ( layer != nullptr ) {
+			layersUsed.push_back( layer );
+		}
+	}
+	
+	return std::move( layersUsed );
+}
+
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {
 	return __layers.begin();
 }
@@ -185,19 +196,6 @@ std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::beg
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::end() {
 	return __layers.end();
 }
-
-const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_layers() const {
-	std::vector<std::shared_ptr<InstrumentLayer>> layersUsed;
-
-	for ( const auto& layer : __layers ) {
-		if ( layer != nullptr ) {
-			layersUsed.push_back( layer );
-		}
-	}
-
-	return std::move( layersUsed );
-}
-
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

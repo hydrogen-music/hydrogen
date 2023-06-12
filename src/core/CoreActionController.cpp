@@ -725,6 +725,14 @@ bool CoreActionController::quit() {
 	return true;
 }
 
+void CoreActionController::toggleTimeline() {
+	if ( Hydrogen::get_instance()->isTimelineEnabled() ) {
+		activateTimeline( false );
+	} else {
+		activateTimeline( true );
+	}
+}
+
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -829,6 +837,15 @@ bool CoreActionController::deleteTag( int nPosition ) {
 	return true;
 }
 
+void CoreActionController::toggleJackTransport() {
+	if ( Preferences::get_instance()->m_bJackTransportMode ==
+		 Preferences::USE_JACK_TRANSPORT ) {
+		activateJackTransport( false );
+	} else {
+		activateJackTransport( true );
+	}
+}
+
 bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 #ifdef H2CORE_HAVE_JACK
@@ -852,6 +869,15 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	ERRORLOG( "Unable to (de)activate Jack transport. Your Hydrogen version was not compiled with jack support." );
 	return false;
 #endif
+}
+
+void CoreActionController::toggleJackTimebaseMaster() {
+	if ( Preferences::get_instance()->m_bJackMasterMode ==
+		 Preferences::USE_JACK_TIME_MASTER ) {
+		activateJackTimebaseMaster( false );
+	} else {
+		activateJackTimebaseMaster( true );
+	}
 }
 
 bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
@@ -881,6 +907,14 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
 	return false;
 #endif
+}
+
+void CoreActionController::toggleSongMode() {
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		activateSongMode( false );
+	} else {
+		activateSongMode( true );
+	}
 }
 
 bool CoreActionController::activateSongMode( bool bActivate ) {
@@ -916,6 +950,21 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	pAudioEngine->unlock();
 	
 	return true;
+}
+
+void CoreActionController::toggleLoopMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	if ( pSong->getLoopMode() != Song::LoopMode::Enabled ) {
+		activateLoopMode( true );
+	} else {
+		activateLoopMode( false );
+	}
 }
 
 bool CoreActionController::activateLoopMode( bool bActivate ) {
@@ -1706,5 +1755,31 @@ void CoreActionController::insertRecentFile( const QString sFilename ){
 	}
 
 	pPref->setRecentFiles( recentFiles );
+}
+
+void CoreActionController::setBpm( float fBpm ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set yet" );
+		return;
+	}
+
+	fBpm = std::clamp( fBpm, static_cast<float>(MIN_BPM),
+						  static_cast<float>(MAX_BPM) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->setNextBpm( fBpm );
+	pAudioEngine->unlock();
+
+	// Store it's value in the .h2song file.
+	pHydrogen->getSong()->setBpm( fBpm );
+
+	pHydrogen->setIsModified( true );
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 }
