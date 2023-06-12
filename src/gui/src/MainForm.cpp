@@ -2473,7 +2473,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	HydrogenApp* pApp = HydrogenApp::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		return;
