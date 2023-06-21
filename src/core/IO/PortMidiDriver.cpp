@@ -214,10 +214,9 @@ void PortMidiDriver::open()
 					nOutDeviceId = i;
 				}
 			}
-			INFOLOG( QString( "%1%2%3%4device called [%5] using [%6] MIDI API" )
+			INFOLOG( QString( "%1%2%3device called [%4] using [%5] MIDI API" )
 					 .arg( nDeviceId == i || nOutDeviceId == i ? "Using " :
 						   "Found available " )
-					 .arg( pInfo->is_virtual == TRUE ? "virtual " : "" )
 					 .arg( pInfo->input == TRUE ? "input " : "" )
 					 .arg( pInfo->output == TRUE ? "output " : "" )
 					 .arg( pInfo->name ).arg( pInfo->interf ) );
