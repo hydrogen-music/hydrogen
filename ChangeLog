@@ -1,4 +1,67 @@
-20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.3.0
+	* PortMidi driver does open a input/output port which can be
+		discovered and connected to by other applications when port was
+		set to "None" in the Preferences (not supported on Windows).
+	* Added
+		- All keyboard shortcuts including the virtual keyboard can now be
+		  customized in Preferences > Shortcuts.
+		- Most actions available via MIDI or OSC can also be assigned to a
+		  keyboard shortcut. If those actions require input arguments,
+		  they are retrieved using popup dialogs.
+	* Changed
+		- Preferences dialog can now be smoothly resized.
+		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as
+		  their OSC counterparts - do now wrap transport around the
+		  beginning and end of a song if loop mode is enabled. In pattern
+		  mode they move transport to be beginning and next is updating
+		  pending stacked patterns.
+	* Fixed
+		- Instrument/strip-specific actions, like MIDI action
+		  `STRIP_MUTE_TOGGLE`, did void the instrument selection of the
+		  Instrument Editor if the specified instrument was not the
+		  currently selected one.
+		- Do not start playback at cursor when cursor in Song Editor is
+		  beyond the current song length.
+
+2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.2.1
+	* Update French translation
+	* Bugfixes
+		- Fix reopening of last used Playlist. In addition, in case the
+		  PlaylistDialog was opened at the end of the last session - when
+		  "Reopen last used playlist" is checked in the Preferences - the
+		  dialog will be reopened too at the same position.
+		- Fix spurious marking of opened songs as modified.
+		- Fix MIDI (output) feedback for metronome toggling and pan
+		  setting.
+		- Fix superfluous MIDI event - Action bindings. An incoming MIDI
+		  event can be mapped to an Action only once.
+		- Fix tool tips of MIDI-learnable widgets. All bounded MIDI events
+		  will be shown.
+		- Fix MIDI note output for channel 16 (previously only channel
+		  1-15 were accessible in the InstrumentEditor).
+		- Fix spurious tempo changes to 120bpm when switching songs or
+		  between pattern and song mode (#1779 and #1785)
+		- Support "START", "CONTINUE", and "STOP" type System Realtime
+		  MIDI messages in PortMidi and CoreMidi.
+		- Fix MIDI action binding to incoming MMC_DEFERRED_PLAY event.
+		- Fix missing MIDI driver restart when adjusting corresponding
+		  parameters in Preferences.
+		- Fix MIDI Machine Control (MMC) event type handling on Windows
+		  (#1773)
+		- Fix loading of legacy drumkits. All layers but the first one
+		  were dropped during drumkit upgrade (#1759)
+		- Fix MIDI input handling with "Discard MIDI messages after action
+		  has been triggered" checked. Incoming NOTEON message were
+		  dropped without triggering a sound (#1751)
+		- Fix beat and bar calculation in pattern mode (#1741)
+		- Fix compilation in GCC with -Werror=format-security (#1739)
+		- Explicit usage of Python3 in stats.py script
+		- Fix build against Musl (nekopsykose)
+		- Omit git commit hash in displayed version of release builds
+
+2023-04-07 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2
 	* General behavior
 		- Remembering paths in all export/import/save/open dialogs.
@@ -180,6 +243,7 @@
 		  again
 		- Hydrogen shows a now a warning dialog when exporting/saving date
 		  to read-only folders
+		- fix text overflow in Director
 	* Crash reporting
 		- Fatal errors will now show a GUI report including details to report
 		  and potential hints about the cause

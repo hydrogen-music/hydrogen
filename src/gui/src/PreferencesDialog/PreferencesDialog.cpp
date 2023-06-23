@@ -34,7 +34,9 @@
 #include <QFontDatabase>
 #include <QTreeWidgetItemIterator>
 #include "../Widgets/MidiTable.h"
+#include "../Widgets/ShortcutCaptureDialog.h"
 
+#include <core/EventQueue.h>
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiInput.h>
@@ -116,15 +118,23 @@ void HostAPIComboBox::showPopup()
 }
 
 
-ColorTreeItem::ColorTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-ColorTreeItem::ColorTreeItem( int nId, QTreeWidget* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels )
+    : QTreeWidgetItem( pParent, labels ) {
+	m_nId = nId;
+}
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-int ColorTreeItem::getId() const {
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels )
+    : QTreeWidgetItem( pParent, labels ) {
+	m_nId = nId;
+}
+int IndexedTreeItem::getId() const {
 	return m_nId;
 }
 
@@ -135,7 +145,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	: QDialog( parent )
 	, m_pCurrentColor( nullptr )
 	, m_nCurrentId( 0 )
-	, m_changes( H2Core::Preferences::Changes::None ) {
+	, m_changes( H2Core::Preferences::Changes::None )
+	, m_bMidiTableChanged( false )
+	, m_bShortcutsChanged( false )
+	, m_selectedCategory( H2Core::Shortcuts::Category::All ) {
 	
 	m_pCurrentTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
 	m_pPreviousTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
@@ -438,6 +451,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 				 m_changes =
 					 static_cast<H2Core::Preferences::Changes>(
 							m_changes | H2Core::Preferences::Changes::MidiTab );
+				 m_bMidiTableChanged = true;
 			 });
 
 	//////
@@ -523,13 +537,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ColorSelectionButton* bbutton =
 			new ColorSelectionButton( this, m_pCurrentTheme->getInterfaceTheme()->m_patternColors[ ii ],
 									  nButtonSize );
-		bbutton->hide();
+		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
 				 &PreferencesDialog::onColorSelectionClicked );
 		colorSelectionGrid->addWidget( bbutton,
 									   std::floor( static_cast<float>( ii ) /
 												   static_cast<float>( nButtonsPerLine ) ),
-									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
+									   (ii % nButtonsPerLine) + 1,
+									   Qt::AlignRight ); //+1 to take the hspace into account.
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 	
@@ -545,73 +560,73 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pColorSliderTimer->setSingleShot( true );
 	connect( m_pColorSliderTimer, SIGNAL(timeout()), this, SLOT(updateColors()) );
 	  	
-	ColorTreeItem* pTopLevelItem;
+	IndexedTreeItem* pTopLevelItem;
 	colorTree->clear();
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "General" ) );
-	new ColorTreeItem( 0x100, pTopLevelItem, tr( "Window" ) );
-	new ColorTreeItem( 0x101, pTopLevelItem, tr( "Window Text" ) );
-	new ColorTreeItem( 0x102, pTopLevelItem, tr( "Base" ) );
-	new ColorTreeItem( 0x103, pTopLevelItem, tr( "Alternate Base" ) );
-	new ColorTreeItem( 0x104, pTopLevelItem, tr( "Text" ) );
-	new ColorTreeItem( 0x105, pTopLevelItem, tr( "Button" ) );
-	new ColorTreeItem( 0x106, pTopLevelItem, tr( "Button Text" ) );
-	new ColorTreeItem( 0x107, pTopLevelItem, tr( "Light" ) );
-	new ColorTreeItem( 0x108, pTopLevelItem, tr( "Mid Light" ) );
-	new ColorTreeItem( 0x109, pTopLevelItem, tr( "Mid" ) );
-	new ColorTreeItem( 0x10a, pTopLevelItem, tr( "Dark" ) );
-	new ColorTreeItem( 0x10b, pTopLevelItem, tr( "Shadow Text" ) );
-	new ColorTreeItem( 0x10c, pTopLevelItem, tr( "Highlight" ) );
-	new ColorTreeItem( 0x10d, pTopLevelItem, tr( "Highlight Text" ) );
-	new ColorTreeItem( 0x10e, pTopLevelItem, tr( "Selection Highlight" ) );
-	new ColorTreeItem( 0x10f, pTopLevelItem, tr( "Selection Inactive" ) );
-	new ColorTreeItem( 0x110, pTopLevelItem, tr( "Tool Tip Base" ) );
-	new ColorTreeItem( 0x111, pTopLevelItem, tr( "Tool Tip Text" ) );
+	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "General" ) );
+	new IndexedTreeItem( 0x100, pTopLevelItem, tr( "Window" ) );
+	new IndexedTreeItem( 0x101, pTopLevelItem, tr( "Window Text" ) );
+	new IndexedTreeItem( 0x102, pTopLevelItem, tr( "Base" ) );
+	new IndexedTreeItem( 0x103, pTopLevelItem, tr( "Alternate Base" ) );
+	new IndexedTreeItem( 0x104, pTopLevelItem, tr( "Text" ) );
+	new IndexedTreeItem( 0x105, pTopLevelItem, tr( "Button" ) );
+	new IndexedTreeItem( 0x106, pTopLevelItem, tr( "Button Text" ) );
+	new IndexedTreeItem( 0x107, pTopLevelItem, tr( "Light" ) );
+	new IndexedTreeItem( 0x108, pTopLevelItem, tr( "Mid Light" ) );
+	new IndexedTreeItem( 0x109, pTopLevelItem, tr( "Mid" ) );
+	new IndexedTreeItem( 0x10a, pTopLevelItem, tr( "Dark" ) );
+	new IndexedTreeItem( 0x10b, pTopLevelItem, tr( "Shadow Text" ) );
+	new IndexedTreeItem( 0x10c, pTopLevelItem, tr( "Highlight" ) );
+	new IndexedTreeItem( 0x10d, pTopLevelItem, tr( "Highlight Text" ) );
+	new IndexedTreeItem( 0x10e, pTopLevelItem, tr( "Selection Highlight" ) );
+	new IndexedTreeItem( 0x10f, pTopLevelItem, tr( "Selection Inactive" ) );
+	new IndexedTreeItem( 0x110, pTopLevelItem, tr( "Tool Tip Base" ) );
+	new IndexedTreeItem( 0x111, pTopLevelItem, tr( "Tool Tip Text" ) );
 	
-	auto pWidgetItem = new ColorTreeItem( 0x000, colorTree, tr( "Widgets" ) );
-	auto pDefaultItem = new ColorTreeItem( 0x200, pWidgetItem, tr( "Widget" ) );
-	new ColorTreeItem( 0x201, pWidgetItem, tr( "Widget Text" ) );
-	new ColorTreeItem( 0x202, pWidgetItem, tr( "Accent" ) );
-	new ColorTreeItem( 0x203, pWidgetItem, tr( "Accent Text" ) );
-	new ColorTreeItem( 0x204, pWidgetItem, tr( "Button Red" ) );
-	new ColorTreeItem( 0x205, pWidgetItem, tr( "Button Red Text" ) );
-	new ColorTreeItem( 0x206, pWidgetItem, tr( "Spin Box" ) );
-	new ColorTreeItem( 0x207, pWidgetItem, tr( "Spin Box Text" ) );
-	new ColorTreeItem( 0x208, pWidgetItem, tr( "Playhead" ) );
-	new ColorTreeItem( 0x209, pWidgetItem, tr( "Cursor" ) );
+	auto pWidgetItem = new IndexedTreeItem( 0x000, colorTree, tr( "Widgets" ) );
+	auto pDefaultItem = new IndexedTreeItem( 0x200, pWidgetItem, tr( "Widget" ) );
+	new IndexedTreeItem( 0x201, pWidgetItem, tr( "Widget Text" ) );
+	new IndexedTreeItem( 0x202, pWidgetItem, tr( "Accent" ) );
+	new IndexedTreeItem( 0x203, pWidgetItem, tr( "Accent Text" ) );
+	new IndexedTreeItem( 0x204, pWidgetItem, tr( "Button Red" ) );
+	new IndexedTreeItem( 0x205, pWidgetItem, tr( "Button Red Text" ) );
+	new IndexedTreeItem( 0x206, pWidgetItem, tr( "Spin Box" ) );
+	new IndexedTreeItem( 0x207, pWidgetItem, tr( "Spin Box Text" ) );
+	new IndexedTreeItem( 0x208, pWidgetItem, tr( "Playhead" ) );
+	new IndexedTreeItem( 0x209, pWidgetItem, tr( "Cursor" ) );
 	
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
-	new ColorTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
-	new ColorTreeItem( 0x301, pTopLevelItem, tr( "Alternate Row" ) );
-	new ColorTreeItem( 0x302, pTopLevelItem, tr( "Virtual Row" ) );
-	new ColorTreeItem( 0x303, pTopLevelItem, tr( "Selected Row" ) );
-	new ColorTreeItem( 0x304, pTopLevelItem, tr( "Selected Row Text" ) );
-	new ColorTreeItem( 0x305, pTopLevelItem, tr( "Line" ) );
-	new ColorTreeItem( 0x306, pTopLevelItem, tr( "Text" ) );
-	new ColorTreeItem( 0x307, pTopLevelItem, tr( "Automation Background" ) );
-	new ColorTreeItem( 0x308, pTopLevelItem, tr( "Automation Line" ) );
-	new ColorTreeItem( 0x309, pTopLevelItem, tr( "Automation Node" ) );
-	new ColorTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode On" ) );
-	new ColorTreeItem( 0x30b, pTopLevelItem, tr( "Stacked Mode On Next" ) );
-	new ColorTreeItem( 0x30c, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
+	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
+	new IndexedTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
+	new IndexedTreeItem( 0x301, pTopLevelItem, tr( "Alternate Row" ) );
+	new IndexedTreeItem( 0x302, pTopLevelItem, tr( "Virtual Row" ) );
+	new IndexedTreeItem( 0x303, pTopLevelItem, tr( "Selected Row" ) );
+	new IndexedTreeItem( 0x304, pTopLevelItem, tr( "Selected Row Text" ) );
+	new IndexedTreeItem( 0x305, pTopLevelItem, tr( "Line" ) );
+	new IndexedTreeItem( 0x306, pTopLevelItem, tr( "Text" ) );
+	new IndexedTreeItem( 0x307, pTopLevelItem, tr( "Automation Background" ) );
+	new IndexedTreeItem( 0x308, pTopLevelItem, tr( "Automation Line" ) );
+	new IndexedTreeItem( 0x309, pTopLevelItem, tr( "Automation Node" ) );
+	new IndexedTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode On" ) );
+	new IndexedTreeItem( 0x30b, pTopLevelItem, tr( "Stacked Mode On Next" ) );
+	new IndexedTreeItem( 0x30c, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
 	
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Pattern Editor" ) );
-	new ColorTreeItem( 0x400, pTopLevelItem, tr( "Background" ) );
-	new ColorTreeItem( 0x401, pTopLevelItem, tr( "Alternate Row" ) );
-	new ColorTreeItem( 0x402, pTopLevelItem, tr( "Selected Row" ) );
-	new ColorTreeItem( 0x403, pTopLevelItem, tr( "Selected Row Text" ) );
-	new ColorTreeItem( 0x404, pTopLevelItem, tr( "Octave Row" ) );
-	new ColorTreeItem( 0x405, pTopLevelItem, tr( "Text" ) );
-	new ColorTreeItem( 0x406, pTopLevelItem, tr( "Note (Full Velocity)" ) );
-	new ColorTreeItem( 0x407, pTopLevelItem, tr( "Note (Default Velocity)" ) );
-	new ColorTreeItem( 0x408, pTopLevelItem, tr( "Note (Half Velocity)" ) );
-	new ColorTreeItem( 0x409, pTopLevelItem, tr( "Note (Zero Velocity)" ) );
-	new ColorTreeItem( 0x40a, pTopLevelItem, tr( "Note Off" ) );
-	new ColorTreeItem( 0x40b, pTopLevelItem, tr( "Grid Line 1" ) );
-	new ColorTreeItem( 0x40c, pTopLevelItem, tr( "Grid Line 2" ) );
-	new ColorTreeItem( 0x40d, pTopLevelItem, tr( "Grid Line 3" ) );
-	new ColorTreeItem( 0x40e, pTopLevelItem, tr( "Grid Line 4" ) );
-	new ColorTreeItem( 0x40f, pTopLevelItem, tr( "Grid Line 5" ) );
-	new ColorTreeItem( 0x410, pTopLevelItem, tr( "Grid Line 6" ) );
+	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Pattern Editor" ) );
+	new IndexedTreeItem( 0x400, pTopLevelItem, tr( "Background" ) );
+	new IndexedTreeItem( 0x401, pTopLevelItem, tr( "Alternate Row" ) );
+	new IndexedTreeItem( 0x402, pTopLevelItem, tr( "Selected Row" ) );
+	new IndexedTreeItem( 0x403, pTopLevelItem, tr( "Selected Row Text" ) );
+	new IndexedTreeItem( 0x404, pTopLevelItem, tr( "Octave Row" ) );
+	new IndexedTreeItem( 0x405, pTopLevelItem, tr( "Text" ) );
+	new IndexedTreeItem( 0x406, pTopLevelItem, tr( "Note (Full Velocity)" ) );
+	new IndexedTreeItem( 0x407, pTopLevelItem, tr( "Note (Default Velocity)" ) );
+	new IndexedTreeItem( 0x408, pTopLevelItem, tr( "Note (Half Velocity)" ) );
+	new IndexedTreeItem( 0x409, pTopLevelItem, tr( "Note (Zero Velocity)" ) );
+	new IndexedTreeItem( 0x40a, pTopLevelItem, tr( "Note Off" ) );
+	new IndexedTreeItem( 0x40b, pTopLevelItem, tr( "Grid Line 1" ) );
+	new IndexedTreeItem( 0x40c, pTopLevelItem, tr( "Grid Line 2" ) );
+	new IndexedTreeItem( 0x40d, pTopLevelItem, tr( "Grid Line 3" ) );
+	new IndexedTreeItem( 0x40e, pTopLevelItem, tr( "Grid Line 4" ) );
+	new IndexedTreeItem( 0x40f, pTopLevelItem, tr( "Grid Line 5" ) );
+	new IndexedTreeItem( 0x410, pTopLevelItem, tr( "Grid Line 6" ) );
 
 	colorButton->setEnabled( false );
 
@@ -642,6 +657,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	updateColorTree();
 
 	updateAppearanceTab( m_pCurrentTheme );
+
+	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
+	initializeShortcutsTab();
 
 	m_bNeedDriverRestart = false;
 }
@@ -836,11 +854,7 @@ void PreferencesDialog::on_okBtn_clicked()
 											pCommonStrings->getButtonOk(),
 											pCommonStrings->getButtonCancel(),
 											nullptr, 1 );
-		if ( res == 0 ) {
-			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartDrivers();
-			QApplication::restoreOverrideCursor();			
-		} else {
+		if ( res != 0 ) {
 			// Don't save the Preferences and don't close the PreferencesDialog
 			return;
 		}
@@ -910,6 +924,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	mM->reset_instance();
 
 	midiTable->saveMidiTable();
+	if ( m_bMidiTableChanged ) {
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
+	}
 
 	if ( m_pMidiDriverComboBox->currentText() == "ALSA" &&
 		 pPref->m_sMidiDriver != "ALSA" ) {
@@ -956,7 +973,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
 	if ( midiPortComboBox->currentIndex() == 0 ) {
-		sNewMidiPortName = "None";
+		sNewMidiPortName = Preferences::getNullMidiPort();
 	}
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
@@ -966,7 +983,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	
 	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
 	if ( midiOutportComboBox->currentIndex() == 0 ) {
-		sNewMidiOutputPortName = "None";
+		sNewMidiOutputPortName = Preferences::getNullMidiPort();
 	}
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
@@ -1101,13 +1118,30 @@ void PreferencesDialog::on_okBtn_clicked()
 				m_changes | H2Core::Preferences::Changes::GeneralTab );
 	}
 
-	//////////////////////////////////////////////////////////////////
-
 	pPref->setTheme( m_pCurrentTheme );
 
+	if ( m_bNeedDriverRestart ) {
+		// Restart audio and MIDI drivers now that we updated all
+		// values in Preferences.
+		QApplication::setOverrideCursor( Qt::WaitCursor );
+		pHydrogen->restartDrivers();
+		QApplication::restoreOverrideCursor();
+	}
+
+	if ( m_bShortcutsChanged ) {
+		pPref->setShortcuts( m_pShortcuts );
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::ShortcutTab );
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// Write all changes to disk.
+	pPref->savePreferences();
+	
+	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );
 	
-	pPref->savePreferences();
 	accept();
 }
 
@@ -1622,9 +1656,9 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 	m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors = nIndex;
 	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
 		if ( ii < nIndex ) {
-			m_colorSelectionButtons[ ii ]->show();
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		} else {
-			m_colorSelectionButtons[ ii ]->hide();
+			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	}
 
@@ -1660,14 +1694,14 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
 		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->hide();
+			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	} else {
 		coloringMethodAuxSpinBox->show();
 		coloringMethodAuxLabel->show();
 		colorSelectionLabel->show();
 		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}
 
@@ -2003,11 +2037,11 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x410:  pColorTheme->m_patternEditor_line5Color = color;
 		break;
-	default: DEBUGLOG( "Unknown ID" );
+	default: WARNINGLOG( "Unknown ID" );
 	}
 }
 
-void PreferencesDialog::setColorTreeItemDirty( ColorTreeItem* pItem) {
+void PreferencesDialog::setIndexedTreeItemDirty( IndexedTreeItem* pItem) {
 	if( pItem == nullptr) {
 		ERRORLOG( "NULL item" );
 		return;
@@ -2043,13 +2077,13 @@ void PreferencesDialog::setColorTreeItemDirty( ColorTreeItem* pItem) {
 void PreferencesDialog::updateColorTree() {
 	QTreeWidgetItemIterator it( colorTree );
 	while ( *it ) {
-		setColorTreeItemDirty( static_cast<ColorTreeItem*>( *it ) );
+		setIndexedTreeItemDirty( static_cast<IndexedTreeItem*>( *it ) );
 		++it;
 	}
 }
 
 void PreferencesDialog::colorTreeSelectionChanged() {
-	ColorTreeItem* pItem = static_cast<ColorTreeItem*>(colorTree->selectedItems()[0]);
+	IndexedTreeItem* pItem = static_cast<IndexedTreeItem*>(colorTree->selectedItems()[0]);
 	
 	if( pItem == nullptr ) {
 		// Unset title
@@ -2058,7 +2092,7 @@ void PreferencesDialog::colorTreeSelectionChanged() {
         return;
 	}
       
-	int nId = static_cast<ColorTreeItem*>(pItem)->getId();
+	int nId = static_cast<IndexedTreeItem*>(pItem)->getId();
 	m_nCurrentId = nId;
 
 	if ( nId == 0x000 ) {
@@ -2094,7 +2128,7 @@ void PreferencesDialog::updateColors() {
       vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
       colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
       if ( m_pCurrentColor ==  nullptr ) {
-		  DEBUGLOG( "No current color yet" );
+		  WARNINGLOG( "No current color yet" );
 		  return;
 	  }
 
@@ -2396,7 +2430,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 			ColorSelectionButton* bbutton =
 				new ColorSelectionButton( this, pTheme->getInterfaceTheme()->m_patternColors[ ii ],
 										  nButtonSize );
-			bbutton->hide();
+			bbutton->pretendToHide();
 			connect( bbutton, &ColorSelectionButton::colorChanged, this,
 					 &PreferencesDialog::onColorSelectionClicked );
 			colorSelectionGrid->addWidget( bbutton,
@@ -2438,4 +2472,295 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		ERRORLOG( QString( "Unknown font size: %1" )
 				  .arg( static_cast<int>( pTheme->getFontTheme()->m_fontSize ) ) );
 	}
+}
+
+void PreferencesDialog::initializeShortcutsTab() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Change the selected category by clicking
+	connect( shortcutCategoryListView, &QTreeWidget::itemClicked,
+			 [=]( QTreeWidgetItem* pItem, int ) {
+				 m_selectedCategory =
+					 m_shortcutCategories[ (static_cast<IndexedTreeItem*>(pItem))->getId() ];
+				 updateShortcutsTab();
+			 });
+
+	// Filter shortcut view
+	connect( shortcutKeyFilter, &QLineEdit::textEdited, [=]() {
+		updateShortcutsTab(); });
+	connect( shortcutDescriptionFilter, &QLineEdit::textEdited, [=]() {
+		updateShortcutsTab(); });
+
+	// Set up button list
+	connect( shortcutListView, SIGNAL( itemDoubleClicked( QTreeWidgetItem*, int ) ),
+			 this, SLOT( defineShortcut() ) );
+	connect( defineShortcutButton, SIGNAL( clicked() ),
+			 this, SLOT( defineShortcut() ) );
+	connect( clearShortcutButton, SIGNAL( clicked() ),
+			 this, SLOT( clearShortcut() ) );
+	connect( duplicateActionsButton, SIGNAL( clicked() ),
+			 this, SLOT( duplicateActions() ) );
+	connect( resetShortcutButton, &QPushButton::clicked, [=]() {
+		m_pShortcuts->createDefaultShortcuts();
+		// Reset selection as it would be too expensive to check for
+		// all currently selected items that would change and we do
+		// not want selection artifacts either.
+		shortcutListView->clear();
+		
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
+		updateShortcutsTab(); } );
+
+	defineShortcutButton->setToolTip(
+		pCommonStrings->getPreferencesShortcutCapture() );
+
+	// Set up tree view
+	shortcutCategoryListView->clear();
+
+	m_shortcutCategories = {
+		Shortcuts::Category::CommandNoArgs,
+		Shortcuts::Category::Command1Args,
+		Shortcuts::Category::Command2Args,
+		Shortcuts::Category::CommandManyArgs,
+		Shortcuts::Category::MainMenu,
+		Shortcuts::Category::VirtualKeyboard,
+		Shortcuts::Category::PlaylistEditor,
+		Shortcuts::Category::All };
+
+	IndexedTreeItem* pItem;
+	for ( int ii = 0; ii < m_shortcutCategories.size(); ++ii ) {
+		pItem = new IndexedTreeItem(
+			ii, shortcutCategoryListView,
+			Shortcuts::categoryToQString( m_shortcutCategories[ ii ] ) );
+	}
+	if ( pItem != nullptr ) {
+		shortcutCategoryListView->setCurrentItem( pItem );
+		m_selectedCategory = Shortcuts::Category::All;
+	}
+
+	updateShortcutsTab();
+
+	shortcutListView->setSortingEnabled( true );
+	// Allow selection of multiple columns at once.
+	shortcutListView->setSelectionMode( QAbstractItemView::ExtendedSelection );
+
+	shortcutListView->header()->resizeSection( 0, 70 );
+	shortcutListView->header()->resizeSection( 1, 200 );
+	// shortcutListView->header()->resizeSection( 2, 120 );
+
+	shortcutListView->sortByColumn( 2, Qt::AscendingOrder );
+}
+
+void PreferencesDialog::updateShortcutsTab() {
+	auto actionInfoMap = m_pShortcuts->getActionInfoMap();
+
+	// For interactions like adjusting filtering this function will
+	// remember all currently selected items itself. If another
+	// function did already filled the shortcut selection cache, we
+	// won't alter it..
+	if ( m_lastShortcutsSelected.size() == 0 ) {
+		const auto items = shortcutListView->selectedItems();
+		for ( const auto& iitem : items ) {
+			if ( iitem == nullptr ) {
+				continue;
+			}
+	
+			auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+			if ( pSelectedItem == nullptr ) {
+				return;
+			}
+
+			m_lastShortcutsSelected.emplace_back(
+				std::make_pair( static_cast<Shortcuts::Action>(pSelectedItem->getId()),
+								QKeySequence( pSelectedItem->text( 0 ) ) ) );
+		}
+	}
+
+	// Reset the view and clear all selections.
+	shortcutListView->clear();
+
+	const QString sKeyFilter = shortcutKeyFilter->text();
+	const QString sDescriptionFilter = shortcutDescriptionFilter->text();
+
+	IndexedTreeItem* pCurrentItem = nullptr;
+
+	for ( const auto& [aaction, aactionInfo] : actionInfoMap ) {
+		// Filter by selected category
+		if ( m_selectedCategory == Shortcuts::Category::All ||
+			 m_selectedCategory == aactionInfo.category ) {
+
+			const std::vector<QKeySequence> keySequences =
+				m_pShortcuts->getKeySequences( aaction );
+			for ( const auto& kkeySequence : keySequences ) {
+				QString sKeySequence = kkeySequence.toString( QKeySequence::PortableText );
+
+				// Filter by line edit
+				if ( ( sDescriptionFilter.isEmpty() ||
+					   aactionInfo.sDescription.contains( sDescriptionFilter,
+														  Qt::CaseInsensitive ) ) &&
+					 ( sKeyFilter.isEmpty() ||
+					   sKeySequence.contains( sKeyFilter, Qt::CaseInsensitive ) ) ) {
+
+					QStringList labels = { sKeySequence, aactionInfo.sDescription,
+										   Shortcuts::categoryToQString( aactionInfo.category ) };
+					auto pItem = new IndexedTreeItem( static_cast<int>(aaction),
+													  shortcutListView, labels );
+
+					// In case the item was previously selected, we
+					// select it again
+					for ( const auto& [llastAction, llastKeySequence] : m_lastShortcutsSelected ) {
+						if ( llastAction == aaction &&
+							 llastKeySequence == kkeySequence ) {
+							pItem->setSelected( true );
+							pCurrentItem = pItem;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Only in case just a single item is selected by the user we will
+	// set it as current item. We must do so or keyboard focus moves
+	// unexpectedly to the first column. But when dealing with
+	// multiple items setting a current item would clear the selection
+	// for all others.
+	if ( m_lastShortcutsSelected.size() < 2 ) {
+		shortcutListView->setCurrentItem( pCurrentItem );
+	}
+	
+	// Reset the cached item selection.
+	m_lastShortcutsSelected.clear();
+}
+
+void PreferencesDialog::defineShortcut() {
+
+	const auto items = shortcutListView->selectedItems();
+
+	// Sanity check before asking the user to capture a shortcut.
+	if ( items.size() == 0 ) {
+		return;
+	}
+
+	bool bValidItem = false;
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+		else {
+			bValidItem = true;
+		}
+	}
+	if ( ! bValidItem ) {
+		return;
+	}
+
+	// Capture a shortcut which will be assigned to all selected actions.
+	auto pShortcutCaptureDialog = new ShortcutCaptureDialog( this );
+	const int nKey = pShortcutCaptureDialog->exec();
+	// It's essential to manually delete the dialog or its event loop
+	// will throw an exception when open and close it (more or less)
+	// three times in a row.
+	delete pShortcutCaptureDialog;
+
+	if ( nKey <= 0 ) {
+		// Rejected using e.g. pressing ESC.
+		return;
+	}
+	
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+	
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+
+		// Check whether there is a shortcut assigned to the current item
+		if ( pSelectedItem == nullptr ) {
+			return;
+		}
+
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+
+		// Remove the old definition of the selected row.
+		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
+									  selectedAction );
+		m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
+
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, QKeySequence( nKey ) ) );
+	}
+
+	updateShortcutsTab();
+}
+
+void PreferencesDialog::clearShortcut() {
+
+	const auto items = shortcutListView->selectedItems();
+	for ( const auto& iitem : items ) {
+		if ( iitem == nullptr ) {
+			continue;
+		}
+
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+
+		// Check whether there is a shortcut assigned to the current item
+		if ( pSelectedItem == nullptr || pSelectedItem->text( 0 ).isEmpty() ) {
+			continue;
+		}
+
+		if ( ! m_bShortcutsChanged ) {
+			m_bShortcutsChanged = true;
+		}
+
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+		const auto keySequence = QKeySequence( pSelectedItem->text( 0 ) );
+		m_pShortcuts->deleteShortcut( keySequence, selectedAction );
+
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, keySequence ) );
+	}
+
+	updateShortcutsTab();
+}
+
+void PreferencesDialog::duplicateActions() {
+
+	const auto selectedItems = shortcutListView->selectedItems();
+	for ( const auto& iitem : selectedItems ) {
+		
+		if ( iitem == nullptr ) {
+			continue;
+		}
+
+		auto pSelectedItem = static_cast<IndexedTreeItem*>(iitem);
+		if ( pSelectedItem == nullptr ) {
+			ERRORLOG( "Unable to cast selected item" );
+			continue;
+		}
+
+		if ( pSelectedItem->text( 0 ).isEmpty() ) {
+			// There is no shortcut assigned to this action. No need
+			// to duplicate it.
+			continue;
+		}
+
+		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
+
+		// Create an empty shortcut binding for the event to introduce
+		// an additional row.
+		m_pShortcuts->insertShortcut( QKeySequence( "" ), selectedAction );
+
+		// Ensure the item will remain selected.
+		m_lastShortcutsSelected.emplace_back(
+			std::make_pair( selectedAction, QKeySequence( "" ) ) );
+	}
+
+	updateShortcutsTab();
 }

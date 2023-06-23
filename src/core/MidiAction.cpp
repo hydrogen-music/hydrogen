@@ -76,6 +76,29 @@ Action::Action( QString sType ) {
 	m_sValue = "0";
 }
 
+Action::Action( std::shared_ptr<Action> pOther ) {
+	m_sType = pOther->m_sType;
+	m_sParameter1 = pOther->m_sParameter1;
+	m_sParameter2 = pOther->m_sParameter2;
+	m_sParameter3 = pOther->m_sParameter3;
+	m_sValue = pOther->m_sValue;
+}
+
+bool Action::isNull() const {
+	return m_sType == Action::getNullActionType();
+}
+
+bool Action::isEquivalentTo( std::shared_ptr<Action> pOther ) {
+	if ( pOther == nullptr ) {
+		return false;
+	}
+	
+	return ( m_sType == pOther->m_sType &&
+			 m_sParameter1 == pOther->m_sParameter1 &&
+			 m_sParameter2 == pOther->m_sParameter2 &&
+			 m_sParameter3 == pOther->m_sParameter3 );
+}
+
 QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -88,11 +111,11 @@ QString Action::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter3 ) );
 	} else {
 		sOutput = QString( "[Action]" )
-			.append( QString( "m_sType: %1\n" ).arg( m_sType ) )
-			.append( QString( "m_sValue: %1\n" ).arg( m_sValue ) )
-			.append( QString( "m_sParameter1: %1\n" ).arg( m_sParameter1 ) )
-			.append( QString( "m_sParameter2: %1\n" ).arg( m_sParameter2 ) )
-			.append( QString( "m_sParameter3: %1\n" ).arg( m_sParameter3 ) );
+			.append( QString( " m_sType: %1" ).arg( m_sType ) )
+			.append( QString( ", m_sValue: %1" ).arg( m_sValue ) )
+			.append( QString( ", m_sParameter1: %1" ).arg( m_sParameter1 ) )
+			.append( QString( ", m_sParameter2: %1" ).arg( m_sParameter2 ) )
+			.append( QString( ", m_sParameter3: %1" ).arg( m_sParameter3 ) );
 	}
 	
 	return sOutput;
@@ -175,20 +198,6 @@ MidiActionManager::MidiActionManager() {
 	for ( const auto& ppAction : m_actionMap ) {
 		m_actionList << ppAction.first;
 	}
-
-	m_eventList << ""
-			  << "MMC_PLAY"
-			  << "MMC_DEFERRED_PLAY"
-			  << "MMC_STOP"
-			  << "MMC_FAST_FORWARD"
-			  << "MMC_REWIND"
-			  << "MMC_RECORD_STROBE"
-			  << "MMC_RECORD_EXIT"
-			  << "MMC_RECORD_READY"
-			  << "MMC_PAUSE"
-			  << "NOTE"
-			  << "CC"
-			  << "PROGRAM_CHANGE";
 }
 
 
@@ -942,22 +951,12 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
 		 fBpm - mult > MIN_BPM ) {
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( fBpm - 1*mult );
-		pAudioEngine->unlock();
-		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( fBpm - 1*mult );
+		pHydrogen->getCoreActionController()->setBpm( fBpm - 1*mult );
 	}
 
 	if ( m_nLastBpmChangeCCParameter < cc_param
 		 && fBpm + mult < MAX_BPM ) {
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( fBpm + 1*mult );
-		pAudioEngine->unlock();
-		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( fBpm + 1*mult );
+		pHydrogen->getCoreActionController()->setBpm( fBpm + 1*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -993,21 +992,11 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param &&
 		 fBpm - mult > MIN_BPM ) {
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( fBpm - 0.01*mult );
-		pAudioEngine->unlock();
-		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( fBpm - 0.01*mult );
+		pHydrogen->getCoreActionController()->setBpm( fBpm - 0.01*mult );
 	}
 	if ( m_nLastBpmChangeCCParameter < cc_param
 		 && fBpm + mult < MAX_BPM ) {
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( fBpm + 0.01*mult );
-		pAudioEngine->unlock();
-		// Store it's value in the .h2song file.
-		pHydrogen->getSong()->setBpm( fBpm + 0.01*mult );
+		pHydrogen->getCoreActionController()->setBpm( fBpm + 0.01*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -1027,15 +1016,9 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	bool ok;
-	int mult = pAction->getParameter1().toInt(&ok,10);
+	const float fMult = pAction->getParameter1().toFloat();
 
-	// Use tempo in the next process cycle of the audio engine.
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( fBpm + 1*mult );
-	pAudioEngine->unlock();
-	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm + 1*mult );
+	pHydrogen->getCoreActionController()->setBpm( fBpm + 1 * fMult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -1052,15 +1035,9 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	const float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	bool ok;
-	int mult = pAction->getParameter1().toInt(&ok,10);
+	const float fMult = pAction->getParameter1().toFloat();
 
-	// Use tempo in the next process cycle of the audio engine.
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( fBpm - 1*mult );
-	pAudioEngine->unlock();
-	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm - 1*mult );
+	pHydrogen->getCoreActionController()->setBpm( fBpm - 1 * fMult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -1068,29 +1045,78 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 }
 
 bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
-	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->
-							   getTransportPosition()->getColumn() ) + 1;
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pSong->getMode() == Song::Mode::Pattern ) {
+		// Restart transport at the beginning of the pattern
+		pHydrogen->getCoreActionController()->locateToColumn( 0 );
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			pAudioEngine->lock( RIGHT_HERE );
+			pAudioEngine->updatePlayingPatterns();
+			pAudioEngine->unlock();
+		}
+	}
+	else {
+		const int nTotalColumns = pSong->getPatternGroupVector()->size();
+		int nNewColumn = 1 +
+			std::max( 0, pAudioEngine->getTransportPosition()->getColumn() );
+		if ( nNewColumn >= nTotalColumns ) {
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				// Transport exceeds length of the song and is wrapped
+				// to the beginning again.
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+			}
+			else {
+				// With loop mode disabled this command won't have any
+				// effect in the last column.
+			}
+		}
+		else {
+			pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
+		}
+	}
 	
-	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
-	pHydrogen->getCoreActionController()->locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() -1 );
+
+	if ( pSong->getMode() == Song::Mode::Pattern ) {
+		// Restart transport at the beginning of the pattern. Does not
+		// trigger activation of pending stacked patterns.
+		pHydrogen->getCoreActionController()->locateToColumn( 0 );
+	}
+	else {
+		int nNewColumn = pHydrogen->getAudioEngine()->
+			getTransportPosition()->getColumn() - 1;
+
+		if ( nNewColumn < 0 ) {
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				// In case the song is looped, assume periodic
+				// boundary conditions and move to the last column.
+				pHydrogen->getCoreActionController()->locateToColumn(
+					pSong->getPatternGroupVector()->size() - 1 );
+			}
+			else {
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+			}
+		}
+		else {
+			pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
+		}
+	}
 	return true;
 }
 
@@ -1200,8 +1226,12 @@ bool MidiActionManager::toggle_metronome( std::shared_ptr<Action> , Hydrogen* pH
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+
+	// Use the wrapper in CAC over a plain setting of the parameter in
+	// order to send MIDI feedback
+	pHydrogen->getCoreActionController()->setMetronomeIsActive( 
+		! Preferences::get_instance()->m_bUseMetronome );
 	
-	Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 	return true;
 }
 
@@ -1228,12 +1258,12 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 
 bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> actions ) {
 
-	bool bResult = true;
+	bool bResult = false;
 	
 	for ( const auto& action : actions ) {
 		if ( action != nullptr ) {
-			if ( ! handleAction( action ) ) {
-				bResult = false;
+			if ( handleAction( action ) ) {
+				bResult = true;
 			}
 		}
 	}

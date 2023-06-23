@@ -183,6 +183,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateTimeline( bool bActivate );
+		void toggleTimeline();
 		/**
 		 * Adds a tempo marker to the Timeline.
 		 *
@@ -235,6 +236,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateJackTransport( bool bActivate );
+	void toggleJackTransport();
 		/**
 		 * (De)activates the usage of Jack timebase master.
 		 *
@@ -247,6 +249,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateJackTimebaseMaster( bool bActivate );
+	void toggleJackTimebaseMaster();
 
 		/**
 		 * Switches between Song and Pattern mode of playback.
@@ -257,6 +260,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateSongMode( bool bActivate );
+	void toggleSongMode();
 	     /**
 		 * Toggle loop mode of playback.
 		 *
@@ -265,6 +269,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate );
+	void toggleLoopMode();
 	/** Wrapper around setDrumkit() that allows loading drumkits by
 	 *	name or path.
 	 *
@@ -304,8 +309,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Checks whether the provided drumkit in @a sDrumkitPath can be
 	 * found, can be loaded, and does comply with the current XSD
 	 * definition.
+	 *
+	 * @param sDrumkitPath Can be either an absolute path to a folder
+	 *   containing a drumkit file (drumkit.xml), an absolute path to a
+	 *   drumkit file itself, or an absolute file to a compressed
+	 *   drumkit (.h2drumkit).
+	 * @param bCheckLegacyVersions Whether just the current XSD
+	 *   definition or also all previous versions should be checked.
 	 */
-	bool validateDrumkit( const QString& sDrumkitPath );
+	bool validateDrumkit( const QString& sDrumkitPath, bool bCheckLegacyVersions = false );
 	/**
 	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
 	 * @a sTargetDir.
@@ -389,6 +401,37 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * values and informs the GUI.
 	 */
 	void updatePreferences();
+
+	/**
+	 * Loads the drumkit specified in @a sDrumkitPath.
+	 *
+	 * Methods from within Hydrogen should _never_ call this function
+	 * directly but, instead, use
+	 * #SoundLibrarydatabase::getDrumkit(). It is only exposed
+	 * publicly to be used within the unit tests.
+	 *
+	 * \param sDrumkitPath Can be either an absolute path to a folder
+	 * containing a drumkit file (drumkit.xml), an absolute path to a
+	 * drumkit file itself, or an absolute file to a compressed
+	 * drumkit (.h2drumkit).
+	 * \param bIsCompressed Stores whether the drumkit was provided as
+	 * a compressed .h2drumkit file
+	 * \param sDrumkitDir Stores the folder containing the drumkit
+	 * file. If a compressed drumkit was provided, this will point to
+	 * a temporary folder.
+	 * \param sTemporaryFolder Root path of a temporary folder
+	 * containing the extracted drumkit in case @a sDrumkitPath
+	 * pointed to a compressed .h2drumkit file.
+	 */
+	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
+											  QString* sDrumkitDir, QString* sTemporaryFolder );
+
+	/**
+	 * Set's song-level tempo of the #AudioEngine and stores the value
+	 * in the current #Song.
+	 */
+	void setBpm( float fBpm );
+
 private:
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );
@@ -421,24 +464,6 @@ private:
 		 */
 		bool setSong( std::shared_ptr<Song> pSong, bool bRelinking = true );
 
-	/**
-	 * Loads the drumkit specified in @a sDrumkitPath.
-	 *
-	 * \param sDrumkitPath Can be either an absolute path to a folder
-	 * containing a drumkit file (drumkit.xml), an absolute path to a
-	 * drumkit file itself, or an absolute file to a compressed
-	 * drumkit (.h2drumkit).
-	 * \param bIsCompressed Stores whether the drumkit was provided as
-	 * a compressed .h2drumkit file
-	 * \param sDrumkitDir Stores the folder containing the drumkit
-	 * file. If a compressed drumkit was provided, this will point to
-	 * a temporary folder.
-	 * \param sTemporaryFolder Root path of a temporary folder
-	 * containing the extracted drumkit in case @a sDrumkitPath
-	 * pointed to a compressed .h2drumkit file.
-	 */
-	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
-											  QString* sDrumkitDir, QString* sTemporaryFolder );
 	/**
 	 * Add @a sFilename to the list of recent songs in
 	 * Preferences::m_recentFiles.

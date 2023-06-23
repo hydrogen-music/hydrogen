@@ -62,6 +62,7 @@ Preferences::Preferences()
 {
 	__instance = this;
 	m_pTheme = std::make_shared<Theme>();
+	m_pShortcuts = std::make_shared<Shortcuts>();
 
 	// switch to enable / disable lash, only on h2 startup
 	m_brestartLash = false;
@@ -167,8 +168,8 @@ Preferences::Preferences()
 	// (although MIDI won't work in this case).
 	m_sMidiDriver = QString( "ALSA" );
 #endif
-	m_sMidiPortName = QString("None");
-	m_sMidiOutputPortName = QString("None");
+	m_sMidiPortName = QString( Preferences::getNullMidiPort() );
+	m_sMidiOutputPortName = QString( Preferences::getNullMidiPort() );
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
 	m_bMidiFixedMapping = false;
@@ -255,6 +256,7 @@ Preferences::Preferences()
 	songEditorProperties.set(10, 10, 600, 250, true);
 	instrumentRackProperties.set(500, 20, 526, 437, true);
 	audioEngineInfoProperties.set(720, 120, 0, 0, false);
+	m_playlistDialogProperties.set(200, 300, 961, 397, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
@@ -554,8 +556,10 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( m_sAudioDriver == "CoreMidi" ) {
 						m_sAudioDriver = "CoreMIDI";
 					}
-					m_sMidiPortName = midiDriverNode.read_string( "port_name", "None", false, false );
-					m_sMidiOutputPortName = midiDriverNode.read_string( "output_port_name", "None", false, false );
+					m_sMidiPortName = midiDriverNode.read_string(
+						"port_name", Preferences::getNullMidiPort(), false, false );
+					m_sMidiOutputPortName = midiDriverNode.read_string(
+						"output_port_name", Preferences::getNullMidiPort(), false, false );
 					m_nMidiChannelFilter = midiDriverNode.read_int( "channel_filter", -1, false, false );
 					m_bMidiNoteOffIgnore = midiDriverNode.read_bool( "ignore_note_off", true, false, false );
 					m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool( "discard_note_after_action", true, false, false );
@@ -627,6 +631,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
 				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
+				setPlaylistDialogProperties( readWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties ) );
 
 				// last used file dialog folders
 				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
@@ -740,6 +745,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sDefaultEditor = filesNode.read_string( "defaulteditor", m_sDefaultEditor, false, true );
 			}
 
+			// Midi map
 			MidiMap::reset_instance();
 			MidiMap* mM = MidiMap::get_instance();
 
@@ -809,6 +815,10 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				WARNINGLOG( "midiMap node not found" );
 			}
+
+			// Shortcuts
+			m_pShortcuts = Shortcuts::loadFrom( &rootNode, false );
+			
 		} // rootNode
 		else {
 			WARNINGLOG( "hydrogen_preferences node not found" );
@@ -1068,6 +1078,7 @@ bool Preferences::savePreferences()
 		writeWindowProperties( guiNode, "songEditor_properties", songEditorProperties );
 		writeWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties );
 		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
+		writeWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
 			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
@@ -1160,66 +1171,65 @@ bool Preferences::savePreferences()
 	// MidiMap to be initialized.
 	MidiMap::create_instance();
 	MidiMap * mM = MidiMap::get_instance();
-	auto mmcMap = mM->getMMCActionMap();
 
 	//---- MidiMap ----
 	XMLNode midiEventMapNode = rootNode.createNode( "midiEventMap" );
 
-	for( const auto& it : mmcMap ){
-		QString event = it.first;
-		auto pAction = it.second;
-		if ( pAction->getType() != "NOTHING" ){
+	for( const auto& [ssType, ppAction] : mM->getMMCActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "mmcEvent" , event );
-			midiEventNode.write_string( "action" , pAction->getType());
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string( "mmcEvent" , ssType );
+			midiEventNode.write_string( "action" , ppAction->getType());
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for ( const auto& it : mM->getNoteActionMap() ){
-		int nNote = it.first;
-		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != "NOTHING") {
+	for ( const auto& [nnPitch, ppAction] : mM->getNoteActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "noteEvent" , QString("NOTE") );
-			midiEventNode.write_int( "eventParameter" , nNote );
-			midiEventNode.write_string( "action" , pAction->getType() );
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string(
+				"noteEvent", MidiMessage::EventToQString( MidiMessage::Event::Note ) );
+			midiEventNode.write_int( "eventParameter" , nnPitch );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for( const auto& it : mM->getCCActionMap() ){
-		int nParameter = it.first;
-		auto pAction = it.second;
-		if( pAction != nullptr && pAction->getType() != "NOTHING") {
+	for ( const auto& [nnParam, ppAction] : mM->getCCActionMap() ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "ccEvent" , QString("CC") );
-			midiEventNode.write_int( "eventParameter" , nParameter );
-			midiEventNode.write_string( "action" , pAction->getType() );
-			midiEventNode.write_string( "parameter" , pAction->getParameter1() );
-			midiEventNode.write_string( "parameter2" , pAction->getParameter2() );
-			midiEventNode.write_string( "parameter3" , pAction->getParameter3() );
+			midiEventNode.write_string(
+				"ccEvent", MidiMessage::EventToQString( MidiMessage::Event::CC ) );
+			midiEventNode.write_int( "eventParameter" , nnParam );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
 
-	for ( const auto action : mM->getPCActions() ) {
-		if( action != nullptr && action->getType() != "NOTHING") {
+	for ( const auto& ppAction : mM->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
 			XMLNode midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
-			midiEventNode.write_string( "pcEvent" , QString("PROGRAM_CHANGE") );
-			midiEventNode.write_string( "action" , action->getType() );
-			midiEventNode.write_string( "parameter" , action->getParameter1() );
-			midiEventNode.write_string( "parameter2" , action->getParameter2() );
-			midiEventNode.write_string( "parameter3" , action->getParameter3() );
+			midiEventNode.write_string(
+				"pcEvent", MidiMessage::EventToQString( MidiMessage::Event::PC ) );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
 		}
 	}
+
+	// Shortcuts
+	m_pShortcuts->saveTo( &rootNode );
 
 	return doc.write( sPreferencesFilename );
 }

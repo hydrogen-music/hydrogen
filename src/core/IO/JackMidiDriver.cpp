@@ -104,99 +104,25 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 		memset(buffer, 0, sizeof(buffer));
 		memcpy(buffer, event.buffer, error);
 
-		switch (buffer[0] >> 4) {
-		case 0x8:	 /* note off */
-			msg.m_type = MidiMessage::NOTE_OFF;
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
-			break;
-		case 0x9:	 /* note on */
-			msg.m_type = MidiMessage::NOTE_ON;
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
-			break;
-		case 0xA:	 /* aftertouch */
-			msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
-			break;
-		case 0xB:	 /* control change */
-			msg.m_type = MidiMessage::CONTROL_CHANGE;
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
-			break;
-		case 0xC:	 /* program change */
-			msg.m_type = MidiMessage::PROGRAM_CHANGE;
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
-			msg.m_nChannel = buffer[0] & 0xF;
-			handleMidiMessage(msg);
-			break;
-				case 0xF:
-					switch (buffer[0]) {
-						case 0xF0:	/* system exclusive */
-								msg.m_type = MidiMessage::SYSEX;
-								if(buffer[3] == 06 ){// MMC message
-									for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
-											 msg.m_sysexData.push_back( buffer[i] );
-									}
-								}else
-								{
-									for ( int i = 0; i < sizeof(buffer); i++ ) {
-											 msg.m_sysexData.push_back( buffer[i] );
-									}
-								}
-								handleMidiMessage(msg);
-								break;
-			case 0xF1:
-				msg.m_type = MidiMessage::QUARTER_FRAME;
-				msg.m_nData1 = buffer[1];
-				msg.m_nData2 = buffer[2];
-				msg.m_nChannel = 0;
-				handleMidiMessage(msg);
-				break;
-			case 0xF2:
-				msg.m_type = MidiMessage::SONG_POS;
-				msg.m_nData1 = buffer[1];
-				msg.m_nData2 = buffer[2];
-				msg.m_nChannel = 0;
-				handleMidiMessage(msg);
-				break;
-			case 0xFA:
-				msg.m_type = MidiMessage::START;
-				msg.m_nData1 = buffer[1];
-				msg.m_nData2 = buffer[2];
-				msg.m_nChannel = 0;
-				handleMidiMessage(msg);
-				break;
-			case 0xFB:
-				msg.m_type = MidiMessage::CONTINUE;
-				msg.m_nData1 = buffer[1];
-				msg.m_nData2 = buffer[2];
-				msg.m_nChannel = 0;
-				handleMidiMessage(msg);
-				break;
-			case 0xFC:
-				msg.m_type = MidiMessage::STOP;
-				msg.m_nData1 = buffer[1];
-				msg.m_nData2 = buffer[2];
-				msg.m_nChannel = 0;
-				handleMidiMessage(msg);
-				break;
-			default:
-				break;
+		msg.setType( buffer[ 0 ] );
+		if ( msg.m_type == MidiMessage::SYSEX ) {
+			if ( buffer[ 3 ] == 06 ){// MMC message
+				for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
+					msg.m_sysexData.push_back( buffer[ i ] );
+				}
 			}
-		default:
-			break;
+			else {
+				for ( int i = 0; i < sizeof(buffer); i++ ) {
+					msg.m_sysexData.push_back( buffer[ i ] );
+				}
+			}
 		}
+		else {
+			// All other MIDI messages
+			msg.m_nData1 = buffer[1];
+			msg.m_nData2 = buffer[2];
+		}
+		handleMidiMessage( msg );
 	}
 }
 
@@ -444,7 +370,7 @@ JackMidiDriver::getOutputPortList()
 void
 JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 {
-	if (sPortName == "None") {
+	if ( sPortName == Preferences::getNullMidiPort() ) {
 		nClient = -1;
 		nPort = -1;
 		return;

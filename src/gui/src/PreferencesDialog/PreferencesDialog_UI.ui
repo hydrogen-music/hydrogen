@@ -10,6 +10,12 @@
     <height>635</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>669</width>
+    <height>635</height>
+   </size>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QTabWidget" name="PreferencesTabs">
@@ -124,10 +130,10 @@
             <string>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</string>
            </property>
            <property name="minimum">
-            <number>-200</number>
+            <double>-200.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>200</number>
+            <double>200.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -144,10 +150,10 @@
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
            <property name="minimum">
-            <number>-500</number>
+            <double>-500.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>500</number>
+            <double>500.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -164,10 +170,10 @@
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
            <property name="minimum">
-            <number>1</number>
+            <double>1.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>800</number>
+            <double>800.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -177,10 +183,10 @@
             <string>Maximum number of instrument layers</string>
            </property>
            <property name="minimum">
-            <number>16</number>
+            <double>16.000000000000000</double>
            </property>
            <property name="maximum">
-            <number>8192</number>
+            <double>8192.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -201,10 +207,10 @@
          <item row="4" column="0">
           <widget class="LCDSpinBox" name="autosaveSpinBox">
            <property name="maximum">
-            <number>360</number>
+            <double>360.000000000000000</double>
            </property>
            <property name="value">
-            <number>60</number>
+            <double>60.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -347,16 +353,16 @@
            <item row="6" column="1">
             <widget class="LCDSpinBox" name="bufferSizeSpinBox">
              <property name="minimum">
-              <number>16</number>
+              <double>16.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>5000</number>
+              <double>5000.000000000000000</double>
              </property>
              <property name="singleStep">
-              <number>100</number>
+              <double>100.000000000000000</double>
              </property>
              <property name="value">
-              <number>1024</number>
+              <double>1024.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -449,10 +455,10 @@
              <item>
               <widget class="LCDSpinBox" name="latencyTargetSpinBox">
                <property name="maximum">
-                <number>48000</number>
+                <double>48000.000000000000000</double>
                </property>
                <property name="value">
-                <number>100</number>
+                <double>100.000000000000000</double>
                </property>
               </widget>
              </item>
@@ -526,10 +532,10 @@
            <item row="0" column="1">
             <widget class="LCDSpinBox" name="maxVoicesTxt">
              <property name="minimum">
-              <number>1</number>
+              <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>512</number>
+              <double>512.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -539,10 +545,10 @@
               <bool>false</bool>
              </property>
              <property name="minimum">
-              <number>1</number>
+              <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <number>100</number>
+              <double>100.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -888,802 +894,1019 @@
       <attribute name="title">
        <string>&amp;OSC</string>
       </attribute>
-      <widget class="QWidget" name="oscWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>17</y>
-         <width>531</width>
-         <height>471</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <item>
-           <widget class="QCheckBox" name="enableOscCheckbox">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>&amp;Enable OSC support</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Enable OSC &amp;feedback</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <property name="verticalSpacing">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="incomingOscPortLabel">
-              <property name="text">
-               <string>Incoming port</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="LCDSpinBox" name="incomingOscPortSpinBox">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="maximum">
-               <number>20000</number>
-              </property>
-              <property name="value">
-               <number>9000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_10">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_9">
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_9">
-              <item>
-               <layout class="QGridLayout" name="gridLayout_3">
-                <item row="2" column="0">
-                 <widget class="QLabel" name="oscTemporaryPortLabel">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="wordWrap">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLineEdit" name="oscTemporaryPort">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>68</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QCheckBox" name="enableOscCheckbox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&amp;Enable OSC support</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Enable OSC &amp;feedback</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="incomingOscPortLabel">
+             <property name="text">
+              <string>Incoming port</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="LCDSpinBox" name="incomingOscPortSpinBox">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="maximum">
+              <double>20000.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>9000.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="2" column="0">
+                <widget class="QLabel" name="oscTemporaryPortLabel">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="oscTemporaryPort">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>68</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="AppearanceTab">
       <attribute name="title">
        <string>&amp;Appearance</string>
       </attribute>
-      <widget class="QWidget" name="verticalLayoutWidget_3">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>10</y>
-         <width>631</width>
-         <height>511</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="QTabWidget" name="AppearanceTabTabs">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="AppearanceInterfaceTab">
-           <attribute name="title">
-            <string>Interface</string>
-           </attribute>
-           <widget class="QWidget" name="verticalLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>13</x>
-              <y>11</y>
-              <width>595</width>
-              <height>471</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QTabWidget" name="AppearanceTabTabs">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="AppearanceInterfaceTab">
+          <attribute name="title">
+           <string>Interface</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_5">
              <property name="leftMargin">
-              <number>0</number>
+              <number>6</number>
              </property>
-             <item>
-              <layout class="QGridLayout" name="gridLayout_5">
-               <item row="2" column="2">
-                <widget class="LCDCombo" name="styleComboBox"/>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="textLabel1_6">
-                 <property name="text">
-                  <string>Style</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="2">
-                <widget class="LCDCombo" name="mixerFalloffComboBox">
-                 <item>
-                  <property name="text">
-                   <string>Slow</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Normal</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Fast</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="13" column="0">
-                <widget class="QLabel" name="colorSelectionLabel">
-                 <property name="text">
-                  <string>Selected colors</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="13" column="2">
-                <layout class="QGridLayout" name="colorSelectionGrid">
-                 <item row="0" column="0">
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item row="9" column="2">
-                <widget class="LCDCombo" name="coloringMethodCombo">
-                </widget>
-               </item>
-               <item row="11" column="2">
-                <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>50</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="mixerFontLbl_3">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>22</height>
-                  </size>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::Box</enum>
-                 </property>
-                 <property name="lineWidth">
-                  <number>0</number>
-                 </property>
-                 <property name="midLineWidth">
-                  <number>0</number>
-                 </property>
-                 <property name="text">
-                  <string>Default interface layout</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="margin">
-                  <number>0</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="2">
-                <widget class="LCDCombo" name="uiScalingPolicyComboBox">
-                 <item>
-                  <property name="text">
-                   <string>Prefer smaller</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Scale to system setting</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Prefer larger</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="7" column="0">
-                <widget class="QLabel" name="iconColorLabel">
-                 <property name="text">
-                  <string>Icon color</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="textLabel1_4">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>22</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string extracomment="In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.">Meters falloff speed</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="minimumSize">
-                  <size>
-                   <width>308</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>Coloring method for Song Editor elements</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="11" column="0">
-                <widget class="QLabel" name="coloringMethodAuxLabel">
-                 <property name="toolTip">
-                  <string/>
-                 </property>
-                 <property name="text">
-                  <string>Number of colors in Song Editor</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="2">
-                <widget class="LCDCombo" name="uiLayoutComboBox">
-                 <item>
-                  <property name="text">
-                   <string>Single pane</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Tabbed</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="uiScalingPolicyLabel">
-                 <property name="text">
-                  <string>High-resolution display scaling</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="2">
-                <widget class="LCDCombo" name="iconColorComboBox">
-                 <item>
-                  <property name="text">
-                   <string>Black</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>White</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QLabel" name="UIChangeWarningLabel">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <item row="3" column="0">
+              <widget class="QLabel" name="textLabel1_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>22</height>
+                </size>
                </property>
-               <property name="wordWrap">
-                <bool>true</bool>
+               <property name="text">
+                <string extracomment="In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.">Meters falloff speed</string>
                </property>
               </widget>
              </item>
-             <item>
-              <spacer name="verticalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+             <item row="11" column="0">
+              <widget class="QLabel" name="coloringMethodAuxLabel">
+               <property name="toolTip">
+                <string/>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="AppearanceColorTab">
-           <attribute name="title">
-            <string>Colors</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0" rowspan="2">
-             <widget class="QTreeWidget" name="colorTree">
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectItems</enum>
-              </property>
-              <property name="rootIsDecorated">
-               <bool>true</bool>
-              </property>
-              <property name="allColumnsShowFocus">
-               <bool>true</bool>
-              </property>
-              <column>
                <property name="text">
-                <string>Items</string>
+                <string>Number of colors in Song Editor</string>
                </property>
-              </column>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <layout class="QVBoxLayout" name="verticalLayout_22">
-              <item>
-               <widget class="ColorSelectionButton" name="colorButton" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="1" colspan="2">
-             <layout class="QGridLayout" name="gridLayout_51">
-              <item row="0" column="1">
-               <widget class="LCDSpinBox" name="rval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QSlider" name="hslider">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="textLabel3_2">
-                <property name="text">
-                 <string>B</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="textLabel5_2">
-                <property name="text">
-                 <string>S</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="textLabel4_2">
-                <property name="text">
-                 <string>H</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="LCDSpinBox" name="bval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="2">
-               <widget class="QSlider" name="vslider">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="textLabel6_2">
-                <property name="text">
-                 <string>V</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="textLabel2_2">
-                <property name="text">
-                 <string>G</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="LCDSpinBox" name="sval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QSlider" name="gslider">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2">
-               <widget class="QSlider" name="sslider">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QSlider" name="bslider">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="LCDSpinBox" name="gval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QSlider" name="rslider">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="tracking">
-                 <bool>true</bool>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::NoTicks</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="LCDSpinBox" name="vval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="LCDSpinBox" name="hval">
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="textLabel1">
-                <property name="text">
-                 <string>R</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="AppearanceFontTab">
-           <attribute name="title">
-            <string>Font</string>
-           </attribute>
-           <widget class="QWidget" name="verticalLayoutWidget_2">
-            <property name="geometry">
-             <rect>
-              <x>9</x>
-              <y>9</y>
-              <width>601</width>
-              <height>481</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_12">
-             <item>
-              <layout class="QGridLayout" name="gridLayout_6">
-               <item row="6" column="1">
-                <widget class="QLabel" name="fontSizeLabel">
-                 <property name="text">
-                  <string>Font size</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QLabel" name="level2FontLabel">
-                 <property name="toolTip">
-                  <string>Font used within listings, like for the names of the available Pattern and Instruments.</string>
-                 </property>
-                 <property name="text">
-                  <string>Item font</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="2">
-                <widget class="QFontComboBox" name="level3FontComboBox"/>
-               </item>
-               <item row="2" column="2">
-                <widget class="QFontComboBox" name="level2FontComboBox"/>
-               </item>
-               <item row="3" column="1">
-                <widget class="QLabel" name="level3FontLabel">
-                 <property name="toolTip">
-                  <string>Font used for larger buttons.</string>
-                 </property>
-                 <property name="text">
-                  <string>Widget font</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QFontComboBox" name="applicationFontComboBox"/>
-               </item>
-               <item row="6" column="2">
-                <widget class="LCDCombo" name="fontSizeComboBox">
-                 <item>
-                  <property name="text">
-                   <string>Small</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Medium</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Large</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLabel" name="applicationFontLbl">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>22</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</string>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
-                 </property>
-                 <property name="text">
-                  <string>Application font</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+              </widget>
              </item>
-             <item>
-              <spacer name="verticalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+             <item row="2" column="2">
+              <widget class="LCDCombo" name="styleComboBox"/>
+             </item>
+             <item row="13" column="0">
+              <widget class="QLabel" name="colorSelectionLabel">
+               <property name="text">
+                <string>Selected colors</string>
                </property>
-               <property name="sizeHint" stdset="0">
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="mixerFontLbl_3">
+               <property name="minimumSize">
                 <size>
-                 <width>20</width>
-                 <height>40</height>
+                 <width>0</width>
+                 <height>22</height>
                 </size>
                </property>
-              </spacer>
+               <property name="frameShape">
+                <enum>QFrame::Box</enum>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
+               <property name="midLineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Default interface layout</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="LCDCombo" name="mixerFalloffComboBox">
+               <item>
+                <property name="text">
+                 <string>Slow</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Normal</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Fast</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="textLabel1_6">
+               <property name="text">
+                <string>Style</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="minimumSize">
+                <size>
+                 <width>308</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Coloring method for Song Editor elements</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="2">
+              <widget class="LCDCombo" name="iconColorComboBox">
+               <item>
+                <property name="text">
+                 <string>Black</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>White</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="LCDCombo" name="uiLayoutComboBox">
+               <item>
+                <property name="text">
+                 <string>Single pane</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Tabbed</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="9" column="2">
+              <widget class="LCDCombo" name="coloringMethodCombo"/>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="uiScalingPolicyLabel">
+               <property name="text">
+                <string>High-resolution display scaling</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="2">
+              <widget class="LCDCombo" name="uiScalingPolicyComboBox">
+               <item>
+                <property name="text">
+                 <string>Prefer smaller</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Scale to system setting</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Prefer larger</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="iconColorLabel">
+               <property name="text">
+                <string>Icon color</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="2">
+              <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>50.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="2">
+              <layout class="QGridLayout" name="colorSelectionGrid"/>
              </item>
             </layout>
-           </widget>
-          </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="UIChangeWarningLabel">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_61">
-          <item>
-           <widget class="QPushButton" name="exportThemeButton">
+         <widget class="QWidget" name="AppearanceColorTab">
+          <attribute name="title">
+           <string>Colors</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0" rowspan="2">
+            <widget class="QTreeWidget" name="colorTree">
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectItems</enum>
+             </property>
+             <property name="rootIsDecorated">
+              <bool>true</bool>
+             </property>
+             <property name="allColumnsShowFocus">
+              <bool>true</bool>
+             </property>
+             <column>
+              <property name="text">
+               <string>Items</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <layout class="QVBoxLayout" name="verticalLayout_22">
+             <item>
+              <widget class="ColorSelectionButton" name="colorButton" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <layout class="QGridLayout" name="gridLayout_51">
+             <item row="0" column="1">
+              <widget class="LCDSpinBox" name="rval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QSlider" name="hslider">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="textLabel3_2">
+               <property name="text">
+                <string>B</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="textLabel5_2">
+               <property name="text">
+                <string>S</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="textLabel4_2">
+               <property name="text">
+                <string>H</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="LCDSpinBox" name="bval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="2">
+              <widget class="QSlider" name="vslider">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="textLabel6_2">
+               <property name="text">
+                <string>V</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="textLabel2_2">
+               <property name="text">
+                <string>G</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="LCDSpinBox" name="sval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QSlider" name="gslider">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QSlider" name="sslider">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QSlider" name="bslider">
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="LCDSpinBox" name="gval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QSlider" name="rslider">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimum">
+                <number>0</number>
+               </property>
+               <property name="maximum">
+                <number>255</number>
+               </property>
+               <property name="tracking">
+                <bool>true</bool>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::NoTicks</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="LCDSpinBox" name="vval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="LCDSpinBox" name="hval">
+               <property name="maximum">
+                <double>255.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="textLabel1">
+               <property name="text">
+                <string>R</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="AppearanceFontTab">
+          <attribute name="title">
+           <string>Font</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="6" column="1">
+              <widget class="QLabel" name="fontSizeLabel">
+               <property name="text">
+                <string>Font size</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="level2FontLabel">
+               <property name="toolTip">
+                <string>Font used within listings, like for the names of the available Pattern and Instruments.</string>
+               </property>
+               <property name="text">
+                <string>Item font</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QFontComboBox" name="level3FontComboBox"/>
+             </item>
+             <item row="2" column="2">
+              <widget class="QFontComboBox" name="level2FontComboBox"/>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="level3FontLabel">
+               <property name="toolTip">
+                <string>Font used for larger buttons.</string>
+               </property>
+               <property name="text">
+                <string>Widget font</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QFontComboBox" name="applicationFontComboBox"/>
+             </item>
+             <item row="6" column="2">
+              <widget class="LCDCombo" name="fontSizeComboBox">
+               <item>
+                <property name="text">
+                 <string>Small</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Medium</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Large</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="applicationFontLbl">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="text">
+                <string>Application font</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_61">
+         <item>
+          <widget class="QPushButton" name="exportThemeButton">
+           <property name="text">
+            <string>Export Theme</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="importThemeButton">
+           <property name="text">
+            <string>Import Theme</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="resetThemeButton">
+           <property name="text">
+            <string>Reset Appearance Tab</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_21">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="shortcutsTab">
+      <attribute name="title">
+       <string>Short&amp;cuts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <property name="rightMargin">
+        <number>8</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <item>
+          <widget class="QTreeWidget" name="shortcutCategoryListView">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>80</width>
+             <height>200</height>
+            </size>
+           </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <property name="itemsExpandable">
+            <bool>false</bool>
+           </property>
+           <column>
             <property name="text">
-             <string>Export Theme</string>
+             <string>Shortcut Category</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="importThemeButton">
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTreeWidget" name="shortcutListView">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>470</width>
+             <height>230</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="textElideMode">
+            <enum>Qt::ElideRight</enum>
+           </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <attribute name="headerCascadingSectionResizes">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="headerMinimumSectionSize">
+            <number>120</number>
+           </attribute>
+           <attribute name="headerDefaultSectionSize">
+            <number>120</number>
+           </attribute>
+           <attribute name="headerShowSortIndicator" stdset="0">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="headerStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <column>
             <property name="text">
-             <string>Import Theme</string>
+             <string>Shortcut</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="resetThemeButton">
+           </column>
+           <column>
             <property name="text">
-             <string>Reset Appearance Tab</string>
+             <string>Description</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_21">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           </column>
+           <column>
+            <property name="text">
+             <string>Category</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+           </column>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="shortcutKeyFilterLabel">
+           <property name="text">
+            <string>Shortcut</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="shortcutKeyFilter">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="shortcutDescriptionFilterLabel">
+           <property name="text">
+            <string>Description</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="shortcutDescriptionFilter"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="hLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>8</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="resetShortcutButton">
+           <property name="toolTip">
+            <string>Restores the default values for all shortcuts</string>
+           </property>
+           <property name="text">
+            <string>&amp;Reset all</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearShortcutButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Removes keybinding of selected shortcut</string>
+           </property>
+           <property name="text">
+            <string>&amp;Clear</string>
+           </property>
+           <property name="shortcut">
+            <string>Alt+C</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="defineShortcutButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="text">
+            <string>&amp;Define</string>
+           </property>
+           <property name="shortcut">
+            <string>Alt+D</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="duplicateActionsButton">
+           <property name="toolTip">
+            <string>Add additional rows for the select actions to allow them to be bound to further shortcuts</string>
+           </property>
+           <property name="text">
+            <string>Duplicate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="spacer2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>30</width>
+             <height>21</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -1783,16 +2006,6 @@
    <header location="global">../src/Widgets/MidiTable.h</header>
   </customwidget>
   <customwidget>
-   <class>DeviceComboBox</class>
-   <extends>LCDCombo</extends>
-   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
-  </customwidget>
-  <customwidget>
-   <class>HostAPIComboBox</class>
-   <extends>LCDCombo</extends>
-   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
-  </customwidget>
-  <customwidget>
    <class>ColorSelectionButton</class>
    <extends>QWidget</extends>
    <header location="global">../src/Widgets/ColorSelectionButton.h</header>
@@ -1808,6 +2021,18 @@
    <class>LCDSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header location="global">../src/Widgets/LCDSpinBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DeviceComboBox</class>
+   <extends>LCDCombo</extends>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HostAPIComboBox</class>
+   <extends>LCDCombo</extends>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

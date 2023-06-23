@@ -31,11 +31,15 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
 #include <core/NsmClient.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "AboutDialog.h"
@@ -53,6 +57,7 @@
 #include "UndoActions.h"
 #include "Widgets/InfoBar.h"
 #include "Widgets/FileDialog.h"
+#include "Widgets/InputCaptureDialog.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -151,8 +156,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 
 	h2app->showStatusBarMessage( tr("Hydrogen Ready.") );
 
-	initKeyInstMap();
-
 	// we need to do all this to support the keyboard playing
 	// for all the window modes
 	h2app->getMixer()->installEventFilter (this);
@@ -162,7 +165,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 	h2app->getDirector()->installEventFilter(this);
-	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
@@ -201,11 +203,21 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if(	pPref->isRestoreLastPlaylistEnabled()
-		&& ! pPref->getLastPlaylistFilename().isEmpty() ){
-		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( pPref->getLastPlaylistFilename() );
-		if( !loadlist ){
-			_ERRORLOG ( "Error loading the playlist" );
+	if ( pPref->isRestoreLastPlaylistEnabled() &&
+		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
+		bool bLoadSuccessful = h2app->getPlayListDialog()->loadListByFileName(
+			pPref->getLastPlaylistFilename() );
+		if ( bLoadSuccessful ) {
+			if ( pPref->getPlaylistDialogProperties().visible ){
+				// If there was a playlist used during the last
+				// session and it was still visible/shown when closing
+				// Hydrogen, bring it up again.
+				action_window_showPlaylistDialog();
+			}
+		}
+		else {
+			_ERRORLOG( QString( "Unable to load last playlist [%1]" )
+					   .arg( pPref->getLastPlaylistFilename() ) );
 		}
 	}
 
@@ -236,9 +248,6 @@ MainForm::~MainForm()
 		file.remove();
 	}
 
-	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
-
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
@@ -260,17 +269,19 @@ MainForm::~MainForm()
 ///
 void MainForm::createMenuBar()
 {
+	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pShortcuts = pPref->getShortcuts();
 	// menubar
 	QMenuBar *pMenubar = new QMenuBar( this );
 	pMenubar->setObjectName( "MainMenu" );
-	setMenuBar( pMenubar );
 
 	// FILE menu
 	m_pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
 
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
+	const bool bUnderSessionManagement =
+		H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	QString sLabelNew, sLabelOpen, sLabelOpenRecent, sLabelSaveAs, sLabelOpenDemo;
 	
@@ -289,13 +300,15 @@ void MainForm::createMenuBar()
 		allows to replace the current song with one chosen recently
 		used by the user.*/
 		sLabelOpenRecent = tr( "Import &Recent Into Session" );
+		sLabelOpenDemo = tr( "Import &Demo Into Session" );
 		/*: When Hydrogen is under session management the path the
 		song is stored to can not be changed by the user. This option
 		allows the user store the current song in a .h2song anywhere
 		on her system. The filepath of the current song won't be
 		altered.*/
 		sLabelSaveAs = tr( "Export From Session &As..." );
-	} else {
+	}
+	else {
 		sLabelNew = tr( "&New" );
 		sLabelOpen = tr( "&Open" );
 		sLabelOpenRecent = tr( "Open &Recent" );
@@ -303,138 +316,227 @@ void MainForm::createMenuBar()
 		sLabelOpenDemo = tr( "Open &Demo" );
 	}
 	
-	m_pFileMenu->addAction( sLabelNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+	m_pFileMenu->addAction( sLabelNew, this,
+							SLOT( action_file_new() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 	
-	m_pFileMenu->addAction( tr( "Song Properties" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( tr( "Song Properties" ), this,
+							SLOT( action_file_songProperties() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( sLabelOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
-	if ( ! bUnderSessionManagement ) {
-		m_pFileMenu->addAction( sLabelOpenDemo, this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
-	}
+	m_pFileMenu->addAction( sLabelOpen, this,
+							SLOT( action_file_open() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
+	m_pFileMenu->addAction( sLabelOpenDemo, this,
+							SLOT( action_file_openDemo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenDemoSong ) );
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
-	m_pFileMenu->addAction( sLabelSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
+	m_pFileMenu->addAction( tr( "&Save" ), this,
+							SLOT( action_file_save() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::SaveSong ) );
+	m_pFileMenu->addAction( sLabelSaveAs, this,
+							SLOT( action_file_save_as() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::SaveAsSong ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction ( tr ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "Ctrl+Shift+P" ) );
-	m_pFileMenu->addAction( tr( "E&xport Pattern As..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+	m_pFileMenu->addAction( tr ( "Open &Pattern" ), this,
+							SLOT ( action_file_openPattern() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
+	m_pFileMenu->addAction( tr( "E&xport Pattern As..." ), this,
+							SLOT( action_file_export_pattern_as() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportPattern ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( tr( "Export &MIDI File" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
-	m_pFileMenu->addAction( tr( "&Export Song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
-	m_pFileMenu->addAction( tr( "Export &LilyPond File" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
+	m_pFileMenu->addAction( tr( "Export &MIDI File" ), this,
+							SLOT( action_file_export_midi() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportMIDI ) );
+	m_pFileMenu->addAction( tr( "&Export Song" ), this,
+							SLOT( action_file_export() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportSong ) );
+	m_pFileMenu->addAction( tr( "Export &LilyPond File" ), this,
+							SLOT( action_file_export_lilypond() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ExportLilyPond ) );
 
 
 #ifndef Q_OS_MACX
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( tr("&Quit"), this, SLOT( action_file_exit() ), QKeySequence( "Ctrl+Q" ) );
+	m_pFileMenu->addAction( tr("&Quit"), this,
+							SLOT( action_file_exit() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Quit ) );
 #endif
 
 	updateRecentUsedSongList();
-	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this, SLOT( action_file_open_recent(QAction*) ) );
+	connect( m_pRecentFilesMenu, SIGNAL( triggered(QAction*) ), this,
+			 SLOT( action_file_open_recent(QAction*) ) );
 	// ~ FILE menu
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
-	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
-	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
-	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
+	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 	// DRUMKITS MENU
 	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
-	m_pDrumkitsMenu->addAction( tr( "&New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( tr( "&Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&New" ), this,
+								SLOT( action_instruments_clearAll() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
+	m_pDrumkitsMenu->addAction( tr( "&Open" ), this,
+								SLOT( action_banks_open() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
+	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this,
+								SLOT( action_banks_properties() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( tr( "&Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Save" ), this,
+								SLOT( action_instruments_saveLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
+	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this,
+								SLOT( action_instruments_saveAsLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( tr( "&Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( tr( "&Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Export" ), this,
+								SLOT( action_instruments_exportLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
+	m_pDrumkitsMenu->addAction( tr( "&Import" ), this,
+								SLOT( action_instruments_importLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
+	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this,
+								SLOT( action_instruments_onlineImportLibrary() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
 
 	// INSTRUMENTS MENU
 	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
-	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this,
+								   SLOT( action_instruments_addInstrument() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
+	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this,
+								   SLOT( action_instruments_clearAll() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::ClearAllInstruments ) );
 
 	m_pInstrumentsMenu->addSeparator();				// -----
 
-	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this,
+								   SLOT( action_instruments_addComponent() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
-	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( tr("Play&list Editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pViewPlaylistEditorAction =
+		m_pViewMenu->addAction( tr("Play&list Editor"), this,
+								SLOT( action_window_showPlaylistDialog() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
-	m_pViewDirectorAction = m_pViewMenu->addAction( tr("&Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+	m_pViewDirectorAction =
+		m_pViewMenu->addAction( tr("&Director"), this,
+								SLOT( action_window_show_DirectorWidget() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) );
 	m_pViewDirectorAction->setCheckable( true );
 
 	m_pFileMenu->addSeparator();
-	m_pViewMixerAction = m_pViewMenu->addAction( tr("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
+	m_pViewMixerAction =
+		m_pViewMenu->addAction( tr("&Mixer"), this,
+								SLOT( action_window_showMixer() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
-	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ), QKeySequence( "Alt+I" ) );
+	m_pViewMixerInstrumentRackAction =
+		m_pViewMenu->addAction( tr("&Instrument Rack"), this,
+								SLOT( action_window_showInstrumentRack() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
-	update_instrument_checkbox( Preferences::get_instance()->getInstrumentRackProperties().visible );
+	update_instrument_checkbox( pPref->getInstrumentRackProperties().visible );
 
-	m_pViewAutomationPathAction = m_pViewMenu->addAction( tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction =
+		m_pViewMenu->addAction( tr("&Automation Path"), this,
+								SLOT( action_window_showAutomationArea() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) );
 	m_pViewAutomationPathAction->setCheckable( true );
-	update_automation_checkbox();
+	if ( pPref->getShowAutomationArea() ){
+		m_pViewAutomationPathAction->setChecked(true);	
+	} else {
+		m_pViewAutomationPathAction->setChecked(false);
+	}
 
 	m_pViewMenu->addSeparator();				// -----
 
-	m_pViewTimelineAction = m_pViewMenu->addAction( tr("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
+	m_pViewTimelineAction =
+		m_pViewMenu->addAction( tr("&Timeline"), this,
+								SLOT( action_window_showTimeline() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowTimeline ) );
 	m_pViewTimelineAction->setCheckable( true );
 	
-	m_pViewPlaybackTrackAction = m_pViewMenu->addAction( tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
+	m_pViewPlaybackTrackAction =
+		m_pViewMenu->addAction( tr("&Playback Track"), this,
+								SLOT( action_window_showPlaybackTrack() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
 
 	m_pViewPlaybackTrackActionGroup = new QActionGroup( this );
 	m_pViewPlaybackTrackActionGroup->addAction( m_pViewTimelineAction );
 	m_pViewPlaybackTrackActionGroup->addAction( m_pViewPlaybackTrackAction );
-	update_playback_track_group();
+
+	// Note that the ActionGroup unchecks the other menu item automatically
+	if ( pPref->getShowPlaybackTrack() ) {
+		m_pViewPlaybackTrackAction->setChecked( true );
+	} else {
+		m_pViewTimelineAction->setChecked( true );
+	}
 
 	m_pViewMenu->addSeparator();				// -----
 
-	m_pViewMenu->addAction( tr("&Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
+	m_pViewMenu->addAction( tr("&Full screen"), this,
+							SLOT( action_window_toggleFullscreen() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowFullscreen ) );
 
 
 	// Options menu
 	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
-	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ), QKeySequence( "Ctrl+Alt+I" ) );
+	m_pInstrumentAction =
+		m_pInputModeMenu->addAction( tr( "&Instrument" ), this,
+									 SLOT( action_inputMode_instrument() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::InputInstrument ) );
 	m_pInstrumentAction->setCheckable( true );
 
-	m_pDrumkitAction = m_pInputModeMenu->addAction( tr( "&Drumkit" ), this, SLOT( action_inputMode_drumkit() ), QKeySequence( "Ctrl+Alt+D" ) );
+	m_pDrumkitAction =
+		m_pInputModeMenu->addAction( tr( "&Drumkit" ), this,
+									 SLOT( action_inputMode_drumkit() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
 	m_pDrumkitAction->setCheckable( true );
 
-	if( Preferences::get_instance()->__playselectedinstrument )
-	{
+	if ( pPref->__playselectedinstrument ) {
 		m_pInstrumentAction->setChecked( true );
 		m_pDrumkitAction->setChecked (false );
-	} else {
+	}
+	else {
 		m_pInstrumentAction->setChecked( false );
 		m_pDrumkitAction->setChecked (true );
 	}
 
-	m_pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
+	m_pOptionsMenu->addAction( tr("&Preferences"), this,
+							   SLOT( showPreferencesDialog() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) );
 
 	// ~ Tools menu
 
@@ -443,32 +545,57 @@ void MainForm::createMenuBar()
 	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
 		m_pDebugMenu = pMenubar->addMenu( tr("De&bug") );
-		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
+		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this,
+								 SLOT( action_debug_showAudioEngineInfo() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::ShowAudioEngineInfo ) );
+		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this,
+								 SLOT( action_debug_showFilesystemInfo() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::ShowFilesystemInfo ) );
 		
 		m_pLogLevelMenu = m_pDebugMenu->addMenu( tr( "&Log Level" ) );		
-		m_pLogLevelMenu->addAction( tr( "&None" ), this, SLOT( action_debug_logLevel_none() ), QKeySequence( "" ) );
-		m_pLogLevelMenu->addAction( tr( "&Error" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
-		m_pLogLevelMenu->addAction( tr( "&Warning" ), this, SLOT( action_debug_logLevel_warn() ), QKeySequence( "" ) );
-		m_pLogLevelMenu->addAction( tr( "&Info" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
-		m_pLogLevelMenu->addAction( tr( "&Debug" ), this, SLOT( action_debug_logLevel_debug() ), QKeySequence( "" ) );
+		m_pLogLevelMenu->addAction( tr( "&None" ), this,
+									SLOT( action_debug_logLevel_none() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelNone ) );
+		m_pLogLevelMenu->addAction( tr( "&Error" ), this,
+									SLOT( action_debug_logLevel_error() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelError ) );
+		m_pLogLevelMenu->addAction( tr( "&Warning" ), this,
+									SLOT( action_debug_logLevel_warn() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelWarning ) );
+		m_pLogLevelMenu->addAction( tr( "&Info" ), this,
+									SLOT( action_debug_logLevel_info() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelInfo ) );
+		m_pLogLevelMenu->addAction( tr( "&Debug" ), this,
+									SLOT( action_debug_logLevel_debug() ),
+									pShortcuts->getKeySequence( Shortcuts::Action::LogLevelDebug ) );
 		
-		m_pDebugMenu->addAction( tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile()) );
+		m_pDebugMenu->addAction( tr( "&Open Log File" ), this,
+								 SLOT( action_debug_openLogfile() ),
+								 pShortcuts->getKeySequence( Shortcuts::Action::OpenLogFile ) );
 		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
-			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+			m_pDebugMenu->addAction( tr( "&Print Objects" ), this,
+									 SLOT( action_debug_printObjects() ),
+									 pShortcuts->getKeySequence( Shortcuts::Action::DebugPrintObjects ) );
 		}
 		// ~ DEBUG menu
 	}
 
 	// INFO menu
 	m_pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
-	m_pInfoMenu->addAction( tr("User &Manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
+	m_pInfoMenu->addAction( tr("User &Manual"), this,
+							SLOT( showUserManual() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::OpenManual ) );
 	m_pInfoMenu->addSeparator();
-	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
-	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
-	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
+	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowAbout ) );
+	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowReportBug ) );
+	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowDonate ) );
 	// ~ INFO menu
+
+	setMenuBar( pMenubar );
 }
 
 void MainForm::startAutosaveTimer() {
@@ -1174,7 +1301,7 @@ void MainForm::action_debug_logLevel_info()
 void MainForm::action_debug_logLevel_debug()
 {
 	Logger* pLogger = Logger::get_instance();
-	pLogger->set_bit_mask( Logger::Error | Logger::Warning | Logger::Info );
+	pLogger->set_bit_mask( Logger::Error | Logger::Warning | Logger::Info | Logger::Debug );
 }
 
 void MainForm::action_debug_openLogfile()
@@ -1443,29 +1570,6 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
-void MainForm::update_automation_checkbox()
-{
-	Preferences *pref = Preferences::get_instance();
-	
-	if(pref->getShowAutomationArea()){
-		m_pViewAutomationPathAction->setChecked(true);	
-	} else {
-		m_pViewAutomationPathAction->setChecked(false);
-	}
-}
-
-void MainForm::update_playback_track_group()
-{
-	Preferences *pPref = Preferences::get_instance();
-
-	// Note that the ActionGroup unchecks the other menu item automatically
-	if ( pPref->getShowPlaybackTrack() ) {
-		m_pViewPlaybackTrackAction->setChecked( true );
-	} else {
-		m_pViewTimelineAction->setChecked( true );
-	}
-}
-
 void MainForm::savePreferences() {
 	// save window properties in the preferences files
 	Preferences *pPreferences = Preferences::get_instance();
@@ -1482,6 +1586,9 @@ void MainForm::savePreferences() {
 	// save audio engine info properties
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
+	pPreferences->setPlaylistDialogProperties(
+		h2app->getWindowProperties( h2app->getPlayListDialog() ) );
+
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -1491,6 +1598,11 @@ void MainForm::savePreferences() {
 }
 
 void MainForm::closeAll(){
+	// Store the last playlist in the Preferences in order to allow to
+	// reopen it at startup.
+	Preferences::get_instance()->setLastPlaylistFilename(
+		Playlist::get_instance()->getFilename() );
+
 	savePreferences();
 	m_pQApp->quit();
 }
@@ -1526,63 +1638,25 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	if ( changes & H2Core::Preferences::Changes::GeneralTab ) {
 		startAutosaveTimer();
 	}
-}
 	
-
-// keybindings..
-
-void MainForm::onPlayStopAccelEvent()
-{
-	switch ( Hydrogen::get_instance()->getAudioEngine()->getState() ) {
-	case H2Core::AudioEngine::State::Ready:
-		Hydrogen::get_instance()->sequencer_play();
-		break;
-
-	case H2Core::AudioEngine::State::Playing:
-		Hydrogen::get_instance()->sequencer_stop();
-		break;
-
-	default:
-		ERRORLOG( "[MainForm::onPlayStopAccelEvent()] Unhandled case." );
+	if ( changes & H2Core::Preferences::Changes::ShortcutTab ) {
+		createMenuBar();
 	}
 }
-
-
-
-void MainForm::onRestartAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( 0 );
-}
-
-
-
-void MainForm::onBPMPlusAccelEvent() {
+	
+bool MainForm::nullDriverCheck() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( "%1\n%2" )
+							  .arg( pCommonStrings->getAudioDriverNotPresent() )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		return false;
+	}
 
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() + 0.1 );
-	pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
-}
-
-
-
-void MainForm::onBPMMinusAccelEvent() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	pHydrogen->getSong()->setBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( pAudioEngine->getTransportPosition()->getBpm() - 0.1 );
-	pAudioEngine->unlock();
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	return true;
 }
 
 void MainForm::updateRecentUsedSongList()
@@ -1684,107 +1758,6 @@ void MainForm::onFixMissingSamples()
 	m_pMissingSamplesInfoBar->hide();
 }
 
-
-void MainForm::initKeyInstMap()
-{
-
-	QString loc = QLocale::system().name();
-	int instr = 0;
-
-	///POSIX Locale
-	//locale for keyboardlayout QWERTZ
-	// de_DE, de_AT, de_LU, de_CH, de
-
-	//locale for keyboardlayout AZERTY
-	// fr_BE, fr_CA, fr_FR, fr_LU, fr_CH
-
-	//locale for keyboardlayout QWERTY
-	// en_GB, en_US, en_ZA, usw.
-
-	if ( loc.contains( "de" ) || loc.contains( "DE" )){ ///QWERTZ
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}
-	else if ( loc.contains( "fr" ) || loc.contains( "FR" )){ ///AZERTY
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_Question] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_A] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}else
-	{ /// default QWERTY
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
-
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
-	}
-}
-
-
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -1815,147 +1788,15 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 	} else if ( e->type() == QEvent::KeyPress ) {
 		// special processing for key press
-		QKeyEvent *k = (QKeyEvent *)e;
+		QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>(e);
+		assert( pKeyEvent != nullptr );
 
-		if ( k->matches( QKeySequence::StandardKey::Undo ) ) {
-			k->accept();
-			action_undo();
-			return true;
-		} else if ( k->matches( QKeySequence::StandardKey::Redo ) ) {
-			k->accept();
-			action_redo();
-			return true;
-		}
-
-
-		// qDebug( "Got key press for instrument '%c'", k->ascii() );
-		switch (k->key()) {
-		case Qt::Key_Space:
-
-			// Hint that something is wrong in case there is no proper audio
-			// driver set.
-			if ( pHydrogen->getAudioOutput() == nullptr ||
-				 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-				QMessageBox::warning( this, "Hydrogen",
-									  QString( "%1\n%2" )
-									  .arg( pCommonStrings->getAudioDriverNotPresent() )
-									  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
-				return true;
-			}
-
-			switch ( k->modifiers() ) {
-			case Qt::NoModifier:
-				onPlayStopAccelEvent();
-				break;
-
-#ifndef Q_OS_MACX
-			case Qt::ControlModifier:
-				startPlaybackAtCursor( o );
-				break;
-			}
-#else
-			case Qt::AltModifier:
-				startPlaybackAtCursor( o );
-				break;
-			}
-#endif
-			
-			return true; // eat event
-			break;
-
-		case Qt::Key_Comma:
-			pHydrogen->handleBeatCounter();
-			return true; // eat even
-			break;
-
-		case Qt::Key_Backspace:
-			onRestartAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Plus:
-			onBPMPlusAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Minus:
-			onBPMMinusAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_Backslash:
-			pHydrogen->onTapTempoAccelEvent();
-			return true; // eat event
-			break;
-
-		case Qt::Key_S:
-			if ( k->modifiers() ==
-				 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
-				action_file_save_as();
-				return true;
-			} else if ( k->modifiers() == Qt::ControlModifier ) {
-				action_file_save();
-				return true;
-			}
-			break;
-
-		case  Qt::Key_F5 :
-			if( Playlist::get_instance()->size() == 0) {
-				break;
-			}
-			return handleSelectNextPrevSongOnPlaylist( -1 );
-			break;
-
-		case  Qt::Key_F6 :
-			if( Playlist::get_instance()->size() == 0) {
-				break;
-			}
-			return handleSelectNextPrevSongOnPlaylist( 1 );
-			break;
-
-		case  Qt::Key_F12 : //panic button stop all playing notes
-			pHydrogen->__panic();
-			//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
-			return true;
-			break;
-
-		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
-			return true;
-			break;
-
-		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
-			return true;
-			break;
-		}
-
-		// virtual keyboard handling
-		if  ( k->modifiers() == Qt::NoModifier ) {
-			std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-			if (found != keycodeInstrumentMap.end()) {
-				//			INFOLOG( "[eventFilter] virtual keyboard event" );
-				// insert note at the current column in time
-				// if event recording enabled
-				int row = (*found).second;
-
-				float velocity = 0.8;
-
-				pHydrogen->addRealtimeNote( row, velocity, 0.f, false, row + 36 );
-
-				return true; // eat event
-			}
-		}
-		return false; // let it go
+		return handleKeyEvent( o, pKeyEvent );
 	}
 	else {
 		return false; // standard event processing
 	}
 }
-
-
-
-
 
 /// print the object map
 void MainForm::action_debug_printObjects()
@@ -2389,20 +2230,6 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
-{
-	int nPlaylistSize = Playlist::get_instance()->size();
-	int nSongnumber = Playlist::get_instance()->getActiveSongNumber();
-	
-	if( nSongnumber+step >= 0 && nSongnumber+step <= nPlaylistSize-1 ){
-		Playlist::get_instance()->setNextSongByNumber( nSongnumber + step );
-	} else {
-		return false;
-	}
-
-	return true;
-}
-
 void MainForm::action_banks_properties() {
 	editDrumkitProperties( true );
 }
@@ -2454,10 +2281,14 @@ void MainForm::quitEvent( int ) {
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
@@ -2465,8 +2296,26 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			pCoreActionController->activateSongMode( true );
 		}
 
-		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-		pCoreActionController->locateToColumn( nCursorColumn );
+		const int nCursorColumn =
+			pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+
+		// Within the core locating to a position beyond the length of
+		// the song with loop mode enabled is a valid
+		// operation. The resulting location will the wrapped as if
+		// transport was looped. This is important when allowing
+		// external applications to relocate but it is not what we
+		// want in here.
+		if ( nCursorColumn >= pSong->getPatternGroupVector()->size() ) {
+			ERRORLOG( QString( "Cursor column [%1] is outside of the current song [0,%2]" )
+					  .arg( nCursorColumn )
+					  .arg( pSong->getPatternGroupVector()->size() - 1 ) );
+			return;
+		}
+		
+		if ( ! pCoreActionController->locateToColumn( nCursorColumn ) ) {
+			// Cursor is at a position it is not allowed to locate to.
+			return;
+		}
 			
 	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
 		// Covers both the PatternEditor and the
@@ -2479,15 +2328,745 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
+		const int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
 		
-		pCoreActionController->locateToTick( nCursorColumn );
+		if ( ! pCoreActionController->locateToTick( nCursorColumn ) ) {
+			// Cursor is at a position it is not allowed to locate to.
+			return;
+		}
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
-		pApp->showStatusBarMessage( tr("Playing.") );
 	}
+}
+
+bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
+	
+	auto pPref = Preferences::get_instance();
+	auto pShortcuts = pPref->getShortcuts();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pActionManager = MidiActionManager::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song" );
+		return false;
+	}
+
+	int nKey = pKeyEvent->key();
+	const Qt::KeyboardModifiers modifiers = pKeyEvent->modifiers();
+    if ( modifiers & Qt::ShiftModifier ) {
+        nKey += Qt::SHIFT;
+	}
+    if ( modifiers & Qt::ControlModifier ) {
+        nKey += Qt::CTRL;
+	}
+    if ( modifiers & Qt::AltModifier ) {
+        nKey += Qt::ALT;
+	}
+    if ( modifiers & Qt::MetaModifier ) {
+        nKey += Qt::META;
+	}
+	const auto keySequence = QKeySequence( nKey );
+	if ( keySequence == QKeySequence( "" ) ) {
+		return false;
+	}
+	
+	const auto actions = pShortcuts->getActions( keySequence );
+	for ( const auto& action : actions ) {
+
+		const QString sTitle =
+			pShortcuts->getActionInfoMap().at( action ).sDescription;
+		
+		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
+			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
+			// Virtual keyboard
+			
+			pHydrogen->addRealtimeNote(
+				static_cast<int>(action) - 400, // instrument
+				0.8,							// velocity
+				0.f,							// pan
+				false,							// note off
+				static_cast<int>(action) - 400 + MIDI_DEFAULT_OFFSET );
+		}
+		else if ( static_cast<int>(action) >
+				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&
+				  static_cast<int>(action) <
+				  static_cast<int>(Shortcuts::Action::LastWith1Args) ) {
+			// Core actions with a single input argument
+			
+			auto inputType = InputCaptureDialog::Type::IntMidi;
+			float fMax = 1;
+			float fMin = 0;
+			QString sAction, sLabel;
+			
+			switch ( action ) {
+			case Shortcuts::Action::BPM:
+				inputType = InputCaptureDialog::Type::Float;
+				sLabel = pCommonStrings->getInputCaptureBpm();
+				fMin = static_cast<float>(MIN_BPM);
+				fMax = static_cast<float>(MAX_BPM);
+				break;
+
+			case Shortcuts::Action::MasterVolume:
+				sAction = "MASTER_VOLUME_ABSOLUTE";
+				sLabel = pCommonStrings->getInputCaptureVolume();
+				break;
+
+			case Shortcuts::Action::JumpToBar:
+				inputType = InputCaptureDialog::Type::Int;
+				sLabel = pCommonStrings->getInputCaptureColumn();
+				fMax = static_cast<float>(pSong->getPatternGroupVector()->size()) - 1;
+				break;
+				
+			case Shortcuts::Action::SelectNextPattern:
+			case Shortcuts::Action::SelectOnlyNextPattern:
+			case Shortcuts::Action::SelectAndPlayPattern:
+				if ( action == Shortcuts::Action::SelectNextPattern ) {
+					sAction = "SELECT_NEXT_PATTERN";
+				} else if ( action == Shortcuts::Action::SelectOnlyNextPattern ) {
+					sAction = "SELECT_ONLY_NEXT_PATTERN";
+				} else if ( action == Shortcuts::Action::SelectAndPlayPattern ) {
+					sAction = "SELECT_AND_PLAY_PATTERN";
+				}
+				inputType = InputCaptureDialog::Type::Int;
+				sLabel = pCommonStrings->getInputCapturePattern();
+				fMax = static_cast<float>(pSong->getPatternList()->size()) - 1;
+				break;
+
+			case Shortcuts::Action::PlaylistSong:
+				sAction = "PLAYLIST_SONG";
+				inputType = InputCaptureDialog::Type::Int;
+				sLabel = pCommonStrings->getInputCapturePattern();
+				fMax = static_cast<float>(Playlist::get_instance()->size()) - 1;
+				break;
+
+			case Shortcuts::Action::TimelineDeleteMarker:
+			case Shortcuts::Action::TimelineDeleteTag:
+				inputType = InputCaptureDialog::Type::Int;
+				sLabel = pCommonStrings->getInputCaptureColumn();
+				fMax = static_cast<float>(pPref->getMaxBars()) - 1;
+				break;
+				
+			case Shortcuts::Action::SelectInstrument:
+			case Shortcuts::Action::StripVolumeIncrease:
+			case Shortcuts::Action::StripVolumeDecrease:
+			case Shortcuts::Action::StripMuteToggle:
+			case Shortcuts::Action::StripSoloToggle:
+				if ( action == Shortcuts::Action::SelectInstrument ) {
+					sAction = "SELECT_INSTRUMENT";
+				} else if ( action == Shortcuts::Action::StripMuteToggle ) {
+					sAction = "STRIP_MUTE_TOGGLE";
+				} else if ( action == Shortcuts::Action::StripSoloToggle ) {
+					sAction = "STRIP_SOLO_TOGGLE";
+				} else {
+					sAction = "STRIP_VOLUME_RELATIVE";
+				}
+				inputType = InputCaptureDialog::Type::Int;
+				sLabel = pCommonStrings->getInputCaptureInstrument();
+				fMax = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly prepared" )
+							.arg( static_cast<int>(action) ) );
+			}
+
+			auto pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, sLabel, inputType, fMin, fMax );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sArg = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+
+			switch ( action ) {
+			case Shortcuts::Action::BPM:
+				pCoreActionController->setBpm( sArg.toFloat() );
+				break;
+			case Shortcuts::Action::JumpToBar:
+				pCoreActionController->locateToColumn( sArg.toInt() );
+				break;
+			case Shortcuts::Action::SelectInstrument:
+			case Shortcuts::Action::MasterVolume: {
+				auto pAction = std::make_shared<Action>( sAction );
+				pAction->setValue( sArg );
+				pActionManager->handleAction( pAction );
+				break;
+			}
+				
+			case Shortcuts::Action::SelectNextPattern:
+			case Shortcuts::Action::SelectOnlyNextPattern:
+			case Shortcuts::Action::SelectAndPlayPattern:
+			case Shortcuts::Action::PlaylistSong:
+			case Shortcuts::Action::StripVolumeIncrease:
+			case Shortcuts::Action::StripVolumeDecrease:
+			case Shortcuts::Action::StripMuteToggle:
+			case Shortcuts::Action::StripSoloToggle: {
+				auto pAction = std::make_shared<Action>( sAction );
+				pAction->setParameter1( sArg );
+				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
+					pAction->setValue( QString::number( 1 ) );
+				} else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
+					pAction->setValue( QString::number( -1 ) );
+				}
+				pActionManager->handleAction( pAction );
+				break;
+			}
+
+			case Shortcuts::Action::TimelineDeleteMarker:
+				pCoreActionController->deleteTempoMarker( sArg.toInt() );
+				break;
+			case Shortcuts::Action::TimelineDeleteTag:
+				pCoreActionController->deleteTag( sArg.toInt() );
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
+			}
+		}
+		else if ( static_cast<int>(action) >
+				  static_cast<int>(Shortcuts::Action::FirstWith2Args) &&
+				  static_cast<int>(action) <
+				  static_cast<int>(Shortcuts::Action::LastWith2Args) ) {
+			// Core actions with two input arguments
+			
+			auto inputType1 = InputCaptureDialog::Type::IntMidi;
+			auto inputType2 = InputCaptureDialog::Type::IntMidi;
+			float fMax1 = 1;
+			float fMin1 = 0;
+			float fMax2 = 1;
+			float fMin2 = 0;
+			QString sAction, sLabel1, sAction2, sLabel2;
+			
+			switch ( action ) {
+			case Shortcuts::Action::StripVolume:
+			case Shortcuts::Action::StripPan:
+			case Shortcuts::Action::StripFilterCutoff:
+				if ( action == Shortcuts::Action::StripVolume ) {
+					sAction = "STRIP_VOLUME_ABSOLUTE";
+					sLabel1 = pCommonStrings->getInputCaptureVolume();
+				}
+				else if ( action == Shortcuts::Action::StripPan ) {
+					sAction = "PAN_ABSOLUTE";
+					sLabel1 = pCommonStrings->getInputCapturePan();
+				}
+				else if ( action == Shortcuts::Action::StripFilterCutoff ) {
+					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";
+					sLabel1 = pCommonStrings->getInputCaptureFilterCutoff();
+				}
+				inputType2 = InputCaptureDialog::Type::Int;
+				sLabel2 = pCommonStrings->getInputCaptureInstrument();
+				fMax2 = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
+				break;
+
+			case Shortcuts::Action::TimelineAddMarker:
+			case Shortcuts::Action::TimelineAddTag:
+			case Shortcuts::Action::ToggleGridCell:
+				inputType1 = InputCaptureDialog::Type::Int;
+				sLabel1 = pCommonStrings->getInputCaptureColumn();
+				fMax1 = static_cast<float>(pSong->getPatternGroupVector()->size()) - 1;
+
+				if ( action == Shortcuts::Action::TimelineAddTag ) {
+					inputType2 = InputCaptureDialog::Type::String;
+					sLabel2 = pCommonStrings->getInputCaptureTag();
+				}
+				else if ( action == Shortcuts::Action::TimelineAddMarker ) {
+					inputType2 = InputCaptureDialog::Type::Float;
+					sLabel2 = pCommonStrings->getInputCaptureBpm();
+					fMin2 = static_cast<float>(MIN_BPM);
+					fMax2 = static_cast<float>(MAX_BPM);
+				}
+				else if ( action == Shortcuts::Action::ToggleGridCell ) {
+					inputType2 = InputCaptureDialog::Type::Int;
+					sLabel2 = pCommonStrings->getInputCapturePattern();
+					fMax2 = static_cast<float>(pSong->getPatternList()->size()) - 1;
+				}
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly prepared" )
+							.arg( static_cast<int>(action) ) );
+			}
+
+			// Capture arguments
+			auto pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, sLabel1, inputType1, fMin1, fMax1 );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sArg1 = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+			
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, sLabel2, inputType2, fMin2, fMax2 );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sArg2 = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+
+			switch ( action ) {
+			case Shortcuts::Action::StripVolume:
+			case Shortcuts::Action::StripPan:
+			case Shortcuts::Action::StripFilterCutoff: {
+				auto pAction = std::make_shared<Action>( sAction );
+				pAction->setValue( sArg1 );
+				pAction->setParameter1( sArg2 );
+				pActionManager->handleAction( pAction );
+				break;
+			}
+
+			case Shortcuts::Action::TimelineAddMarker:
+				pCoreActionController->addTempoMarker( sArg1.toInt(), sArg2.toFloat() );
+				break;
+			case Shortcuts::Action::TimelineAddTag:
+				pCoreActionController->addTag( sArg1.toInt(), sArg2 );
+				break;
+			case Shortcuts::Action::ToggleGridCell:
+				pCoreActionController->toggleGridCell( sArg1.toInt(), sArg2.toInt() );
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
+			}
+		}
+		else if ( action == Shortcuts::Action::StripEffectLevel ) {
+			// Core actions with three input arguments
+
+			const QString sAction = "EFFECT_LEVEL_ABSOLUTE";
+
+			// Capture new parameter value
+			auto pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXLevel(),
+										InputCaptureDialog::Type::IntMidi );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sValue = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+
+			// Capture instrument number
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
+										InputCaptureDialog::Type::Int, 0,
+										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const int nInstrument = pInputCaptureDialog->text().toInt();
+			delete pInputCaptureDialog;
+			auto pInstrument = pSong->getInstrumentList()->get( nInstrument );
+			if ( pInstrument == nullptr ) {
+				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+						  .arg( nInstrument ) );
+				return true;
+			}
+
+			// Capture FX number
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXNumber(),
+										InputCaptureDialog::Type::Int, 0,
+										static_cast<float>(MAX_FX) - 1);
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sFX = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+			
+			// Deploy action
+			auto pAction = std::make_shared<Action>( sAction );
+			pAction->setValue( sValue );
+			pAction->setParameter1( QString::number( nInstrument ) );
+			pAction->setParameter2( sFX );
+			pActionManager->handleAction( pAction );
+		}
+		else if ( action == Shortcuts::Action::LayerPitch ||
+				  action == Shortcuts::Action::LayerGain ) {
+			// Core actions with more than three input arguments
+			
+			QString sAction, sLabel;
+
+			if ( action == Shortcuts::Action::LayerPitch ) {
+				sAction = "PITCH_LEVEL_ABSOLUTE";
+				sLabel = pCommonStrings->getPitchLabel();
+			}
+			else if ( action == Shortcuts::Action::LayerGain ) {
+				sAction = "GAIN_LEVEL_ABSOLUTE";
+				sLabel = pCommonStrings->getGainLabel();
+			}
+
+			// Capture new parameter value
+			auto pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, sLabel, InputCaptureDialog::Type::IntMidi );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const QString sValue = pInputCaptureDialog->text();
+			delete pInputCaptureDialog;
+
+			// Capture instrument number
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
+										InputCaptureDialog::Type::Int, 0,
+										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const int nInstrument = pInputCaptureDialog->text().toInt();
+			delete pInputCaptureDialog;
+			auto pInstrument = pSong->getInstrumentList()->get( nInstrument );
+			if ( pInstrument == nullptr ) {
+				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+						  .arg( nInstrument ) );
+				return true;
+			}
+
+			// Capture component number
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureComponent(),
+										InputCaptureDialog::Type::Int, 0,
+										pInstrument->get_components()->size() - 1);
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const int nComponent = pInputCaptureDialog->text().toInt();
+			delete pInputCaptureDialog;
+			auto pComponent = pInstrument->get_components()->at( nComponent );
+			if ( pComponent == nullptr ) {
+				ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
+						  .arg( nComponent ).arg( nInstrument ) );
+				return true;
+			}
+
+			// Capture layer number
+			pInputCaptureDialog =
+				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureLayer(),
+										InputCaptureDialog::Type::Int, 0,
+										pComponent->get_layers().size() - 1);
+			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
+				return true;
+			}
+			const int nLayer = pInputCaptureDialog->text().toInt();
+			delete pInputCaptureDialog;
+			auto pLayer = pComponent->get_layer( nLayer );
+			if ( pLayer == nullptr ) {
+				ERRORLOG( QString( "Unable to retrieve layer [%1] of component [%2] of instrument [%3]" )
+						  .arg( nLayer ).arg( nComponent ).arg( nInstrument ) );
+				return true;
+			}
+
+			// Deploy action
+			auto pAction = std::make_shared<Action>( sAction );
+			pAction->setValue( sValue );
+			pAction->setParameter1( QString::number( nInstrument ) );
+			pAction->setParameter2( QString::number( nComponent ) );
+			pAction->setParameter3( QString::number( nLayer )  );
+			pActionManager->handleAction( pAction );
+		}
+		else {
+			std::shared_ptr<Action> pAction = nullptr;
+			
+			// Actions without input arguments
+			switch ( action ) {
+				
+			case Shortcuts::Action::Panic:
+				//panic button stop all playing notes
+				pHydrogen->__panic();
+				break;
+
+			case Shortcuts::Action::Play:
+				pAction = std::make_shared<Action>( "PLAY" );
+				break;
+			case Shortcuts::Action::Pause:
+				pAction = std::make_shared<Action>( "PAUSE" );
+				break;
+			case Shortcuts::Action::Stop:
+				pAction = std::make_shared<Action>( "STOP" );
+				break;
+			case Shortcuts::Action::PlayPauseToggle:
+				pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+				break;
+			case Shortcuts::Action::PlayStopToggle:
+				pAction = std::make_shared<Action>( "PLAY/STOP_TOGGLE" );
+				break;
+			case Shortcuts::Action::PlayPauseToggleAtCursor:
+				if ( nullDriverCheck() ) {
+					startPlaybackAtCursor( pQObject );
+				}
+				break;
+				
+			case Shortcuts::Action::RecordReady:
+				pAction = std::make_shared<Action>( "RECORD_READY" );
+				break;
+			case Shortcuts::Action::RecordStrobe:
+				pAction = std::make_shared<Action>( "RECORD_STROBE" );
+				break;
+			case Shortcuts::Action::RecordStrobeToggle:
+				pAction = std::make_shared<Action>( "RECORD/STROBE_TOGGLE" );
+				break;
+			case Shortcuts::Action::RecordExit:
+				pAction = std::make_shared<Action>( "RECORD_EXIT" );
+				break;
+
+			case Shortcuts::Action::MasterMute:
+				pAction = std::make_shared<Action>( "MUTE" );
+				break;
+			case Shortcuts::Action::MasterUnmute:
+				pAction = std::make_shared<Action>( "UNMUTE" );
+				break;
+			case Shortcuts::Action::MasterMuteToggle:
+				pAction = std::make_shared<Action>( "MUTE_TOGGLE" );
+				break;
+			case Shortcuts::Action::MasterVolumeIncrease:
+				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction->setValue( QString::number( 1 ) );
+				break;
+			case Shortcuts::Action::MasterVolumeDecrease:
+				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction->setValue( QString::number( -1 ) );
+				break;
+
+			case Shortcuts::Action::JumpToStart:
+				pCoreActionController->locateToColumn( 0 );
+				break;
+			case Shortcuts::Action::JumpBarForward:
+				pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
+				break;
+			case Shortcuts::Action::JumpBarBackward:
+				pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
+				break;
+
+			case Shortcuts::Action::BPMIncreaseCoarse:
+				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction->setParameter1( QString::number( 0.1 ) );
+				break;
+			case Shortcuts::Action::BPMDecreaseCoarse:
+				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction->setParameter1( QString::number( 0.1 ) );
+				break;
+			case Shortcuts::Action::BPMIncreaseFine:
+				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction->setParameter1( QString::number( 0.01 ) );
+				break;
+			case Shortcuts::Action::BPMDecreaseFine:
+				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction->setParameter1( QString::number( 0.01 ) );
+				break;
+
+			case Shortcuts::Action::BeatCounter:
+				pHydrogen->handleBeatCounter();
+				break;
+
+			case Shortcuts::Action::TapTempo:
+				pHydrogen->onTapTempoAccelEvent();
+				break;
+
+			case Shortcuts::Action::PlaylistNextSong:
+				pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+				break;
+			case Shortcuts::Action::PlaylistPrevSong:
+				pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+				break;
+
+			case Shortcuts::Action::TimelineToggle:
+				pCoreActionController->toggleTimeline();
+				break;
+			case Shortcuts::Action::MetronomeToggle:
+				pAction = std::make_shared<Action>( "TOGGLE_METRONOME" );
+				break;
+			case Shortcuts::Action::JackTransportToggle:
+				pCoreActionController->toggleJackTransport();
+				break;
+			case Shortcuts::Action::JackTimebaseToggle:
+				pCoreActionController->toggleJackTimebaseMaster();
+				break;
+			case Shortcuts::Action::SongModeToggle:
+				pCoreActionController->toggleSongMode();
+				break;
+			case Shortcuts::Action::LoopModeToggle:
+				pCoreActionController->toggleLoopMode();
+				break;
+
+				//////////////////////////////////////////////////////
+				// GUI Actions
+
+			case Shortcuts::Action::NewSong:
+				action_file_new();
+				break;
+			case Shortcuts::Action::OpenSong:
+				action_file_open();
+				break;
+			case Shortcuts::Action::EditSongProperties:
+				action_file_songProperties();
+				break;
+			case Shortcuts::Action::OpenDemoSong:
+				action_file_openDemo();
+				break;
+			case Shortcuts::Action::SaveSong:
+				action_file_save();
+				break;
+			case Shortcuts::Action::SaveAsSong:
+				action_file_save_as();
+				break;
+			case Shortcuts::Action::OpenPattern:
+				action_file_openPattern();
+				break;
+			case Shortcuts::Action::ExportPattern:
+				action_file_export_pattern_as();
+				break;
+			case Shortcuts::Action::ExportSong:
+				action_file_export();
+				break;
+			case Shortcuts::Action::ExportMIDI:
+				action_file_export_midi();
+				break;
+			case Shortcuts::Action::ExportLilyPond:
+				action_file_export_lilypond();
+				break;
+			case Shortcuts::Action::Quit:
+				action_file_exit();
+				break;
+
+			case Shortcuts::Action::Undo:
+				action_undo();
+				break;
+			case Shortcuts::Action::Redo:
+				action_redo();
+				break;
+			case Shortcuts::Action::ShowUndoHistory:
+				openUndoStack();
+				break;
+
+			case Shortcuts::Action::NewDrumkit:
+				action_instruments_clearAll();
+				break;
+			case Shortcuts::Action::OpenDrumkit:
+				action_banks_open();
+				break;
+			case Shortcuts::Action::EditDrumkitProperties:
+				action_banks_properties();
+				break;
+			case Shortcuts::Action::SaveDrumkit:
+				action_instruments_saveLibrary();
+				break;
+			case Shortcuts::Action::SaveAsDrumkit:
+				action_instruments_saveAsLibrary();
+				break;
+			case Shortcuts::Action::ExportDrumkit:
+				action_instruments_exportLibrary();
+				break;
+			case Shortcuts::Action::ImportDrumkit:
+				action_instruments_importLibrary();
+				break;
+			case Shortcuts::Action::ImportOnlineDrumkit:
+				action_instruments_onlineImportLibrary();
+				break;
+
+			case Shortcuts::Action::AddInstrument:
+				action_instruments_addInstrument();
+				break;
+			case Shortcuts::Action::ClearAllInstruments:
+				action_instruments_clearAll();
+				break;
+			case Shortcuts::Action::AddComponent:
+				action_instruments_addComponent();
+				break;
+
+			case Shortcuts::Action::ShowPlaylist:
+				action_window_showPlaylistDialog();
+				break;
+			case Shortcuts::Action::ShowDirector:
+				action_window_show_DirectorWidget();
+				break;
+			case Shortcuts::Action::ShowMixer:
+				action_window_showMixer();
+				break;
+			case Shortcuts::Action::ShowInstrumentRack:
+				action_window_showInstrumentRack();
+				break;
+			case Shortcuts::Action::ShowAutomation:
+				action_window_showAutomationArea();
+				break;
+			case Shortcuts::Action::ShowTimeline:
+				action_window_showTimeline();
+				break;
+			case Shortcuts::Action::ShowPlaybackTrack:
+				action_window_showPlaybackTrack();
+				break;
+			case Shortcuts::Action::ShowFullscreen:
+				action_window_toggleFullscreen();
+				break;
+
+			case Shortcuts::Action::InputInstrument:
+				action_inputMode_instrument();
+				break;
+			case Shortcuts::Action::InputDrumkit:
+				action_inputMode_drumkit();
+				break;
+			case Shortcuts::Action::ShowPreferencesDialog:
+				showPreferencesDialog();
+				break;
+
+			case Shortcuts::Action::ShowAudioEngineInfo:
+				action_debug_showAudioEngineInfo();
+				break;
+			case Shortcuts::Action::ShowFilesystemInfo:
+				action_debug_showFilesystemInfo();
+				break;
+			case Shortcuts::Action::LogLevelNone:
+				action_debug_logLevel_none();
+				break;
+			case Shortcuts::Action::LogLevelError:
+				action_debug_logLevel_error();
+				break;
+			case Shortcuts::Action::LogLevelWarning:
+				action_debug_logLevel_warn();
+				break;
+			case Shortcuts::Action::LogLevelInfo:
+				action_debug_logLevel_info();
+				break;
+			case Shortcuts::Action::LogLevelDebug:
+				action_debug_logLevel_debug();
+				break;
+			case Shortcuts::Action::OpenLogFile:
+				action_debug_openLogfile();
+				break;
+			case Shortcuts::Action::DebugPrintObjects:
+				action_debug_printObjects();
+				break;
+
+			case Shortcuts::Action::OpenManual:
+				showUserManual();
+				break;
+			case Shortcuts::Action::ShowAbout:
+				action_help_about();
+				break;
+			case Shortcuts::Action::ShowReportBug:
+				action_report_bug();
+				break;
+			case Shortcuts::Action::ShowDonate:
+				action_donate();
+				break;
+			default:
+				WARNINGLOG( QString( "Action [%1] not properly handled" )
+							.arg( static_cast<int>(action) ) );
+			}
+
+			if ( pAction != nullptr ) {
+				pActionManager->handleAction( pAction );
+			}
+		}
+	}
+
+	if ( actions.size() > 0 ) {
+		// Event consumed by the actions triggered above.
+		pKeyEvent->accept();
+		return true;
+	}
+
+	return false;
 }

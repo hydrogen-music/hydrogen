@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include <QString>
+
 namespace H2Core
 {
 
@@ -35,6 +37,7 @@ namespace H2Core
 class MidiMessage
 {
 public:
+	/** All possible types of incoming MIDI messages.*/
 	enum MidiMessageType {
 		UNKNOWN,
 		SYSEX,
@@ -45,13 +48,41 @@ public:
 		PROGRAM_CHANGE,
 		CHANNEL_PRESSURE,
 		PITCH_WHEEL,
-		SYSTEM_EXCLUSIVE,
 		START,
 		CONTINUE,
 		STOP,
 		SONG_POS,
-		QUARTER_FRAME
+		QUARTER_FRAME,
+		SONG_SELECT,
+		TUNE_REQUEST,
+		TIMING_CLOCK,
+		ACTIVE_SENSING,
+		RESET
 	};
+	static QString TypeToQString( MidiMessageType type );
+
+	/** Subset of incoming MIDI events that will be handled by
+		Hydrogen. */
+	enum class Event {
+		Null,
+		Note,
+		CC,
+		PC,
+		MmcStop,
+		MmcPlay,
+		MmcPause,
+		MmcDeferredPlay,
+		MmcFastForward,
+		MmcRewind,
+		MmcRecordStrobe,
+		MmcRecordExit,
+		MmcRecordReady
+	};
+	static QString EventToQString( Event event );
+	static Event QStringToEvent( const QString& sEvent );
+	/** Retrieve the string representation for all available
+	 * #Event. */
+	static QStringList getEventList();
 
 	MidiMessageType m_type;
 	int m_nData1;
@@ -64,19 +95,28 @@ public:
 			, m_nData1( -1 )
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}
+
+	/** Reset message */
+	void clear();
+
+	/**
+	 * Derives and set #m_type (and if applicable #m_nChannel) using
+	 * the @a statusByte of an incoming MIDI message. The particular
+	 * values are defined by the MIDI standard and do not dependent on
+	 * the individual drivers.
+	 */
+	void setType( int nStatusByte );
+
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 *   every new line
+	 * \param bShort Instead of the whole content of all classes
+	 *   stored as members just a single unique identifier will be
+	 *   displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
-
-
-/** \ingroup docCore docMIDI */
-class MidiPortInfo
-{
-public:
-	QString m_sName;
-	int m_nClient;
-	int m_nPort;
-};
-
-
 };
 
 #endif

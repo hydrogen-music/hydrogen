@@ -106,6 +106,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
+					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
 					 , m_CurrentTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
@@ -710,6 +711,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 /// Export a song to a wav file
 void Hydrogen::startExportSong( const QString& filename)
 {
+	qDebug() << "[Hydrogen::startExportSong] beginning";
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->play();
@@ -718,6 +720,7 @@ void Hydrogen::startExportSong( const QString& filename)
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
 	pDiskWriterDriver->write();
+	qDebug() << "[Hydrogen::startExportSong] end";
 }
 
 void Hydrogen::stopExportSong()
@@ -882,14 +885,7 @@ void Hydrogen::setTapTempo( float fInterval )
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-	m_pAudioEngine->setNextBpm( fBPM );
-	m_pAudioEngine->unlock();
-	
-	// Store it's value in the .h2song file.
-	getSong()->setBpm( fBPM );
-	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	m_pCoreActionController->setBpm( fBPM );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -969,7 +965,8 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			// When restarting the audio driver after loading a new song under
 			// Non session management all ports have to be registered _prior_
 			// to the activation of the client.
-			if ( isUnderSessionManagement() ) {
+			if ( isUnderSessionManagement() &&
+				 getGUIState() != Hydrogen::GUIState::ready ) {
 				return;
 			}
 			auto pAudioEngine = m_pAudioEngine;
@@ -1072,14 +1069,7 @@ bool Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
-
-			m_pAudioEngine->lock( RIGHT_HERE );
-			m_pAudioEngine->setNextBpm( fBeatCountBpm );
-			m_pAudioEngine->unlock();
-			
-			getSong()->setBpm( fBeatCountBpm );
-	
-			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+			m_pCoreActionController->setBpm( fBeatCountBpm );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
@@ -1740,7 +1730,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
+		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
@@ -1792,7 +1783,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( " nullptr" ) );
 		}
-		sOutput.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
+		sOutput.append( QString( ", lastMidiEvent: %1" )
+						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );

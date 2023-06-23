@@ -33,10 +33,12 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"Sebastian Moors"
 ,"oddtime"
 ,"Julien de Kozak"
-,"luz paz"
+,"Olivier HUMBERT"
 ,"Paul Vint"
+,"luz paz"
 ,"Daniele Medri"
 ,"Raphael Graf"
+,"psykose"
 ,"Houston4444"
 ,"Dan Church"
 };

@@ -62,12 +62,10 @@ private:
 		QTimer* m_pUpdateTimer;
 	int m_nRowHeight;
 	int m_nColumn0Width;
-	int m_nColumn1Width;
-	int m_nColumn2Width;
-	int m_nColumn3Width;
-	int m_nColumn4Width;
-	int m_nColumn5Width;
-	int m_nColumn6Width;
+	int m_nMinComboWidth;
+	int m_nMaxComboWidth;
+	int m_nDefaultComboWidth;
+	int m_nSpinBoxWidth;
 
 };
 

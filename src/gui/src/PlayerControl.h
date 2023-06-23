@@ -191,6 +191,14 @@ private:
 	QString m_sLCDBPMSpinboxToolTip;
 	QString m_sLCDBPMSpinboxTimelineToolTip;
 	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+
+	/** When updating the tempo of the BPM spin box it is crucial to
+	 * indicated that this was done due to a batch event and not due
+	 * to user input. Else a batch update would trigger its
+	 * bpmChanged() slot, which in turn sets the core BPM again. When
+	 * changing a lot of tempo very quick (switch between songs of
+	 * different tempi) this spurious BPM setting will mess things up.*/
+	bool m_bLCDBPMSpinboxIsArmed;
 };
 
 

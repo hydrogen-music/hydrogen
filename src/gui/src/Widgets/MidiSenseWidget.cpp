@@ -22,11 +22,16 @@
 
 #include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
-#include <core/Hydrogen.h>
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction): QDialog( pParent )
+#include <core/Hydrogen.h>
+#include <core/EventQueue.h>
+
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction)
+	: QDialog( pParent )
+	, m_lastMidiEvent( H2Core::MidiMessage::Event::Null )
+	, m_nLastMidiEventParameter( 0 )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_bDirectWrite = bDirectWrite;
@@ -64,10 +69,8 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::share
 	setLayout( pVBox );
 	
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	pHydrogen->m_LastMidiEvent = "";
-	pHydrogen->m_nLastMidiEventParameter = 0;
-
-	m_LastMidiEventParameter = 0;
+	pHydrogen->setLastMidiEvent( H2Core::MidiMessage::Event::Null );
+	pHydrogen->setLastMidiEventParameter( 0 );
 	
 	m_pUpdateTimer = new QTimer( this );
 
@@ -90,38 +93,47 @@ MidiSenseWidget::~MidiSenseWidget(){
 
 void MidiSenseWidget::updateMidi(){
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	if(	!pHydrogen->m_LastMidiEvent.isEmpty() ){
-		m_sLastMidiEvent = pHydrogen->m_LastMidiEvent;
-		m_LastMidiEventParameter = pHydrogen->m_nLastMidiEventParameter;
+	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiMessage::Event::Null ){
 
+		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
+		m_nLastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
 
-		if( m_bDirectWrite ){
-			//write the action / parameter combination to the midiMap
+		if ( m_bDirectWrite ) {
+			// write the action / parameter combination to the midiMap
 			MidiMap *pMidiMap = MidiMap::get_instance();
 
 			assert(m_pAction);
 
-			std::shared_ptr<Action> pAction = std::make_shared<Action>( m_pAction->getType() );
+			std::shared_ptr<Action> pAction = std::make_shared<Action>( m_pAction );
+			pAction->setValue( "0" );
 
-			pAction->setParameter1( m_pAction->getParameter1() );
-			pAction->setParameter2( m_pAction->getParameter2() );
-			pAction->setParameter3( m_pAction->getParameter3() );
+			switch( m_lastMidiEvent ) {
+			case H2Core::MidiMessage::Event::CC: 
+				pMidiMap->registerCCEvent( m_nLastMidiEventParameter, pAction );
+				break;
 
-			if( m_sLastMidiEvent.left(2) == "CC" ){
-				pMidiMap->registerCCEvent( m_LastMidiEventParameter , pAction );
-			} else if( m_sLastMidiEvent.left(3) == "MMC" ){
-				pMidiMap->registerMMCEvent( m_sLastMidiEvent , pAction );
-			} else if( m_sLastMidiEvent.left(4) == "NOTE" ){
-				pMidiMap->registerNoteEvent( m_LastMidiEventParameter , pAction );
-			} else if (m_sLastMidiEvent.left(14) == "PROGRAM_CHANGE" ){
+			case H2Core::MidiMessage::Event::Note:
+				pMidiMap->registerNoteEvent( m_nLastMidiEventParameter, pAction );
+				break;
+
+			case H2Core::MidiMessage::Event::PC:
 				pMidiMap->registerPCEvent( pAction );
-			} else {
-				/* In all other cases, the midiMap cares for deleting the pointer */
+				break;
+
+			case H2Core::MidiMessage::Event::Null:
+				return;
+
+			default:
+				// MMC event
+				pMidiMap->registerMMCEvent(
+					H2Core::MidiMessage::EventToQString( m_lastMidiEvent ),
+					pAction );
 			}
+
+			H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
 		}
 
 		close();
 	}
-
 }
 

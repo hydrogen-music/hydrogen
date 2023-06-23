@@ -61,11 +61,13 @@ class EventListener
 	virtual void drumkitLoadedEvent(){}
 	virtual void patternEditorLockedEvent(){}
 	virtual void relocationEvent(){}
+	virtual void bbtChangedEvent(){}
 	virtual void songSizeChangedEvent(){}
 	virtual void driverChangedEvent(){}
 	virtual void playbackTrackChangedEvent(){}
 	virtual void soundLibraryChangedEvent(){}
 	virtual void nextShotEvent(){}
+	virtual void midiMapChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

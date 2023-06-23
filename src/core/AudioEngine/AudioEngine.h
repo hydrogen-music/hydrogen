@@ -433,6 +433,13 @@ public:
 	void flushAndAddNextPattern( int nPatternNumber );
 
 	void updateVirtualPatterns();
+
+	/**
+	 * Returns the size of #m_songNoteQueue.
+	 *
+	 * Required to not end unit tests prematurely.
+	 */
+	int getEnqueuedNotesNumber() const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -578,6 +585,12 @@ private:
 	 * frame-based variables might have become invalid.
 	 */
 	void handleDriverChange();
+
+	/**
+	 * Called whenever Hydrogen switches from #Song::Mode::Song into
+	 * #Song::Mode::Pattern or the other way around.
+	 */
+	void switchMode();
 
 	Sampler* 			m_pSampler;
 	Synth* 				m_pSynth;
@@ -795,6 +808,9 @@ inline double AudioEngine::getSongSizeInTicks() const {
 }
 inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 	return m_pMetronomeInstrument;
+}
+inline int AudioEngine::getEnqueuedNotesNumber() const {
+	return m_songNoteQueue.size();
 }
 };
 

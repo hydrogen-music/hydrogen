@@ -878,7 +878,12 @@ Kit actuel :</translation>
     <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vous n&apos;avez pas le droit d&apos;écriture dans le dossier sélectionné. Veuillez en sélectionner un autre.</translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation>session</translation>
     </message>
 </context>
 <context>
@@ -2597,7 +2602,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <name>MixerSettingsDialog_UI</name>
     <message>
         <source>Select Pan Law:</source>
-        <translation>Sélectionner la loi le panoramique</translation>
+        <translation>Sélectionner la loi de panoramique :</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2813,8 +2818,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Velocite</translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>Pan</source>
@@ -2834,8 +2838,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>NoteKey</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Numero de note</translation>
+        <translation>Numéro de note</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -2847,8 +2850,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Probability</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Probabilite</translation>
+        <translation>Probabilité</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -3029,8 +3031,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translatorcomment>Faute sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Mode motif selectionne.</translation>
+        <translation>Mode motif sélectionné.</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -3086,8 +3087,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation> Compter et regler les BPM</translation>
+        <translation> Compter et régler les BPM</translation>
     </message>
     <message>
         <source>Record</source>
@@ -3095,13 +3095,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Enregistrer les evenements MIDI = actif</translation>
+        <translation>Enregistrer les événements MIDI = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Enregistrer les evenements MIDI = inactif</translation>
+        <translation>Enregistrer les événements MIDI = inactif</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
@@ -3109,13 +3107,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
+        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translatorcomment>Fautes sur l&apos;accent aigu et l&apos;apostrophe manquant faites exprès car c&apos;est sur l&apos;affichage LCD et les accents et l&apos;apostrophe n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
+        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -3734,6 +3730,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Theme reset</source>
         <translation>Réinitialisation du thème</translation>
+    </message>
+    <message>
+        <source>Virtual Row</source>
+        <translation>Rangée virtuelle</translation>
     </message>
 </context>
 <context>
@@ -4852,8 +4852,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
-        <translation>Velocite</translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>selected pattern mode</source>
@@ -5324,8 +5323,17 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
         <translation>Double-clic pour étendre la liste</translation>
     </message>
     <message>
-        <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation>est un kit de batterie système et ne peut pas être supprimé.</translation>
+        <source>Session drumkits</source>
+        <translation>Kits de batterie de session</translation>
+    </message>
+    <message>
+        <source>Created for drumkit</source>
+        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
+        <translation>Créé pour le kit de batterie</translation>
+    </message>
+    <message>
+        <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation>est un kit de batterie en lecture seule et ne peut être supprimé.</translation>
     </message>
 </context>
 <context>

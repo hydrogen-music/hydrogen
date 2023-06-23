@@ -272,6 +272,18 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+QString Timeline::TempoMarker::getPrettyString( int nDecimals ) const {
+
+	int nPrec = 7;
+	if ( nDecimals >= 0 ) {
+		nPrec = std::min( nDecimals + ( fBpm >= 100 ? 3 : 2 ),
+						  7 );
+	}
+	QString sOut = QString::number( fBpm, 'g', nPrec );
+
+	return std::move( sOut );
+}
+
 QString Timeline::TempoMarker::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

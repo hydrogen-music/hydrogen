@@ -47,7 +47,9 @@ public:
 
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void timelineUpdateEvent( int nValue ) override;
-	virtual void metronomeEvent( int nValue ) override;
+	virtual void bbtChangedEvent() override;
+	virtual void tempoChangedEvent( int nValue ) override;
+	
 	virtual void paintEvent( QPaintEvent*) override;
 	virtual void keyPressEvent( QKeyEvent* ev ) override;
 	virtual void closeEvent( QCloseEvent* ev ) override;
@@ -55,21 +57,39 @@ public:
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
+	void resizeEvent( QResizeEvent *event ) override;
+
 private slots:
 	void updateMetronomBackground();
 
 
 private:
+	enum FontUpdate {
+		SongName = 0x001,
+		TagCurrent = 0x002,
+		TagNext = 0x004
+	};
+	/** @return true in case either #m_sTagCurrent or #m_sTagNext did
+	 * change.*/
+	bool updateTags();
+	void updateLabelContainers();
+	void updateFontSize( FontUpdate update );
+
 	QTimer				*m_pTimer;
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
-	int					m_nCounter;
-	float				m_fBpm;
+	int					m_nBeat;
 	int					m_nBar;
 	int					m_nFlashingArea;
-	QString				m_sTAG;
-	QString				m_sTAG2;
+	QString				m_sTagCurrent;
+	QString				m_sTagNext;
 	QString				m_sSongName;
+	QRect				m_rectSongName;
+	QRect				m_rectTagCurrent;
+	QRect				m_rectTagNext;
+	QFont				m_fontSongName;
+	QFont				m_fontTagCurrent;
+	QFont				m_fontTagNext;
 };
 
 

@@ -37,7 +37,7 @@
 namespace H2Core
 {
 
-	SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColumn, bool bTempoMarkerPresent )
+SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColumn, bool bTempoMarkerPresent )
 	: QDialog( pParent )
 	, m_nColumn( nColumn )
 	, m_bTempoMarkerPresent( bTempoMarkerPresent )
@@ -50,6 +50,7 @@ namespace H2Core
 
 	auto pHydrogen = Hydrogen::get_instance();
 
+	bpmSpinBox->setType( LCDSpinBox::Type::Double );
 	bpmSpinBox->setMinimum( MIN_BPM );
 	bpmSpinBox->setMaximum( MAX_BPM );
 	bpmSpinBox->setValue( pHydrogen->getTimeline()->getTempoAtColumn( m_nColumn ) );
@@ -59,7 +60,8 @@ namespace H2Core
 	// Required for correct focus highlighting.
 	bpmSpinBox->setSize( QSize( 146, 23 ) );
 	bpmSpinBox->setFocus();
-	
+
+	columnSpinBox->setType( LCDSpinBox::Type::Int );
 	columnSpinBox->setMinimum( 1 );
 	columnSpinBox->setMaximum( Preferences::get_instance()->getMaxBars() );
 	columnSpinBox->setValue( m_nColumn + 1 );
@@ -119,7 +121,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	
 	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
-	SE_editTimelineAction *action = new SE_editTimelineAction( m_nColumn, nNewColumn, fOldBpm, QString( bpmSpinBox->text() ).toFloat(), m_bTempoMarkerPresent );
+	SE_editTimelineAction *action = new SE_editTimelineAction( m_nColumn, nNewColumn, fOldBpm, bpmSpinBox->value(), m_bTempoMarkerPresent );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }

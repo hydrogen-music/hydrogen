@@ -156,8 +156,13 @@ namespace H2Core
 		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
 		static QString usr_click_file_path();
+		/** returns the drumkit XSD (xml schema definition) name */
+		static QString drumkit_xsd( );
 		/** returns the path to the drumkit XSD (xml schema definition) file */
 		static QString drumkit_xsd_path( );
+		/** @return List of absolute paths to all formerly used
+			drumkit.xsd files.*/
+		static QStringList drumkit_xsd_legacy_paths( );
 		/** returns the path to the pattern XSD (xml schema definition) file */
 		static QString pattern_xsd_path( );
 		/** returns the path to the playlist pattern XSD (xml schema definition) file */
@@ -203,6 +208,7 @@ namespace H2Core
 		static QString demos_dir();
 		/** returns system xsd path */
 		static QString xsd_dir();
+		static QString xsd_legacy_dir();
 		/** returns temp path */
 		static QString tmp_dir();
 		static QString usr_theme_dir();

@@ -53,9 +53,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( QString( "[start of handleMidiMessage] channel: %1, val1: %2, val2: %3" )
-				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
-				 .arg( msg.m_nData2 ) );
+		INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
@@ -69,7 +67,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		// exclude all midi channel filter independent messages
 		int type = msg.m_type;
 		if (  MidiMessage::SYSEX == type
-		   || MidiMessage::SYSTEM_EXCLUSIVE == type
 		   || MidiMessage::START == type
 		   || MidiMessage::CONTINUE == type
 		   || MidiMessage::STOP == type
@@ -96,84 +93,70 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::NOTE_ON:
-				INFOLOG("This is a NOTE ON message.");
 				handleNoteOnMessage( msg );
 				break;
 
 		case MidiMessage::NOTE_OFF:
-				INFOLOG("This is a NOTE OFF message.");
 				handleNoteOffMessage( msg, false );
 				break;
 
 		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-				//ERRORLOG( "POLYPHONIC_KEY_PRESSURE event not handled yet" );
-				INFOLOG( QString( "[handleMidiMessage] POLYPHONIC_KEY_PRESSURE Parameter: %1, Value: %2")
-					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 				handlePolyphonicKeyPressureMessage( msg );
 				break;
 
 		case MidiMessage::CONTROL_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2")
-					.arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 				handleControlChangeMessage( msg );
 				break;
 
 		case MidiMessage::PROGRAM_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE Value: %1" )
-					.arg( msg.m_nData1 ) );
 				handleProgramChangeMessage( msg );
 				break;
 
-		case MidiMessage::CHANNEL_PRESSURE:
-				ERRORLOG( "CHANNEL_PRESSURE event not handled yet" );
-				break;
-
-		case MidiMessage::PITCH_WHEEL:
-				ERRORLOG( "PITCH_WHEEL event not handled yet" );
-				break;
-
-		case MidiMessage::SYSTEM_EXCLUSIVE:
-				ERRORLOG( "SYSTEM_EXCLUSIVE event not handled yet" );
-				break;
-
 		case MidiMessage::START: /* Start from position 0 */
-				INFOLOG( "START event" );
-				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-					pHydrogen->getCoreActionController()->locateToColumn( 0 );
-					pHydrogen->sequencer_play();
-				}
-				break;
+			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+				auto pAction = std::make_shared<Action>("PLAY");
+				MidiActionManager::get_instance()->handleAction( pAction );
+			}
+			break;
 
-		case MidiMessage::CONTINUE: /* Just start */
-				ERRORLOG( "CONTINUE event" );
-				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-					pHydrogen->sequencer_play();
-				}
-				break;
+		case MidiMessage::CONTINUE: /* Just start */ {
+			auto pAction = std::make_shared<Action>("PLAY");
+			MidiActionManager::get_instance()->handleAction( pAction );
+			break;
+		}
 
-		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
-				INFOLOG( "STOP event" );
-				if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-					pHydrogen->sequencer_stop();
-				}
-				break;
+		case MidiMessage::STOP: /* Stop in current position i.e. Pause */ {
+			auto pAction = std::make_shared<Action>("PAUSE");
+			MidiActionManager::get_instance()->handleAction( pAction );
+			break;
+		}
 
+		case MidiMessage::CHANNEL_PRESSURE:
+		case MidiMessage::PITCH_WHEEL:
 		case MidiMessage::SONG_POS:
-				ERRORLOG( "SONG_POS event not handled yet" );
-				break;
-
 		case MidiMessage::QUARTER_FRAME:
-				WARNINGLOG( "QUARTER_FRAME event not handled yet" );
-				break;
+		case MidiMessage::SONG_SELECT:
+		case MidiMessage::TUNE_REQUEST:
+		case MidiMessage::TIMING_CLOCK:
+		case MidiMessage::ACTIVE_SENSING:
+		case MidiMessage::RESET:
+			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
+					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+			break;
 
 		case MidiMessage::UNKNOWN:
-				ERRORLOG( "Unknown midi message" );
-				break;
+			ERRORLOG( "Unknown midi message" );
+			break;
 
 		default:
-				ERRORLOG( QString( "unhandled midi message type: %1" ).arg( msg.m_type ) );
+			ERRORLOG( QString( "unhandled midi message type: %1 (%2)" )
+					  .arg( static_cast<int>( msg.m_type ) )
+					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 		}
-		INFOLOG("[end of handleMidiMessage]");
+
+		// Two spaces after "msg." in a row to align message parameters
+		INFOLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
@@ -183,18 +166,20 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getCCActions( msg.m_nData1 ) ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
-
-		pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			pMidiActionManager->handleAction( pNewAction );
+		}
 	}
 
 	if(msg.m_nData1 == 04){
 		__hihat_cc_openess = msg.m_nData2;
 	}
 
-	pHydrogen->m_LastMidiEvent = "CC";
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );
+	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
 }
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
@@ -203,15 +188,16 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	for ( auto action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != "NOTHING" ) {
-			action->setValue( QString::number( msg.m_nData1 ) );
-			pMidiActionManager->handleAction( action );
+	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData1 ) );
+			pMidiActionManager->handleAction( pNewAction );
 		}
 	}
 
-	pHydrogen->m_LastMidiEvent = "PROGRAM_CHANGE";
-	pHydrogen->m_nLastMidiEventParameter = 0;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::PC );
+	pHydrogen->setLastMidiEventParameter( 0 );
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -231,14 +217,19 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
-	pHydrogen->m_LastMidiEvent = "NOTE";
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
+	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
+	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
 
-	auto actions = pMidiMap->getNoteActions( msg.m_nData1 );
-	for ( auto action : actions ) {
-		action->setValue( QString::number( msg.m_nData2 ) );
+	bool bActionSuccess = false;
+	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.m_nData1 ) ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			auto pNewAction = std::make_shared<Action>( ppAction );
+			pNewAction->setValue( QString::number( msg.m_nData2 ) );
+			if ( pMidiActionManager->handleAction( pNewAction ) ) {
+				bActionSuccess = true;
+			}
+		}
 	}
-	bool bActionSuccess = pMidiActionManager->handleActions( actions );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
@@ -246,7 +237,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	static const float fPan = 0.f;
 
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
@@ -260,9 +251,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
@@ -322,7 +313,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	int nNote = msg.m_nData1;
-	int nInstrument = nNote - 36;
+	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
@@ -335,9 +326,9 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 	else {
 		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
-						.arg( nInstrument ).arg( 0 )
-						.arg( pInstrList->size() ) );
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrList->size() ) );
 			return;
 		}
 		pInstr = pInstrList->get( nInstrument );
@@ -381,97 +372,80 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
+	if ( msg.m_sysexData.size() == 6 && 
+		 msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 6 ) {
+		// MIDI Machine Control (MMC) message
 
-	if ( msg.m_sysexData.size() == 6 ) {
-		if (
-			( msg.m_sysexData[0] == 240 ) &&
-			( msg.m_sysexData[1] == 127 ) &&
-					//( msg.m_sysexData[2] == 0 ) &&
-			( msg.m_sysexData[3] == 6 ) ) {
+		MidiMessage::Event event = MidiMessage::Event::Null;
+		QString sMMCtype;
+		switch ( msg.m_sysexData[4] ) {
+		case 1:	// STOP
+			event = MidiMessage::Event::MmcStop;
+			break;
 
+		case 2:	// PLAY
+			event = MidiMessage::Event::MmcPlay;
+			break;
 
-			switch ( msg.m_sysexData[4] ) {
+		case 3:	//DEFERRED PLAY
+			event = MidiMessage::Event::MmcDeferredPlay;
+			break;
 
-			case 1:	// STOP
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_STOP";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_STOP"));
-				break;
-			}
+		case 4:	// FAST FWD
+			event = MidiMessage::Event::MmcFastForward;
+			break;
 
-			case 2:	// PLAY
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
-				break;
-			}
+		case 5:	// REWIND
+			event = MidiMessage::Event::MmcRewind;
+			break;
 
-			case 3:	//DEFERRED PLAY
-			{
-				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
-				break;
-			}
+		case 6:	// RECORD STROBE (PUNCH IN)
+			event = MidiMessage::Event::MmcRecordStrobe;
+			break;
 
-			case 4:	// FAST FWD
-				pHydrogen->m_LastMidiEvent = "MMC_FAST_FORWARD";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_FAST_FORWARD"));
-				break;
+		case 7:	// RECORD EXIT (PUNCH OUT)
+			event = MidiMessage::Event::MmcRecordExit;
+			break;
 
-			case 5:	// REWIND
-				pHydrogen->m_LastMidiEvent = "MMC_REWIND";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_REWIND"));
-				break;
+		case 8:	// RECORD READY
+			event = MidiMessage::Event::MmcRecordReady;
+			break;
 
-			case 6:	// RECORD STROBE (PUNCH IN)
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_STROBE";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_STROBE"));
-				break;
-
-			case 7:	// RECORD EXIT (PUNCH OUT)
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_EXIT";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_EXIT"));
-				break;
-
-			case 8:	// RECORD READY
-				pHydrogen->m_LastMidiEvent = "MMC_RECORD_READY";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_READY"));
-				break;
-
-			case 9:	//PAUSE
-				pHydrogen->m_LastMidiEvent = "MMC_PAUSE";
-				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PAUSE"));
-				break;
-
-			default:
-				WARNINGLOG( "Unknown MMC Command" );
-//					midiDump( buf, nBytes );
-			}
+		case 9:	//PAUSE
+			event = MidiMessage::Event::MmcPause;
+			break;
 		}
-	} else if ( msg.m_sysexData.size() == 13 ) {
-		ERRORLOG( "MMC GOTO Message not implemented yet" );
-//		midiDump( buf, nBytes );
-		//int id = buf[2];
-		int hr = msg.m_sysexData[7];
-		int mn = msg.m_sysexData[8];
-		int sc = msg.m_sysexData[9];
-		int fr = msg.m_sysexData[10];
-		int ff = msg.m_sysexData[11];
-		char tmp[200];
-		sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
-		INFOLOG( tmp );
 
-	} else {
-		// sysex dump
-		QString sDump;
-		char tmpChar[64];
-		for ( int i = 0; i < ( int )msg.m_sysexData.size(); ++i ) {
-			sprintf( tmpChar, "%X ", ( int )msg.m_sysexData[ i ] );
-			sDump += tmpChar;
+		if ( event != MidiMessage::Event::Null ) {
+			const QString sMMCtype = MidiMessage::EventToQString( event );
+			INFOLOG( QString( "MIDI Machine Control command: [%1]" )
+					 .arg( sMMCtype ) );
+			
+			pHydrogen->setLastMidiEvent( event );
+			pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
+			
+			pMidiActionManager->handleActions( pMidiMap->getMMCActions( sMMCtype ) );
 		}
-		WARNINGLOG( QString( "Unknown SysEx message: (%1) [%2]" ).arg( msg.m_sysexData.size() ).arg( sDump ) );
+		else {
+			WARNINGLOG( "Unknown MIDI Machine Control (MMC) Command" );
+		}
+	}
+	else if ( msg.m_sysexData.size() == 13 && 
+			  msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 68 ) {
+		WARNINGLOG( "MMC GOTO Message not implemented yet" );
+		// int hr = msg.m_sysexData[7];
+		// int mn = msg.m_sysexData[8];
+		// int sc = msg.m_sysexData[9];
+		// int fr = msg.m_sysexData[10];
+		// int ff = msg.m_sysexData[11];
+		// char tmp[200];
+		// sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
+		// INFOLOG( tmp );
+	}
+	else {
+		WARNINGLOG( QString( "Unsupported SysEx message: [%1]" )
+					.arg( msg.toQString() ) );
 	}
 }
 

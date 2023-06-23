@@ -295,6 +295,9 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fLastTickEnd = 0;
 	m_bLookaheadApplied = false;
 
+	m_fSongSizeInTicks = MAX_NOTES;
+	setNextBpm( 120 );
+
 	m_pTransportPosition->reset();
 	m_pQueuingPosition->reset();
 
@@ -469,6 +472,27 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 	}
 
 	updateBpmAndTickSize( pPos );
+
+
+	// Beat - Bar (- Tick) information is a coarse grained position
+	// information and might not change on small position increments.
+	bool bBBTChanged = false;
+	const int nBar = std::max( pPos->getColumn(), 0 ) + 1;
+	if ( nBar != pPos->getBar() ) {
+		pPos->setBar( nBar );
+		bBBTChanged = true;
+	}
+
+	const int nBeat = static_cast<int>(
+		std::floor(static_cast<float>(pPos->getPatternTickPosition()) /  48 )) + 1;
+	if ( pPos->getBeat() != nBeat ) {
+		pPos->setBeat( nBeat );
+		bBBTChanged = true;
+	}
+
+	if ( pPos == m_pTransportPosition && bBBTChanged ) {
+		EventQueue::get_instance()->push_event( EVENT_BBT_CHANGED, 0 );
+	}
 	
 	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
 	// 			.arg( fTick, 0, 'f' )
@@ -1105,6 +1129,19 @@ void AudioEngine::handleSelectedPattern() {
 	}
 }
 
+void AudioEngine::switchMode() {
+	reset( true );
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	m_fSongSizeInTicks = pSong->lengthInTicks();
+	setNextBpm( pSong->getBpm() );
+}
+
 void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -1163,6 +1200,11 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
 				continue;
+			}
+
+			if ( pNoteInstrument == m_pMetronomeInstrument ) {
+				m_pEventQueue->push_event( EVENT_METRONOME,
+										   pNote->get_pitch() == 0 ? 1 : 0 );
 			}
 
 			m_pSampler->noteOn( pNote );
@@ -1470,18 +1512,19 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Reset (among other things) the transport position. This causes
 	// the locate() call below to update the playing patterns.
 	reset( false );
-
-	pHydrogen->renameJackPorts( pNewSong );
+	setNextBpm( pNewSong->getBpm() );
 	m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
 
-	setState( State::Ready );
+	pHydrogen->renameJackPorts( pNewSong );
 
-	setNextBpm( pNewSong->getBpm() );
+	setState( State::Ready );
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
 	pHydrogen->setTimeline( pNewSong->getTimeline() );
 	pHydrogen->getTimeline()->activate();
+
+	updateSongSize();
 
 	this->unlock();
 }
@@ -2302,11 +2345,9 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			if ( nMetronomeTickPosition == 0 ) {
 				fPitch = 3;
 				fVelocity = 1.0;
-				EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 			} else {
 				fPitch = 0;
 				fVelocity = 0.8;
-				EventQueue::get_instance()->push_event( EVENT_METRONOME, 0 );
 			}
 			
 			// Only trigger the sounds if the user enabled the

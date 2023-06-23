@@ -28,7 +28,9 @@
 #include <cassert>
 #include <memory>
 
-#include "Theme.h"
+#include <core/Preferences/Theme.h>
+#include <core/Preferences/Shortcuts.h>
+
 #include <core/MidiAction.h>
 #include <core/Globals.h>
 #include <core/Object.h>
@@ -132,7 +134,9 @@ public:
 		/** Any option in the MIDI tab appeared.*/
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
-		OscTab = 0x040
+		OscTab = 0x040,
+		/** At least one shortcut was changed.*/
+		ShortcutTab = 0x080,
 	};
 
 	bool				__playsamplesonclicking; // audio file browser
@@ -221,6 +225,18 @@ public:
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
+	/**
+	 * Choice of #m_sMidiPortName and #m_sMidiOutputPortName in case
+	 * no port/device was selected.
+	 *
+	 * Pinning its value to "None" will prevent Hydrogen to connect to
+	 * ports/devices using this exact name but is still done for
+	 * backward compatibility.
+	 */
+	static QString getNullMidiPort() {
+		return "None";
+	}
+	
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
@@ -529,6 +545,9 @@ public:
 	WindowProperties	getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
+	WindowProperties	getPlaylistDialogProperties();
+	void				setPlaylistDialogProperties( const WindowProperties& prop );
+
 	const std::shared_ptr<ColorTheme>	getColorTheme() const;
 	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
@@ -654,6 +673,9 @@ public:
 
 	const std::shared_ptr<Theme> getTheme() const;
 	void setTheme( const std::shared_ptr<Theme> pTheme );
+
+	const std::shared_ptr<Shortcuts> getShortcuts() const;
+	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
 	
 private:
 	/**
@@ -664,6 +686,7 @@ private:
 	static Preferences *		__instance;
 
 	std::shared_ptr<Theme>		m_pTheme;
+	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
@@ -748,6 +771,7 @@ private:
 	WindowProperties		instrumentRackProperties;
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
+	WindowProperties		m_playlistDialogProperties;
 
 	QString					m_sPreferredLanguage;
 
@@ -1310,6 +1334,13 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 	m_ladspaProperties[nFX] = prop;
 }
 
+inline WindowProperties Preferences::getPlaylistDialogProperties() {
+	return m_playlistDialogProperties;
+}
+inline void Preferences::setPlaylistDialogProperties( const WindowProperties& prop ) {
+	m_playlistDialogProperties = prop;
+}
+
 inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {
 	return m_pTheme->getColorTheme();
 }
@@ -1428,6 +1459,13 @@ inline void Preferences::setTheme( const std::shared_ptr<Theme> pTheme ) {
 }
 inline const std::shared_ptr<Theme> Preferences::getTheme() const {
 	return m_pTheme;
+}
+
+inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
+	return m_pShortcuts;
+}
+inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
+	m_pShortcuts = pShortcuts;
 }
 };
 

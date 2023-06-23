@@ -27,6 +27,7 @@
 #include "MidiTable.h"
 
 #include <core/MidiMap.h>
+#include <core/IO/MidiCommon.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
@@ -38,12 +39,10 @@ MidiTable::MidiTable( QWidget *pParent )
 	: QTableWidget( pParent )
 	, m_nRowHeight( 29 )
 	, m_nColumn0Width( 25 )
-	, m_nColumn1Width( 146 )
-	, m_nColumn2Width( 85 )
-	, m_nColumn3Width( 175 )
-	, m_nColumn4Width( 56 )
-	, m_nColumn5Width( 56 )
-	, m_nColumn6Width( 56 )
+	, m_nMinComboWidth( 100 )
+	, m_nMaxComboWidth( 1460 )
+	, m_nDefaultComboWidth( 146 )
+	, m_nSpinBoxWidth( 60 )
  {
 	m_nRowCount = 0;
 	setupMidiTable();
@@ -76,8 +75,10 @@ void MidiTable::midiSensePressed( int row ){
 	LCDSpinBox * eventSpinner = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 2 ) );
 
 
-	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.m_sLastMidiEvent ) );
-	eventSpinner->setValue( midiSenseWidget.m_LastMidiEventParameter );
+	eventCombo->setCurrentIndex( eventCombo->findText(
+									 H2Core::MidiMessage::EventToQString(
+										 midiSenseWidget.getLastMidiEvent() ) ) );
+	eventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
 
 	m_pUpdateTimer->start( 100 );
 
@@ -147,8 +148,10 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 
 
 	LCDCombo *eventBox = new LCDCombo(this);
-	eventBox->setSize( QSize( m_nColumn1Width, m_nRowHeight ) );
-	eventBox->insertItems( oldRowCount , pActionHandler->getEventList() );
+	eventBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
+	eventBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
+	eventBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	eventBox->insertItems( oldRowCount , H2Core::MidiMessage::getEventList() );
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ),
@@ -156,8 +159,9 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	setCellWidget( oldRowCount, 1, eventBox );
 	
 	
-	LCDSpinBox *eventParameterSpinner = new LCDSpinBox(this);
-	eventParameterSpinner->setSize( QSize( m_nColumn2Width, m_nRowHeight ) );
+	LCDSpinBox *eventParameterSpinner = new LCDSpinBox(
+		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	eventParameterSpinner->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
 	eventParameterSpinner->setMaximum( 999 );
 	eventParameterSpinner->setValue( eventParameter );
@@ -166,7 +170,9 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 
 
 	LCDCombo *actionBox = new LCDCombo(this);
-	actionBox->setSize( QSize( m_nColumn3Width, m_nRowHeight ) );
+	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
+	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
+	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( pAction->getType() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
@@ -175,8 +181,9 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	setCellWidget( oldRowCount , 3, actionBox );
 
 	bool ok;
-	LCDSpinBox *actionParameterSpinner1 = new LCDSpinBox(this);
-	actionParameterSpinner1->setSize( QSize( m_nColumn4Width, m_nRowHeight ) );
+	LCDSpinBox *actionParameterSpinner1 = new LCDSpinBox(
+		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	actionParameterSpinner1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 4, actionParameterSpinner1 );
 	actionParameterSpinner1->setMaximum( 999 );
 	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
@@ -184,8 +191,9 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	connect( actionParameterSpinner1, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
-	LCDSpinBox *actionParameterSpinner2 = new LCDSpinBox(this);
-	actionParameterSpinner2->setSize( QSize( m_nColumn5Width, m_nRowHeight ) );
+	LCDSpinBox *actionParameterSpinner2 = new LCDSpinBox(
+		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	actionParameterSpinner2->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 5, actionParameterSpinner2 );
 	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
 	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
@@ -193,8 +201,9 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	connect( actionParameterSpinner2, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
-	LCDSpinBox *actionParameterSpinner3 = new LCDSpinBox(this);
-	actionParameterSpinner3->setSize( QSize( m_nColumn6Width, m_nRowHeight ) );
+	LCDSpinBox *actionParameterSpinner3 = new LCDSpinBox(
+		this, QSize( m_nSpinBoxWidth, m_nRowHeight ) );
+	actionParameterSpinner3->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	setCellWidget( oldRowCount , 6, actionParameterSpinner3 );
 	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
 	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
@@ -208,7 +217,7 @@ void MidiTable::setupMidiTable()
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
 	QStringList items;
-	items << "" << tr("Incoming Event")  << tr("Event Para.")
+	items << "" << tr("Incoming Event")  << tr("E. Para.")
 		  << tr("Action") <<  tr("Para. 1") << tr("Para. 2") << tr("Para. 3");
 
 	setRowCount( 0 );
@@ -217,31 +226,56 @@ void MidiTable::setupMidiTable()
 	verticalHeader()->hide();
 
 	setHorizontalHeaderLabels( items );
-	horizontalHeader()->setStretchLastSection(true);
 
-	setColumnWidth( 0 , m_nColumn0Width );
-	setColumnWidth( 1 , m_nColumn1Width );
-	setColumnWidth( 2, m_nColumn2Width );
-	setColumnWidth( 3, m_nColumn3Width );
-	setColumnWidth( 4 , m_nColumn4Width );
-	setColumnWidth( 5 , m_nColumn5Width );
-	setColumnWidth( 6 , m_nColumn6Width );
+	setColumnWidth( 0, m_nColumn0Width );
+	setColumnWidth( 1, m_nDefaultComboWidth );
+	setColumnWidth( 2, m_nSpinBoxWidth );
+	setColumnWidth( 3, m_nDefaultComboWidth );
+	setColumnWidth( 4, m_nSpinBoxWidth );
+	setColumnWidth( 5, m_nSpinBoxWidth );
+	setColumnWidth( 6, m_nSpinBoxWidth );
 
-	for ( const auto& it : pMidiMap->getMMCActionMap() ) {
-		insertNewRow( it.second, it.first, 0 );
+	// When resizing the table all of the new space should go into the
+	// combo boxes. They can hold long strings which per default do
+	// not fit the column width. The spin boxes, however, only show
+	// numbers up to 127 and do not need more width.
+	horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Fixed );
+	horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Stretch );
+	horizontalHeader()->setSectionResizeMode( 2, QHeaderView::Fixed );
+	horizontalHeader()->setSectionResizeMode( 3, QHeaderView::Stretch );
+	horizontalHeader()->setSectionResizeMode( 4, QHeaderView::Fixed );
+	horizontalHeader()->setSectionResizeMode( 5, QHeaderView::Fixed );
+	horizontalHeader()->setSectionResizeMode( 6, QHeaderView::Fixed );
+
+	for ( const auto& [ssMmcType, ppAction] : pMidiMap->getMMCActionMap() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			insertNewRow( ppAction, ssMmcType, 0 );
+		}
 	}
 
-	for ( const auto& it : pMidiMap->getNoteActionMap() ) {
-		insertNewRow( it.second, "NOTE", it.first );
+	for ( const auto& [nnPitch, ppAction] : pMidiMap->getNoteActionMap() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			insertNewRow( ppAction,
+						  H2Core::MidiMessage::EventToQString(
+							  H2Core::MidiMessage::Event::Note ),
+						  nnPitch );
+		}
 	}
 
-	for ( const auto& it : pMidiMap->getCCActionMap() ) {
-		insertNewRow( it.second, "CC", it.first );
+	for ( const auto& [nnParam, ppAction] : pMidiMap->getCCActionMap() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			insertNewRow( ppAction,
+						  H2Core::MidiMessage::EventToQString(
+							  H2Core::MidiMessage::Event::CC ),
+						  nnParam );
+		}
 	}
 
-	for ( const auto& action : pMidiMap->getPCActions() ) {
-		if ( action->getType() != "NOTHING" ) {
-			insertNewRow( action, "PROGRAM_CHANGE", 0 );
+	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ) {
+			insertNewRow( ppAction,
+						  H2Core::MidiMessage::EventToQString(
+							  H2Core::MidiMessage::Event::PC ), 0 );
 		}
 	}
 
@@ -263,13 +297,11 @@ void MidiTable::saveMidiTable()
 		LCDSpinBox * actionSpinner2 = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 5 ) );
 		LCDSpinBox * actionSpinner3 = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 6 ) );
 
-		QString eventString;
-		QString actionString;
-
 		if( !eventCombo->currentText().isEmpty() && !actionCombo->currentText().isEmpty() ){
-			eventString = eventCombo->currentText();
+			const QString sEventString = eventCombo->currentText();
+			const auto event = H2Core::MidiMessage::QStringToEvent( sEventString );
 
-			actionString = actionCombo->currentText();
+			const QString actionString = actionCombo->currentText();
 		
 			std::shared_ptr<Action> pAction = std::make_shared<Action>( actionString );
 
@@ -283,14 +315,27 @@ void MidiTable::saveMidiTable()
 				pAction->setParameter3( actionSpinner3->cleanText() );
 			}
 
-			if( eventString.left(2) == "CC" ){
+			switch ( event ) {
+			case H2Core::MidiMessage::Event::CC:
 				mM->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
-			} else if( eventString.left(3) == "MMC" ){
-				mM->registerMMCEvent( eventString , pAction );
-			} else if( eventString.left(4) == "NOTE" ){
+				break;
+				
+			case H2Core::MidiMessage::Event::Note:
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
-			} else if( eventString.left(14) == "PROGRAM_CHANGE" ){
+				break;
+				
+			case H2Core::MidiMessage::Event::PC:
 				mM->registerPCEvent( pAction );
+				break;
+				
+			case H2Core::MidiMessage::Event::Null:
+				// Event not recognized
+				continue;
+				
+			default:
+				// All remaining events should be different trades of
+				// MMC events. If not, registerMMCEvent will handle it.
+				mM->registerMMCEvent( sEventString , pAction );
 			}
 		}
 	}
@@ -315,34 +360,34 @@ void MidiTable::updateRow( int nRow ) {
 	// Adjust the event parameter spin box to fit the need of the
 	// particular event.
 	LCDSpinBox* pEventParameterSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
-	QString sEventString = pEventCombo->currentText();
-	
-	if ( sEventString.left(2) == "CC" ) {
+	const QString sEventString = pEventCombo->currentText();
+	const auto event = H2Core::MidiMessage::QStringToEvent( sEventString );
+
+	switch ( event ) {
+	case H2Core::MidiMessage::Event::CC:
 		pEventParameterSpinner->show();
 		pEventParameterSpinner->setMinimum( 0 );
 		pEventParameterSpinner->setMaximum( 127 );
-	}
-	else if ( sEventString.left(3) == "MMC" ) {
-		pEventParameterSpinner->hide();
-	}
-	else if ( sEventString.left(4) == "NOTE" ) {
+		break;
+		
+	case H2Core::MidiMessage::Event::Note:
 		pEventParameterSpinner->show();
 		pEventParameterSpinner->setMinimum( MIDI_OUT_NOTE_MIN );
 		pEventParameterSpinner->setMaximum( MIDI_OUT_NOTE_MAX );
-	}
-	else if ( sEventString.left(14) == "PROGRAM_CHANGE" ) {
-		pEventParameterSpinner->hide();
-	}
-	else {
-		pEventParameterSpinner->hide();
-	}
+		break;
 		
+	case H2Core::MidiMessage::Event::PC:
+	case H2Core::MidiMessage::Event::Null:
+	default:
+		// Includes all MMC events
+		pEventParameterSpinner->hide();
+	}
 
 	QString sActionType = pActionCombo->currentText();
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
 	LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
 	LCDSpinBox* pActionSpinner3 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType == "NOTHING" || sActionType.isEmpty() ) {
+	if ( sActionType == Action::getNullActionType() || sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();
 		pActionSpinner3->hide();

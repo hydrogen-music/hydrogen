@@ -880,6 +880,11 @@ Aktuelles:</translation>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
         <translation>Der ausgewählte Ordner ist schreibgeschützt. Bitte wählen Sie einen anderen.</translation>
     </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -3709,6 +3714,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Theme reset</source>
         <translation>Theme zurückgesetzt</translation>
     </message>
+    <message>
+        <source>Virtual Row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5295,8 +5304,17 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation>Doppelklick zum Aufblättern der Liste</translation>
     </message>
     <message>
-        <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation>ist ein System Drumkit und kann nicht gelöscht werden.</translation>
+        <source>Session drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created for drumkit</source>
+        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

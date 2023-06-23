@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hydrogen_theme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/theme">
- <version>1.2.0-beta1</version>
+ <version>1.2.0</version>
  <colorTheme>
   <songEditor>
    <backgroundColor>128,134,152</backgroundColor>

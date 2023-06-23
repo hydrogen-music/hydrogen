@@ -29,6 +29,7 @@ ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialCol
  : QPushButton( pParent )
  , m_sColor( sInitialColor )
  , m_bMouseOver( false )
+ , m_bHiding( false )
 {
 	setFlat( true );
 
@@ -59,7 +60,10 @@ void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 void ColorSelectionButton::enterEvent(QEvent *ev) {
 	UNUSED( ev );
 	m_bMouseOver = true;
-	update();
+
+	if ( ! m_bHiding ) {
+		update();
+	}
 }
 
 
@@ -71,23 +75,43 @@ void ColorSelectionButton::setColor( const QColor& color) {
 void ColorSelectionButton::leaveEvent(QEvent *ev) {
 	UNUSED( ev );
 	m_bMouseOver = false;
-	update();
+	
+	if ( ! m_bHiding ) {
+		update();
+	}
 }
 
 void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 	QPainter painter(this);
-	QColor color( m_sColor );
-	QColor backgroundColor( "#333" );
-	if ( m_bMouseOver ) {
-		if ( isEnabled() ) {
-			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
-		} else {
-			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+	if ( ! m_bHiding ) {
+		// Widget is rendered normally.
+		QColor color( m_sColor );
+		QColor backgroundColor( "#333" );
+		if ( m_bMouseOver ) {
+			if ( isEnabled() ) {
+				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
+			} else {
+				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+			}
 		}
+
+		painter.setPen( backgroundColor );
+		painter.drawRect( 0, 0, width() - 1, height() -1 );
+		painter.setPen( color );
+		painter.fillRect( 3, 3, width() - 6, height() - 6, color );
 	}
-	
-	painter.setPen( backgroundColor );
-	painter.drawRect( 0, 0, width() - 1, height() -1 );
-	painter.setPen( color );
-	painter.fillRect( 3, 3, width() - 6, height() - 6, color );
+	else {
+		// We pretend to hide the widget by making it transparent.
+		painter.fillRect( 0, 0, width() - 1, height() - 1,
+						  QColor( 0, 0, 0, 0 ) );
+	}
+}
+
+void ColorSelectionButton::pretendToHide() {
+	setEnabled( false );
+	m_bHiding = true;
+}
+void ColorSelectionButton::pretendToShow() {
+	setEnabled( true );
+	m_bHiding = false;
 }

@@ -551,22 +551,9 @@ void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	float fNewBpm = argv[0]->f;
-	fNewBpm = std::clamp( fNewBpm, static_cast<float>(MIN_BPM),
-						  static_cast<float>(MAX_BPM) );
-
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->setNextBpm( fNewBpm );
-	pAudioEngine->unlock();
-		
-	pHydrogen->getSong()->setBpm( fNewBpm );
-
-	pHydrogen->setIsModified( true );
-	
-	H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_TEMPO_CHANGED, -1 );
+	const float fNewBpm = argv[0]->f;
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->
+		setBpm( fNewBpm );
 }
 
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
@@ -1039,9 +1026,15 @@ void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 
 void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
+
+	bool bValidateLegacyKits = false;
+	if ( argc > 1 ) {
+		bValidateLegacyKits = argv[1]->f == 0 ? false : true;
+	}
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ) );
+	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ),
+								  bValidateLegacyKits );
 }
 
 void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1347,6 +1340,7 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "sf", VALIDATE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
 

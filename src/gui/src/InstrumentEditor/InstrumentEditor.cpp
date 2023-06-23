@@ -107,7 +107,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	pMidiOutLbl->move( 22, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 15,
+										   LCDSpinBox::Type::Int, -1, 16,
 										   true, true );
 	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
@@ -119,7 +119,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										LCDSpinBox::Type::Int, 0, 100 );
+										LCDSpinBox::Type::Int, 0, 100, true );
 	m_pMidiOutNoteLCD->move( 161, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect( m_pMidiOutNoteLCD, SIGNAL( valueChanged( double ) ),
@@ -300,7 +300,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatGroupLbl->move( 22, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127 );
+										  LCDSpinBox::Type::Int, 0, 127, true );
 	m_pHihatMinRangeLCD->move( 138, 303 );
 	connect( m_pHihatMinRangeLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatMinRangeChanged( double ) ) );
@@ -309,7 +309,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMinRangeLbl->move( 136, 327 );
 
 	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										  LCDSpinBox::Type::Int, 0, 127 );
+										  LCDSpinBox::Type::Int, 0, 127, true );
 	m_pHihatMaxRangeLCD->move( 203, 303 );
 	connect( m_pHihatMaxRangeLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatMaxRangeChanged( double ) ) );
@@ -439,7 +439,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLCD->move( 155, 393 );
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
-	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ) );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 7, 18 ), true );
 	m_sampleSelectionAlg->move( 76, 432 );
 	m_sampleSelectionAlg->setToolTip( tr( "Select selection algorithm" ) );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
@@ -501,6 +501,11 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		selectedInstrumentChangedEvent();
+
+		// The function call above sets some spurious isModified when
+		// updating the states of the widgets. This has to be reset
+		// for a freshly loaded song.
+		H2Core::Hydrogen::get_instance()->setIsModified( false );
 	}
 }
 
@@ -510,7 +515,6 @@ void InstrumentEditor::drumkitLoadedEvent() {
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
@@ -662,19 +666,22 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	
 	// Check if either this particular line or all lines should be updated.
-	if ( m_pInstrument != nullptr &&
-		 ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
-		   nInstrumentNumber == -1 ) ) {
+	if ( m_pInstrument != nullptr ) {
+		if ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
+			 nInstrumentNumber == -1 ) {
 
-		if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
-			m_pNameLbl->setText( m_pInstrument->get_name() );
+			if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
+				m_pNameLbl->setText( m_pInstrument->get_name() );
+			}
+
+			// filter
+			m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+			m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+			m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+			// ~ filter
 		}
-
-		// filter
-		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
-		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-		// ~ filter
+		// In case nInstrumentNumber does not belong to the currently
+		// selected instrument we don't have to do anything.
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );

@@ -58,6 +58,7 @@ int bcDisplaystatus = 0;
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , m_midiActivityTimeout( 125 )
+ , m_bLCDBPMSpinboxIsArmed( true )
 {
 
 	m_pHydrogen = Hydrogen::get_instance();
@@ -332,7 +333,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	// LCD BPM SpinBox
 	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 30), LCDSpinBox::Type::Double,
 									   static_cast<double>( MIN_BPM ),
-									   static_cast<double>( MAX_BPM ) );
+									   static_cast<double>( MAX_BPM ), true );
 	m_pLCDBPMSpinbox->move( 36, 1 );
 	m_pLCDBPMSpinbox->setStyleSheet( m_pLCDBPMSpinbox->styleSheet().
 									 append( " QAbstractSpinBox {font-size: 16px;}" ) );
@@ -548,7 +549,9 @@ void PlayerControl::updatePlayerControl()
 
 	if ( ! m_pLCDBPMSpinbox->hasFocus() &&
 		 ! m_pLCDBPMSpinbox->getIsHovered() ) {
+		m_bLCDBPMSpinboxIsArmed = false;
 		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+		m_bLCDBPMSpinboxIsArmed = true;
 	}
 
 	//beatcounter
@@ -766,14 +769,10 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 }
 
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
-	auto pAudioEngine = m_pHydrogen->getAudioEngine();
-	if ( m_pLCDBPMSpinbox->getIsActive() ) {
-		// Store it's value in the .h2song file.
-		m_pHydrogen->getSong()->setBpm( static_cast<float>( fNewBpmValue ) );
-		// Use tempo in the next process cycle of the audio engine.
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setNextBpm( static_cast<float>( fNewBpmValue ) );
-		pAudioEngine->unlock();
+	if ( m_pLCDBPMSpinbox->getIsActive() &&
+		 m_bLCDBPMSpinboxIsArmed ) {
+		m_pHydrogen->getCoreActionController()->
+			setBpm( static_cast<float>( fNewBpmValue ) );
 	}
 }
 
@@ -1058,6 +1057,11 @@ void PlayerControl::updateBeatCounterToolTip() {
 
 void PlayerControl::tempoChangedEvent( int nValue )
 {
+	// When updating the tempo of the BPM spin box it is crucial to
+	// indicated that this was done due to a batch event and not due
+	// to user input.
+	m_bLCDBPMSpinboxIsArmed = false;
+
 	// Also update value if the BPM widget is disabled
 	bool bIsReadOnly = m_pLCDBPMSpinbox->isReadOnly();
 
@@ -1072,10 +1076,13 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * of the song.
 	 */
 	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
-	
+
 	if ( ! bIsReadOnly ) {
 		m_pLCDBPMSpinbox->setReadOnly( false );
 	}
+
+	// Re-enabling core Bpm alteration using BPM spinbox
+	m_bLCDBPMSpinboxIsArmed = true;
 
 	if ( nValue == -1 ) {
 		// Value was changed via API commands and not by the

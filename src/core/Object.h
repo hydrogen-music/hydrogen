@@ -27,6 +27,9 @@
 #include <core/config.h>
 #include "core/Globals.h"
 
+#ifndef _WIN32
+#include <sys/time.h>
+#endif
 #include <unistd.h>
 #include <iostream>
 #include <atomic>

@@ -112,6 +112,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
+	WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
+	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetX + SetY );
+
 	m_pDirector = new Director( nullptr );
 
 	// Initially keyboard cursor is hidden.
@@ -846,6 +849,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->relocationEvent();
 				break;
 				
+			case EVENT_BBT_CHANGED:
+				pListener->bbtChangedEvent();
+				break;
+
 			case EVENT_SONG_SIZE_CHANGED:
 				pListener->songSizeChangedEvent();
 				break;
@@ -864,6 +871,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_NEXT_SHOT:
 				pListener->nextShotEvent();
+				break;
+
+			case EVENT_MIDI_MAP_CHANGED:
+				pListener->midiMapChangedEvent();
 				break;
 
 			default:

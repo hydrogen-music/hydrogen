@@ -153,6 +153,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
 	const QString& getPreferencesJackTooltip() const { return m_sPreferencesJackTooltip; }
+	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
 	const QString& getButtonSave() const { return m_sButtonSave; }
@@ -179,6 +180,20 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
 	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
 	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
+	
+	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
+	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
+	const QString& getInputCaptureColumn() const { return m_sInputCaptureColumn; }
+	const QString& getInputCapturePattern() const { return m_sInputCapturePattern; }
+	const QString& getInputCaptureSong() const { return m_sInputCaptureSong; }
+	const QString& getInputCaptureInstrument() const { return m_sInputCaptureInstrument; }
+	const QString& getInputCaptureComponent() const { return m_sInputCaptureComponent; }
+	const QString& getInputCaptureLayer() const { return m_sInputCaptureLayer; }
+	const QString& getInputCaptureFXLevel() const { return m_sInputCaptureFXLevel; }
+	const QString& getInputCaptureFXNumber() const { return m_sInputCaptureFXNumber; }
+	const QString& getInputCapturePan() const { return m_sInputCapturePan; }
+	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
+	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -289,6 +304,7 @@ private:
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;
 	QString m_sPreferencesJackTooltip;
+	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;
 	QString m_sButtonSave;
@@ -318,5 +334,19 @@ private:
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;
 	QString m_sSoundLibrarySessionSuffix;
+	
+	QString m_sInputCaptureBpm;
+	QString m_sInputCaptureVolume;
+	QString m_sInputCaptureColumn;
+	QString m_sInputCapturePattern;
+	QString m_sInputCaptureSong;
+	QString m_sInputCaptureInstrument;
+	QString m_sInputCaptureComponent;
+	QString m_sInputCaptureLayer;
+	QString m_sInputCaptureFXLevel;
+	QString m_sInputCaptureFXNumber;
+	QString m_sInputCapturePan;
+	QString m_sInputCaptureFilterCutoff;
+	QString m_sInputCaptureTag;
 };
 #endif
