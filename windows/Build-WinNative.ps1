@@ -57,6 +57,7 @@ if($installdeps)
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-qt5
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-ladspa-sdk
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-jack2
+    c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-liblo
 }
 
 if($build)
