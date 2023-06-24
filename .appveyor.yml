@@ -312,6 +312,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
 
           ccache -M 256M
           ccache -s
