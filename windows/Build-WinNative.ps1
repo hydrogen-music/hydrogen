@@ -16,16 +16,16 @@ if($32bit)
     $64bit_string = "OFF"
     $msys_repo='mingw32/mingw-w64-i686'
     $msys='C:\msys64\mingw32'
-    $libssl='libssl-1_1.dll'
-    $libcrypto='libcrypto-1_1.dll'
+    $libssl='libssl-3.dll'
+    $libcrypto='libcrypto-3.dll'
 }
 else
 {
     $64bit_string = "ON"
     $msys_repo='mingw64/mingw-w64-x86_64'
     $msys='C:\msys64\mingw64'
-    $libssl='libssl-1_1-x64.dll'
-    $libcrypto='libcrypto-1_1-x64.dll'
+    $libssl='libssl-3-x64.dll'
+    $libcrypto='libcrypto-3-x64.dll'
 }
 
 
@@ -57,6 +57,7 @@ if($installdeps)
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-qt5
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-ladspa-sdk
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-jack2
+    c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-liblo
 }
 
 if($build)
@@ -90,21 +91,26 @@ if($build)
         mkdir windows/extralibs
     }
 
+    Write-Host 'Bundling libraries required for Qt'
     $arguments="-xmlpatterns", "--no-patchqt", "--dir", "windows\extralibs", "src\gui\hydrogen.exe"
     $cmd="$env:QTDIR\bin\windeployqt.exe"
     & $cmd $arguments
 
+    Write-Host 'Installing additional Python requirements'
     $arguments= "-m","pip","install","-r","..\windows\ci\requirements.txt"
     & $python_exe $arguments
 
+    Write-Host 'Bundling additional libraries'
     $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-*.dll"
     & $python_exe $arguments
     
     # libcrypto and libssl are not picked up by the Python script
     # above and needs to be copied manually
+    Write-Host 'Copy libssl and libcrypto libraries manually'
     cp $msys\bin\$libssl windows\extralibs
     cp $msys\bin\$libcrypto windows\extralibs
-    
+
+    Write-Host 'DONE Building Hydrogen'
     cd ../windows
 }
 
