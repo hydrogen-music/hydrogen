@@ -95,13 +95,13 @@ signals:
 	void valueChanged(WidgetWithInput *ref);	
 
 protected:
-	virtual void mousePressEvent(QMouseEvent *ev);
-	virtual void mouseReleaseEvent( QMouseEvent *ev );
-	virtual void mouseMoveEvent(QMouseEvent *ev);
-	virtual void wheelEvent( QWheelEvent *ev );
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
-	virtual void keyPressEvent( QKeyEvent *ev );
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+	virtual void mouseMoveEvent(QMouseEvent *ev) override;
+	virtual void wheelEvent( QWheelEvent *ev ) override;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
+	virtual void keyPressEvent( QKeyEvent *ev ) override;
 
 	void updateTooltip() override;
 	

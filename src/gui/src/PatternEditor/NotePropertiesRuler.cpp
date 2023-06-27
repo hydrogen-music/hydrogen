@@ -325,6 +325,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		case PatternEditor::Mode::Probability:
 			pNote->set_probability( pOldNote->get_probability() );
 			break;
+		case PatternEditor::Mode::None:
 		default:
 			break;
 		}
@@ -571,14 +572,13 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case PatternEditor::Mode::LeadLag:
-		{
-			float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
-			pNote->set_lead_lag( fLeadLag );
-			m_fLastSetValue = fLeadLag;
-			bValueSet = true;
-		}
+	case PatternEditor::Mode::LeadLag: {
+		float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
+		pNote->set_lead_lag( fLeadLag );
+		m_fLastSetValue = fLeadLag;
+		bValueSet = true;
 		break;
+	}
 	case PatternEditor::Mode::Probability:
 		if ( !pNote->get_note_off() ) {
 			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
@@ -587,7 +587,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case PatternEditor::Mode::NoteKey:
+	case PatternEditor::Mode::NoteKey: {
 		int nPitch = qBound( 12 * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
 							 12 * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
@@ -603,6 +603,11 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 
 		bValueSet = true;
 		break;
+	}
+
+	case PatternEditor::Mode::None:
+	default:
+		ERRORLOG("No mode set. No note property adjusted.");
 	}
 
 	if ( bValueSet ) {
@@ -768,7 +773,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					case PatternEditor::Mode::Pan:
 						if ( !pNote->get_note_off() ) {
 							if ( m_fLastSetValue > 1. ) { // TODO whats this for? is it ever reached?
-								printf( "reached  m_fLastSetValue > 1 in NotePropertiesRuler.cpp\n" );
+								ERRORLOG( QString( "reached m_fLastSetValue [%1] > 1" )
+										  .arg( m_fLastSetValue ) );
 								pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
 							}
 							bValueSet = true;
@@ -789,6 +795,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 											   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
 						bValueSet = true;
 						break;
+
+					case PatternEditor::Mode::None:
+					default:
+						ERRORLOG("No mode set. No note property adjusted.");
 					}
 
 					if ( bValueSet ) {
@@ -962,6 +972,7 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	case PatternEditor::Mode::Probability:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteProbabilityScrollArea();
 		break;
+	case PatternEditor::Mode::None:
 	default:
 		return;
 	}

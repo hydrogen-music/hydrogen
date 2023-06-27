@@ -1329,6 +1329,9 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		case Mode::Probability:
 			pDraggedNote->set_probability( fProbability );
 			break;
+		case Mode::None:
+		default:
+			ERRORLOG("No mode set. No note property adjusted.");
 		}			
 		bValueChanged = true;
 		PatternEditor::triggerStatusMessage( pDraggedNote, mode );

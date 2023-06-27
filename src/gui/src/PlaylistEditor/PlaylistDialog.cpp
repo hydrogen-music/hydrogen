@@ -1033,6 +1033,8 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 			bHandled = true;
 			break;
 #endif
+		default:
+			bHandled = false;
 		}
 	}
 
