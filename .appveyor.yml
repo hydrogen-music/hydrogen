@@ -138,7 +138,7 @@ for:
     build_script: |-
       git submodule init && git submodule update
 
-      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2 -Wall -Wextra"
+      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
