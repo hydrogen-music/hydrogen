@@ -94,10 +94,6 @@
  * Check whether the realtime clock _rtclock.c_ is present.
  */
 #define HAVE_RTCLOCK
-/**
- * Check whether a library called _jack_port_rename_ is present.
- */
-#define HAVE_JACK_PORT_RENAME
 
 /** Checks whether the user enabled debugging. Default: TRUE */
 #define H2CORE_HAVE_DEBUG

@@ -944,16 +944,11 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
 
-#ifdef HAVE_JACK_PORT_RENAME
 	// This differs from jack_port_set_name() by triggering
 	// PortRename notifications to clients that have registered a
 	// port rename handler.
 	jack_port_rename( m_pClient, m_pTrackOutputPortsL[n], ( sComponentName + "L" ).toLocal8Bit() );
 	jack_port_rename( m_pClient, m_pTrackOutputPortsR[n], ( sComponentName + "R" ).toLocal8Bit() );
-#else
-	jack_port_set_name( m_pTrackOutputPortsL[n], ( sComponentName + "L" ).toLocal8Bit() );
-	jack_port_set_name( m_pTrackOutputPortsR[n], ( sComponentName + "R" ).toLocal8Bit() );
-#endif
 }
 
 void JackAudioDriver::startTransport()

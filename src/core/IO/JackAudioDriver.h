@@ -421,21 +421,7 @@ private:
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 
-	 *
-	 * If the track number @a n is bigger than the number of ports
-	 * currently in usage #m_nTrackPortCount, @a n + 1 -
-	 * #m_nTrackPortCount new stereo ports will be created using
-	 * _jack_port_register()_ (jack/jack.h) and #m_nTrackPortCount
-	 * updated to @a n + 1.
-	 *
-	 * Afterwards, the @a n 'th port is renamed to a concatenation of
-	 * "Track_", DrumkitComponent::__name, "_", @a n + 1, "_",
-	 * Instrument::__name, and "_L", or "_R" using either
-	 * _jack_port_rename()_ (if HAVE_JACK_PORT_RENAME is defined) or
-	 * _jack_port_set_name()_ (both jack/jack.h). The former renaming
-	 * function triggers a _PortRename_ notifications to clients that
-	 * have registered a port rename handler.
-	 *
+  	 *
 	 * \param n Track number for which a port should be renamed
 	 *   (and created).
 	 * \param instr Pointer to the corresponding Instrument.
