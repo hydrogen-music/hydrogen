@@ -39,6 +39,6 @@ public:
 	~FileDialog();
 
 public slots:
-	void accept();
+	void accept() override;
 };
 #endif

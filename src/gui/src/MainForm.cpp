@@ -2169,14 +2169,20 @@ bool MainForm::handleUnsavedChanges()
 void MainForm::usr1SignalHandler(int)
 {
 	char a = 1;
-	::write(sigusr1Fd[0], &a, sizeof(a));
+	int nRes = ::write(sigusr1Fd[0], &a, sizeof(a));
+	if ( nRes < 0 ) {
+		ERRORLOG( "Unable to write to signal handler" );
+	}
 }
 
 void MainForm::handleSigUsr1()
 {
 	snUsr1->setEnabled(false);
 	char tmp;
-	::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+	int nRes = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+	if ( nRes < 0 ) {
+		ERRORLOG( "Unable to write to signal handler" );
+	}
 
 	action_file_save();
 	snUsr1->setEnabled(true);

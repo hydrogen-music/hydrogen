@@ -204,15 +204,24 @@ void Playlist::setNextSongByNumber( int songNumber )
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber );
 }
 
-void Playlist::execScript( int index)
+void Playlist::execScript( int nIndex )
 {
-	QString file = get( index )->scriptPath;
+	QString sFile = get( nIndex )->scriptPath;
 
-	if ( !get( index )->scriptEnabled || !QFile( file ).exists() ) {
+	if ( !get( nIndex )->scriptEnabled ) {
+		return;
+	}
+	if ( !QFile( sFile ).exists() ) {
+		ERRORLOG( QString( "Script [%1] for playlist [%2] does not exist!" )
+				  .arg( sFile ).arg( nIndex ) );
 		return;
 	}
 
-	std::system( file.toLocal8Bit() );
+	int nRes = std::system( sFile.toLocal8Bit() );
+	if ( nRes != 0 ) {
+		WARNINGLOG( QString( "Script [%1] for playlist [%2] exited with status code [%3]" )
+					.arg( sFile ).arg( nIndex ).arg( nRes ) );
+	}
 
 	return;
 }

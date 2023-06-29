@@ -285,6 +285,9 @@ void PortMidiDriver::open()
 		if ( startErr != ptNoError ) {
 			QString sError;
 			switch( startErr ) {
+			case ptNoError:
+				sError = QString();
+				break;
 			case ptHostError:
 				sError = QString( "Host error" );
 				break;
