@@ -37,6 +37,7 @@ CMAKE_OPTIONS="
     -DWANT_COREAUDIO=1 \
     -DWANT_COREMIDI=1
 "
+CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
@@ -53,7 +54,7 @@ function cmake_init() {
     fi
     cd $BUILD_DIR || exit 1
     if [ ! -e CMakeCache.txt ]; then
-        cmake ${CMAKE_OPTIONS} .. || exit 1
+        CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} cmake ${CMAKE_OPTIONS} .. || exit 1
     fi
     cd .. || exit 1
 }

@@ -304,7 +304,7 @@ public:
 
 	bool requiresDefaults() const;
 	
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 

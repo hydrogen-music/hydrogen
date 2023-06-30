@@ -48,7 +48,7 @@ private slots:
 	void apply();
 
 private:
-	void keyPressEvent( QKeyEvent* ev );
+	void keyPressEvent( QKeyEvent* ev ) override;
 	
 	QLabel* m_pLabel;
 	int  m_nKey;

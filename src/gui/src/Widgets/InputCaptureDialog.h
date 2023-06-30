@@ -48,7 +48,7 @@ public:
 	QString text() const;
 
 protected:
-	void keyPressEvent( QKeyEvent* ev );
+	void keyPressEvent( QKeyEvent* ev ) override;
 
 	QLabel* m_pLabel;
 	QLabel* m_pLabelTitle;
