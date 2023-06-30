@@ -245,7 +245,6 @@ ELSE()
   #32bit Windows and all other OS
   FIND_HELPER(JACK jack jack/jack.h jack)
 ENDIF()
-CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
     FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
