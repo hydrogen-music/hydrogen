@@ -27,7 +27,6 @@ AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
 "theGreatWhiteShark"
-,"phil"
 ,"Charbel Jacquin"
 ,"Colin McEwan"
 ,"Sebastian Moors"
@@ -39,6 +38,7 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"Daniele Medri"
 ,"Raphael Graf"
 ,"psykose"
+,"ignotus666"
 ,"Houston4444"
 ,"Dan Church"
 };
