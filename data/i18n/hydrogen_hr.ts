@@ -570,27 +570,27 @@ B</source>
     </message>
     <message>
         <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished">Ulaz</translation>
     </message>
     <message>
@@ -605,7 +605,9 @@ B</source>
     </message>
     <message>
         <source>BPM</source>
-        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
+----------
+Label shown in the input capture dialog for querying a new tempo value.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -878,6 +880,71 @@ Current kit:</source>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Define a keybinding for the selected shortcut</source>
+        <extracomment>Displayed both as tooltip in the Preferences dialog &gt; Shortcuts tab as well as window title.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <extracomment>Label shown in the input capture dialog for querying a new volume value.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Number</source>
+        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FX Level</source>
+        <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FX Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <translation type="unfinished">Pan</translation>
+    </message>
+    <message>
+        <source>Filter Cutoff</source>
+        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
+        <translation type="unfinished">Filter Cutoff</translation>
+    </message>
+    <message>
+        <source>Tag Text</source>
+        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1429,6 +1496,13 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InputCaptureDialog</name>
+    <message>
+        <source>InputCaptureDialog</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2301,10 +2375,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Playing.</source>
-        <translation type="unfinished">Svira.</translation>
-    </message>
-    <message>
         <source>Song Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2345,6 +2415,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Playback track couldn&apos;t be read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import &amp;Demo Into Session</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2402,10 +2476,6 @@ The session needs to be saved before exporting will can be continued.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Event Para.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Para. 1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2415,6 +2485,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Para. 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4191,6 +4265,58 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Reset Appearance Tab</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Short&amp;cuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shortcut Category</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Category</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restores the default values for all shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Reset all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removes keybinding of selected shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Clear</source>
+        <translation type="unfinished">&amp;Obriši</translation>
+    </message>
+    <message>
+        <source>&amp;Define</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add additional rows for the select actions to allow them to be bound to further shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -4656,6 +4782,613 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ShortcutCaptureDialog</name>
+    <message>
+        <source>Waiting for keyboard input</source>
+        <extracomment>Text displayed in the shortcut capture dialog</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Shortcuts</name>
+    <message>
+        <source>Pause transport and stop all playing notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start/Pause playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start/Stop playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playback at keyboard cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record toggling (if playback isn&apos;t running)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record activation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record toggling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record deactivation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute toggling of master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase volume of master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease volume of master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move playhead to the beginnning of the song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move playhead one bar forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move playhead one bar backward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM increase (coarse)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM decrease (coarse)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM increase (fine)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BPM decrease (fine)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BeatCounter trigger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Tempo trigger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: select next song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: select previous song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Metronome</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle JACK Transport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle JACK Timebase support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle song/pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle loop mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set BPM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume of master output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set playhead position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select next pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select only next pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select next pattern and start playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Playlist song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline: delete tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline: delete tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set current instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase volume of instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decrease volume of instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle instrument mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle instrument solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument filter cutoff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline: add tempo marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline: add tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle cell in song editor grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument layer pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument layer gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument FX aux level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create empty song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open song from disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit song properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open demo song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save all modifications to the current song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save all modifications to a new song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open pattern from disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Write pattern to disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export song to audio file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export song to MIDI file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export song to LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo the last modification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Redo the last modification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show modification history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create empty drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open drumkit from soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit drumkit properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save modifications to current drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save modifications to new drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export drumkit to disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit from disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit from server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add instrument to current drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all instruments in current drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show playlist editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation type="unfinished">Prikaži mixer</translation>
+    </message>
+    <message>
+        <source>Show instrument rack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show automation path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle fullscreen mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use instrument mode for MIDI input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use drumkit mode for MIDI input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preferences dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show audio engine info dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show filesystem info dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log Level = None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log Level = Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log Level = Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log Level = Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log Level = Debug</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open log file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print object debug count to log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open user manual</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show about dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Report bug in web browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show donate dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 36 (C2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 37 (C#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 38 (D2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 39 (D#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 40 (E2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 41 (F2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 42 (F#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 43 (G2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 44 (G#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 45 (A2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 46 (A#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 47 (B2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 48 (C3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 49 (C#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 50 (D3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 51 (D#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 52 (E3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 53 (F3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 54 (F#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 55 (G3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 56 (G#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 57 (A3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 58 (A#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 59 (B3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add current song to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove song from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Playlist from disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save modifications to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save modifications to new Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add script to Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove script from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create script for Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Commands (0 args)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Commands (1 arg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Commands (2 args)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Commands (many args)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual Keyboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PlaylistEditor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Categories</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
