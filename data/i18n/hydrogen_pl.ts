@@ -570,27 +570,27 @@ B</source>
     </message>
     <message>
         <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
         <translation type="unfinished">Wejście</translation>
     </message>
     <message>
@@ -873,6 +873,11 @@ Current kit:</source>
     <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3658,6 +3663,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Theme reset</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Virtual Row</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -5215,7 +5224,16 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>is a system drumkit and can&apos;t be deleted.</source>
+        <source>Session drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created for drumkit</source>
+        <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

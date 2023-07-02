@@ -572,27 +572,27 @@ B</translation>
     </message>
     <message>
         <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation>Tail</translation>
     </message>
     <message>
         <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation>Rés</translation>
     </message>
     <message>
         <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
         <translation>Écou</translation>
     </message>
     <message>
         <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
         <translation>Quant</translation>
     </message>
     <message>
         <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
         <translation>Entrée</translation>
     </message>
     <message>
