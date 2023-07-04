@@ -1021,6 +1021,9 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		setWindowProperties( m_pMixer, mixerProp );
 
 		m_pMixer->updateMixer();
+
+		WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
+		setWindowProperties( m_pPlaylistDialog, playlistDialogProp );
 		
 #ifdef H2CORE_HAVE_LADSPA
 		// LADSPA FX
