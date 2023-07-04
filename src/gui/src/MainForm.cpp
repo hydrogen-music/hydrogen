@@ -1491,6 +1491,8 @@ void MainForm::savePreferences() {
 
 	pPreferences->setPlaylistDialogProperties(
 		h2app->getWindowProperties( h2app->getPlayListDialog() ) );
+	pPreferences->setDirectorProperties(
+		h2app->getWindowProperties( h2app->getDirector() ) );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties

@@ -116,6 +116,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
 
 	m_pDirector = new Director( nullptr );
+	WindowProperties directorProp = pPref->getDirectorProperties();
+	setWindowProperties( m_pDirector, directorProp, SetAll );
 
 	// Initially keyboard cursor is hidden.
 	m_bHideKeyboardCursor = true;
