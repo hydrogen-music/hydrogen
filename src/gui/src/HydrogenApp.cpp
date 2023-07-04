@@ -116,6 +116,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetX + SetY );
 
 	m_pDirector = new Director( nullptr );
+	WindowProperties directorProp = pPref->getDirectorProperties();
+	setWindowProperties( m_pDirector, directorProp, SetAll );
 
 	// Initially keyboard cursor is hidden.
 	m_bHideKeyboardCursor = true;
@@ -1024,7 +1026,10 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
 		setWindowProperties( m_pPlaylistDialog, playlistDialogProp );
-		
+
+		WindowProperties directorProp = pPref->getDirectorProperties();
+		setWindowProperties( m_pDirector, directorProp, SetAll );
+
 #ifdef H2CORE_HAVE_LADSPA
 		// LADSPA FX
 		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
