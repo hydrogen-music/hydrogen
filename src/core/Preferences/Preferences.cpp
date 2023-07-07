@@ -257,6 +257,7 @@ Preferences::Preferences()
 	instrumentRackProperties.set(500, 20, 526, 437, true);
 	audioEngineInfoProperties.set(720, 120, 0, 0, false);
 	m_playlistDialogProperties.set(200, 300, 961, 397, false);
+	m_directorProperties.set(200, 300, 423, 377, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
@@ -632,6 +633,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 				setPlaylistDialogProperties( readWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties ) );
+				setDirectorProperties( readWindowProperties( guiNode, "director_properties", m_directorProperties ) );
 
 				// last used file dialog folders
 				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
@@ -1079,6 +1081,7 @@ bool Preferences::savePreferences()
 		writeWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties );
 		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
 		writeWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties );
+		writeWindowProperties( guiNode, "director_properties", m_directorProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
 			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
