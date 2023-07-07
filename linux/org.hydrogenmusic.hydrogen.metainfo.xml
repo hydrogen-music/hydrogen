@@ -14,6 +14,13 @@
   <project_license>GPL-2.0-or-later</project_license>
   
   <description>
+	<p>
+	  Hydrogen is both a drum sequencer for pattern-based programming
+	  and a drum synth. Its simple yet feature-rich design makes it a
+	  versatile companion, be it for quick practice at home,
+	  professional usage as fully-fledged drum machine in your studio,
+	  or drum looper on steriods for your live performance.
+	</p>
     <p>
       Features:
     </p>
@@ -26,13 +33,6 @@
       <li>High quality time-stretching and pitch shifting</li>
       <li>Automate it using MIDI or OSC API</li>
 	</ul>
-	<p>
-	  Hydrogen is both a drum sequencer for pattern-based programming
-	  and a drum synth. Its simple yet feature-rich design makes it a
-	  versatile companion, be it for quick practice at home,
-	  professional usage as fully-fledged drum machine in your studio,
-	  or drum looper on steriods for your live performance.
-	</p>
   </description>
 
   <categories>
@@ -52,8 +52,6 @@
   <url type="help">http://hydrogen-music.org/documentation/manual/manual_en.html/</url>
   <url type="translate">https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions/</url>
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
-  <url type="vcs-browser">https://github.com/hydrogen-music/hydrogen/</url>
-  <url type="contribute">http://hydrogen-music.org/contribution/</url>
 
   <releases type="external" url="https://github.com/hydrogen-music/hydrogen/blob/master/linux/org.hydrogenmusic.hydrogen.releases.xml"/>
   
