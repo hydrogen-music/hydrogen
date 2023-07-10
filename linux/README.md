@@ -15,9 +15,10 @@ now). But in general the newer and properly licensed
 language is not present yet, copy the `po/appstream.pot` file to a
 file in the [po](./po) folder having your language code as basename
 and `.po` as extension, like `es.po` or `pt_BR.po`. Please ensure no
-other characters than the language code are contained in the basename
-as the toolchain is using it for the `xml:lang` tag in the resulting
-document.
+other characters than the [language
+code](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry)
+are contained in the basename as the toolchain is using it for the
+`xml:lang` tag in the resulting document.
 
 Applying new translations after editing or creating a `.po` file is
 done using
@@ -26,8 +27,11 @@ done using
 make
 ```
 
-But it is also OK to just make a merge requests with the updated `.po`
-files and let the maintainers do all the artifact generation for you.
+But it is also OK to just make a [pull
+requests](https://github.com/hydrogen-music/hydrogen/pulls) with the
+updated `.po` files or send it via our mailing list
+hydrogen-devel[AT]lists.sourceforge.net and let the maintainers do all
+the artifact generation for you.
 
 ## Maintainers and Developers
 
