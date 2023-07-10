@@ -9,7 +9,8 @@
   <its:translateRule translate="yes"
 					 selector="/component/name |
 							   /component/summary |
-							   /component/description |
+							   /component/description/p |
+							   /component/description/ul/li |
 							   /component/screenshots/screenshot/caption |
 							   /component/developer_name"/>
 </its:rules>
