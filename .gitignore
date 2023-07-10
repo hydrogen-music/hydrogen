@@ -18,3 +18,16 @@ hydrogen.*
 *.so
 *.make
 *.swp
+
+# Ignore `gtags` artifacts
+GPATH
+GRTAGS
+GTAGS
+
+# Ignore compiled (binary) Qt messages files generated from translated
+# .ts files. They are part of the releases but not included in git as
+# diffing binaries is a bad idea.
+*.qm
+
+# Ignore compiled (binary) translation artifacts of `msgfmt`.
+*.mo
