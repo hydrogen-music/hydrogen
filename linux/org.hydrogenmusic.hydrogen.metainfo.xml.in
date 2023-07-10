@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>org.hydrogenmusic.hydrogen</id>
   <metadata_license>CC0-1.0</metadata_license>
   
   <name>Hydrogen</name>
-  
-  <name xml:lang="de-DE">DE</name>
-  
-  <name xml:lang="fr">fr</name>
-  <summary>The advanced drum machineX</summary>
+  <summary>The advanced drum machine</summary>
   
   <icon type="remote" width="32" height="32">http://hydrogen-music.org/images/favicon.png</icon>
   <icon type="remote" width="48" height="48">http://hydrogen-music.org/images/icon48.png</icon>
@@ -66,7 +62,7 @@
     <control>tablet</control>
   </supports>
 
-  <content_rating type="oars-1.0"/>
+  <content_rating type="oars-1.0"></content_rating>
   
   <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
   
