@@ -3,6 +3,7 @@
   <release version="1.2.1" date="2023-06-08">
 	<description>
 	  <p>This patch release fixes a number of bugs and inconsistencies found in version 1.2.0</p>
+	  <p xml:lang="de">Korrekturversion, die eine Reihe Fehler und Ungereimtheiten der 1.2.0 Version behebt</p>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.1</url>
 	<artifacts>
@@ -72,12 +73,18 @@
 		This is a maintenance release which addresses issues affecting
 		release 1.1.0 and earlier versions of Hydrogen, including
 	  </p>
+	  <p xml:lang="de">Wartungsversion, welche Probleme sowohl der 1.1.0 Version als auch früherer behebt, wie</p>
 	  <ul>
 		<li>Preferences dialog 'OK' bug</li>
+		<li xml:lang="de">Fehler des 'OK' Knopfs in den Einstellungen</li>
     	<li>Audio problems when using LADSPA plugins with PulseAudio</li>
+    	<li xml:lang="de">Audio Probleme in LADSPA Plug-Ins unter PulseAudio</li>
     	<li>MIDI crashes and other issues on 64-bit Windows</li>
+    	<li xml:lang="de">MIDI Abstürze und andere Probleme unter 64-bit Windows</li>
 		<li>Missing tags and markers</li>
+		<li xml:lang="de">Fehlende Marker</li>
 		<li>Inability to control audio latency on Windows (PortAudio)</li>
+		<li xml:lang="de">Fehlende Kontrolle über Latenz unter PortAudio in Windows</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.1.1</url>
@@ -104,19 +111,29 @@
   <release version="1.1.0" date="2021-09-05">
 	<description>
 	  <p>New features in this release include:</p>
+	  <p xml:lang="de">Neue Funktionen:</p>
 	  <ul>
 		<li>Keyboard cursor-driven pattern, song and note properties editing</li>
+		<li xml:lang="de">Tastatur-gestütztes Editieren von Pattern, Liedern und Noteneigenschaften</li>
 		<li>Note selection and movement in pattern editors</li>
+		<li xml:lang="de">Auswählen und Verschieben von Noten im Pattern Editor</li>
 		<li>New OSC commands (new song, open song, save song (as), quit,
         toggle looped playback, toggle timeline, toggle Jack transport,
         toggle Jack timebase master, add/delete timeline marker,
         toggle song/pattern playback mode)</li>
+		<li xml:lang="de">Neue OSC Kommandos</li>
 		<li>NSM support reworked</li>
+		<li xml:lang="de">Überarbeitete NSM Unterstützung</li>
 		<li>Deprecating JACK-session</li>
+		<li xml:lang="de">Abkündigung von JACK-session</li>
 		<li>Instrument main pitch shift offset</li>
+		<li xml:lang="de">Generelle Tonhöhenverschiebung von Instrumenten</li>
 		<li>Custom pattern size support with representation in note values</li>
+		<li xml:lang="de">Patternlänge wird als Notenwertverhältnis präsentiert</li>
 		<li>Custom pan law support in mixer</li>
+		<li xml:lang="de">Verschiedene Pan Funktionen im Mixer</li>
 		<li>Audio output device selection in CoreAudio (macOS) and PortAudio (Windows)</li>
+		<li xml:lang="de">Auswahl des Ausgabegeräts unter CoreAudio (macOS) und PortAudio (Windows)</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.1.0</url>
@@ -146,10 +163,14 @@
 		This release primarily addresses issues and bugs discovered by
 		users, rather than adding new features.
 	  </p>
+	  <p xml:lang="de">Diese Version beinhaltet in erster Linie Fehlerbehebungen.</p>
 	  <ul>
 		<li>User-selectable translation language</li>
+		<li xml:lang="de">Benutzerdefinierte Übersetzung</li>
         <li>Fix critical startup bug on macOS Big Sur</li>
+        <li xml:lang="de">Kritischer Startfehler unter macOS Big Sur behoben</li>
         <li>Fix drumkit export failure on Windows</li>
+        <li xml:lang="de">Fehler im Schlagzeugexport unter Windows behoben</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.2</url>
@@ -177,10 +198,15 @@
 	<description>
 	  <ul>
 		<li>Fixed compilation with libtar</li>
+		<li xml:lang="de">Fehler im Bauen mit libtar behoben</li>
 		<li>Fixed jack transport tempo drift when using non-integer bpm values</li>
+		<li xml:lang="de">Abdriften der Wiedergabegeschwindigkeit unter JACK bei Fließkomma Geschwindigkeiten behoben</li>
 		<li>Disabled "development mode" warning</li>
+		<li xml:lang="de">"Entwicklungsmodus" Warnung deaktiviert</li>
 		<li>Fix crash on saving ladspa settings</li>
+		<li xml:lang="de">Absturz beim Speichern der LADSPA Einstellungen behoben</li>
 		<li>Added manual + tutorial files to Windows and OS X Installers</li>
+		<li xml:lang="de">Documentation und Tutorials zu Windows und OS X Installer hinzugefügt</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.1</url>
@@ -207,16 +233,26 @@
   <release version="1.0.0" date="2020-08-03">
 	<description>
 	  <p>It comes with the following new features:</p>
+	  <p xml:lang="de">Beinhaltet folgende neue Funktionen:</p>
 	  <ul>
 		<li>QT5 support</li>
+		<li xml:lang="de">QT5 Unterstützung</li>
 		<li>MIDI feedback</li>
+		<li xml:lang="de">MIDI Feedback</li>
 		<li>OSC support (incl. feedback)</li>
+		<li xml:lang="de">OSC Unterstützung (inkl. Feeback)</li>
 		<li>Playback track</li>
+		<li xml:lang="de">Playback Spur</li>
 		<li>Menu redesign</li>
+		<li xml:lang="de">Menü Überarbeitung</li>
 		<li>Note probability property</li>
+		<li xml:lang="de">Wahrscheinlichkeit als Noten Eigenschaft</li>
 		<li>Velocity automation</li>
+		<li xml:lang="de">Anschlagsautomatisierung</li>
 		<li>Full screen mode</li>
+		<li xml:lang="de">Vollbildmodus</li>
 		<li>New default kit: GMRockKit</li>
+		<li xml:lang="de">Neues Standardschlagzeug: GMRockKit</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0</url>
@@ -243,19 +279,32 @@
   <release version="0.9.7" date="2016-11-05">
 	<description>
 	  <p>It includes the following new features:</p>
+	  <p xml:lang="de">Neue Funktionen:</p>
 	  <ul>
 		<li>The color of the SongEditors squares is now configurable</li>
+		<li xml:lang="de">Konfigurierbare Farbe für die Kästchen des Song Editors</li>
 		<li>Added support for midi cymbal choking</li>
+		<li xml:lang="de">Unterstützung des Stoppens von Becken über MIDI</li>
 		<li>Added support for midi hihat pressure control</li>
+		<li xml:lang="de">Unterstützung von Druckkontrolle der Hihat über MIDI</li>
 		<li>Added hihat pressure groups</li>
+		<li xml:lang="de">Unterstützung von Druckkontrolle der Hihat</li>
 		<li>Added basic non session manager support</li>
+		<li xml:lang="de">Grundlegende NSM Unterstützung</li>
 		<li>Added instrument components</li>
+		<li xml:lang="de">Integration von Instrumentkomponenten</li>
 		<li>Basic lilypond export</li>
+		<li xml:lang="de">Grundlegender LilyPond Export</li>
 		<li>New windows cross compilation script</li>
+		<li xml:lang="de">Neues Skript zum Crosskompilieren auf Windows</li>
 		<li>Support for soundlibrary images</li>
+		<li xml:lang="de">Unterstützung von Bildern in Schlagzeugender</li>
 		<li>Configurable sample selection algorithm</li>
+		<li xml:lang="de">Konfigurierbarer Algorithmus für die Sampleauswahl</li>
 		<li>Support for soundlibraries with images</li>
+		<li xml:lang="de">Unterstützung von Bildern in Schlagzeugender</li>
 		<li>New midi action: SELECT_PREV_PATTERN_RELATIVE</li>
+		<li xml:lang="de">Neues MIDI Kommando: SELECT_PREV_PATTERN_RELATIVE</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.7</url>
@@ -275,6 +324,7 @@
 		supresses the addition of "/" characters in instrument names
 		and two smaller fixes to the pattern handling.
 	  </p>
+	  <p xml:lang="de">Wartungsversion, welches Korrekturen in der Versionierung für die Integration in Debian Paketierungsskripts, sowie Fehlerbehebungen durch zusätzliche "/" Zeichen in Instrumentnamen behebt.</p>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.6.1</url>
 	<artifacts>
@@ -289,14 +339,22 @@
 	<description>
 	  <ul>
 		<li>new build system (cmake)</li>
+		<li xml:lang="de">Neues Buildsystem (cmake)</li>
 		<li>add undo for song/pattern editor</li>
+		<li xml:lang="de">Rückgäng machen in Pattern und Song Editor</li>
 		<li>jack-session support</li>
+		<li xml:lang="de">Unterstützung von JACK-session</li>
 		<li>jack-midi support</li>
+		<li xml:lang="de">JACK-MIDI Unterstützung</li>
 		<li>several bug fixes</li>
+		<li xml:lang="de">Einige Fehlerbehebungen</li>
 		<li>tabbed interface</li>
+		<li xml:lang="de">Tab Oberfläche</li>
 		<li>several small changes to the GUI</li>
+		<li xml:lang="de">Einige kleine Änderungen in der Benutzeroberfläche</li>
 		<li>improve ExportSong add use of TimeLineBPM,
 		RubberbandBatch processor and different types of resample interpolation</li>
+		<li xml:lang="de">Verbesserter Liedexport mit Tempomarkierungen der Timeline, einem Rubberband Prozessor und verschiedenen Arten der Interpolation</li>
 	  </ul>
 	</description>
 	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.6</url>

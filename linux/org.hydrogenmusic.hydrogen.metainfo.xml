@@ -5,10 +5,9 @@
   
   <name>Hydrogen</name>
   
-  <name xml:lang="de-DE">DE</name>
-  
-  <name xml:lang="fr">fr</name>
-  <summary>The advanced drum machineX</summary>
+  <name xml:lang="de">Hydrogen</name>
+  <summary>The advanced drum machine</summary>
+  <summary xml:lang="de">Der moderne Schlagzeugcomputer</summary>
   
   <icon type="remote" width="32" height="32">http://hydrogen-music.org/images/favicon.png</icon>
   <icon type="remote" width="48" height="48">http://hydrogen-music.org/images/icon48.png</icon>
@@ -25,17 +24,26 @@
 	  professional usage as fully-fledged drum machine in your studio,
 	  or drum looper on steriods for your live performance.
 	</p>
+	<p xml:lang="de">Hydrogen ist sowohl ein auf Pattern basierter Sequenzer als auch ein Schlagzeug Synthesizer. Sein intuitiver aber zugleich funktionsstrotzender Aufbau macht ihn zum idealen Gefährten für sowohl schnelle Aufnahmen daheim, als auch für den professionellen Einsatz im Heimstudio oder als Schlagzeug Lopper bei Konzerten.</p>
     <p>
       Features:
     </p>
+    <p xml:lang="de">Eckdaten:</p>
 	<ul>
 	  <li>First-class MIDI support</li>
+	  <li xml:lang="de">Top MIDI Unterstützung</li>
       <li>Highly customizable</li>
+      <li xml:lang="de">Hochgradig individualisierbar</li>
       <li>Stable and performant</li>
+      <li xml:lang="de">Stabil und performant</li>
       <li>Loads of drumkits to choose from</li>
+      <li xml:lang="de">Viele verfügbare Schlagzeugsets</li>
       <li>In-depth control of instrument, sample, and note properties</li>
+      <li xml:lang="de">Detaillierte Kontrolle über die Eigenschaften einzelner Instrument, Audio Samples und Noten</li>
       <li>High quality time-stretching and pitch shifting</li>
+      <li xml:lang="de">Hochwertige Klangdauer- und Tonhöhenanpassung</li>
       <li>Automate it using MIDI or OSC API</li>
+      <li xml:lang="de">Automatisierbar über MIDI oder OSC API</li>
 	</ul>
   </description>
 
