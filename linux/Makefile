@@ -23,8 +23,10 @@ clean:
 $(OUT_FILES): %.xml: %.xml.in $(MO_FILES)
 	$(ITSTOOL) -j $@.in -o $@ $(MO_FILES)
 
-$(PO_DIR)/*.po: *.in
+$(PO_DIR)/appstream.pot: *.xml.in
 	$(ITSTOOL) -o ./$(PO_DIR)/appstream.pot $^
+
+$(PO_DIR)/*.po: $(PO_DIR)/appstream.pot
 	$(MSGMERGE) -N -U $@ ./$(PO_DIR)/appstream.pot --backup=simple --no-wrap --verbose
 
 $(PO_DIR)/%.mo: $(PO_DIR)/%.po
