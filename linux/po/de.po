@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-07-10 19:09+0200\n"
+"POT-Creation-Date: 2023-07-11 19:58+0200\n"
 "PO-Revision-Date: 2023-07-10 19:20+0200\n"
 "Last-Translator: Philipp Mueller <princess.trudildis@posteo.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -119,6 +119,11 @@ msgstr "Geringfügige Änderungen im ADSR Verhalten, um besser natürlichen Prin
 #: org.hydrogenmusic.hydrogen.releases.xml.in:41
 msgid "In addition there are many bug fixes, smaller tweaks to behaviour, and many under-the-hood improvements to audio processing structure, timekeeping and performance, as well as GUI speed."
 msgstr "Zusätzlich wurden viele Fehler behoben, kleine Verbesserungen im Verhalten sowie größere unter der Haube in der Audioverarbeitung und Effizienz gemacht"
+
+#. (itstool) path: release/description
+#: org.hydrogenmusic.hydrogen.releases.xml.in:29
+msgid "<_:p-1/>: <_:ul-2/> <_:p-3/>"
+msgstr ""
 
 #. (itstool) path: description/p
 #: org.hydrogenmusic.hydrogen.releases.xml.in:71
