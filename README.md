@@ -49,7 +49,11 @@ Further infos can be found in our [FAQ](http://hydrogen-music.org/faq/) and [Wik
 
 You want to contribute to Hydrogen?
 
-Check out our (ancient) [How to contribute](http://hydrogen-music.org/contribution/) guide or get in touch with us on our [mailing list](http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel).
+How about making/improving a [translation](data/i18n)? You can also
+check out our (ancient) [How to
+contribute](http://hydrogen-music.org/contribution/) guide or get in
+touch with us on our [mailing
+list](http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel).
 
 ## License
 
