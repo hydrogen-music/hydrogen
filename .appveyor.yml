@@ -51,29 +51,29 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2004
 
-    - job_name: 'OS X'
-      job_group: 'Mac OS X'
-      appveyor_build_worker_image: macos
+    # - job_name: 'OS X'
+    #   job_group: 'Mac OS X'
+    #   appveyor_build_worker_image: macos
 
-    - job_name: 'Windows64'
-      job_group: 'Windows'
-      MSYS: 'C:\msys64\mingw64'
-      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-      BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
-      appveyor_build_worker_image: Visual Studio 2019
-      LIBSSL: libssl-3-x64.dll
-      LIBCRYPTO: libcrypto-3-x64.dll
+    # - job_name: 'Windows64'
+    #   job_group: 'Windows'
+    #   MSYS: 'C:\msys64\mingw64'
+    #   MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+    #   BUILD_TYPE: "Release"
+    #   CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
+    #   appveyor_build_worker_image: Visual Studio 2019
+    #   LIBSSL: libssl-3-x64.dll
+    #   LIBCRYPTO: libcrypto-3-x64.dll
 
-    - job_name: 'Windows32'
-      job_group: 'Windows'
-      MSYS: 'C:\msys64\mingw32'
-      MSYS_REPO: 'mingw32/mingw-w64-i686'
-      BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
-      appveyor_build_worker_image: Visual Studio 2019
-      LIBSSL: libssl-3.dll
-      LIBCRYPTO: libcrypto-3.dll
+    # - job_name: 'Windows32'
+    #   job_group: 'Windows'
+    #   MSYS: 'C:\msys64\mingw32'
+    #   MSYS_REPO: 'mingw32/mingw-w64-i686'
+    #   BUILD_TYPE: "Release"
+    #   CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
+    #   appveyor_build_worker_image: Visual Studio 2019
+    #   LIBSSL: libssl-3.dll
+    #   LIBCRYPTO: libcrypto-3.dll
 
 build:
   verbosity: detailed
@@ -96,7 +96,7 @@ for:
 
     before_build: |-
 
-      cache_tag=usr_cache # this can be modified to rebuild deps
+      cache_tag=usr_cache_appstream # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -120,8 +120,8 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
         sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream
-        sudo rm /usr/local/bi/doxygen
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils
+        sudo rm /usr/local/bin/doxygen
         ccache -M 256M
         ccache -s
 
