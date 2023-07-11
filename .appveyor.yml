@@ -162,7 +162,7 @@ for:
           # The tests failed. Upload all output to ease debugging.
           appveyor PushArtifact testOutput.log
       fi
-
+ 
       echo "Validating desktop file."
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
       
