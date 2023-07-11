@@ -58,10 +58,10 @@
 	<keyword>jack</keyword>
   </keywords>
 
-  <url type="homepage">http://hydrogen-music.org/</url>
+  <url type="homepage">http://hydrogen-music.org</url>
   <url type="bugtracker">https://github.com/hydrogen-music/hydrogen/issues/</url>
   <url type="faq">http://hydrogen-music.org/faq/</url>
-  <url type="help">http://hydrogen-music.org/documentation/manual/manual_en.html/</url>
+  <url type="help">http://hydrogen-music.org/documentation/manual/manual_en.html</url>
   <url type="translate">https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions/</url>
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
