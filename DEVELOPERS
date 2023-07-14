@@ -78,7 +78,11 @@ order to make a release has several, easy-to-forget steps.  They are:
      c. Check if nothing has changed and update version and date in
         linux/hydrogen.1
 
-     d. Update the TARGET_VERSION variable in .appveyor.yml
+     d. Add new version, date, and ChangeLog to
+	linux/org.hydrogenmusic.hydrogen.releases.xml.in and run
+	`make` in linux/ folder
+
+     e. Update the TARGET_VERSION variable in .appveyor.yml
 
   2. Run `src/gui/src/about_dialog_contributor_list_update.sh
      GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
