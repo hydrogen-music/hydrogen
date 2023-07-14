@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+  <id>org.hydrogenmusic.hydrogen</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  
+  <name>Hydrogen</name>
+  
+  <name xml:lang="de">Hydrogen</name>
+  <summary>The advanced drum machine</summary>
+  <summary xml:lang="de">Der moderne Schlagzeugcomputer</summary>
+  
+  <icon type="remote" width="32" height="32">http://hydrogen-music.org/images/favicon.png</icon>
+  <icon type="remote" width="48" height="48">http://hydrogen-music.org/images/icon48.png</icon>
+  <icon type="remote" width="64" height="64">http://hydrogen-music.org/images/icon64.png</icon>
+  <icon type="remote" width="256" height="256">http://hydrogen-music.org/images/icon256.png</icon>
+  
+  <project_license>GPL-2.0-or-later</project_license>
+  
+  <description>
+	<p>
+	  Hydrogen is both a drum sequencer for pattern-based programming
+	  and a drum synth. Its simple yet feature-rich design makes it a
+	  versatile companion, be it for quick practice at home,
+	  professional usage as fully-fledged drum machine in your studio,
+	  or drum looper on steriods for your live performance.
+	</p>
+	<p xml:lang="de">Hydrogen ist sowohl ein auf Pattern basierter Sequenzer als auch ein Schlagzeug Synthesizer. Sein intuitiver aber zugleich funktionsstrotzender Aufbau macht ihn zum idealen Gefährten für sowohl schnelle Aufnahmen daheim, als auch für den professionellen Einsatz im Heimstudio oder als Schlagzeug Lopper bei Konzerten.</p>
+    <p>
+      Features:
+    </p>
+    <p xml:lang="de">Eckdaten:</p>
+	<ul>
+	  <li>First-class MIDI support</li>
+	  <li xml:lang="de">Top MIDI Unterstützung</li>
+      <li>Highly customizable</li>
+      <li xml:lang="de">Hochgradig individualisierbar</li>
+      <li>Stable and performant</li>
+      <li xml:lang="de">Stabil und performant</li>
+      <li>Loads of drumkits to choose from</li>
+      <li xml:lang="de">Viele verfügbare Schlagzeugsets</li>
+      <li>In-depth control of instrument, sample, and note properties</li>
+      <li xml:lang="de">Detaillierte Kontrolle über die Eigenschaften einzelner Instrument, Audio Samples und Noten</li>
+      <li>High quality time-stretching and pitch shifting</li>
+      <li xml:lang="de">Hochwertige Klangdauer- und Tonhöhenanpassung</li>
+      <li>Automate it using MIDI or OSC API</li>
+      <li xml:lang="de">Automatisierbar über MIDI oder OSC API</li>
+	</ul>
+  </description>
+
+  <categories>
+	<category>Audio</category>
+	<category>Midi</category>
+	<category>Sequencer</category>
+  </categories>
+
+  <keywords>
+	<keyword>drum</keyword>
+	<keyword>jack</keyword>
+  </keywords>
+
+  <url type="homepage">http://hydrogen-music.org</url>
+  <url type="bugtracker">https://github.com/hydrogen-music/hydrogen/issues/</url>
+  <url type="faq">http://hydrogen-music.org/faq/</url>
+  <url type="help">http://hydrogen-music.org/documentation/manual/manual_en.html</url>
+  <url type="translate">https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions/</url>
+  <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
+
+  <releases type="external" url="https://github.com/hydrogen-music/hydrogen/blob/master/linux/org.hydrogenmusic.hydrogen.releases.xml"/>
+  
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <control>tablet</control>
+  </supports>
+
+  <content_rating type="oars-1.0"/>
+  
+  <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
+  
+  <launchable type="desktop-id">org.hydrogenmusic.hydrogen.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://hydrogen-music.org/images/screenshots/main-window.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://hydrogen-music.org/images/screenshots/audio-filebrowser.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://hydrogen-music.org/images/screenshots/sample-editor.png</image>
+    </screenshot>
+  </screenshots>
+</component>

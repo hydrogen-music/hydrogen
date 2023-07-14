@@ -96,7 +96,7 @@ for:
 
     before_build: |-
 
-      cache_tag=usr_cache # this can be modified to rebuild deps
+      cache_tag=usr_cache_appstream # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -120,8 +120,8 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
         sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache
-        sudo rm /usr/local/bi/doxygen
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils
+        sudo rm /usr/local/bin/doxygen
         ccache -M 256M
         ccache -s
 
@@ -162,6 +162,12 @@ for:
           # The tests failed. Upload all output to ease debugging.
           appveyor PushArtifact testOutput.log
       fi
+
+      echo "Validating desktop file."
+      desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
+
+      echo "Validating AppStream meta data."
+      appstreamcli validate ../linux/org.hydrogenmusic.hydrogen.metainfo.xml || exit 1
 
       ( exit $res )
 

@@ -28,3 +28,6 @@ GTAGS
 # .ts files. They are part of the releases but not included in git as
 # diffing binaries is a bad idea.
 *.qm
+
+# Ignore compiled (binary) translation artifacts of `msgfmt`.
+*.mo
