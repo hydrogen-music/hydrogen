@@ -1323,7 +1323,7 @@ Overwrite the existing file?</source>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
 </context>
 <context>
@@ -4906,7 +4906,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>Cancel</source>
