@@ -890,67 +890,67 @@ Kit actuel :</translation>
     <message>
         <source>Define a keybinding for the selected shortcut</source>
         <extracomment>Displayed both as tooltip in the Preferences dialog &gt; Shortcuts tab as well as window title.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Définir un raccourci clavier pour le raccourci sélectionné</translation>
     </message>
     <message>
         <source>Volume</source>
         <extracomment>Label shown in the input capture dialog for querying a new volume value.</extracomment>
-        <translation type="unfinished">Volume</translation>
+        <translation>Volume</translation>
     </message>
     <message>
         <source>Column Number</source>
         <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro de la colonne</translation>
     </message>
     <message>
         <source>Pattern Number</source>
         <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro du motif</translation>
     </message>
     <message>
         <source>Song Number</source>
         <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro du morceau</translation>
     </message>
     <message>
         <source>Instrument Number</source>
         <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro d&apos;instrument</translation>
     </message>
     <message>
         <source>Component Number</source>
         <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro du composant</translation>
     </message>
     <message>
         <source>Layer Number</source>
         <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro de la couche</translation>
     </message>
     <message>
         <source>FX Level</source>
         <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Niveau d&apos;effet</translation>
     </message>
     <message>
         <source>FX Number</source>
         <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Numéro d&apos;effet</translation>
     </message>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Coupure du filtre</translation>
+        <translation>Coupure du filtre</translation>
     </message>
     <message>
         <source>Tag Text</source>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Texte de l&apos;étiquette</translation>
     </message>
 </context>
 <context>
@@ -1390,7 +1390,7 @@ Overwrite the existing file?</source>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
 </context>
 <context>
@@ -2474,7 +2474,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer la &amp;démo dans une session</translation>
     </message>
 </context>
 <context>
@@ -4328,55 +4328,55 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Short&amp;cuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Raccour&amp;cis</translation>
     </message>
     <message>
         <source>Shortcut Category</source>
-        <translation type="unfinished"></translation>
+        <translation>Raccourci de catégorie</translation>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Raccourci</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Description</translation>
     </message>
     <message>
         <source>Category</source>
-        <translation type="unfinished"></translation>
+        <translation>Catégorie</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre</translation>
     </message>
     <message>
         <source>Restores the default values for all shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Rétablit les valeurs par défaut de tous les raccourcis</translation>
     </message>
     <message>
         <source>&amp;Reset all</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout &amp;Réinitialiser</translation>
     </message>
     <message>
         <source>Removes keybinding of selected shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprime la liaison clavier du raccourci sélectionné</translation>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">Effa&amp;cer</translation>
+        <translation>Effa&amp;cer</translation>
     </message>
     <message>
         <source>&amp;Define</source>
-        <translation type="unfinished"></translation>
+        <source>&amp;Définir</source>
     </message>
     <message>
         <source>Add additional rows for the select actions to allow them to be bound to further shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter des lignes supplémentaires pour les actions de sélection afin de pouvoir les lier à d&apos;autres raccourcis</translation>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">Dupliquer</translation>
+        <translation>Dupliquer</translation>
     </message>
 </context>
 <context>
@@ -4874,7 +4874,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Waiting for keyboard input</source>
         <extracomment>Text displayed in the shortcut capture dialog</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Attente d&apos;une saisie clavier</translation>
     </message>
 </context>
 <context>
@@ -5305,7 +5305,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>VK Note-on Pitch 36 (C2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"></translatioAttente d&apos;une saisie claviern>
     </message>
     <message>
         <source>VK Note-on Pitch 37 (C#2)</source>
@@ -5639,7 +5639,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>Cancel</source>
