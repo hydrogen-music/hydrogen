@@ -300,11 +300,11 @@
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation>Soyez prudent, ceci change tous les paramètres de vélocité des couches</translation>
+        <translation>Soyez prudent, ceci change tous les réglages de vélocité des couches</translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation>Réglage de vélocité auto</translation>
+        <translation>Réglage automatique de vélocité</translation>
     </message>
 </context>
 <context>
@@ -348,7 +348,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Edit</source>
         <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
-        <translation>Édit</translation>
+        <translation>Modi</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1304,7 +1304,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Set tempo of new tempo marker</source>
-        <translation>Définir le tempo du nouveau marqueur de tempo</translation>
+        <translation>Régler le tempo du nouveau marqueur de tempo</translation>
     </message>
     <message>
         <source>Move tempo marker to different column</source>
@@ -1312,11 +1312,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Set column of new tempo marker</source>
-        <translation>Définir la colonne du nouveau marqueur de tempo</translation>
+        <translation>Régler la colonne du nouveau marqueur de tempo</translation>
     </message>
     <message>
         <source>There is already a tempo marker present at this Column. Please use left-click to edit it instead.</source>
-        <translation>Il y a déjà un marqueur de tempo présent à cette colonne. Veuillez utiliser le clic gauche pour l&apos;éditer à la place.</translation>
+        <translation>Il y a déjà un marqueur de tempo présent à cette colonne. Veuillez utiliser le clic gauche pour le modifier à la place.</translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1639,7 @@ Valeur</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation>Éditer tous les motifs</translation>
+        <translation>Modifier tous les motifs</translation>
     </message>
     <message>
         <source>Cut notes</source>
@@ -1677,7 +1677,7 @@ Valeur</translation>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>Edit FX parameters</source>
-        <translation>Éditer les paramètres d&apos;effet</translation>
+        <translation>Modifier les paramètres d&apos;effet</translation>
     </message>
     <message>
         <source>FX bypass</source>
@@ -2103,7 +2103,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Set default values</source>
-        <translation>Paramètre les valeurs par défaut</translation>
+        <translation>Régler les valeurs par défaut</translation>
     </message>
     <message>
         <source>&amp;Timeline</source>
@@ -2435,11 +2435,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
-        <translation>Définir le temps d&apos;humanisation [%1]</translation>
+        <translation>Régler le temps d&apos;humanisation [%1]</translation>
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
-        <translation>Définir la vélocité d&apos;humanisation [%1]</translation>
+        <translation>Régler la vélocité d&apos;humanisation [%1]</translation>
     </message>
 </context>
 <context>
@@ -2551,7 +2551,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation>Paramètres du mixeur</translation>
+        <translation>Réglages du mixeur</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
@@ -2764,7 +2764,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Set note probability to</source>
-        <translation>Réglez la probabilité de la note sur</translation>
+        <translation>Régler la probabilité de la note sur</translation>
     </message>
 </context>
 <context>
@@ -3152,7 +3152,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo défini en utilisant la position actuelle de la ligne de temps.</translation>
+        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo réglé en utilisant la position actuelle de la ligne de temps.</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
@@ -3295,7 +3295,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Edit selected Script</source>
-        <translation>Édit&amp;er le script sélectionné</translation>
+        <translation>Modifier le scrip&amp;t sélectionné</translation>
     </message>
     <message>
         <source>&amp;Remove selected Script</source>
@@ -4289,7 +4289,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit timeline tag</source>
-        <translation>Éditer l&apos;étiquette de la ligne temporelle</translation>
+        <translation>Modifier l&apos;étiquette de la ligne temporelle</translation>
     </message>
     <message>
         <source>Delete note ( %1, %2)</source>
@@ -4353,7 +4353,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit note property %1</source>
-        <translation>Éditer la propriété %1 de note</translation>
+        <translation>Modifier la propriété %1 de note</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4373,7 +4373,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit tempo marker</source>
-        <translation>Éditer le marqueur de tempo</translation>
+        <translation>Modifier le marqueur de tempo</translation>
     </message>
     <message>
         <source>Delete tempo marker</source>
@@ -4450,7 +4450,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>set processing</source>
-        <translation>paramètrer le traitement</translation>
+        <translation>régler le traitement</translation>
     </message>
     <message>
         <source>forward</source>
@@ -4981,7 +4981,7 @@ Overwrite the existing pattern?</source>
     <name>SongEditorPositionRuler</name>
     <message>
         <source>The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it.</source>
-        <translation>Le tempo défini dans le widget BPM sera utilisé par défaut pour le début du morceau. Cliquez-gauche pour l&apos;écraser.</translation>
+        <translation>Le tempo réglé dans le widget BPM sera utilisé par défaut pour le début du morceau. Cliquez-gauche pour l&apos;écraser.</translation>
     </message>
 </context>
 <context>
@@ -5211,7 +5211,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>Éditer la liste des serveurs</translation>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>Close</source>
@@ -5383,11 +5383,11 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
-        <translation>Éditer les préférences du dépôt</translation>
+        <translation>Modifier les réglages du dépôt</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>Éditer la liste des serveurs</translation>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>URL</source>
