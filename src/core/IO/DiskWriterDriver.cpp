@@ -219,11 +219,13 @@ void* diskWriterDriver_thread( void* param )
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
 			};
-
+			
+			qDebug() << "[diskWriterDriver_thread] while loop pre processCallback";
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
+				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex";
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}
 
@@ -281,6 +283,7 @@ void* diskWriterDriver_thread( void* param )
 					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
+			qDebug() << "[diskWriterDriver_thread] writing data";
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			qDebug() << "[diskWriterDriver_thread] data written: " << res;
@@ -297,13 +300,14 @@ void* diskWriterDriver_thread( void* param )
 			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
 				break;
 			}
+			qDebug() << "[diskWriterDriver_thread] while loop done" << res;
 		}
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
+		qDebug() << "[diskWriterDriver_thread] nPrecent: " << nPercent;
 		if ( nPercent < 100 ) {
-			qDebug() << "[diskWriterDriver_thread] nPrecent: " << nPercent;
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
 		}
 	}
