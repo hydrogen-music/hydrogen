@@ -2,6 +2,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Changed
 		- Spanish translation updated.
+		- Minor tweaks in French translation.
 	* Fixed
 		- Instrument/strip-specific actions, like MIDI action
 		  `STRIP_MUTE_TOGGLE`, did void the instrument selection of the
