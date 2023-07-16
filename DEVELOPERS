@@ -79,7 +79,7 @@ order to make a release has several, easy-to-forget steps.  They are:
         linux/hydrogen.1
 
      d. Add new version, date, and ChangeLog to
-	linux/org.hydrogenmusic.Hydrogen.releases.xml.in and run
+	linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in and run
 	`make` in linux/ folder
 
      e. Update the TARGET_VERSION variable in .appveyor.yml
