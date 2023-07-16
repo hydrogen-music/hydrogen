@@ -1,8 +1,7 @@
 ## Packagers
 
 **Packagers** should take the auto-generated
-`org.hydrogenmusic.Hydrogen.metainfo.xml` and
-`org.hydrogenmusic.Hydrogen.releases.xml` files.
+`org.hydrogenmusic.Hydrogen.metainfo.xml` files.
 
 ## Translators
 
@@ -31,8 +30,7 @@ the artifact generation for you.
 ## Maintainers and Developers
 
 **Maintainers** and **Developers** must always edit
-`org.hydrogenmusic.Hydrogen.metainfo.xml.in` or
-`org.hydrogenmusic.Hydrogen.releases.xml.in` when adding new releases
+`org.hydrogenmusic.Hydrogen.metainfo.xml.in` when adding new releases
 or updating meta information.
 
 Translation of these metainfo files is separated from the main

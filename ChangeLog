@@ -3,8 +3,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Added
 		- Save and restore Director position, geometry, and visibility.
 		- New and properly licensed AppStream metainfo files
-		  `org.hydrogenmusic.Hydrogen.metainfo.xml` and
-		  `org.hydrogenmusic.Hydrogen.releases.xml` replace old
+		  `org.hydrogenmusic.Hydrogen.metainfo.xml` replace old
 		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
 	* Changed
 		- Spanish translation updated.
