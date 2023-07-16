@@ -1,13 +1,8 @@
 ## Packagers
 
 **Packagers** should take the auto-generated
-`org.hydrogenmusic.hydrogen.metainfo.xml` and
-`org.hydrogenmusic.hydrogen.releases.xml` files.
-
-The older `org.hydrogenmusic.Hydrogen.appdata.xml` file is kept for
-backward compatibility of existing packaging workflows (at least for
-now). But in general the newer and properly licensed
-`org.hydrogenmusic.hydrogen.metainfo.xml` should be used.
+`org.hydrogenmusic.Hydrogen.metainfo.xml` and
+`org.hydrogenmusic.Hydrogen.releases.xml` files.
 
 ## Translators
 
@@ -36,8 +31,8 @@ the artifact generation for you.
 ## Maintainers and Developers
 
 **Maintainers** and **Developers** must always edit
-`org.hydrogenmusic.hydrogen.metainfo.xml.in` or
-`org.hydrogenmusic.hydrogen.releases.xml.in` when adding new releases
+`org.hydrogenmusic.Hydrogen.metainfo.xml.in` or
+`org.hydrogenmusic.Hydrogen.releases.xml.in` when adding new releases
 or updating meta information.
 
 Translation of these metainfo files is separated from the main

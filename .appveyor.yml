@@ -167,7 +167,7 @@ for:
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
 
       echo "Validating AppStream meta data."
-      appstreamcli validate ../linux/org.hydrogenmusic.hydrogen.metainfo.xml || exit 1
+      appstreamcli validate ../linux/org.hydrogenmusic.Hydrogen.metainfo.xml || exit 1
 
       ( exit $res )
 
