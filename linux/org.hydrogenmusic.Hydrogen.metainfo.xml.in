@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.hydrogenmusic.hydrogen</id>
+  <id>org.hydrogenmusic.Hydrogen</id>
   <metadata_license>CC0-1.0</metadata_license>
   
   <name>Hydrogen</name>
@@ -53,7 +53,7 @@
   <url type="translate">https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions/</url>
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
-  <releases type="external" url="https://github.com/hydrogen-music/hydrogen/blob/master/linux/org.hydrogenmusic.hydrogen.releases.xml"/>
+  <releases type="external" url="https://github.com/hydrogen-music/hydrogen/blob/master/linux/org.hydrogenmusic.Hydrogen.releases.xml"/>
   
   <supports>
     <control>pointing</control>
@@ -66,7 +66,7 @@
   
   <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
   
-  <launchable type="desktop-id">org.hydrogenmusic.hydrogen.desktop</launchable>
+  <launchable type="desktop-id">org.hydrogenmusic.Hydrogen.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>http://hydrogen-music.org/images/screenshots/main-window.png</image>

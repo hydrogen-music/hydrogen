@@ -6,7 +6,7 @@
 ### msgmerge (Debian package: gettext)
 ###
 
-OUT_FILES := org.hydrogenmusic.hydrogen.metainfo.xml org.hydrogenmusic.hydrogen.releases.xml
+OUT_FILES := org.hydrogenmusic.Hydrogen.metainfo.xml org.hydrogenmusic.Hydrogen.releases.xml
 PO_DIR := po
 MO_FILES := $(patsubst %.po,%.mo,$(wildcard $(PO_DIR)/*.po))
 
