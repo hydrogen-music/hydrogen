@@ -11,8 +11,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  they are retrieved using popup dialogs.
 		- Save and restore Director position, geometry, and visibility.
 		- New and properly licensed AppStream metainfo files
-		  `org.hydrogenmusic.hydrogen.metainfo.xml` and
-		  `org.hydrogenmusic.hydrogen.releases.xml` replace old
+		  `org.hydrogenmusic.Hydrogen.metainfo.xml` replace old
 		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
 	* Changed
 		- Preferences dialog can now be smoothly resized.
