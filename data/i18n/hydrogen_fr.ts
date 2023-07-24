@@ -4368,7 +4368,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>&amp;Define</source>
-        <source>&amp;Définir</source>
+        <translation>&amp;Définir</translation>
     </message>
     <message>
         <source>Add additional rows for the select actions to allow them to be bound to further shortcuts</source>
