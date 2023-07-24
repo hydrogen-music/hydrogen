@@ -1,6 +1,8 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Added
+		- Playlist dialog can now be resized and remembers geometry,
+		  position, as well as visibility.
 		- Save and restore Director position, geometry, and visibility.
 		- New and properly licensed AppStream metainfo files
 		  `org.hydrogenmusic.Hydrogen.metainfo.xml` replace old
@@ -19,10 +21,6 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  was incompatible) (#1795). All versions of Hydrogen >=1.3 will,
 		  however, require on a more recent PortMidi version (at least
 		  v2.0.1).
-		- New and properly licensed AppStream metainfo files
-		  `org.hydrogenmusic.hydrogen.metainfo.xml` and
-		  `org.hydrogenmusic.hydrogen.releases.xml` replace old
-		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
