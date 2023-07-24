@@ -113,7 +113,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
-	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetX + SetY );
+	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
 
 	m_pDirector = new Director( nullptr );
 
@@ -1021,7 +1021,13 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		setWindowProperties( m_pMixer, mixerProp );
 
 		m_pMixer->updateMixer();
-		
+
+		WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
+		setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
+
+		WindowProperties directorProp = pPref->getDirectorProperties();
+		setWindowProperties( m_pDirector, directorProp, SetAll );
+
 #ifdef H2CORE_HAVE_LADSPA
 		// LADSPA FX
 		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
