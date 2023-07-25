@@ -35,6 +35,7 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"Olivier HUMBERT"
 ,"Paul Vint"
 ,"luz paz"
+,"Hubert Figuière"
 ,"Daniele Medri"
 ,"Raphael Graf"
 ,"psykose"
