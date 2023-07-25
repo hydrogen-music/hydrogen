@@ -78,7 +78,11 @@ order to make a release has several, easy-to-forget steps.  They are:
      c. Check if nothing has changed and update version and date in
         linux/hydrogen.1
 
-     d. Update the TARGET_VERSION variable in .appveyor.yml
+     d. Add new version, date, and ChangeLog to
+	linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in and run
+	`make` in linux/ folder
+
+     e. Update the TARGET_VERSION variable in .appveyor.yml
 
   2. Run `src/gui/src/about_dialog_contributor_list_update.sh
      GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
@@ -133,9 +137,11 @@ order to make a release has several, easy-to-forget steps.  They are:
   12. Upload the release to SourceForge and make it the default download
       for all supported platforms.
 
-  13. Make release announcements on
+  13. Update the download links in our README.md file.
+
+  14. Make release announcements on
       - hydrogen-users@lists.sourceforge.net
       - hydrogen-music.org
 
-  14. Update Homebrew Hydrogen cask:
+  15. Update Homebrew Hydrogen cask:
       - PR against https://github.com/Homebrew/homebrew-cask/blob/master/Casks/hydrogen.rb

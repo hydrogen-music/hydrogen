@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+  <id>org.hydrogenmusic.Hydrogen</id>
+  <metadata_license>CC0-1.0</metadata_license>
+
+  <name>Hydrogen</name>
+
+  <name xml:lang="de">Hydrogen</name>
+  <summary>The advanced drum machine</summary>
+  <summary xml:lang="de">Der moderne Schlagzeugcomputer</summary>
+
+  <icon type="remote" width="32" height="32">http://hydrogen-music.org/images/favicon.png</icon>
+  <icon type="remote" width="48" height="48">http://hydrogen-music.org/images/icon48.png</icon>
+  <icon type="remote" width="64" height="64">http://hydrogen-music.org/images/icon64.png</icon>
+  <icon type="remote" width="256" height="256">http://hydrogen-music.org/images/icon256.png</icon>
+
+  <project_license>GPL-2.0-or-later</project_license>
+
+  <description>
+	<p>
+	  Hydrogen is both a drum sequencer for pattern-based programming
+	  and a drum synth. Its simple yet feature-rich design makes it a
+	  versatile companion, be it for quick practice at home,
+	  professional usage as fully-fledged drum machine in your studio,
+	  or drum looper on steriods for your live performance.
+	</p>
+	<p xml:lang="de">Hydrogen ist sowohl ein auf Pattern basierter Sequenzer als auch ein Schlagzeug Synthesizer. Sein intuitiver aber zugleich funktionsstrotzender Aufbau macht ihn zum idealen Gefährten für sowohl schnelle Aufnahmen daheim, als auch für den professionellen Einsatz im Heimstudio oder als Schlagzeug Lopper bei Konzerten.</p>
+    <p>
+      Features:
+    </p>
+    <p xml:lang="de">Eckdaten:</p>
+	<ul>
+	  <li>First-class MIDI support</li>
+	  <li xml:lang="de">Top MIDI Unterstützung</li>
+      <li>Highly customizable</li>
+      <li xml:lang="de">Hochgradig individualisierbar</li>
+      <li>Stable and performant</li>
+      <li xml:lang="de">Stabil und performant</li>
+      <li>Loads of drumkits to choose from</li>
+      <li xml:lang="de">Viele verfügbare Schlagzeugsets</li>
+      <li>In-depth control of instrument, sample, and note properties</li>
+      <li xml:lang="de">Detaillierte Kontrolle über die Eigenschaften einzelner Instrument, Audio Samples und Noten</li>
+      <li>High quality time-stretching and pitch shifting</li>
+      <li xml:lang="de">Hochwertige Klangdauer- und Tonhöhenanpassung</li>
+      <li>Automate it using MIDI or OSC API</li>
+      <li xml:lang="de">Automatisierbar über MIDI oder OSC API</li>
+	</ul>
+  </description>
+
+  <categories>
+	<category>Audio</category>
+	<category>Midi</category>
+	<category>Sequencer</category>
+  </categories>
+
+  <keywords>
+	<keyword>drum</keyword>
+	<keyword>jack</keyword>
+  </keywords>
+
+  <url type="homepage">http://hydrogen-music.org</url>
+  <url type="bugtracker">https://github.com/hydrogen-music/hydrogen/issues/</url>
+  <url type="faq">http://hydrogen-music.org/faq/</url>
+  <url type="help">http://hydrogen-music.org/documentation/manual/manual_en.html</url>
+  <url type="translate">https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions/</url>
+  <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
+
+  <releases>
+    <release version="1.2.1" date="2023-06-08">
+	<description>
+	  <p>This patch release fixes a number of bugs and inconsistencies found in version 1.2.0</p>
+	  <p xml:lang="de">Korrekturversion, die eine Reihe Fehler und Ungereimtheiten der 1.2.0 Version behebt</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.1</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.2.1.tar.gz</location>
+		<checksum type="sha256">bc338a36b7119ca8caa266eeb05d8298ef7d137b7864560e32fa3fadd3d528ae</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.1/Hydrogen-1.2.1.dmg</location>
+		<checksum type="sha256">804c4578c61c68eded729163c025d4ea50cdb64443732c18479d324c388c8e6a</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.1/Hydrogen-1.2.1-win32.exe</location>
+		<checksum type="sha256">99c086ddfa96cfd4fb6b00b2d381ebb32a5c6a04949fbe32558790b20958cb0f</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.1/Hydrogen-1.2.1-win64.exe</location>
+		<checksum type="sha256">f0cb3efeb8ed20bdb7494b52f5d71689abf2ec9fb3868339b1ee8c7cd811d69f</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.2.0" date="2023-04-07">
+	<description>
+	  <p>New features</p>
+	  <p xml:lang="de">Neue Funktionen</p>:
+	  <ul>
+		<li>New scalable SVG-based GUI components with more standardized UX</li>
+		<li xml:lang="de">Skalierbare, SVG-basierte Benutzeroberfläche mit, deren Verhalten stärker etablierten Standards entspricht</li>
+		<li>Configurable colour themes and adjustable font size to increase accessibility</li>
+		<li xml:lang="de">Einstellbares Farbschema und anpassbare Schriftgrößen</li>
+		<li>Pattern and Song editor can follow playback</li>
+		<li xml:lang="de">Pattern und Song Editor können der Wiedergabe Position folgen</li>
+		<li>Stacked mode and virtual patterns can show notes from other patterns alongside currently selecte pattern</li>
+		<li xml:lang="de">Gestapelter Pattern Modus und virtuelle Pattern zeigen Noten andere aktiver Pattern an</li>
+		<li>Tagging improvements</li>
+		<li xml:lang="de">Verbesserte Markierungen im Song Editor</li>
+		<li>New OSC commands</li>
+		<li xml:lang="de">Neue OSC Kommandos</li>
+		<li>Builtin crash reporter</li>
+		<li xml:lang="de">Eingebauter Absturz Reporter</li>
+		<li>Slightly changed ADSR behaviour to align with natural user expectations</li>
+		<li xml:lang="de">Geringfügige Änderungen im ADSR Verhalten, um besser natürlichen Prinzipien zu entsprechen</li>
+	  </ul>
+	  <p>
+		In addition there are many bug fixes, smaller tweaks to
+		behaviour, and many under-the-hood improvements to audio
+		processing structure, timekeeping and performance, as well as
+		GUI speed.
+	  </p>
+	  <p xml:lang="de">Zusätzlich wurden viele Fehler behoben, kleine Verbesserungen im Verhalten sowie größere unter der Haube in der Audioverarbeitung und Effizienz gemacht</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.0</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.2.0.tar.gz</location>
+		<checksum type="sha256">92393b1aabdf5f0aea4398dd66e7d6a27cc9db17ecdcde4dacd5af6b0cf400ee</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.0/Hydrogen-1.2.0.dmg</location>
+		<checksum type="sha256">ac8be6d94128a3737604c670ec21c37956f3d297d12fb930a615f5f9cf35f767</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.0/Hydrogen-1.2.0-win32.exe</location>
+		<checksum type="sha256">4d721e548b1fcb5937e8f1114dee2d267bccb00abfc663b78887105522473c0b</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.0/Hydrogen-1.2.0-win64.exe</location>
+		<checksum type="sha256">3877b7c9f203d5f648de0087ec316b229310447b281d013d2df496d3678e0234</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.1.1" date="2021-12-05">
+	<description>
+	  <p>
+		This is a maintenance release which addresses issues affecting
+		release 1.1.0 and earlier versions of Hydrogen, including
+	  </p>
+	  <p xml:lang="de">Wartungsversion, welche Probleme sowohl der 1.1.0 Version als auch früherer behebt, wie</p>
+	  <ul>
+		<li>Preferences dialog 'OK' bug</li>
+		<li xml:lang="de">Fehler des 'OK' Knopfs in den Einstellungen</li>
+		<li>Audio problems when using LADSPA plugins with PulseAudio</li>
+		<li xml:lang="de">Audio Probleme in LADSPA Plug-Ins unter PulseAudio</li>
+		<li>MIDI crashes and other issues on 64-bit Windows</li>
+		<li xml:lang="de">MIDI Abstürze und andere Probleme unter 64-bit Windows</li>
+		<li>Missing tags and markers</li>
+		<li xml:lang="de">Fehlende Marker</li>
+		<li>Inability to control audio latency on Windows (PortAudio)</li>
+		<li xml:lang="de">Fehlende Kontrolle über Latenz unter PortAudio in Windows</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.1.1</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.1.1.tar.gz</location>
+		<checksum type="sha256">aba28a11a3dfb3eaf1a831817990b7dfe49343e09119c83717e2e8878179b5ca</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.1/Hydrogen-1.1.1-x86_64.dmg</location>
+		<checksum type="sha256">755008edb085d1a5b7655e592bd6d983735a3f3a1af2b39e386c336bed002f87</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.1/Hydrogen-1.1.1-win32.exe</location>
+		<checksum type="sha256">574bd7df616456c4ab078afbd25c0cb36a9afa4276d3573e866ad6c0ea659bb9</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.1/Hydrogen-1.1.1-win64.exe</location>
+		<checksum type="sha256">e0f743d49008a52ced8d5327e2f10363ecd7f4ef198c4d3930c6a67dccf6370f</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.1.0" date="2021-09-05">
+	<description>
+	  <p>New features in this release include:</p>
+	  <p xml:lang="de">Neue Funktionen:</p>
+	  <ul>
+		<li>Keyboard cursor-driven pattern, song and note properties editing</li>
+		<li xml:lang="de">Tastatur-gestütztes Editieren von Pattern, Liedern und Noteneigenschaften</li>
+		<li>Note selection and movement in pattern editors</li>
+		<li xml:lang="de">Auswählen und Verschieben von Noten im Pattern Editor</li>
+		<li>New OSC commands (new song, open song, save song (as), quit,
+		toggle looped playback, toggle timeline, toggle Jack transport,
+		toggle Jack timebase master, add/delete timeline marker,
+		toggle song/pattern playback mode)</li>
+		<li xml:lang="de">Neue OSC Kommandos</li>
+		<li>NSM support reworked</li>
+		<li xml:lang="de">Überarbeitete NSM Unterstützung</li>
+		<li>Deprecating JACK-session</li>
+		<li xml:lang="de">Abkündigung von JACK-session</li>
+		<li>Instrument main pitch shift offset</li>
+		<li xml:lang="de">Generelle Tonhöhenverschiebung von Instrumenten</li>
+		<li>Custom pattern size support with representation in note values</li>
+		<li xml:lang="de">Patternlänge wird als Notenwertverhältnis präsentiert</li>
+		<li>Custom pan law support in mixer</li>
+		<li xml:lang="de">Verschiedene Pan Funktionen im Mixer</li>
+		<li>Audio output device selection in CoreAudio (macOS) and PortAudio (Windows)</li>
+		<li xml:lang="de">Auswahl des Ausgabegeräts unter CoreAudio (macOS) und PortAudio (Windows)</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.1.0</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.1.0.tar.gz</location>
+		<checksum type="sha256">447b44506e27d93d115f750be0ee0f2571ec4de2cff9c0197f6859154cf4bdcc</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.0/Hydrogen-1.1.0.dmg</location>
+		<checksum type="sha256">5ef9dc9a3190de0c6524b6fa6bc1e3ef16aeb2a420fb98decc7689a87de2f1b2</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.0/Hydrogen-1.1.0-win32.exe</location>
+		<checksum type="sha256">ae6e1559d06140dccd42413c7a6057365b4f921407e635cf493e6277089b184d</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.1.0/Hydrogen-1.1.0-win64.exe</location>
+		<checksum type="sha256">f8a8d150d30bb65ad83cf6ec449c72ddeb3e2c0ae1974a644fc7d0994b311cb1</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.0.2" date="2021-04-11">
+	<description>
+	  <p>
+		This release primarily addresses issues and bugs discovered by
+		users, rather than adding new features.
+	  </p>
+	  <p xml:lang="de">Diese Version beinhaltet in erster Linie Fehlerbehebungen.</p>
+	  <ul>
+		<li>User-selectable translation language</li>
+		<li xml:lang="de">Benutzerdefinierte Übersetzung</li>
+        <li>Fix critical startup bug on macOS Big Sur</li>
+        <li xml:lang="de">Kritischer Startfehler unter macOS Big Sur behoben</li>
+        <li>Fix drumkit export failure on Windows</li>
+        <li xml:lang="de">Fehler im Schlagzeugexport unter Windows behoben</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.2</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.0.2.tar.gz</location>
+		<checksum type="sha256">de1ce64da8ae7a84d7fbd789e84010d6a837378bc9811acb282c30b9ee8042f5</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.2/Hydrogen-1.0.2-macos.dmg</location>
+		<checksum type="sha256">eba0b3ef40b22dd28639392dd1d4d9809e836ad3be41906ad38c19972c59616e</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.2/Hydrogen-1.0.2-win32.exe</location>
+		<checksum type="sha256">b1087f15dedb00a94aad03ff9a43cb3ef70fa2722b1f889da620419bc98ce70a</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.2/Hydrogen-1.0.2-win64.exe</location>
+		<checksum type="sha256">bd797b2826d07b49d94f8bbfe63c2ade58e7bd360b9c567d65c953104bce6c41</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.0.1" date="2020-09-03">
+	<description>
+	  <ul>
+		<li>Fixed compilation with libtar</li>
+		<li xml:lang="de">Fehler im Bauen mit libtar behoben</li>
+		<li>Fixed jack transport tempo drift when using non-integer bpm values</li>
+		<li xml:lang="de">Abdriften der Wiedergabegeschwindigkeit unter JACK bei Fließkomma Geschwindigkeiten behoben</li>
+		<li>Disabled "development mode" warning</li>
+		<li xml:lang="de">"Entwicklungsmodus" Warnung deaktiviert</li>
+		<li>Fix crash on saving ladspa settings</li>
+		<li xml:lang="de">Absturz beim Speichern der LADSPA Einstellungen behoben</li>
+		<li>Added manual + tutorial files to Windows and OS X Installers</li>
+		<li xml:lang="de">Documentation und Tutorials zu Windows und OS X Installer hinzugefügt</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.1</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.1/hydrogen-1.0.1.tar.gz</location>
+		<checksum type="sha256">0a8f5ce37412293e9dce1c5f3f428f08c8d66009f40d54a6f4f6b98190e5ad20</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.1/Hydrogen-1.0.1.dmg</location>
+		<checksum type="sha256">20b33e3b8c308a2fb8a82dd0712c301c1187ec57b2da934ddfc1167a11252a47</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.1/Hydrogen-1.0.1-win32.exe</location>
+		<checksum type="sha256">6d26f50f1a5941c6609fe794673d992dc3917ee27d759c1df3b804813f0ee34f</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.1/Hydrogen-1.0.1-win64.exe</location>
+		<checksum type="sha256">cf5a475c3f2825148d9518f8c21df2e9bb51ceeaab4ffcfbd00ebc671f82e007</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="1.0.0" date="2020-08-03">
+	<description>
+	  <p>It comes with the following new features:</p>
+	  <p xml:lang="de">Beinhaltet folgende neue Funktionen:</p>
+	  <ul>
+		<li>QT5 support</li>
+		<li xml:lang="de">QT5 Unterstützung</li>
+		<li>MIDI feedback</li>
+		<li xml:lang="de">MIDI Feedback</li>
+		<li>OSC support (incl. feedback)</li>
+		<li xml:lang="de">OSC Unterstützung (inkl. Feeback)</li>
+		<li>Playback track</li>
+		<li xml:lang="de">Playback Spur</li>
+		<li>Menu redesign</li>
+		<li xml:lang="de">Menü Überarbeitung</li>
+		<li>Note probability property</li>
+		<li xml:lang="de">Wahrscheinlichkeit als Noten Eigenschaft</li>
+		<li>Velocity automation</li>
+		<li xml:lang="de">Anschlagsautomatisierung</li>
+		<li>Full screen mode</li>
+		<li xml:lang="de">Vollbildmodus</li>
+		<li>New default kit: GMRockKit</li>
+		<li xml:lang="de">Neues Standardschlagzeug: GMRockKit</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/1.0.0.tar.gz</location>
+		<checksum type="sha256">c4eac296a0d20578c274faf7816cf35c16ed43b634d91d2d19686bf9bbfeb970</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.0/Hydrogen.dmg</location>
+		<checksum type="sha256">491c44ca4e1204ac86e89154707ba6722c271210b1ad5c118dea7d1a14ccf864</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.0/Hydrogen-1.0.0-win32.exe</location>
+		<checksum type="sha256">fa561ec67ee93c50f43393c018754f7bc8ef9089fce96c99b37415854ddd56ac</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.0.0/Hydrogen-1.0.0-win64.exe</location>
+		<checksum type="sha256">a90b4d56f574b843ef5605fb4ac01c1046f51c9674912a2e49913a3c49e5ae47</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="0.9.7" date="2016-11-05">
+	<description>
+	  <p>It includes the following new features:</p>
+	  <p xml:lang="de">Neue Funktionen:</p>
+	  <ul>
+		<li>The color of the SongEditors squares is now configurable</li>
+		<li xml:lang="de">Konfigurierbare Farbe für die Kästchen des Song Editors</li>
+		<li>Added support for midi cymbal choking</li>
+		<li xml:lang="de">Unterstützung des Stoppens von Becken über MIDI</li>
+		<li>Added support for midi hihat pressure control</li>
+		<li xml:lang="de">Unterstützung von Druckkontrolle der Hihat über MIDI</li>
+		<li>Added hihat pressure groups</li>
+		<li xml:lang="de">Unterstützung von Druckkontrolle der Hihat</li>
+		<li>Added basic non session manager support</li>
+		<li xml:lang="de">Grundlegende NSM Unterstützung</li>
+		<li>Added instrument components</li>
+		<li xml:lang="de">Integration von Instrumentkomponenten</li>
+		<li>Basic lilypond export</li>
+		<li xml:lang="de">Grundlegender LilyPond Export</li>
+		<li>New windows cross compilation script</li>
+		<li xml:lang="de">Neues Skript zum Crosskompilieren auf Windows</li>
+		<li>Support for soundlibrary images</li>
+		<li xml:lang="de">Unterstützung von Bildern in Schlagzeugender</li>
+		<li>Configurable sample selection algorithm</li>
+		<li xml:lang="de">Konfigurierbarer Algorithmus für die Sampleauswahl</li>
+		<li>Support for soundlibraries with images</li>
+		<li xml:lang="de">Unterstützung von Bildern in Schlagzeugender</li>
+		<li>New midi action: SELECT_PREV_PATTERN_RELATIVE</li>
+		<li xml:lang="de">Neues MIDI Kommando: SELECT_PREV_PATTERN_RELATIVE</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.7</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/0.9.7.tar.gz</location>
+		<checksum type="sha256">1e0f3d9eae901ef5f11a61e2a446b1d819f3b38e2476a2b382cc02dea693c2b7</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="0.9.6.1" date="2014-09-09">
+	<description>
+	  <p>
+		Maintenance release. It includes a fixed version numbering for
+		the included debian packaging scripts, a bugfix which
+		supresses the addition of "/" characters in instrument names
+		and two smaller fixes to the pattern handling.
+	  </p>
+	  <p xml:lang="de">Wartungsversion, welches Korrekturen in der Versionierung für die Integration in Debian Paketierungsskripts, sowie Fehlerbehebungen durch zusätzliche "/" Zeichen in Instrumentnamen behebt.</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.6.1</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/0.9.6.1.tar.gz</location>
+		<checksum type="sha256">94dadf433f0abbe7e0ae8e037726b3573f8b59abf118c9c084f06c561d56b66f</checksum>
+	  </artifact>
+	</artifacts>
+  </release>
+
+  <release version="0.9.6" date="2014-08-04">
+	<description>
+	  <ul>
+		<li>new build system (cmake)</li>
+		<li xml:lang="de">Neues Buildsystem (cmake)</li>
+		<li>add undo for song/pattern editor</li>
+		<li xml:lang="de">Rückgäng machen in Pattern und Song Editor</li>
+		<li>jack-session support</li>
+		<li xml:lang="de">Unterstützung von JACK-session</li>
+		<li>jack-midi support</li>
+		<li xml:lang="de">JACK-MIDI Unterstützung</li>
+		<li>several bug fixes</li>
+		<li xml:lang="de">Einige Fehlerbehebungen</li>
+		<li>tabbed interface</li>
+		<li xml:lang="de">Tab Oberfläche</li>
+		<li>several small changes to the GUI</li>
+		<li xml:lang="de">Einige kleine Änderungen in der Benutzeroberfläche</li>
+		<li>improve ExportSong add use of TimeLineBPM,
+		RubberbandBatch processor and different types of resample interpolation</li>
+		<li xml:lang="de">Verbesserter Liedexport mit Tempomarkierungen der Timeline, einem Rubberband Prozessor und verschiedenen Arten der Interpolation</li>
+	  </ul>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/0.9.6</url>
+	<artifacts>
+	  <artifact type="source">
+		<location>https://github.com/hydrogen-music/hydrogen/archive/refs/tags/0.9.6.tar.gz</location>
+		<checksum type="sha256">bc4cf69662714f583a5922951f8a0f1ea5ee9de140a2b36320b7a212b042f2fc</checksum>
+	  </artifact>
+	</artifacts>
+    </release>
+  </releases>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <control>tablet</control>
+  </supports>
+
+  <content_rating type="oars-1.1"/>
+
+  <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
+
+  <launchable type="desktop-id">org.hydrogenmusic.Hydrogen.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://hydrogen-music.org/images/screenshots/main-window.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://hydrogen-music.org/images/screenshots/audio-filebrowser.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://hydrogen-music.org/images/screenshots/sample-editor.png</image>
+    </screenshot>
+  </screenshots>
+</component>

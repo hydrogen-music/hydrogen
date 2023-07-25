@@ -300,11 +300,11 @@
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation>Soyez prudent, ceci change tous les paramètres de vélocité des couches</translation>
+        <translation>Soyez prudent, ceci change tous les réglages de vélocité des couches</translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation>Réglage de vélocité auto</translation>
+        <translation>Réglage automatique de vélocité</translation>
     </message>
 </context>
 <context>
@@ -348,7 +348,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Edit</source>
         <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
-        <translation>Édit</translation>
+        <translation>Modi</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -572,27 +572,27 @@ B</translation>
     </message>
     <message>
         <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation>Tail</translation>
     </message>
     <message>
         <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
         <translation>Rés</translation>
     </message>
     <message>
         <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor. Designed to hold four characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
         <translation>Écou</translation>
     </message>
     <message>
         <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
         <translation>Quant</translation>
     </message>
     <message>
         <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor. Designed to hold five characters but not that flexible.</extracomment>
+        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
         <translation>Entrée</translation>
     </message>
     <message>
@@ -607,7 +607,9 @@ B</translation>
     </message>
     <message>
         <source>BPM</source>
-        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.</extracomment>
+        <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
+----------
+Label shown in the input capture dialog for querying a new tempo value.</extracomment>
         <translation>BPM</translation>
     </message>
     <message>
@@ -884,6 +886,71 @@ Kit actuel :</translation>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation>session</translation>
+    </message>
+    <message>
+        <source>Define a keybinding for the selected shortcut</source>
+        <extracomment>Displayed both as tooltip in the Preferences dialog &gt; Shortcuts tab as well as window title.</extracomment>
+        <translation>Définir un raccourci clavier pour le raccourci sélectionné</translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <extracomment>Label shown in the input capture dialog for querying a new volume value.</extracomment>
+        <translation>Volume</translation>
+    </message>
+    <message>
+        <source>Column Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
+        <translation>Numéro de la colonne</translation>
+    </message>
+    <message>
+        <source>Pattern Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
+        <translation>Numéro du motif</translation>
+    </message>
+    <message>
+        <source>Song Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
+        <translation>Numéro du morceau</translation>
+    </message>
+    <message>
+        <source>Instrument Number</source>
+        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
+        <translation>Numéro d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Component Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
+        <translation>Numéro du composant</translation>
+    </message>
+    <message>
+        <source>Layer Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
+        <translation>Numéro de la couche</translation>
+    </message>
+    <message>
+        <source>FX Level</source>
+        <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
+        <translation>Niveau d&apos;effet</translation>
+    </message>
+    <message>
+        <source>FX Number</source>
+        <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
+        <translation>Numéro d&apos;effet</translation>
+    </message>
+    <message>
+        <source>Pan</source>
+        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <translation>Pan</translation>
+    </message>
+    <message>
+        <source>Filter Cutoff</source>
+        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
+        <translation>Coupure du filtre</translation>
+    </message>
+    <message>
+        <source>Tag Text</source>
+        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
+        <translation>Texte de l&apos;étiquette</translation>
     </message>
 </context>
 <context>
@@ -1304,7 +1371,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Set tempo of new tempo marker</source>
-        <translation>Définir le tempo du nouveau marqueur de tempo</translation>
+        <translation>Régler le tempo du nouveau marqueur de tempo</translation>
     </message>
     <message>
         <source>Move tempo marker to different column</source>
@@ -1312,18 +1379,18 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Set column of new tempo marker</source>
-        <translation>Définir la colonne du nouveau marqueur de tempo</translation>
+        <translation>Régler la colonne du nouveau marqueur de tempo</translation>
     </message>
     <message>
         <source>There is already a tempo marker present at this Column. Please use left-click to edit it instead.</source>
-        <translation>Il y a déjà un marqueur de tempo présent à cette colonne. Veuillez utiliser le clic gauche pour l&apos;éditer à la place.</translation>
+        <translation>Il y a déjà un marqueur de tempo présent à cette colonne. Veuillez utiliser le clic gauche pour le modifier à la place.</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
 </context>
 <context>
@@ -1440,6 +1507,13 @@ Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</t
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation>Certaines licences d&apos;échantillons diffèrent de celle attribuée au kit de batterie global [%1] et seront écrasées. Êtes-vous sûr ?</translation>
+    </message>
+</context>
+<context>
+    <name>InputCaptureDialog</name>
+    <message>
+        <source>InputCaptureDialog</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1639,7 +1713,7 @@ Valeur</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation>Éditer tous les motifs</translation>
+        <translation>Modifier tous les motifs</translation>
     </message>
     <message>
         <source>Cut notes</source>
@@ -1677,7 +1751,7 @@ Valeur</translation>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>Edit FX parameters</source>
-        <translation>Éditer les paramètres d&apos;effet</translation>
+        <translation>Modifier les paramètres d&apos;effet</translation>
     </message>
     <message>
         <source>FX bypass</source>
@@ -2103,7 +2177,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Set default values</source>
-        <translation>Paramètre les valeurs par défaut</translation>
+        <translation>Régler les valeurs par défaut</translation>
     </message>
     <message>
         <source>&amp;Timeline</source>
@@ -2354,10 +2428,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>&amp;Donner !</translation>
     </message>
     <message>
-        <source>Playing.</source>
-        <translation>Lecture en cours.</translation>
-    </message>
-    <message>
         <source>Song Properties</source>
         <translation>Propriétés du morceau</translation>
     </message>
@@ -2402,6 +2472,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
         <source>Playback track couldn&apos;t be read</source>
         <translation>La piste de lecture n&apos;a pas pu être lue</translation>
     </message>
+    <message>
+        <source>Import &amp;Demo Into Session</source>
+        <translation>Importer la &amp;démo dans une session</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -2435,11 +2509,11 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
-        <translation>Définir le temps d&apos;humanisation [%1]</translation>
+        <translation>Régler le temps d&apos;humanisation [%1]</translation>
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
-        <translation>Définir la vélocité d&apos;humanisation [%1]</translation>
+        <translation>Régler la vélocité d&apos;humanisation [%1]</translation>
     </message>
 </context>
 <context>
@@ -2457,10 +2531,6 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
         <translation>Événement entrant</translation>
     </message>
     <message>
-        <source>Event Para.</source>
-        <translation>Para d&apos;événement</translation>
-    </message>
-    <message>
         <source>Para. 1</source>
         <translation>Para. 1</translation>
     </message>
@@ -2471,6 +2541,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Para. 3</source>
         <translation>Para. 3</translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2551,7 +2625,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation>Paramètres du mixeur</translation>
+        <translation>Réglages du mixeur</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
@@ -2764,7 +2838,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Set note probability to</source>
-        <translation>Réglez la probabilité de la note sur</translation>
+        <translation>Régler la probabilité de la note sur</translation>
     </message>
 </context>
 <context>
@@ -3152,7 +3226,7 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo défini en utilisant la position actuelle de la ligne de temps.</translation>
+        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo réglé en utilisant la position actuelle de la ligne de temps.</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
@@ -3295,7 +3369,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Edit selected Script</source>
-        <translation>Édit&amp;er le script sélectionné</translation>
+        <translation>Modifier le scrip&amp;t sélectionné</translation>
     </message>
     <message>
         <source>&amp;Remove selected Script</source>
@@ -4252,6 +4326,58 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Reset Appearance Tab</source>
         <translation>Réinitialiser l&apos;onglet Apparence</translation>
     </message>
+    <message>
+        <source>Short&amp;cuts</source>
+        <translation>Raccour&amp;cis</translation>
+    </message>
+    <message>
+        <source>Shortcut Category</source>
+        <translation>Raccourci de catégorie</translation>
+    </message>
+    <message>
+        <source>Shortcut</source>
+        <translation>Raccourci</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <source>Category</source>
+        <translation>Catégorie</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation>Filtre</translation>
+    </message>
+    <message>
+        <source>Restores the default values for all shortcuts</source>
+        <translation>Rétablit les valeurs par défaut de tous les raccourcis</translation>
+    </message>
+    <message>
+        <source>&amp;Reset all</source>
+        <translation>Tout &amp;réinitialiser</translation>
+    </message>
+    <message>
+        <source>Removes keybinding of selected shortcut</source>
+        <translation>Supprime la liaison clavier du raccourci sélectionné</translation>
+    </message>
+    <message>
+        <source>&amp;Clear</source>
+        <translation>Effa&amp;cer</translation>
+    </message>
+    <message>
+        <source>&amp;Define</source>
+        <translation>&amp;Définir</translation>
+    </message>
+    <message>
+        <source>Add additional rows for the select actions to allow them to be bound to further shortcuts</source>
+        <translation>Ajouter des lignes supplémentaires pour les actions de sélection afin de pouvoir les lier à d&apos;autres raccourcis</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Dupliquer</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -4289,7 +4415,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit timeline tag</source>
-        <translation>Éditer l&apos;étiquette de la ligne temporelle</translation>
+        <translation>Modifier l&apos;étiquette de la ligne temporelle</translation>
     </message>
     <message>
         <source>Delete note ( %1, %2)</source>
@@ -4353,7 +4479,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit note property %1</source>
-        <translation>Éditer la propriété %1 de note</translation>
+        <translation>Modifier la propriété %1 de note</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4373,7 +4499,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit tempo marker</source>
-        <translation>Éditer le marqueur de tempo</translation>
+        <translation>Modifier le marqueur de tempo</translation>
     </message>
     <message>
         <source>Delete tempo marker</source>
@@ -4450,7 +4576,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>set processing</source>
-        <translation>paramètrer le traitement</translation>
+        <translation>régler le traitement</translation>
     </message>
     <message>
         <source>forward</source>
@@ -4744,6 +4870,613 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ShortcutCaptureDialog</name>
+    <message>
+        <source>Waiting for keyboard input</source>
+        <extracomment>Text displayed in the shortcut capture dialog</extracomment>
+        <translation>Attente d&apos;une saisie clavier</translation>
+    </message>
+</context>
+<context>
+    <name>Shortcuts</name>
+    <message>
+        <source>Pause transport and stop all playing notes</source>
+        <translation>Mise en pause du transport et arrêt de toutes les notes jouées</translation>
+    </message>
+    <message>
+        <source>Start playback</source>
+        <translation>Démarrer la lecture</translation>
+    </message>
+    <message>
+        <source>Pause playback</source>
+        <translation>Mettre en pause la lecture</translation>
+    </message>
+    <message>
+        <source>Stop playback</source>
+        <translation>Arrêter la lecture</translation>
+    </message>
+    <message>
+        <source>Start/Pause playback</source>
+        <translation>Démarrer ou mettre en pause de la lecture</translation>
+    </message>
+    <message>
+        <source>Start/Stop playback</source>
+        <translation>Démarrer ou arrêter la lecture</translation>
+    </message>
+    <message>
+        <source>Start playback at keyboard cursor</source>
+        <translation>Démarrer la lecture au niveau du curseur du clavier</translation>
+    </message>
+    <message>
+        <source>Record toggling (if playback isn&apos;t running)</source>
+        <translation>Basculement de l&apos;enregistrement (si la lecture n&apos;est pas en cours)</translation>
+    </message>
+    <message>
+        <source>Record activation</source>
+        <translation>Activer l&apos;enregistrement</translation>
+    </message>
+    <message>
+        <source>Record toggling</source>
+        <translation>Basculer l&apos;enregistrement</translation>
+    </message>
+    <message>
+        <source>Record deactivation</source>
+        <translation>Désactiver l&apos;enregistrement</translation>
+    </message>
+    <message>
+        <source>Mute master output</source>
+        <translation>Coupure de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Unmute master output</source>
+        <translation>Écoute de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Mute toggling of master output</source>
+        <translation>Basculement en sourdine de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Increase volume of master output</source>
+        <translation>Augmenter le volume de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Decrease volume of master output</source>
+        <translation>Diminuer le volume de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Move playhead to the beginnning of the song</source>
+        <translation>Déplacer la tête de lecture au début du morceau</translation>
+    </message>
+    <message>
+        <source>Move playhead one bar forward</source>
+        <translation>Déplacer la tête de lecture d&apos;une mesure vers l&apos;avant</translation>
+    </message>
+    <message>
+        <source>Move playhead one bar backward</source>
+        <translation>Déplacer la tête de lecture d&apos;une mesure vers l&apos;arrière</translation>
+    </message>
+    <message>
+        <source>BPM increase (coarse)</source>
+        <translation>Augmentation du BPM (grossier)</translation>
+    </message>
+    <message>
+        <source>BPM decrease (coarse)</source>
+        <translation>Diminution du BPM (grossier)</translation>
+    </message>
+    <message>
+        <source>BPM increase (fine)</source>
+        <translation>Augmentation du BPM (fin)</translation>
+    </message>
+    <message>
+        <source>BPM decrease (fine)</source>
+        <translation>Diminution du BPM (fin)</translation>
+    </message>
+    <message>
+        <source>BeatCounter trigger</source>
+        <translation>Déclencheur du compteur de battement</translation>
+    </message>
+    <message>
+        <source>Tap Tempo trigger</source>
+        <translation>Déclencheur du tape-tempo</translation>
+    </message>
+    <message>
+        <source>Playlist: select next song</source>
+        <translation>Liste de lecture : sélection du morceau suivant</translation>
+    </message>
+    <message>
+        <source>Playlist: select previous song</source>
+        <translation>Liste de lecture : sélection du morceau précédent</translation>
+    </message>
+    <message>
+        <source>Toggle Timeline</source>
+        <translation>Basculer la ligne temporelle</translation>
+    </message>
+    <message>
+        <source>Toggle Metronome</source>
+        <translation>Basculer le métronome</translation>
+    </message>
+    <message>
+        <source>Toggle JACK Transport</source>
+        <translation>Basculer le transport JACK</translation>
+    </message>
+    <message>
+        <source>Toggle JACK Timebase support</source>
+        <translation>Basculer la prise en charge de la base de temps JACK</translation>
+    </message>
+    <message>
+        <source>Toggle song/pattern mode</source>
+        <translation>Basculer le mode morceau/motif</translation>
+    </message>
+    <message>
+        <source>Toggle loop mode</source>
+        <translation>Basculer le mode boucle</translation>
+    </message>
+    <message>
+        <source>Set BPM</source>
+        <translation>Régler le BPM</translation>
+    </message>
+    <message>
+        <source>Set volume of master output</source>
+        <translation>Régler le volume de la sortie principale</translation>
+    </message>
+    <message>
+        <source>Set playhead position</source>
+        <translation>Régler la position de la tête de lecture</translation>
+    </message>
+    <message>
+        <source>Select next pattern</source>
+        <translation>Sélectionner le motif suivant</translation>
+    </message>
+    <message>
+        <source>Select only next pattern</source>
+        <translation>Sélectionner le motif suivant uniquement</translation>
+    </message>
+    <message>
+        <source>Select next pattern and start playback</source>
+        <translation>Sélectionner le motif suivant et démarrer la lecture</translation>
+    </message>
+    <message>
+        <source>Select Playlist song</source>
+        <translation>Sélectionner le morceau de la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Timeline: delete tempo marker</source>
+        <translation>Ligne temporelle : supprimer le marqueur de tempo</translation>
+    </message>
+    <message>
+        <source>Timeline: delete tag</source>
+        <translation>Ligne temporelle : supprimer l&apos;étiquette</translation>
+    </message>
+    <message>
+        <source>Set current instrument</source>
+        <translation>Régler l&apos;instrument actuel</translation>
+    </message>
+    <message>
+        <source>Increase volume of instrument</source>
+        <translation>Augmenter le volume d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Decrease volume of instrument</source>
+        <translation>Diminuer le volume d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Toggle instrument mute</source>
+        <translation>Basculer la sourdine de l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Toggle instrument solo</source>
+        <translation>Basculer le solo de l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Set instrument volume</source>
+        <translation>Régler le volume de l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Set instrument pan</source>
+        <translation>Régler le panoramique de l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Set instrument filter cutoff</source>
+        <translation>Régler la coupure de filtre de l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Timeline: add tempo marker</source>
+        <translation>Ligne temporelle : ajouter un marqueur de tempo</translation>
+    </message>
+    <message>
+        <source>Timeline: add tag</source>
+        <translation>Ligne temporelle : ajouter une étiquette</translation>
+    </message>
+    <message>
+        <source>Toggle cell in song editor grid</source>
+        <translation>Basculer de cellule dans la grille de l&apos;éditeur de morceau</translation>
+    </message>
+    <message>
+        <source>Set instrument layer pitch</source>
+        <translation>Régler la hauteur de la couche d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Set instrument layer gain</source>
+        <translation>Régler le gain de la couche d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Set instrument FX aux level</source>
+        <translation>Régler le niveau auxiliaire d&apos;effet</translation>
+    </message>
+    <message>
+        <source>Create empty song</source>
+        <translation>Créer un morceau vide</translation>
+    </message>
+    <message>
+        <source>Open song from disk</source>
+        <translation>Ouvrir un morceau depuis un disque</translation>
+    </message>
+    <message>
+        <source>Edit song properties</source>
+        <translation>Modifier les propriétés du morceau</translation>
+    </message>
+    <message>
+        <source>Open demo song</source>
+        <translation>Ouvrir un morceau de démo</translation>
+    </message>
+    <message>
+        <source>Save all modifications to the current song</source>
+        <translation>Sauvegarder toutes les modifications du morceau actuel</translation>
+    </message>
+    <message>
+        <source>Save all modifications to a new song</source>
+        <translation>Sauvegarder toutes les modifications dans un nouveau morceau</translation>
+    </message>
+    <message>
+        <source>Open pattern from disk</source>
+        <translation>Ouvrir un motif depuis un disque</translation>
+    </message>
+    <message>
+        <source>Write pattern to disk</source>
+        <translation>Sauvegarder le motif sur un disque</translation>
+    </message>
+    <message>
+        <source>Export song to audio file</source>
+        <translation>Exporter le morceau vers un fichier audio</translation>
+    </message>
+    <message>
+        <source>Export song to MIDI file</source>
+        <translation>Exporter le morceau vers un fichier MIDI</translation>
+    </message>
+    <message>
+        <source>Export song to LilyPond file</source>
+        <translation>Exporter le morceau vers un fichier Lilypond</translation>
+    </message>
+    <message>
+        <source>Quit Hydrogen</source>
+        <translation>Quitter Hydrogen</translation>
+    </message>
+    <message>
+        <source>Undo the last modification</source>
+        <translation>Annuler la dernière modification</translation>
+    </message>
+    <message>
+        <source>Redo the last modification</source>
+        <translation>Refaire la dernière modification</translation>
+    </message>
+    <message>
+        <source>Show modification history</source>
+        <translation>Monter l&apos;historique de modification</translation>
+    </message>
+    <message>
+        <source>Create empty drumkit</source>
+        <translation>Créer un kit de batterie vide</translation>
+    </message>
+    <message>
+        <source>Open drumkit from soundlibrary</source>
+        <translation>Ouvrir un kit de batterie depuis la bibliothèque de son</translation>
+    </message>
+    <message>
+        <source>Edit drumkit properties</source>
+        <translation>Modifier les propriétés du kit de batterie</translation>
+    </message>
+    <message>
+        <source>Save modifications to current drumkit</source>
+        <translation>Sauvegarder les modifications du kit de batterie actuel</translation>
+    </message>
+    <message>
+        <source>Save modifications to new drumkit</source>
+        <translation>Sauvegarder les modifications vers un nouveau kit de batterie</translation>
+    </message>
+    <message>
+        <source>Export drumkit to disk</source>
+        <translation>Exporter le kit de batterie vers un disque</translation>
+    </message>
+    <message>
+        <source>Import drumkit from disk</source>
+        <translation>Importer un kit de batterie depuis un disque</translation>
+    </message>
+    <message>
+        <source>Import drumkit from server</source>
+        <translation>Importer un kit de batterie depuis un serveur</translation>
+    </message>
+    <message>
+        <source>Add instrument to current drumkit</source>
+        <translation>Ajouter un instrument dans le kit de batterie actuel</translation>
+    </message>
+    <message>
+        <source>Clear all instruments in current drumkit</source>
+        <translation>Nettoyer tous les instruments dans le kit de batterie actuel</translation>
+    </message>
+    <message>
+        <source>Add component to current drumkit</source>
+        <translation>Ajouter un composant au kit de batterie actuel</translation>
+    </message>
+    <message>
+        <source>Show playlist editor</source>
+        <translation>Afficher l&apos;éditeur de liste de lecture</translation>
+    </message>
+    <message>
+        <source>Show director</source>
+        <translation>Afficher le directeur</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Afficher la table de mixage</translation>
+    </message>
+    <message>
+        <source>Show instrument rack</source>
+        <translation>Afficher le rack d&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Show automation path</source>
+        <translation>Afficher le chemin d&apos;automation</translation>
+    </message>
+    <message>
+        <source>Show timeline</source>
+        <translation>Afficher la ligne temporelle</translation>
+    </message>
+    <message>
+        <source>Show playback track</source>
+        <translation>Afficher la piste de lecture</translation>
+    </message>
+    <message>
+        <source>Toggle fullscreen mode</source>
+        <translation>Basculer en mode plein-écran</translation>
+    </message>
+    <message>
+        <source>Use instrument mode for MIDI input</source>
+        <translation>Utiliser le mode instrument pour l&apos;entrée MIDI</translation>
+    </message>
+    <message>
+        <source>Use drumkit mode for MIDI input</source>
+        <translation>Utiliser le mode kit de batterie pour l&apos;entrée MIDI</translation>
+    </message>
+    <message>
+        <source>Show preferences dialog</source>
+        <translation>Afficher le dialogue de préférence</translation>
+    </message>
+    <message>
+        <source>Show audio engine info dialog</source>
+        <translation>Afficher le dialogue d&apos;information du moteur audio</translation>
+    </message>
+    <message>
+        <source>Show filesystem info dialog</source>
+        <translation>Afficher le dialogue d&apos;information du système de fichiers</translation>
+    </message>
+    <message>
+        <source>Log Level = None</source>
+        <translation>Niveau de journalisation = aucun</translation>
+    </message>
+    <message>
+        <source>Log Level = Error</source>
+        <translation>Niveau de journalisation = erreur</translation>
+    </message>
+    <message>
+        <source>Log Level = Warning</source>
+        <translation>Niveau de journalisation = avertissement</translation>
+    </message>
+    <message>
+        <source>Log Level = Info</source>
+        <translation>Niveau de journalisation = information</translation>
+    </message>
+    <message>
+        <source>Log Level = Debug</source>
+        <translation>Niveau de journalisation = débogage</translation>
+    </message>
+    <message>
+        <source>Open log file</source>
+        <translation>Ouvrir le fichier de journalisation</translation>
+    </message>
+    <message>
+        <source>Print object debug count to log</source>
+        <translation>Inscrire le nombre d&apos;objets débogués dans le journal</translation>
+    </message>
+    <message>
+        <source>Open user manual</source>
+        <translation>Ouvrir le manuel utilisateur</translation>
+    </message>
+    <message>
+        <source>Show about dialog</source>
+        <translation>Afficher le dialogue d&apos;à propos</translation>
+    </message>
+    <message>
+        <source>Report bug in web browser</source>
+        <translation>Rapporter un bogue dans le navigateur ouèbe</translation>
+    </message>
+    <message>
+        <source>Show donate dialog</source>
+        <translation>Afficher le dialogue de don</translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 36 (C2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 37 (C#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 38 (D2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 39 (D#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 40 (E2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 41 (F2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 42 (F#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 43 (G2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 44 (G#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 45 (A2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 46 (A#2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 47 (B2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 48 (C3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 49 (C#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 50 (D3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 51 (D#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 52 (E3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 53 (F3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 54 (F#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 55 (G3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 56 (G#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 57 (A3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 58 (A#3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VK Note-on Pitch 59 (B3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to Playlist</source>
+        <translation>Ajouter un morceau à la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Add current song to Playlist</source>
+        <translation>Ajouter le morceau actuel à la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Remove song from Playlist</source>
+        <translation>Supprimer le morceau de la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Create new Playlist</source>
+        <translation>Créer une nouvelle liste de lecture</translation>
+    </message>
+    <message>
+        <source>Open Playlist from disk</source>
+        <translation>Ouvrir une liste de lecture depuis un disque</translation>
+    </message>
+    <message>
+        <source>Save modifications to Playlist</source>
+        <translation>Sauvegarder les modifications dans la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Save modifications to new Playlist</source>
+        <translation>Sauvegarder les modifications dans une nouvelle liste de lecture</translation>
+    </message>
+    <message>
+        <source>Add script to Playlist</source>
+        <translation>Ajouter un script à la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Edit script</source>
+        <translation>Modifier le script</translation>
+    </message>
+    <message>
+        <source>Remove script from Playlist</source>
+        <translation>Supprimer le script de la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Create script for Playlist</source>
+        <translation>Créer un script pour la liste de lecture</translation>
+    </message>
+    <message>
+        <source>Commands (0 args)</source>
+        <translation>Commandes (0 arg)</translation>
+    </message>
+    <message>
+        <source>Commands (1 arg)</source>
+        <translation>Commandes (1 arg)</translation>
+    </message>
+    <message>
+        <source>Commands (2 args)</source>
+        <translation>Commandes (2 args)</translation>
+    </message>
+    <message>
+        <source>Commands (many args)</source>
+        <translation>Commandes (plusieurs args)</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>Fenêtre principale</translation>
+    </message>
+    <message>
+        <source>Virtual Keyboard</source>
+        <translation>Clavier virtuel</translation>
+    </message>
+    <message>
+        <source>PlaylistEditor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Categories</source>
+        <translation>Toutes les catégories</translation>
+    </message>
+</context>
+<context>
     <name>SongEditor</name>
     <message>
         <source>&amp;Cut</source>
@@ -4906,7 +5639,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation>Tag</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -4981,7 +5714,7 @@ Overwrite the existing pattern?</source>
     <name>SongEditorPositionRuler</name>
     <message>
         <source>The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it.</source>
-        <translation>Le tempo défini dans le widget BPM sera utilisé par défaut pour le début du morceau. Cliquez-gauche pour l&apos;écraser.</translation>
+        <translation>Le tempo réglé dans le widget BPM sera utilisé par défaut pour le début du morceau. Cliquez-gauche pour l&apos;écraser.</translation>
     </message>
 </context>
 <context>
@@ -5211,7 +5944,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>Éditer la liste des serveurs</translation>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>Close</source>
@@ -5383,11 +6116,11 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
-        <translation>Éditer les préférences du dépôt</translation>
+        <translation>Modifier les réglages du dépôt</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation>Éditer la liste des serveurs</translation>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>URL</source>

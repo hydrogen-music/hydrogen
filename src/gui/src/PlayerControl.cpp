@@ -409,7 +409,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pJackTransportBtn->move( 3, 24 );
 
 	//jack time master
-	/*: Using the JACK Timebase Master functionality one of the
+	/* Using the JACK Timebase Master functionality one of the
 	  connected programs can broadcast both speed and measure information to
 	  all other connected applications in order to have a more fine-grained
 	  transport control.*/

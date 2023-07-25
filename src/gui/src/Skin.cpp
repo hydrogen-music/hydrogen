@@ -235,6 +235,7 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacke
 	
 	QColor fillColor;
 	switch ( stacked ) {
+	case Skin::Stacked::None:
 	case Skin::Stacked::Off:
 		fillColor = QColor( 0, 0, 0 );
 		fillColor.setAlpha( 0 );

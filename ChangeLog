@@ -9,6 +9,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Most actions available via MIDI or OSC can also be assigned to a
 		  keyboard shortcut. If those actions require input arguments,
 		  they are retrieved using popup dialogs.
+		- Save and restore Director position, geometry, and visibility.
+		- New and properly licensed AppStream metainfo files
+		  `org.hydrogenmusic.Hydrogen.metainfo.xml` replace old
+		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
 	* Changed
 		- Preferences dialog can now be smoothly resized.
 		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as
@@ -23,6 +27,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  currently selected one.
 		- Do not start playback at cursor when cursor in Song Editor is
 		  beyond the current song length.
+		- Playlist dialog can now be resized and remembers geometry,
+		  position, as well as visibility.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1

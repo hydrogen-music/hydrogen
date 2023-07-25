@@ -20,7 +20,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-QTDIR=${QTDIR:-/usr/lib/qt}
+# QTDIR=${QTDIR:-/usr/lib/qt}
 VERBOSE=${VERBOSE:-0}
 CMAKE_OPTIONS="
     -DCMAKE_COLOR_MAKEFILE=1 \
@@ -37,6 +37,7 @@ CMAKE_OPTIONS="
     -DWANT_COREAUDIO=1 \
     -DWANT_COREMIDI=1
 "
+CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
@@ -53,7 +54,7 @@ function cmake_init() {
     fi
     cd $BUILD_DIR || exit 1
     if [ ! -e CMakeCache.txt ]; then
-        cmake ${CMAKE_OPTIONS} .. || exit 1
+        CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} cmake ${CMAKE_OPTIONS} .. || exit 1
     fi
     cd .. || exit 1
 }
@@ -67,6 +68,8 @@ function cmake_rm() {
 }
 
 function cmake_make() {
+	SILENT=1 update_translations
+
     cmake_init
     echo -e " * cmake make\n" && cd $BUILD_DIR || exit 1
     if [ $VERBOSE -eq 1 ]; then
@@ -123,21 +126,72 @@ function zoop() {
     LD_PRELOAD=$(find $BUILD_DIR -name 'libhydrogen-core*' | head -n 1) ./hydrogen $H2FLAGS
 }
 
+# Updates the translation files (.ts) in data/i18n to reflect the
+# latest state of the translatable strings in src/core and src/gui.
+#
+# The output of the commands involved can be suppressed by setting the
+# variable SILENT to a non-nil value.
+function update_translations() {
+	# Check whether the tools for updating translations are available.
+	if [ "$QTDIR" ]; then
+		LUPDATE="$QTDIR/bin/lupdate"
+		LRELEASE="$QTDIR/bin/lrelease"
+	else
+		LUPDATE=$(which lupdate)
+		LRELEASE=$(which lrelease)
+	fi;
+
+	if [[ -z "$LUPDATE" || -z "$LRELEASE" ]]; then
+	   echo -e " * \e[1;33mERROR: unable to update translations. 'lupdate' and 'lrelease' required.\e[0m\n"
+	else
+		UI_GUI=`find src/gui | grep "\.ui$"`
+		CPP_GUI=`find src/gui | grep "\.cpp$"`
+		CPP_CORE=`find src/core | grep "\.cpp$"`
+		H_GUI=`find src/gui | grep "\.h$"`
+		H_CORE=`find src/core | grep "\.h$"`
+		FILES="$UI_GUI $CPP_GUI $CPP_CORE $H_GUI $H_CORE"
+
+		if [[ -z "$SILENT" ]]; then
+			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts"
+		else
+			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts -silent"
+		fi
+
+		echo -e " * update translation files'\n"
+
+		# Add all recent changes of translatable strings to the .ts
+		# files in data/i18n/.
+		find data/i18n/ -name "*.ts" -type f -exec $CMD_LUPDATE {} \; || exit 1
+
+		# Create .qm files from all .ts files. The former will be used
+		# by the Hydrogen application to lookup translations but are
+		# not included as git sources as they are compiled binaries.
+		if [[ -z "$SILENT" ]]; then
+			CMD_LRELEASE="$LRELEASE data/i18n/*.ts"
+		else
+			CMD_LRELEASE="$LRELEASE -silent data/i18n/*.ts"
+		fi
+
+		eval $CMD_LRELEASE || exit 1
+	fi;
+}
+
 if [ $# -eq 0 ]; then
     echo "usage $0 [cmds list]"
     echo "cmds may be"
-    echo "   r[m]     => all built, temp and cache files"
-    echo "   c[lean]  => remove cache files"
-    echo "   m[ake]   => launch the build process"
-    echo "   mm       => launch the build process using ccache"
-    echo "   mt       => launch the build process with clang tidy checks enabled"
-    echo "   d[oc]    => build html documentation"
-    echo "   g[raph]  => draw a dependencies graph"
-    echo "   h[elp]   => show the build options"
-    echo "   x[exec]  => execute hydrogen"
-    echo "   t[ests]  => execute tests"
-    echo "   p[kg]    => build source package"
-    echo "   z        => build using ccache and run from tree"
+    echo "   r[m]      => all built, temp and cache files"
+    echo "   c[lean]   => remove cache files"
+    echo "   m[ake]    => launch the build process"
+    echo "   mm        => launch the build process using ccache"
+    echo "   mt        => launch the build process with clang tidy checks enabled"
+    echo "   d[oc]     => build html documentation"
+    echo "   g[raph]   => draw a dependencies graph"
+    echo "   h[elp]    => show the build options"
+    echo "   x[exec]   => execute hydrogen"
+    echo "   t[ests]   => execute tests"
+    echo "   p[kg]     => build source package"
+    echo "   translate => update all translation files"
+    echo "   z         => build using ccache and run from tree"
     echo "ex: $0 r m pkg x"
     exit 1
 fi
@@ -168,6 +222,8 @@ for arg in $@; do
             cmd="cmake_tests";;
         p|pkg)
             cmd="cmake_pkg";;
+		translate)
+			cmd="update_translations";;
         z)
             CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="zoop";;
