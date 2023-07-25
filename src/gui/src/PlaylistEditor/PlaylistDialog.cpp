@@ -75,18 +75,21 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistTree->setFont( font );
 	
 	setWindowTitle ( tr ( "Playlist Browser" ) + QString(" - ") + Playlist::get_instance()->getFilename() );
-	setFixedSize ( width(), height() );
 
 	installEventFilter( this );
 
 	m_pMenubar = new QMenuBar( this );
 	populateMenuBar();
-	
+
+	QHBoxLayout* pMenuBarLayout = new QHBoxLayout( menuBarWidget );
+	pMenuBarLayout->setSpacing(0);
+	pMenuBarLayout->setContentsMargins( 0, 0, 0, 0 );
+	pMenuBarLayout->addWidget( m_pMenubar );
+
 	// CONTROLS
-	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
+	PixmapWidget *pControlsPanel = new PixmapWidget( controlWidget );
 	pControlsPanel->setFixedSize( 119, 32 );
 	pControlsPanel->setPixmap( "/playerControlPanel/playlist_background_Control.png" );
-	vboxLayout->addWidget( pControlsPanel );
 
 	// Rewind button
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
@@ -139,27 +142,30 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	newScriptBTN->hide();
 		clearPlBTN->setEnabled ( false );*/
 
-	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
-	pSideBarLayout->setSpacing(0);
-	pSideBarLayout->setMargin(0);
-
 #else
 	QStringList headers;
 	headers << tr ( "Song list" ) << tr ( "Script" ) << tr ( "exec Script" );
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
 	m_pPlaylistTree->setHeaderItem ( header );
-	m_pPlaylistTree->header()->resizeSection ( 0, 405 );
-	m_pPlaylistTree->header()->resizeSection ( 1, 405 );
-	m_pPlaylistTree->header()->resizeSection ( 2, 15 );
+
+	m_pPlaylistTree->setColumnWidth( 0, 405 );
+	m_pPlaylistTree->setColumnWidth( 1, 405 );
+	m_pPlaylistTree->setColumnWidth( 2, 105 );
+
+	m_pPlaylistTree->header()->setStretchLastSection( false );
+	m_pPlaylistTree->header()->setSectionResizeMode( 0, QHeaderView::Stretch );
+	m_pPlaylistTree->header()->setSectionResizeMode( 1, QHeaderView::Stretch );
+	m_pPlaylistTree->header()->setSectionResizeMode( 2, QHeaderView::Fixed );
+
 	m_pPlaylistTree->setAlternatingRowColors( true );
 	for ( int ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
 		m_pPlaylistTree->headerItem()->setFont( ii, font );
 	}
+#endif
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
 	pSideBarLayout->setMargin(0);
-#endif
 
 	// zoom-in btn
 	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
