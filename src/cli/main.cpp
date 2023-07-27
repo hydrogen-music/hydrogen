@@ -491,10 +491,16 @@ int main(int argc, char *argv[])
 				switch ( event.type ) {
 				case EVENT_PROGRESS: /* event used only in export mode */
 					if ( ! ExportMode ) break;
-	
-					if ( event.value < 100 ) {
+
+					if ( event.value == -1 ) {
+						std::cout << "\rExport Progress ... FAILED!" << std::endl;
+						nReturnCode = 1;
+						quit = true;
+					}
+					else if ( event.value < 100 ) {
 						std::cout << "\rExport Progress ... " << event.value << "%";
-					} else {
+					}
+					else {
 						pHydrogen->stopExportSession();
 						std::cout << "\rExport Progress ... DONE" << std::endl;
 						quit = true;

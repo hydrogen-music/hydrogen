@@ -1269,15 +1269,17 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
 	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
 	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
-	 * audio processing. Returning the special return value "2" enables the disk 
-	 * writer driver to repeat the processing of the current data.
+	 * audio processing.
 	 */
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
 		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
-			return 2;	// inform the caller that we could not acquire the lock
+			// Returning the special return value "2" enables the disk 
+			// writer driver - which does not require running in
+			// realtime - to repeat the processing of the current data.
+			return 2;
 		}
 
 		return 0;

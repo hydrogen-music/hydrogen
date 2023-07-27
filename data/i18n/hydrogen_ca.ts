@@ -948,6 +948,11 @@ Current kit:</source>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to export song</source>
+        <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1123,10 +1128,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

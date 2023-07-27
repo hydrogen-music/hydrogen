@@ -195,6 +195,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 	
+	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
+	
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -348,5 +350,7 @@ private:
 	QString m_sInputCapturePan;
 	QString m_sInputCaptureFilterCutoff;
 	QString m_sInputCaptureTag;
+
+	QString m_sExportSongFailure;
 };
 #endif

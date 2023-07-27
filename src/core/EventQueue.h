@@ -95,6 +95,12 @@ enum EventType {
 	 * Handled by EventListener::metronomeEvent().
 	 */
 	EVENT_METRONOME,
+	/**
+	 * Used by the thread of the `DiskWriterDriver` to indicate
+	 * progress of the ongoing audio export (from 0 to 100).
+	 *
+	 * The value `-1` is used to indicate exporting failed.
+	 */
 	EVENT_PROGRESS,
 	EVENT_JACK_SESSION,
 	EVENT_PLAYLIST_LOADSONG,

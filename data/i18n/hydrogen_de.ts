@@ -895,7 +895,7 @@ Aktuelles:</translation>
     <message>
         <source>Volume</source>
         <extracomment>Label shown in the input capture dialog for querying a new volume value.</extracomment>
-        <translation type="unfinished">Lautstärke</translation>
+        <translation>Lautstärke</translation>
     </message>
     <message>
         <source>Column Number</source>
@@ -940,17 +940,22 @@ Aktuelles:</translation>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Cutoff des Filters</translation>
+        <translation>Cutoff des Filters</translation>
     </message>
     <message>
         <source>Tag Text</source>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export song</source>
+        <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation>Lied konnte nicht exportiert werden</translation>
     </message>
 </context>
 <context>
@@ -1128,10 +1133,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Stellen Sie sicher, dass sie alle Lizenzvereinbarungen erfüllen und die notwenige Autorenschaft ausweisen.</translation>
-    </message>
-    <message>
-        <source>Unable to export song</source>
-        <translation>Lied konnte nicht exportiert werden</translation>
     </message>
 </context>
 <context>
@@ -4347,7 +4348,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Löschen</translation>
+        <translation>&amp;Löschen</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4359,7 +4360,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">Duplizieren</translation>
+        <translation>Duplizieren</translation>
     </message>
 </context>
 <context>
@@ -5200,7 +5201,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Mixer anzeigen</translation>
+        <translation>Mixer anzeigen</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
