@@ -96,7 +96,7 @@ AudioEngine::AudioEngine()
 		, m_fLadspaTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
-		, m_pLocker({nullptr, 0, nullptr})
+		, m_pLocker({nullptr, 0, nullptr, false})
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
 {
@@ -188,6 +188,7 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 }
 
@@ -207,6 +208,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -235,8 +237,9 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
-	
+
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
@@ -247,7 +250,10 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 
 void AudioEngine::unlock()
 {
-	// Leave "__locker" dirty.
+	// Leave "__locker" dirty as it indicated the function which
+	// locked the audio engine.
+	m_pLocker.isLocked = false;
+
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
 	#ifdef H2CORE_HAVE_DEBUG
@@ -2602,16 +2608,29 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nRealtimeFrame: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrame ) )
 			.append( QString( "%1%2m_AudioProcessCallback: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s ).arg( m_songNoteQueue.size() ) );
-		sOutput.append( QString( "%1%2m_midiNoteQueue: [\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2m_midiNoteQueue: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
+			sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
 		}
 		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) )
 			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeVelocitySD ) )
 			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizePitchSD ) )
 			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeTimingSD ) );
-		
+		sOutput.append( QString( "%1%2m_pLocker: " ).arg( sPrefix ).arg( s ) );
+		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
+			sOutput.append( "was not locked yet\n" );
+		}
+		else {
+			if ( m_pLocker.isLocked ) {
+				sOutput.append( "is currently locked by: " );
+			} else {
+				sOutput.append( "was last locked by: " );
+			}
+			sOutput.append( QString( "[function: %1, line: %2, file: %3]\n" )
+							.arg( m_pLocker.function ).arg( m_pLocker.line )
+							.arg( m_pLocker.file ) );
+		}
 	}
 	else {
 		sOutput = QString( "%1[AudioEngine]" ).arg( sPrefix )
@@ -2669,6 +2688,20 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", fHumanizeVelocitySD: id %1" ).arg( AudioEngine::fHumanizeVelocitySD ) )
 			.append( QString( ", fHumanizePitchSD: id %1" ).arg( AudioEngine::fHumanizePitchSD ) )
 			.append( QString( ", fHumanizeTimingSD: id %1" ).arg( AudioEngine::fHumanizeTimingSD ) );
+		sOutput.append( ", m_pLocker: " );
+		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
+			sOutput.append( "was not locked yet" );
+		}
+		else {
+			if ( m_pLocker.isLocked ) {
+				sOutput.append( "is currently locked by: " );
+			} else {
+				sOutput.append( "was last locked by: " );
+			}
+			sOutput.append( QString( "[function: %1, line: %2, file: %3]" )
+							.arg( m_pLocker.function ).arg( m_pLocker.line )
+							.arg( m_pLocker.file ) );
+		}
 	}
 	
 	return sOutput;
