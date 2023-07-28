@@ -96,7 +96,7 @@ AudioEngine::AudioEngine()
 		, m_fLadspaTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
-		, m_pLocker({nullptr, 0, nullptr})
+		, m_pLocker({nullptr, 0, nullptr, false})
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
 {
@@ -188,6 +188,7 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 }
 
@@ -207,6 +208,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -235,8 +237,9 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
-	
+
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
@@ -247,7 +250,10 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 
 void AudioEngine::unlock()
 {
-	// Leave "__locker" dirty.
+	// Leave "__locker" dirty as it indicated the function which
+	// locked the audio engine.
+	m_pLocker.isLocked = false;
+
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
 	#ifdef H2CORE_HAVE_DEBUG

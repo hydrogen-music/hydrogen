@@ -636,10 +636,15 @@ private:
 	 */
 	std::thread::id 	m_LockingThread;
 
+	/**
+	 * Contains the current or last context in which the audio engine
+	 * was locked as well as the locking state.
+	 */
 	struct _locker_struct {
 		const char* file;
 		unsigned int line;
 		const char* function;
+		bool isLocked;
 	} m_pLocker;
 
 	float				m_fProcessTime;
