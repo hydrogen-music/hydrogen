@@ -425,7 +425,8 @@ void ExportSongDialog::on_okBtn_clicked()
 
 		if ( ! m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
 												sampleDepthCombo->currentText().toInt()) ) {
-			QMessageBox::critical( this, "Hydrogen", tr( "Unable to export song" ) );
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getExportSongFailure() );
 			return;
 		}
 		m_pHydrogen->startExportSong( filename );
@@ -732,7 +733,9 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 
 void ExportSongDialog::progressEvent( int nValue )
 {
-	m_pProgressBar->setValue( nValue );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
+	m_pProgressBar->setValue( std::min( nValue, 0 ) );
 	if ( nValue == 100 ) {
 
 		m_bExporting = false;
@@ -746,13 +749,20 @@ void ExportSongDialog::progressEvent( int nValue )
 			exportTracks();
 		}
 	}
+	else if ( nValue == -1 ) {
+		m_bExporting = false;
+		QMessageBox::critical(
+			this, "Hydrogen",
+			pCommonStrings->getExportSongFailure());
+			
+	}
 
-	if ( nValue < 100 ) {
+	if ( nValue >= 0 && nValue < 100 ) {
 		closeBtn->setEnabled(false);
 		resampleComboBox->setEnabled(false);
 
-	}else
-	{
+	}
+	else {
 		closeBtn->setEnabled(true);
 		resampleComboBox->setEnabled(true);
 	}

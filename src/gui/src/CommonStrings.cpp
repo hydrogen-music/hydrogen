@@ -466,6 +466,9 @@ CommonStrings::CommonStrings(){
 	/*: Label shown in the input capture dialog for querying
 	  text content for a new tag. */
 	m_sInputCaptureTag = tr( "Tag Text" );
+	
+	/*: Shown in a dialog on export failure. */
+	m_sExportSongFailure = tr( "Unable to export song" );
 }
 
 CommonStrings::~CommonStrings(){

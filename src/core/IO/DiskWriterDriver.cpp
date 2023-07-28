@@ -139,27 +139,25 @@ void* diskWriterDriver_thread( void* param )
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
 
-	qDebug() << "[diskWriterDriver_thread] setup";
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
 	if ( m_file == nullptr ) {
 		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
 					.arg( pDriver->m_sFilename )
 					.arg( sf_strerror( nullptr ) ) );
-		qDebug() << "[diskWriterDriver_thread] ERROR: unable to create file";
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
-	qDebug() << "[diskWriterDriver_thread] file created";
-							  
-	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
+
+	float *pData = new float[ pDriver->m_nBufferSize * 2 ]; // always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
-
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -167,6 +165,18 @@ void* diskWriterDriver_thread( void* param )
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
+
+	// Used to cleanly terminate this thread and close all handlers.
+	auto tearDown = [&](){
+		delete[] pData;
+		pData = nullptr;
+
+		sf_close( m_file );
+
+		__INFOLOG( "DiskWriterDriver thread end" );
+
+		pthread_exit( nullptr );
+	};
 	
 	int nPatternSize, nBufferWriteLength;
 	float fBpm;
@@ -222,11 +232,29 @@ void* diskWriterDriver_thread( void* param )
 			
 			qDebug() << "[diskWriterDriver_thread] while loop pre processCallback";
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+
+			// Only try a reasonable amount of times.
+			int nMutexLockAttempts = 0;
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
-				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex";
+				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex: "
+						 << nMutexLockAttempts;
+
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+
+				// No need for a sleep() statement in here because the
+				// AudioEngine::tryLockFor() in the processCallback
+				// already introduces a delay.
+				nMutexLockAttempts++;
+				if ( nMutexLockAttempts > 30 ) {
+					qDebug() << "Too many attempts to lock the AudioEngine. Aborting.";
+					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
+					
+					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					tearDown();
+					return nullptr;
+				}
 			}
 
 			if ( patternPosition == nColumns - 1 &&
@@ -292,6 +320,10 @@ void* diskWriterDriver_thread( void* param )
 							.arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
+					
+				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				tearDown();
+				return nullptr;
 			}
 
 			// Sampler is still rendering notes put we seem to have
@@ -316,15 +348,8 @@ void* diskWriterDriver_thread( void* param )
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	
 	qDebug() << "[diskWriterDriver_thread] done";
-	
-	delete[] pData;
-	pData = nullptr;
 
-	sf_close( m_file );
-
-	__INFOLOG( "DiskWriterDriver thread end" );
-
-	pthread_exit( nullptr );
+	tearDown();
 	return nullptr;
 }
 
