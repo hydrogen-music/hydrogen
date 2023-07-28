@@ -514,8 +514,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	uiScalingPolicyComboBox->setSize( appearanceTabWidgetSize );
 	iconColorComboBox->setSize( appearanceTabWidgetSize );
 	coloringMethodAuxSpinBox->setSize( appearanceTabWidgetSize );
-	
-	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
+
+	connect( styleComboBox, SIGNAL( activated(int) ), this,
+			 SLOT( styleComboBoxActivated(int) ) );
+	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this,
+			 SLOT( onUILayoutChanged(int) ) );
 	connect( uiScalingPolicyComboBox, SIGNAL( currentIndexChanged(int) ), this,
 			 SLOT( uiScalingPolicyComboBoxCurrentIndexChanged(int) ) );
 	connect( mixerFalloffComboBox, SIGNAL( currentIndexChanged(int) ), this,
@@ -1794,19 +1797,24 @@ void PreferencesDialog::midiOutportComboBoxActivated( int index )
 void PreferencesDialog::styleComboBoxActivated( int index )
 {
 	UNUSED( index );
-	QApplication *pQApp = (HydrogenApp::get_instance())->getMainForm()->m_pQApp;
-	QString sStyle = styleComboBox->currentText();
-	pQApp->setStyle( sStyle );
-
-	Preferences *pPref = Preferences::get_instance();
-	pPref->setQTStyle( sStyle );
-	m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
-
-	m_changes =
-		static_cast<H2Core::Preferences::Changes>(
-			m_changes | H2Core::Preferences::Changes::AppearanceTab );
 	
-	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+	QString sStyle = styleComboBox->currentText();
+	if ( sStyle != m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle ) {
+
+		// Instant visual feedback.
+		QApplication *pQApp = (HydrogenApp::get_instance())->getMainForm()->m_pQApp;
+		pQApp->setStyle( sStyle );
+		Preferences *pPref = Preferences::get_instance();
+		pPref->setQTStyle( sStyle );
+
+		m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
+
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
+		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+	}
 }
 
 
