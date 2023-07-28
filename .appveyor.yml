@@ -155,7 +155,7 @@ for:
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
       mkdir build && cd build && \
-        cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_PORTMIDI -DWANT_RUBBERBAND=1 .. \
+        cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_PORTMIDI=1 -DWANT_RUBBERBAND=1 .. \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           && \
         make -j $CPUS
