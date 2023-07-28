@@ -1188,8 +1188,10 @@ void Hydrogen::__kill_instruments()
 
 void Hydrogen::__panic()
 {
+	m_pAudioEngine->lock( RIGHT_HERE );
 	sequencer_stop();
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
+	m_pAudioEngine->unlock();
 }
 
 bool Hydrogen::hasJackAudioDriver() const {
