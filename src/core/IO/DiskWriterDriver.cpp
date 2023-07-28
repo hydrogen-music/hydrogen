@@ -61,7 +61,6 @@ void* diskWriterDriver_thread( void* param )
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
-	qDebug() << "[diskWriterDriver_thread] started";
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
@@ -194,13 +193,6 @@ void* diskWriterDriver_thread( void* param )
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
-
-		qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
-			patternPosition << ", nColumns: " << nColumns <<
-			", nPatternSize: " << nPatternSize <<
-			", fBpm: " << fBpm <<
-			", fTicksize: " << fTicksize;
-			
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
@@ -230,7 +222,6 @@ void* diskWriterDriver_thread( void* param )
 				nUsedBuffer = nLastRun;
 			};
 			
-			qDebug() << "[diskWriterDriver_thread] while loop pre processCallback";
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 
 			// Only try a reasonable amount of times.
@@ -240,6 +231,18 @@ void* diskWriterDriver_thread( void* param )
 			while( ret == 2 ) {
 				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex: "
 						 << nMutexLockAttempts;
+
+				if ( nMutexLockAttempts == 0 ) {
+					qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
+						patternPosition << ", nColumns: " << nColumns <<
+						", nPatternSize: " << nPatternSize <<
+						", fBpm: " << fBpm <<
+						", fTicksize: " << fTicksize <<
+						", filename: " << pDriver->m_sFilename.toLocal8Bit();
+
+					qDebug() << "[diskWriterDriver_thread] "
+							 << pHydrogen->getAudioEngine()->toQString("", true);
+				}
 
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 
@@ -311,10 +314,8 @@ void* diskWriterDriver_thread( void* param )
 					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
-			qDebug() << "[diskWriterDriver_thread] writing data";
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
-			qDebug() << "[diskWriterDriver_thread] data written: " << res;
 			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
 							.arg( res )
@@ -332,13 +333,11 @@ void* diskWriterDriver_thread( void* param )
 			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
 				break;
 			}
-			qDebug() << "[diskWriterDriver_thread] while loop done" << res;
 		}
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
-		qDebug() << "[diskWriterDriver_thread] nPrecent: " << nPercent;
 		if ( nPercent < 100 ) {
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
 		}
@@ -347,8 +346,6 @@ void* diskWriterDriver_thread( void* param )
 	// Explicitly mark export as finished.
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	
-	qDebug() << "[diskWriterDriver_thread] done";
-
 	tearDown();
 	return nullptr;
 }
