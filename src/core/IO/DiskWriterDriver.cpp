@@ -221,6 +221,17 @@ void* diskWriterDriver_thread( void* param )
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
 			};
+
+			// Check whether the driver was stopped (since
+			// AudioEngine::stopAudioDrivers() locks the audio engine
+			// and the call to pDriver->m_processCallback) can not
+			// acquire the lock).
+			if ( ! pDriver->m_bIsRunning ) {
+				__ERRORLOG( "Driver was stop before export was completed." );
+				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				tearDown();
+				return nullptr;
+			}
 			
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 
@@ -359,7 +370,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
-		, m_pOut_R( nullptr ) {
+		, m_pOut_R( nullptr )
+		, m_bIsRunning( false ) {
 }
 
 
@@ -389,6 +401,8 @@ int DiskWriterDriver::connect()
 void DiskWriterDriver::write()
 {
 	INFOLOG( "" );
+
+	m_bIsRunning = true;
 	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
@@ -400,6 +414,8 @@ void DiskWriterDriver::write()
 void DiskWriterDriver::disconnect()
 {
 	INFOLOG( "" );
+	
+	m_bIsRunning = false;
 
 	pthread_join( diskWriterDriverThread, NULL );
 
