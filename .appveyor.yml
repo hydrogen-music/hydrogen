@@ -96,7 +96,7 @@ for:
 
     before_build: |-
 
-      cache_tag=usr_cache_appstream # this can be modified to rebuild deps
+      cache_tag=usr_cache_portmidi # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -121,6 +121,19 @@ for:
         sudo apt-get update
         sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils
+
+        # Install a recent PortMidi version
+        git clone https://github.com/PortMidi/PortMidi || exit 1
+        cd PortMidi || exit 1
+        git checkout v2.0.1 || exit 1
+        mkdir build || exit 1
+        cd build || exit 1
+        cmake .. || exit 1
+        make || exit 1
+        sudo make install || exit 1
+        cd ../.. || exit 1
+        rm -rf PortMidi || exit 1
+        
         sudo rm /usr/local/bin/doxygen
         ccache -M 256M
         ccache -s
@@ -143,7 +156,11 @@ for:
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
       mkdir build && cd build && \
-        cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. \
+        cmake -DWANT_LASH=1 \
+              -DWANT_LRDF=1 \
+              -DWANT_PORTMIDI=1 \
+              -DWANT_PORTAUDIO=1 \
+              -DWANT_RUBBERBAND=1 .. \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           && \
         make -j $CPUS
