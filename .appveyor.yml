@@ -125,6 +125,7 @@ for:
         # Install a recent PortMidi version
         git clone https://github.com/PortMidi/PortMidi || exit 1
         cd PortMidi || exit 1
+        git checkout v2.0.1 || exit 1
         mkdir build || exit 1
         cd build || exit 1
         cmake .. || exit 1
