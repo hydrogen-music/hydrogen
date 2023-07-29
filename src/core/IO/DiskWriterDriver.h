@@ -50,6 +50,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		audioProcessCallback	m_processCallback;
 		float*					m_pOut_L;
 		float*					m_pOut_R;
+		bool					 m_bIsRunning;
 
 		DiskWriterDriver( audioProcessCallback processCallback );
 		~DiskWriterDriver();
@@ -85,7 +86,6 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		}
 
 	private:
-
 
 };
 

@@ -257,9 +257,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 			// Ensure audio export does work.
 			CPPUNIT_ASSERT( event.value != -1 );
 			
-			qDebug() << "[TestHelper::exportSong] progress: " << event.value;
 			if ( event.value == 100 ) {
-				qDebug() << "[TestHelper::exportSong] done";
 				bDone = true;
 			}
 		}
@@ -267,7 +265,6 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 			usleep(100 * 1000);
 		}
 	}
-	qDebug() << "[TestHelper::exportSong] stopping export";
 	pHydrogen->stopExportSession();
 
 	auto t1 = std::chrono::high_resolution_clock::now();
