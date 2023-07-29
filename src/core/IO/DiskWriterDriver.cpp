@@ -240,21 +240,6 @@ void* diskWriterDriver_thread( void* param )
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
-				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex: "
-						 << nMutexLockAttempts;
-
-				if ( nMutexLockAttempts == 0 ) {
-					qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
-						patternPosition << ", nColumns: " << nColumns <<
-						", nPatternSize: " << nPatternSize <<
-						", fBpm: " << fBpm <<
-						", fTicksize: " << fTicksize <<
-						", filename: " << pDriver->m_sFilename.toLocal8Bit();
-
-					qDebug() << "[diskWriterDriver_thread] "
-							 << pHydrogen->getAudioEngine()->toQString("", true);
-				}
-
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 
 				// No need for a sleep() statement in here because the
@@ -262,7 +247,6 @@ void* diskWriterDriver_thread( void* param )
 				// already introduces a delay.
 				nMutexLockAttempts++;
 				if ( nMutexLockAttempts > 30 ) {
-					qDebug() << "Too many attempts to lock the AudioEngine. Aborting.";
 					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
 					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );

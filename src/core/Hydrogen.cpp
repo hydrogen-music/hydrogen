@@ -711,7 +711,6 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 /// Export a song to a wav file
 void Hydrogen::startExportSong( const QString& filename)
 {
-	qDebug() << "[Hydrogen::startExportSong] beginning";
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->play();
@@ -720,7 +719,6 @@ void Hydrogen::startExportSong( const QString& filename)
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
 	pDiskWriterDriver->write();
-	qDebug() << "[Hydrogen::startExportSong] end";
 }
 
 void Hydrogen::stopExportSong()
