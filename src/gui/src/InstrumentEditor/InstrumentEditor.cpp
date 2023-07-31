@@ -119,7 +119,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	///
 	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										LCDSpinBox::Type::Int, 0, 100, true );
+										LCDSpinBox::Type::Int, 0, 127, true );
 	m_pMidiOutNoteLCD->move( 161, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect( m_pMidiOutNoteLCD, SIGNAL( valueChanged( double ) ),
