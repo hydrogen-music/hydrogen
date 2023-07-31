@@ -25,6 +25,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  was incompatible) (#1795). All versions of Hydrogen >=1.3 will,
 		  however, require on a more recent PortMidi version (at least
 		  v2.0.1).
+		- Fixed allowed range of MIDI output notes to be [0,127] again
+		  (#1828) (introduced in v1.2.0).
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
