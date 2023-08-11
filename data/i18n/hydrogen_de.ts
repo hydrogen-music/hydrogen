@@ -6136,6 +6136,13 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
 </context>
 <context>
+    <name>Startup</name>
+    <message>
+        <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
+    <translation>Keine [hydrogen.conf] Datei gefunden. Hydrogen wurde höchstwahrscheinlich nicht richtig installiert. Abbruch...</translation>
+    </message>
+</context>
+<context>
     <name>VirtualPatternDialog</name>
     <message>
         <source>Select virtual pattern</source>

@@ -404,7 +404,7 @@ public:
 	~Preferences();
 
 	/// Load the preferences file
-	void			loadPreferences( bool bGlobal );
+	bool			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
 	bool			savePreferences();
@@ -679,6 +679,8 @@ public:
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
+
+	bool getLoadingSuccessful() const;
 	
 private:
 	/**
@@ -828,6 +830,8 @@ private:
 
 	WindowProperties readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop );
+
+	bool m_bLoadingSuccessful;
 };
 
 inline QString			Preferences::getLastExportPatternAsDirectory() const {
@@ -1477,6 +1481,9 @@ inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
 }
 inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
 	m_pShortcuts = pShortcuts;
+}
+inline bool Preferences::getLoadingSuccessful() const {
+	return m_bLoadingSuccessful;
 }
 };
 
