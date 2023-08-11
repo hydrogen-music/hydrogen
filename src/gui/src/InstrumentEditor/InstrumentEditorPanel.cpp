@@ -73,9 +73,17 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 }
 
 void InstrumentEditorPanel::drumkitLoadedEvent() {
-	auto pComponentList = H2Core::Hydrogen::get_instance()->getSong()->getComponents();
-
-	m_pInstrumentEditor->selectComponent(pComponentList->front()->get_id());
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	
+	auto pComponentList = pSong->getComponents();
+	if ( pComponentList != nullptr && pComponentList->size() > 0 ) {
+		m_pInstrumentEditor->selectComponent( pComponentList->front()->get_id() );
+	} else {
+		m_pInstrumentEditor->selectComponent( -1 );
+	}
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();
 }
 

@@ -63,6 +63,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 	, m_fPreviousMidiOutChannel( -1.0 )
+	, m_nSelectedComponent( -1 )
 {
 	setFixedWidth( 290 );
 
@@ -456,20 +457,6 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//component handling
 	QStringList itemsCompo;
 	popCompo = new QMenu( this );
-	itemsCompo.clear();
-
-	auto pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
-	for ( const auto& pComponent : *pComponentList ) {
-		if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
-			itemsCompo.append( pComponent->get_name() );
-		}
-	}
-	itemsCompo.append("--sep--");
-	itemsCompo.append("add");
-	itemsCompo.append("delete");
-	itemsCompo.append("rename");
-
-	m_nSelectedComponent = pComponentList->front()->get_id();
 
 	connect( popCompo, SIGNAL( triggered(QAction*) ),
 			 this, SLOT( compoChangeAddDelete(QAction*) ) );
@@ -478,16 +465,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	showLayers( false );
 
-	selectLayer( m_nSelectedLayer );
-
 	HydrogenApp::get_instance()->addEventListener(this);
 
 	selectedInstrumentChangedEvent(); 	// force an update
-
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentEditor::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &InstrumentEditor::onPreferencesChanged );
 }
 
 
@@ -517,11 +500,13 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pCompoList = pSong->getComponents();
 	
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	// update layer list
-	if ( m_pInstrument != nullptr ) {
+	if ( pSong != nullptr && m_pInstrument != nullptr &&
+		 pCompoList != nullptr && pCompoList->size() > 0 ) {
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
@@ -593,7 +578,6 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
 
 		itemsCompo.clear();
-		auto compoList = pSong->getComponents();
 		for ( const auto& pComponent : *pSong->getComponents() ) {
 			if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
 				itemsCompo.append( pComponent->get_name() );
@@ -607,14 +591,14 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		update();
 
 		bool bFound = false;
-		for ( const auto& pComponent : *compoList ) {
-			if ( pComponent->get_id() == m_nSelectedComponent ) {
+		for ( const auto& ppComponent : *pCompoList ) {
+			if ( ppComponent->get_id() == m_nSelectedComponent ) {
 				bFound = true;
 				break;
 			}
 		}
 		if ( !bFound ){
-			m_nSelectedComponent = compoList->front()->get_id();
+			m_nSelectedComponent = pCompoList->front()->get_id();
 		}
 
 		auto pTmpComponent = pSong->getComponent( m_nSelectedComponent );
@@ -623,10 +607,10 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
 
-		if( m_nSelectedLayer >= 0 ){
+		if ( m_nSelectedLayer >= 0 ) {
 			
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
-			if( pComponent ) {
+			if ( pComponent != nullptr ) {
 
 				char tmp[20];
 				sprintf( tmp, "%#.2f", pComponent->get_gain());
@@ -635,7 +619,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 				m_pCompoGainRotary->setValue( pComponent->get_gain() );
 
 				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
-				if(pLayer) {
+				if ( pLayer != nullptr ) {
 					m_pWaveDisplay->updateDisplay( pLayer );
 				}
 				else {
@@ -646,7 +630,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 				m_pWaveDisplay->updateDisplay( nullptr );
 			}
 		}
-		else{
+		else {
 			m_pWaveDisplay->updateDisplay( nullptr );
 		}
 	}
