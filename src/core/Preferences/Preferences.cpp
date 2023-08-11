@@ -268,8 +268,14 @@ Preferences::Preferences()
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
 
-	loadPreferences( true );	// Global settings
-	loadPreferences( false );	// User settings
+	const bool bGlobalPrefLoaded = loadPreferences( true );
+	const bool bUserPrefLoaded = loadPreferences( false );
+	if ( bGlobalPrefLoaded || bUserPrefLoaded ) {
+		m_bLoadingSuccessful = true;
+	} else {
+		m_bLoadingSuccessful = false;
+	}
+		
 }
 
 
@@ -288,7 +294,7 @@ Preferences::~Preferences()
 ///
 /// Load the preferences file
 ///
-void Preferences::loadPreferences( bool bGlobal )
+bool Preferences::loadPreferences( bool bGlobal )
 {
 	// We do not required the recently used variables to be
 	// accumulated throughout various configuration files.
@@ -312,7 +318,7 @@ void Preferences::loadPreferences( bool bGlobal )
 		if ( bGlobal ) {
 			ERRORLOG( QString( "Global preferences file [%1] is not readable!" )
 					  .arg( sPreferencesFilename ) );
-			return;
+			return false;
 		}
 		else {
 			WARNINGLOG( QString( "User-level preferences file [%1] is not readable! It will be recreated." )
@@ -830,7 +836,10 @@ void Preferences::loadPreferences( bool bGlobal )
 	if ( bRecreate && ! bGlobal ) {
 		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
+		return false;
 	}
+
+	return true;
 }
 
 

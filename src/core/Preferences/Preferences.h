@@ -400,7 +400,7 @@ public:
 	~Preferences();
 
 	/// Load the preferences file
-	void			loadPreferences( bool bGlobal );
+	bool			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
 	bool			savePreferences();
@@ -672,6 +672,8 @@ public:
 
 	const std::shared_ptr<Theme> getTheme() const;
 	void setTheme( const std::shared_ptr<Theme> pTheme );
+
+	bool getLoadingSuccessful() const;
 	
 private:
 	/**
@@ -820,6 +822,8 @@ private:
 
 	WindowProperties readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop );
+
+	bool m_bLoadingSuccessful;
 };
 
 inline QString			Preferences::getLastExportPatternAsDirectory() const {
@@ -1462,6 +1466,9 @@ inline void Preferences::setTheme( const std::shared_ptr<Theme> pTheme ) {
 }
 inline const std::shared_ptr<Theme> Preferences::getTheme() const {
 	return m_pTheme;
+}
+inline bool Preferences::getLoadingSuccessful() const {
+	return m_bLoadingSuccessful;
 }
 };
 

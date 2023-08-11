@@ -452,6 +452,25 @@ int main(int argc, char *argv[])
 		Skin::setPalette( pQApp );
 		setApplicationIcon(pQApp);
 
+		if ( ! pPref->getLoadingSuccessful() ) {
+
+			QMessageBox::critical( nullptr, "Hydrogen",
+				QString( QT_TRANSLATE_NOOP( "Startup",															   "No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting..." ) ) );
+			
+			// Neither the Preferences on system level nor the ones at
+			// user level could be loaded successfully. Hydrogen was
+			// most probably not installed properly. Abort.
+			delete pQApp;
+			delete pPref;
+
+			delete MidiMap::get_instance();
+
+			___ERRORLOG( "No preferences file found. Aborting..." );
+			delete H2Core::Logger::get_instance();
+
+			exit( 1 );
+		}
+
 		SplashScreen *pSplash = new SplashScreen();
 
 #ifdef H2CORE_HAVE_OSC

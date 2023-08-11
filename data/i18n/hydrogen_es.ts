@@ -5421,6 +5421,13 @@ Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y ma
     </message>
 </context>
 <context>
+    <name>Startup</name>
+    <message>
+        <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VirtualPatternDialog</name>
     <message>
         <source>Select virtual pattern</source>
