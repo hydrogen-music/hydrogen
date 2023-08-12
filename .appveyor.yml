@@ -52,7 +52,7 @@ environment:
       appveyor_build_worker_image: Ubuntu2004
 
     - job_name: 'Ubuntu 16.04 (AppImage)'
-      job_group: 'Linux_AppImage'
+      job_group: 'Linux (AppImage)'
       appveyor_build_worker_image: Ubuntu1604
 
     - job_name: 'OS X'
@@ -190,11 +190,10 @@ for:
 
       ( exit $res )
 
-for:
   - 
     matrix:
       only:
-        - job_group: 'Linux_AppImage'
+        - job_group: 'Linux (AppImage)'
 
     cache: $HOME/cache_dir
 
