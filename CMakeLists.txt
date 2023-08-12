@@ -126,6 +126,12 @@ ELSE()
     SET(H2CORE_HAVE_BUNDLE FALSE)
 ENDIF()
 
+IF(WANT_FAT_BUILD)
+    SET(H2CORE_HAVE_FAT_BUILD TRUE)
+ELSE()
+    SET(H2CORE_HAVE_FAT_BUILD FALSE)
+ENDIF()
+
 IF(WANT_SHARED)
     SET(H2CORE_LIBRARY_TYPE SHARED)
 ELSE()
@@ -339,8 +345,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * Data path                    : ${H2_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
-* macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}
+* macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
+* Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
 * AppImage build               : ${H2CORE_HAVE_APPIMAGE}\n"
 )
 
