@@ -256,7 +256,7 @@ for:
       mkdir build || exit 1
       cd build || exit 1
       cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. \
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache || exit 1
+        -DWANT_APPIMAGE=1 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -273,10 +273,18 @@ for:
       ## release and it releases us from the burden for keeping it
       ## up-to-date manually.
       wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || exit 1
+      wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
       chmod +x linuxdeploy-x86_64.AppImage || exit 1
+      chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
 
       echo -e "\n *** Building AppImage ***\n"
-      ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage || exit 1
+      linuxdeploy --appdir AppDir \
+        --executable AppDir/usr/bin/hydrogen \
+        --library AppDir/usr/lib/x86_64-linux-gnu/libhydrogen-core-*.so \
+        --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
+        --icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
+        --plugin qt \
+        --output appimage || exit 1
 
       echo -e "\n *** Upload AppImage ***\n"
       appveyor PushArtifact Hydrogen-x86_64.AppImage || exit 1

@@ -96,6 +96,7 @@ function cmake_appimage() {
 	## Copy required shared libraries and pack the resulting AppImage
 	linuxdeploy --appdir AppDir \
 				--executable AppDir/usr/bin/hydrogen \
+				--library AppDir/usr/lib/x86_64-linux-gnu/libhydrogen-core-*.so \
 				--desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
 				--icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
 				--plugin qt \
@@ -185,7 +186,7 @@ for arg in $@; do
     case $arg in
 		appimage)
 			BUILD_DIR=./build-appimage
-			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_DEBUG=0 -DCMAKE_INSTALL_PREFIX=/usr"
+			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_APPIMAGE=1 -DCMAKE_INSTALL_PREFIX=/usr"
 			cmd="cmake_appimage";;
         c|clean)
             cmd="cmake_clean";;
