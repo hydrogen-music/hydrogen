@@ -7,6 +7,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- New and properly licensed AppStream metainfo files
 		  `org.hydrogenmusic.Hydrogen.metainfo.xml` replace old
 		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
+		- Hydrogen shows an error dialog and exits on the first invocation
+		  with no hydrogen.conf file present on user and system level
+		  (application was not properly installed).
 	* Changed
 		- Spanish translation updated.
 		- Minor tweaks in French and German translation.
@@ -27,6 +30,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  v2.0.1).
 		- Fixed allowed range of MIDI output notes to be [0,127] again
 		  (#1828) (introduced in v1.2.0).
+		- Hydrogen does now successfully startup even if no data folder is
+		  present on user and system level.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
