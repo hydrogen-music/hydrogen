@@ -252,7 +252,12 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 
 	bool bDone = false;
 	while ( ! bDone ) {
+
+		___DEBUGLOG( pQueue->toQString() );
+
 		H2Core::Event event = pQueue->pop_event();
+
+		___DEBUGLOG( event.toQString() );
 
 		if (event.type == H2Core::EVENT_PROGRESS) {
 			___DEBUGLOG( QString( "progress: %1" ).arg( event.value ) );
@@ -265,7 +270,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 			}
 		}
 		else if ( event.type == H2Core::EVENT_NONE ) {
-			___DEBUGLOG( "event none" );
+			// No new event left.
 			usleep(100 * 1000);
 		}
 	}
@@ -291,12 +296,20 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
+	___DEBUGLOG( "pre startExportSession" );
 	pHydrogen->startExportSession( 44100, 16 );
+	___DEBUGLOG( "post startExportSession" );
 	pHydrogen->startExportSong( sFileName );
+	___DEBUGLOG( "post startExportSong" );
 
 	bool bDone = false;
 	while ( ! bDone ) {
+
+		___DEBUGLOG( pQueue->toQString() );
+		
 		H2Core::Event event = pQueue->pop_event();
+
+		___DEBUGLOG( event.toQString() );
 
 		// Ensure audio export does work.
 		CPPUNIT_ASSERT( !(event.type == H2Core::EVENT_PROGRESS && event.value == -1) );
@@ -305,10 +318,13 @@ void TestHelper::exportSong( const QString& sFileName )
 			bDone = true;
 		}
 		else if ( event.type == H2Core::EVENT_NONE ) {
+			// No new event left.
 			usleep(100 * 1000);
 		}
 	}
+	___DEBUGLOG( "pre stopExportSession" );
 	pHydrogen->stopExportSession();
+	___DEBUGLOG( "post stopExportSession" );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
