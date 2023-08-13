@@ -112,12 +112,12 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, &SongEditor::cut );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, &SongEditor::copy );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, &SongEditor::paste );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, &SongEditor::deleteSelection );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, &SongEditor::selectAll );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &SongEditor::selectNone );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
