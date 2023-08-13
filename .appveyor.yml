@@ -234,6 +234,17 @@ for:
         sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev || exit 1
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
         sudo rm /usr/local/bin/doxygen || exit 1
+
+        # liblo version shipped in Ubuntu 16.04 is to low for Hydrogen
+        # to compile.
+        git clone https://github.com/radarsat1/liblo || exit 1
+        cd liblo || exit 1
+        git checkout 0.31 || exit 1
+        ./autogen.sh || exit 1
+        make || exit 1
+        sudo make install || exit 1
+        cd ..
+
         ccache -M 256M || exit 1
         ccache -s || exit 1
 
