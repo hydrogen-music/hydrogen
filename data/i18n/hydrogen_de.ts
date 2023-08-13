@@ -6139,7 +6139,7 @@ Would you like to keep or discard the remaining instruments and notes?
     <name>Startup</name>
     <message>
         <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
-    <translation>Keine [hydrogen.conf] Datei gefunden. Hydrogen wurde höchstwahrscheinlich nicht richtig installiert. Abbruch...</translation>
+        <translation>Keine [hydrogen.conf] Datei gefunden. Hydrogen wurde höchstwahrscheinlich nicht richtig installiert. Abbruch...</translation>
     </message>
 </context>
 <context>
