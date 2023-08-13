@@ -437,7 +437,11 @@ public:
 			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
 											ev->localPos(), ev->windowPos(), ev->screenPos(),
 											m_mouseButton, ev->buttons(), ev->modifiers(),
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
 											Qt::MouseEventSynthesizedByApplication);
+#else
+											Qt::MouseEventSynthesizedByQt);
+#endif
 			m_pClickEvent->setTimestamp( ev->timestamp() );
 		}
 	}
