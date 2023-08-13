@@ -75,8 +75,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	// menu options specific to this later.
 	delete m_pPopupMenu;
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 
 	setMouseTracking( true );
 }
