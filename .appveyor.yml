@@ -216,6 +216,8 @@ for:
       mkdir -p $cdir/ccache || exit 1
       ln -s $cdir/ccache $HOME/.ccache || exit 1
 
+      python3 --version
+
       if [ -d $cdir ] && [ -f $cache ]; then
         echo "=== Unpacking cached /var $cache ==="
         (
@@ -228,7 +230,8 @@ for:
 
         mkdir -p $cdir || exit 1
 
-        sudo python3 ./treestate.py scan /usr usr.json || exit 1
+        sudo python3 ./treestate.py scan /usr usr.json
+        echo $?
         sudo apt-get update || exit 1
         sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev || exit 1
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
@@ -236,8 +239,11 @@ for:
         ccache -M 256M || exit 1
         ccache -s || exit 1
 
+        echo "till here"
+
         (
-          sudo python3 ./treestate.py updates usr.json /usr > updates || exit 1
+          sudo python3 ./treestate.py updates usr.json /usr > updates
+          echo $?
           echo $(wc -l updates) updates
           sudo tar cf $cache_tar -T updates || exit 1
           sudo nice xz -9 -T0 $cache_tar || exit 1
