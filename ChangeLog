@@ -9,7 +9,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  `org.hydrogenmusic.Hydrogen.appdata.xml`.
 	* Changed
 		- Spanish translation updated.
-		- Minor tweaks in French translation.
+		- Minor tweaks in French and German translation.
 	* Fixed
 		- Style combo box in Preferences > Appearance > Interface is
 		  working again.

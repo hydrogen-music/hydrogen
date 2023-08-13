@@ -883,7 +883,7 @@ Aktuelles:</translation>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung</translation>
     </message>
 </context>
 <context>
@@ -3716,7 +3716,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Virtual Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Zeile</translation>
     </message>
 </context>
 <context>
@@ -5305,16 +5305,16 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Session drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzungs Schlagzeuge</translation>
     </message>
     <message>
         <source>Created for drumkit</source>
         <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt für Schlagzeug</translation>
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>ist schreibgeschützt und kann nicht gelöscht werden.</translation>
     </message>
 </context>
 <context>
