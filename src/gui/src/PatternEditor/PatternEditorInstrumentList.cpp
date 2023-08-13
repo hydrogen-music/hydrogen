@@ -120,7 +120,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
-	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
+	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
+	connect( selectNotesAction, &QAction::triggered, this,
+			 &InstrumentLine::selectInstrumentNotes );
 
 	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
 	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );

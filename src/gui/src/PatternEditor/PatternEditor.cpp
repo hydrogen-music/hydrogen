@@ -85,12 +85,12 @@ PatternEditor::PatternEditor( QWidget *pParent,
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, &PatternEditor::cut );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, &PatternEditor::copy );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, &PatternEditor::paste );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, &PatternEditor::deleteSelection );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
