@@ -281,6 +281,10 @@ for:
 
       echo -e "\n *** Retrieve AppImage toolchain ***\n"
 
+      ls AppDir/usr/lib/
+      ls AppDir/usr/lib/x86_64-linux-gnu/
+      tree AppDir
+
       ## We do not cache this binary since it represents a rolling
       ## release and it releases us from the burden for keeping it
       ## up-to-date manually.
