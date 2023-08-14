@@ -132,7 +132,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, [=](){
+	auto deleteAction = m_pFunctionPopup->addAction( tr( "Delete instrument" ) );
+	connect( deleteAction, &QAction::triggered, this, [=](){
 		HydrogenApp::get_instance()->getMainForm()->
 			functionDeleteInstrument( m_nInstrumentNumber );} );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
