@@ -247,8 +247,6 @@ for:
         ccache -M 256M || exit 1
         ccache -s || exit 1
 
-        echo "till here"
-
         (
           sudo python3 ./treestate.py updates usr.json /usr > updates || exit 1
           echo $(wc -l updates) updates
@@ -292,7 +290,7 @@ for:
       chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
 
       echo -e "\n *** Building AppImage ***\n"
-      linuxdeploy --appdir AppDir \
+      ./linuxdeploy-x86_64.AppImage --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/x86_64-linux-gnu/libhydrogen-core-*.so \
         --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
