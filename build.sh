@@ -95,9 +95,9 @@ function cmake_appimage() {
 	make install DESTDIR=AppDir || exit 1
 
 	## Copy required shared libraries and pack the resulting AppImage
-	linuxdeploy --appdir AppDir \
+	LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/ linuxdeploy \
+				--appdir AppDir \
 				--executable AppDir/usr/bin/hydrogen \
-				--library AppDir/usr/lib/x86_64-linux-gnu/libhydrogen-core-*.so \
 				--desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
 				--icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
 				--plugin qt \
