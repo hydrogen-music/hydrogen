@@ -265,8 +265,12 @@ for:
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
-      cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. \
-        -DWANT_APPIMAGE=1 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache || exit 1
+      cmake -DWANT_LASH=1 \
+            -DWANT_LRDF=1 \
+            -DWANT_RUBBERBAND=1 \
+            -DWANT_APPIMAGE=1 \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_INSTALL_PREFIX=/usr ..|| exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
