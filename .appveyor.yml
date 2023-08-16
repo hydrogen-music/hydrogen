@@ -47,37 +47,37 @@ environment:
   TARGET_VERSION: '1.2.1'
   matrix:
 
-    # - job_name: 'Ubuntu 20.04'
-    #   job_group: 'Linux'
-    #   appveyor_build_worker_image: Ubuntu2004
+    - job_name: 'Ubuntu 20.04'
+      job_group: 'Linux'
+      appveyor_build_worker_image: Ubuntu2004
 
     - job_name: 'Ubuntu 16.04 (AppImage)'
       job_group: 'Linux (AppImage)'
       appveyor_build_worker_image: Ubuntu1604
 
-    # - job_name: 'OS X'
-    #   job_group: 'Mac OS X'
-    #   appveyor_build_worker_image: macos
+    - job_name: 'OS X'
+      job_group: 'Mac OS X'
+      appveyor_build_worker_image: macos
 
-    # - job_name: 'Windows64'
-    #   job_group: 'Windows'
-    #   MSYS: 'C:\msys64\mingw64'
-    #   MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-    #   BUILD_TYPE: "Release"
-    #   CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
-    #   appveyor_build_worker_image: Visual Studio 2019
-    #   LIBSSL: libssl-3-x64.dll
-    #   LIBCRYPTO: libcrypto-3-x64.dll
+    - job_name: 'Windows64'
+      job_group: 'Windows'
+      MSYS: 'C:\msys64\mingw64'
+      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
+      appveyor_build_worker_image: Visual Studio 2019
+      LIBSSL: libssl-3-x64.dll
+      LIBCRYPTO: libcrypto-3-x64.dll
 
-    # - job_name: 'Windows32'
-    #   job_group: 'Windows'
-    #   MSYS: 'C:\msys64\mingw32'
-    #   MSYS_REPO: 'mingw32/mingw-w64-i686'
-    #   BUILD_TYPE: "Release"
-    #   CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
-    #   appveyor_build_worker_image: Visual Studio 2019
-    #   LIBSSL: libssl-3.dll
-    #   LIBCRYPTO: libcrypto-3.dll
+    - job_name: 'Windows32'
+      job_group: 'Windows'
+      MSYS: 'C:\msys64\mingw32'
+      MSYS_REPO: 'mingw32/mingw-w64-i686'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
+      appveyor_build_worker_image: Visual Studio 2019
+      LIBSSL: libssl-3.dll
+      LIBCRYPTO: libcrypto-3.dll
 
 build:
   verbosity: detailed
