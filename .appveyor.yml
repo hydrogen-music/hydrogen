@@ -197,7 +197,7 @@ for:
       only:
         - job_group: 'Linux (AppImage)'
 
-    cache: $HOME/cache_dir
+    cache: $HOME/cache_dir_appimage
 
     before_build: |-
       if [ "$UPLOAD_ARTIFACTS" == "false" ]; then
@@ -209,7 +209,7 @@ for:
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
-      cdir=$HOME/cache_dir
+      cdir=$HOME/cache_dir_appimage
       cache_tar=$cdir/$cache_tag.tar
       cache=$cache_tar.xz
 
