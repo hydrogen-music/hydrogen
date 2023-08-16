@@ -283,10 +283,6 @@ for:
 
       echo -e "\n *** Retrieve AppImage toolchain ***\n"
 
-      ls AppDir/usr/lib/
-      ls AppDir/usr/lib/x86_64-linux-gnu/
-      tree AppDir
-
       ## We do not cache this binary since it represents a rolling
       ## release and it releases us from the burden for keeping it
       ## up-to-date manually.
@@ -296,9 +292,10 @@ for:
       chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
 
       echo -e "\n *** Building AppImage ***\n"
-      ./linuxdeploy-x86_64.AppImage --appdir AppDir \
+
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/ ./linuxdeploy-x86_64.AppImage \
+        --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
-        --library AppDir/usr/lib/x86_64-linux-gnu/libhydrogen-core-*.so \
         --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
         --icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
         --plugin qt \
