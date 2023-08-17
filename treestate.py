@@ -30,7 +30,7 @@ def writeTree(filename, tree):
 def readTree(filename):
     with open(filename, "r") as f:
         if f == None:
-            print(f"*** couldn't open {filename} ***")
+            print("*** couldn't open {} ***".format(filename))
         return json.load(f)
 
 # Find updates in tree between states A and B
@@ -56,10 +56,10 @@ def findUpdates(a, b):
 
 def help():
     print("Syntax:")
-    print(f"  {sys.argv[0]} scan path stateFile")
-    print(f"      Record the state of <path> in <stateFile>")
-    print(f"  {sys.argv[0]} updates stateFile path")
-    print(f"      Print the paths of objects in <path> which have updated since <stateFile>")
+    print("  {} scan path stateFile".format(sys.argv[0]))
+    print("      Record the state of <path> in <stateFile>")
+    print("  {} updates stateFile path".format(sys.argv[0]))
+    print("      Print the paths of objects in <path> which have updated since <stateFile>")
     exit()
 
 
@@ -87,6 +87,6 @@ elif sys.argv[1] == 'updates':
     findUpdates(readTree(a), scanTreeState(b))
 
 else:
-    print(f"Unknown command: {sys.argv[1]}")
+    print("Unknown command: {}".format(sys.argv[1]))
     help()
 

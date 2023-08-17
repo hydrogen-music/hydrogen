@@ -48,15 +48,16 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
 	// Mark the current song modified if there was an user interaction
 	// with the widget.
-	connect( this, QOverload<int>::of(&QComboBox::activated),
-			 [=](int){
-				 if ( m_bModifyOnChange ) {
-					 H2Core::Hydrogen::get_instance()->setIsModified( true );
-				 }
-			 });
+	connect( this, SIGNAL( activated(int) ), this, SLOT( handleIsModified(int) ) );
 }
 
 LCDCombo::~LCDCombo() {
+}
+
+void LCDCombo::handleIsModified( int ) {
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void LCDCombo::addItem( const QString& sText, const QVariant& userData ) {

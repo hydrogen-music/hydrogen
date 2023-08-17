@@ -67,6 +67,45 @@ function cmake_rm() {
     echo -e " * rm cmake files\n" && rm -fr $BUILD_DIR 2>/dev/null
 }
 
+## Build a Hydrogen-x86_64.AppImage file.
+function cmake_appimage() {
+
+	## Check for AppImage toolchain.
+	which linuxdeploy
+	if [[ "$?" != "0" ]]; then
+		read -p "AppImage toolchain not present yet. Should it be downloaded? [y|N]: " consent
+		if [[ "$consent" == "y" ]]; then
+			wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || exit 1
+			chmod +x linuxdeploy-x86_64.AppImage || exit 1
+			wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
+			chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
+			echo -e "AppImage toolchain was successfully downloaded. Please put it as 'linuxdeploy' into \$PATH. E.g. using\n\tln -s $PWD/linuxdeploy-x86_64.AppImage $HOME/bin/linuxdeploy\n"
+		fi
+
+		exit 1
+	fi
+
+	## Perform a regular cmake build.
+	cmake_make
+
+	cd $BUILD_DIR || exit 1
+
+	## Install the compilation result into a folder which will serve
+	## as base for the AppImage.
+	make install DESTDIR=AppDir || exit 1
+
+	## Copy required shared libraries and pack the resulting AppImage
+	LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/ linuxdeploy \
+				--appdir AppDir \
+				--executable AppDir/usr/bin/hydrogen \
+				--desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
+				--icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
+				--plugin qt \
+				--output appimage || exit 1
+
+	cd ..
+}
+
 function cmake_make() {
 	SILENT=1 update_translations
 
@@ -191,6 +230,7 @@ if [ $# -eq 0 ]; then
     echo "   t[ests]   => execute tests"
     echo "   p[kg]     => build source package"
     echo "   translate => update all translation files"
+	echo "   appimage  => build an AppImage file"
     echo "   z         => build using ccache and run from tree"
     echo "ex: $0 r m pkg x"
     exit 1
@@ -198,6 +238,10 @@ fi
 
 for arg in $@; do
     case $arg in
+		appimage)
+			BUILD_DIR=./build-appimage
+			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_APPIMAGE=1 -DCMAKE_INSTALL_PREFIX=/usr"
+			cmd="cmake_appimage";;
         c|clean)
             cmd="cmake_clean";;
         r|rm)

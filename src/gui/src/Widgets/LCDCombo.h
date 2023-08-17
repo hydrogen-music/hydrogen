@@ -52,6 +52,7 @@ public:
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void handleIsModified( int );
 
 private:
 	void updateStyleSheet();

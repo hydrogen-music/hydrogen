@@ -51,6 +51,10 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2004
 
+    - job_name: 'Ubuntu 16.04 (AppImage)'
+      job_group: 'Linux (AppImage)'
+      appveyor_build_worker_image: Ubuntu1604
+
     - job_name: 'OS X'
       job_group: 'Mac OS X'
       appveyor_build_worker_image: macos
@@ -187,6 +191,120 @@ for:
       appstreamcli validate ../linux/org.hydrogenmusic.Hydrogen.metainfo.xml || exit 1
 
       ( exit $res )
+
+  - 
+    matrix:
+      only:
+        - job_group: 'Linux (AppImage)'
+
+    cache: $HOME/cache_dir_appimage
+
+    before_build: |-
+      if [ "$UPLOAD_ARTIFACTS" == "false" ]; then
+         echo "Skipping AppImage build as artifacts are not requested"
+         exit 0
+      fi
+
+      cache_tag=usr_cache_appimage # this can be modified to rebuild deps
+
+      ## Since we use a different Linux image we, unfortunately, have
+      ## to use a separate cache.
+      cdir=$HOME/cache_dir_appimage
+      cache_tar=$cdir/$cache_tag.tar
+      cache=$cache_tar.xz
+
+      mkdir -p $cdir/ccache || exit 1
+      ln -s $cdir/ccache $HOME/.ccache || exit 1
+
+      if [ -d $cdir ] && [ -f $cache ]; then
+        echo "=== Unpacking cached /var $cache ==="
+        (
+          cd /
+          sudo tar xf $cache || exit 1
+        )
+        echo "done"
+      else
+        echo "=== Building dependencies ==="
+
+        mkdir -p $cdir || exit 1
+
+        sudo python3 ./treestate.py scan /usr usr.json || exit 1
+        sudo apt-get update || exit 1
+        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
+        sudo rm /usr/local/bin/doxygen || exit 1
+
+        # liblo version shipped in Ubuntu 16.04 is to low for Hydrogen
+        # to compile.
+        git clone https://github.com/radarsat1/liblo || exit 1
+        cd liblo || exit 1
+        git checkout 0.31 || exit 1
+        ./autogen.sh || exit 1
+        make || exit 1
+        sudo make install || exit 1
+        cd ..
+
+        ccache -M 256M || exit 1
+        ccache -s || exit 1
+
+        (
+          sudo python3 ./treestate.py updates usr.json /usr > updates || exit 1
+          echo $(wc -l updates) updates
+          sudo tar cf $cache_tar -T updates || exit 1
+          sudo nice xz -9 -T0 $cache_tar || exit 1
+          du -h $cache
+
+        ) 2>&1 | sed 's/^/CACHE: /' &
+      fi
+
+    build_script: |-
+      git submodule init || exit 1
+      git submodule update || exit 1
+
+      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+
+      CPUS=$(nproc)
+      echo "Building with $CPUS cpus"
+      mkdir build || exit 1
+      cd build || exit 1
+      cmake -DWANT_LASH=1 \
+            -DWANT_LRDF=1 \
+            -DWANT_RUBBERBAND=1 \
+            -DWANT_APPIMAGE=1 \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_INSTALL_PREFIX=/usr ..|| exit 1
+      make -j $CPUS || exit 1
+
+      ccache -s || exit 1
+
+      wait
+      echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
+
+      echo -e "\n *** Creating AppDir ***\n"
+      make install DESTDIR=AppDir || exit 1
+
+      echo -e "\n *** Retrieve AppImage toolchain ***\n"
+
+      ## We do not cache this binary since it represents a rolling
+      ## release and it releases us from the burden for keeping it
+      ## up-to-date manually.
+      wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || exit 1
+      wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
+      chmod +x linuxdeploy-x86_64.AppImage || exit 1
+      chmod +x linuxdeploy-plugin-qt-x86_64.AppImage || exit 1
+
+      echo -e "\n *** Building AppImage ***\n"
+
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/ ./linuxdeploy-x86_64.AppImage \
+        --appdir AppDir \
+        --executable AppDir/usr/bin/hydrogen \
+        --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
+        --icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
+        --plugin qt \
+        --output appimage || exit 1
+
+      echo -e "\n *** Upload AppImage ***\n"
+      appveyor PushArtifact Hydrogen-x86_64.AppImage || exit 1
 
   - 
     cache: /Users/appveyor/cache_dir
