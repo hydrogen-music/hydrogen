@@ -23,6 +23,8 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QLibraryInfo>
+#include <QProcess>
+#include <QSslSocket>
 
 #include <core/config.h>
 #include <core/Version.h>
