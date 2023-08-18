@@ -493,14 +493,20 @@ int main(int argc, char *argv[])
 		// With the following logs we can determine if a fallback did
 		// happen.
 		
+		QString sCurrentDir = QDir::currentPath();
+		QDir::setCurrent( QCoreApplication::applicationDirPath() );
 		QProcess process;
 		process.start( "openssl", QStringList( "version" ));
 		process.waitForFinished(-1);
 		QString sStdout = process.readAllStandardOutput();
-		___INFOLOG( QString( "OpenSSL supported: [%1], version OS: [%2], version used by Hydrogen: [%3]" )
+		___INFOLOG( QString( "current: %1, application: %2" ).arg( sCurrentDir )
+					.arg( QCoreApplication::applicationDirPath() ) );
+		___INFOLOG( QString( "OpenSSL supported: [%1], version OS: [%2], Qt runtime: [%3], Qt build: [%4]" )
 					.arg( QSslSocket::supportsSsl() )
 					.arg( sStdout.trimmed() )
-					.arg( QSslSocket::sslLibraryVersionString() ) )
+					.arg( QSslSocket::sslLibraryVersionString() )
+					.arg( QSslSocket::sslLibraryBuildVersionString() ) );
+		QDir::setCurrent( sCurrentDir );
 #endif
 
 
