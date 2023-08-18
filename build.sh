@@ -93,6 +93,19 @@ function cmake_appimage() {
 	## as base for the AppImage.
 	make install DESTDIR=AppDir || exit 1
 
+	## Add custom OpenSSL libraries. They are used as fallback by Qt
+    ## and are only dl_opened in case no matching version was found on
+    ## system level.
+	LIB_SSL=$(find /usr -name "libssl.so.1.1*" | head -n 1)
+	LIB_CRYPTO=$(find /usr -name "libcrypto.so.1.1*" | head -n 1)
+	ISSUE_ERROR=0
+	if [[ "$(echo $LIB_SSL | wc -c)" == "1" || "$(echo $LIB_CRYPTO | wc -c)" == "1" ]]; then
+		ISSUE_ERROR=1
+	else
+		cp $LIB_SSL AppDir/usr/lib || exit 1
+		cp $LIB_CRYPTO AppDir/usr/lib || exit 1
+	fi
+
 	## Copy required shared libraries and pack the resulting AppImage
 	LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/ linuxdeploy \
 				--appdir AppDir \
@@ -101,6 +114,12 @@ function cmake_appimage() {
 				--icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
 				--plugin qt \
 				--output appimage || exit 1
+
+	if [[ "$ISSUE_ERROR" == "1" ]]; then
+		echo -e "\nERROR: unable to find 'libssl.so' and 'libcrypto.so'. They won't be integrated in the AppImage and you should be careful handing it to others\n"
+	else
+		echo -e "\nAppImage bundled with [$LIB_SSL] and [$LIB_CRYPTO]\n"
+	fi
 
 	cd ..
 }
