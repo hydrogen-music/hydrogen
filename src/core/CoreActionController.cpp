@@ -1274,6 +1274,43 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath, bool bC
 		}
 	}
 
+	// Trailing whitespaces will cause the Windows version to fail
+	// extracting it.
+
+	// Trailing whitespace in drumkit folder or archive name
+	if ( sDrumkitDir.endsWith( " " ) ) {
+		ERRORLOG( QString( "Drumkit folder [%1] must not end with a trailing whitespace" )
+				  .arg( sDrumkitDir ) );
+		return false;
+	}
+
+	// Trailing whitespace in drumkit name element
+	XMLDoc doc;
+	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ), nullptr, true ) ) {
+		ERRORLOG( QString( "Drumkit file in [%1] could not be opened." )
+				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+		return false;
+	}
+
+	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if ( root.isNull() ) {
+		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
+				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+		return false;
+	}
+
+	const QString sDrumkitName = root.read_string( "name", "", false, false, false );
+	if ( sDrumkitName.isEmpty() ) {
+		ERRORLOG( QString( "Drumkit must have a non-empty 'name' element" ) );
+		return false;
+	}
+
+	if ( sDrumkitName.endsWith( " " ) ){
+		ERRORLOG( QString( "Drumkit name [%1] must not end with a trailing whitespace" )
+				  .arg( sDrumkitName ) );
+		return false;
+	}
+
 	INFOLOG( QString( "Drumkit [%1] is valid!" )
 			 .arg( sDrumkitPath ) );
 	
