@@ -32,6 +32,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  (#1828) (introduced in v1.2.0).
 		- Hydrogen does now successfully startup even if no data folder is
 		  present on user and system level.
+		- Allow an arbitrary number of notes in a pattern (#1827).
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
