@@ -27,8 +27,6 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  currently selected one.
 		- Do not start playback at cursor when cursor in Song Editor is
 		  beyond the current song length.
-		- Playlist dialog can now be resized and remembers geometry,
-		  position, as well as visibility.
 
 2023-06-08 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.1
