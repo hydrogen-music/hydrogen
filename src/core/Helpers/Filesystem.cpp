@@ -140,7 +140,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #else
 #ifdef H2CORE_HAVE_APPIMAGE
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ;
+	__sys_data_path = absolute_path( QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ) ;
 #else
 	__sys_data_path = H2_SYS_PATH "/data/";
 #endif
@@ -1032,14 +1032,15 @@ QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
 }
 
 Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
-	if ( sPath.contains( Filesystem::sys_drumkits_dir() ) ) {
+	const QString sAbsolutePath = absolute_path( sPath );
+	if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
 		return DrumkitType::System;
 	}
-	else if ( sPath.contains( Filesystem::usr_drumkits_dir() ) ) {
+	else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
 		return DrumkitType::User;
 	}
 	else {
-		if ( dir_writable( sPath, true ) ) {
+		if ( dir_writable( sAbsolutePath, true ) ) {
 			return DrumkitType::SessionReadWrite;
 		} else {
 			return DrumkitType::SessionReadOnly;
