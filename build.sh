@@ -90,9 +90,17 @@ function cmake_appimage() {
 
 	cd $BUILD_DIR || exit 1
 
+	if [ -d "AppDir" ]; then
+		rm -rf ./AppDir
+	fi
+
 	## Install the compilation result into a folder which will serve
 	## as base for the AppImage.
 	make install DESTDIR=AppDir || exit 1
+
+	if [ -f "Hydrogen-x86_64.AppImage" ]; then
+		rm ./Hydrogen-x86_64.AppImage
+	fi
 
 	## Add custom OpenSSL libraries. They are used as fallback by Qt
     ## and are only dl_opened in case no matching version was found on
