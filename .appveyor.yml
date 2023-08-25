@@ -203,7 +203,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_qt # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_qt_new # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
