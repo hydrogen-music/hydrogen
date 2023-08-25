@@ -225,4 +225,52 @@ void SoundLibraryDatabase::loadPatternFromDirectory( const QString& sPatternDir 
 		}
 	}
 }
+
+QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& [ ssPath, ddrumkit ] : m_drumkitDatabase ) {
+			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) );
+		}
+		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppatternInfo : m_patternInfoVector ) {
+			sOutput.append( QString( "%3\n" )
+							.arg( ppatternInfo->toQString( sPrefix + s + s, bShort ) ) );
+		}
+		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_patternCategories.join( ", " ) ) );
+		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( ssCustomPath ) );
+		}
+	}
+	else {
+
+		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& eentry : m_drumkitDatabase ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( eentry.first ) );
+		}
+		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppatternInfo : m_patternInfoVector ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( ppatternInfo->getPath() ) );
+		}
+		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_patternCategories.join( ", " ) ) );
+		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( ssCustomPath ) );
+		}
+	}
+
+	return sOutput;
+}
 };
