@@ -466,6 +466,24 @@ namespace H2Core
 		 */
 		static DrumkitType determineDrumkitType( const QString& sPath );
 
+		/**
+		 * Reroutes stored drumkit paths pointing to a temporary
+		 * AppImage system data folder to the current AppImage one.
+		 *
+		 * Since AppImages are mounted at a random point each time
+		 * they are started the absolute path of their system data
+		 * folder changes every time. To nevertheless support using
+		 * system drumkits consistently, we try to determine whether
+		 * the stored kit is a system one and tweak its path. (Without
+		 * replacing the random part of the path the lookup would fall
+		 * back to a name-based one which _always_ checks user-level
+		 * kits first. Having a GMRockKit in ~/.hydrogen/data/drumkits
+		 * too, would make the system's one inaccessible).
+		 *
+		 * @param sDrumkitPath Absolute path that need rerouting.
+		 */
+		static QString rerouteDrumkitPath( const QString& sDrumkitPath );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent

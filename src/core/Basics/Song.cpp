@@ -406,6 +406,11 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );
 	QString sLastLoadedDrumkitName = 
 		pRootNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+
+#ifdef H2CORE_HAVE_APPIMAGE
+	sLastLoadedDrumkitPath =
+		Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
+#endif
 	
 	if ( sLastLoadedDrumkitPath.isEmpty() ) {
 		// Prior to version 1.2.0 the last loaded drumkit was read
