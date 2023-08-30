@@ -290,6 +290,11 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
 														 false, false, bSilent  );
 
+#ifdef H2CORE_HAVE_APPIMAGE
+			sInstrumentDrumkitPath =
+				Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
+#endif
+
 			// Check whether corresponding drumkit exist.
 			// When tweaking or assembling drumkits locally their
 			// absolute paths serve as unique identifiers to keep them

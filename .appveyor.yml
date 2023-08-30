@@ -205,7 +205,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_qt # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_fresh # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -221,6 +221,9 @@ for:
         (
           cd /
           sudo tar xf $cache || exit 1
+
+          # Ensure bricked doxygen version get's removed.
+          sudo rm -f /usr/local/bin/doxygen
         )
         echo "done"
       else

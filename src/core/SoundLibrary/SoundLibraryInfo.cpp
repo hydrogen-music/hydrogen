@@ -114,5 +114,42 @@ SoundLibraryInfo::~SoundLibraryInfo()
 	//default deconstructor
 }
 
+QString SoundLibraryInfo::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SoundLibraryInfo]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
+			.append( QString( "%1%2m_sURL: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sURL ) )
+			.append( QString( "%1%2m_sInfo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
+			.append( QString( "%1%2m_sCategory: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCategory ) )
+			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sType ) )
+			.append( QString( "%1%2m_license:\n%3" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s + s, bShort ) ) )
+			.append( QString( "%1%2m_sImage: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sImage ) )
+			.append( QString( "%1%2m_imageLicense:\n%3" ).arg( sPrefix ).arg( s )
+					 .arg( m_imageLicense.toQString( sPrefix + s + s, bShort ) ) )
+			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) );
+	}
+	else {
+
+		sOutput = QString( "[SoundLibraryInfo]" )
+			.append( QString( " m_sName: %1" ).arg( m_sName ) )
+			.append( QString( ", m_sURL: %1" ).arg( m_sURL ) )
+			.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
+			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
+			.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
+			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
+			.append( QString( ", m_license: %1" )
+					 .arg( m_license.toQString( "", bShort ) ) )
+			.append( QString( ", m_sImage: %1" ).arg( m_sImage ) )
+			.append( QString( ", m_imageLicense: %1" )
+					 .arg( m_imageLicense.toQString( "", bShort ) ) )
+			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) );
+	}
+
+	return sOutput;
+}
 }; //namespace H2Core
 

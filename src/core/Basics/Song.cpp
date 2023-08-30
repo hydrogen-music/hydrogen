@@ -406,6 +406,11 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );
 	QString sLastLoadedDrumkitName = 
 		pRootNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+
+#ifdef H2CORE_HAVE_APPIMAGE
+	sLastLoadedDrumkitPath =
+		Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
+#endif
 	
 	if ( sLastLoadedDrumkitPath.isEmpty() ) {
 		// Prior to version 1.2.0 the last loaded drumkit was read
@@ -439,20 +444,19 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setLastLoadedDrumkitPath( sLastLoadedDrumkitPath );
 
+	// Attempt to access the last loaded drumkit to load it into the
+	// SoundLibraryDatabase in case it was a custom one (e.g. loaded
+	// via OSC or from a different system data folder due to a
+	// different install prefix).
+	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath, true );
+
 	if ( sLastLoadedDrumkitName.isEmpty() ) {
 		// The initial song is loaded after Hydrogen was
 		// bootstrap. So, the SoundLibrary should be present and
 		// filled with all available drumkits.
-		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-		if ( pSoundLibraryDatabase != nullptr ) {
-
-			// If it is not already present, we also load the last
-			// loaded drumkit into the database.
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
-				sLastLoadedDrumkitPath, true );
-			if ( pDrumkit != nullptr ) {
-				sLastLoadedDrumkitName = pDrumkit->get_name();
-			}
+		if ( pSoundLibraryDatabase != nullptr && pDrumkit != nullptr ) {
+			sLastLoadedDrumkitName = pDrumkit->get_name();
 		}
 	}
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
