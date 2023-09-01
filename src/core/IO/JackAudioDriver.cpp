@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <cmath>
 #include <jack/metadata.h>
+#include <QLibrary>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -1203,6 +1204,26 @@ void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
 			  << ", frame_time: " << pPos->frame_time
 			  << ", next_time: " << pPos->next_time
 			  << "\033[0m" << std::endl;
+}
+
+bool JackAudioDriver::checkSupport() {
+
+	QLibrary jackLib( "libjack" );
+
+	if ( ! jackLib.load() ) {
+		WARNINGLOG( QString( "Unable to load libjack: %1" )
+					.arg( jackLib.errorString() ) );
+		return false;
+	}
+
+	void* jack_connect = (void*)jackLib.resolve( "jack_connect" );
+	if ( jack_connect == nullptr ) {
+		ERRORLOG( QString( "libjack found but unable to resolve jack_connect symbol: %1" )
+				  .arg( jackLib.errorString() ) );
+		return false;
+	}
+
+	return true;
 }
 };
 

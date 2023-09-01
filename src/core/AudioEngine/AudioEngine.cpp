@@ -2586,6 +2586,25 @@ const PatternList* AudioEngine::getNextPatterns() const {
 	return nullptr;
 }
 
+void AudioEngine::checkJackSupport() {
+#ifdef H2CORE_HAVE_JACK
+	if ( ! JackAudioDriver::checkSupport() ) {
+		WARNINGLOG( "JACK support disabled." );
+		m_bJackSupported = false;
+		return;
+	}
+
+	INFOLOG( "libjack found. JACK support enabled." );
+	m_bJackSupported = true;
+	return;
+
+#else
+	INFOLOG( "Hydrogen was compiled without JACK support." );
+	m_bJackSupported = false;
+	return;
+#endif
+}
+
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 
