@@ -440,6 +440,8 @@ public:
 	 * Required to not end unit tests prematurely.
 	 */
 	int getEnqueuedNotesNumber() const;
+
+	const QStringList getSupportedAudioDrivers() const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -696,6 +698,20 @@ private:
 	float 			m_fNextBpm;
 	double m_fLastTickEnd;
 	bool m_bLookaheadApplied;
+
+	/**
+	 * Attempts to dynamically load the JACK 2 shared library
+	 * and stores the result in #m_bJackSupported.
+	 */
+	void checkJackSupport();
+
+	/**
+	 * Whether or not the shared library of the JACK server could be
+	 * found on the system at runtime.
+	 */
+	bool m_bJackSupported;
+
+	QStringList m_supportedAudioDrivers;
 };
 
 
@@ -816,6 +832,9 @@ inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 }
 inline int AudioEngine::getEnqueuedNotesNumber() const {
 	return m_songNoteQueue.size();
+}
+inline const QStringList AudioEngine::getSupportedAudioDrivers() const {
+	return m_supportedAudioDrivers;
 }
 };
 

@@ -125,6 +125,49 @@ AudioEngine::AudioEngine()
 	
 	m_AudioProcessCallback = &audioEngine_process;
 
+	// Has to be done before assigning the supported audio drivers.
+	checkJackSupport();
+
+	// The order of the assigned drivers is important as Hydrogen uses
+	// it when trying different drivers in case "Auto" was selected.
+#if defined(WIN32)
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+#elif defined(__APPLE__)
+  #ifdef H2CORE_HAVE_COREAUDIO
+	m_supportedAudioDrivers << "CoreAudio";
+  #endif
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	m_supportedAudioDrivers << "PulseAudio";
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+#else /* Linux */
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+  #ifdef H2CORE_HAVE_ALSA
+	m_supportedAudioDrivers << "ALSA";
+  #endif
+  #ifdef H2CORE_HAVE_OSS
+	m_supportedAudioDrivers << "OSS";
+  #endif
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	m_supportedAudioDrivers << "PulseAudio";
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+#endif
+
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
@@ -897,22 +940,16 @@ void AudioEngine::startAudioDrivers()
 	}
 
 	QString sAudioDriver = pPref->m_sAudioDriver;
-#if defined(WIN32)
-	QStringList drivers = { "PortAudio", "JACK" };
-#elif defined(__APPLE__)
-    QStringList drivers = { "CoreAudio", "JACK", "PulseAudio", "PortAudio" };
-#else /* Linux */
-    QStringList drivers = { "JACK", "ALSA", "OSS", "PulseAudio", "PortAudio" };
-#endif
 
 	if ( sAudioDriver != "Auto" ) {
-		drivers.clear();
-		drivers << sAudioDriver;
+		createAudioDriver( sAudioDriver );
 	}
-	AudioOutput* pAudioDriver;
-	for ( QString sDriver : drivers ) {
-		if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
-			break;
+	else {
+		AudioOutput* pAudioDriver;
+		for ( QString sDriver : getSupportedAudioDrivers() ) {
+			if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
+				break;
+			}
 		}
 	}
 
@@ -2555,6 +2592,25 @@ const PatternList* AudioEngine::getNextPatterns() const {
 		return m_pTransportPosition->getNextPatterns();
 	}
 	return nullptr;
+}
+
+void AudioEngine::checkJackSupport() {
+#ifdef H2CORE_HAVE_JACK
+	if ( ! JackAudioDriver::checkSupport() ) {
+		WARNINGLOG( "JACK support disabled." );
+		m_bJackSupported = false;
+		return;
+	}
+
+	INFOLOG( "libjack found. JACK support enabled." );
+	m_bJackSupported = true;
+	return;
+
+#else
+	INFOLOG( "Hydrogen was compiled without JACK support." );
+	m_bJackSupported = false;
+	return;
+#endif
 }
 
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {

@@ -236,24 +236,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->setSize( audioTabWidgetSizeTop );
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
-#ifdef H2CORE_HAVE_JACK
-	driverComboBox->addItem( "JACK" );
-#endif
-#ifdef H2CORE_HAVE_ALSA
-	driverComboBox->addItem( "ALSA" );
-#endif
-#ifdef H2CORE_HAVE_OSS
-	driverComboBox->addItem( "OSS" );
-#endif
-#ifdef H2CORE_HAVE_PORTAUDIO
-	driverComboBox->addItem( "PortAudio" );
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-	driverComboBox->addItem( "CoreAudio" );
-#endif
-#ifdef H2CORE_HAVE_PULSEAUDIO
-	driverComboBox->addItem( "PulseAudio" );
-#endif
+	for ( const QString& ssDriver : pHydrogen->getAudioEngine()->getSupportedAudioDrivers() ) {
+		driverComboBox->addItem( ssDriver );
+	}
 
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
 		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
