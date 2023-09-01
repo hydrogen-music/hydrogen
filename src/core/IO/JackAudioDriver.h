@@ -358,6 +358,14 @@ public:
 	 * the presence of an external timebase master.*/
 	void relocateUsingBBT();
 
+	/**
+	 * Attempts to load the JACK shared library at runtime and to
+	 * resolve a prominent symbol.
+	 *
+	 * @return Whether or not JACK support appears to be functional.
+	 */
+	static bool checkSupport();
+
 private:
 
 	/** Compares the BBT information stored in #m_JackTransportPos and
@@ -560,7 +568,6 @@ private:
 	 * More user-friendly version of #m_nTimebaseTracking.
 	 */ 
 	Timebase m_timebaseState;
-
 };
 
 }; // H2Core namespace

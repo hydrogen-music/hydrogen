@@ -696,6 +696,19 @@ private:
 	float 			m_fNextBpm;
 	double m_fLastTickEnd;
 	bool m_bLookaheadApplied;
+
+	/**
+	 * Attempts to dynamically load the JACK 2 shared library
+	 * and stores the result in #m_bJackSupported.
+	 */
+	void checkJackSupport();
+
+	/**
+	 * Whether or not the shared library of the JACK server could be
+	 * found on the system at runtime.
+	 */
+	bool m_bJackSupported;
+
 };
 
 
