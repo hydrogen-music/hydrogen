@@ -1,6 +1,7 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Added
+		- Hydrogen is now released as AppImage for Linux as well.
 		- Playlist dialog can now be resized and remembers geometry,
 		  position, as well as visibility.
 		- Save and restore Director position, geometry, and visibility.
@@ -13,6 +14,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Changed
 		- Spanish translation updated.
 		- Minor tweaks in French and German translation.
+		- On Linux the order of audio drivers tried when selecting `Auto`
+		  changed from "JACK > ALSA > OSS > PulseAudio" to
+		  "JACK > PulseAudio > ALSA > OSS".
+		- Hydrogen does check on startup whether `libjack` shared library
+		  can be loaded. If not, JACK support gets disabled.
 	* Fixed
 		- Style combo box in Preferences > Appearance > Interface is
 		  working again.
