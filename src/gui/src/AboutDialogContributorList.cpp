@@ -42,6 +42,7 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"ignotus666"
 ,"Houston4444"
 ,"Dan Church"
+,"Adam Shamblin"
 };
 	m_pContributorList = std::make_shared<std::vector<QString>>(v);
 }
