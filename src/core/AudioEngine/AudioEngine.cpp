@@ -154,14 +154,14 @@ AudioEngine::AudioEngine()
 	if ( m_bJackSupported ) {
 		m_supportedAudioDrivers << "JACK";
 	}
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	m_supportedAudioDrivers << "PulseAudio";
+  #endif
   #ifdef H2CORE_HAVE_ALSA
 	m_supportedAudioDrivers << "ALSA";
   #endif
   #ifdef H2CORE_HAVE_OSS
 	m_supportedAudioDrivers << "OSS";
-  #endif
-  #ifdef H2CORE_HAVE_PULSEAUDIO
-	m_supportedAudioDrivers << "PulseAudio";
   #endif
   #ifdef H2CORE_HAVE_PORTAUDIO
 	m_supportedAudioDrivers << "PortAudio";
