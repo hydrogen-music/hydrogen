@@ -952,6 +952,11 @@ Kit actuel :</translation>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation>Texte de l&apos;étiquette</translation>
     </message>
+    <message>
+        <source>Unable to export song</source>
+        <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation>Impossible d&apos;exporter le morceau</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1130,10 +1135,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Veillez à respecter toutes les conditions de la licence et à donner l&apos;attribution requise.</translation>
-    </message>
-    <message>
-        <source>Unable to export song</source>
-        <translation>Impossible d&apos;exporter le morceau</translation>
     </message>
 </context>
 <context>
@@ -6151,6 +6152,13 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     <message>
         <source>Sound library</source>
         <translation>Bibliothèque</translation>
+    </message>
+</context>
+<context>
+    <name>Startup</name>
+    <message>
+        <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

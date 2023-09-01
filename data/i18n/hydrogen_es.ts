@@ -941,17 +941,22 @@ Kit actual:</translation>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Balance</translation>
+        <translation>Balance</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Filtro de Corte</translation>
+        <translation>Filtro de Corte</translation>
     </message>
     <message>
         <source>Tag Text</source>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export song</source>
+        <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation>No se puede exportar la canción</translation>
     </message>
 </context>
 <context>
@@ -1131,10 +1136,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Asegúrate de que cumples todas las condiciones de la licencia y que realizas la atribución oportuna.</translation>
-    </message>
-    <message>
-        <source>Unable to export song</source>
-        <translation>No se puede exportar la canción</translation>
     </message>
 </context>
 <context>
@@ -4364,7 +4365,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Limpiar</translation>
+        <translation>&amp;Limpiar</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4376,7 +4377,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">Duplicar</translation>
+        <translation>Duplicar</translation>
     </message>
 </context>
 <context>
@@ -5217,7 +5218,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Ver mezclador</translation>
+        <translation>Ver mezclador</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -6151,6 +6152,13 @@ Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y ma
     <message>
         <source>Sound library</source>
         <translation>Librería de sonidos</translation>
+    </message>
+</context>
+<context>
+    <name>Startup</name>
+    <message>
+        <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

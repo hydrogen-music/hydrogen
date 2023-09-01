@@ -61,7 +61,6 @@ void* diskWriterDriver_thread( void* param )
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
-	qDebug() << "[diskWriterDriver_thread] started";
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
@@ -139,27 +138,25 @@ void* diskWriterDriver_thread( void* param )
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
 
-	qDebug() << "[diskWriterDriver_thread] setup";
 	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
 	if ( m_file == nullptr ) {
 		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
 					.arg( pDriver->m_sFilename )
 					.arg( sf_strerror( nullptr ) ) );
-		qDebug() << "[diskWriterDriver_thread] ERROR: unable to create file";
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
-	qDebug() << "[diskWriterDriver_thread] file created";
-							  
-	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
+
+	float *pData = new float[ pDriver->m_nBufferSize * 2 ]; // always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
-
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -167,6 +164,18 @@ void* diskWriterDriver_thread( void* param )
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
+
+	// Used to cleanly terminate this thread and close all handlers.
+	auto tearDown = [&](){
+		delete[] pData;
+		pData = nullptr;
+
+		sf_close( m_file );
+
+		__INFOLOG( "DiskWriterDriver thread end" );
+
+		pthread_exit( nullptr );
+	};
 	
 	int nPatternSize, nBufferWriteLength;
 	float fBpm;
@@ -184,13 +193,6 @@ void* diskWriterDriver_thread( void* param )
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
-
-		qDebug() << "[diskWriterDriver_thread] patternPosition: " <<
-			patternPosition << ", nColumns: " << nColumns <<
-			", nPatternSize: " << nPatternSize <<
-			", fBpm: " << fBpm <<
-			", fTicksize: " << fTicksize;
-			
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
@@ -219,14 +221,38 @@ void* diskWriterDriver_thread( void* param )
 				nLastRun = nPatternLengthInFrames - nFrameNumber;
 				nUsedBuffer = nLastRun;
 			};
+
+			// Check whether the driver was stopped (since
+			// AudioEngine::stopAudioDrivers() locks the audio engine
+			// and the call to pDriver->m_processCallback) can not
+			// acquire the lock).
+			if ( ! pDriver->m_bIsRunning ) {
+				__ERRORLOG( "Driver was stop before export was completed." );
+				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				tearDown();
+				return nullptr;
+			}
 			
-			qDebug() << "[diskWriterDriver_thread] while loop pre processCallback";
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+
+			// Only try a reasonable amount of times.
+			int nMutexLockAttempts = 0;
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
-				qDebug() << "[diskWriterDriver_thread] while loop could not acquire mutex";
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+
+				// No need for a sleep() statement in here because the
+				// AudioEngine::tryLockFor() in the processCallback
+				// already introduces a delay.
+				nMutexLockAttempts++;
+				if ( nMutexLockAttempts > 30 ) {
+					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
+					
+					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					tearDown();
+					return nullptr;
+				}
 			}
 
 			if ( patternPosition == nColumns - 1 &&
@@ -283,15 +309,17 @@ void* diskWriterDriver_thread( void* param )
 					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
-			qDebug() << "[diskWriterDriver_thread] writing data";
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
-			qDebug() << "[diskWriterDriver_thread] data written: " << res;
 			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
 							.arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
+					
+				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				tearDown();
+				return nullptr;
 			}
 
 			// Sampler is still rendering notes put we seem to have
@@ -300,13 +328,11 @@ void* diskWriterDriver_thread( void* param )
 			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
 				break;
 			}
-			qDebug() << "[diskWriterDriver_thread] while loop done" << res;
 		}
 		
 		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
-		qDebug() << "[diskWriterDriver_thread] nPrecent: " << nPercent;
 		if ( nPercent < 100 ) {
 			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
 		}
@@ -315,16 +341,7 @@ void* diskWriterDriver_thread( void* param )
 	// Explicitly mark export as finished.
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	
-	qDebug() << "[diskWriterDriver_thread] done";
-	
-	delete[] pData;
-	pData = nullptr;
-
-	sf_close( m_file );
-
-	__INFOLOG( "DiskWriterDriver thread end" );
-
-	pthread_exit( nullptr );
+	tearDown();
 	return nullptr;
 }
 
@@ -337,7 +354,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
-		, m_pOut_R( nullptr ) {
+		, m_pOut_R( nullptr )
+		, m_bIsRunning( false ) {
 }
 
 
@@ -367,6 +385,8 @@ int DiskWriterDriver::connect()
 void DiskWriterDriver::write()
 {
 	INFOLOG( "" );
+
+	m_bIsRunning = true;
 	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
@@ -378,6 +398,8 @@ void DiskWriterDriver::write()
 void DiskWriterDriver::disconnect()
 {
 	INFOLOG( "" );
+	
+	m_bIsRunning = false;
 
 	pthread_join( diskWriterDriverThread, NULL );
 

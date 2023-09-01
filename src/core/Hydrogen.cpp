@@ -662,6 +662,7 @@ void Hydrogen::restartDrivers()
 
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 {
+	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
@@ -685,7 +686,9 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	 * which is not the DiskWriter driver.
 	 * Stop the current driver and fire up the DiskWriter.
 	 */
+	DEBUGLOG( "pre stopAudioDrivers" );
 	pAudioEngine->stopAudioDrivers();
+	DEBUGLOG( "post stopAudioDrivers" );
 
 	AudioOutput* pDriver =
 		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
@@ -705,13 +708,15 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 
 	m_bExportSessionIsActive = true;
 
+	DEBUGLOG( "done" );
+
 	return true;
 }
 
 /// Export a song to a wav file
 void Hydrogen::startExportSong( const QString& filename)
 {
-	qDebug() << "[Hydrogen::startExportSong] beginning";
+	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->play();
@@ -719,19 +724,23 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
+	DEBUGLOG( "pre write()" );
 	pDiskWriterDriver->write();
-	qDebug() << "[Hydrogen::startExportSong] end";
+	DEBUGLOG( "done" );
 }
 
 void Hydrogen::stopExportSong()
 {
+	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
 	getCoreActionController()->locateToTick( 0 );
+	DEBUGLOG( "done" );
 }
 
 void Hydrogen::stopExportSession()
 {
+	DEBUGLOG( "" );
 	std::shared_ptr<Song> pSong = getSong();
 	pSong->setMode( m_oldEngineMode );
 	if ( m_bOldLoopEnabled ) {
@@ -741,11 +750,13 @@ void Hydrogen::stopExportSession()
 	}
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
+
+	DEBUGLOG( "pre restartAudioDrivers" );
  	pAudioEngine->restartAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
+	DEBUGLOG( "post restartAudioDrivers" );
 	m_bExportSessionIsActive = false;
 }
 
@@ -1176,8 +1187,10 @@ void Hydrogen::__kill_instruments()
 
 void Hydrogen::__panic()
 {
+	m_pAudioEngine->lock( RIGHT_HERE );
 	sequencer_stop();
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
+	m_pAudioEngine->unlock();
 }
 
 bool Hydrogen::hasJackAudioDriver() const {

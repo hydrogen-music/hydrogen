@@ -95,6 +95,12 @@ enum EventType {
 	 * Handled by EventListener::metronomeEvent().
 	 */
 	EVENT_METRONOME,
+	/**
+	 * Used by the thread of the `DiskWriterDriver` to indicate
+	 * progress of the ongoing audio export (from 0 to 100).
+	 *
+	 * The value `-1` is used to indicate exporting failed.
+	 */
 	EVENT_PROGRESS,
 	EVENT_JACK_SESSION,
 	EVENT_PLAYLIST_LOADSONG,
@@ -191,6 +197,21 @@ public:
 	/** Additional information to describe the actual context of
 	    the engine.*/
 	int value;
+
+	/**
+	 * Get string representation of #EventType.
+	 */
+	static QString typeToQString( EventType type );
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 /** Object handling the communication between the core of Hydrogen and
@@ -275,6 +296,16 @@ public:/**
 
 	bool getSilent() const;
 	void setSilent( bool bSilent );
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true );
 
 private:
 	/**

@@ -23,6 +23,8 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QLibraryInfo>
+#include <QProcess>
+#include <QSslSocket>
 
 #include <core/config.h>
 #include <core/Version.h>
@@ -458,6 +460,55 @@ int main(int argc, char *argv[])
 		if ( pPref->getShortcuts()->requiresDefaults() ) {
 			pPref->getShortcuts()->createDefaultShortcuts();
 		}
+
+		if ( ! pPref->getLoadingSuccessful() ) {
+
+			QMessageBox::critical( nullptr, "Hydrogen",
+				QString( QT_TRANSLATE_NOOP( "Startup",															   "No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting..." ) ) );
+			
+			// Neither the Preferences on system level nor the ones at
+			// user level could be loaded successfully. Hydrogen was
+			// most probably not installed properly. Abort.
+			delete pQApp;
+			delete pPref;
+
+			delete MidiMap::get_instance();
+
+			___ERRORLOG( "No preferences file found. Aborting..." );
+			delete H2Core::Logger::get_instance();
+
+			exit( 1 );
+		}
+
+#ifdef H2CORE_HAVE_APPIMAGE
+		// Within an AppImage we provide our own version of Qt. But we
+		// also have to ensure to provide an OpenSSL shared object
+		// compatible with that particular version. As shipping
+		// `libssl.so` and `libcrypto.so` is discouraged and
+		// blacklisted by `linuxdeploy-qt`, we manually put them in
+		// the application folder. This way Qt tries to load the
+		// system's libraries first and only falls back to the ones we
+		// provide in case it couldn't find it.
+		//
+		// With the following logs we can determine if a fallback did
+		// happen.
+		
+		QString sCurrentDir = QDir::currentPath();
+		QDir::setCurrent( QCoreApplication::applicationDirPath() );
+		QProcess process;
+		process.start( "openssl", QStringList( "version" ));
+		process.waitForFinished(-1);
+		QString sStdout = process.readAllStandardOutput();
+		___INFOLOG( QString( "current: %1, application: %2" ).arg( sCurrentDir )
+					.arg( QCoreApplication::applicationDirPath() ) );
+		___INFOLOG( QString( "OpenSSL supported: [%1], version OS: [%2], Qt runtime: [%3], Qt build: [%4]" )
+					.arg( QSslSocket::supportsSsl() )
+					.arg( sStdout.trimmed() )
+					.arg( QSslSocket::sslLibraryVersionString() )
+					.arg( QSslSocket::sslLibraryBuildVersionString() ) );
+		QDir::setCurrent( sCurrentDir );
+#endif
+
 
 		SplashScreen *pSplash = new SplashScreen();
 

@@ -139,7 +139,11 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #else
+#ifdef H2CORE_HAVE_APPIMAGE
+	__sys_data_path = absolute_path( QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ) ;
+#else
 	__sys_data_path = H2_SYS_PATH "/data/";
+#endif
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
@@ -1028,14 +1032,15 @@ QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
 }
 
 Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
-	if ( sPath.contains( Filesystem::sys_drumkits_dir() ) ) {
+	const QString sAbsolutePath = absolute_path( sPath );
+	if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
 		return DrumkitType::System;
 	}
-	else if ( sPath.contains( Filesystem::usr_drumkits_dir() ) ) {
+	else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
 		return DrumkitType::User;
 	}
 	else {
-		if ( dir_writable( sPath, true ) ) {
+		if ( dir_writable( sAbsolutePath, true ) ) {
 			return DrumkitType::SessionReadWrite;
 		} else {
 			return DrumkitType::SessionReadOnly;
@@ -1062,6 +1067,59 @@ QStringList Filesystem::drumkit_xsd_legacy_paths() {
 	return std::move( drumkitXSDs );
 }
 
+QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
+#ifdef H2CORE_HAVE_APPIMAGE
+
+	if ( sDrumkitPath.isEmpty() ) {
+		ERRORLOG( "Can not reroute empty drumkit paths" );
+		return "";
+	}
+
+	// Since the path to a system kits of a previously mounted image
+	// does most probably not exist anymore we can _not_ use
+	// Filesystem::absolute_path in here.
+	const QString sAbsolutePath = QDir( sDrumkitPath ).absolutePath();
+	QString sResult = sAbsolutePath;
+
+	// Might be different ones depending on the mounting point of the
+	// system.
+	const QStringList systemPrefixes = { "/tmp" };
+
+	// Check whether the kit is a system drumkit from a previous
+	// AppImage session.
+	bool bIsForeignSystemKit = false;
+	for ( const auto& ssPrefix : systemPrefixes ) {
+		if ( sAbsolutePath.startsWith( ssPrefix ) &&
+			 ! sAbsolutePath.contains( Filesystem::sys_data_path() ) ) {
+			bIsForeignSystemKit = true;
+		}
+	}
+
+	if ( bIsForeignSystemKit ) {
+		const QStringList pathComponents = sAbsolutePath.split( "/" );
+		if ( pathComponents.size() > 2 ) {
+			const QString sNewPath = QString( "%1%2/%3" )
+				.arg( Filesystem::sys_data_path() )
+				.arg( pathComponents[ pathComponents.size() - 2 ] )
+				.arg( pathComponents[ pathComponents.size() - 1 ] );
+
+			INFOLOG( QString( "Rerouting system kit: [%1] -> [%2]" )
+					 .arg( sDrumkitPath )
+					 .arg( Filesystem::absolute_path( sNewPath ) ) );
+
+			sResult = Filesystem::absolute_path( sNewPath );
+		}
+		else {
+			ERRORLOG( QString( "Unable to replace drumkit path [%1]" )
+					  .arg( sDrumkitPath ) );
+		}
+	}
+
+	return sResult;
+#else
+	return sDrumkitPath;
+#endif
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

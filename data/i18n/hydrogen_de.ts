@@ -885,7 +885,7 @@ Aktuelles:</translation>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung</translation>
     </message>
     <message>
         <source>Define a keybinding for the selected shortcut</source>
@@ -895,7 +895,7 @@ Aktuelles:</translation>
     <message>
         <source>Volume</source>
         <extracomment>Label shown in the input capture dialog for querying a new volume value.</extracomment>
-        <translation type="unfinished">Lautstärke</translation>
+        <translation>Lautstärke</translation>
     </message>
     <message>
         <source>Column Number</source>
@@ -940,17 +940,22 @@ Aktuelles:</translation>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Cutoff des Filters</translation>
+        <translation>Cutoff des Filters</translation>
     </message>
     <message>
         <source>Tag Text</source>
         <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export song</source>
+        <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation>Lied konnte nicht exportiert werden</translation>
     </message>
 </context>
 <context>
@@ -1128,10 +1133,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Stellen Sie sicher, dass sie alle Lizenzvereinbarungen erfüllen und die notwenige Autorenschaft ausweisen.</translation>
-    </message>
-    <message>
-        <source>Unable to export song</source>
-        <translation>Lied konnte nicht exportiert werden</translation>
     </message>
 </context>
 <context>
@@ -3790,7 +3791,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Virtual Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Zeile</translation>
     </message>
 </context>
 <context>
@@ -4347,7 +4348,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Löschen</translation>
+        <translation>&amp;Löschen</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4359,7 +4360,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">Duplizieren</translation>
+        <translation>Duplizieren</translation>
     </message>
 </context>
 <context>
@@ -5200,7 +5201,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Mixer anzeigen</translation>
+        <translation>Mixer anzeigen</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -6038,16 +6039,16 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Session drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzungs Schlagzeuge</translation>
     </message>
     <message>
         <source>Created for drumkit</source>
         <extracomment>Base tooltip displayed when hovering over a pattern in the Sound Library. It indicates which drumkit the pattern was created with</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt für Schlagzeug</translation>
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>ist schreibgeschützt und kann nicht gelöscht werden.</translation>
     </message>
 </context>
 <context>
@@ -6132,6 +6133,13 @@ Would you like to keep or discard the remaining instruments and notes?
     <message>
         <source>Sound library</source>
         <translation>Soundbibliothek</translation>
+    </message>
+</context>
+<context>
+    <name>Startup</name>
+    <message>
+        <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
+        <translation>Keine [hydrogen.conf] Datei gefunden. Hydrogen wurde höchstwahrscheinlich nicht richtig installiert. Abbruch...</translation>
     </message>
 </context>
 <context>

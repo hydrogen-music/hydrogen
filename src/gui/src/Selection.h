@@ -434,10 +434,16 @@ public:
 			m_mouseState = Down;
 			m_mouseButton = ev->button();
 			assert( m_pClickEvent == nullptr );
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
 			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
 											ev->localPos(), ev->windowPos(), ev->screenPos(),
 											m_mouseButton, ev->buttons(), ev->modifiers(),
 											Qt::MouseEventSynthesizedByApplication);
+#else
+			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
+											ev->localPos(), ev->windowPos(), ev->screenPos(),
+											m_mouseButton, ev->buttons(), ev->modifiers());
+#endif
 			m_pClickEvent->setTimestamp( ev->timestamp() );
 		}
 	}

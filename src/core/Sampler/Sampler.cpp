@@ -909,6 +909,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 								break;
 					}
 			}
+
+			fVal_L *= pSong->getPlaybackTrackVolume();
+			fVal_R *= pSong->getPlaybackTrackVolume();
 			
 			if ( fVal_L > fInstrPeak_L ) {
 				fInstrPeak_L = fVal_L;

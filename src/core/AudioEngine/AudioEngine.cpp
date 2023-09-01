@@ -96,7 +96,7 @@ AudioEngine::AudioEngine()
 		, m_fLadspaTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
-		, m_pLocker({nullptr, 0, nullptr})
+		, m_pLocker({nullptr, 0, nullptr, false})
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
 {
@@ -124,6 +124,49 @@ AudioEngine::AudioEngine()
 		Preferences::get_instance()->m_fMetronomeVolume );
 	
 	m_AudioProcessCallback = &audioEngine_process;
+
+	// Has to be done before assigning the supported audio drivers.
+	checkJackSupport();
+
+	// The order of the assigned drivers is important as Hydrogen uses
+	// it when trying different drivers in case "Auto" was selected.
+#if defined(WIN32)
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+#elif defined(__APPLE__)
+  #ifdef H2CORE_HAVE_COREAUDIO
+	m_supportedAudioDrivers << "CoreAudio";
+  #endif
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	m_supportedAudioDrivers << "PulseAudio";
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+#else /* Linux */
+	if ( m_bJackSupported ) {
+		m_supportedAudioDrivers << "JACK";
+	}
+  #ifdef H2CORE_HAVE_ALSA
+	m_supportedAudioDrivers << "ALSA";
+  #endif
+  #ifdef H2CORE_HAVE_OSS
+	m_supportedAudioDrivers << "OSS";
+  #endif
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	m_supportedAudioDrivers << "PulseAudio";
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	m_supportedAudioDrivers << "PortAudio";
+  #endif
+#endif
 
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
@@ -188,6 +231,7 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 }
 
@@ -207,6 +251,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -235,8 +280,9 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
+	m_pLocker.isLocked = true;
 	m_LockingThread = std::this_thread::get_id();
-	
+
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
@@ -247,7 +293,10 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 
 void AudioEngine::unlock()
 {
-	// Leave "__locker" dirty.
+	// Leave "__locker" dirty as it indicated the function which
+	// locked the audio engine.
+	m_pLocker.isLocked = false;
+
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
 	#ifdef H2CORE_HAVE_DEBUG
@@ -891,22 +940,16 @@ void AudioEngine::startAudioDrivers()
 	}
 
 	QString sAudioDriver = pPref->m_sAudioDriver;
-#if defined(WIN32)
-	QStringList drivers = { "PortAudio", "JACK" };
-#elif defined(__APPLE__)
-    QStringList drivers = { "CoreAudio", "JACK", "PulseAudio", "PortAudio" };
-#else /* Linux */
-    QStringList drivers = { "JACK", "ALSA", "OSS", "PulseAudio", "PortAudio" };
-#endif
 
 	if ( sAudioDriver != "Auto" ) {
-		drivers.clear();
-		drivers << sAudioDriver;
+		createAudioDriver( sAudioDriver );
 	}
-	AudioOutput* pAudioDriver;
-	for ( QString sDriver : drivers ) {
-		if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
-			break;
+	else {
+		AudioOutput* pAudioDriver;
+		for ( QString sDriver : getSupportedAudioDrivers() ) {
+			if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
+				break;
+			}
 		}
 	}
 
@@ -1269,15 +1312,17 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
 	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
 	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
-	 * audio processing. Returning the special return value "2" enables the disk 
-	 * writer driver to repeat the processing of the current data.
+	 * audio processing.
 	 */
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
 		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
-			return 2;	// inform the caller that we could not acquire the lock
+			// Returning the special return value "2" enables the disk 
+			// writer driver - which does not require running in
+			// realtime - to repeat the processing of the current data.
+			return 2;
 		}
 
 		return 0;
@@ -2549,6 +2594,25 @@ const PatternList* AudioEngine::getNextPatterns() const {
 	return nullptr;
 }
 
+void AudioEngine::checkJackSupport() {
+#ifdef H2CORE_HAVE_JACK
+	if ( ! JackAudioDriver::checkSupport() ) {
+		WARNINGLOG( "JACK support disabled." );
+		m_bJackSupported = false;
+		return;
+	}
+
+	INFOLOG( "libjack found. JACK support enabled." );
+	m_bJackSupported = true;
+	return;
+
+#else
+	INFOLOG( "Hydrogen was compiled without JACK support." );
+	m_bJackSupported = false;
+	return;
+#endif
+}
+
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 
@@ -2600,16 +2664,29 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nRealtimeFrame: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrame ) )
 			.append( QString( "%1%2m_AudioProcessCallback: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s ).arg( m_songNoteQueue.size() ) );
-		sOutput.append( QString( "%1%2m_midiNoteQueue: [\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2m_midiNoteQueue: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
+			sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
 		}
 		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) )
 			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeVelocitySD ) )
 			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizePitchSD ) )
 			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeTimingSD ) );
-		
+		sOutput.append( QString( "%1%2m_pLocker: " ).arg( sPrefix ).arg( s ) );
+		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
+			sOutput.append( "was not locked yet\n" );
+		}
+		else {
+			if ( m_pLocker.isLocked ) {
+				sOutput.append( "is currently locked by: " );
+			} else {
+				sOutput.append( "was last locked by: " );
+			}
+			sOutput.append( QString( "[function: %1, line: %2, file: %3]\n" )
+							.arg( m_pLocker.function ).arg( m_pLocker.line )
+							.arg( m_pLocker.file ) );
+		}
 	}
 	else {
 		sOutput = QString( "%1[AudioEngine]" ).arg( sPrefix )
@@ -2667,6 +2744,20 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", fHumanizeVelocitySD: id %1" ).arg( AudioEngine::fHumanizeVelocitySD ) )
 			.append( QString( ", fHumanizePitchSD: id %1" ).arg( AudioEngine::fHumanizePitchSD ) )
 			.append( QString( ", fHumanizeTimingSD: id %1" ).arg( AudioEngine::fHumanizeTimingSD ) );
+		sOutput.append( ", m_pLocker: " );
+		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
+			sOutput.append( "was not locked yet" );
+		}
+		else {
+			if ( m_pLocker.isLocked ) {
+				sOutput.append( "is currently locked by: " );
+			} else {
+				sOutput.append( "was last locked by: " );
+			}
+			sOutput.append( QString( "[function: %1, line: %2, file: %3]" )
+							.arg( m_pLocker.function ).arg( m_pLocker.line )
+							.arg( m_pLocker.file ) );
+		}
 	}
 	
 	return sOutput;

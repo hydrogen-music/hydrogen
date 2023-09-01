@@ -245,26 +245,38 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
+	___DEBUGLOG( "pre startExportSession" );
 	pHydrogen->startExportSession( 44100, 16 );
+	___DEBUGLOG( "pre startExportSong" );
 	pHydrogen->startExportSong( sFileName );
 
 	bool bDone = false;
 	while ( ! bDone ) {
+
+		___DEBUGLOG( pQueue->toQString() );
+
 		H2Core::Event event = pQueue->pop_event();
 
+		___DEBUGLOG( event.toQString() );
+
 		if (event.type == H2Core::EVENT_PROGRESS) {
-			qDebug() << "[TestHelper::exportSong] progress: " << event.value;
+			___DEBUGLOG( QString( "progress: %1" ).arg( event.value ) );
+
+			// Ensure audio export does work.
+			CPPUNIT_ASSERT( event.value != -1 );
+			
 			if ( event.value == 100 ) {
-				qDebug() << "[TestHelper::exportSong] done";
 				bDone = true;
 			}
 		}
 		else if ( event.type == H2Core::EVENT_NONE ) {
+			// No new event left.
 			usleep(100 * 1000);
 		}
 	}
-	qDebug() << "[TestHelper::exportSong] stopping export";
+	___DEBUGLOG( "pre stopExportSession" );
 	pHydrogen->stopExportSession();
+	___DEBUGLOG( "post stopExportSession" );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
@@ -284,21 +296,35 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
+	___DEBUGLOG( "pre startExportSession" );
 	pHydrogen->startExportSession( 44100, 16 );
+	___DEBUGLOG( "post startExportSession" );
 	pHydrogen->startExportSong( sFileName );
+	___DEBUGLOG( "post startExportSong" );
 
 	bool bDone = false;
 	while ( ! bDone ) {
+
+		___DEBUGLOG( pQueue->toQString() );
+		
 		H2Core::Event event = pQueue->pop_event();
+
+		___DEBUGLOG( event.toQString() );
+
+		// Ensure audio export does work.
+		CPPUNIT_ASSERT( !(event.type == H2Core::EVENT_PROGRESS && event.value == -1) );
 
 		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
 			bDone = true;
 		}
 		else if ( event.type == H2Core::EVENT_NONE ) {
+			// No new event left.
 			usleep(100 * 1000);
 		}
 	}
+	___DEBUGLOG( "pre stopExportSession" );
 	pHydrogen->stopExportSession();
+	___DEBUGLOG( "post stopExportSession" );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();

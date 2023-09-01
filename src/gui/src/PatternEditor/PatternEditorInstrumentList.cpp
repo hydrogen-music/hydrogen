@@ -120,7 +120,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
-	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
+	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
+	connect( selectNotesAction, &QAction::triggered, this,
+			 &InstrumentLine::selectInstrumentNotes );
 
 	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
 	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
@@ -130,7 +132,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, [=](){
+	auto deleteAction = m_pFunctionPopup->addAction( tr( "Delete instrument" ) );
+	connect( deleteAction, &QAction::triggered, this, [=](){
 		HydrogenApp::get_instance()->getMainForm()->
 			functionDeleteInstrument( m_nInstrumentNumber );} );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );

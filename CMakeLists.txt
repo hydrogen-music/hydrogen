@@ -89,6 +89,8 @@ IF(APPLE)
     OPTION(WANT_BUNDLE      "Build a MAC OSX bundle application" ON)
 ENDIF()
 
+OPTION(WANT_APPIMAGE "Build Linux AppImage" OFF)
+
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 
 include(Sanitizers)
@@ -124,6 +126,12 @@ ELSE()
     SET(H2CORE_HAVE_BUNDLE FALSE)
 ENDIF()
 
+IF(WANT_FAT_BUILD)
+    SET(H2CORE_HAVE_FAT_BUILD TRUE)
+ELSE()
+    SET(H2CORE_HAVE_FAT_BUILD FALSE)
+ENDIF()
+
 IF(WANT_SHARED)
     SET(H2CORE_LIBRARY_TYPE SHARED)
 ELSE()
@@ -134,6 +142,12 @@ IF(WANT_DEBUG)
 	SET(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O0")
 ELSE()
 	SET(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O3 -ffast-math")
+ENDIF()
+
+IF(WANT_APPIMAGE)
+  SET(H2CORE_HAVE_APPIMAGE TRUE)
+ELSE()
+  SET(H2CORE_HAVE_APPIMAGE FALSE)
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -331,8 +345,9 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * Data path                    : ${H2_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
-* macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}\n"
+* macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
+* Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
+* AppImage build               : ${H2CORE_HAVE_APPIMAGE}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
