@@ -2596,6 +2596,7 @@ const PatternList* AudioEngine::getNextPatterns() const {
 
 void AudioEngine::checkJackSupport() {
 #ifdef H2CORE_HAVE_JACK
+  #ifdef H2CORE_HAVE_DYNAMIC_JACK_CHECK
 	if ( ! JackAudioDriver::checkSupport() ) {
 		WARNINGLOG( "JACK support disabled." );
 		m_bJackSupported = false;
@@ -2603,6 +2604,8 @@ void AudioEngine::checkJackSupport() {
 	}
 
 	INFOLOG( "libjack found. JACK support enabled." );
+  #endif
+
 	m_bJackSupported = true;
 	return;
 
