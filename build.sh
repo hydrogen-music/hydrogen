@@ -213,7 +213,7 @@ for arg in $@; do
     case $arg in
 		appimage)
 			BUILD_DIR=./build-appimage
-			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_APPIMAGE=1 -DCMAKE_INSTALL_PREFIX=/usr"
+			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_APPIMAGE=1 -DWANT_DYNAMIC_JACK_CHECK=1 -DCMAKE_INSTALL_PREFIX=/usr"
 			cmd="cmake_appimage";;
         c|clean)
             cmd="cmake_clean";;
