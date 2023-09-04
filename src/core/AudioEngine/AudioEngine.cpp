@@ -2589,13 +2589,22 @@ const PatternList* AudioEngine::getNextPatterns() const {
 void AudioEngine::checkJackSupport() {
 #ifdef H2CORE_HAVE_JACK
   #ifdef H2CORE_HAVE_DYNAMIC_JACK_CHECK
-	if ( ! JackAudioDriver::checkSupport() ) {
-		WARNINGLOG( "JACK support disabled." );
-		m_bJackSupported = false;
-		return;
-	}
+	// As this function is only executed during startup, we can
+	// override the dynamic JACK support check by either setting the
+	// audio driver to "Jack" in the hydrogen.conf file manually (or
+	// importing the file) or by passing the `-d jack` CLI option.
+	if ( Preferences::get_instance()->m_sAudioDriver != "JACK" ) {
+		if ( ! JackAudioDriver::checkSupport() ) {
+			WARNINGLOG( "JACK support disabled." );
+			m_bJackSupported = false;
+			return;
+		}
 
-	INFOLOG( "libjack found. JACK support enabled." );
+		INFOLOG( "libjack found. JACK support enabled." );
+	}
+	else {
+		INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
+	}
   #endif
 
 	m_bJackSupported = true;
