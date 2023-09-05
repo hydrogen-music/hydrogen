@@ -1208,18 +1208,32 @@ void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
 
 bool JackAudioDriver::checkSupport() {
 
-	QLibrary jackLib( "libjack" );
+	bool bJackFound = checkSharedLib( "libjack.so.0" );
+	if ( ! bJackFound ) {
+		DEBUGLOG("libjack.so attempt" );
+		bJackFound = checkSharedLib( "libjack.so" );
+	}
+	if ( ! bJackFound ) {
+		DEBUGLOG("libjack attempt" );
+		bJackFound = checkSharedLib( "libjack" );
+	}
+
+	if ( ! bJackFound ) {
+		return false;
+	}
+
+	return true;
+}
+
+bool JackAudioDriver::checkSharedLib( const QString& sLibName ) {
+	QLibrary jackLib( sLibName );
 
 	if ( ! jackLib.load() ) {
-		WARNINGLOG( QString( "Unable to load libjack: %1" )
-					.arg( jackLib.errorString() ) );
 		return false;
 	}
 
 	void* jack_connect = (void*)jackLib.resolve( "jack_connect" );
 	if ( jack_connect == nullptr ) {
-		ERRORLOG( QString( "libjack found but unable to resolve jack_connect symbol: %1" )
-				  .arg( jackLib.errorString() ) );
 		return false;
 	}
 

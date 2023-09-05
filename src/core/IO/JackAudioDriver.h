@@ -582,6 +582,8 @@ private:
 	 * More user-friendly version of #m_nTimebaseTracking.
 	 */ 
 	Timebase m_timebaseState;
+
+	static bool checkSharedLib( const QString& sLibName );
 };
 
 }; // H2Core namespace
