@@ -289,6 +289,7 @@ for:
             -DWANT_LRDF=1 \
             -DWANT_RUBBERBAND=1 \
             -DWANT_APPIMAGE=1 \
+            -DWANT_DYNAMIC_JACK_CHECK=1 \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
             -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
@@ -413,7 +414,9 @@ for:
       (
           mkdir build &&                                                        \
               cd build &&                                                       \
-              cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. &&       \
+              cmake -DWANT_LASH=1                                               \
+                    -DWANT_LRDF=1                                               \
+                    -DWANT_RUBBERBAND=1 .. &&                                   \
               make -j $CPUS
       ) || exit 1
 

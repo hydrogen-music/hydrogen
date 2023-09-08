@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <cmath>
 #include <jack/metadata.h>
-#include <QLibrary>
+#include <QProcess>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -1203,22 +1203,57 @@ void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
 
 bool JackAudioDriver::checkSupport() {
 
-	QLibrary jackLib( "libjack" );
+	bool bJackFound;
 
-	if ( ! jackLib.load() ) {
-		WARNINGLOG( QString( "Unable to load libjack: %1" )
-					.arg( jackLib.errorString() ) );
-		return false;
+	// Classic JACK
+	QString sCapture = checkExecutable( "jackd", "--version" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackFound = true;
+		INFOLOG( QString( "'jackd' of version [%1] found." )
+				 .arg( sCapture ) );
 	}
 
-	void* jack_connect = (void*)jackLib.resolve( "jack_connect" );
-	if ( jack_connect == nullptr ) {
-		ERRORLOG( QString( "libjack found but unable to resolve jack_connect symbol: %1" )
-				  .arg( jackLib.errorString() ) );
-		return false;
+	// JACK compiled with DBus support (maybe this one is packaged but
+	// the classical one isn't).
+	//
+	// `jackdbus` is supposed to be run by the DBus message daemon and
+	// does not have proper CLI options. But it does not fail by
+	// passing a `-h` either and this will serve for checking its
+	// presence.
+	sCapture = checkExecutable( "jackdbus", "-h" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackFound = true;
+		INFOLOG( "'jackdbus' found." );
 	}
 
-	return true;
+	// Pipewire JACK interface
+	//
+	// `pw-jack` has no version query CLI option (yet). But showing
+	// the help will serve for checking its presence.
+	sCapture = checkExecutable( "pw-jack", "-h" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackFound = true;
+		INFOLOG( "'pw-jack' found." );
+	}
+
+	return bJackFound;
+}
+
+QString JackAudioDriver::checkExecutable( const QString& sExecutable, const QString& sOption ) {
+	QProcess process;
+	process.start( sExecutable, QStringList( sOption ) );
+	process.waitForFinished( -1 );
+
+	if ( process.exitCode() != 0 ) {
+		return "";
+	}
+
+	QString sStdout = process.readAllStandardOutput();
+	if ( sStdout.isEmpty() ) {
+		return "No output";
+	}
+
+	return sStdout.trimmed();
 }
 };
 
