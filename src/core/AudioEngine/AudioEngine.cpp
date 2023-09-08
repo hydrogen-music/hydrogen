@@ -2600,7 +2600,7 @@ void AudioEngine::checkJackSupport() {
 			return;
 		}
 
-		INFOLOG( "libjack found. JACK support enabled." );
+		INFOLOG( "JACK support enabled." );
 	}
 	else {
 		INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
