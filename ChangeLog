@@ -11,14 +11,19 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Hydrogen shows an error dialog and exits on the first invocation
 		  with no hydrogen.conf file present on user and system level
 		  (application was not properly installed).
+		- A new `cmake` option `WANT_DYNAMIC_JACK_CHECK` was
+		  introduced. When set Hydrogen does check on startup whether
+		  `jackd`, `jackdbus`, or `pw-jack` is installed and disables JACK
+		  support in case none of them was found. This is intended for
+		  bundled builds, like AppImage and Flatpak, and can be overridden
+		  by setting the audio driver manually to "Jack" in the
+		  hydrogen.conf or by passing the "-d jack" CLI option.
 	* Changed
 		- Spanish translation updated.
 		- Minor tweaks in French and German translation.
 		- On Linux the order of audio drivers tried when selecting `Auto`
 		  changed from "JACK > ALSA > OSS > PulseAudio" to
 		  "JACK > PulseAudio > ALSA > OSS".
-		- Hydrogen does check on startup whether `libjack` shared library
-		  can be loaded. If not, JACK support gets disabled.
 	* Fixed
 		- Style combo box in Preferences > Appearance > Interface is
 		  working again.
