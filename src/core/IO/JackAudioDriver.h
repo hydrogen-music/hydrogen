@@ -359,8 +359,13 @@ public:
 	void relocateUsingBBT();
 
 	/**
-	 * Attempts to load the JACK shared library at runtime and to
-	 * resolve a prominent symbol.
+	 * Attempts to call several JACK executables in order to check for
+	 * existing JACK support.
+	 *
+	 * In an earlier version I tried checking the presence of the
+	 * `libjack.so` shared library. But this one comes preinstalled
+	 * with most Linux distribution regardless of JACK itself is
+	 * present or not.
 	 *
 	 * @return Whether or not JACK support appears to be functional.
 	 */
@@ -569,7 +574,14 @@ private:
 	 */ 
 	Timebase m_timebaseState;
 
-	static bool checkSharedLib( const QString& sLibName );
+	/**
+	 * Calls @a sExecutable in a subprocess using the @a sOption CLI
+	 * option and reports the results.
+	 *
+	 * @return An empty string indicates, that the call exited with a
+	 *   code other than zero.
+	 */
+	static QString checkExecutable( const QString& sExecutable, const QString& sOption );
 };
 
 }; // H2Core namespace
