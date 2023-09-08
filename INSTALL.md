@@ -5,7 +5,8 @@
 Content:
 
 1. [Build and Install from Source](#build-and-install-from-source)
-2. [Generate the Documentation](#generate-the-documentation)
+2. [Build an AppImage](#build-an-appimage)
+3. [Generate the Documentation](#generate-the-documentation)
 
 ---
 
@@ -131,7 +132,7 @@ features or bug fixes for Hydrogen (all characters in squared brackets
 are optional and do not have to be included in the command).
 
 | Command    | Functionality                                                     |
-| ---        | ---                                                               |
+|------------|-------------------------------------------------------------------|
 | `r[m]`     | Remove all build, temporary, and cached files.                    |
 | `c[lean]`  | Remove all cached files.                                          |
 | `m[ake]`   | Launch the build process.                                         |
@@ -142,6 +143,7 @@ are optional and do not have to be included in the command).
 | `[e]x[ec]` | Execute the Hydrogen binary.                                      |
 | `t[est]`   | Run the unit tests.                                               |
 | `p[kg]`    | Build a source package.                                           |
+| `appimage` | Build an AppImage.                                                |
 | `z`        | Build Hydrogen using `ccache` and execute the resulting binary.   |
 
 Using `ccache` to build Hydrogen, `./build.sh mm`, will result in a
@@ -194,6 +196,23 @@ fails to build, some environment variables could help it.
 ``` bash
 $ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/include" cmake ..
 ```
+
+## Build an AppImage
+
+For creating an _AppImage_ you have to install all required package as
+described in the previous step. Then you can simply run the dedicated
+build script command
+
+``` bash
+# ./build.sh appimage
+```
+
+This will download the latest toolchain required for AppImage
+packaging (in case you haven't installed it yet) and creates a fresh
+image in the _build-appimage_ folder.
+
+To run it, ensure it's executable and call it from the console or open
+it using double click.
 
 ## Generate the Documentation
 
