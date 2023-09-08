@@ -199,12 +199,12 @@ $ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/inclu
 
 ## Build an AppImage
 
-For creating an _AppImage_ you have to install all required package as
+For creating an _AppImage_ you have to install all required packages as
 described in the previous step. Then you can simply run the dedicated
 build script command
 
 ``` bash
-# ./build.sh appimage
+$ ./build.sh appimage
 ```
 
 This will download the latest toolchain required for AppImage
