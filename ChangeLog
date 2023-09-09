@@ -3,7 +3,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* PortMidi driver does open a input/output port which can be
 		discovered and connected to by other applications when port was
 		set to "None" in the Preferences (not supported on Windows).
+
 	* Added
+		- `cmake` option `WANT_PIPEWIRE_JACK_ONLY_CHECK` to only check for
+		  `pw-jack` while dynamically checking for JACK support during
+		  runtime. This allows for reliable JACK support using Flatpak.
 		- All keyboard shortcuts including the virtual keyboard can now be
 		  customized in Preferences > Shortcuts.
 		- Most actions available via MIDI or OSC can also be assigned to a

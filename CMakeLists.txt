@@ -160,6 +160,17 @@ ELSE()
     SET(H2CORE_HAVE_DYNAMIC_JACK_CHECK FALSE)
 ENDIF()
 
+# If set, the dynamic JACK check will only look for the Pipewire JACK
+# client and not the classical one. This is intended to allow reliable
+# JACK support in Flatpak (and maybe Snap) packages, which do only
+# support Pipewire and not jackd.
+IF(WANT_PIPEWIRE_JACK_ONLY_CHECK)
+    SET(H2CORE_HAVE_PIPEWIRE_JACK_ONLY_CHECK TRUE)
+    SET(H2CORE_HAVE_DYNAMIC_JACK_CHECK TRUE)
+ELSE()
+    SET(H2CORE_HAVE_PIPEWIRE_JACK_ONLY_CHECK FALSE)
+ENDIF()
+
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
