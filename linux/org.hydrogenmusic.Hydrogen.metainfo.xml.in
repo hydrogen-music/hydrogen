@@ -54,6 +54,31 @@
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
   <releases>
+    <release version="1.2.2" date="2023-09-09">
+	<description>
+	  <p>This patch release introduces an AppImage build and fixes a number of bugs and inconsistencies found since version 1.2.1</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.2</url>
+	<artifacts>
+	  <artifact type="binary" platform="x86_64-linux-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-x86_64.AppImage</location>
+		<checksum type="sha256">7bafc74b6dcacee2fe153223a6f34ce66a9b4a6df8f871deb6f5d90e328890bd</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2.dmg</location>
+		<checksum type="sha256">c20c2edf80d4f22bfc068e9d9176bf1e8f0a27d66d86340bc1010cd9cc29995d</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win32.exe</location>
+		<checksum type="sha256">1820af774e75022881205d57d4ff37b4c5a83afd7e1a9682390c1eefca1f024a</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win64.exe</location>
+		<checksum type="sha256">ad338f8377ada34dff7d76efd2b5cd5c22c9a880202e04f81eb0573d9f093613</checksum>
+	  </artifact>
+	</artifacts>
+    </release>
+
     <release version="1.2.1" date="2023-06-08">
 	<description>
 	  <p>This patch release fixes a number of bugs and inconsistencies found in version 1.2.0</p>
