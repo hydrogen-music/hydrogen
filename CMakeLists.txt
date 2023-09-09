@@ -22,12 +22,12 @@ SET(VERSION_PATCH "2")
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 # Consider any tagged commit as a release build
-EXECUTE_PROCESS(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
-IF(GIT_TAG)
+# EXECUTE_PROCESS(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
+# IF(GIT_TAG)
         SET(IS_DEVEL_BUILD "false")
-ELSE()
-        SET(IS_DEVEL_BUILD "true")
-ENDIF()
+# ELSE()
+#         SET(IS_DEVEL_BUILD "true")
+# ENDIF()
       
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
