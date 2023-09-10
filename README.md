@@ -22,7 +22,7 @@ Hydrogen is both a drum sequencer for pattern-based programming and a drum synth
 * **[Windows (64bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win64.exe)**
 * **[Windows (32bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win32.exe)**
 * **[macOS (>=10.14)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2.dmg)**
-* **[Linux](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-x86_64.AppImage):** <details>
+* **[Linux](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-x86_64.AppImage)** <details>
    <summary>or check you distribution's repo</summary>
   
    [![Packaging status](https://repology.org/badge/vertical-allrepos/hydrogen-drum-machine.svg?header=Hydrogen)](https://repology.org/project/hydrogen-drum-machine/versions)
