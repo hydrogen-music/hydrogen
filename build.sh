@@ -276,10 +276,10 @@ for arg in $@; do
         m|make)
             cmd="cmake_make";;
         mm)
-            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="cmake_make";;
         mt)
-            CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_CLANG_TIDY=1"
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DWANT_CLANG_TIDY=1"
             cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;

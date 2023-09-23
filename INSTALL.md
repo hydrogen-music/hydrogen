@@ -151,6 +151,11 @@ compilation, which takes a little longer than the one with the usual
 `make` command. But in all further runs, only the recently-modified
 components will be recompiled. This can marginally speed up development.
 
+In addition, `mm` and `mt` also create a `compile_commands.json` file within the
+_build_ folder required for `clangd` to work properly as [LSP (language
+server)](https://clangd.llvm.org/installation). Opening your IDE spawning
+`clangd` _after_ building Hydrogen for the first time should give you modern C++
+code editting features.
 
 ### Additional Build Features and Uninstall
 
