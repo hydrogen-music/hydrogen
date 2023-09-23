@@ -25,6 +25,7 @@
 #include <core/Basics/Drumkit.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
@@ -99,13 +100,13 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 						  .arg( sDrumkitPath ) );
 				continue;
 			}
-			else {
-				INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
-						 .arg( pDrumkit->get_name() )
-						 .arg( sDrumkitPath ) );
-			}
 
-			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+			INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
+					 .arg( pDrumkit->get_name() ).arg( sDrumkitPath ) );
+
+			m_drumkitDatabase.emplace(
+				std::make_pair( sDrumkitPath,
+								(DrumkitElement){ pDrumkit, loadDrumkitMap( sDrumkitPath ) } ) );
 		}
 		else {
 			ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
@@ -121,7 +122,8 @@ void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTri
 
 	auto pDrumkit = Drumkit::load( sDrumkitPath );
 	if ( pDrumkit != nullptr ) {
-		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+		m_drumkitDatabase[ sDrumkitPath ] =
+			(DrumkitElement){ pDrumkit, loadDrumkitMap( sDrumkitPath ) };
 	}
 	else {
 		ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
@@ -174,7 +176,9 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		}
 
 		m_customDrumkitPaths << sDrumkitPath;
-		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
+
+		m_drumkitDatabase[ sDrumkitPath ] =
+			(DrumkitElement){ pDrumkit, loadDrumkitMap( sDrumkitPath ) };
 		
 		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
 				  .arg( pDrumkit->get_name() )
@@ -185,7 +189,48 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		return pDrumkit;
 	}
 	
-	return m_drumkitDatabase.at( sDrumkitPath );
+	return m_drumkitDatabase.at( sDrumkitPath ).drumkit;
+}
+
+std::multimap<int, QString> SoundLibraryDatabase::loadDrumkitMap( const QString& sDrumkitPath ) {
+
+	std::multimap<int, QString> map;
+
+	const QString sMapFile = Filesystem::getDrumkitMapFile( sDrumkitPath );
+
+	DEBUGLOG( QString( "map file [%1] found for drumkit [%2]" )
+			  .arg( sMapFile ).arg( sDrumkitPath ) );
+
+	if ( ! sMapFile.isEmpty() ) {
+		// A map file was found.
+
+		XMLDoc doc;
+		if ( ! doc.read( sMapFile, Filesystem::drumkit_map_xsd_path(), true ) ) {
+			WARNINGLOG( QString( "Mapping file [%1] found for [%2] is not valid. It's loading might fail." )
+						.arg( sMapFile ).arg( sDrumkitPath ) );
+		}
+
+		XMLNode rootNode = doc.firstChildElement( "drumkit_map" );
+		if ( ! rootNode.isNull() ) {
+			XMLNode mappingNode = rootNode.firstChildElement( "mapping" );
+
+			while ( ! mappingNode.isNull() ) {
+				const QString sGID =
+					mappingNode.read_string( "gid", "", false, false, false );
+				const int nInstrumentID =
+					mappingNode.read_int( "instrumentID", -1, false, false, false );
+
+				if ( ! sGID.isEmpty() && nInstrumentID != -1 ) {
+					map.emplace( std::pair( nInstrumentID, sGID ) );
+				}
+
+				// Move on to the next entry until there is none left.
+				mappingNode = rootNode.nextSiblingElement( "mapping" );
+			}
+		}
+	}
+
+	return map;
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
@@ -232,9 +277,14 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 	if ( ! bShort ) {
 		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& [ ssPath, ddrumkit ] : m_drumkitDatabase ) {
+		for ( const auto& [ ssPath, ddrumkitElement ] : m_drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) );
+							.arg( ssPath ).arg( ddrumkitElement.drumkit->toQString( "", true ) ) )
+				.append( QString( "%1%2%2%2mapping:\n" ).arg( sPrefix ).arg( s ) );
+			for ( const auto& [ nnInstrumentId, ssGID ] : ddrumkitElement.map ) {
+				sOutput.append( QString( "%1%2%2%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+								.arg( nnInstrumentId ).arg( ssGID ) );
+			}
 		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
@@ -254,8 +304,13 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& eentry : m_drumkitDatabase ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+			sOutput.append( QString( "%1%2%2%3: mapping: [" ).arg( sPrefix ).arg( s )
 							.arg( eentry.first ) );
+			for ( const auto& [ nnInstrumentId, ssGID ] : eentry.second.map ) {
+				sOutput.append( QString( " %1: %2," ).arg( nnInstrumentId ).arg( ssGID ) );
+			}
+			sOutput.append( "]\n" );
+
 		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {

@@ -43,6 +43,7 @@
 #define DEMOS           "demo_songs/"
 #define DOC             "doc/"
 #define DRUMKITS        "drumkits/"
+#define DRUMKIT_MAPS    "mappings/"
 #define I18N            "i18n/"
 #define IMG             "img/"
 #define PATTERNS        "patterns/"
@@ -67,6 +68,7 @@
 #define LOG_FILE		"hydrogen.log"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
+#define DRUMKIT_MAP_XSD "drumkit_map.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define DRUMKIT_DEFAULT_KIT "GMRockKit"
 #define PLAYLIST_XSD     "playlist.xsd"
@@ -411,6 +413,7 @@ bool Filesystem::check_sys_paths()
 	if(  !dir_readable( xsd_dir() ) ) ret = false;
 	if( !file_readable( pattern_xsd_path() ) ) ret = false;
 	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
+	if( !file_readable( drumkit_map_xsd_path() ) ) ret = false;
 	if( !file_readable( playlist_xsd_path() ) ) ret = false;
 
 	if ( ret ) {
@@ -521,6 +524,10 @@ QString Filesystem::drumkit_xsd_path( )
 {
 	return xsd_dir() + DRUMKIT_XSD;
 }
+QString Filesystem::drumkit_map_xsd_path( )
+{
+	return xsd_dir() + DRUMKIT_MAP_XSD;
+}
 QString Filesystem::pattern_xsd_path( )
 {
 	return xsd_dir() + DRUMPAT_XSD;
@@ -594,6 +601,14 @@ QString Filesystem::sys_drumkits_dir()
 QString Filesystem::usr_drumkits_dir()
 {
 	return __usr_data_path + DRUMKITS;
+}
+QString Filesystem::sys_drumkit_maps_dir()
+{
+	return __sys_data_path + DRUMKIT_MAPS;
+}
+QString Filesystem::usr_drumkit_maps_dir()
+{
+	return __usr_data_path + DRUMKIT_MAPS;
 }
 QString Filesystem::playlists_dir()
 {
@@ -1120,6 +1135,62 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 	return sDrumkitPath;
 #endif
 }
+
+QString Filesystem::getDrumkitMapFile( const QString& sDrumkitPath ) {
+	DEBUGLOG( sDrumkitPath );
+
+	if ( sDrumkitPath.isEmpty() ) {
+		// We have to be careful to not create a QDir with an empty
+		// string as this would represent the current working
+		// directory.
+		ERRORLOG( "Empty drumkit path" );
+		return QString();
+	}
+
+	QDir drumkitDir( sDrumkitPath );
+	if ( dir_readable( sDrumkitPath ) ) {
+
+		// Search for a .h2map within the drumkit folder.
+		QStringList mapFiles = drumkitDir.entryList( { "*.h2map" } );
+
+		if ( mapFiles.size() == 0 ) {
+			DEBUGLOG( QString( "No drumkit map file found in kit folder [%1]" )
+					  .arg( sDrumkitPath ) );
+		}
+		else {
+			if ( mapFiles.size() > 1 ) {
+				WARNINGLOG( QString( "More than one drumkit map file detected in drumkit folder [%1]: [%2]. Using [%3]" )
+							.arg( sDrumkitPath ).arg( mapFiles.join( "," ) )
+							.arg( mapFiles[ 0 ] ) );
+			}
+			DEBUGLOG( QString( "Using drumkit map file [%1] for kit [%2]" )
+					  .arg( drumkitDir.filePath( mapFiles[ 0 ] ) ).arg( sDrumkitPath ) );
+			return drumkitDir.filePath( mapFiles[ 0 ] );
+		}
+	}
+
+	QStringList mapsDirs;
+	QFileInfo drumkitPathInfo;
+	mapsDirs << usr_drumkit_maps_dir() << sys_drumkit_maps_dir();
+	for ( const auto& ssMapDir : mapsDirs ) {
+		// Search for a matching .h2map installed in /data/mappings/
+		if ( dir_readable( ssMapDir ) ) {
+			QDir mapsDir( ssMapDir );
+
+			// The mapping file must exactly match the drumkit folder
+			// name.
+			if ( mapsDir.exists( drumkitDir.dirName() + ".h2map" ) ) {
+				DEBUGLOG( QString( "Found map file [%1] for kit [%2]" )
+						  .arg( mapsDir.filePath( drumkitDir.dirName() + ".h2map" ) )
+						  .arg( sDrumkitPath ) );
+				return mapsDir.filePath( drumkitDir.dirName() + ".h2map" );
+			}
+		}
+	}
+
+	return QString();
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

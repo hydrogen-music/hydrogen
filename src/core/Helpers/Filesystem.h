@@ -160,6 +160,7 @@ namespace H2Core
 		static QString drumkit_xsd( );
 		/** returns the path to the drumkit XSD (xml schema definition) file */
 		static QString drumkit_xsd_path( );
+		static QString drumkit_map_xsd_path( );
 		/** @return List of absolute paths to all formerly used
 			drumkit.xsd files.*/
 		static QStringList drumkit_xsd_legacy_paths( );
@@ -194,6 +195,8 @@ namespace H2Core
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */
 		static QString usr_drumkits_dir();
+		static QString sys_drumkit_maps_dir();
+		static QString usr_drumkit_maps_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
 		/** returns user playlist path, add file extension */
@@ -465,6 +468,25 @@ namespace H2Core
 		 *   a drumkit.xml file.
 		 */
 		static DrumkitType determineDrumkitType( const QString& sPath );
+
+		/**
+		 *  Retrieves the map file for the drumkit in @a sDrumkitPath.
+		 *
+		 * It first searches for a *.h2map file in the drumkit folder
+		 * itself. If nothing was found, it checks
+		 * #Filesystem::usr_drumkit_maps_dir() and
+		 * #Filesystem::sys_drumkit_maps_dir() (in this order) for a .h2map
+		 * file carrying exactly the same base name as the
+		 * drumkit. E.g. /data/drumkits/GMRockKit/ is associated with
+		 * /data/mappings/GMRockKit.h2map but /data/drumkits/gmrockkit is
+		 * not.
+		 *
+		 * @param sDrumkitPath Absolute path to the drumkit directory
+		 *   (containing a drumkit.xml) file as unique identifier.
+		 *
+		 * @return an empty string in case no file was found.
+		 */
+		static QString getDrumkitMapFile( const QString& sDrumkitPath );
 
 		/**
 		 * Reroutes stored drumkit paths pointing to a temporary

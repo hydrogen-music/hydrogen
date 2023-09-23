@@ -976,11 +976,11 @@ std::shared_ptr<Song> Song::getEmptySong()
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
-			if ( pEntry.second != nullptr ) {
+			if ( pEntry.second.drumkit != nullptr ) {
 				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
 							.arg( sDefaultDrumkitPath )
 							.arg( pEntry.first ) );
-				pDrumkit = pEntry.second;
+				pDrumkit = pEntry.second.drumkit;
 				break;
 			}
 		}

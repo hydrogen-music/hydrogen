@@ -170,7 +170,7 @@ void SoundLibraryPanel::updateTree()
 	m_drumkitRegister.clear();
 	m_drumkitLabels.clear();
 	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
-		auto pDrumkit = pDrumkitEntry.second;
+		auto pDrumkit = pDrumkitEntry.second.drumkit;
 		if ( pDrumkit != nullptr ) {
 			QString sItemLabel = pDrumkit->get_name();
 			auto drumkitType =

@@ -51,6 +51,18 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
+	struct DrumkitElement {
+		std::shared_ptr<Drumkit> drumkit;
+		/**
+		 * Map correlates a particular instrument of the drumkit
+		 * (identifier using its instrument number #Instrument::__id)
+		 * with an arbitrary Genearl Identifier (GID) string. Using
+		 * the latter mappings between different drumkits/patterns can
+		 * be done.
+		 */
+		std::multimap<int, QString> map;
+	};
+
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
 		return m_patternInfoVector;
 	}
@@ -71,7 +83,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 *   datebase in case it is not present yet.
 	 */
 	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath, bool bLoad = true );
-	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
+	const std::map<QString, DrumkitElement> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 	
@@ -91,7 +103,15 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
-	std::map<QString,std::shared_ptr<Drumkit>> m_drumkitDatabase;
+	std::map<QString, DrumkitElement> m_drumkitDatabase;
+
+	/**
+	 *  Retrieves a map for the drumkit in @a sDrumkitPath.
+	 *
+	 * @param sDrumkitPath Absolute path to the drumkit directory
+	 *   (containing a drumkit.xml) file as unique identifier.
+	 */
+	std::multimap<int, QString> loadDrumkitMap( const QString& sDrumkitPath );
 	
 	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
 	QStringList m_patternCategories;
