@@ -36,6 +36,7 @@ namespace H2Core
 class XMLDoc;
 class XMLNode;
 class DrumkitComponent;
+class DrumkitMap;
 
 /**
  * Drumkit info
@@ -104,7 +105,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * supported by Hydrogen 0.9.7 or higher (whether it should be
 	 * composed of DrumkitComponents).
 	 */
-	QString getExportName( const QString& sComponentName, bool bRecentVersion ) const;
+	QString getExportName( const QString& sComponentName = "", bool bRecentVersion = true ) const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
@@ -219,6 +220,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 
+		std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
+		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
+
 	/**
 	 * Assign the license stored in #m_license to all samples
 	 * contained in the kit.
@@ -297,6 +301,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	static bool loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent = false );
 
+		/** Maps the instruments of the kit to universal
+		 * #H2Core::DrumkitMap::Type using which seemless switching of drumkits
+		 * can be done. */
+		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
+		/** Set whenever both a user-defined map and one found in the kit itself
+		 * or installed with Hydrogen is found. It can be used as a fallback
+		 * when switch between kits.*/
+		std::shared_ptr<DrumkitMap> m_pDrumkitMapFallback;
 };
 
 // DEFINITIONS
@@ -387,6 +399,13 @@ inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::
 {
 	return __components;
 }
+inline std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
+	return m_pDrumkitMap;
+}
+inline void	Drumkit::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
+	m_pDrumkitMap = pDrumkitMap;
+}
+
 
 };
 

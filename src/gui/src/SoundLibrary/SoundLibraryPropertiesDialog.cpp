@@ -29,6 +29,9 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
+#include "../Widgets/LCDDisplay.h"
+
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -157,20 +160,29 @@ QTextEdit { \
 	imageBrowsePushButton->setBorderRadius( 3 );
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
 	
-	contentTable->setColumnCount( 4 );
-	contentTable->setHorizontalHeaderLabels( QStringList() <<
+	mappingTable->setColumnCount( 2 );
+	mappingTable->setHorizontalHeaderLabels( QStringList() <<
+											 tr( "Instrument" ) <<
+											 tr( "Type" ) );
+	mappingTable->setColumnWidth( 0, 220 );
+	mappingTable->verticalHeader()->hide();
+	mappingTable->horizontalHeader()->setStretchLastSection( true );
+
+	licensesTable->setColumnCount( 4 );
+	licensesTable->setHorizontalHeaderLabels( QStringList() <<
 											 tr( "Instrument" ) <<
 											 tr( "Component" ) <<
 											 tr( "Sample" ) <<
 											 tr( "License" ) );
-	contentTable->verticalHeader()->hide();
-	contentTable->horizontalHeader()->setStretchLastSection( true );
+	licensesTable->verticalHeader()->hide();
+	licensesTable->horizontalHeader()->setStretchLastSection( true );
 
-	contentTable->setColumnWidth( 0, 160 );
-	contentTable->setColumnWidth( 1, 80 );
-	contentTable->setColumnWidth( 2, 210 );
+	licensesTable->setColumnWidth( 0, 160 );
+	licensesTable->setColumnWidth( 1, 80 );
+	licensesTable->setColumnWidth( 2, 210 );
 
-	updateLicenseTable();
+	updateLicensesTable();
+	updateMappingTable();
 }
 
 
@@ -194,10 +206,11 @@ void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateLicenseTable() {
+void SoundLibraryPropertiesDialog::updateLicensesTable() {
+	DEBUGLOG("");
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
-	
+
 	if ( m_pDrumkit == nullptr ){
 		return;
 	}
@@ -205,15 +218,14 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 	auto contentVector = m_pDrumkit->summarizeContent();
 
 	if ( contentVector.size() > 0 ) {
-		contentTable->show();
-		contentLabel->show();
-		contentTable->setRowCount( contentVector.size() );
+		licensesTable->show();
+		licensesTable->setRowCount( contentVector.size() );
 
 		int nFirstMismatchRow = -1;
 
 		for ( int ii = 0; ii < contentVector.size(); ++ ii ) {
 			const auto ccontent = contentVector[ ii ];
-			
+
 			QLineEdit* pInstrumentItem = new QLineEdit( ccontent->m_sInstrumentName );
 			pInstrumentItem->setEnabled( false );
 			pInstrumentItem->setToolTip( ccontent->m_sInstrumentName );
@@ -230,34 +242,112 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 
 			// In case of a license mismatch we highlight the row
 			if ( ccontent->m_license != m_pDrumkit->get_license() ) {
-				QString sRed = QString( "color: %1; background-color: %2" )
-					.arg( pPref->getColorTheme()->m_buttonRedColor.name() )
-					.arg( pPref->getColorTheme()->m_windowColor.name() );
-				pInstrumentItem->setStyleSheet( sRed );
-				pComponentItem->setStyleSheet( sRed );
-				pSampleItem->setStyleSheet( sRed );
-				pLicenseItem->setStyleSheet( sRed );
+				QString sHighlight = QString( "color: %1; background-color: %2" )
+					.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
+					.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+				pInstrumentItem->setStyleSheet( sHighlight );
+				pComponentItem->setStyleSheet( sHighlight );
+				pSampleItem->setStyleSheet( sHighlight );
+				pLicenseItem->setStyleSheet( sHighlight );
 
 				if ( nFirstMismatchRow == -1 ) {
 					nFirstMismatchRow = ii;
 				}
 			}
 
-			contentTable->setCellWidget( ii, 0, pInstrumentItem );
-			contentTable->setCellWidget( ii, 1, pComponentItem );
-			contentTable->setCellWidget( ii, 2, pSampleItem );
-			contentTable->setCellWidget( ii, 3, pLicenseItem );
+			licensesTable->setCellWidget( ii, 0, pInstrumentItem );
+			licensesTable->setCellWidget( ii, 1, pComponentItem );
+			licensesTable->setCellWidget( ii, 2, pSampleItem );
+			licensesTable->setCellWidget( ii, 3, pLicenseItem );
 		}
 
 		// In case of a mismatch scroll into view
 		if ( nFirstMismatchRow != -1 ) {
-			contentTable->showRow( nFirstMismatchRow );
+			licensesTable->showRow( nFirstMismatchRow );
 		}
 	}
 	else {
-		contentTable->hide();
-		contentLabel->hide();
+		licensesTable->hide();
 	}
+}
+
+void SoundLibraryPropertiesDialog::updateMappingTable() {
+	DEBUGLOG("");
+	const auto pPref = Preferences::get_instance();
+
+	if ( m_pDrumkit == nullptr || m_pDrumkit->getDrumkitMap() == nullptr ||
+		 m_pDrumkit->get_instruments() == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	const auto pMap = m_pDrumkit->getDrumkitMap();
+	const auto pInstrumentList = m_pDrumkit->get_instruments();
+
+	mappingTable->clearContents();
+	mappingTable->setRowCount( std::max( pMap->size(),
+										 pInstrumentList->size() ) );
+
+	INFOLOG(pMap->size());
+
+	// Coloring of highlighted rows
+	const QString sHighlight = QString( "color: %1; background-color: %2" )
+		.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
+		.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+
+	int nnCell = 0;
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		DEBUGLOG( ppInstrument->toQString() );
+		DEBUGLOG( nnCell );
+
+		const std::vector<DrumkitMap::Type> types =
+			pMap->getTypes( ppInstrument->get_id() );
+
+		if ( types.size() > 0 ) {
+			// Mapping for instrument found
+			for ( const auto& ssType : types ) {
+				DEBUGLOG(ssType);
+				LCDDisplay* pInstrumentName = new LCDDisplay( this );
+				pInstrumentName->setText( ppInstrument->get_name() );
+				pInstrumentName->setEnabled( false );
+				pInstrumentName->setToolTip( ppInstrument->get_name() );
+
+				LCDDisplay* pInstrumentType = new LCDDisplay( this );
+				pInstrumentType->setText( ssType );
+				pInstrumentType->setEnabled( true );
+				pInstrumentType->setToolTip( ssType );
+
+				mappingTable->setCellWidget( nnCell, 0, pInstrumentName );
+				mappingTable->setCellWidget( nnCell, 1, pInstrumentType );
+				++nnCell;
+			}
+		}
+		else {
+			DEBUGLOG( "no type" );
+			// No mapping found for instrument
+			LCDDisplay* pInstrumentName = new LCDDisplay( this );
+			pInstrumentName->setText( ppInstrument->get_name() );
+			pInstrumentName->setEnabled( false );
+			pInstrumentName->setToolTip( ppInstrument->get_name() );
+			pInstrumentName->setStyleSheet( sHighlight );
+
+			LCDDisplay* pInstrumentType = new LCDDisplay( this );
+			pInstrumentType->setText( "" );
+			pInstrumentType->setEnabled( true );
+			pInstrumentType->setToolTip( "" );
+			pInstrumentType->setStyleSheet( sHighlight );
+
+			DEBUGLOG( QString( "ncell: %1, name: %2" ).arg( nnCell ).arg( ppInstrument->get_name() ));
+
+			mappingTable->setCellWidget( nnCell, 0, pInstrumentName );
+			mappingTable->setCellWidget( nnCell, 1, pInstrumentType );
+			++nnCell;
+		}
+	}
+
+	// In case there was some garbage data or duplicates in the mapping file, we
+	// ensure to only show the elements we just added.
+	mappingTable->setRowCount( nnCell );
 }
 	
 void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
@@ -274,7 +364,7 @@ void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
 		licenseStringTxt->show();
 	}
 	
-	updateLicenseTable();
+	updateLicensesTable();
 }
 	
 void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {

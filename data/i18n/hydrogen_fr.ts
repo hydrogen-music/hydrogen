@@ -1448,6 +1448,10 @@ Overwrite the existing file?</source>
         <source>The name of the drumkit must not be left empty</source>
         <translation>Le nom du kit de batterie ne doit pas être laissé vide</translation>
     </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -6109,8 +6113,16 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
         <translation>Licence de l&apos;image</translation>
     </message>
     <message>
-        <source>Content</source>
-        <translation>Contenu</translation>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Général</translation>
     </message>
 </context>
 <context>

@@ -2255,6 +2255,7 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
+		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
 		
 		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
 		if ( dialog.exec() == QDialog::Accepted ) {

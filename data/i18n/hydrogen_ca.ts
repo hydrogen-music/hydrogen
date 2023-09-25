@@ -1440,6 +1440,10 @@ Overwrite the existing file?</source>
         <source>The name of the drumkit must not be left empty</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -6023,8 +6027,16 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Content</source>
+        <source>Mapping</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">General</translation>
     </message>
 </context>
 <context>

@@ -396,7 +396,7 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		for ( const auto& pDrumkitEntry :
 				  pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase() ) {
 
-			auto pDrumkit = pDrumkitEntry.second.drumkit;
+			auto pDrumkit = pDrumkitEntry.second;
 			if ( pDrumkit != nullptr ) {
 				if ( pDrumkit->get_name() == sLastLoadedDrumkitName ) {
 					NsmClient::replaceDrumkitPath( pSong, pDrumkitEntry.first );

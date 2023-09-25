@@ -1439,6 +1439,10 @@ Overwrite the existing file?</source>
         <source>The name of the drumkit must not be left empty</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -6098,8 +6102,16 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation>Άδεια της Εικόνας</translation>
     </message>
     <message>
-        <source>Content</source>
+        <source>Mapping</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Γενικά</translation>
     </message>
 </context>
 <context>

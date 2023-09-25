@@ -35,6 +35,7 @@
 #include <core/Timeline.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -99,10 +100,12 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 
 	m_pInstrumentList = std::make_shared<InstrumentList>();
 	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	
+
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 
 	m_pTimeline = std::make_shared<Timeline>();
+
+	m_pDrumkitMap = std::make_shared<DrumkitMap>();
 }
 
 Song::~Song()
@@ -113,7 +116,7 @@ Song::~Song()
 	 */
 
 	delete m_pPatternList;
-	
+
 	if ( m_pPatternGroupSequence ) {
 		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
 			PatternList* pPatternList = ( *m_pPatternGroupSequence )[i];
@@ -166,7 +169,7 @@ bool Song::isPatternActive( int nColumn, int nRow ) const {
 	if ( nRow < 0 || nRow > m_pPatternList->size() ) {
 		return false;
 	}
-	
+
 	auto pPattern = m_pPatternList->get( nRow );
 	if ( pPattern == nullptr ) {
 		return false;
@@ -181,7 +184,7 @@ bool Song::isPatternActive( int nColumn, int nRow ) const {
 
 	return true;
 }
-	
+
 ///Load a song from file
 std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 {
@@ -199,7 +202,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 		ERRORLOG( QString( "Something went wrong while loading song [%1]" )
 				  .arg( sFilename ) );
 	}
-				  
+
 	XMLNode songNode = doc.firstChildElement( "song" );
 
 	if ( songNode.isNull() ) {
@@ -228,7 +231,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilename, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
-	
+
 	float fBpm = pRootNode->read_float( "bpm", 120, false, false, bSilent );
 	float fVolume = pRootNode->read_float( "volume", 0.5, false, false, bSilent );
 	QString sName( pRootNode->read_string( "name", "Untitled Song",
@@ -248,7 +251,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
-	
+
 	if ( pRootNode->read_bool( "patternModeMode",
 							   static_cast<bool>(Song::PatternMode::Selected),
 							   false, false, bSilent ) ) {
@@ -274,7 +277,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		sPlaybackTrack = info.absoluteDir()
 			.filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
 	}
-	
+
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
 	if ( ! sPlaybackTrack.isEmpty() &&
@@ -288,7 +291,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 														  false, false, bSilent ) );
 	pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0,
 														  false, false, bSilent ) );
-	
+
 	pSong->setHumanizeTimeValue( pRootNode->read_float( "humanize_time", 0.0,
 														false, false, bSilent ) );
 	pSong->setHumanizeVelocityValue( pRootNode->read_float( "humanize_velocity", 0.0,
@@ -314,7 +317,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
 	}
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
-	
+
 	// pan law
 	QString sPanLawType( pRootNode->read_string( "pan_law_type",
 												 "RATIO_STRAIGHT_POLYGONAL",
@@ -404,14 +407,14 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 
 	QString sLastLoadedDrumkitPath =
 		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );
-	QString sLastLoadedDrumkitName = 
+	QString sLastLoadedDrumkitName =
 		pRootNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
 
 #ifdef H2CORE_HAVE_APPIMAGE
 	sLastLoadedDrumkitPath =
 		Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
 #endif
-	
+
 	if ( sLastLoadedDrumkitPath.isEmpty() ) {
 		// Prior to version 1.2.0 the last loaded drumkit was read
 		// from the last instrument loaded and was not written to disk
@@ -460,6 +463,15 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		}
 	}
 	pSong->setLastLoadedDrumkitName( sLastLoadedDrumkitName );
+
+	auto pDrumkitMap = DrumkitMap::loadFrom( pRootNode, bSilent );
+	if ( pDrumkitMap != nullptr ) {
+		pSong->setDrumkitMap( pDrumkitMap );
+	} else {
+		// Better checking for an empty map than for nullptr.
+		ERRORLOG( "Unable to load drumkit make. It will be cleared instead" );
+		pSong->m_pDrumkitMap->clear();
+	}
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( pRootNode,
@@ -594,7 +606,7 @@ bool Song::save( const QString& sFilename, bool bSilent )
 
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "song" );
-	
+
 	// In order to comply with the GPL license we have to add a
 	// license notice to the file.
 	if ( getLicense().getType() == License::GPL ) {
@@ -602,7 +614,7 @@ bool Song::save( const QString& sFilename, bool bSilent )
 	}
 
 	writeTo( &rootNode, bSilent );
-	
+
 	setFilename( sFilename );
 	setIsModified( false );
 
@@ -692,7 +704,7 @@ void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
 		} else {
 			m_pPatternGroupSequence->clear();
 		}
-		
+
 		XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
 		while ( ! groupNode.isNull() ) {
 			PatternList* patternSequence = new PatternList();
@@ -709,7 +721,7 @@ void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
 						}
 					}
 				}
-				
+
 				if ( pPattern != nullptr ) {
 					patternSequence->add( pPattern );
 				} else if ( ! bSilent ) {
@@ -753,7 +765,7 @@ void Song::writePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
 		}
 	}
 }
-	
+
 void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_string( "version", QString( get_version().c_str() ) );
 	pRootNode->write_float( "bpm", m_fBpm );
@@ -770,7 +782,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		bPatternMode = static_cast<bool>(Song::PatternMode::Stacked);
 	}
 	pRootNode->write_bool( "patternModeMode", bPatternMode );
-	
+
 	pRootNode->write_string( "playbackTrackFilename", m_sPlaybackTrackFilename );
 	pRootNode->write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
 	pRootNode->write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
@@ -778,7 +790,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_bool( "isPatternEditorLocked",
 						   m_bIsPatternEditorLocked );
 	pRootNode->write_bool( "isTimelineActivated", m_bIsTimelineActivated );
-	
+
 	if ( m_mode == Song::Mode::Song ) {
 		pRootNode->write_string( "mode", QString( "song" ) );
 	} else {
@@ -843,11 +855,13 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	}
 
 	m_pInstrumentList->save_to( pRootNode, -1, true, true );
-	
+
+	m_pDrumkitMap->saveTo( pRootNode, bSilent );
+
 	m_pPatternList->save_to( pRootNode, nullptr );
 
 	writeVirtualPatternsTo( pRootNode, bSilent );
-	
+
 	writePatternGroupVectorTo( pRootNode, bSilent );
 
 	XMLNode ladspaFxNode = pRootNode->createNode( "ladspa" );
@@ -861,7 +875,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 			fxNode.write_string( "filename", pFX->getLibraryPath() );
 			fxNode.write_bool( "enabled", pFX->isEnabled() );
 			fxNode.write_float( "volume", pFX->getVolume() );
-			
+
 			for ( unsigned nControl = 0; nControl < pFX->inputControlPorts.size(); nControl++ ) {
 				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
 				XMLNode controlPortNode = fxNode.createNode( "inputControlPort" );
@@ -951,7 +965,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	for ( int nn = 0; nn < 10; ++nn ) {
 		Pattern*		pEmptyPattern = new Pattern();
-	
+
 		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
 		pEmptyPattern->set_category( QString( "not_categorized" ) );
 		pPatternList->add( pEmptyPattern );
@@ -963,7 +977,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 		}
 	}
 	pSong->setPatternList( pPatternList );
-	
+
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
@@ -976,11 +990,11 @@ std::shared_ptr<Song> Song::getEmptySong()
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
-			if ( pEntry.second.drumkit != nullptr ) {
+			if ( pEntry.second != nullptr ) {
 				WARNINGLOG( QString( "Unable to retrieve default drumkit [%1]. Using kit [%2] instead." )
 							.arg( sDefaultDrumkitPath )
 							.arg( pEntry.first ) );
-				pDrumkit = pEntry.second.drumkit;
+				pDrumkit = pEntry.second;
 				break;
 			}
 		}
@@ -992,7 +1006,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 	else {
 		ERRORLOG( "Unable to load drumkit" );
 	}
-	
+
 	pSong->setIsModified( false );
 
 	return pSong;
@@ -1043,7 +1057,7 @@ void Song::setIsModified( bool bIsModified )
 #endif
 		}
 	}
-	
+
 }
 
 bool Song::hasMissingSamples() const
@@ -1228,7 +1242,6 @@ void Song::setPanLawKNorm( float fKNorm ) {
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
-	assert ( pDrumkit );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit supplied" );
 		return;
@@ -1237,11 +1250,11 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 	m_sLastLoadedDrumkitName = pDrumkit->get_name();
 	m_sLastLoadedDrumkitPath = pDrumkit->get_path();
 
-	// Load DrumkitComponents 
+	// Load DrumkitComponents
 	auto pDrumkitCompoList = pDrumkit->get_components();
 
 	auto pNewComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	
+
 	for ( const auto& pSrcComponent : *pDrumkitCompoList ) {
 		auto pNewComponent = std::make_shared<DrumkitComponent>( pSrcComponent->get_id(),
 																 pSrcComponent->get_name() );
@@ -1270,10 +1283,10 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 		// current song and will be set afterwards.
 		return;
 	}
-	
+
 	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
 	int nMaxID = -1;
-	
+
 	std::shared_ptr<Instrument> pInstr, pNewInstr;
 	for ( int nnInstr = 0; nnInstr < pDrumkitInstrList->size(); ++nnInstr ) {
 		if ( nnInstr < m_pInstrumentList->size() ) {
@@ -1313,6 +1326,9 @@ void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
 							  bConditional );
 		}
 	}
+
+	// Load drumkit map
+	m_pDrumkitMap = pDrumkit->getDrumkitMap();
 
 	// Load samples of all instruments.
 	m_pInstrumentList->load_samples(
@@ -1364,7 +1380,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
 		return;
 	}
-	
+
 	// delete the instrument from the instruments list
 	m_pInstrumentList->del( nInstrumentNumber );
 
@@ -1386,7 +1402,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	for ( int ii = 0; ii < m_pPatternGroupSequence->size(); ++ii ) {
 
 		auto pColumn = (*m_pPatternGroupSequence)[ ii ];
-		
+
 		if ( pColumn->size() == 0 ) {
 			// An empty column with no patterns selected (but not the
 			// end of the song).
@@ -1418,7 +1434,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 			nColumnStartTick += pColumn->longest_pattern_length();
 		}
 	}
-	
+
 	return notes;
 }
 
@@ -1434,7 +1450,7 @@ int Song::findExistingComponent( const QString& sComponentName ) const {
 int Song::findFreeComponentID( int nStartingID ) const {
 
 	bool bFreeID = true;
-	
+
 	for ( const auto& ppComponent : *m_pComponents ) {
 		if ( ppComponent->get_id() == nStartingID ) {
 			bFreeID = false;
@@ -1463,7 +1479,7 @@ QString Song::getLastLoadedDrumkitPath() const
 {
 	return Filesystem::ensure_session_compatibility( m_sLastLoadedDrumkitPath );
 }
- 
+
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -1492,7 +1508,9 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
+		sOutput.append( QString( "%1%2m_pDrumkitMap: %3" ).arg( sPrefix ).arg( s )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
 			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
@@ -1522,7 +1540,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2m_sLastLoadedDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitName ) )
 			.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLastLoadedDrumkitPath ) );;
 	} else {
-		
+
 		sOutput = QString( "[Song]" )
 			.append( QString( ", m_bIsTimelineActivated: %1" ).arg( m_bIsTimelineActivated ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
@@ -1547,7 +1565,9 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "], m_sFilename: %1" ).arg( m_sFilename ) )
+		sOutput.append( QString( "], m_pDrumkitMap: %1" )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
 			.append( QString( ", m_loopMode: %1" ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
@@ -1575,9 +1595,9 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", m_sLastLoadedDrumkitName: %1" ).arg( m_sLastLoadedDrumkitName ) )
 			.append( QString( ", m_sLastLoadedDrumkitPath: %1" ).arg( m_sLastLoadedDrumkitPath ) );
-			
+
 	}
-	
+
 	return sOutput;
 }
 };

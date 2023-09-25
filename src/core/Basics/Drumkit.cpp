@@ -36,6 +36,7 @@
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -60,6 +61,9 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 {
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	__instruments = std::make_shared<InstrumentList>();
+
+	m_pDrumkitMap = std::make_shared<DrumkitMap>();
+	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
@@ -79,6 +83,9 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	for ( const auto& pComponent : *other->get_components() ) {
 		__components->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
+
+	m_pDrumkitMap = std::make_shared<DrumkitMap>( other->m_pDrumkitMap );
+	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>( other->m_pDrumkitMapFallback );
 }
 
 Drumkit::~Drumkit()
@@ -121,11 +128,40 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
 	}
-	
+
+	// Load drumkit maps corresponding to this kit.
+	//
+	// Order of precedeence:
+	// 1. USER_DATA_DIR/drumkit_maps/KIT_NAME.h2map
+	// 2. *.h2map file in drumkit folder itself
+	// 3. SYS_DATA_DIR/drumkit_maps/KIT_NAME.h2map
+	//
+	// If both 1. and another map file is present, 1. will be assigned to m_pDrumkitMap
+	// and the other one to m_pDrumkitMapFallback. In case all there variants are
+	// present, only 2. is assigned to m_pDrumkitMapFallback.
+	const QString sUserMapFile =
+		Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), true );
+
+	QString sMapFile = Filesystem::getDrumkitMapFromKit( sDrumkitPath );
+	if ( sMapFile.isEmpty() ){
+		sMapFile = Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), false );
+	}
+
+	if ( ! sUserMapFile.isEmpty() ) {
+		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sUserMapFile );
+
+		if ( ! sMapFile.isEmpty() ) {
+			pDrumkit->m_pDrumkitMapFallback = DrumkitMap::load( sMapFile );
+		}
+	}
+	else if ( ! sMapFile.isEmpty() ) {
+		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sMapFile );
+	}
+
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, sDrumkitPath );
 	}
-	
+
 	return pDrumkit;
 }
 
@@ -364,6 +400,16 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 	if ( ! save_image( sDrumkitFolder, bSilent ) ) {
 		ERRORLOG( QString( "Unable to save image of drumkit [%1] to [%2]. Abort." )
 				  .arg( __name ).arg( sDrumkitFolder ) );
+		return false;
+	}
+
+	// Save drumkit map (primary one)
+	const QString sDrumkitMapPath = QString( "%1/drumkit%2" )
+										.arg( sDrumkitFolder )
+										.arg( Filesystem::drumkit_map_ext );
+	if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
+		ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
+				  .arg( sDrumkitMapPath ) );
 		return false;
 	}
 
@@ -1057,6 +1103,11 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
+		sOutput.append( QString( "%1%2m_pDrumkitMap: %3" ).arg( sPrefix ).arg( s )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pDrumkitMapFallback: %3" ).arg( sPrefix ).arg( s )
+						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) );
+
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
@@ -1075,7 +1126,11 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}
 		}
-		sOutput.append( "]\n" );
+		sOutput.append( QString( ", [m_pDrumkitMap: %1]" )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", [m_pDrumkitMapFallback: %1]" )
+						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) )
+			.append( "]\n" );
 	}
 	
 	return sOutput;

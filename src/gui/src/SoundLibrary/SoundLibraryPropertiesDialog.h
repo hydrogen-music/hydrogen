@@ -55,8 +55,9 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	void licenseComboBoxChanged( int );
 	void imageLicenseComboBoxChanged( int );
 
-	private:
-	void updateLicenseTable();
+  private:
+	void updateMappingTable();
+	void updateLicensesTable();
 	void updateImage( QString& filename );
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
