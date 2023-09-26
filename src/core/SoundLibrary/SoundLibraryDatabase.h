@@ -24,8 +24,10 @@
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
+#include <QStringList>
 #include <map>
 #include <memory>
 #include <vector>
@@ -74,6 +76,13 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	const std::map<QString, std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
+
+	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
+	 * drumkits.
+	 *
+	 * @return The list of unique types sorted by number of occurrence in
+	 * descending order.*/
+	 std::vector<DrumkitMap::Type> getAllTypes() const;
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;

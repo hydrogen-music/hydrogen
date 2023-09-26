@@ -20,6 +20,9 @@
  *
  */
 
+#include <map>
+#include <set>
+
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
@@ -186,6 +189,49 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	}
 	
 	return m_drumkitDatabase.at( sDrumkitPath );
+}
+
+std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
+	std::vector<DrumkitMap::Type> results;
+
+	// All types available
+	std::multiset<DrumkitMap::Type> allTypes;
+	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
+		if ( ppDrumkit != nullptr && ppDrumkit->getDrumkitMap() != nullptr &&
+			 ppDrumkit->getDrumkitMapFallback() != nullptr ) {
+			allTypes.merge( ppDrumkit->getDrumkitMap()->getAllTypes() );
+			allTypes.merge( ppDrumkit->getDrumkitMapFallback()->getAllTypes() );
+		}
+	}
+
+	// Count number of occurrences of types
+	std::multimap<int, DrumkitMap::Type> typesCounted;
+	DrumkitMap::Type sLastType;
+	for ( const auto& ssType : allTypes ) {
+		if ( sLastType != ssType ) {
+			typesCounted.insert( {
+				static_cast<int>(allTypes.count( ssType )),
+				ssType } );
+			sLastType = ssType;
+		}
+	}
+
+	// Create sorted list of types (sorting is done by map internally as we used
+	// the number of occurrences as keys).
+	results.resize( typesCounted.size() );
+	// Reverse insertion order to have highest key (most occurrences) first in
+	// resulting vector.
+	int ii = static_cast<int>(typesCounted.size()) - 1;
+ 	for ( const auto& [ _, ssType ] : typesCounted ) {
+		if ( ii < 0 ) {
+			ERRORLOG( "Unexpected index" );
+			break;
+		}
+		 results[ ii ] = ssType;
+		 --ii;
+	 }
+
+	return std::move( results );
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
