@@ -15,6 +15,7 @@ AllowShortFunctionsOnASingleLine:		InlineOnly
 BreakBeforeBraces:						Linux
 BinPackArguments:						true
 BinPackParameters:						true
+NamespaceIndentation:					NI_Inner
 SpacesInParentheses:				    true
 SpaceAfterCStyleCast:					true
 KeepEmptyLinesAtTheStartOfBlocks:		false
