@@ -220,8 +220,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 
-		std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
+		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
+
+		const std::shared_ptr<DrumkitMap>	getDrumkitMapFallback() const;
 
 	/**
 	 * Assign the license stored in #m_license to all samples
@@ -399,13 +401,15 @@ inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::
 {
 	return __components;
 }
-inline std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
+inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
 	return m_pDrumkitMap;
 }
 inline void	Drumkit::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
 	m_pDrumkitMap = pDrumkitMap;
 }
-
+inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMapFallback() const {
+	return m_pDrumkitMapFallback;
+}
 
 };
 
