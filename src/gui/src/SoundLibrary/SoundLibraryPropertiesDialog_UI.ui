@@ -117,7 +117,7 @@
         </layout>
        </item>
        <item row="4" column="1">
-        <widget class="QTextEdit" name="infoTxt">
+        <widget class="LCDTextEdit" name="infoTxt">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -452,6 +452,12 @@
    <class>LCDDisplay</class>
    <extends>QLineEdit</extends>
    <header location="global">../src/Widgets/LCDDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">../src/Widgets/LCDTextEdit.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
