@@ -132,6 +132,18 @@ std::vector<DrumkitMap::Type> DrumkitMap::getTypes( int nId ) const {
 	return std::move( results );
 }
 
+std::set<DrumkitMap::Type> DrumkitMap::getAllTypes() const {
+	std::set<DrumkitMap::Type> results;
+
+	for ( const auto& [ _, ssType ] : m_mapping ) {
+		// Since we insert in a 'set', this will ensure the results are unique
+		// and sorted.
+		results.insert( ssType );
+	}
+
+	return std::move( results );
+}
+
 QString DrumkitMap::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

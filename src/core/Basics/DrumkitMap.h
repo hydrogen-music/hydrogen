@@ -25,6 +25,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <set>
 #include <QString>
 #include <core/Object.h>
 
@@ -101,6 +102,8 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 
 	/** Get all types for @a nId */
 	std::vector<Type> getTypes( int nId ) const;
+	/** Returns all unique types found #m_mapping */
+	std::set<Type> getAllTypes() const;
 
 	/** Whether there are mappings present in the map */
 	bool isEmpty() const;
