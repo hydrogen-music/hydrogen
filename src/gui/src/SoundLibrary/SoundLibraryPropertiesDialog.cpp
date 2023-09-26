@@ -29,6 +29,7 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
+#include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
 #include <core/Basics/DrumkitMap.h>
@@ -272,8 +273,9 @@ void SoundLibraryPropertiesDialog::updateLicensesTable() {
 }
 
 void SoundLibraryPropertiesDialog::updateMappingTable() {
-	DEBUGLOG("");
 	const auto pPref = Preferences::get_instance();
+	const auto pDatabase =
+		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
 	if ( m_pDrumkit == nullptr || m_pDrumkit->getDrumkitMap() == nullptr ||
 		 m_pDrumkit->get_instruments() == nullptr ) {
@@ -288,17 +290,72 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 	mappingTable->setRowCount( std::max( pMap->size(),
 										 pInstrumentList->size() ) );
 
-	INFOLOG(pMap->size());
+	QMenu* pTypesMenu = new QMenu( this );
+	for ( const auto& ssType : pDatabase->getAllTypes() ) {
+		pTypesMenu->addAction( ssType );
+	}
 
 	// Coloring of highlighted rows
 	const QString sHighlight = QString( "color: %1; background-color: %2" )
 		.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
 		.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
 
+	auto insertRow = [=]( const QString& sTextName, const QString& sTextType, int nCell ) {
+		LCDDisplay* pInstrumentName = new LCDDisplay( this );
+		pInstrumentName->setText( sTextName );
+		pInstrumentName->setEnabled( false );
+		pInstrumentName->setSizePolicy( QSizePolicy::Expanding,
+										QSizePolicy::Expanding );
+		pInstrumentName->setToolTip( sTextName );
+
+		// The second cell offers both editable text and default options
+		// accessible via a drop down
+		QWidget* pTypeBox = new QWidget( this );
+		QHBoxLayout* pTypeBoxLayout = new QHBoxLayout();
+		pTypeBoxLayout->setSpacing( 0 );
+		pTypeBoxLayout->setMargin( 0 );
+		pTypeBox->setLayout( pTypeBoxLayout );
+
+		LCDDisplay* pInstrumentType = new LCDDisplay( pTypeBox );
+		pInstrumentType->setText( sTextType );
+		pInstrumentType->setEnabled( true );
+		pInstrumentType->setToolTip( sTextType );
+		pInstrumentType->setSizePolicy( QSizePolicy::Expanding,
+										QSizePolicy::Expanding );
+		pTypeBoxLayout->addWidget( pInstrumentType );
+
+		// Update tooltip to latest content
+		connect( pInstrumentType, &QLineEdit::editingFinished,
+				 [=]() {
+					 pInstrumentType->setToolTip( pInstrumentType->text());
+				 });
+
+		// Pressing this button presents all types used in all available
+		// drumkits (sorted by number of occurrence). These can be used to
+		// replace current type.
+		Button* pDropDownBtn = new Button( pTypeBox, QSize( 0, 0 ),
+										   Button::Type::Push, "dropdown.svg",
+										   "", false, QSize( 13, 13 ),
+										   tr( "known types" ) );
+		pDropDownBtn->setSizePolicy( QSizePolicy::Fixed,
+									 QSizePolicy::Expanding );
+
+		connect( pDropDownBtn, &QPushButton::clicked, [=]() {
+			pTypesMenu->popup( pDropDownBtn->mapToGlobal(
+				QPoint( pDropDownBtn->width(), pDropDownBtn->height() ) ) );
+		} );
+		connect( pTypesMenu, &QMenu::triggered, [=]( QAction* pAction ) {
+
+		} );
+
+		pTypeBoxLayout->addWidget( pDropDownBtn );
+
+		mappingTable->setCellWidget( nCell, 0, pInstrumentName );
+		mappingTable->setCellWidget( nCell, 1, pTypeBox );
+	};
+
 	int nnCell = 0;
 	for ( const auto& ppInstrument : *pInstrumentList ) {
-		DEBUGLOG( ppInstrument->toQString() );
-		DEBUGLOG( nnCell );
 
 		const std::vector<DrumkitMap::Type> types =
 			pMap->getTypes( ppInstrument->get_id() );
@@ -306,41 +363,13 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 		if ( types.size() > 0 ) {
 			// Mapping for instrument found
 			for ( const auto& ssType : types ) {
-				DEBUGLOG(ssType);
-				LCDDisplay* pInstrumentName = new LCDDisplay( this );
-				pInstrumentName->setText( ppInstrument->get_name() );
-				pInstrumentName->setEnabled( false );
-				pInstrumentName->setToolTip( ppInstrument->get_name() );
-
-				LCDDisplay* pInstrumentType = new LCDDisplay( this );
-				pInstrumentType->setText( ssType );
-				pInstrumentType->setEnabled( true );
-				pInstrumentType->setToolTip( ssType );
-
-				mappingTable->setCellWidget( nnCell, 0, pInstrumentName );
-				mappingTable->setCellWidget( nnCell, 1, pInstrumentType );
+				insertRow( ppInstrument->get_name(), ssType, nnCell );
 				++nnCell;
 			}
 		}
 		else {
-			DEBUGLOG( "no type" );
 			// No mapping found for instrument
-			LCDDisplay* pInstrumentName = new LCDDisplay( this );
-			pInstrumentName->setText( ppInstrument->get_name() );
-			pInstrumentName->setEnabled( false );
-			pInstrumentName->setToolTip( ppInstrument->get_name() );
-			pInstrumentName->setStyleSheet( sHighlight );
-
-			LCDDisplay* pInstrumentType = new LCDDisplay( this );
-			pInstrumentType->setText( "" );
-			pInstrumentType->setEnabled( true );
-			pInstrumentType->setToolTip( "" );
-			pInstrumentType->setStyleSheet( sHighlight );
-
-			DEBUGLOG( QString( "ncell: %1, name: %2" ).arg( nnCell ).arg( ppInstrument->get_name() ));
-
-			mappingTable->setCellWidget( nnCell, 0, pInstrumentName );
-			mappingTable->setCellWidget( nnCell, 1, pInstrumentType );
+			insertRow( ppInstrument->get_name(), "", nnCell );
 			++nnCell;
 		}
 	}
