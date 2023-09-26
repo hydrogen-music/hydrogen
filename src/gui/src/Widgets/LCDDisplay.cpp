@@ -31,6 +31,7 @@
 LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIsActive )
  : QLineEdit( pParent )
  , m_size( size )
+ , m_bEntered( false )
  , m_bFixedFont( bFixedFont )
  , m_bUseRedFont( false )
  , m_bIsActive( bIsActive )
@@ -87,9 +88,7 @@ void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
 }
 
 void LCDDisplay::setIsActive( bool bIsActive ) {
-	m_bIsActive = bIsActive;
-	
-	update();
+	m_bIsActive = bIsActive;;
 
 	setReadOnly( ! bIsActive );
 	setEnabled( bIsActive );
@@ -100,6 +99,8 @@ void LCDDisplay::setIsActive( bool bIsActive ) {
 	else {
 		setFocusPolicy( Qt::StrongFocus );
 	}
+
+	update();
 }
 
 void LCDDisplay::updateFont() {
@@ -177,6 +178,45 @@ void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
+	auto pPref = H2Core::Preferences::get_instance();
+
 	QLineEdit::paintEvent( ev );
 	updateFont();
+
+	// Hovering highlights
+	if ( m_bEntered || hasFocus() ) {
+		QPainter painter(this);
+
+		QColor colorHighlightActive;
+		if ( m_bIsActive ) {
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		} else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
+
+		// If the mouse is placed on the widget but the user hasn't
+		// clicked it yet, the highlight will be done more transparent to
+		// indicate that keyboard inputs are not accepted yet.
+		if ( ! hasFocus() ) {
+			colorHighlightActive.setAlpha( 150 );
+		}
+
+		QPen pen;
+		pen.setColor( colorHighlightActive );
+		pen.setWidth( 3 );
+		painter.setPen( pen );
+		painter.drawRoundedRect( QRect( 0, 0, width() - 1, height() - 1 ), 3, 3 );
+	}
+}
+
+void LCDDisplay::enterEvent( QEvent* ev ) {
+	QLineEdit::enterEvent( ev );
+	m_bEntered = true;
+	update();
+}
+
+void LCDDisplay::leaveEvent( QEvent* ev ) {
+	QLineEdit::leaveEvent( ev );
+	m_bEntered = false;
+	update();
 }
