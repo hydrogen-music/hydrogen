@@ -227,18 +227,21 @@ void SoundLibraryPropertiesDialog::updateLicensesTable() {
 		for ( int ii = 0; ii < contentVector.size(); ++ ii ) {
 			const auto ccontent = contentVector[ ii ];
 
-			QLineEdit* pInstrumentItem = new QLineEdit( ccontent->m_sInstrumentName );
-			pInstrumentItem->setEnabled( false );
+			LCDDisplay* pInstrumentItem = new LCDDisplay( nullptr );
+			pInstrumentItem->setText( ccontent->m_sInstrumentName );
+			pInstrumentItem->setIsActive( false );
 			pInstrumentItem->setToolTip( ccontent->m_sInstrumentName );
-			QLineEdit* pComponentItem = new QLineEdit( ccontent->m_sComponentName );
-			pComponentItem->setEnabled( false );
+			LCDDisplay* pComponentItem = new LCDDisplay( nullptr );
+			pComponentItem->setText( ccontent->m_sComponentName );
+			pComponentItem->setIsActive( false );
 			pComponentItem->setToolTip( ccontent->m_sComponentName );
-			QLineEdit* pSampleItem = new QLineEdit( ccontent->m_sSampleName );
-			pSampleItem->setEnabled( false );
+			LCDDisplay* pSampleItem = new LCDDisplay( nullptr );
+			pSampleItem->setText( ccontent->m_sSampleName );
+			pSampleItem->setIsActive( false );
 			pSampleItem->setToolTip( ccontent->m_sSampleName );
-			QLineEdit* pLicenseItem =
-				new QLineEdit( ccontent->m_license.getLicenseString() );
-			pLicenseItem->setEnabled( false );
+			LCDDisplay* pLicenseItem = new LCDDisplay( nullptr );
+			pLicenseItem->setText( ccontent->m_license.getLicenseString() );
+			pLicenseItem->setIsActive( false );
 			pLicenseItem->setToolTip( ccontent->m_license.getLicenseString() );
 
 			// In case of a license mismatch we highlight the row
@@ -301,16 +304,16 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 		.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
 
 	auto insertRow = [=]( const QString& sTextName, const QString& sTextType, int nCell ) {
-		LCDDisplay* pInstrumentName = new LCDDisplay( this );
+		LCDDisplay* pInstrumentName = new LCDDisplay( nullptr );
 		pInstrumentName->setText( sTextName );
-		pInstrumentName->setEnabled( false );
+		pInstrumentName->setIsActive( false );
 		pInstrumentName->setSizePolicy( QSizePolicy::Expanding,
 										QSizePolicy::Expanding );
 		pInstrumentName->setToolTip( sTextName );
 
 		// The second cell offers both editable text and default options
 		// accessible via a drop down
-		QWidget* pTypeBox = new QWidget( this );
+		QWidget* pTypeBox = new QWidget( nullptr );
 		QHBoxLayout* pTypeBoxLayout = new QHBoxLayout();
 		pTypeBoxLayout->setSpacing( 0 );
 		pTypeBoxLayout->setMargin( 0 );
@@ -318,7 +321,7 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 
 		LCDDisplay* pInstrumentType = new LCDDisplay( pTypeBox );
 		pInstrumentType->setText( sTextType );
-		pInstrumentType->setEnabled( true );
+		pInstrumentType->setIsActive( true );
 		pInstrumentType->setToolTip( sTextType );
 		pInstrumentType->setSizePolicy( QSizePolicy::Expanding,
 										QSizePolicy::Expanding );
