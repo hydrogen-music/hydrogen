@@ -1443,10 +1443,6 @@ Overwrite the existing file?</source>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>known types</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>HydrogenApp</name>

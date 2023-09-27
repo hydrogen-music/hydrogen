@@ -311,50 +311,15 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 										QSizePolicy::Expanding );
 		pInstrumentName->setToolTip( sTextName );
 
-		// The second cell offers both editable text and default options
-		// accessible via a drop down
-		QWidget* pTypeBox = new QWidget( nullptr );
-		QHBoxLayout* pTypeBoxLayout = new QHBoxLayout();
-		pTypeBoxLayout->setSpacing( 0 );
-		pTypeBoxLayout->setMargin( 0 );
-		pTypeBox->setLayout( pTypeBoxLayout );
-
-		LCDDisplay* pInstrumentType = new LCDDisplay( pTypeBox );
-		pInstrumentType->setText( sTextType );
-		pInstrumentType->setIsActive( true );
-		pInstrumentType->setToolTip( sTextType );
-		pInstrumentType->setSizePolicy( QSizePolicy::Expanding,
-										QSizePolicy::Expanding );
-		pTypeBoxLayout->addWidget( pInstrumentType );
-
-		// Update tooltip to latest content
-		connect( pInstrumentType, &QLineEdit::editingFinished,
-				 [=]() {
-					 pInstrumentType->setToolTip( pInstrumentType->text());
-				 });
-
-		// Pressing this button presents all types used in all available
-		// drumkits (sorted by number of occurrence). These can be used to
-		// replace current type.
-		Button* pDropDownBtn = new Button( pTypeBox, QSize( 0, 0 ),
-										   Button::Type::Push, "dropdown.svg",
-										   "", false, QSize( 13, 13 ),
-										   tr( "known types" ) );
-		pDropDownBtn->setSizePolicy( QSizePolicy::Fixed,
-									 QSizePolicy::Expanding );
-
-		connect( pDropDownBtn, &QPushButton::clicked, [=]() {
-			pTypesMenu->popup( pDropDownBtn->mapToGlobal(
-				QPoint( pDropDownBtn->width(), pDropDownBtn->height() ) ) );
-		} );
-		connect( pTypesMenu, &QMenu::triggered, [=]( QAction* pAction ) {
-
-		} );
-
-		pTypeBoxLayout->addWidget( pDropDownBtn );
+		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
+		for ( const auto& ssType : pDatabase->getAllTypes() ) {
+			pInstrumentType->addItem( ssType );
+		}
+		pInstrumentType->setEditable( true );
+		pInstrumentType->setCurrentText( sTextType );
 
 		mappingTable->setCellWidget( nCell, 0, pInstrumentName );
-		mappingTable->setCellWidget( nCell, 1, pTypeBox );
+		mappingTable->setCellWidget( nCell, 1, pInstrumentType );
 	};
 
 	int nnCell = 0;
