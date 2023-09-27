@@ -142,7 +142,6 @@ void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	QTextEdit::paintEvent( ev );
-	updateFont();
 
 	// Hovering highlights
 	if ( m_bEntered || hasFocus() ) {
