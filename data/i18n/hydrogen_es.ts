@@ -382,7 +382,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>Instrument</source>
-        <extracomment>Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
         <translation>Instrumento</translation>
     </message>
     <message>
@@ -958,6 +958,31 @@ Kit actual:</translation>
         <extracomment>Shown in a dialog on export failure.</extracomment>
         <translation>No se puede exportar la canción</translation>
     </message>
+    <message>
+        <source>Id</source>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s id.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
+        <translation type="unfinished">Componente</translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
+        <translation type="unfinished">Sample</translation>
+    </message>
+    <message>
+        <source>License</source>
+        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <translation type="unfinished">Licencia</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1420,22 +1445,6 @@ Overwrite the existing file?</source>
         <translation>El drumkit actual es solo de lectura. Por favor utiliza Drumkits &gt; Guardar Como en el menú principal para crear uno nuevo primero.</translation>
     </message>
     <message>
-        <source>Instrument</source>
-        <translation>Instrumento</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Componente</translation>
-    </message>
-    <message>
-        <source>Sample</source>
-        <translation>Sample</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Licencia</translation>
-    </message>
-    <message>
         <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
         <translation>La Cadena de Licencia del drumkit especificado no cumple con la licencia elegida en el desplegable.</translation>
     </message>
@@ -1446,10 +1455,6 @@ Overwrite the existing file?</source>
     <message>
         <source>The name of the drumkit must not be left empty</source>
         <translation>El nombre del drumkit no debe dejarse en blanco</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

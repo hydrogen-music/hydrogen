@@ -196,6 +196,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 	
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
+
+	const QString& getInstrumentId() const { return m_sInstrumentId; }
+	const QString& getInstrumentType() const { return m_sInstrumentType; }
+	const QString& getComponent() const { return m_sComponent; }
+	const QString& getSample() const { return m_sSample; }
+	const QString& getLicense() const { return m_sLicense; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -352,5 +358,11 @@ private:
 	QString m_sInputCaptureTag;
 
 	QString m_sExportSongFailure;
+
+	QString m_sInstrumentId;
+	QString m_sInstrumentType;
+	QString m_sComponent;
+	QString m_sSample;
+	QString m_sLicense;
 };
 #endif

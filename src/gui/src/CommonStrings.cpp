@@ -60,8 +60,12 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to show the Instrument Rack. Its size
 	  is designed to hold seven characters but is quite flexible.*/
 	m_sGeneralButton = tr( "General" );
-	/*: Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size
-	  is designed to hold ten characters but is quite flexible.*/
+	/*: Text displayed on the button to show the Instrument Editor in the
+	  * Instrument Rack. Its size is designed to hold ten characters but is
+	  * quite flexible.
+	  *
+	  * It is also used in table headers corresponding to the instrument's name
+	  * or id. */
 	m_sInstrumentButton = tr( "Instrument" );
 	/*: Text displayed on the button to show the Sound Library in the Instrument Rack. Its size
 	  is designed to hold ten characters but is quite flexible.*/
@@ -469,7 +473,19 @@ CommonStrings::CommonStrings(){
 	
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
+
+	/*: Shown in table headers when referring to an instrument's id.*/
+	m_sInstrumentId = tr( "Id" );
+	/*: Shown in table headers when referring to an instrument's type (as part
+	 *  of a Drumkit Map .h2map).*/
+	m_sInstrumentType = tr( "Type" );
+		/*: Shown in table headers when referring to a component's name.*/
+	m_sComponent = tr( "Component" );
+		/*: Shown in table headers when referring to a sample's name.*/
+	m_sSample = tr( "Sample" );
+		/*: Shown in table headers when referring to a license of an object.*/
+	m_sLicense = tr( "License" );
+
 }
 
-CommonStrings::~CommonStrings(){
-}
+CommonStrings::~CommonStrings(){}

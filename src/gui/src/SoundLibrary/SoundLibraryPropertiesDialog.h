@@ -59,6 +59,7 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	void updateMappingTable();
 	void updateLicensesTable();
 	void updateImage( QString& filename );
+	void saveDrumkitMap();
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
