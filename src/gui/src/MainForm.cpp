@@ -1454,6 +1454,7 @@ void MainForm::action_instruments_exportLibrary() {
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
+		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
 		SoundLibraryExportDialog exportDialog( this, pNewDrumkit );
 		exportDialog.exec();
 	}
