@@ -57,13 +57,6 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	adjustSize();
 	setMinimumSize( width(), height() );
 
-	setupLicenseComboBox( licenseComboBox );
-	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
-			 this, SLOT( licenseComboBoxChanged( int ) ) );
-	setupLicenseComboBox( imageLicenseComboBox );
-	connect( imageLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
-			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
-
 	bool bDrumkitWritable = false;
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
@@ -111,6 +104,13 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	imageLicenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	imageLicenseStringLbl->setText( pCommonStrings->getLicenseStringLbl() );
 	imageLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+
+	setupLicenseComboBox( licenseComboBox );
+	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( licenseComboBoxChanged( int ) ) );
+	setupLicenseComboBox( imageLicenseComboBox );
+	connect( imageLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
 
 	// In case the drumkit name is not locked/the dialog is used as
 	// "Save As" nothing needs to be disabled.
