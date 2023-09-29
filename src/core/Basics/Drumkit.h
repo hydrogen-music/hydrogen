@@ -305,11 +305,25 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		/** Maps the instruments of the kit to universal
 		 * #H2Core::DrumkitMap::Type using which seemless switching of drumkits
-		 * can be done. */
+		 * can be done.
+		 *
+		 * When saving the drumkit, this map is written into
+		 * $USR_DATA_DIR/drumkit_map/$KIT_NAME.h2map and _not_ into the drumkit
+		 * folder itself. This way, the original mapping - if provided by the
+		 * kit creator or as part of the Hydrogen installation - can still be
+		 * used as a fallback. The map can be reset to its initial state be
+		 * loading the kit with fallback mapping and saving it again.
+		 *
+		 * When exporting the drumkit, this map (and not the fallback one) will
+		 * be bundled in the resulting .h2drumkit. */
 		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
+
 		/** Set whenever both a user-defined map and one found in the kit itself
 		 * or installed with Hydrogen is found. It can be used as a fallback
-		 * when switch between kits.*/
+		 * when switch between kits.
+		 *
+		 * It is not written to disk when saving or exporting the drumkit.
+		 * */
 		std::shared_ptr<DrumkitMap> m_pDrumkitMapFallback;
 };
 

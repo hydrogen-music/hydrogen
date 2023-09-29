@@ -104,12 +104,14 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) {
 		return false;
 	}
 
+	INFOLOG( QString( "Saving drumkit mappings in [%1]" ).arg( sPath ) );
+
 	// Save drumkit.xml
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
 	
 	saveTo( &root, bSilent );
-	return doc.write( Filesystem::drumkit_file( sPath ) );
+	return doc.write( sPath );
 }
 
 void DrumkitMap::saveTo( XMLNode* pNode, bool bSilent ) {
@@ -119,6 +121,10 @@ void DrumkitMap::saveTo( XMLNode* pNode, bool bSilent ) {
 		mappingNode.write_int( "instrumentID", nnId );
 		mappingNode.write_string( "type", static_cast<QString>( ssType ) );
 	}
+}
+
+void DrumkitMap::addMapping( int nId, DrumkitMap::Type sType ) {
+	m_mapping.insert( { nId, sType } );
 }
 
 std::vector<DrumkitMap::Type> DrumkitMap::getTypes( int nId ) const {

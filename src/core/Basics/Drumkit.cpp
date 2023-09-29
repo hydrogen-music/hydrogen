@@ -404,11 +404,12 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 	}
 
 	// Save drumkit map (primary one)
-	const QString sDrumkitMapPath = QString( "%1/drumkit%2" )
-										.arg( sDrumkitFolder )
-										.arg( Filesystem::drumkit_map_ext );
-	if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
-		ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
+		const QString sDrumkitMapPath = QString( "%1/%2%3" )
+			.arg( Filesystem::usr_drumkit_maps_dir() )
+			.arg( getExportName() )
+			.arg( Filesystem::drumkit_map_ext );
+        if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
+			ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
 				  .arg( sDrumkitMapPath ) );
 		return false;
 	}
@@ -772,6 +773,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		return false;
 	}
 
+	if ( ! Filesystem::dir_readable( __path, true ) ) {
+		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
+				  .arg( __path ) );
+		return false;
+	}
+
 	// When performing an export of a single component, the resulting
 	// file will be <DRUMKIT_NAME>_<COMPONENT_NAME>.h2drumkit. This
 	// itself is nice because the user can not choose the name of the
@@ -845,13 +852,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		}
 	}
 
-	if ( ! Filesystem::dir_readable( __path, true ) ) {
-		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
-				  .arg( __path ) );
-		set_name( sOldDrumkitName );
-		return false;
-	}
-	
 	QDir sourceDir( __path );
 
 	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
@@ -874,7 +874,15 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	suffixBlacklist << "wav" << "flac" << "aifc" << "aif" << "aiff" << "au"
 					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
 					 << "mp1" << "mp2" << "mp3";
-	
+
+	// We do not want to export any old backups created during the upgrade
+	// process of the drumkits.
+	suffixBlacklist << "bak";
+
+	// We won't copy the original drumkit map (fallback) neither but write the
+	// current user-level one.
+	suffixBlacklist << "h2map";
+
 	bool bSampleFound;
 	
 	for ( const auto& ssFile : sourceFilesList ) {
@@ -910,18 +918,18 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 				QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
 				if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
 												 Qt::CaseInsensitive ) ) {
-
-					// We do not want to export any old backups
-					// created during the upgrade process of the
-					// drumkits.
-					if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
-							 ssFile.contains( ".bak" ) ) ) {
-						filesUsed << sourceDir.filePath( ssFile );
-					}
+					filesUsed << sourceDir.filePath( ssFile );
 				}
 			}
 		}
 	}
+
+	// Store a copy of the current drumkit map and add it to the included files.
+	QString sTmpMapPath = tmpFolder.filePath( QString( "%1%2" )
+									 .arg( sDrumkitName )
+									 .arg( Filesystem::drumkit_map_ext ) );
+	m_pDrumkitMap->save( sTmpMapPath );
+	filesUsed << sTmpMapPath;
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
