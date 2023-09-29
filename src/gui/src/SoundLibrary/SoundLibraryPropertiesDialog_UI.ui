@@ -376,7 +376,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QTableWidget" name="mappingTable">
+        <widget class="MappingTable" name="mappingTable">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -466,10 +466,16 @@
    <header location="global">../src/Widgets/LCDCombo.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
+   <customwidget>
    <class>Button</class>
    <extends>QPushButton</extends>
    <header location="global">../src/Widgets/Button.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MappingTable</class>
+   <extends>QTableWidget</extends>
+   <header  location="global">../src/SoundLibrary/MappingTable.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
