@@ -1,10 +1,3 @@
-XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
-	* Release 1.2.3
-	* Added
-		- `cmake` option `WANT_PIPEWIRE_JACK_ONLY_CHECK` to only check for
-		  `pw-jack` while dynamically checking for JACK support during
-		  runtime. This allows for reliable JACK support using Flatpak.
-
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Added

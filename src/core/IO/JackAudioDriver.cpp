@@ -1211,10 +1211,7 @@ bool JackAudioDriver::checkSupport() {
 	bool bJackFound;
 
 	// Classic JACK
-	QString sCapture;
-
-#ifndef H2CORE_HAVE_PIPEWIRE_JACK_ONLY_CHECK
-	sCapture = checkExecutable( "jackd", "--version" );
+	QString sCapture = checkExecutable( "jackd", "--version" );
 	if ( ! sCapture.isEmpty() ) {
 		bJackFound = true;
 		INFOLOG( QString( "'jackd' of version [%1] found." )
@@ -1233,7 +1230,6 @@ bool JackAudioDriver::checkSupport() {
 		bJackFound = true;
 		INFOLOG( "'jackdbus' found." );
 	}
-#endif
 
 	// Pipewire JACK interface
 	//
