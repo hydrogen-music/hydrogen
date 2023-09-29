@@ -875,10 +875,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
 					 << "mp1" << "mp2" << "mp3";
 
-	// We do not want to export any old backups created during the upgrade
-	// process of the drumkits.
-	suffixBlacklist << "bak";
-
 	// We won't copy the original drumkit map (fallback) neither but write the
 	// current user-level one.
 	suffixBlacklist << "h2map";
@@ -918,7 +914,15 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 				QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
 				if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
 												 Qt::CaseInsensitive ) ) {
-					filesUsed << sourceDir.filePath( ssFile );
+
+					// We do not want to export any old backups created during
+					// the upgrade process of the drumkits. As these were
+					// introduced using suffixes, like .bak.1, .bak.2, etc,
+					// adding `bak` to the blacklist will not work.
+					if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
+							 ssFile.contains( ".bak" ) ) ) {
+						filesUsed << sourceDir.filePath( ssFile );
+					}
 				}
 			}
 		}
