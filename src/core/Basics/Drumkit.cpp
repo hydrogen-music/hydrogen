@@ -161,7 +161,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	}
 
 	if ( ! bReadingSuccessful && bUpgrade ) {
-		upgrade_drumkit( pDrumkit, sDrumkitPath );
+		pDrumkit->upgrade( bSilent );
 	}
 
 	return pDrumkit;
@@ -299,37 +299,23 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 
 	return true;
 }
-	
-void Drumkit::upgrade_drumkit(std::shared_ptr<Drumkit> pDrumkit, const QString& sDrumkitPath, bool bSilent )
-{
-	if ( pDrumkit != nullptr ) {
-		const QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
-		if ( ! Filesystem::file_exists( sDrumkitFile, true ) ) {
-			ERRORLOG( QString( "No drumkit.xml found in folder [%1]" ).arg( sDrumkitPath ) );
-			return;
-		}
-		
-		if ( ! Filesystem::dir_writable( sDrumkitPath, true ) ) {
-			ERRORLOG( QString( "Drumkit in [%1] is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( sDrumkitPath ) );
-			return;
-		}
-		if ( ! bSilent ) {
-			INFOLOG( QString( "Upgrading drumkit [%1]" ).arg( sDrumkitPath ) );
-		}
 
-		QString sBackupFile = Filesystem::drumkit_backup_path( sDrumkitFile );
-		Filesystem::file_copy( sDrumkitFile, sBackupFile,
-		                       false /* do not overwrite existing
-										files */,
-							   bSilent );
-		
-		pDrumkit->save( sDrumkitPath, -1, true, bSilent );
+void Drumkit::upgrade( bool bSilent ) {
+	if ( !bSilent ) {
+		INFOLOG( QString( "Upgrading drumkit [%1] in [%2]" )
+				 .arg( __name ).arg( __path ) );
 	}
+
+	QString sBackupFile = Filesystem::drumkit_backup_path( __path );
+	Filesystem::file_copy( __path, sBackupFile,
+						  false, // do not overwrite existing files
+						  bSilent );
+
+	save( "", -1, true, bSilent);
 }
 
-void Drumkit::unload_samples()
-{
-	INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( __name ) );
+void Drumkit::unload_samples() {
+        INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( __name ) );
 	if( __samples_loaded ) {
 		__instruments->unload_samples();
 		__samples_loaded = false;

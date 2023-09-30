@@ -49,14 +49,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
-		Drumkit( std::shared_ptr<Drumkit> other );
+		Drumkit( std::shared_ptr<Drumkit> pOther );
 		/** drumkit destructor, delete #__instruments */
 		~Drumkit();
 
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * \param dk_dir A directory containing a drumkit,
+		 * \param sDrumkitDir A directory containing a drumkit,
 		 * like those returned by
 		 * Filesystem::drumkit_dir_search().
 		 * \param bUpgrade Whether the loaded drumkit should be
@@ -67,9 +67,57 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static std::shared_ptr<Drumkit> load( const QString& dk_dir,
+		static std::shared_ptr<Drumkit> load( const QString& sDrumkitDir,
 											  bool bUpgrade = true,
 											  bool bSilent = false );
+
+		/**
+		 * load a drumkit from an XMLNode
+		 * \param pNode the XMLDode to read from
+		 * \param sPath the directory holding the drumkit data
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 */
+		static std::shared_ptr<Drumkit> load_from( XMLNode* pNode,
+												   const QString& sPath,
+												   bool bSilent = false );
+
+		/*
+		 * save the drumkit within the given XMLNode
+		 * \param pNode the XMLNode to feed
+		 * \param nComponent_id to chose the component to save or -1 for all
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
+		 */
+		void save_to( XMLNode* pNode,
+					  int nComponent_id = -1,
+					  bool bRecentVersion = true,
+					  bool bSilent = false ) const;
+
+
+		/**
+		 * Save a drumkit to disk.
+		 *
+		 * It takes care of writing all parameters etc. into a
+		 * drumkit.xml file as well as copying both associated samples
+		 * and images.
+		 *
+		 * \param sDrumkitDir the path (folder) to save the #Drumkit
+		 * into. If left empty, the path stored in #__path will be
+		 * used instead.
+		 * \param nComponentID to chose the component to save or -1 for all
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
+		 * \return true on success
+		 */
+		bool save( const QString& sDrumkitDir = "",
+				   int nComponentID = -1,
+				   bool bRecentVersion = true,
+				   bool bSilent = false );
+
+
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -85,7 +133,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 *
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
-	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
+	static License loadLicenseFrom( const QString& sDrumkitDir,
+									bool bSilent = false );
 	
 	/**
 	 * Returns a version of #__name stripped of all whitespaces and
@@ -105,37 +154,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * supported by Hydrogen 0.9.7 or higher (whether it should be
 	 * composed of DrumkitComponents).
 	 */
-	QString getExportName( const QString& sComponentName = "", bool bRecentVersion = true ) const;
+	QString getExportName( const QString& sComponentName = "",
+						   bool bRecentVersion = true ) const;
 		
 		/** 
-		 * Saves the current drumkit to dk_path, but makes a backup. 
-		 * This is used when the drumkit did not comply to 
-		 * our xml schema.
+		 * Upgrades the drumkit by saving the latest version.
+		 *
+		 * This is a wrapper around #H2Core::Drumkit::save() which also creates
+		 * a backup of the drumkit definition.
 		 */
-		static void upgrade_drumkit( std::shared_ptr<Drumkit> pDrumkit,
-									 const QString& dk_path,
-									 bool bSilent = false );
-
-		/**
-		 * Save a drumkit to disk.
-		 *
-		 * It takes care of writing all parameters etc. into a
-		 * drumkit.xml file as well as copying both associated samples
-		 * and images.
-		 *
-		 * \param sDrumkitPath the path (folder) to save the #Drumkit
-		 * into. If left empty, the path stored in #__path will be
-		 * used instead.
-		 * \param nComponentID to chose the component to save or -1 for all
-		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
-		 *
-		 * \return true on success
-		 */
-		bool save( const QString& sDrumkitPath = "",
-				   int nComponentID = -1,
-				   bool bRecentVersion = true,
-				   bool bSilent = false );
+		void upgrade( bool bSilent = false );
 
 		/**
 		 * Extract a .h2drumkit file.
@@ -275,27 +303,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return true on success
 		 */
 	bool save_samples( const QString& dk_dir, bool bSilent = false ) const;
-		/*
-		 * save the drumkit within the given XMLNode
-		 * \param node the XMLNode to feed
-		 * \param component_id to chose the component to save or -1 for all
-		 * \param bRecentVersion Whether the drumkit format should be
-		 * supported by Hydrogen 0.9.7 or higher (whether it should be
-		 * composed of DrumkitComponents).
-		 */
-	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true, bool bSilent = false ) const;
-		/**
-		 * load a drumkit from an XMLNode
-		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit data
-		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
-		 */
-	static std::shared_ptr<Drumkit> load_from( XMLNode* node,
-											   const QString& dk_path,
-											   bool bSilent = false );
 
-	/**
+/**
+	 *
 	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and
 	 * takes care of all the error handling.
 	 *
