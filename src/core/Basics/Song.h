@@ -131,7 +131,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		static std::shared_ptr<Song> getEmptySong();
 
 	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
-	bool 			save( const QString& sFilename, bool bSilent = false );
+	/** Writes the song as .h2song to disk.
+	 *
+	 * @param sFilename Absolute path to write the song to.
+	 * @param bLegacy Whether the current format containing a proper
+	 *   #H2Core::Drumkit or the legacy format (prior to version 1.3.0)
+	 *   containing only selected drumkit parts should be used.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed.
+	 */
+	bool 			save( const QString& sFilename, bool bLegacy = false,
+						  bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
@@ -159,6 +169,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		PatternList* getPatternList() const;
 		void setPatternList( PatternList* pList );
+
+		std::shared_ptr<Drumkit> getDrumkit() const;
+		void setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
@@ -304,7 +317,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 private:
 
 	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
-	void writeTo( XMLNode* pNode, bool bSilent = false );
+	void writeTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
 
 	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent = false );
@@ -340,6 +353,13 @@ private:
 		PatternList*	m_pPatternList;
 		///< Sequence of pattern groups
 		std::vector<PatternList*>* m_pPatternGroupSequence;
+
+		/** Current drumkit
+		 *
+		 * This one is either based on the last kit loaded from the
+		 * `SoundLibraryDatabase` or is a brand new kit. */
+		std::shared_ptr<Drumkit> m_pDrumkit;
+
 		///< Instrument list
 		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
 		///< list of drumkit component
@@ -526,6 +546,17 @@ inline bool Song::getIsModified() const
 {
 	return m_bIsModified;
 }
+
+inline std::shared_ptr<Drumkit> Song::getDrumkit() const
+{
+	return m_pDrumkit;
+}
+
+inline void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit )
+{
+	m_pDrumkit = pDrumkit;
+}
+
 
 inline std::shared_ptr<InstrumentList> Song::getInstrumentList() const
 {

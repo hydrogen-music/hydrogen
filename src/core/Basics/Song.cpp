@@ -374,6 +374,23 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
+	std::shared_ptr<Drumkit> pDrumkit2;
+	if ( !pRootNode->firstChildElement( "drumkit_info").isNull() ) {
+		// Current format (>= 1.3.0) storing a proper Drumkit
+		pDrumkit2 = Drumkit::load_from( pRootNode, "", bSilent );
+	}
+	else {
+		// Older format (< 1.3.0) storing only selected elements
+		pDrumkit2 = Legacy::loadEmbeddedSongDrumkit( pRootNode, bSilent );
+	}
+
+	if ( pDrumkit2 == nullptr ) {
+		ERRORLOG( "Unable to load drumkit. Falling back to default kit." );
+		// Load default kit
+		pDrumkit2 = std::make_shared<Drumkit>();
+	}
+	pSong->setDrumkit( pDrumkit2 );
+
 	XMLNode componentListNode = pRootNode->firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
@@ -588,7 +605,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 }
 
 /// Save a song to file
-bool Song::save( const QString& sFilename, bool bSilent )
+bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 {
 	QFileInfo fi( sFilename );
 	if ( ( Filesystem::file_exists( sFilename, true ) &&
@@ -615,7 +632,7 @@ bool Song::save( const QString& sFilename, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	writeTo( &rootNode, bSilent );
+	writeTo( &rootNode, bLegacy, bSilent );
 
 	setFilename( sFilename );
 	setIsModified( false );
@@ -768,7 +785,7 @@ void Song::writePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
+void Song::writeTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 	pRootNode->write_string( "version", QString( get_version().c_str() ) );
 	pRootNode->write_float( "bpm", m_fBpm );
 	pRootNode->write_float( "volume", m_fVolume );
@@ -846,6 +863,13 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_float( "humanize_time", m_fHumanizeTimeValue );
 	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	pRootNode->write_float( "swing_factor", m_fSwingFactor );
+
+	if ( !bLegacy ) {
+		// Current format
+		m_pDrumkit->save_to( pRootNode, bSilent );
+	} else {
+		Legacy::saveEmbeddedSongDrumkit( pRootNode, m_pDrumkit, bSilent );
+	}
 
 	pRootNode->write_string( "last_loaded_drumkit", m_sLastLoadedDrumkitPath );
 	pRootNode->write_string( "last_loaded_drumkit_name", m_sLastLoadedDrumkitName );
