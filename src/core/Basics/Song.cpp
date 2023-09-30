@@ -632,7 +632,7 @@ bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	writeTo( &rootNode, bLegacy, bSilent );
+	saveTo( &rootNode, bLegacy, bSilent );
 
 	setFilename( sFilename );
 	setIsModified( false );
@@ -756,7 +756,7 @@ void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::writeVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
+void Song::saveVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
 	XMLNode virtualPatternListNode = pNode->createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
@@ -770,7 +770,7 @@ void Song::writeVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::writePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
+void Song::savePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
 	XMLNode patternSequenceNode = pNode->createNode( "patternSequence" );
 	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
 		if ( pPatternList != nullptr ) {
@@ -785,7 +785,7 @@ void Song::writePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::writeTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
+void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 	pRootNode->write_string( "version", QString( get_version().c_str() ) );
 	pRootNode->write_float( "bpm", m_fBpm );
 	pRootNode->write_float( "volume", m_fVolume );
@@ -887,9 +887,9 @@ void Song::writeTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 
 	m_pPatternList->save_to( pRootNode, nullptr );
 
-	writeVirtualPatternsTo( pRootNode, bSilent );
+	saveVirtualPatternsTo( pRootNode, bSilent );
 
-	writePatternGroupVectorTo( pRootNode, bSilent );
+	savePatternGroupVectorTo( pRootNode, bSilent );
 
 	XMLNode ladspaFxNode = pRootNode->createNode( "ladspa" );
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
@@ -1105,7 +1105,7 @@ void Song::clearMissingSamples() {
 	}
 }
 
-void Song::readTempPatternList( const QString& sFilename )
+void Song::loadTempPatternList( const QString& sFilename )
 {
 	XMLDoc doc;
 	if( !doc.read( sFilename ) ) {
@@ -1121,13 +1121,13 @@ void Song::readTempPatternList( const QString& sFilename )
 	loadPatternGroupVectorFrom( &root, false );
 }
 
-bool Song::writeTempPatternList( const QString& sFilename )
+bool Song::saveTempPatternList( const QString& sFilename )
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "sequence" );
 
-	writeVirtualPatternsTo( &root, false );
-	writePatternGroupVectorTo( &root, false );
+	saveVirtualPatternsTo( &root, false );
+	savePatternGroupVectorTo( &root, false );
 
 	return doc.write( sFilename );
 }

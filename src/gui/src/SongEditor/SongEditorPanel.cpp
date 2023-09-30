@@ -716,7 +716,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	pPatternGroupsVect->clear();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pHydrogen->getSong()->readTempPatternList( filename );
+	pHydrogen->getSong()->loadTempPatternList( filename );
 	pHydrogen->updateSongSize();
 	pHydrogen->updateSelectedPattern( false );
 	pAudioEngine->unlock();

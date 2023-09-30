@@ -237,8 +237,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		std::shared_ptr<DrumkitMap>			getDrumkitMap() const;
 		void			setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
 
-		void			readTempPatternList( const QString& sFilename );
-		bool			writeTempPatternList( const QString& sFilename );
+		void			loadTempPatternList( const QString& sFilename );
+		bool			saveTempPatternList( const QString& sFilename );
 							
 		QString			copyInstrumentLineToString( int selectedInstrument );
 		bool			pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns );
@@ -317,12 +317,12 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 private:
 
 	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
-	void writeTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
+	void saveTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
 
 	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent = false );
-	void writeVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
-	void writePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
+	void saveVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
+	void savePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
