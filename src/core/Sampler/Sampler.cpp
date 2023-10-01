@@ -126,7 +126,7 @@ void Sampler::process( uint32_t nFrames )
 	// Track output queues are zeroed by
 	// audioEngine_process_clearAudioBuffers()
 
-	for ( auto& pComponent : *pSong->getComponents() ) {
+	for ( auto& pComponent : *pSong->getDrumkit()->getComponents() ) {
 		pComponent->reset_outs(nFrames);
 	}
 
@@ -638,14 +638,14 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		if ( pInstr->is_preview_instrument() ||
 			 pInstr->is_metronome_instrument() ){
-			pMainCompo = pSong->getComponents()->front();
+			pMainCompo = pSong->getDrumkit()->getComponents()->front();
 		} else {
 			int nComponentID = pCompo->get_drumkit_componentID();
 			if ( nComponentID >= 0 ) {
-				pMainCompo = pSong->getComponent( nComponentID );
+				pMainCompo = pSong->getDrumkit()->getComponent( nComponentID );
 			} else {
 				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pSong->getComponents()->front();
+				pMainCompo = pSong->getDrumkit()->getComponents()->front();
 			}
 		}
 
@@ -702,7 +702,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
 								 ! pInstr->is_currently_exported() );
-		bool bAnyInstrumentIsSoloed = pSong->getInstrumentList()->isAnyInstrumentSoloed();
+		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->get_instruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
 		

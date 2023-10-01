@@ -693,9 +693,14 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
-								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitName() )
-								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitPath() ) ) );
+	const auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSong() != nullptr &&
+		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+		showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
+								  .arg( pDrumkit->get_name() )
+								  .arg( pDrumkit->get_path() ) ) );
+	}
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -889,7 +894,7 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getInstrumentList()->
+		auto pInstrument = pSong->getDrumkit()->get_instruments()->
 			get( pQueue->m_addMidiNoteVector[0].m_row );
 		
 		// find if a (pitch matching) note is already present

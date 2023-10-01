@@ -189,7 +189,7 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pInstrumentList = std::make_shared<H2Core::InstrumentList>( pSongProper->getInstrumentList() );
+		auto pInstrumentList = std::make_shared<H2Core::InstrumentList>( pSongProper->getDrumkit()->get_instruments() );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
@@ -218,7 +218,7 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pDrumkitComponents = pSongProper->getComponents();
+		auto pDrumkitComponents = pSongProper->getDrumkit()->getComponents();
 		auto pDrumkitComponent = std::make_shared<H2Core::DrumkitComponent>( (*pDrumkitComponents)[0] );
 		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
 		pDrumkitComponent = nullptr;

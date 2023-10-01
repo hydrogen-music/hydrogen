@@ -432,7 +432,7 @@ std::shared_ptr<Instrument> CoreActionController::getStrip( int nStrip ) const {
 		return nullptr;
 	}
 
-	auto pInstr = pSong->getInstrumentList()->get( nStrip );
+	auto pInstr = pSong->getDrumkit()->get_instruments()->get( nStrip );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nStrip ) );
 	}
@@ -458,7 +458,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	sendMasterVolumeFeedback();
 	
 	//PER-INSTRUMENT/STRIP STATES
-	auto pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getDrumkit()->get_instruments();
 	for ( int ii = 0; ii < pInstrList->size(); ii++){
 		auto pInstr = pInstrList->get( ii );
 		if ( pInstr != nullptr ) {
@@ -635,16 +635,13 @@ bool CoreActionController::saveSong() {
 		NsmClient::linkDrumkit( pSong );
 
 		// Properly set in NsmClient::linkDrumkit()
-		QString sSessionDrumkitPath = pSong->getLastLoadedDrumkitPath();
-
-		auto drumkitDatabase = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
-		if ( drumkitDatabase.find( sSessionDrumkitPath ) != drumkitDatabase.end() ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
 			// In case the session folder is already present in the
-			// SoundLibraryDatabase, we have to update it (takes a
-			// while) to ensure it's clean and all kits are valid. If
-			// it's not present, we can skip it because loading is
-			// done lazily.
-			pHydrogen->getSoundLibraryDatabase()->updateDrumkit( sSessionDrumkitPath );
+			// SoundLibraryDatabase, we have to update it (takes a while) to
+			// ensure it's clean and all kits are valid. If it's not present, we
+			// can skip it because loading is done lazily.
+			pHydrogen->getSoundLibraryDatabase()->updateDrumkit( pDrumkit->get_path() );
 		}
 	}
 #endif
@@ -1038,12 +1035,12 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 
 			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		
-			pSong->setDrumkit( pDrumkit, bConditional );
+			pSong->setDrumkit( pDrumkit );
 			
 			if ( pHydrogen->getSelectedInstrumentNumber() >=
-				 pSong->getInstrumentList()->size() ) {
+				 pSong->getDrumkit()->get_instruments()->size() ) {
 				pHydrogen->setSelectedInstrumentNumber(
-					std::max( 0, pSong->getInstrumentList()->size() -1 ),
+					std::max( 0, pSong->getDrumkit()->get_instruments()->size() -1 ),
 					false );
 			}
 
@@ -1521,7 +1518,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getInstrumentList() );
+	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getDrumkit()->get_instruments() );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );

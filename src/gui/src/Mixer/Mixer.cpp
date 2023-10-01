@@ -230,7 +230,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isMuteClicked = ref->isMuteClicked();
 
-	auto pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -252,7 +252,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	float newVolume = ref->getVolume();
 
-	auto pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -263,7 +263,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getDrumkit()->get_instruments();
 	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);
@@ -417,8 +417,8 @@ void Mixer::updateMixer()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getInstrumentList();
-	auto pDrumkitComponentList = pSong->getComponents();
+	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pDrumkitComponentList = pSong->getDrumkit()->getComponents();
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 

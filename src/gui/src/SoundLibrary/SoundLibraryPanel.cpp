@@ -559,7 +559,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	auto pSongInstrList = pHydrogen->getSong()->getInstrumentList();
+	auto pSongInstrList = pHydrogen->getSong()->getDrumkit()->get_instruments();
 	auto pDrumkitInstrList = pDrumkit->get_instruments();
 
 	int oldCount = pSongInstrList->size();
@@ -747,8 +747,17 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	// If we delete the current loaded drumkit we can get trouble with some empty pointers
-	if ( pItem->text(0) == Hydrogen::get_instance()->getLastLoadedDrumkitName() ){
+	// If we delete the current loaded drumkit we can get trouble with some
+	// empty pointers
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+	if ( sDrumkitPath == pDrumkit->get_path() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
 		return;
 	}

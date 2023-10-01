@@ -121,7 +121,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
-		void load_samples();
+		void load_samples( float fBpm = 120 );
 		/** Calls the InstrumentList::unload_samples() member
 		 * function of #__instruments.
 		 */
@@ -217,7 +217,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** #__path setter */
 		void set_path( const QString& path );
 		/** #__path accessor */
-		const QString& get_path() const;
+		QString get_path() const;
 		/** #__name setter */
 		void set_name( const QString& name );
 		/** #__name accessor */
@@ -245,8 +245,23 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
-	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
+		bool getIsCurrentDrumkit() const;
+		void setIsCurrentDrumkit( bool bIsCurrentDrumkit );
+
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
+	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
+		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
+	/** Checks whether a component of name @a sComponentName exists in
+	 * #m_pComponents.
+	 *
+	 * \return Component ID on success and -1 on failure.
+	 */
+	int findExistingComponent( const QString& sComponentName ) const;
+	int findFreeComponentID( int nStartingID = 0 ) const;
+	/** Ensures @a sComponentName is not used by any other component
+		loaded into the song yet.*/
+	QString makeComponentNameUnique( const QString& sComponentName ) const;
+
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
@@ -285,7 +300,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> __instruments;  ///< the list of instruments
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> __components;  ///< list of drumkit component
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> m_pComponents;  ///< list of drumkit component
+
+		/** Whether the kit is the one used as current kit in the song. If
+		 * `false`, it is one of the kits stored in the #H2Core::SoundLibrary.*/
+		bool m_bIsCurrentDrumkit;
 
 		/**
 		 * save the drumkit image into the new directory
@@ -347,11 +366,6 @@ inline std::shared_ptr<InstrumentList> Drumkit::get_instruments() const
 inline void Drumkit::set_path( const QString& path )
 {
 	__path = path;
-}
-
-inline const QString& Drumkit::get_path() const
-{
-	return __path;
 }
 
 inline void Drumkit::set_name( const QString& name )
@@ -420,10 +434,16 @@ inline const bool Drumkit::samples_loaded() const
 {
 	return __samples_loaded;
 }
+inline bool Drumkit::getIsCurrentDrumkit() const {
+	return m_bIsCurrentDrumkit;
+}
+inline void Drumkit::setIsCurrentDrumkit( bool bIsCurrentDrumkit ) {
+	m_bIsCurrentDrumkit = bIsCurrentDrumkit;
+}
 
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents()
 {
-	return __components;
+	return m_pComponents;
 }
 inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
 	return m_pDrumkitMap;

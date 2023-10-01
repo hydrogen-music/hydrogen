@@ -500,7 +500,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pCompoList = pSong->getComponents();
+	auto pCompoList = pSong->getDrumkit()->getComponents();
 	
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
@@ -578,7 +578,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
 
 		itemsCompo.clear();
-		for ( const auto& pComponent : *pSong->getComponents() ) {
+		for ( const auto& pComponent : *pSong->getDrumkit()->getComponents() ) {
 			if ( ! itemsCompo.contains( pComponent->get_name() ) ) {
 				itemsCompo.append( pComponent->get_name() );
 			}
@@ -601,7 +601,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = pCompoList->front()->get_id();
 		}
 
-		auto pTmpComponent = pSong->getComponent( m_nSelectedComponent );
+		auto pTmpComponent = pSong->getDrumkit()->getComponent( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
@@ -647,7 +647,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 // or OSC messages or other parts of Hydrogen.
 void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 {
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
 	
 	// Check if either this particular line or all lines should be updated.
 	if ( m_pInstrument != nullptr ) {
@@ -1058,7 +1058,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pComponent = pSong->getComponent( m_nSelectedComponent );
+	auto pComponent = pSong->getDrumkit()->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
 		return;
 	}
@@ -1283,7 +1283,7 @@ void InstrumentEditor::update()
 int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 {
 	bool bFoundFreeSlot = true;
-	auto pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	auto pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getComponents();
 	for ( const auto& pComponent : *pDrumkitComponentList ) {
 		if ( pComponent->get_id() == startingPoint ) {
 			bFoundFreeSlot = false;
@@ -1310,7 +1310,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( findFreeDrumkitComponentId(), sNewName );
-				pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
+				pHydrogen->getSong()->getDrumkit()->getComponents()->push_back( pDrumkitComponent );
 
 				//auto instrument_component = std::make_shared<InstrumentComponent>( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1334,16 +1334,16 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		auto pDrumkitComponents = pHydrogen->getSong()->getDrumkit()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
-		auto pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
+		auto pDrumkitComponent = pHydrogen->getSong()->getDrumkit()->getComponent( m_nSelectedComponent );
 
-		auto pInstruments = pHydrogen->getSong()->getInstrumentList();
+		auto pInstruments = pHydrogen->getSong()->getDrumkit()->get_instruments();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1375,7 +1375,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		auto pDrumkitComponents = pHydrogen->getSong()->getComponents();
+		auto pDrumkitComponents = pHydrogen->getSong()->getDrumkit()->getComponents();
 		for ( const auto& pComponent : *pDrumkitComponents ) {
 			if ( pComponent->get_name().compare( sSelectedAction ) == 0) {
 				m_nSelectedComponent = pComponent->get_id();

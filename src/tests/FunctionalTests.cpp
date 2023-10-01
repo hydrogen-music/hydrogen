@@ -75,7 +75,7 @@ public:
 
 		// auto pSong = Song::load( sSongFile );
 		// auto pVelocityAutomationPath = pSong->getVelocityAutomationPath();
-		// auto pInstrumentList = pSong->getInstrumentList();
+		// auto pInstrumentList = pSong->getDrumkit()->get_instruments();
 		// auto pInstrument = pInstrumentList->get( 0 );
 		// auto pADSR = pInstrument->get_adsr();
 		// auto pInstrumentComponent = pInstrument->get_component( 0 );

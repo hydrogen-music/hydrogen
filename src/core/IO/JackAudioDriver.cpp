@@ -875,7 +875,7 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 		return;
 	}
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
 	std::shared_ptr<Instrument> pInstrument;
 	int nInstruments = static_cast<int>(pInstrumentList->size());
 
@@ -941,7 +941,8 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 	}
 
 	// Now that we're sure there is an n'th port, rename it.
-	auto pDrumkitComponent = pSong->getComponent( pInstrumentComponent->get_drumkit_componentID() );
+	auto pDrumkitComponent = pSong->getDrumkit()->getComponent(
+		pInstrumentComponent->get_drumkit_componentID() );
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
 

@@ -51,7 +51,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
 	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );
 
 	if ( pDrumkit != nullptr ) {
-		for ( const auto& pComponent : *pDrumkit->get_components() ) {
+		for ( const auto& pComponent : *pDrumkit->getComponents() ) {
 			m_components.append( pComponent->get_name() );
 		}
 

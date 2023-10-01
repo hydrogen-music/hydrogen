@@ -177,7 +177,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
 	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
 
-	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
 	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
 	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
 	
@@ -339,7 +338,6 @@ private:
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
 	
-	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;
 	QString m_sSoundLibrarySessionSuffix;
 	

@@ -183,7 +183,7 @@ int OscServer::generic_handler(const char *	path,
 
 	bool bMessageProcessed = false;
 	
-	int nNumberOfStrips = pSong->getInstrumentList()->size();
+	int nNumberOfStrips = pSong->getDrumkit()->get_instruments()->size();
 	
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );

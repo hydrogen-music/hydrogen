@@ -146,13 +146,11 @@ class NsmClient : public H2Core::Object<NsmClient>
 	static void linkDrumkit( std::shared_ptr<H2Core::Song> pSong );
 
 	/**
-	 * Replaces a path in Song::m_sLastLoadedDrumkitPath pointing to
-	 * the session folder with one pointing to the corresponding kit
-	 * in the data folder.
+	 * Replaces the path of the current drumkit pointing to the session folder
+	 * with one pointing to the corresponding kit in the data folder.
 	 *
-	 * In case the session drumkit does not exist at neither system
-	 * nor user level, Song::m_sLastLoadedDrumkitPath will be replaced
-	 * by an empty string.
+	 * In case the session drumkit does not exist at neither system nor user
+	 * level, the drumkit path will be replaced by an empty string.
 	 *
 	 * \return 0 : success. -1 : general error, -2 : drumkit is
 	 * present as directory in session folder. But a drumkit holding
@@ -161,9 +159,9 @@ class NsmClient : public H2Core::Object<NsmClient>
 	static int dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong );
 
 	/**
-	 * Replaces @H2Core::Song::m_sLastLoadedDrumkitPath as well as all
-	 * @H2Core::Instrument::__drumkit_path bearing the same value in
-	 * @a pSong with @a sDrumkitPath.
+	 * Replaces the path of the current drumkit as well as all
+	 * @H2Core::Instrument::__drumkit_path bearing the same value in @a pSong
+	 * with @a sDrumkitPath.
 	 *
 	 * This is required when telling a #H2Core::Song to use the
 	 * drumkit linked/found in the session folder instead of its

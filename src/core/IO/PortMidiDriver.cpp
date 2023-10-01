@@ -527,7 +527,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {

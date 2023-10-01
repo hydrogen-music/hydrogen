@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			auto pInstrumentList = pSong->getInstrumentList();
+			auto pInstrumentList = pSong->getDrumkit()->get_instruments();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}

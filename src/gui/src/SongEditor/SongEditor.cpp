@@ -1962,7 +1962,11 @@ void SongEditorPatternList::patternPopup_load()
 		setRowSelection( RowSelection::None );
 		return;
 	}
-	
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+
 	Pattern* pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
@@ -1986,7 +1990,8 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString prevPatternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   pHydrogen->getLastLoadedDrumkitName() );
+							   pDrumkit->get_name() );
+
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
@@ -2026,10 +2031,18 @@ void SongEditorPatternList::patternPopup_save()
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
-										   pSong, pHydrogen->getLastLoadedDrumkitName() );
+										   pSong, pDrumkit->get_name() );
 	if ( sPath.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
 									   pCommonStrings->getButtonOk(),
@@ -2039,7 +2052,7 @@ void SongEditorPatternList::patternPopup_save()
 			return;
 		}
 		sPath = Files::savePatternOver( pPattern->get_name(), pPattern,
-										pSong, pHydrogen->getLastLoadedDrumkitName() );
+										pSong, pDrumkit->get_name() );
 	}
 
 	if ( sPath.isEmpty() ) {
@@ -2118,11 +2131,19 @@ void SongEditorPatternList::patternPopup_delete()
 	setRowSelection( RowSelection::Dialog );
 	
 	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString patternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   m_pHydrogen->getLastLoadedDrumkitName() );
+							   pDrumkit->get_name() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
@@ -2149,6 +2170,14 @@ void SongEditorPatternList::patternPopup_duplicate()
 	setRowSelection( RowSelection::Dialog );
 	
 	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+
 	PatternList *pPatternList = pSong->getPatternList();
 	auto pPattern = pPatternList->get( m_nRowClicked );
 
@@ -2158,7 +2187,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		QString filePath = Files::savePatternTmp( pNewPattern->get_name(),
 												  pNewPattern, pSong,
-												  m_pHydrogen->getLastLoadedDrumkitName() );
+												  pDrumkit->get_name() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			setRowSelection( RowSelection::None );
@@ -2326,7 +2355,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			QString patternFilePath = urlList.at(i).toLocalFile();
 			if( patternFilePath.endsWith(".h2pattern") )
 			{
-				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->getInstrumentList() );
+				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->getDrumkit()->get_instruments() );
 				if ( pPattern)
 				{
 					H2Core::Pattern *pNewPattern = pPattern;

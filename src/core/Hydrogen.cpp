@@ -320,9 +320,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= __song->getInstrumentList()->size() ) {
+	if ( m_nSelectedInstrumentNumber >= __song->getDrumkit()->get_instruments()->size() ) {
 		m_nSelectedInstrumentNumber =
-			std::max( __song->getInstrumentList()->size() - 1, 0 );
+			std::max( __song->getDrumkit()->get_instruments()->size() - 1, 0 );
 	}
 
 	// Update the audio engine to work with the new song.
@@ -381,7 +381,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	m_pAudioEngine->lock( RIGHT_HERE );
 	
 	if ( ! bPlaySelectedInstrument ) {
-		if ( nInstrument >= ( int ) pSong->getInstrumentList()->size() ) {
+		if ( nInstrument >= ( int ) pSong->getDrumkit()->get_instruments()->size() ) {
 			// unused instrument
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
 					  .arg( nInstrument ) );
@@ -461,7 +461,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		nTickInPattern = qcolumn;
 	}
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
 	int nInstrumentNumber;
 	if ( bPlaySelectedInstrument ) {
 		nInstrumentNumber = getSelectedInstrumentNumber();
@@ -775,8 +775,8 @@ void Hydrogen::removeInstrument( int nInstrumentNumber ) {
 		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
 			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
 		} else if ( m_nSelectedInstrumentNumber >=
-					pSong->getInstrumentList()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() - 1 ) );
+					pSong->getDrumkit()->get_instruments()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->get_instruments()->size() - 1 ) );
 		}
 		m_pAudioEngine->unlock();
 		
@@ -1389,7 +1389,7 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 	}
 	
 	if ( getSong() != nullptr ) {
-		auto pInstrumentList = getSong()->getInstrumentList();
+		auto pInstrumentList = getSong()->getDrumkit()->get_instruments();
 		if ( pInstrumentList != nullptr ) {
 			for ( unsigned nnInstr = 0; nnInstr < pInstrumentList->size(); ++nnInstr ) {
 				auto pInstr = pInstrumentList->get( nnInstr );
@@ -1447,24 +1447,6 @@ bool Hydrogen::getIsModified() const {
 		return getSong()->getIsModified();
 	}
 	return false;
-}
-
-QString Hydrogen::getLastLoadedDrumkitPath() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getLastLoadedDrumkitPath();
-	}
-	ERRORLOG( "no song set yet" );
-
-	return "";
-}
-
-QString Hydrogen::getLastLoadedDrumkitName() const {
-	if ( getSong() != nullptr ) {
-		return getSong()->getLastLoadedDrumkitName();
-	}
-	ERRORLOG( "no song set yet" );
-
-	return "";
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
@@ -1624,7 +1606,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		int nSelectedInstrumentNumber = m_nSelectedInstrumentNumber;
-		auto pInstrList = __song->getInstrumentList();
+		auto pInstrList = __song->getDrumkit()->get_instruments();
 		if ( nSelectedInstrumentNumber >= pInstrList->size() ) {
 			nSelectedInstrumentNumber = -1;
 		}

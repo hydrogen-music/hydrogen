@@ -211,11 +211,6 @@ public:
 		/** Delete an #Instrument.*/
 		void			removeInstrument( int nInstrumentNumber );
 
-		/** \return m_sLastLoadedDrumkitName */
-		QString	getLastLoadedDrumkitName() const;
-		/** \return m_sLastLoadedDrumkitPath */
-		QString	getLastLoadedDrumkitPath() const;
-
 		void			raiseError( unsigned nErrorCode );
 
 

@@ -242,19 +242,30 @@ void NsmClient::loadDrumkit() {
 void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	const auto pDrumkit = pSong->getDrumkit();
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit set" );
+		return;
+	}
+	const QString sDrumkitPath = pDrumkit->get_path();
+	const QString sDrumkitName = pDrumkit->get_name();
 	
 	bool bRelinkDrumkit = true;
-	
-	const QString sDrumkitName = pSong->getLastLoadedDrumkitName();
-	const QString sDrumkitAbsPath = pSong->getLastLoadedDrumkitPath();
 
 	const QString sSessionFolder = NsmClient::get_instance()->getSessionFolderPath();
 
 	// Sanity check in order to avoid circular linking.
-	if ( sDrumkitAbsPath.contains( sSessionFolder, Qt::CaseInsensitive ) ) {
-		NsmClient::printError( QString( "Last loaded drumkit [%1] with absolute path [%2] is located within the session folder [%3]. Linking skipped." )
+	if ( sDrumkitPath.contains( sSessionFolder, Qt::CaseInsensitive ) ) {
+		NsmClient::printError( QString( "Loaded drumkit [%1] with absolute path [%2] is located within the session folder [%3]. Linking skipped." )
 							   .arg( sDrumkitName )
-							   .arg( sDrumkitAbsPath )
+							   .arg( sDrumkitPath )
 							   .arg( sSessionFolder ) );
 		return;
 	}
@@ -281,6 +292,7 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 	    
 		if ( H2Core::Filesystem::drumkit_valid( sLinkedDrumkitPath ) ) {
 
+			// The drumkit could very well have an empty string as name.
 			QString sLinkedDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
 			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 			if ( pSoundLibraryDatabase != nullptr ) {
@@ -328,18 +340,18 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 			}
 		}
 		
-		if ( sDrumkitAbsPath.isEmpty() ) {
+		if ( sDrumkitPath.isEmpty() ) {
 			// Something went wrong. We skip the linking.
 			NsmClient::printError( QString( "No drumkit named [%1] could be found." )
 								   .arg( sDrumkitName ) );
 		} else {
 			
 			// Actual linking.
-			QFile targetPath( sDrumkitAbsPath );
+			QFile targetPath( sDrumkitPath );
 			if ( !targetPath.link( sLinkedDrumkitPath ) ) {
 				NsmClient::printError( QString( "Unable to link drumkit [%1] to [%2]." )
 									   .arg( sLinkedDrumkitPath )
-									   .arg( sDrumkitAbsPath ) );
+									   .arg( sDrumkitPath ) );
 			}
 		}
 	}
@@ -359,26 +371,33 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		return -1;
 	}
 
-	const QString sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-	const QString sLastLoadedDrumkitName = pSong->getLastLoadedDrumkitName();
+	const auto pDrumkit = pSong->getDrumkit();
 
-	if ( ! sLastLoadedDrumkitPath.contains( NsmClient::get_instance()->
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit set" );
+		return -1;
+	}
+
+	const QString sDrumkitPath = pDrumkit->get_path();
+	const QString sDrumkitName = pDrumkit->get_name();
+
+	if ( ! sDrumkitPath.contains( NsmClient::get_instance()->
 											getSessionFolderPath(),
 											Qt::CaseInsensitive ) ) {
 		// Regular path. We do not have to alter it.
 		return 0;
 	}
 
-	const QFileInfo lastLoadedDrumkitInfo( sLastLoadedDrumkitPath );
-	if ( lastLoadedDrumkitInfo.isSymLink() ) {
+	const QFileInfo drumkitInfo( sDrumkitPath );
+	if ( drumkitInfo.isSymLink() ) {
 		
-		QString sDeferencedDrumkit = lastLoadedDrumkitInfo.symLinkTarget();
+		QString sDeferencedDrumkit = drumkitInfo.symLinkTarget();
 
 		NsmClient::printMessage( QString( "Dereferencing linked drumkit to [%1]" )
 								 .arg( sDeferencedDrumkit ) );
 		NsmClient::replaceDrumkitPath( pSong, sDeferencedDrumkit );
 	}
-	else if ( lastLoadedDrumkitInfo.isDir() ) {
+	else if ( drumkitInfo.isDir() ) {
 		// Drumkit is not linked into the session folder but present
 		// within a directory (probably because the session was
 		// transfered from another device to recovered from a
@@ -393,30 +412,25 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		// a warning dialog (via the GUI) asking the user to install
 		// it herself.
 		bool bDrumkitFound = false;
-		for ( const auto& pDrumkitEntry :
+		for ( const auto& [ ssPath, ppDrumkit ] :
 				  pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase() ) {
-
-			auto pDrumkit = pDrumkitEntry.second;
-			if ( pDrumkit != nullptr ) {
-				if ( pDrumkit->get_name() == sLastLoadedDrumkitName ) {
-					NsmClient::replaceDrumkitPath( pSong, pDrumkitEntry.first );
-					bDrumkitFound = true;
-					break;
-						
-				}
+			if ( ppDrumkit != nullptr && ppDrumkit->get_name() == sDrumkitName ) {
+				NsmClient::replaceDrumkitPath( pSong, ssPath );
+				bDrumkitFound = true;
+				break;
 			}
 		}
 
 		if ( ! bDrumkitFound ) {
 			ERRORLOG( QString( "Drumkit used in session folder [%1] is not present on the current system. It has to be installed first in order to use the exported song" )
-					  .arg( sLastLoadedDrumkitName ) );
+					  .arg( sDrumkitName ) );
 			NsmClient::replaceDrumkitPath( pSong, "" );
 			return -2;
 		}
 		else {
 			INFOLOG( QString( "Drumkit used in session folder [%1] was dereferenced to [%2]" )
-					 .arg( sLastLoadedDrumkitName )
-					 .arg( pSong->getLastLoadedDrumkitPath() ) );
+					 .arg( sDrumkitName )
+					 .arg( sDrumkitPath ) );
 		}
 	}
 	else {
@@ -426,27 +440,40 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 	return 0;
 }
 
-void NsmClient::replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong, const QString& sDrumkitPath ) {
+void NsmClient::replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong,
+									const QString& sDrumkitPath ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit set" );
+		return;
+	}
 
 	// We are only replacing the paths corresponding to the drumkit
 	// which is either about to be linked into the session folder or
 	// the one which is supposed to replace the linked one.
-	const QString sDrumkitToBeReplaced = pSong->getLastLoadedDrumkitPath();
+	const QString sDrumkitToBeReplaced = pDrumkit->get_path();
 	
-	pSong->setLastLoadedDrumkitPath( sDrumkitPath );
+	pDrumkit->set_path( sDrumkitPath );
 
-	for ( auto pInstrument : *pSong->getInstrumentList() ) {
-		if ( pInstrument != nullptr &&
-			 pInstrument->get_drumkit_path() == sDrumkitToBeReplaced ) {
+	for ( auto ppInstrument : *pDrumkit->get_instruments() ) {
+		if ( ppInstrument != nullptr &&
+			 ppInstrument->get_drumkit_path() == sDrumkitToBeReplaced ) {
 
-			pInstrument->set_drumkit_path( sDrumkitPath );
+			ppInstrument->set_drumkit_path( sDrumkitPath );
 
 			// Use full paths in case the drumkit in sDrumkitPath is
 			// not located in either the user's or system's drumkit
 			// folder or just use the filenames (and load the
 			// relatively) otherwise.
-			for ( auto pComponent : *pInstrument->get_components() ) {
+			for ( auto pComponent : *ppInstrument->get_components() ) {
 				if ( pComponent != nullptr ) {
 					for ( auto pInstrumentLayer : *pComponent ) {
 						if ( pInstrumentLayer != nullptr ) {

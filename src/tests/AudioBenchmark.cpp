@@ -229,7 +229,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
@@ -252,7 +252,7 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	pHydrogen->setSong( pSong );
-	pInstrumentList = pSong->getInstrumentList();
+	pInstrumentList = pSong->getDrumkit()->get_instruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

@@ -78,7 +78,7 @@ void InstrumentEditorPanel::drumkitLoadedEvent() {
 		return;
 	}
 	
-	auto pComponentList = pSong->getComponents();
+	auto pComponentList = pSong->getDrumkit()->getComponents();
 	if ( pComponentList != nullptr && pComponentList->size() > 0 ) {
 		m_pInstrumentEditor->selectComponent( pComponentList->front()->get_id() );
 	} else {

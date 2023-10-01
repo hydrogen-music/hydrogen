@@ -654,7 +654,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( selectedinstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Instrument [%1] could not be found" )
 				  .arg( selectedinstrument ) );
@@ -850,7 +850,7 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;

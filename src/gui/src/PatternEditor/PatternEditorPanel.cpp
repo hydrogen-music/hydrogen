@@ -21,6 +21,7 @@
  */
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -60,7 +61,14 @@ void PatternEditorPanel::updateSLnameLabel( )
 	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			m_pSLlabel->setText( pDrumkit->get_name() );
+		}
+	}
 }
 
 
@@ -106,11 +114,17 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//soundlibrary name
 	m_pSLlabel = new QLabel( nullptr );
 	m_pSLlabel->setFont( boldFont );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
 	m_pSLlabel->setFixedSize( 170, 20 );
 	m_pSLlabel->move( 10, 3 );
 	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
 	m_pEditorTop1_hbox->addWidget( m_pSLlabel );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			m_pSLlabel->setText( pDrumkit->get_name() );
+		}
+	}
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
@@ -1043,7 +1057,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->get_instruments();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.

@@ -381,7 +381,7 @@ void PatternEditor::selectNone()
 void PatternEditor::copy()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->get_instruments();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -439,7 +439,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		return;
 	}
 	
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
@@ -1249,7 +1249,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	Note* pDraggedNote = nullptr;
 	if ( editor == Editor::PianoRoll ) {
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+			pSong->getDrumkit()->get_instruments()->get( nSelectedInstrumentnumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1264,7 +1264,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1326,7 +1326,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	if ( editor == Editor::PianoRoll ) {
 		
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+			pSong->getDrumkit()->get_instruments()->get( nSelectedInstrumentNumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1341,7 +1341,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;

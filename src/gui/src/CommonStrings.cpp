@@ -422,8 +422,6 @@ CommonStrings::CommonStrings(){
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
 	
-	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
-	
 	/*: Suffix appended to a drumkit, song, or pattern name in case it
 	 * is found on system-level and is read-only. */
 	m_sSoundLibrarySystemSuffix = tr( "system" );

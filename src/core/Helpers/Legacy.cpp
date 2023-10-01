@@ -166,9 +166,11 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 	}
 
 	// Assign the loaded parts and load samples.
-	pDrumkit->set_components( pComponents );
+	pDrumkit->setComponents( pComponents );
 	pDrumkit->set_instruments( pInstrumentList );
-	pDrumkit->load_samples();
+
+	float fBpm = pNode->read_float( "bpm", 120, false, false, true );
+	pDrumkit->load_samples( fBpm );
 
 	return pDrumkit;
 }
@@ -181,7 +183,7 @@ void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
 	pRootNode->write_string( "last_loaded_drumkit_name", pDrumkit->get_name() );
 
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
-	for ( const auto& ppComponent : *pDrumkit->get_components() ) {
+	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
 		if ( ppComponent != nullptr ) {
 			ppComponent->save_to( &componentListNode );
 		}

@@ -44,11 +44,8 @@ class ADSR;
 class Sample;
 class Note;
 class Instrument;
-class InstrumentList;
 class Pattern;
 class Drumkit;
-class DrumkitMap;
-class DrumkitComponent;
 class PatternList;
 class AutomationPath;
 class Timeline;
@@ -191,9 +188,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
 
-		std::shared_ptr<InstrumentList>		getInstrumentList() const;
-		void			setInstrumentList( std::shared_ptr<InstrumentList> pList );
-
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
 
@@ -228,14 +222,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			getIsModified() const;
 		void			setIsModified( bool bIsModified);
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
-
 		AutomationPath *	getVelocityAutomationPath() const;
-
-		std::shared_ptr<DrumkitComponent>	getComponent( int nID ) const;
-
-		std::shared_ptr<DrumkitMap>			getDrumkitMap() const;
-		void			setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
 
 		void			loadTempPatternList( const QString& sFilename );
 		bool			saveTempPatternList( const QString& sFilename );
@@ -282,28 +269,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional );
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
-	/** Checks whether a component of name @a sComponentName exists in
-	 * #m_pComponents.
-	 *
-	 * \return Component ID on success and -1 on failure.
-	 */
-	int findExistingComponent( const QString& sComponentName ) const;
-	int findFreeComponentID( int nStartingID = 0 ) const;
-	/** Ensures @a sComponentName is not used by any other component
-		loaded into the song yet.*/
-	QString makeComponentNameUnique( const QString& sComponentName ) const;
-
-
-	const QString& getLastLoadedDrumkitName() const;
-	void setLastLoadedDrumkitName( const QString& sName );
-	QString getLastLoadedDrumkitPath() const;
-	void setLastLoadedDrumkitPath( const QString& sPath );
-	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -360,12 +329,6 @@ private:
 		 * `SoundLibraryDatabase` or is a brand new kit. */
 		std::shared_ptr<Drumkit> m_pDrumkit;
 
-		///< Instrument list
-		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
-		///< list of drumkit component
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;
-		/** Mapping of the drumkit of the current song*/
-		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
 		QString			m_sFilename;
 
 		/**
@@ -552,22 +515,6 @@ inline std::shared_ptr<Drumkit> Song::getDrumkit() const
 	return m_pDrumkit;
 }
 
-inline void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit )
-{
-	m_pDrumkit = pDrumkit;
-}
-
-
-inline std::shared_ptr<InstrumentList> Song::getInstrumentList() const
-{
-	return m_pInstrumentList;
-}
-
-inline void Song::setInstrumentList( std::shared_ptr<InstrumentList> pList )
-{
-	m_pInstrumentList = pList;
-}
-
 inline PatternList* Song::getPatternList() const
 {
 	return m_pPatternList;
@@ -691,18 +638,6 @@ inline void Song::setMode( Song::Mode mode )
 	m_mode = mode;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Song::getComponents() const
-{
-	return m_pComponents;
-}
-
-inline std::shared_ptr<DrumkitMap> Song::getDrumkitMap() const {
-	return m_pDrumkitMap;
-}
-inline void	Song::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
-	m_pDrumkitMap = pDrumkitMap;
-}
-
 inline AutomationPath* Song::getVelocityAutomationPath() const
 {
 	return m_pVelocityAutomationPath;
@@ -777,19 +712,6 @@ inline int Song::getPanLawType() const {
 
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
-}
-
-inline const QString& Song::getLastLoadedDrumkitName() const
-{
-	return m_sLastLoadedDrumkitName;
-}
-inline void Song::setLastLoadedDrumkitName( const QString& sName )
-{
-	m_sLastLoadedDrumkitName = sName;
-}
-inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
-{
-	m_sLastLoadedDrumkitPath = sPath;
 }
 };
 

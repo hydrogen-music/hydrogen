@@ -1306,7 +1306,7 @@ void AudioEngineTests::testHumanization() {
 		pSong->setHumanizeTimeValue( fValue );
 		pSong->setHumanizeVelocityValue( fValue );
 
-		pSong->getInstrumentList()->get( 0 )->set_random_pitch_factor( fValue );
+		pSong->getDrumkit()->get_instruments()->get( 0 )->set_random_pitch_factor( fValue );
 	};
 
 	auto setSwing = [&]( double fValue ) {

@@ -438,7 +438,7 @@ void SampleEditor::createNewLayer()
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr ) {
-			auto pInstrList = pSong->getInstrumentList();
+			auto pInstrList = pSong->getDrumkit()->get_instruments();
 			int nInstr = pHydrogen->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
@@ -609,7 +609,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getDrumkit()->get_instruments()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		return;
 	}
@@ -659,7 +659,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getDrumkit()->get_instruments()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return;
