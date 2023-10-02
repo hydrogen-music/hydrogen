@@ -87,7 +87,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	updateWidth();
 
 	auto pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->get_instruments()->size();
+	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
 		// the number of instruments is changed...recreate all
@@ -116,7 +116,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nRow );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nRow ) );
@@ -186,7 +186,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	int nInstruments = pSong->getDrumkit()->get_instruments()->size();
+	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
 		return;
@@ -201,7 +201,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		return;
 	}
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( row );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( row );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( row ) );
@@ -242,7 +242,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->get_instruments()->size();
+	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
 	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
@@ -386,7 +386,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nInstrumentRow );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrumentRow );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nInstrumentRow ) );
@@ -483,7 +483,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->getPatternList();
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	Pattern *pPattern = m_pPattern;
 	Note *pFoundNote = nullptr;
 
@@ -562,7 +562,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		// Move with no effect.
 		return;
 	}
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 
 	validateSelection();
 
@@ -661,7 +661,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	const int nBlockSize = 5, nWordSize = 5;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	int nMaxInstrument = pHydrogen->getSong()->getDrumkit()->get_instruments()->size();
+	int nMaxInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->size();
 	bool bUnhideCursor = true;
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
@@ -823,7 +823,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	}
 	
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto  pInstrList = pSong->getDrumkit()->get_instruments();
+	auto  pInstrList = pSong->getDrumkit()->getInstruments();
 	uint h = m_nGridHeight / 3;
 
 	// Expand the region by approximately the size of the note
@@ -896,7 +896,7 @@ void DrumPatternEditor::deleteSelection()
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Selection exists, delete it.
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->get_instruments();
+		auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 
@@ -947,7 +947,7 @@ void DrumPatternEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaInstrument = 0;
 
@@ -1060,7 +1060,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto  pInstrList = pSong->getDrumkit()->get_instruments();
+	auto  pInstrList = pSong->getDrumkit()->getInstruments();
 
 	/*
 		BUGFIX
@@ -1152,7 +1152,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {
 		ERRORLOG( "Instrument not found..skipping note" );
@@ -1178,7 +1178,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->get_instruments()->size();
+	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
@@ -1342,7 +1342,7 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 
 	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getVerticalScrollBar()->value();
 	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getHorizontalScrollBar()->value();
-	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments()->size(),
+	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments()->size(),
 						 nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().height() );
 	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
 
@@ -1413,7 +1413,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 			Note *pNote = it->second;
 			assert( pNote );
 			assert( (int)pNote->get_position() == column );
-			if ( pNote->get_instrument() != pSong->getDrumkit()->get_instruments()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 
@@ -1467,7 +1467,7 @@ void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, i
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
@@ -1636,7 +1636,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 		return;
 	}
 	
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
@@ -1678,7 +1678,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 		return;
 	}
 	
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
@@ -1712,7 +1712,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 		return;
 	}
 	
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
 				  .arg( nSelectedInstrument ) );
@@ -1748,7 +1748,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		std::shared_ptr<Song> pSong = pHydrogen->getSong();
-		auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+		auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 		if ( ( nTargetInstrument > (int)pInstrumentList->size() ) || ( nTargetInstrument < 0) ) {
 			m_pAudioEngine->unlock();
@@ -1799,6 +1799,14 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 	auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
+	auto pComponents = pDrumkit->getComponents();
 	
 	auto pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
 	if ( pNewInstrument == nullptr ||
@@ -1829,20 +1837,66 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 
 		// Gets the ID of the drumkit component registered to the
 		// current song that matches the name of the pComponent.
-		int nNewID = pSong->getDrumkit()->findExistingComponent( pComponent->get_name() );
+		int nNewId = -1;
+		for ( const auto& ppComponentCurrent : *pComponents ) {
+			if ( ppComponentCurrent->get_name().compare(
+					 pComponent->get_name() ) == 0 ) {
+				nNewId = ppComponentCurrent->get_id();
+			}
+		}
 
-		if ( nNewID == -1 ) {
+		if ( nNewId == -1 ) {
 			// No component in the currently loaded drumkit found
 			// matching pComponent.
 			//
 			// Get an ID not used as drumkit component ID by the
 			// drumkit currently loaded.
-			nNewID = pSong->getDrumkit()->findFreeComponentID();
+			nNewId = pComponents->size();
+			for ( int ii = 0; ii < pComponents->size(); ++ii ) {
+				bool bIsPresent = false;
+				for ( const auto& ppComp : *pComponents ) {
+					if ( ppComp->get_id() == ii ) {
+						bIsPresent = true;
+						break;
+					}
+				}
 
-			pAddedComponents->push_back( nNewID );
+				if ( ! bIsPresent ){
+					nNewId = ii;
+					break;
+				}
+			}
 
-			pComponent->set_id( nNewID );
-			pComponent->set_name( pSong->getDrumkit()->makeComponentNameUnique( pComponent->get_name() ) );
+			// Create an unique component name based on the old.
+			QString sNewName = pComponent->get_name();
+			bool bUnique = false;
+			int ii = 0;
+			while ( ! bUnique ){
+				bool bNameFound = false;
+				for ( const auto& ppComp : *pComponents ) {
+					if ( ppComp->get_name() == sNewName ) {
+						bNameFound = true;
+						break;
+					}
+				}
+
+				if ( ! bNameFound ) {
+					bUnique = true;
+				} else {
+					sNewName.append( "_new" );
+				}
+
+				++ii;
+				if ( ii > 100 ) {
+					// That's a bit much
+					break;
+				}
+			}
+
+			pAddedComponents->push_back( nNewId );
+
+			pComponent->set_id( nNewId );
+			pComponent->set_name( sNewName );
 			auto pNewComponent = std::make_shared<DrumkitComponent>( pComponent );
 			pSong->getDrumkit()->getComponents()->push_back( pNewComponent );
 		}
@@ -1850,7 +1904,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		for ( auto pOldInstrCompo : *pOldInstrumentComponents ) {
 			if( pOldInstrCompo->get_drumkit_componentID() == nOldID ) {
 				auto pNewInstrCompo = std::make_shared<InstrumentComponent>( pOldInstrCompo );
-				pNewInstrCompo->set_drumkit_componentID( nNewID );
+				pNewInstrCompo->set_drumkit_componentID( nNewId );
 
 				pNewInstrument->get_components()->push_back( pNewInstrCompo );
 			}
@@ -1862,8 +1916,8 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pSong->getDrumkit()->get_instruments()->size(); ++i ) {
-		auto pInstr = pSong->getDrumkit()->get_instruments()->get( i );
+	for ( uint i = 0; i < pSong->getDrumkit()->getInstruments()->size(); ++i ) {
+		auto pInstr = pSong->getDrumkit()->getInstruments()->get( i );
 		if ( pInstr->get_id() > nID ) {
 			nID = pInstr->get_id();
 		}
@@ -1872,7 +1926,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 
 	pNewInstrument->set_id( nID );
 
-	pSong->getDrumkit()->get_instruments()->add( pNewInstrument );
+	pSong->getDrumkit()->getInstruments()->add( pNewInstrument );
 
 	pHydrogen->renameJackPorts( pSong );
 
@@ -1880,7 +1934,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 	m_pAudioEngine->unlock();
 		
 	//move instrument to the position where it was dropped
-	functionMoveInstrumentAction(pSong->getDrumkit()->get_instruments()->size() - 1 , nTargetInstrument );
+	functionMoveInstrumentAction(pSong->getDrumkit()->getInstruments()->size() - 1 , nTargetInstrument );
 
 	// select the new instrument
 	pHydrogen->setSelectedInstrumentNumber(nTargetInstrument);
@@ -1894,7 +1948,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	auto pSong = pHydrogen->getSong();
 	std::shared_ptr<Instrument> pNewInstrument;
 	if( sDrumkitPath == "" ){
-		pNewInstrument = std::make_shared<Instrument>( pSong->getDrumkit()->get_instruments()->size() -1, sInstrumentName );
+		pNewInstrument = std::make_shared<Instrument>( pSong->getDrumkit()->getInstruments()->size() -1, sInstrumentName );
 	} else {
 		pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
 	}
@@ -1904,8 +1958,8 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pSong->getDrumkit()->get_instruments()->size(); ++i ) {
-		auto pInstr = pSong->getDrumkit()->get_instruments()->get( i );
+	for ( uint i = 0; i < pSong->getDrumkit()->getInstruments()->size(); ++i ) {
+		auto pInstr = pSong->getDrumkit()->getInstruments()->get( i );
 		if ( pInstr->get_id() > nID ) {
 			nID = pInstr->get_id();
 		}
@@ -1915,7 +1969,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	pNewInstrument->set_id( nID );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	pSong->getDrumkit()->get_instruments()->add( pNewInstrument );
+	pSong->getDrumkit()->getInstruments()->add( pNewInstrument );
 
 	pHydrogen->renameJackPorts( pSong );
 
@@ -1923,7 +1977,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	m_pAudioEngine->unlock();	// unlock the audio engine
 
 	//move instrument to the position where it was dropped
-	functionMoveInstrumentAction(pSong->getDrumkit()->get_instruments()->size() - 1 , nSelectedInstrument );
+	functionMoveInstrumentAction(pSong->getDrumkit()->getInstruments()->size() - 1 , nSelectedInstrument );
 
 	// select the new instrument
 	pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
@@ -1961,7 +2015,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 		return;
 	}
 	
-	pHydrogen->removeInstrument( pSong->getDrumkit()->get_instruments()->size() -1 );
+	pHydrogen->removeInstrument( pSong->getDrumkit()->getInstruments()->size() -1 );
 
 	if ( pHydrogen->hasJackAudioDriver() ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
@@ -1989,7 +2043,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 		return;
 	}
 	
-	auto pList = pDrumkit->get_instruments();
+	auto pList = pDrumkit->getInstruments();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
@@ -2005,8 +2059,8 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	++nID;
 
 	auto pNewInstr = std::make_shared<Instrument>( nID, "New instrument");
-	pNewInstr->set_drumkit_path( pDrumkit->get_path() );
-	pNewInstr->set_drumkit_name( pDrumkit->get_name() );
+	pNewInstr->set_drumkit_path( pDrumkit->getPath() );
+	pNewInstr->set_drumkit_name( pDrumkit->getName() );
 	
 	pList->add( pNewInstr );
 

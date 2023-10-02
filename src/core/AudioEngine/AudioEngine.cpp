@@ -1284,7 +1284,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			m_songNoteQueue.pop();
 			pNote->get_instrument()->dequeue();
 			
-			const int nInstrument = pSong->getDrumkit()->get_instruments()->index( pNote->get_instrument() );
+			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
 			if( pNote->get_note_off() ){
 				delete pNote;
 			}

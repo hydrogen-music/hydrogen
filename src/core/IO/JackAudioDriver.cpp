@@ -877,7 +877,7 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 		return;
 	}
 
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	std::shared_ptr<Instrument> pInstrument;
 	int nInstruments = static_cast<int>(pInstrumentList->size());
 

@@ -181,7 +181,7 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 				QString sSamplePath;
 				
 				if ( src_layer->get_sample() != nullptr ) {
-					QString sSamplePath = pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
+					QString sSamplePath = pDrumkit->getPath() + "/" + src_layer->get_sample()->get_filename();
 					pSample = Sample::load( sSamplePath );
 				}
 				
@@ -193,7 +193,7 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 
 				}
 				else {
-					pSample->setLicense( pDrumkit->get_license() );
+					pSample->setLicense( pDrumkit->getLicense() );
 					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
 				}
 			}
@@ -203,8 +203,8 @@ void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<I
 
 	this->set_id( pInstrument->get_id() );
 	this->set_name( pInstrument->get_name() );
-	this->set_drumkit_path( pDrumkit->get_path() );
-	this->set_drumkit_name( pDrumkit->get_name() );
+	this->set_drumkit_path( pDrumkit->getPath() );
+	this->set_drumkit_name( pDrumkit->getName() );
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
 	this->setPan( pInstrument->getPan() );
@@ -249,7 +249,7 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 		return;
 	}
 
-	auto pInstrument = pDrumkit->get_instruments()->find( sInstrumentName );
+	auto pInstrument = pDrumkit->getInstruments()->find( sInstrumentName );
 	if ( pInstrument != nullptr ) {
 		load_from( pDrumkit, pInstrument );
 	}
@@ -476,7 +476,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 				// its license from disk.
 				instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
 			} else {
-				instrumentLicense = pDrumkit->get_license();
+				instrumentLicense = pDrumkit->getLicense();
 			}
 		}
 	} else {

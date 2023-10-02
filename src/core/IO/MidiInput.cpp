@@ -239,7 +239,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	static const float fPan = 0.f;
 
 	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;
-	auto pInstrList = pHydrogen->getSong()->getDrumkit()->get_instruments();
+	auto pInstrList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	std::shared_ptr<Instrument> pInstr = nullptr;
 		
 	if ( pPref->__playselectedinstrument ){
@@ -311,7 +311,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrList = pHydrogen->getSong()->getDrumkit()->get_instruments();
+	auto pInstrList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 
 	int nNote = msg.m_nData1;
 	int nInstrument = nNote - MIDI_DEFAULT_OFFSET;

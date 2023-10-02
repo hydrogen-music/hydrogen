@@ -105,7 +105,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 			}
 
 			INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
-					 .arg( pDrumkit->get_name() ).arg( sDrumkitPath ) );
+					 .arg( pDrumkit->getName() ).arg( sDrumkitPath ) );
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
@@ -180,7 +180,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		
 		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
-				  .arg( pDrumkit->get_name() )
+				  .arg( pDrumkit->getName() )
 				  .arg( sDrumkitPath ) );
 
 		EventQueue::get_instance()->push_event( EVENT_SOUND_LIBRARY_CHANGED, 0 );

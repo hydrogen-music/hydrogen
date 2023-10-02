@@ -876,7 +876,7 @@ void MainForm::action_file_save_as()
 					if ( pDrumkit != nullptr ) {
 						QMessageBox::warning( this, "Hydrogen",
 											  tr( "Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly." )
-											  .arg( pDrumkit->get_name() ) );
+											  .arg( pDrumkit->getName() ) );
 					}
 				}
 			}
@@ -898,7 +898,7 @@ void MainForm::action_file_save_as()
 
 			if ( pSong->getDrumkit() != nullptr ) {
 				NsmClient::replaceDrumkitPath( pSong,
-											   pSong->getDrumkit()->get_path() );
+											   pSong->getDrumkit()->getPath() );
 			}
 			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFilename );
 			pHydrogen->setSessionIsExported( false );
@@ -1100,7 +1100,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	QString originalName = pPattern->get_name();
 	pPattern->set_name( fileInfo.baseName() );
 	QString path = Files::savePatternPath( filePath, pPattern, pSong,
-										   pDrumkit->get_name() );
+										   pDrumkit->getName() );
 	pPattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {
@@ -1156,7 +1156,7 @@ void MainForm::action_file_openPattern()
 
 		for ( auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->get_instruments() );
+			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->getInstruments() );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
@@ -1413,7 +1413,7 @@ void MainForm::action_instruments_clearAll()
 
 	// Remove all instruments
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pList = pSong->getDrumkit()->get_instruments();
+	auto pList = pSong->getDrumkit()->getInstruments();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
 	}
@@ -1425,7 +1425,7 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( nInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -1504,7 +1504,7 @@ void MainForm::action_instruments_saveLibrary()
 		return;
 	}
 	
-	auto drumkitType = Filesystem::determineDrumkitType(pDrumkit->get_path() );
+	auto drumkitType = Filesystem::determineDrumkitType(pDrumkit->getPath() );
 
 	// In case the user does not have write access to the folder of
 	// pDrumkit, the save as dialog will be opened.
@@ -1722,7 +1722,7 @@ void MainForm::checkMissingSamples()
 void MainForm::checkMidiSetup()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getDrumkit()->get_instruments()->has_all_midi_notes_same() ) {
+	if ( pSong->getDrumkit()->getInstruments()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
 		m_pMidiSetupInfoBar = h2app->addInfoBar();
@@ -1754,7 +1754,7 @@ void MainForm::onFixMidiSetup()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		pSong->getDrumkit()->get_instruments()->set_default_midi_out_notes();
+		pSong->getDrumkit()->getInstruments()->set_default_midi_out_notes();
 		pHydrogen->setIsModified( true );
 
 		m_pMidiSetupInfoBar->hide();
@@ -2473,7 +2473,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCaptureInstrument();
-				fMax = static_cast<float>(pSong->getDrumkit()->get_instruments()->size()) - 1;
+				fMax = static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1;
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly prepared" )
@@ -2565,7 +2565,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				inputType2 = InputCaptureDialog::Type::Int;
 				sLabel2 = pCommonStrings->getInputCaptureInstrument();
-				fMax2 = static_cast<float>(pSong->getDrumkit()->get_instruments()->size()) - 1;
+				fMax2 = static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1;
 				break;
 
 			case Shortcuts::Action::TimelineAddMarker:
@@ -2657,13 +2657,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getDrumkit()->get_instruments()->size()) - 1 );
+										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nInstrument = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getDrumkit()->get_instruments()->get( nInstrument );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
 						  .arg( nInstrument ) );
@@ -2716,13 +2716,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getDrumkit()->get_instruments()->size()) - 1 );
+										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nInstrument = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getDrumkit()->get_instruments()->get( nInstrument );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
 						  .arg( nInstrument ) );

@@ -66,7 +66,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	if ( pSong != nullptr ) {
 		auto pDrumkit = pSong->getDrumkit();
 		if ( pDrumkit != nullptr ) {
-			m_pSLlabel->setText( pDrumkit->get_name() );
+			m_pSLlabel->setText( pDrumkit->getName() );
 		}
 	}
 }
@@ -122,7 +122,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	if ( pSong != nullptr ) {
 		auto pDrumkit = pSong->getDrumkit();
 		if ( pDrumkit != nullptr ) {
-			m_pSLlabel->setText( pDrumkit->get_name() );
+			m_pSLlabel->setText( pDrumkit->getName() );
 		}
 	}
 
@@ -1057,7 +1057,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->get_instruments();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.

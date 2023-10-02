@@ -648,7 +648,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 // or OSC messages or other parts of Hydrogen.
 void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 {
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	
 	// Check if either this particular line or all lines should be updated.
 	if ( m_pInstrument != nullptr ) {
@@ -1344,7 +1344,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 		auto pDrumkitComponent = pHydrogen->getSong()->getDrumkit()->getComponent( m_nSelectedComponent );
 
-		auto pInstruments = pHydrogen->getSong()->getDrumkit()->get_instruments();
+		auto pInstruments = pHydrogen->getSong()->getDrumkit()->getInstruments();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {

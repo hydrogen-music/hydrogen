@@ -49,7 +49,7 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 {
 	int count = 0;
 	H2Core::InstrumentComponent::setMaxLayers( 16 );
-	auto instruments = dk->get_instruments();
+	auto instruments = dk->getInstruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		auto pInstr = ( *instruments )[i];
@@ -91,17 +91,17 @@ void XmlTest::testDrumkit()
 	// load without samples
 	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
-	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==false );
+	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
-	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->get_instruments()->size() );
+	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->getInstruments()->size() );
 
 	// Check if drumkit was valid (what we assume in this test)
 	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles( "drumkits/baseKit/" )
 					.size() == 0 );
 	
 	// manually load samples
-	pDrumkitLoaded->load_samples();
-	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
+	pDrumkitLoaded->loadSamples();
+	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 
 	pDrumkitLoaded = nullptr;
@@ -110,17 +110,17 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 
-	pDrumkitLoaded->load_samples();
-	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
+	pDrumkitLoaded->loadSamples();
+	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 	
 	// unload samples
-	pDrumkitLoaded->unload_samples();
-	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==false );
+	pDrumkitLoaded->unloadSamples();
+	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
 	
 	// save drumkit elsewhere
-	pDrumkitLoaded->set_name( "pDrumkitLoaded" );
+	pDrumkitLoaded->setName( "pDrumkitLoaded" );
 	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath, true ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/drumkit.xml" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/crash.wav" ) );
@@ -140,7 +140,7 @@ void XmlTest::testDrumkit()
 	pDrumkitCopied = std::make_shared<H2Core::Drumkit>( pDrumkitReloaded );
 	CPPUNIT_ASSERT( pDrumkitCopied!=nullptr );
 	// save file
-	pDrumkitCopied->set_name( "COPY" );
+	pDrumkitCopied->setName( "COPY" );
 	CPPUNIT_ASSERT( pDrumkitCopied->save( sDrumkitPath ) );
 
 	pDrumkitReloaded = nullptr;
@@ -188,7 +188,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
-	auto pInstruments = pDrumkit->get_instruments();
+	auto pInstruments = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	
 	auto pFirstInstrument = pInstruments->get(0);
@@ -284,11 +284,11 @@ void XmlTest::testDrumkitUpgrade() {
 			pCoreActionController->retrieveDrumkit( firstUpgrade.path() + "/" + ssFile,
 													&b, &s1, &s2 );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
-		if ( pDrumkit->get_name() == "Boss DR-110" ) {
+		if ( pDrumkit->getName() == "Boss DR-110" ) {
 			// For our default kit we put in some prior knowledge to
 			// check whether the upgrade process produce the expected
 			// results.
-			auto pInstrumentList = pDrumkit->get_instruments();
+			auto pInstrumentList = pDrumkit->getInstruments();
 			CPPUNIT_ASSERT( pInstrumentList != nullptr );
 			CPPUNIT_ASSERT( pInstrumentList->size() == 6 );
 
@@ -393,7 +393,7 @@ void XmlTest::testPattern()
 
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
-	pInstrumentList = pDrumkit->get_instruments();
+	pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
 	pPatternLoaded = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), pInstrumentList );

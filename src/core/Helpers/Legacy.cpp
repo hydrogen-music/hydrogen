@@ -167,10 +167,10 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 
 	// Assign the loaded parts and load samples.
 	pDrumkit->setComponents( pComponents );
-	pDrumkit->set_instruments( pInstrumentList );
+	pDrumkit->setInstruments( pInstrumentList );
 
 	float fBpm = pNode->read_float( "bpm", 120, false, false, true );
-	pDrumkit->load_samples( fBpm );
+	pDrumkit->loadSamples( fBpm );
 
 	return pDrumkit;
 }
@@ -179,8 +179,8 @@ void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
 									  std::shared_ptr<Drumkit> pDrumkit,
 									  bool bSilent ) {
 
-	pRootNode->write_string( "last_loaded_drumkit", pDrumkit->get_path() );
-	pRootNode->write_string( "last_loaded_drumkit_name", pDrumkit->get_name() );
+	pRootNode->write_string( "last_loaded_drumkit", pDrumkit->getPath() );
+	pRootNode->write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
 
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
 	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
@@ -189,7 +189,7 @@ void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
 		}
 	}
 
-	pDrumkit->get_instruments()->save_to( pRootNode, -1, true, true );
+	pDrumkit->getInstruments()->save_to( pRootNode, -1, true, true );
 }
 
 std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {

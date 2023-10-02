@@ -254,8 +254,8 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		ERRORLOG( "no drumkit set" );
 		return;
 	}
-	const QString sDrumkitPath = pDrumkit->get_path();
-	const QString sDrumkitName = pDrumkit->get_name();
+	const QString sDrumkitPath = pDrumkit->getPath();
+	const QString sDrumkitName = pDrumkit->getName();
 	
 	bool bRelinkDrumkit = true;
 
@@ -298,7 +298,7 @@ void NsmClient::linkDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 			if ( pSoundLibraryDatabase != nullptr ) {
 				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLinkedDrumkitPath );
 				if ( pDrumkit != nullptr ) {
-					sLinkedDrumkitName = pDrumkit->get_name();
+					sLinkedDrumkitName = pDrumkit->getName();
 				}
 			}
 	
@@ -378,8 +378,8 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		return -1;
 	}
 
-	const QString sDrumkitPath = pDrumkit->get_path();
-	const QString sDrumkitName = pDrumkit->get_name();
+	const QString sDrumkitPath = pDrumkit->getPath();
+	const QString sDrumkitName = pDrumkit->getName();
 
 	if ( ! sDrumkitPath.contains( NsmClient::get_instance()->
 											getSessionFolderPath(),
@@ -414,7 +414,7 @@ int NsmClient::dereferenceDrumkit( std::shared_ptr<H2Core::Song> pSong ) {
 		bool bDrumkitFound = false;
 		for ( const auto& [ ssPath, ppDrumkit ] :
 				  pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase() ) {
-			if ( ppDrumkit != nullptr && ppDrumkit->get_name() == sDrumkitName ) {
+			if ( ppDrumkit != nullptr && ppDrumkit->getName() == sDrumkitName ) {
 				NsmClient::replaceDrumkitPath( pSong, ssPath );
 				bDrumkitFound = true;
 				break;
@@ -459,11 +459,11 @@ void NsmClient::replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong,
 	// We are only replacing the paths corresponding to the drumkit
 	// which is either about to be linked into the session folder or
 	// the one which is supposed to replace the linked one.
-	const QString sDrumkitToBeReplaced = pDrumkit->get_path();
+	const QString sDrumkitToBeReplaced = pDrumkit->getPath();
 	
-	pDrumkit->set_path( sDrumkitPath );
+	pDrumkit->setPath( sDrumkitPath );
 
-	for ( auto ppInstrument : *pDrumkit->get_instruments() ) {
+	for ( auto ppInstrument : *pDrumkit->getInstruments() ) {
 		if ( ppInstrument != nullptr &&
 			 ppInstrument->get_drumkit_path() == sDrumkitToBeReplaced ) {
 

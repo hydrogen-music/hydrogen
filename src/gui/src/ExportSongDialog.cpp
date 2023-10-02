@@ -316,7 +316,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	// License related export warnings
 	if ( pPref->m_bShowExportSongLicenseWarning ) {
@@ -324,7 +324,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		QMessageBox licenseWarning( this );
 
 		auto drumkitContent =
-			pSong->getDrumkit()->get_instruments()->summarizeContent( pSong->getDrumkit()->getComponents() );
+			pSong->getDrumkit()->getInstruments()->summarizeContent( pSong->getDrumkit()->getComponents() );
 
 		bool bHasAttribution = false;
 		bool bIsCopyleft = false;
@@ -456,7 +456,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_id() == pSong->getDrumkit()->get_instruments()->get(m_nInstrument)->get_id() ){
+			if( pNote->get_instrument()->get_id() == pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}
@@ -472,8 +472,8 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
-	for(int i=0; i  < pSong->getDrumkit()->get_instruments()->size(); i++ ){
-		if( pSong->getDrumkit()->get_instruments()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+	for(int i=0; i  < pSong->getDrumkit()->getInstruments()->size(); i++ ){
+		if( pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
 			instrumentOccurence++;
 		}
 	}
@@ -490,7 +490,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 void ExportSongDialog::exportTracks()
 {
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -534,7 +534,7 @@ void ExportSongDialog::exportTracks()
 			pInstrumentList->get(i)->set_currently_exported( false );
 		}
 		
-		pSong->getDrumkit()->get_instruments()->get(m_nInstrument)->set_currently_exported( true );
+		pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->set_currently_exported( true );
 		
 		m_pHydrogen->startExportSong( filename );
 
@@ -741,7 +741,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments()->size()){
+		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments()->size()){
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}
@@ -811,7 +811,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		auto pSongInstrList = pSong->getDrumkit()->get_instruments();
+		auto pSongInstrList = pSong->getDrumkit()->getInstruments();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			auto pInstr = pSongInstrList->get( nInstr );

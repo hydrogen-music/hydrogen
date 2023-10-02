@@ -1990,7 +1990,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString prevPatternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   pDrumkit->get_name() );
+							   pDrumkit->getName() );
 
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
@@ -2042,7 +2042,7 @@ void SongEditorPatternList::patternPopup_save()
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
-										   pSong, pDrumkit->get_name() );
+										   pSong, pDrumkit->getName() );
 	if ( sPath.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
 									   pCommonStrings->getButtonOk(),
@@ -2052,7 +2052,7 @@ void SongEditorPatternList::patternPopup_save()
 			return;
 		}
 		sPath = Files::savePatternOver( pPattern->get_name(), pPattern,
-										pSong, pDrumkit->get_name() );
+										pSong, pDrumkit->getName() );
 	}
 
 	if ( sPath.isEmpty() ) {
@@ -2143,7 +2143,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 	QString patternPath =
 		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
-							   pDrumkit->get_name() );
+							   pDrumkit->getName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		setRowSelection( RowSelection::None );
@@ -2187,7 +2187,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		QString filePath = Files::savePatternTmp( pNewPattern->get_name(),
 												  pNewPattern, pSong,
-												  pDrumkit->get_name() );
+												  pDrumkit->getName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			setRowSelection( RowSelection::None );
@@ -2355,7 +2355,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			QString patternFilePath = urlList.at(i).toLocalFile();
 			if( patternFilePath.endsWith(".h2pattern") )
 			{
-				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->getDrumkit()->get_instruments() );
+				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->getDrumkit()->getInstruments() );
 				if ( pPattern)
 				{
 					H2Core::Pattern *pNewPattern = pPattern;

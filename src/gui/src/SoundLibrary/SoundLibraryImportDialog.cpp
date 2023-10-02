@@ -537,8 +537,8 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 							->getSoundLibraryDatabase()->getDrumkit( info.getPath() );
 						if ( pDrumkit != nullptr ) {
 							// get the image from the local filesystem
-							QPixmap pixmap ( pDrumkit->get_path() + "/" + pDrumkit->get_image() );
-							INFOLOG("Loaded image " + pDrumkit->get_image() + " from local filesystem");
+							QPixmap pixmap ( pDrumkit->getPath() + "/" + pDrumkit->getImage() );
+							INFOLOG("Loaded image " + pDrumkit->getImage() + " from local filesystem");
 							showImage( pixmap );
 						}
 						else {

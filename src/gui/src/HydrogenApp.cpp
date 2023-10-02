@@ -698,8 +698,8 @@ void HydrogenApp::drumkitLoadedEvent(){
 		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
 		const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
 		showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
-								  .arg( pDrumkit->get_name() )
-								  .arg( pDrumkit->get_path() ) ) );
+								  .arg( pDrumkit->getName() )
+								  .arg( pDrumkit->getPath() ) ) );
 	}
 }
 
@@ -894,7 +894,7 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getDrumkit()->get_instruments()->
+		auto pInstrument = pSong->getDrumkit()->getInstruments()->
 			get( pQueue->m_addMidiNoteVector[0].m_row );
 		
 		// find if a (pitch matching) note is already present
@@ -1120,7 +1120,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	auto drumkitLicense = pDrumkit->get_license();
+	auto drumkitLicense = pDrumkit->getLicense();
 	auto contentVector = pDrumkit->summarizeContent();
 
 	QStringList additionalLicenses;

@@ -315,9 +315,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= m_pSong->getDrumkit()->get_instruments()->size() ) {
+	if ( m_nSelectedInstrumentNumber >= m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
-			std::max( m_pSong->getDrumkit()->get_instruments()->size() - 1, 0 );
+			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
 	}
 
 	// Update the audio engine to work with the new song.
@@ -369,7 +369,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	m_pAudioEngine->lock( RIGHT_HERE );
 	
 	if ( ! bPlaySelectedInstrument ) {
-		if ( nInstrument >= ( int ) pSong->getDrumkit()->get_instruments()->size() ) {
+		if ( nInstrument >= ( int ) pSong->getDrumkit()->getInstruments()->size() ) {
 			// unused instrument
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
 					  .arg( nInstrument ) );
@@ -449,7 +449,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		nTickInPattern = qcolumn;
 	}
 
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nInstrumentNumber;
 	if ( bPlaySelectedInstrument ) {
 		nInstrumentNumber = getSelectedInstrumentNumber();
@@ -744,8 +744,8 @@ void Hydrogen::removeInstrument( int nInstrumentNumber ) {
 		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
 			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
 		} else if ( m_nSelectedInstrumentNumber >=
-					pSong->getDrumkit()->get_instruments()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->get_instruments()->size() - 1 ) );
+					pSong->getDrumkit()->getInstruments()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->getInstruments()->size() - 1 ) );
 		}
 		m_pAudioEngine->unlock();
 		
@@ -1510,7 +1510,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		int nSelectedInstrumentNumber = m_nSelectedInstrumentNumber;
-		auto pInstrList = m_pSong->getDrumkit()->get_instruments();
+		auto pInstrList = m_pSong->getDrumkit()->getInstruments();
 		if ( nSelectedInstrumentNumber >= pInstrList->size() ) {
 			nSelectedInstrumentNumber = -1;
 		}

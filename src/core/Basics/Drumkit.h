@@ -26,7 +26,6 @@
 #include <memory>
 
 #include <core/Object.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 #include <core/Basics/InstrumentList.h>
 
@@ -50,7 +49,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		Drumkit();
 		/** copy constructor */
 		Drumkit( std::shared_ptr<Drumkit> pOther );
-		/** drumkit destructor, delete #__instruments */
+		/** drumkit destructor, delete #m_pInstruments */
 		~Drumkit();
 
 		/**
@@ -78,7 +77,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
-		static std::shared_ptr<Drumkit> load_from( XMLNode* pNode,
+		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
 												   const QString& sPath,
 												   bool bSilent = false );
 
@@ -90,7 +89,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * supported by Hydrogen 0.9.7 or higher (whether it should be
 		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* pNode,
+		void saveTo( XMLNode* pNode,
 					  int nComponent_id = -1,
 					  bool bRecentVersion = true,
 					  bool bSilent = false ) const;
@@ -104,7 +103,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * and images.
 		 *
 		 * \param sDrumkitDir the path (folder) to save the #Drumkit
-		 * into. If left empty, the path stored in #__path will be
+		 * into. If left empty, the path stored in #m_sPath will be
 		 * used instead.
 		 * \param nComponentID to chose the component to save or -1 for all
 		 * \param bSilent if set to true, all log messages except of
@@ -119,13 +118,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 
 		/** Calls the InstrumentList::load_samples() member
-		 * function of #__instruments.
+		 * function of #m_pInstruments.
 		 */
-		void load_samples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120 );
 		/** Calls the InstrumentList::unload_samples() member
-		 * function of #__instruments.
+		 * function of #m_pInstruments.
 		 */
-		void unload_samples();
+		void unloadSamples();
 
 	/**
 	 * Loads the license information of a drumkit contained in
@@ -135,16 +134,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	static License loadLicenseFrom( const QString& sDrumkitDir,
 									bool bSilent = false );
-	
-	/**
-	 * Returns a version of #__name stripped of all whitespaces and
-	 * other characters which would prevent its use as a valid
-	 * filename.
-	 *
-	 * Attention: The returned string might be used as the name for
-	 * the associated drumkit folder but it does not have to.
-	 */
-	QString getFolderName() const;
 	/**
 	 * Returns the base name used when exporting the drumkit.
 	 *
@@ -156,14 +145,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	QString getExportName( const QString& sComponentName = "",
 						   bool bRecentVersion = true ) const;
-		
-		/** 
-		 * Upgrades the drumkit by saving the latest version.
-		 *
-		 * This is a wrapper around #H2Core::Drumkit::save() which also creates
-		 * a backup of the drumkit definition.
-		 */
-		void upgrade( bool bSilent = false );
 
 		/**
 		 * Extract a .h2drumkit file.
@@ -182,7 +163,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	/**
 	 * Compresses the drumkit into a .h2drumkit file.
 	 *
-	 * The name of the created file will be a concatenation of #__name
+	 * The name of the created file will be a concatenation of #m_sName
 	 * and Filesystem::drumkit_ext.
 	 *
 	 * exportTo() ? well, export is a protected name within C++. So,
@@ -209,41 +190,41 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 		static bool remove( const QString& sDrumkitDir );
 
-		/** set __instruments, delete existing one */
-		void set_instruments( std::shared_ptr<InstrumentList> instruments );
-		/**  returns #__instruments */
-		std::shared_ptr<InstrumentList> get_instruments() const;
+		/** set m_pInstruments, delete existing one */
+		void setInstruments( std::shared_ptr<InstrumentList> instruments );
+		/**  returns #m_pInstruments */
+		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		/** #__path setter */
-		void set_path( const QString& path );
-		/** #__path accessor */
-		QString get_path() const;
-		/** #__name setter */
-		void set_name( const QString& name );
-		/** #__name accessor */
-		const QString& get_name() const;
-		/** #__author setter */
-		void set_author( const QString& author );
-		/** #__author accessor */
-		const QString& get_author() const;
-		/** #__info setter */
-		void set_info( const QString& info );
-		/** #__info accessor */
-		const QString& get_info() const;
-		/** #__license setter */
-		void set_license( const License& license );
-		/** #__license accessor */
-		const License& get_license() const;
-		/** #__image setter */
-		void set_image( const QString& image );
-		/** #__image accessor */
-		const QString& get_image() const;
-		/** #__imageLicense setter */
-		void set_image_license( const License& imageLicense );
-		/** #__imageLicense accessor */
-		const License& get_image_license() const;
+		/** #m_sPath setter */
+		void setPath( const QString& path );
+		/** #m_sPath accessor */
+		QString getPath() const;
+		/** #m_sName setter */
+		void setName( const QString& name );
+		/** #m_sName accessor */
+		const QString& getName() const;
+		/** #m_sAuthor setter */
+		void setAuthor( const QString& author );
+		/** #m_sAuthor accessor */
+		const QString& getAuthor() const;
+		/** #m_sInfo setter */
+		void setInfo( const QString& info );
+		/** #m_sInfo accessor */
+		const QString& getInfo() const;
+		/** #m_license setter */
+		void setLicense( const License& license );
+		/** #m_license accessor */
+		const License& getLicense() const;
+		/** #m_sImage setter */
+		void setImage( const QString& image );
+		/** #m_sImage accessor */
+		const QString& getImage() const;
+		/** #m_imageLicense setter */
+		void setImageLicense( const License& imageLicense );
+		/** #m_imageLicense accessor */
+		const License& getImageLicense() const;
 		/** return true if the samples are loaded */
-		const bool samples_loaded() const;
+		const bool areSamplesLoaded() const;
 
 		bool getIsCurrentDrumkit() const;
 		void setIsCurrentDrumkit( bool bIsCurrentDrumkit );
@@ -251,28 +232,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
 	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
-	/** Checks whether a component of name @a sComponentName exists in
-	 * #m_pComponents.
-	 *
-	 * \return Component ID on success and -1 on failure.
-	 */
-	int findExistingComponent( const QString& sComponentName ) const;
-	int findFreeComponentID( int nStartingID = 0 ) const;
-	/** Ensures @a sComponentName is not used by any other component
-		loaded into the song yet.*/
-	QString makeComponentNameUnique( const QString& sComponentName ) const;
-
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMapFallback() const;
 
-	/**
-	 * Assign the license stored in #m_license to all samples
-	 * contained in the kit.
-	 */
-	void propagateLicense();
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
@@ -298,16 +263,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		QString __path;					///< absolute drumkit path
-		QString __name;					///< drumkit name
-		QString __author;				///< drumkit author
-		QString __info;					///< drumkit free text
-		License __license;				///< drumkit license description
-		QString __image;				///< drumkit image filename
-		License __imageLicense;			///< drumkit image license
+		QString m_sPath;					///< absolute drumkit path
+		QString m_sName;					///< drumkit name
+		QString m_sAuthor;				///< drumkit author
+		QString m_sInfo;					///< drumkit free text
+		License m_license;				///< drumkit license description
+		QString m_sImage;				///< drumkit image filename
+		License m_imageLicense;			///< drumkit image license
 
-		bool __samples_loaded;			///< true if the instrument samples are loaded
-		std::shared_ptr<InstrumentList> __instruments;  ///< the list of instruments
+		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
+		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> m_pComponents;  ///< list of drumkit component
 
 		/** Whether the kit is the one used as current kit in the song. If
@@ -321,7 +286,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * level messages.
 		 * \return true on success
 		 */
-	bool save_image( const QString& dk_dir, bool bSilent = false ) const;
+	bool saveImage( const QString& dk_dir, bool bSilent = false ) const;
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -329,7 +294,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * level messages.
 		 * \return true on success
 		 */
-	bool save_samples( const QString& dk_dir, bool bSilent = false ) const;
+	bool saveSamples( const QString& dk_dir, bool bSilent = false ) const;
 
 /**
 	 *
@@ -362,85 +327,111 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * It is not written to disk when saving or exporting the drumkit.
 		 * */
 		std::shared_ptr<DrumkitMap> m_pDrumkitMapFallback;
+
+	/**
+	 * Returns a version of #m_sName stripped of all whitespaces and
+	 * other characters which would prevent its use as a valid
+	 * filename.
+	 *
+	 * Attention: The returned string might be used as the name for
+	 * the associated drumkit folder but it does not have to.
+	 */
+	QString getFolderName() const;
+
+		/**
+		 * Upgrades the drumkit by saving the latest version.
+		 *
+		 * This is a wrapper around #H2Core::Drumkit::save() which also creates
+		 * a backup of the drumkit definition.
+		 */
+		void upgrade( bool bSilent = false );
+
+	/**
+	 * Assign the license stored in #m_license to all samples
+	 * contained in the kit.
+	 */
+	void propagateLicense();
+
+
 };
 
 // DEFINITIONS
 
-inline std::shared_ptr<InstrumentList> Drumkit::get_instruments() const
+inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 {
-	return __instruments;
+	return m_pInstruments;
 }
 
-inline void Drumkit::set_path( const QString& path )
+inline void Drumkit::setPath( const QString& path )
 {
-	__path = path;
+	m_sPath = path;
 }
 
-inline void Drumkit::set_name( const QString& name )
+inline void Drumkit::setName( const QString& name )
 {
-	__name = name;
+	m_sName = name;
 }
 
-inline const QString& Drumkit::get_name() const
+inline const QString& Drumkit::getName() const
 {
-	return __name;
+	return m_sName;
 }
 
-inline void Drumkit::set_author( const QString& author )
+inline void Drumkit::setAuthor( const QString& author )
 {
-	__author = author;
-	__license.setCopyrightHolder( author );
-	__imageLicense.setCopyrightHolder( author );
+	m_sAuthor = author;
+	m_license.setCopyrightHolder( author );
+	m_imageLicense.setCopyrightHolder( author );
 }
 
-inline const QString& Drumkit::get_author() const
+inline const QString& Drumkit::getAuthor() const
 {
-	return __author;
+	return m_sAuthor;
 }
 
-inline void Drumkit::set_info( const QString& info )
+inline void Drumkit::setInfo( const QString& info )
 {
-	__info = info;
+	m_sInfo = info;
 }
 
-inline const QString& Drumkit::get_info() const
+inline const QString& Drumkit::getInfo() const
 {
-	return __info;
+	return m_sInfo;
 }
 
-inline void Drumkit::set_license( const License& license )
+inline void Drumkit::setLicense( const License& license )
 {
-	__license = license;
+	m_license = license;
 }
 
-inline const License& Drumkit::get_license() const
+inline const License& Drumkit::getLicense() const
 {
-	return __license;
+	return m_license;
 }
 
-inline void Drumkit::set_image( const QString& image )
+inline void Drumkit::setImage( const QString& image )
 {
-	__image = image;
+	m_sImage = image;
 }
 
-inline const QString& Drumkit::get_image() const
+inline const QString& Drumkit::getImage() const
 {
-	return __image;
+	return m_sImage;
 }
 
-inline void Drumkit::set_image_license( const License& imageLicense )
+inline void Drumkit::setImageLicense( const License& imageLicense )
 {
-	__imageLicense = imageLicense;
+	m_imageLicense = imageLicense;
 }
 
-inline const License& Drumkit::get_image_license() const
+inline const License& Drumkit::getImageLicense() const
 {
-	return __imageLicense;
+	return m_imageLicense;
 }
 
-inline const bool Drumkit::samples_loaded() const
+inline const bool Drumkit::areSamplesLoaded() const
 {
-	return __samples_loaded;
+	return m_bSamplesLoaded;
 }
 inline bool Drumkit::getIsCurrentDrumkit() const {
 	return m_bIsCurrentDrumkit;

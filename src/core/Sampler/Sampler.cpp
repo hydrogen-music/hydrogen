@@ -703,7 +703,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
 								 ! pInstr->is_currently_exported() );
-		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->get_instruments()->isAnyInstrumentSoloed();
+		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
 		

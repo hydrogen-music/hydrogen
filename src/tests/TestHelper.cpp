@@ -242,7 +242,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
@@ -292,7 +292,7 @@ void TestHelper::exportSong( const QString& sFileName )
 	auto pQueue = H2Core::EventQueue::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

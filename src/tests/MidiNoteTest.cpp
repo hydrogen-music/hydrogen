@@ -67,7 +67,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/test_song_0.9.6.h2song" ) );
 		CPPUNIT_ASSERT( pSong != nullptr );
 
-		auto instruments = pSong->getDrumkit()->get_instruments();
+		auto instruments = pSong->getDrumkit()->getInstruments();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 16, instruments->size() );
 
@@ -88,7 +88,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		auto pSong = H2Core::Song::load( H2TEST_FILE( "song/test_song_0.9.7.h2song" ) );
 		CPPUNIT_ASSERT( pSong != nullptr );
 
-		auto instruments = pSong->getDrumkit()->get_instruments();
+		auto instruments = pSong->getDrumkit()->getInstruments();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 4, instruments->size() );
 

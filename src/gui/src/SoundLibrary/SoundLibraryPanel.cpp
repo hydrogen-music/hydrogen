@@ -172,7 +172,7 @@ void SoundLibraryPanel::updateTree()
 	for ( const auto& pDrumkitEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {
 		auto pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
-			QString sItemLabel = pDrumkit->get_name();
+			QString sItemLabel = pDrumkit->getName();
 			auto drumkitType =
 				Filesystem::determineDrumkitType( pDrumkitEntry.first );
 
@@ -212,7 +212,7 @@ void SoundLibraryPanel::updateTree()
 			int nCount = 1;
 			while ( m_drumkitLabels.contains( sItemLabel ) ) {
 				sItemLabel = QString( "%1 (%2)" )
-					.arg( pDrumkit->get_name() ).arg( nCount );
+					.arg( pDrumkit->getName() ).arg( nCount );
 				nCount++;
 			}
 
@@ -222,8 +222,8 @@ void SoundLibraryPanel::updateTree()
 			pDrumkitItem->setText( 0, sItemLabel );
 			pDrumkitItem->setToolTip( 0, pDrumkitEntry.first );
 			if ( ! m_bInItsOwnDialog ) {
-				auto pInstrList = pDrumkit->get_instruments();
-				for ( const auto& pInstrument : *pDrumkit->get_instruments() ) {
+				auto pInstrList = pDrumkit->getInstruments();
+				for ( const auto& pInstrument : *pDrumkit->getInstruments() ) {
 					if ( pInstrument != nullptr ) {
 						QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 						pInstrumentItem->setText( 0, QString( "[%1] %2" )
@@ -563,8 +563,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	auto pSongInstrList = pHydrogen->getSong()->getDrumkit()->get_instruments();
-	auto pDrumkitInstrList = pDrumkit->get_instruments();
+	auto pSongInstrList = pHydrogen->getSong()->getDrumkit()->getInstruments();
+	auto pDrumkitInstrList = pDrumkit->getInstruments();
 
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();
@@ -767,7 +767,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	if ( pDrumkit == nullptr ) {
 		return;
 	}
-	if ( sDrumkitPath == pDrumkit->get_path() ) {
+	if ( sDrumkitPath == pDrumkit->getPath() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
 		return;
 	}

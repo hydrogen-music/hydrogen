@@ -232,7 +232,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	// here writers must prepare to receive pattern events
 	prepareEvents( pSong, pSmf );
 
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
 	for ( unsigned nPatternList = 0 ;
@@ -447,7 +447,7 @@ SMF1WriterMulti::~SMF1WriterMulti()
 
 void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	m_eventLists.clear();
 	for( unsigned nInstr=0; nInstr <  pInstrumentList->size(); nInstr++ ){
 		m_eventLists.push_back( new EventList() );
@@ -457,7 +457,7 @@ void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 
 EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
 {
-	int nInstr = pSong->getDrumkit()->get_instruments()->index(pInstr);
+	int nInstr = pSong->getDrumkit()->getInstruments()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
 	
 	return pEventList;
@@ -466,7 +466,7 @@ EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,  std::shared
 
 void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
 		EventList* pEventList = m_eventLists.at( nTrack );
 		auto instrument =  pInstrumentList->get( nTrack );

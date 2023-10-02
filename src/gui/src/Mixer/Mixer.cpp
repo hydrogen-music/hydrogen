@@ -264,7 +264,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);
@@ -418,7 +418,7 @@ void Mixer::updateMixer()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	auto pDrumkitComponentList = pSong->getDrumkit()->getComponents();
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();

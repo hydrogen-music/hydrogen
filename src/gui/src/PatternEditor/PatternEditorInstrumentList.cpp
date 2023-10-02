@@ -309,7 +309,7 @@ void InstrumentLine::muteClicked()
 		return;
 	}
 	
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
@@ -334,7 +334,7 @@ void InstrumentLine::soloClicked()
 		return;
 	}
 	
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
@@ -373,7 +373,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 			ERRORLOG( "No song set yet" );
 			return;
 		}
-		auto pInstr = pSong->getDrumkit()->get_instruments()->get( m_nInstrumentNumber );
+		auto pInstr = pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 		if ( pInstr != nullptr && pInstr->hasSamples() ) {
 
 			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
@@ -428,7 +428,7 @@ void InstrumentLine::functionClearNotes()
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
-	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->get_instruments()->get( m_nInstrumentNumber );
+	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -514,7 +514,7 @@ void InstrumentLine::functionDeleteNotesAllPatterns()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	auto pSelectedInstrument = pSong->getDrumkit()->get_instruments()->get( m_nInstrumentNumber );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -680,7 +680,7 @@ void InstrumentLine::functionRenameInstrument()
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->get_instruments()->get( m_nInstrumentNumber );
+	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -798,7 +798,7 @@ void PatternEditorInstrumentList::drumkitLoadedEvent() {
 void PatternEditorInstrumentList::repaintInstrumentLines() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
@@ -813,7 +813,7 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -835,7 +835,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->get_instruments();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
@@ -892,7 +892,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 	auto pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrumentList = pSong->getDrumkit()->get_instruments();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nInstruments = pInstrumentList->size();
 	if ( nInstruments >= MAX_INSTRUMENTS ) {
 		event->ignore();
@@ -1019,7 +1019,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 
 
 void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrumentNumber ) {
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 
 	if ( nInstrumentNumber == -1 ) {
 		// Update all lines.

@@ -376,7 +376,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	std::shared_ptr<Drumkit> pDrumkit;
 	if ( !pRootNode->firstChildElement( "drumkit_info").isNull() ) {
 		// Current format (>= 1.3.0) storing a proper Drumkit
-		pDrumkit = Drumkit::load_from( pRootNode, "", bSilent );
+		pDrumkit = Drumkit::loadFrom( pRootNode, "", bSilent );
 	}
 	else {
 		// Older format (< 1.3.0) storing only selected elements
@@ -392,7 +392,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( pRootNode,
-												   pSong->getDrumkit()->get_instruments(),
+												   pSong->getDrumkit()->getInstruments(),
 												   bSilent ) );
 
 	// Virtual Patterns
@@ -764,7 +764,7 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 
 	if ( !bLegacy ) {
 		// Current format
-		m_pDrumkit->save_to( pRootNode, bSilent );
+		m_pDrumkit->saveTo( pRootNode, bSilent );
 	} else {
 		Legacy::saveEmbeddedSongDrumkit( pRootNode, m_pDrumkit, bSilent );
 	}
@@ -913,7 +913,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 		auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID,
 													   "New instrument" );
 		pInstrList->add( pNewInstr );
-		pDrumkit->set_instruments( pInstrList );
+		pDrumkit->setInstruments( pInstrList );
 	}
 
 	pSong->setDrumkit( pDrumkit );
@@ -961,7 +961,7 @@ void Song::setIsModified( bool bIsModified )
 
 bool Song::hasMissingSamples() const
 {
-	auto pInstrumentList = getDrumkit()->get_instruments();
+	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		if ( pInstrumentList->get( i )->has_missing_samples() ) {
 			return true;
@@ -971,7 +971,7 @@ bool Song::hasMissingSamples() const
 }
 
 void Song::clearMissingSamples() {
-	auto pInstrumentList = getDrumkit()->get_instruments();
+	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get( i )->set_missing_samples( false );
 	}
@@ -1006,7 +1006,7 @@ bool Song::saveTempPatternList( const QString& sFilename )
 
 QString Song::copyInstrumentLineToString( int nSelectedInstrument )
 {
-	auto pInstrument = getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pInstrument = getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pInstrument == nullptr ) {
 		assert( pInstrument );
 		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
@@ -1033,7 +1033,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 	}
 
 	// Get current instrument
-	auto pInstr = getDrumkit()->get_instruments()->get( nSelectedInstrument );
+	auto pInstr = getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	assert( pInstr );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Unable to find instrument [%1]" )
@@ -1109,7 +1109,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 						XMLNode instrumentText = instrument.firstChild();
 
 						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( &noteNode, getDrumkit()->get_instruments() );
+						Note *pNote = Note::load_from( &noteNode, getDrumkit()->getInstruments() );
 
 						pat->insert_note( pNote ); // Add note to created pattern
 
@@ -1245,7 +1245,7 @@ void Song::setPanLawKNorm( float fKNorm ) {
 
 void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pInstr = m_pDrumkit->get_instruments()->get( nInstrumentNumber );
+	auto pInstr = m_pDrumkit->getInstruments()->get( nInstrumentNumber );
 	if ( pInstr == nullptr ) {
 		// Error log is already printed by get().
 		return;
@@ -1268,7 +1268,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 
 	// In case there is just this one instrument left, reset it
 	// instead of removing it.
-	if ( m_pDrumkit->get_instruments()->size() == 1 ){
+	if ( m_pDrumkit->getInstruments()->size() == 1 ){
 		pInstr->set_name( (QString( "Instrument 1" )) );
 		for ( auto& pCompo : *pInstr->get_components() ) {
 			// remove all layers
@@ -1281,7 +1281,7 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 	}
 
 	// delete the instrument from the instruments list
-	m_pDrumkit->get_instruments()->del( nInstrumentNumber );
+	m_pDrumkit->getInstruments()->del( nInstrumentNumber );
 
 	// At this point the instrument has been removed from both the
 	// instrument list and every pattern in the song.  Hence there's no way

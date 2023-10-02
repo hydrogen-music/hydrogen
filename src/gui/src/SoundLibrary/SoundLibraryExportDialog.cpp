@@ -45,7 +45,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
 	
 	setWindowTitle( QString( "%1 [%2]" )
 					.arg( tr( "Export Drumkit" ) )
-					.arg( pDrumkit != nullptr ? pDrumkit->get_name() : tr( "invalid drumkit" ) ) );
+					.arg( pDrumkit != nullptr ? pDrumkit->getName() : tr( "invalid drumkit" ) ) );
 	adjustSize();
 	setFixedSize( width(), height() );
 	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );

@@ -805,7 +805,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 		if ( pSoundLibraryDatabase != nullptr ) {
 			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
 			if ( pDrumkit != nullptr ) {
-				sSessionDrumkitName = pDrumkit->get_name();
+				sSessionDrumkitName = pDrumkit->getName();
 			}
 		}
 
