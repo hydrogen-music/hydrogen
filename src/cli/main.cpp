@@ -40,6 +40,7 @@
 #include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
 #include <core/Globals.h>
@@ -536,7 +537,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-			pHydrogen->sequencer_stop();
+			pHydrogen->sequencerStop();
 		}
 
 		pSong = nullptr;

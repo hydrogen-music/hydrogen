@@ -27,6 +27,7 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include <core/EventQueue.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 
 #include <QProcess>

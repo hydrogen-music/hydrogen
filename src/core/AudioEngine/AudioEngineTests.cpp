@@ -25,7 +25,7 @@
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Pattern.h>

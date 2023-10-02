@@ -46,6 +46,7 @@
 #include <core/Helpers/Legacy.h>
 
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/NsmClient.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -1143,8 +1144,51 @@ QString Drumkit::makeComponentNameUnique( const QString& sName ) const {
 	return sName;
 }
 
+void Drumkit::recalculateRubberband( float fBpm ) {
 
+	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+		return;
+	}
 
+	if ( __instruments != nullptr ) {
+		for ( unsigned nnInstr = 0; nnInstr < __instruments->size(); ++nnInstr ) {
+			auto pInstr = __instruments->get( nnInstr );
+			if ( pInstr == nullptr ) {
+				continue;
+			}
+			if ( pInstr != nullptr ){
+				for ( int nnComponent = 0; nnComponent < pInstr->get_components()->size();
+					  ++nnComponent ) {
+					auto pInstrumentComponent = pInstr->get_component( nnComponent );
+					if ( pInstrumentComponent == nullptr ) {
+						continue; // regular case when you have a new component empty
+					}
+
+					for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
+						auto pLayer = pInstrumentComponent->get_layer( nnLayer );
+						if ( pLayer != nullptr ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
+								if( pSample->get_rubberband().use ) {
+									auto pNewSample = std::make_shared<Sample>( pSample );
+
+									if ( ! pNewSample->load( fBpm ) ){
+										continue;
+									}
+
+									// insert new sample from newInstrument
+									pLayer->set_sample( pNewSample );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	} else {
+		ERRORLOG( "No InstrumentList present" );
+	}
+}
 
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;

@@ -33,6 +33,7 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
+#include <core/Basics/Drumkit.h>
 #include "core/Basics/InstrumentList.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"

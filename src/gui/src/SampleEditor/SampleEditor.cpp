@@ -32,6 +32,7 @@
 
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/InstrumentComponent.h>

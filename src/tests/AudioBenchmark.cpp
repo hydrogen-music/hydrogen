@@ -28,6 +28,7 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>

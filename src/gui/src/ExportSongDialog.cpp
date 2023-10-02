@@ -31,8 +31,8 @@
 
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -562,7 +562,8 @@ void ExportSongDialog::closeExport() {
 	
 	if( m_pPreferences->getRubberBandBatchMode() ){
 		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		m_pHydrogen->recalculateRubberband( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+		m_pHydrogen->getSong()->getDrumkit()->recalculateRubberband(
+			m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 		m_pHydrogen->getAudioEngine()->unlock();
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );

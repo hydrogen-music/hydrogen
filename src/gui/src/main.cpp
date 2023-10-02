@@ -55,6 +55,7 @@
 #include <core/EventQueue.h>
 #include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>

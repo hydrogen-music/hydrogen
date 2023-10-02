@@ -53,6 +53,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
 
@@ -225,8 +226,7 @@ HydrogenApp::~HydrogenApp()
 	#endif
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if (pHydrogen) {
-		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
+	if ( pHydrogen != nullptr ) {
 		delete pHydrogen;
 	}
 

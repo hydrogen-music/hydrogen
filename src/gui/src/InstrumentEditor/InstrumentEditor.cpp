@@ -33,6 +33,7 @@
 #include <core/Globals.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>

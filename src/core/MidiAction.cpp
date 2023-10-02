@@ -220,7 +220,7 @@ bool MidiActionManager::play( std::shared_ptr<Action> pAction, Hydrogen* pHydrog
 	}
 	
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 	}
 	return true;
 }
@@ -232,7 +232,7 @@ bool MidiActionManager::pause( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
 		return false;
 	}
 	
-	pHydrogen->sequencer_stop();
+	pHydrogen->sequencerStop();
 	return true;
 }
 
@@ -243,7 +243,7 @@ bool MidiActionManager::stop( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
 		return false;
 	}
 	
-	pHydrogen->sequencer_stop();
+	pHydrogen->sequencerStop();
 	return pHydrogen->getCoreActionController()->locateToColumn( 0 );
 }
 
@@ -258,14 +258,14 @@ bool MidiActionManager::play_stop_pause_toggle( std::shared_ptr<Action> pAction,
 	switch ( pHydrogen->getAudioEngine()->getState() )
 	{
 	case AudioEngine::State::Ready:
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 		break;
 
 	case AudioEngine::State::Playing:
 		if( sActionString == "PLAY/STOP_TOGGLE" ) {
 			pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		}
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 		break;
 
 	default:
@@ -472,7 +472,7 @@ bool MidiActionManager::select_and_play_pattern( std::shared_ptr<Action> pAction
 	}
 
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 	}
 
 	return true;

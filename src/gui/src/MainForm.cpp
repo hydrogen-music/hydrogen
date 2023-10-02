@@ -249,7 +249,7 @@ MainForm::~MainForm()
 	}
 
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 	
 	hide();
@@ -726,7 +726,7 @@ void MainForm::action_file_new()
 	
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -1045,7 +1045,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 		
 	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	if ( nPatternRow == -1 ) {
@@ -1191,7 +1191,7 @@ bool MainForm::prepareSongOpening() {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	return handleUnsavedChanges();
@@ -1559,7 +1559,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 void MainForm::action_file_export()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	ExportSongDialog *dialog = new ExportSongDialog(this);
@@ -1826,7 +1826,7 @@ void MainForm::action_debug_printObjects()
 void MainForm::action_file_export_midi()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	ExportMidiDialog *dialog = new ExportMidiDialog(this);
@@ -1840,7 +1840,7 @@ void MainForm::action_file_export_midi()
 void MainForm::action_file_export_lilypond()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	QMessageBox::information(
@@ -2343,7 +2343,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	}
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 	}
 }
 
@@ -2779,7 +2779,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				
 			case Shortcuts::Action::Panic:
 				//panic button stop all playing notes
-				pHydrogen->__panic();
+				pHydrogen->panic();
 				break;
 
 			case Shortcuts::Action::Play:

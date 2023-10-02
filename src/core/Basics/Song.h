@@ -122,7 +122,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		None = 3
 	};
 
-		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
+		Song( QString sName = "",
+			  const QString& sAuthor = "hydrogen",
+			  float fBpm = 120,
+			  float fVolume = 0.5 );
 		~Song();
 
 		static std::shared_ptr<Song> getEmptySong();

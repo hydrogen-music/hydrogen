@@ -278,7 +278,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * name, file name, the license of all associated samples.
 	 */
 	std::vector<std::shared_ptr<InstrumentList::Content>> summarizeContent() const;
-	
+
+		/** Recalculates all Samples using RubberBand for a specific
+		* tempo @a fBpm.
+		*
+		* This function requires the calling function to lock the
+		* #AudioEngine first.
+		*/
+		void recalculateRubberband( float fBpm );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

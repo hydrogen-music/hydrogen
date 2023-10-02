@@ -32,6 +32,7 @@
 
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -1616,8 +1617,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	this->unlock();
 }
 
-void AudioEngine::removeSong()
-{
+void AudioEngine::prepare() {
 	this->lock( RIGHT_HERE );
 
 	if ( getState() == State::Playing ) {

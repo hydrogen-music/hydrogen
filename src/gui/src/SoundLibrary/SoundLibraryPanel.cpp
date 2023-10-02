@@ -547,6 +547,10 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
 	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
@@ -570,19 +574,25 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	INFOLOG("Old kit has " + QString::number( oldCount ) + " instruments, new one has " + QString::number( newCount ) );
 
-	if ( newCount < oldCount )
-	{
+	if ( newCount < oldCount ) {
 		// Check if any of the instruments that will be removed have notes
-		for ( int i = 0; i < pSongInstrList->size(); i++)
-		{
-			if ( i >= newCount )
-			{
+		for ( int i = 0; i < pSongInstrList->size(); i++) {
+			if ( i >= newCount ) {
+				auto ppInstrument = pSongInstrList->get( i );
+				if ( ppInstrument == nullptr ) {
+					continue;
+				}
 				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
 
-				if ( pHydrogen->instrumentHasNotes( pSongInstrList->get( i ) ) )
-				{
-					hasNotes = true;
+				for ( const auto& ppPattern : *pSong->getPatternList() ) {
+					if ( ppPattern->references( ppInstrument ) ) {
+						hasNotes = true;
+						break;
+					}
+				}
+				if ( hasNotes ) {
 					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
+					break;
 				}
 			}
 

@@ -33,6 +33,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentComponent.h>

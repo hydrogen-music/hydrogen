@@ -882,7 +882,7 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 	auto pSong = pHydrogen->getSong();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	QString sPath, sFilename;

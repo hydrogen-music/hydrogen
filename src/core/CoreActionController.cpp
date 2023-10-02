@@ -496,7 +496,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 	
 	// Create an empty Song.
@@ -533,7 +533,7 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 	
 	// Check whether the provided path is valid.
@@ -569,7 +569,7 @@ bool CoreActionController::openSong( std::shared_ptr<Song> pSong, bool bRelinkin
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 	
 	if ( pSong == nullptr ) {
@@ -931,7 +931,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		return true;
 	}		
 	
-	pHydrogen->sequencer_stop();
+	pHydrogen->sequencerStop();
 
 	pAudioEngine->lock( RIGHT_HERE );
 

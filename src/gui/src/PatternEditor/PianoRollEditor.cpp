@@ -28,6 +28,7 @@
 #include <cassert>
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>

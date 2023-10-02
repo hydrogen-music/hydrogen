@@ -62,7 +62,7 @@ namespace
 namespace H2Core
 {
 
-Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
+Song::Song( QString sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
 	, m_resolution( 48 )
@@ -92,6 +92,9 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 {
+	if ( sName.isEmpty() ){
+		sName = Filesystem::untitled_song_name();
+	}
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
