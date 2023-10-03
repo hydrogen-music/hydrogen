@@ -635,35 +635,6 @@ private:
 	std::vector< H2Core::Note *> m_overwritten;
 };
 
-
-/** \ingroup docGUI*/
-class SE_addNoteOffAction : public QUndoCommand
-{
-public:
-	SE_addNoteOffAction( int nColumn, int nRow, int selectedPatternNumber, bool isDelete ){
-		setText( QObject::tr( "Add NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-		__nColumn = nColumn;
-		__nRow = nRow;
-		__selectedPatternNumber = selectedPatternNumber;
-		__isDelete = isDelete;
-	}
-	virtual void undo()
-	{
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, !__isDelete ) ;
-	}
-	virtual void redo()
-	{
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, __isDelete );
-	}
-private:
-	int __nColumn;
-	int __nRow;
-	int __selectedPatternNumber;
-	bool __isDelete;
-};
-
 /** \ingroup docGUI*/
 class SE_moveNoteAction : public QUndoCommand
 {

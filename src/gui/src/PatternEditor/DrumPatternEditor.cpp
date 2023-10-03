@@ -102,8 +102,9 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 
 void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-										 bool bDoAdd, bool bDoDelete ) {
-	
+										 bool bDoAdd, bool bDoDelete,
+										 bool bIsNoteOff ) {
+
 	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
 		// No pattern selected.
 		return;
@@ -131,7 +132,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	float fProbability = 1.0f;
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
-	bool isNoteOff = false;
+	bool isNoteOff = bIsNoteOff;
 
 	if ( pOldNote && !bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
@@ -182,6 +183,9 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	int nInstruments = pSong->getInstrumentList()->size();
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
@@ -204,37 +208,11 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
-	{
-		//shift + leftClick: add noteOff note
-		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
-		if ( pNote != nullptr ) {
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
-																			 row,
-																			 m_nSelectedPatternNumber,
-																			 pNote->get_length(),
-																			 pNote->get_velocity(),
-																			 pNote->getPan(),
-																			 pNote->get_lead_lag(),
-																			 pNote->get_key(),
-																			 pNote->get_octave(),
-																			 pNote->get_probability(),
-																			 true,
-																			 false,
-																			 false,
-																			 false,
-																			 pNote->get_note_off() );
-			pHydrogenApp->m_pUndoStack->push( action );
-		} else {
-			// Add stop-note
-			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row, m_nSelectedPatternNumber,
-																   pNote != nullptr );
-			pHydrogenApp->m_pUndoStack->push( action );
-		}
-	}
-	else if ( ev->button() == Qt::LeftButton ) {
+	if ( ev->button() == Qt::LeftButton ) {
 
-		addOrRemoveNote( nColumn, nRealColumn, row );
+		// Pressing Shift causes the added note to be of NoteOff type.
+		addOrRemoveNote( nColumn, nRealColumn, row, true, true,
+						 ev->modifiers() & Qt::ShiftModifier );
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
