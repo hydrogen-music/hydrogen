@@ -353,11 +353,6 @@ public:
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
 	long long		getLeadLagInFrames( double fTick );
-	/** Calculates time offset (in frames) #m_pQueuingPosition will be
-	 * ahead of the #m_pTransportPosition.
-	 *
-	 * \return Frame offset*/
-	long long getLookaheadInFrames();
 
 	double getSongSizeInTicks() const;
 

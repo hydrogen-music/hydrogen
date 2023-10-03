@@ -390,20 +390,13 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 	}
 
-	// Get current partern and column, compensating for "lookahead" if required
+	// Get current pattern and column
 	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
-	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames();
-	long nLookaheadTicks = 
-		static_cast<long>(std::floor(
-			TransportPosition::computeTickFromFrame( pAudioEngine->getTransportPosition()->getFrame() +
-													 nLookaheadInFrames ) - 
-			m_pAudioEngine->getTransportPosition()->getTick()));
-			  
+
 	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
-		 pAudioEngine->getState() == AudioEngine::State::Playing )
-	{
+		 pAudioEngine->getState() == AudioEngine::State::Playing ) {
 
 		// Recording + song playback mode + actually playing
 		PatternList* pPatternList = pSong->getPatternList();
@@ -419,47 +412,24 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
-		while ( nTickInPattern < nLookaheadTicks ) {
-			nColumn -= 1;
-			if ( nColumn < 0 || nColumn >= pColumns->size() ) {
-				pAudioEngine->unlock(); // unlock the audio engine
-				ERRORLOG( "Unable to locate tick in pattern" );
-				return;
-			}
 
-			// Capture new notes in the bottom-most pattern.
-			PatternList *pColumn = ( *pColumns )[ nColumn ];
-			currentPatternNumber = -1;
-			for ( int n = 0; n < pColumn->size(); n++ ) {
-				Pattern *pPattern = pColumn->get( n );
-				int nIndex = pPatternList->index( pPattern );
-				if ( nIndex > currentPatternNumber ) {
-					currentPatternNumber = nIndex;
-					pCurrentPattern = pPattern;
-				}
-			}
-			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
-		}
-		nTickInPattern -= nLookaheadTicks;
-		
 		// Capture new notes in the bottom-most pattern (if not already done above)
-		if ( pCurrentPattern == nullptr ) {
-			PatternList *pColumn = ( *pColumns )[ nColumn ];
-			currentPatternNumber = -1;
-			for ( int n = 0; n < pColumn->size(); n++ ) {
-				Pattern *pPattern = pColumn->get( n );
-				int nIndex = pPatternList->index( pPattern );
-				if ( nIndex > currentPatternNumber ) {
-					currentPatternNumber = nIndex;
-					pCurrentPattern = pPattern;
-				}
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		currentPatternNumber = -1;
+		for ( int n = 0; n < pColumn->size(); n++ ) {
+			Pattern *pPattern = pColumn->get( n );
+			int nIndex = pPatternList->index( pPattern );
+			if ( nIndex > currentPatternNumber ) {
+				currentPatternNumber = nIndex;
+				pCurrentPattern = pPattern;
 			}
 		}
 
 		// Cancel recording if punch area disagrees
 		doRecord = pPref->inPunchArea( nColumn );
 
-	} else { // Not song-record mode
+	}
+	else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
 
 		if ( ( m_nSelectedPatternNumber != -1 )
@@ -477,13 +447,6 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 
 		// Locate nTickInPattern -- may need to wrap around end of pattern
 		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
-		if ( nTickInPattern >= nLookaheadTicks ) {
-			nTickInPattern -= nLookaheadTicks;
-		} else {
-			nLookaheadTicks %= pCurrentPattern->get_length();
-			nTickInPattern = (nTickInPattern + pCurrentPattern->get_length() - nLookaheadTicks)
-					% pCurrentPattern->get_length();
-		}
 	}
 
 	if ( pCurrentPattern && pPref->getQuantizeEvents() ) {
@@ -518,6 +481,11 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	if ( pCurrentPattern != nullptr &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing &&
 		 doRecord ) {
+
+		INFOLOG( QString( "Recording [%1] to pattern: %2 (%3), tick: [%4/%5]." )
+				 .arg( bNoteOff ? "NoteOff" : "NoteOn")
+				 .arg( currentPatternNumber ).arg( pCurrentPattern->get_name() )
+				 .arg( nTickInPattern ).arg( pCurrentPattern->get_length() ) );
 
 		bool bIsModified = false;
 
