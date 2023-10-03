@@ -419,7 +419,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	License newImageLicense( sNewImageLicenseString );
 	newImageLicense.setCopyrightHolder( m_pDrumkit->get_author() );
 
-		
+	const QString sOldPath = m_pDrumkit->get_path();
 	if ( m_pDrumkit->get_name() != nameTxt->text() ) {
 		m_pDrumkit->set_name( nameTxt->text() );
 		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() +
@@ -438,8 +438,22 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		ERRORLOG( "User cancelled dialog due to licensing issues." );
 		return;
 	}
-		
-	m_pDrumkit->set_image( imageText->text() );
+
+	// Will contain image which should be removed. To keep the previous image,
+	// this string should be empty.
+	QString sOldImagePath;
+	if ( imageText->text() != m_pDrumkit->get_image() ) {
+		int nRes = QMessageBox::information( this, "Hydrogen",
+											 tr( "Delete previous drumkit image" )
+											 .append( QString( " [%1]" ).arg( m_pDrumkit->get_image() ) ),
+											 QMessageBox::Yes | QMessageBox::No );
+		if ( nRes == QMessageBox::Yes ) {
+			sOldImagePath = QString( "%1/%2" ).arg( sOldPath )
+				.arg( m_pDrumkit->get_image() );
+		}
+		m_pDrumkit->set_image( imageText->text() );
+	}
+
 	if ( m_pDrumkit->get_image_license() != newImageLicense ) {
 		m_pDrumkit->set_image_license( newImageLicense );
 	}
@@ -468,6 +482,10 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			// Logging is done in file_copy.
 			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
 		}
+	}
+
+	if ( ! sOldImagePath.isEmpty() ) {
+		Filesystem::rm( sOldImagePath, false, false );
 	}
 
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
