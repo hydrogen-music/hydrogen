@@ -1,3 +1,8 @@
+XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.2.3
+	* Fixed
+		- Recorded MIDI notes were inserted ahead of the beat (#1851)
+
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Added
