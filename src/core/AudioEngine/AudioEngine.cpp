@@ -2181,10 +2181,6 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart = pPos->getFrame();
 	}
 	
-	// We don't use the getLookaheadInFrames() function directly
-	// because the lookahead contains both a frame-based and a
-	// tick-based component and would be twice as expensive to
-	// calculate using the mentioned call.
 	long long nLeadLagFactor = getLeadLagInFrames( pPos->getDoubleTick() );
 
 	// Timeline disabled: 
@@ -2573,11 +2569,6 @@ long long AudioEngine::getLeadLagInFrames( double fTick ) {
 	// 			.arg( nFrameEnd - nFrameStart ).arg( fTick, 0, 'f' ) );
 
 	return nFrameEnd - nFrameStart;
-}
-
-long long AudioEngine::getLookaheadInFrames() {
-	return getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
-		AudioEngine::nMaxTimeHumanize + 1;
 }
 
 const PatternList* AudioEngine::getPlayingPatterns() const {
