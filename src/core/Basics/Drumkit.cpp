@@ -491,11 +491,11 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 	return true;
 }
 
-bool Drumkit::save_image( const QString& dk_dir, bool bSilent ) const
+bool Drumkit::save_image( const QString& sDrumkitDir, bool bSilent ) const
 {
-	if ( __image.length() > 0 ) {
+	if ( ! __image.isEmpty() && sDrumkitDir != __path ) {
 		QString src = __path + "/" + __image;
-		QString dst = dk_dir + "/" + __image;
+		QString dst = sDrumkitDir + "/" + __image;
 		if ( Filesystem::file_exists( src, bSilent ) ) {
 			if ( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
