@@ -402,13 +402,16 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		bool bFound = false;
 		FOREACH_NOTE_IT_BOUND_END( notes, it, nColumn ) {
 			Note *pNote = it->second;
-			assert( pNote );
-			if ( ( isNoteOff && pNote->get_note_off() )
-				 || ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id()
-					  && pNote->get_key() == oldNoteKeyVal 
-					  && pNote->get_octave() == oldOctaveKeyVal
-					  && pNote->get_velocity() == oldVelocity
-					  && pNote->get_probability() == fProbability ) ) {
+			if ( pNote == nullptr ) {
+				ERRORLOG( "Invalid note" );
+				continue;
+			}
+			if ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id() &&
+				 ( ( isNoteOff && pNote->get_note_off() ) ||
+				   ( pNote->get_key() == oldNoteKeyVal &&
+					 pNote->get_octave() == oldOctaveKeyVal &&
+					 pNote->get_velocity() == oldVelocity &&
+					 pNote->get_probability() == fProbability ) ) ) {
 				notes->erase( it );
 				delete pNote;
 				bFound = true;

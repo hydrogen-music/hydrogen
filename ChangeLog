@@ -10,6 +10,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- When using Save As to create a new drumkit, the added image
 				  was put in the old drumkit folder instead and not properly
 				  copied into the new one.
+		- Pattern Editor (#1859):
+				- Only delete NoteOff notes clicked by the user.
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
