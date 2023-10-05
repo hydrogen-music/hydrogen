@@ -166,6 +166,56 @@ void AudioEngineTests::testTransportProcessing() {
 
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+
+	// Check whether all frames are covered when running playback in song mode
+	// without looping.
+	pCoreActionController->activateLoopMode( false );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
+	resetVariables();
+	while ( nn <= nMaxCycles ) {
+		nFrames = frameDist( randomEngine );
+		int nRes = processTransport(
+			"testTransportProcessing : song mode : no looping", nFrames,
+			&nLastLookahead, &nLastTransportFrame, &nTotalFrames,
+			&nLastQueuingTick, &fLastTickIntervalEnd, true );
+		if ( nRes != 0 &&
+			 pTransportPos->getTick() < pAE->getSongSizeInTicks() ) {
+			// End of song reached
+			AudioEngineTests::throwException(
+				QString( "[testTransportProcessing] [song mode : no looping] final tick was not reached at song end. pTransportPos->getTick: [%1], pAE->getSongSizeInTicks: %2" )
+				.arg( pTransportPos->getTick() ).arg( pAE->getSongSizeInTicks() ) );
+		}
+
+		nn++;
+		if ( nn > nMaxCycles ) {
+			AudioEngineTests::throwException(
+				QString( "[testTransportProcessing] [song mode : no looping] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, pTransportPos->getTickSize(): %3, pAE->getSongSizeInTicks(): %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+				.arg( pTransportPos->getTickSize(), 0, 'f' )
+				.arg( pAE->getSongSizeInTicks(), 0, 'f' )
+				.arg( nMaxCycles ) );
+		}
+	}
+
+	pAE->reset( false );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+
+	// Check whether all frames are covered when running playback in song mode
+	// without looping.
+	pCoreActionController->activateLoopMode( true );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
+
 	resetVariables();
 
 	float fBpm;
