@@ -1047,6 +1047,9 @@ void DrumPatternEditor::paste()
 ///
 void DrumPatternEditor::drawPattern(QPainter& painter)
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
 	auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
@@ -1139,6 +1142,9 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 ///
 void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
 	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {
