@@ -199,6 +199,10 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
@@ -258,7 +262,29 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		if ( pNote->get_length() != -1 ) {
 			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
 			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
-			width = m_fGridWidth * pNote->get_length() / fStep;
+
+			// if there is a noteOff note to the right of this note, only draw
+			// its length till there.
+			int nLength = pNote->get_length();
+			auto notes = m_pPattern->get_notes();
+			for ( const auto& [ _, ppNote ] : *m_pPattern->get_notes() ) {
+				if ( ppNote != nullptr &&
+					 // noteOff note
+					 ppNote->get_note_off() &&
+					 // located in the same row
+					 ppNote->get_instrument() == pNote->get_instrument() &&
+					 // left of the NoteOff
+					 pNote->get_position() < ppNote->get_position() &&
+					 // custom length reaches beyond NoteOff
+					 pNote->get_position() + pNote->get_length() >
+					 ppNote->get_position() ) {
+					// In case there are multiple NoteOffs present, take the
+					// shortest distance.
+					nLength = std::min( ppNote->get_position() - pNote->get_position(), nLength );
+				}
+			}
+
+			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			if ( bSelected ) {
