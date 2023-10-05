@@ -611,7 +611,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false,
 														   false,
 														   false,
-														   true ) );
+														   pNote->get_note_off() ) );
 			}
 
 		} else {
@@ -631,7 +631,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false,
 														   false,
 														   false,
-														   false ) );
+														   pNote->get_note_off() ) );
 			} else {
 				// Move note
 				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
