@@ -179,16 +179,16 @@ void AudioEngineTests::testTransportProcessing() {
 	resetVariables();
 	while ( nn <= nMaxCycles ) {
 		nFrames = frameDist( randomEngine );
-		int nRes = processTransport(
-			"testTransportProcessing : song mode : no looping", nFrames,
-			&nLastLookahead, &nLastTransportFrame, &nTotalFrames,
-			&nLastQueuingTick, &fLastTickIntervalEnd, true );
-		if ( nRes != 0 &&
-			 pTransportPos->getTick() < pAE->getSongSizeInTicks() ) {
+		pAE->incrementTransportPosition( nFrames );
+
+		if ( pAE->isEndOfSongReached() ) {
 			// End of song reached
-			AudioEngineTests::throwException(
-				QString( "[testTransportProcessing] [song mode : no looping] final tick was not reached at song end. pTransportPos->getTick: [%1], pAE->getSongSizeInTicks: %2" )
-				.arg( pTransportPos->getTick() ).arg( pAE->getSongSizeInTicks() ) );
+			if ( pTransportPos->getTick() < pAE->getSongSizeInTicks() ) {
+				AudioEngineTests::throwException(
+					QString( "[testTransportProcessing] [song mode : no looping] final tick was not reached at song end. pTransportPos->getTick: [%1], pAE->getSongSizeInTicks: %2" )
+					.arg( pTransportPos->getTick() ).arg( pAE->getSongSizeInTicks() ) );
+			}
+			break;
 		}
 
 		nn++;
@@ -537,6 +537,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 										 long* nLastQueuingTick,
 										 double* fLastTickIntervalEnd,
 										 bool bCheckLookahead ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	auto pQueuingPos = pAE->m_pQueuingPosition;
@@ -560,13 +561,13 @@ int AudioEngineTests::processTransport( const QString& sContext,
 		*nLastLookahead = nLeadLag + AudioEngine::nMaxTimeHumanize + 1;
 	}
 
-	const int nRet = pAE->updateNoteQueue( nFrames );
+	pAE->updateNoteQueue( nFrames );
 	pAE->incrementTransportPosition( nFrames );
 
-	if ( nRet != 0 ) {
+	if ( pAE->isEndOfSongReached() ) {
 		// Don't check consistency at the end of the song as just the
 		// remaining frames are covered.
-		return nRet;
+		return -1;
 	}
 
 	AudioEngineTests::checkTransportPosition(
@@ -680,16 +681,6 @@ void AudioEngineTests::testTransportRelocation() {
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocation] mismatch tick-based" );
 
-		if ( pAE->updateNoteQueue( pPref->m_nBufferSize ) == -1 &&
-			pAE->m_fLastTickEnd < pAE->m_fSongSizeInTicks ) {
-			AudioEngineTests::throwException(
-				QString( "[testTransportRelocation] [tick] invalid end of song: fNewTick: %1, pAE->m_fSongSizeInTicks: %2, pAE->m_fLastTickEnd: %3, transport: %4;, queuing: %5" )
-				.arg( fNewTick, 0, 'f' )
-				.arg( pAE->m_pTransportPosition->toQString() )
-				.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_fLastTickEnd )
-				.arg( pAE->m_pTransportPosition->toQString() ) );
-		}
-
 		// Frame-based relocation
 		nNewFrame = frameDist( randomEngine );
 		pAE->locateToFrame( nNewFrame );
@@ -697,14 +688,6 @@ void AudioEngineTests::testTransportRelocation() {
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocation] mismatch frame-based" );
 
-		if ( pAE->updateNoteQueue( pPref->m_nBufferSize ) == -1 &&
-			pAE->m_fLastTickEnd < pAE->m_fSongSizeInTicks ) {
-			AudioEngineTests::throwException(
-				QString( "[testTransportRelocation] [frame] invalid end of song: nNewFrame: %1, pAE->m_fSongSizeInTicks: %2, pAE->m_fLastTickEnd: %3, transport: %4;, queuing: %5" )
-				.arg( nNewFrame ).arg( pAE->m_pTransportPosition->toQString() )
-				.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_fLastTickEnd )
-				.arg( pAE->m_pTransportPosition->toQString() ) );
-		}
 	}
 
 	pAE->reset( false );
@@ -919,12 +902,8 @@ void AudioEngineTests::testNoteEnqueuing() {
 	while ( pQueuingPos->getDoubleTick() < pAE->m_fSongSizeInTicks ) {
 
 		nFrames = frameDist( randomEngine );
-		nRes = pAE->updateNoteQueue( nFrames );
+		pAE->updateNoteQueue( nFrames );
 		retrieveNotes( "song mode" );
-
-		if ( nRes == -1 ) {
-			break;
-		}
 	}
 
 	auto checkQueueConsistency = [&]( const QString& sContext ) {
@@ -1119,12 +1098,8 @@ void AudioEngineTests::testNoteEnqueuing() {
 			pCoreActionController->activateLoopMode( false );
 		}
 
-		nRes = pAE->updateNoteQueue( nFrames );
+		pAE->updateNoteQueue( nFrames );
 		retrieveNotes( "looped song mode" );
-
-		if ( nRes == -1 ) {
-			break;
-		}
 	}
 
 	checkQueueConsistency( "looped song mode" );
@@ -1168,17 +1143,12 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	std::vector<std::shared_ptr<Note>> notesInSamplerQueue;
 
 	int nn = 0;
-	bool bEndOfSongReached = false;
 	while ( pTransportPos->getDoubleTick() <
 			pAE->m_fSongSizeInTicks ) {
 
 		nFrames = frameDist( randomEngine );
 
-		if ( ! bEndOfSongReached ) {
-			if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
-				bEndOfSongReached = true;
-			}
-		}
+		pAE->updateNoteQueue( nFrames );
 
 		// Add freshly enqueued notes.
 		AudioEngineTests::mergeQueues( &notesInSongQueue,
@@ -1287,15 +1257,10 @@ void AudioEngineTests::testHumanization() {
 		}
 		
 		int nn = 0;
-		bool bEndOfSongReached = false;
 		while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
 				pAE->getEnqueuedNotesNumber() > 0 ) {
 
-			if ( ! bEndOfSongReached ) {
-				if ( pAE->updateNoteQueue( nFrames ) == -1 ) {
-					bEndOfSongReached = true;
-				}
-			}
+			pAE->updateNoteQueue( nFrames );
 
 			pAE->processAudio( nFrames );
 			

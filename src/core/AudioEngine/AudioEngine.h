@@ -508,13 +508,8 @@ private:
 	 * Takes all notes from the currently playing patterns, from the
 	 * MIDI queue #m_midiNoteQueue, and those triggered by the
 	 * metronome and pushes them onto #m_songNoteQueue for playback.
-	 *
-	 * \return
-	 * - 0 - on success
-	 * - -1 - if in Hydrogen is in Song::Mode::Song, looping was
-	 * deactivated, and the end of the song was reached.
 	 */
-	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
+	void			updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
 	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
@@ -544,6 +539,7 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
+	bool			isEndOfSongReached() const;
 	void			updateTransportPosition( double fTick, long long nFrame,
 											 std::shared_ptr<TransportPosition> pPos );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
