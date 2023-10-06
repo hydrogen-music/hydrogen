@@ -107,6 +107,7 @@ void AudioEngineTests::testTransportProcessing() {
 	pCoreActionController->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -117,7 +118,6 @@ void AudioEngineTests::testTransportProcessing() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -181,7 +181,7 @@ void AudioEngineTests::testTransportProcessing() {
 		nFrames = frameDist( randomEngine );
 		pAE->incrementTransportPosition( nFrames );
 
-		if ( pAE->isEndOfSongReached() ) {
+		if ( pAE->isEndOfSongReached( pAE->m_pTransportPosition ) ) {
 			// End of song reached
 			if ( pTransportPos->getTick() < pAE->getSongSizeInTicks() ) {
 				AudioEngineTests::throwException(
@@ -304,6 +304,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	pCoreActionController->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	// Activating the Timeline without requiring the AudioEngine to be locked.
 	auto activateTimeline = [&]( bool bEnabled ) {
@@ -329,7 +330,6 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -441,12 +441,12 @@ void AudioEngineTests::testLoopMode() {
 	pCoreActionController->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -499,9 +499,11 @@ void AudioEngineTests::testLoopMode() {
 		// loop mode.
 		if ( bLoopEnabled && pTransportPos->getDoubleTick() >
 			 fSongSizeInTicks * ( nLoops - 1 ) ) {
+			pAE->setState( AudioEngine::State::Ready );
 			pAE->unlock();
 			pCoreActionController->activateLoopMode( false );
 			pAE->lock( RIGHT_HERE );
+			pAE->setState( AudioEngine::State::Testing );
 		}
 		
 		nn++;
@@ -564,7 +566,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	pAE->updateNoteQueue( nFrames );
 	pAE->incrementTransportPosition( nFrames );
 
-	if ( pAE->isEndOfSongReached() ) {
+	if ( pAE->isEndOfSongReached( pAE->m_pTransportPosition ) ) {
 		// Don't check consistency at the end of the song as just the
 		// remaining frames are covered.
 		return -1;
@@ -579,9 +581,10 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	if ( pTransportPos->getFrame() - nFrames -
 		 pTransportPos->getFrameOffsetTempo() != *nLastTransportFrame ) {
 		AudioEngineTests::throwException(
-			QString( "[processTransport : transport] [%1] inconsistent frame update. pTransportPos->getFrame(): %2, nFrames: %3, nLastTransportFrame: %4, pTransportPos->getFrameOffsetTempo(): %5" )
+			QString( "[processTransport : transport] [%1] inconsistent frame update. pTransportPos->getFrame(): %2, nFrames: %3, nLastTransportFrame: %4, pTransportPos->getFrameOffsetTempo(): %5, pAE->m_fSongSizeInTicks: %6, pAE->m_nLoopsDone: %7" )
 			.arg( sContext ).arg( pTransportPos->getFrame() ).arg( nFrames )
-			.arg( *nLastTransportFrame ).arg( pTransportPos->getFrameOffsetTempo() ) );
+			.arg( *nLastTransportFrame ).arg( pTransportPos->getFrameOffsetTempo() )
+			.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_nLoopsDone ) );
 	}
 	*nLastTransportFrame = pTransportPos->getFrame() -
 			pTransportPos->getFrameOffsetTempo();
@@ -593,14 +596,16 @@ int AudioEngineTests::processTransport( const QString& sContext,
 	// an update has actually taken place.
 	if ( *nLastQueuingTick > 0 && nNoteQueueUpdate > 0 ) {
 		if ( pQueuingPos->getTick() - nNoteQueueUpdate !=
-			 *nLastQueuingTick ) {
+			 *nLastQueuingTick &&
+			 ! pAE->isEndOfSongReached( pQueuingPos ) ) {
 			AudioEngineTests::throwException(
-				QString( "[processTransport : queuing pos] [%1] inconsistent tick update. pQueuingPos->getTick(): %2, nNoteQueueUpdate: %3, nLastQueuingTick: %4, fTickStart: %5, fTickEnd: %6, nFrames = %7, pTransportPos: %8, pQueuingPos: %9" )
+				QString( "[processTransport : queuing pos] [%1] inconsistent tick update. pQueuingPos->getTick(): %2, nNoteQueueUpdate: %3, nLastQueuingTick: %4, fTickStart: %5, fTickEnd: %6, nFrames = %7, pTransportPos: %8, pQueuingPos: %9, pAE->m_fSongSizeInTicks: %10, pAE->m_nLoopsDone: %11" )
 				.arg( sContext ).arg( pQueuingPos->getTick() )
 				.arg( nNoteQueueUpdate ).arg( *nLastQueuingTick )
 				.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
 				.arg( nFrames ).arg( pTransportPos->toQString() )
-				.arg( pQueuingPos->toQString() ) );
+				.arg( pQueuingPos->toQString() )
+				.arg( pAE->m_fSongSizeInTicks ).arg( pAE->m_nLoopsDone ));
 		}
 	}
 	*nLastQueuingTick = pQueuingPos->getTick();
@@ -643,6 +648,7 @@ void AudioEngineTests::testTransportRelocation() {
 	auto pTransportPos = pAE->getTransportPosition();
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -653,7 +659,6 @@ void AudioEngineTests::testTransportRelocation() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while relocating
 	// transport.
@@ -705,6 +710,7 @@ void AudioEngineTests::testSongSizeChange() {
 	const int nTestColumn = 4;
 	
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Ready );
@@ -756,6 +762,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	pCoreActionController->activateLoopMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	const int nColumns = pSong->getPatternGroupVector()->size();
 
@@ -768,7 +775,6 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	const uint32_t nFrames = 500;
 	const double fInitialSongSize = pAE->m_fSongSizeInTicks;
@@ -812,15 +818,19 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		nNewColumn = columnDist( randomEngine );
 
+		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		pAE->lock( RIGHT_HERE );
+		pAE->setState( AudioEngine::State::Testing );
 
 		checkState( QString( "toggling column [%1]" ).arg( nNewColumn ), true );
-														  
+
+		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		pAE->lock( RIGHT_HERE );
+		pAE->setState( AudioEngine::State::Testing );
 
 		checkState( QString( "again toggling column [%1]" ).arg( nNewColumn ), false );
 	}
@@ -843,6 +853,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	pCoreActionController->activateLoopMode( false );
 	pCoreActionController->activateSongMode( true );
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -853,7 +864,6 @@ void AudioEngineTests::testNoteEnqueuing() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while using a
 	// random buffer size (e.g. like PulseAudio does).
@@ -1057,9 +1067,9 @@ void AudioEngineTests::testNoteEnqueuing() {
 	pCoreActionController->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	nLoops = 1;
 
@@ -1095,7 +1105,11 @@ void AudioEngineTests::testNoteEnqueuing() {
 		if ( ( pTransportPos->getDoubleTick() >
 			   pAE->m_fSongSizeInTicks * nLoops + 100 ) &&
 			 pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+			pAE->setState( AudioEngine::State::Ready );
+			pAE->unlock();
 			pCoreActionController->activateLoopMode( false );
+			pAE->lock( RIGHT_HERE );
+			pAE->setState( AudioEngine::State::Testing );
 		}
 
 		pAE->updateNoteQueue( nFrames );
@@ -1117,6 +1131,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	auto pPref = Preferences::get_instance();
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
@@ -1127,7 +1142,6 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 	AudioEngineTests::resetSampler( __PRETTY_FUNCTION__ );
 
 	uint32_t nFrames;
@@ -1222,12 +1236,12 @@ void AudioEngineTests::testHumanization() {
 	pCoreActionController->activateSongMode( true );
 
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	// For reset() the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-	pAE->setState( AudioEngine::State::Testing );
 
 	// Rolls playback from beginning to the end of the song and
 	// captures all notes added to the Sampler.
@@ -1324,10 +1338,12 @@ void AudioEngineTests::testHumanization() {
 	// positions but velocity, pan, leag&lag, and note key as well as
 	// note octave are all customized. Check whether these
 	// customizations reach the Sampler.
+	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 	pCoreActionController->toggleGridCell( 0, 0 );
 	pCoreActionController->toggleGridCell( 0, 1 );
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	std::vector<std::shared_ptr<Note>> notesCustomized;
 	getNotes( &notesCustomized );
@@ -1387,10 +1403,12 @@ void AudioEngineTests::testHumanization() {
 	// expected standard deviation.
 	//
 	// Switch back to pattern 1
+	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 	pCoreActionController->toggleGridCell( 0, 1 );
 	pCoreActionController->toggleGridCell( 0, 0 );
 	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
 
 	auto checkHumanization = [&]( double fValue, std::vector<std::shared_ptr<Note>>* pNotes ) {
 
@@ -1786,10 +1804,12 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 		nOldColumn = pTransportPos->getColumn();
 		fPrevTempo = pTransportPos->getBpm();
 		fPrevTickSize = pTransportPos->getTickSize();
-	
+
+		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
 		pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
 		pAE->lock( RIGHT_HERE );
+		pAE->setState( AudioEngine::State::Testing );
 
 		const QString sNewContext =
 			QString( "toggleAndCheckConsistency::toggleAndCheck : %1 : toggling (%2,%3)" )

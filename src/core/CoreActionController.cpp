@@ -945,7 +945,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
 	
-	pAudioEngine->switchMode();
+	pAudioEngine->handleSongModeChanged();
 
 	pAudioEngine->unlock();
 	
@@ -999,6 +999,10 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 		}
 		bChange = true;
 	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->handleLoopModeChanged();
+	pAudioEngine->unlock();
 	
 	if ( bChange ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION,

@@ -99,6 +99,7 @@ AudioEngine::AudioEngine()
 		, m_pLocker({nullptr, 0, nullptr, false})
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
+		, m_nLoopsDone( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
 	m_pQueuingPosition = std::make_shared<TransportPosition>( "Queuing" );
@@ -342,6 +343,7 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fMasterPeak_R = 0.0f;
 
 	m_fLastTickEnd = 0;
+	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
 	m_fSongSizeInTicks = MAX_NOTES;
@@ -464,6 +466,7 @@ void AudioEngine::resetOffsets() {
 	clearNoteQueues();
 
 	m_fLastTickEnd = 0;
+	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
 	m_pTransportPosition->setFrameOffsetTempo( 0 );
@@ -501,12 +504,14 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	// done in updateNoteQueue().
 }
 
-bool AudioEngine::isEndOfSongReached() const {
+bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong->getMode() == Song::Mode::Song &&
-		 pSong->getLoopMode() != Song::LoopMode::Enabled &&
-		 m_pTransportPosition->getDoubleTick() >=
-		 m_fSongSizeInTicks ) {
+		 ( pSong->getLoopMode() == Song::LoopMode::Disabled &&
+		   pPos->getDoubleTick() >= m_fSongSizeInTicks ||
+		   pSong->getLoopMode() == Song::LoopMode::Finishing &&
+		   pPos->getDoubleTick() >= m_fSongSizeInTicks *
+		   (1 + static_cast<double>(m_nLoopsDone)) ) ) {
 		return true;
 	}
 
@@ -1062,6 +1067,14 @@ void AudioEngine::restartAudioDrivers()
 
 }
 
+void AudioEngine::handleLoopModeChanged() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong->getLoopMode() == Song::LoopMode::Finishing ) {
+		m_nLoopsDone = static_cast<int>(std::floor(
+			m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks ));
+	}
+}
+
 void AudioEngine::handleDriverChange() {
 
 	if ( Hydrogen::get_instance()->getSong() == nullptr ) {
@@ -1184,7 +1197,7 @@ void AudioEngine::handleSelectedPattern() {
 	}
 }
 
-void AudioEngine::switchMode() {
+void AudioEngine::handleSongModeChanged() {
 	reset( true );
 
 	const auto pSong = Hydrogen::get_instance()->getSong();
@@ -1389,7 +1402,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 
 		// Check whether the end of the song has been reached.
-		if ( pAudioEngine->isEndOfSongReached() ) {
+		if ( pAudioEngine->isEndOfSongReached(
+				 pAudioEngine->m_pTransportPosition ) ) {
 
 			___INFOLOG( "End of song received" );
 
@@ -2359,8 +2373,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			updateSongTransportPosition( static_cast<double>(nnTick),
 										 nNewFrame, m_pQueuingPosition );
 
-			if ( ( pSong->getLoopMode() != Song::LoopMode::Enabled ) &&
-				 m_pQueuingPosition->getDoubleTick() >= m_fSongSizeInTicks ) {
+			if ( isEndOfSongReached( m_pQueuingPosition ) ) {
 				// Queueing reached end of the song.
 				return;
 			}
