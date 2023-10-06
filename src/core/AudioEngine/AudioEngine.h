@@ -465,6 +465,7 @@ public:
 	friend bool CoreActionController::deleteTempoMarker( int );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	friend bool CoreActionController::activateSongMode( bool );
+	friend bool CoreActionController::activateLoopMode( bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportPosition();
@@ -508,13 +509,8 @@ private:
 	 * Takes all notes from the currently playing patterns, from the
 	 * MIDI queue #m_midiNoteQueue, and those triggered by the
 	 * metronome and pushes them onto #m_songNoteQueue for playback.
-	 *
-	 * \return
-	 * - 0 - on success
-	 * - -1 - if in Hydrogen is in Song::Mode::Song, looping was
-	 * deactivated, and the end of the song was reached.
 	 */
-	int				updateNoteQueue( unsigned nIntervalLengthInFrames );
+	void			updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
 	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
@@ -544,6 +540,7 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
+	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 	void			updateTransportPosition( double fTick, long long nFrame,
 											 std::shared_ptr<TransportPosition> pPos );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
@@ -583,11 +580,17 @@ private:
 	 */
 	void handleDriverChange();
 
+	/** In order to properly support #H2Core::Song::LoopMode::Finishing -
+	 * transport was already looped a couple of times and the user is pressing
+	 * the loop button again to deactivate loop mode - we have to capture the
+	 * number of loops already applied. */
+	void handleLoopModeChanged();
+
 	/**
 	 * Called whenever Hydrogen switches from #Song::Mode::Song into
 	 * #Song::Mode::Pattern or the other way around.
 	 */
-	void switchMode();
+	void handleSongModeChanged();
 
 	Sampler* 			m_pSampler;
 	Synth* 				m_pSynth;
@@ -702,6 +705,10 @@ private:
 	bool m_bJackSupported;
 
 	QStringList m_supportedAudioDrivers;
+
+	/** Indicates how many loops the transport already did when the user presses
+	 * the Loop button again. */
+	int m_nLoopsDone;
 };
 
 
