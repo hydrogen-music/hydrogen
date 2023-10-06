@@ -969,8 +969,8 @@ bool Sampler::renderNoteNoResample(
 		
 		double fTickMismatch;
 		nNoteLength = TransportPosition::computeFrameFromTick(
-			pNote->get_position() + nDelay + pNote->get_length(),
-			&fTickMismatch ) - pNote->getNoteStart();
+			pNote->get_position() + pNote->get_length(), &fTickMismatch ) +
+			nDelay - pNote->getNoteStart();
 	}
 	
 	// The number of frames of the sample left to process.
@@ -1171,21 +1171,14 @@ bool Sampler::renderNoteResample(
 		// PatternEditor. This will be used instead of the full sample
 		// length.
 		double fTickMismatch;
-
-		// Delay is already introduced into the note start used below
-		// in Note::computeNoteStart. We need to account for it in
-		// here to in order to get the length of the note right.
-		const int nDelay = std::clamp(
-			pNote->get_humanize_delay(), -1 * AudioEngine::nMaxTimeHumanize,
-			AudioEngine::nMaxTimeHumanize );
 		
 		nNoteLength = 
-			TransportPosition::computeFrameFromTick( pNote->get_position() + nDelay +
-													 pNote->get_length(), &fTickMismatch,
-													 pSample->get_sample_rate() ) -
-			TransportPosition::computeFrameFromTick( pNote->get_position() + nDelay,
-													 &fTickMismatch,
-													 pSample->get_sample_rate() );
+			TransportPosition::computeFrameFromTick(
+				pNote->get_position() + pNote->get_length(),
+				&fTickMismatch, pSample->get_sample_rate() ) -
+			TransportPosition::computeFrameFromTick(
+				pNote->get_position(), &fTickMismatch,
+				pSample->get_sample_rate() );
 	}
 
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
