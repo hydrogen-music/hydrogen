@@ -789,6 +789,13 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
 
+	if ( m_selection.isLasso() ) {
+		// Since event was used to alter the note selection, we invalidate
+		// background and force a repainting of all note symbols (including
+		// whether or not they are selected).
+		invalidateBackground();
+	}
+
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
 		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
