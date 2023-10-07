@@ -282,7 +282,7 @@ if ("${PC_PORTMIDI_VERSION}" STREQUAL "" AND WANT_PORTMIDI AND PORTMIDI_FOUND)
 endif()
 
 FIND_HELPER(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
-FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
+FIND_HELPER(LASH liblash lash-1.0/lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 
 FIND_HELPER(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)

@@ -30,7 +30,7 @@
 
 #if defined(H2CORE_HAVE_LASH) || _DOXYGEN_
 
-#include <lash/lash.h>
+include <lash-1.0/lash/lash.h>
 #include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
 
