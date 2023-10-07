@@ -37,6 +37,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Proper undo of moving notes out of DrumPatternEditor.
 				- Custom note lengths are now only drawn till the next stop note.
 				- Highlight selected stop notes too.
+				- Update selected notes visually on left and right keyboard
+				  movement.
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
