@@ -324,6 +324,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 			}
 		}
 
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+
 		p.setPen( Qt::NoPen );
 		p.setBrush( noteOffBrush );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
