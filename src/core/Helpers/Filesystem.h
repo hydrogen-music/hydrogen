@@ -508,6 +508,12 @@ namespace H2Core
 		static bool check_permissions( const QString& path, const int perms, bool silent );
 
 		/**
+		 * Update the data, config and cache paths with QStandardPaths if old
+		 * folder doesn't exist (e.g. ~/.hydrogen/).
+		 */
+		static void update_usr_paths();
+
+		/**
 		 * Path to the system files set in Filesystem::bootstrap().
 		 *
 		 * If Q_OSMACX is set, it will be a concatenation of
@@ -532,6 +538,7 @@ namespace H2Core
 		 */
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
+		static QString __usr_cache_path;    ///< the path to the cache files
 		static QString __usr_cfg_path;      ///< the path to the user config file
 		static QString __usr_log_path;      ///< the path to the log file
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
