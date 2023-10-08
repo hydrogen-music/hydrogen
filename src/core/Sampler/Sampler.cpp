@@ -954,8 +954,12 @@ bool Sampler::renderNoteNoResample(
 	auto pInstrument = pNote->get_instrument();
 	bool bRetValue = true; // the note is ended
 
-	int nNoteLength = -1;
-	if ( pNote->get_length() != -1 ) {
+	int nNoteLength;
+	if ( pNote->get_length() == -1 ) {
+		// No custom length set by the user. Play the whole sample.
+		nNoteLength = pSample->get_frames();
+	}
+	else {
 		// The user set a custom duration of the note in the
 		// PatternEditor. This will be used instead of the full sample
 		// length.
@@ -974,7 +978,8 @@ bool Sampler::renderNoteNoResample(
 	}
 	
 	// The number of frames of the sample left to process.
-	int nRemainingFrames = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;
+	int nRemainingFrames = nNoteLength -
+		( int )pSelectedLayerInfo->SamplePosition;
 	
 	int nAvail_bytes;
 	if ( nRemainingFrames > nBufferSize - nInitialSilence ) {
@@ -1025,14 +1030,7 @@ bool Sampler::renderNoteNoResample(
 
 	float buffer_L[ MAX_BUFFER_SIZE ];
 	float buffer_R[ MAX_BUFFER_SIZE ];
-	int nNoteEnd = nInitialBufferPos + 1;
-	if ( nNoteLength == -1) {
-		nNoteEnd += pSelectedLayerInfo->SamplePosition + nFinalBufferPos;
-	}
-	else {
-		nNoteEnd += nNoteLength - (int)pSelectedLayerInfo->SamplePosition;
-	}
-
+	int nNoteEnd = nInitialBufferPos + 1 + nAvail_bytes;
 	int nSampleFrames = std::min( nFinalBufferPos,
 								  ( nInitialSilence + pSample->get_frames()
 								    - ( int )pSelectedLayerInfo->SamplePosition ) );
@@ -1164,9 +1162,12 @@ bool Sampler::renderNoteResample(
 	auto pSong = pHydrogen->getSong();
 	auto pInstrument = pNote->get_instrument();
 
-	int nNoteLength = -1;
-
-	if ( pNote->get_length() != -1 ) {
+	int nNoteLength;
+	if ( pNote->get_length() == -1 ) {
+		// No custom length set by the user. Play the whole sample.
+		nNoteLength = pSample->get_frames();
+	}
+	else {
 		// The user set a custom duration of the note in the
 		// PatternEditor. This will be used instead of the full sample
 		// length.
@@ -1188,7 +1189,7 @@ bool Sampler::renderNoteResample(
 		static_cast<float>(pAudioDriver->getSampleRate()); // Adjust for audio driver sample rate
 
 	// The number of frames of the sample left to process.
-	int nRemainingFrames = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
+	int nRemainingFrames = ( int )( ( float )( nNoteLength - pSelectedLayerInfo->SamplePosition ) / fStep );
 
 	bool bRetValue = true; // the note is ended
 	int nAvail_bytes;
@@ -1223,15 +1224,7 @@ bool Sampler::renderNoteResample(
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
-	int nNoteEnd = nInitialBufferPos + 1;
-	if ( nNoteLength == -1 ) {
-		nNoteEnd += nRemainingFrames;
-	}
-	else {
-		nNoteEnd += (int)( (float) ( nNoteLength -
-									 pSelectedLayerInfo->SamplePosition ) / fStep );
-	}
-
+	int nNoteEnd = nInitialBufferPos + 1 + nAvail_bytes;
 
 #ifdef H2CORE_HAVE_JACK
 	float* pTrackOutL = nullptr;
