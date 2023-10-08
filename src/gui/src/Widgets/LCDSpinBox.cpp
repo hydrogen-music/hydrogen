@@ -187,7 +187,7 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated ) {
 
 	// Determine the next value.
-	std::vector vChoices{ 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192 };
+	std::vector< int > vChoices{ 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192 };
 
 	double fNextValue = 1.0;
 	double fOffset = 0.0;
@@ -241,8 +241,8 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 
 QValidator::State LCDSpinBox::validate( QString &text, int &pos ) const {
 	if ( m_kind == Kind::PatternSizeDenominator ) {
-		std::vector vChoices{ "1", "2", "3", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "192" };
-		std::vector vCandidates1{ "1", "2", "3", "4", "6", "9" };
+		std::vector< QString > vChoices{ "1", "2", "3", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "192" };
+		std::vector< QString > vCandidates1{ "1", "2", "3", "4", "6", "9" };
 		QString sCandidate2( "19" );
 		bool bContained = false;
 		bool bIsCandidate = false;
