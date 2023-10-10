@@ -2431,6 +2431,27 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 	
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
 		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to find drumkit at path [%1]. Trying drumkit name [%2] instead." )
+				  .arg( pHydrogen->getLastLoadedDrumkitPath() )
+				  .arg( pHydrogen->getLastLoadedDrumkitName() ) );
+		// No luck when searching for the kit using the absolute path found in
+		// the .h2song. Let's try the last loaded drumkit name.
+		const QString sDrumkitPath =
+			Filesystem::drumkit_path_search( pHydrogen->getLastLoadedDrumkitName(),
+											 Filesystem::Lookup::stacked, true );
+		pDrumkit = pHydrogen->getSoundLibraryDatabase()
+			->getDrumkit( sDrumkitPath );
+	}
+
+	if ( pDrumkit == nullptr && ! bDrumkitNameLocked ) {
+		ERRORLOG( QString( "Unable to find drumkit of name [%1] either. Falling back to empty one." )
+				  .arg( pHydrogen->getLastLoadedDrumkitName() ) );
+		// If that didn't worked either and the user wants to "Save As", we fall
+		// back to the default kit.
+		pDrumkit = std::make_shared<Drumkit>();
+	}
 	
 	if ( pDrumkit != nullptr ){
 

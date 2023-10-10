@@ -58,6 +58,8 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __license( License() ),
 					 __imageLicense( License() )
 {
+	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
+	__path = usrDrumkitPath.filePath( __name );
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	__instruments = std::make_shared<InstrumentList>();
 }

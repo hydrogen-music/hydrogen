@@ -1,8 +1,6 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3
 	* Fixed
-		- Fixed NoteOff (stop note) color which was no different than
-			the default note color (#1854).
 		- Recorded MIDI notes were inserted ahead of the beat (#1851).
 		- Drumkit Property Dialog:
 				- Images were written regardless whether one hits the ok or
@@ -10,6 +8,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- When using Save As to create a new drumkit, the added image
 				  was put in the old drumkit folder instead and not properly
 				  copied into the new one.
+		- Allow to Save As drumkits derived from kits not found on the
+			current system.
 		- Audio Engine: In Song Mode with Loop Mode deactivated Hydrogen
 			missed notes very close to the end of the song.
 		- Fix crash on playing back notes with custom length (#1852).
@@ -20,6 +20,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Highlight selected stop notes too.
 				- Update selected notes visually on left and right keyboard
 				  movement.
+				- Fixed stop note color which was no different than
+					the default note color (#1854).
+
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
