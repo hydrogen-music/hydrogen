@@ -726,12 +726,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		if ( fTotalPitch == 0.0 &&
-			 pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) { // NO RESAMPLE
-			nReturnValues[nReturnValueIndex] = renderNoteNoResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R );
-		} else { // RESAMPLE
-			nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
-		}
+		nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
 
 		nReturnValueIndex++;
 	}
@@ -934,213 +929,6 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	return true;
 }
 
-bool Sampler::renderNoteNoResample(
-	std::shared_ptr<Sample> pSample,
-	Note *pNote,
-	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
-	std::shared_ptr<InstrumentComponent> pCompo,
-	std::shared_ptr<DrumkitComponent> pDrumCompo,
-	int nBufferSize,
-	int nInitialBufferPos,
-	float fCost_L,
-	float fCost_R,
-	float fCostTrack_L,
-	float fCostTrack_R
-)
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
-	auto pSong = pHydrogen->getSong();
-	auto pInstrument = pNote->get_instrument();
-	bool bRetValue = true; // the note is ended
-
-	int nNoteLength;
-	if ( pNote->get_length() == -1 ) {
-		// No custom length set by the user. Play the whole sample.
-		nNoteLength = pSample->get_frames();
-	}
-	else {
-		// The user set a custom duration of the note in the
-		// PatternEditor. This will be used instead of the full sample
-		// length.
-
-		// Delay is already introduced into the note start used below
-		// in Note::computeNoteStart. We need to account for it in
-		// here to in order to get the length of the note right.
-		const int nDelay = std::clamp(
-			pNote->get_humanize_delay(), -1 * AudioEngine::nMaxTimeHumanize,
-			AudioEngine::nMaxTimeHumanize );
-		
-		double fTickMismatch;
-		nNoteLength = TransportPosition::computeFrameFromTick(
-			pNote->get_position() + pNote->get_length(), &fTickMismatch ) +
-			nDelay - pNote->getNoteStart();
-	}
-	
-	// The number of frames of the sample left to process.
-	int nRemainingFrames = nNoteLength -
-		( int )pSelectedLayerInfo->SamplePosition;
-	
-	int nAvail_bytes;
-	if ( nRemainingFrames > nBufferSize - nInitialBufferPos ) {
-		// It The number of frames of the sample left to process
-		// exceeds what's available in the current process cycle of
-		// the Sampler. Clip it.
-		nAvail_bytes = nBufferSize - nInitialBufferPos;
-		// the note is not ended yet
-		bRetValue = false;
-	}
-	else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
-		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialBufferPos;
-	}
-	else {
-		nAvail_bytes = nRemainingFrames;
-	}
-
-	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
-	int nSamplePos = nInitialSamplePos;
-	// Either end of buffer or end of sample prior within the buffer.
-	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
-
-	auto pSample_data_L = pSample->get_data_l();
-	auto pSample_data_R = pSample->get_data_r();
-
-	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
-
-	auto pADSR = pNote->get_adsr();
-	float fADSRValue;
-	float fVal_L;
-	float fVal_R;
-
-#ifdef H2CORE_HAVE_JACK
-	float* pTrackOutL = nullptr;
-	float* pTrackOutR = nullptr;
-
-	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
-		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
-		if( pJackAudioDriver ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L( pInstrument, pCompo );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R( pInstrument, pCompo );
-		}
-	}
-#endif
-
-	float buffer_L[ MAX_BUFFER_SIZE ];
-	float buffer_R[ MAX_BUFFER_SIZE ];
-	int nNoteEnd = nInitialBufferPos + 1 + nAvail_bytes;
-	int nSampleFrames = std::min( nFinalBufferPos,
-								  ( nInitialBufferPos + pSample->get_frames()
-								    - ( int )pSelectedLayerInfo->SamplePosition ) );
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nSampleFrames; ++nBufferPos ) {
-		buffer_L[ nBufferPos ] = pSample_data_L[ nSamplePos ];
-		buffer_R[ nBufferPos ] = pSample_data_R[ nSamplePos ];
-		nSamplePos++;
-	}
-	for ( int nBufferPos = nSampleFrames; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-		buffer_L[ nBufferPos ] = buffer_R[ nBufferPos ] = 0.0;
-	}
-	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd, 1 ) ) {
-		bRetValue = true;
-	}
-
-	bool bFilterIsActive = pInstrument->is_filter_active();
-	// Low pass resonant filter
-
-	if ( bFilterIsActive ) {
-		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-
-			fVal_L = buffer_L[ nBufferPos ];
-			fVal_R = buffer_R[ nBufferPos ];
-
-			pNote->compute_lr_values( &fVal_L, &fVal_R );
-
-			buffer_L[ nBufferPos ] = fVal_L;
-			buffer_R[ nBufferPos ] = fVal_R;
-
-		}
-	}
-
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-
-		fVal_L = buffer_L[ nBufferPos ];
-		fVal_R = buffer_R[ nBufferPos ];
-
-
-#ifdef H2CORE_HAVE_JACK
-		if ( pTrackOutL != nullptr ) {
-			 pTrackOutL[nBufferPos] += fVal_L * fCostTrack_L;
-		}
-		if ( pTrackOutR != nullptr ) {
-			pTrackOutR[nBufferPos] += fVal_R * fCostTrack_R;
-		}
-#endif
-
-		fVal_L *= fCost_L;
-		fVal_R *= fCost_R;
-
-		// update instr peak
-		if ( fVal_L > fInstrPeak_L ) {
-			fInstrPeak_L = fVal_L;
-		}
-		if ( fVal_R > fInstrPeak_R ) {
-			fInstrPeak_R = fVal_R;
-		}
-
-		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
-
-		// to main mix
-		m_pMainOut_L[nBufferPos] += fVal_L;
-		m_pMainOut_R[nBufferPos] += fVal_R;
-
-	}
-	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
-		// Note is still ringing, do not end.
-		bRetValue = false;
-	}
-
-	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
-	pInstrument->set_peak_l( fInstrPeak_L );
-	pInstrument->set_peak_r( fInstrPeak_R );
-
-
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA
-	// change the below return logic if you add code after that ifdef
-	if ( pInstrument->is_muted() || pSong->getIsMuted() ){
-		return bRetValue;
-	} 
-	float masterVol =  pSong->getVolume();
-	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
-
-		float fLevel = pInstrument->get_fx_level( nFX );
-
-		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
-			fLevel = fLevel * pFX->getVolume();
-			float *pBuf_L = pFX->m_pBuffer_L;
-			float *pBuf_R = pFX->m_pBuffer_R;
-
-			float fFXCost_L = fLevel * masterVol;
-			float fFXCost_R = fLevel * masterVol;
-
-			int nBufferPos = nInitialBufferPos;
-			int nSamplePos = nInitialSamplePos;
-			for ( int i = 0; i < nAvail_bytes; ++i ) {
-				pBuf_L[ nBufferPos ] += pSample_data_L[ nSamplePos ] * fFXCost_L;
-				pBuf_R[ nBufferPos ] += pSample_data_R[ nSamplePos ] * fFXCost_R;
-				++nSamplePos;
-				++nBufferPos;
-			}
-		}
-	}
-	// ~LADSPA
-#endif
-
-	return bRetValue;
-}
-
 bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
@@ -1160,6 +948,22 @@ bool Sampler::renderNoteResample(
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
 	auto pInstrument = pNote->get_instrument();
+
+	const float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
+	const bool bResample = fNotePitch != 0 ||
+		pSample->get_sample_rate() != pAudioDriver->getSampleRate();
+
+	float fStep;
+	if ( bResample ){
+		fStep = Note::pitchToFrequency( fNotePitch );
+
+		// Adjust for audio driver sample rate
+		fStep *= static_cast<float>(pSample->get_sample_rate()) /
+			static_cast<float>(pAudioDriver->getSampleRate());
+	}
+	else {
+		fStep = 1;
+	}
 
 	int nNoteLength;
 	if ( pNote->get_length() == -1 ) {
@@ -1181,17 +985,10 @@ bool Sampler::renderNoteResample(
 				pSample->get_sample_rate() );
 	}
 
-	const float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
-	float fStep = Note::pitchToFrequency( fNotePitch );
-
-	fStep *= static_cast<float>(pSample->get_sample_rate()) /
-		static_cast<float>(pAudioDriver->getSampleRate()); // Adjust for audio driver sample rate
-
-	const bool bResample = fNotePitch != 0 ||
-		pSample->get_sample_rate() != pAudioDriver->getSampleRate();
-
 	// The number of frames of the sample left to process.
-	const int nRemainingFrames = ( int )( ( float )( nNoteLength - pSelectedLayerInfo->SamplePosition ) / fStep );
+	const int nRemainingFrames = static_cast<int>(
+		static_cast<float>(nNoteLength - pSelectedLayerInfo->SamplePosition) /
+		fStep );
 
 	bool bRetValue = true; // the note is ended
 	int nAvail_bytes;
@@ -1251,7 +1048,7 @@ bool Sampler::renderNoteResample(
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 		  ++nBufferPos ) {
 
-		int nSamplePos = ( int )fSamplePos;
+		int nSamplePos = static_cast<int>(fSamplePos);
 		double fDiff = fSamplePos - nSamplePos;
 		if ( ( nSamplePos - 1 ) >= nSampleFrames ) {
 			//we reach the last audioframe.
@@ -1259,62 +1056,68 @@ bool Sampler::renderNoteResample(
 			fVal_L = 0.0;
 			fVal_R = 0.0;
 		} else {
-			// Gather frame samples
-			float l0, l1, l2, l3, r0, r1, r2, r3;
-			// Short-circuit: the common case is that all required frames are within the sample.
-			if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
-				l0 = pSample_data_L[ nSamplePos-1 ];
-				l1 = pSample_data_L[ nSamplePos ];
-				l2 = pSample_data_L[ nSamplePos+1 ];
-				l3 = pSample_data_L[ nSamplePos+2 ];
-				r0 = pSample_data_R[ nSamplePos-1 ];
-				r1 = pSample_data_R[ nSamplePos ];
-				r2 = pSample_data_R[ nSamplePos+1 ];
-				r3 = pSample_data_R[ nSamplePos+2 ];
-			} else {
-				l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
-				// Some required frames are off the beginning or end of the sample.
-				if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
-					l0 = pSample_data_L[ nSamplePos-1 ];
-					r0 = pSample_data_R[ nSamplePos-1 ];
-				}
-				// Each successive frame may be past the end of the sample so check individually.
-				if ( nSamplePos < nSampleFrames ) {
+			if ( ! bResample ) {
+				fVal_L = pSample_data_L[ nSamplePos ];
+				fVal_R = pSample_data_R[ nSamplePos ];
+			}
+			else {
+				// Gather frame samples
+				float l0, l1, l2, l3, r0, r1, r2, r3;
+				// Short-circuit: the common case is that all required frames are within the sample.
+				if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
+					l0=  pSample_data_L[ nSamplePos-1 ];
 					l1 = pSample_data_L[ nSamplePos ];
+					l2 = pSample_data_L[ nSamplePos+1 ];
+					l3 = pSample_data_L[ nSamplePos+2 ];
+					r0 = pSample_data_R[ nSamplePos-1 ];
 					r1 = pSample_data_R[ nSamplePos ];
-					if ( nSamplePos+1 < nSamplePos ) {
-						l2 = pSample_data_L[ nSamplePos+1 ];
-						r2 = pSample_data_R[ nSamplePos+1 ];
-						if ( nSamplePos+2 < nSamplePos ) {
-							l3 = pSample_data_L[ nSamplePos+2 ];
-							r3 = pSample_data_R[ nSamplePos+2 ];
+					r2 = pSample_data_R[ nSamplePos+1 ];
+					r3 = pSample_data_R[ nSamplePos+2 ];
+				} else {
+					l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
+					// Some required frames are off the beginning or end of the sample.
+					if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
+						l0 = pSample_data_L[ nSamplePos-1 ];
+						r0 = pSample_data_R[ nSamplePos-1 ];
+					}
+					// Each successive frame may be past the end of the sample so check individually.
+					if ( nSamplePos < nSampleFrames ) {
+						l1 = pSample_data_L[ nSamplePos ];
+						r1 = pSample_data_R[ nSamplePos ];
+						if ( nSamplePos+1 < nSamplePos ) {
+							l2 = pSample_data_L[ nSamplePos+1 ];
+							r2 = pSample_data_R[ nSamplePos+1 ];
+							if ( nSamplePos+2 < nSamplePos ) {
+								l3 = pSample_data_L[ nSamplePos+2 ];
+								r3 = pSample_data_R[ nSamplePos+2 ];
+							}
 						}
 					}
 				}
-			}
 
-			// Interpolate frame values from Sample domain to audio output range
-			switch ( m_interpolateMode ) {
-			case Interpolation::InterpolateMode::Linear:
-				fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
-				fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
-				break;
-			case Interpolation::InterpolateMode::Cosine:
-				fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
-				fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
-				break;
-			case Interpolation::InterpolateMode::Third:
-				fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
-				fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
-				break;
-			case Interpolation::InterpolateMode::Cubic:
-				fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
-				fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
-				break;
-			case Interpolation::InterpolateMode::Hermite:
-				fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
-				fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
-				break;
+				// Interpolate frame values from Sample domain to audio output range
+				switch ( m_interpolateMode ) {
+					case Interpolation::InterpolateMode::Linear:
+						fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
+						fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
+						break;
+					case Interpolation::InterpolateMode::Cosine:
+						fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
+						fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
+						break;
+					case Interpolation::InterpolateMode::Third:
+						fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
+						fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
+						break;
+					case Interpolation::InterpolateMode::Cubic:
+						fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
+						fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
+						break;
+					case Interpolation::InterpolateMode::Hermite:
+						fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
+						fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
+						break;
+				}
 			}
 		}
 
@@ -1328,18 +1131,29 @@ bool Sampler::renderNoteResample(
 						   nFinalBufferPos + 1, fStep ) ) {
 		bRetValue = true;
 	}
-	
+
+	// Low pass resonant filter
+	if ( pInstrument->is_filter_active() ) {
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+			  ++nBufferPos ) {
+
+			fVal_L = buffer_L[ nBufferPos ];
+			fVal_R = buffer_R[ nBufferPos ];
+
+			pNote->compute_lr_values( &fVal_L, &fVal_R );
+
+			buffer_L[ nBufferPos ] = fVal_L;
+			buffer_R[ nBufferPos ] = fVal_R;
+
+		}
+	}
+
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 		  ++nBufferPos ) {
 
-		fVal_L = buffer_L[nBufferPos];
-		fVal_R = buffer_R[nBufferPos];
-
-		// Low pass resonant filter
-		if ( pInstrument->is_filter_active() ) {
-			pNote->compute_lr_values( &fVal_L, &fVal_R );
-		}
+		fVal_L = buffer_L[ nBufferPos ];
+		fVal_R = buffer_R[ nBufferPos ];
 
 #ifdef H2CORE_HAVE_JACK
 		if ( pTrackOutL ) {
@@ -1389,7 +1203,7 @@ bool Sampler::renderNoteResample(
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		float fLevel = pInstrument->get_fx_level( nFX );
-		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
+		if ( pFX != nullptr && fLevel != 0.0 ) {
 			fLevel = fLevel * pFX->getVolume();
 
 			float *pBuf_L = pFX->m_pBuffer_L;
