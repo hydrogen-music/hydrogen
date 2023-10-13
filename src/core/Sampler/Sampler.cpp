@@ -497,7 +497,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	// care about its starting position. Else we would encounter
 	// glitches when relocating transport during playback or starting
 	// transport while using realtime playback.
-	long long nInitialSilence = 0;
+	long long nInitialBufferPos = 0;
 	if ( ! pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
@@ -512,13 +512,13 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		if ( nNoteStartInFrames > nFrame ) {
 			// The note doesn't start right at the beginning of the
 			// buffer rendered in this cycle.
-			nInitialSilence = nNoteStartInFrames - nFrame;
+			nInitialBufferPos = nNoteStartInFrames - nFrame;
 			
-			if ( nBufferSize < nInitialSilence ) {
+			if ( nBufferSize < nInitialBufferPos ) {
 				// this note is not valid. it's in the future...let's skip it....
-				ERRORLOG( QString( "Note pos in the future?? nFrame: %1, note start: %2, nInitialSilence: %3, nBufferSize: %4" )
+				ERRORLOG( QString( "Note pos in the future?? nFrame: %1, note start: %2, nInitialBufferPos: %3, nBufferSize: %4" )
 						  .arg( nFrame ).arg( pNote->getNoteStart() )
-						  .arg( nInitialSilence ).arg( nBufferSize ) );
+						  .arg( nInitialBufferPos ).arg( nBufferSize ) );
 
 				return true;
 			}
@@ -728,9 +728,9 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		// Actual rendering.
 		if ( fTotalPitch == 0.0 &&
 			 pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) { // NO RESAMPLE
-			nReturnValues[nReturnValueIndex] = renderNoteNoResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R );
+			nReturnValues[nReturnValueIndex] = renderNoteNoResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R );
 		} else { // RESAMPLE
-			nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
+			nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
 		}
 
 		nReturnValueIndex++;
@@ -941,7 +941,7 @@ bool Sampler::renderNoteNoResample(
 	std::shared_ptr<InstrumentComponent> pCompo,
 	std::shared_ptr<DrumkitComponent> pDrumCompo,
 	int nBufferSize,
-	int nInitialSilence,
+	int nInitialBufferPos,
 	float fCost_L,
 	float fCost_R,
 	float fCostTrack_L,
@@ -982,23 +982,22 @@ bool Sampler::renderNoteNoResample(
 		( int )pSelectedLayerInfo->SamplePosition;
 	
 	int nAvail_bytes;
-	if ( nRemainingFrames > nBufferSize - nInitialSilence ) {
+	if ( nRemainingFrames > nBufferSize - nInitialBufferPos ) {
 		// It The number of frames of the sample left to process
 		// exceeds what's available in the current process cycle of
 		// the Sampler. Clip it.
-		nAvail_bytes = nBufferSize - nInitialSilence;
+		nAvail_bytes = nBufferSize - nInitialBufferPos;
 		// the note is not ended yet
 		bRetValue = false;
 	}
 	else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialSilence;
+		nAvail_bytes = nBufferSize - nInitialBufferPos;
 	}
 	else {
 		nAvail_bytes = nRemainingFrames;
 	}
 
-	int nInitialBufferPos = nInitialSilence;
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	// Either end of buffer or end of sample prior within the buffer.
@@ -1032,7 +1031,7 @@ bool Sampler::renderNoteNoResample(
 	float buffer_R[ MAX_BUFFER_SIZE ];
 	int nNoteEnd = nInitialBufferPos + 1 + nAvail_bytes;
 	int nSampleFrames = std::min( nFinalBufferPos,
-								  ( nInitialSilence + pSample->get_frames()
+								  ( nInitialBufferPos + pSample->get_frames()
 								    - ( int )pSelectedLayerInfo->SamplePosition ) );
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nSampleFrames; ++nBufferPos ) {
 		buffer_L[ nBufferPos ] = pSample_data_L[ nSamplePos ];
@@ -1149,7 +1148,7 @@ bool Sampler::renderNoteResample(
 	std::shared_ptr<InstrumentComponent> pCompo,
 	std::shared_ptr<DrumkitComponent> pDrumCompo,
 	int nBufferSize,
-	int nInitialSilence,
+	int nInitialBufferPos,
 	float fCost_L,
 	float fCost_R,
 	float fCostTrack_L,
@@ -1182,49 +1181,49 @@ bool Sampler::renderNoteResample(
 				pSample->get_sample_rate() );
 	}
 
-	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
+	const float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 	float fStep = Note::pitchToFrequency( fNotePitch );
 
 	fStep *= static_cast<float>(pSample->get_sample_rate()) /
 		static_cast<float>(pAudioDriver->getSampleRate()); // Adjust for audio driver sample rate
 
+	const bool bResample = fNotePitch != 0 ||
+		pSample->get_sample_rate() != pAudioDriver->getSampleRate();
+
 	// The number of frames of the sample left to process.
-	int nRemainingFrames = ( int )( ( float )( nNoteLength - pSelectedLayerInfo->SamplePosition ) / fStep );
+	const int nRemainingFrames = ( int )( ( float )( nNoteLength - pSelectedLayerInfo->SamplePosition ) / fStep );
 
 	bool bRetValue = true; // the note is ended
 	int nAvail_bytes;
-	if ( nRemainingFrames > nBufferSize - nInitialSilence ) {
+	if ( nRemainingFrames > nBufferSize - nInitialBufferPos ) {
 		// It The number of frames of the sample left to process
 		// exceeds what's available in the current process cycle of
 		// the Sampler. Clip it.
-		nAvail_bytes = nBufferSize - nInitialSilence;
+		nAvail_bytes = nBufferSize - nInitialBufferPos;
 		// the note is not ended yet
 		bRetValue = false;
 	}
 	else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialSilence;
+		nAvail_bytes = nBufferSize - nInitialBufferPos;
 	}
 	else {
 		nAvail_bytes = nRemainingFrames;
 	}
 
-	int nInitialBufferPos = nInitialSilence;
 	double fSamplePos = pSelectedLayerInfo->SamplePosition;
-	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
+	const int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
 
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
+	const int nSampleFrames = pSample->get_frames();
 
 	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	auto pADSR = pNote->get_adsr();
-	float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
-	int nSampleFrames = pSample->get_frames();
-	int nNoteEnd = nInitialBufferPos + 1 + nAvail_bytes;
 
 #ifdef H2CORE_HAVE_JACK
 	float* pTrackOutL = nullptr;
@@ -1249,7 +1248,8 @@ bool Sampler::renderNoteResample(
 	//   - template and multiple instantiations for is_filter_active x each interpolation method
 	//   - iterate LP IIR filter coefficients to longer IIR filter to fit vector width
 	//
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+		  ++nBufferPos ) {
 
 		int nSamplePos = ( int )fSamplePos;
 		double fDiff = fSamplePos - nSamplePos;
@@ -1324,12 +1324,14 @@ bool Sampler::renderNoteResample(
 		fSamplePos += fStep;
 	}
 
-	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd, fStep ) ) {
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos,
+						   nFinalBufferPos + 1, fStep ) ) {
 		bRetValue = true;
 	}
 	
 	// Mix rendered sample buffer to track and mixer output
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+		  ++nBufferPos ) {
 
 		fVal_L = buffer_L[nBufferPos];
 		fVal_R = buffer_R[nBufferPos];
