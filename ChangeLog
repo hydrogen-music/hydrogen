@@ -9,6 +9,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Most actions available via MIDI or OSC can also be assigned to a
 		  keyboard shortcut. If those actions require input arguments,
 		  they are retrieved using popup dialogs.
+		- Align to grid action in Pattern Editor to align
+		  exsiting notes to current grid.
 	* Changed
 		- Preferences dialog can now be smoothly resized.
 		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as

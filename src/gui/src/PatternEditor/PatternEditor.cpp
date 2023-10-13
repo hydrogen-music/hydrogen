@@ -89,6 +89,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
 	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
+	m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 
@@ -408,6 +409,60 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	}
 	m_selection.updateWidgetGroup();
 }
+
+
+///
+/// Align selected (or all) notes to the current grid
+///
+void PatternEditor::alignToGrid() {
+
+	// Align selected notes to grid.
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected.
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	validateSelection();
+
+	std::list< Note * > notesToAlign;
+	for ( auto pNote : m_selection ) {
+		notesToAlign.push_back( pNote );
+	}
+	// If selection is empty, use all notes in the pattern
+	if ( notesToAlign.empty() ) {
+		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes, it) {
+			notesToAlign.push_back( it->second );
+		}
+	}
+	if ( notesToAlign.empty() ) {
+		return;
+	}
+
+	// Move the notes
+	pUndo->beginMacro( "align notes to grid" );
+
+	for ( Note *pNote : notesToAlign ) {
+
+		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		int nPosition = pNote->get_position();
+		int nNewInstrument = nInstrument;
+		int nGranularity = granularity();
+		// Round to the nearest position in the current grid. We add 1 to round up when the note is precisely
+		// in the middle. This allows us to change a 4/4 pattern to a 6/8 swing feel by changing the grid to
+		// 1/8th triplest, and hitting 'align'.
+		int nNewPosition = nGranularity * ( (nPosition+(nGranularity/2)+1) / nGranularity );
+		// Move note
+		pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
+											nNewPosition, nNewInstrument, pNote ) );
+	}
+
+	pUndo->endMacro();
+}
+
 
 void PatternEditor::setCurrentInstrument( int nInstrument ) {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
