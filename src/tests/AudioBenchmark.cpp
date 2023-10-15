@@ -130,7 +130,7 @@ static void timeADSR() {
 	qDebug() << "ADSR time: " << showTimes( times, nFrames );
 }
 
-static void timeExport( int nSampleRate ) {
+static void timeExport( int nSampleRate, Interpolation::InterpolateMode interpolateMode ) {
 	auto outFile = Filesystem::tmp_file_path("test.wav");
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nIterations = 32;
@@ -139,6 +139,9 @@ static void timeExport( int nSampleRate ) {
 
 	// Run through once to warm caches etc.
 	exportCurrentSong( outFile, 44100 );
+
+	auto oldInterpolateMode = pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
+	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( interpolateMode );
 
 
 	for ( int i = 0; i < nIterations; i++ ) {
@@ -158,7 +161,16 @@ static void timeExport( int nSampleRate ) {
 		times.push_back( end - start );
 	}
 
-	qDebug() << "Sample rate " << nSampleRate << " times: " << showTimes( times, nFrames * 5 );
+	if ( nSampleRate == 44100 ) {
+		qDebug() << "Sample rate " << nSampleRate
+				 << " times: " << showTimes( times, nFrames * 5 );
+	} else {
+		qDebug() << "Sample rate " << nSampleRate
+				 << " (" + Interpolation::ModeToQString( interpolateMode ) + ")"
+				 << " times: " << showTimes( times, nFrames * 5 );
+	}
+
+	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( oldInterpolateMode );
 
 	Filesystem::rm( outFile );
 
@@ -195,9 +207,12 @@ void AudioBenchmark::audioBenchmark(void)
 
 	qDebug() << "\n=== Audio engine benchmark ===";
 
-	timeExport( 44100 );
-	timeExport( 48000 );
-
+	timeExport( 44100, Interpolation::InterpolateMode::Linear );
+	timeExport( 48000, Interpolation::InterpolateMode::Linear );
+	timeExport( 48000, Interpolation::InterpolateMode::Cosine );
+	timeExport( 48000, Interpolation::InterpolateMode::Third );
+	timeExport( 48000, Interpolation::InterpolateMode::Cubic );
+	timeExport( 48000, Interpolation::InterpolateMode::Hermite );
 
 	qDebug() << "Now with ADSR";
 	pSong = Song::load( songADSRFile );
@@ -214,8 +229,12 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 
-	timeExport( 44100 );
-	timeExport( 48000 );
+	timeExport( 44100, Interpolation::InterpolateMode::Linear );
+	timeExport( 48000, Interpolation::InterpolateMode::Linear );
+	timeExport( 48000, Interpolation::InterpolateMode::Cosine );
+	timeExport( 48000, Interpolation::InterpolateMode::Third );
+	timeExport( 48000, Interpolation::InterpolateMode::Cubic );
+	timeExport( 48000, Interpolation::InterpolateMode::Hermite );
 
 	qDebug() << "---";
 	___INFOLOG( "passed" );
