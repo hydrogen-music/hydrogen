@@ -336,6 +336,13 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
 
+#ifdef H2CORE_HAVE_LADSPA
+	for ( int ii = 0; ii < MAX_FX; ++ii ) {
+		m_fFXPeak_L[ ii ] = 0;
+		m_fFXPeak_R[ ii ] = 0;
+	}
+#endif
+
 	m_fLastTickEnd = 0;
 	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
@@ -1128,7 +1135,7 @@ void AudioEngine::setupLadspaFX()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( ! pSong ) {
+	if ( pSong == nullptr ) {
 		return;
 	}
 
@@ -1141,12 +1148,8 @@ void AudioEngine::setupLadspaFX()
 
 		pFX->deactivate();
 
-		Effects::get_instance()->getLadspaFX( nFX )->connectAudioPorts(
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R,
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R
-					);
+		pFX->connectAudioPorts( pFX->m_pBuffer_L, pFX->m_pBuffer_R,
+								pFX->m_pBuffer_L, pFX->m_pBuffer_R );
 		pFX->activate();
 	}
 #endif
