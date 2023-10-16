@@ -1038,7 +1038,6 @@ bool Sampler::renderNoteResample(
 	float buffer_L[MAX_BUFFER_SIZE];
 	float buffer_R[MAX_BUFFER_SIZE];
 
-
 	// Main rendering loop.
 	// With some re-work, more of this could likely be vectorised fairly easily.
 	//   - assert no buffer aliasing
@@ -1057,8 +1056,13 @@ bool Sampler::renderNoteResample(
 			fVal_R = 0.0;
 		} else {
 			if ( ! bResample ) {
-				fVal_L = pSample_data_L[ nSamplePos ];
-				fVal_R = pSample_data_R[ nSamplePos ];
+				if ( nSamplePos < nSampleFrames ) {
+					fVal_L = pSample_data_L[ nSamplePos ];
+					fVal_R = pSample_data_R[ nSamplePos ];
+				} else {
+					fVal_L = 0.0;
+					fVal_R = 0.0;
+				}
 			}
 			else {
 				// Gather frame samples
