@@ -75,8 +75,9 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 
 		for ( const auto& pCompo : *pInstrument->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
-			pSampleInfo->SelectedLayer = -1;
-			pSampleInfo->SamplePosition = 0;
+			pSampleInfo->nSelectedLayer = -1;
+			pSampleInfo->fSamplePosition = 0;
+			pSampleInfo->nNoteLength = -1;
 
 			__layers_selected[ pCompo->get_drumkit_componentID() ] = pSampleInfo;
 		}
@@ -122,8 +123,9 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 
 	for ( const auto& mm : other->__layers_selected ) {
 		std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
-		pSampleInfo->SelectedLayer = mm.second->SelectedLayer;
-		pSampleInfo->SamplePosition = mm.second->SamplePosition;
+		pSampleInfo->nSelectedLayer = mm.second->nSelectedLayer;
+		pSampleInfo->fSamplePosition = mm.second->fSamplePosition;
+		pSampleInfo->nNoteLength = mm.second->nNoteLength;
 		
 		__layers_selected[ mm.first ] = pSampleInfo;
 	}
@@ -183,8 +185,9 @@ void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 
 		for ( const auto& ppCompo : *pInstr->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
-			sampleInfo->SelectedLayer = -1;
-			sampleInfo->SamplePosition = 0;
+			sampleInfo->nSelectedLayer = -1;
+			sampleInfo->fSamplePosition = 0;
+			sampleInfo->nNoteLength = -1;
 
 			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
 		}
@@ -219,7 +222,7 @@ bool Note::isPartiallyRendered() const {
 	bool bRes = false;
 
 	for ( auto ll : __layers_selected ) {
-		if ( ll.second->SamplePosition > 0 ) {
+		if ( ll.second->fSamplePosition > 0 ) {
 			bRes = true;
 			break;
 		}
@@ -279,20 +282,20 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		return nullptr;
 	}
 
-	if( pSelectedLayer->SelectedLayer != -1 ||
+	if( pSelectedLayer->nSelectedLayer != -1 ||
 		nSelectedLayer != -1 ) {
 		// This function was already called for this note and a
 		// specific layer the sample will be taken from was already
 		// selected or it is provided as an input argument.
 
-		int nLayer = pSelectedLayer->SelectedLayer != -1 ?
-			pSelectedLayer->SelectedLayer : nSelectedLayer;
+		int nLayer = pSelectedLayer->nSelectedLayer != -1 ?
+			pSelectedLayer->nSelectedLayer : nSelectedLayer;
 
-		if ( pSelectedLayer->SelectedLayer != -1 &&
+		if ( pSelectedLayer->nSelectedLayer != -1 &&
 			 nSelectedLayer != -1 &&
-			 pSelectedLayer->SelectedLayer != nSelectedLayer ) {
+			 pSelectedLayer->nSelectedLayer != nSelectedLayer ) {
 			WARNINGLOG( QString( "Previously selected layer [%1] and requested layer [%2] differ. The previous one will be used." )
-						.arg( pSelectedLayer->SelectedLayer )
+						.arg( pSelectedLayer->nSelectedLayer )
 						.arg( nSelectedLayer ) );
 		}
 		
@@ -405,7 +408,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 				return nullptr;
 			} 
 
-			pSelectedLayer->SelectedLayer = nLayerPicked;
+			pSelectedLayer->nSelectedLayer = nLayerPicked;
 			auto pLayer = pInstrCompo->get_layer( nLayerPicked );
 			pSample = pLayer->get_sample();
 
@@ -576,11 +579,12 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 						.arg( sPrefix ).arg( s ) );
 		for ( auto ll : __layers_selected ) {
 			if ( ll.second != nullptr ) {
-				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
+				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5, note length: %6]\n" )
 								.arg( sPrefix ).arg( s + s )
 								.arg( ll.first )
-								.arg( ll.second->SelectedLayer )
-								.arg( ll.second->SamplePosition ) );
+								.arg( ll.second->nSelectedLayer )
+								.arg( ll.second->fSamplePosition )
+								.arg( ll.second->nNoteLength ) );
 			} else {
 				sOutput.append( QString( "%1%2[component: %3, selected layer info: nullptr]\n" )
 								.arg( sPrefix ).arg( s + s )
@@ -631,10 +635,11 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( ", layers_selected: " ) );
 		for ( auto ll : __layers_selected ) {
 			if ( ll.second != nullptr ) {
-				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
+				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3, note length: %4] " )
 								.arg( ll.first )
-								.arg( ll.second->SelectedLayer )
-								.arg( ll.second->SamplePosition ) );
+								.arg( ll.second->nSelectedLayer )
+								.arg( ll.second->fSamplePosition )
+								.arg( ll.second->nNoteLength ) );
 			} else {
 				sOutput.append( QString( "[component: %1, selected layer info: nullptr]" )
 								.arg( ll.first ) );

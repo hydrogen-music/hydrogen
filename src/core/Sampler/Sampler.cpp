@@ -431,8 +431,47 @@ void Sampler::handleTimelineOrTempoChange() {
 		return;
 	}
 
-	for ( auto nnote : m_playingNotesQueue ) {
-		nnote->computeNoteStart();
+	for ( auto ppNote : m_playingNotesQueue ) {
+		ppNote->computeNoteStart();
+
+		// For notes of custom length we have to rescale the amount of the
+		// sample still left for rendering to properly adopt the tempo change.
+		if ( ppNote->isPartiallyRendered() && ppNote->get_length() != -1 ) {
+
+			double fTickMismatch;
+			const auto pSong = Hydrogen::get_instance()->getSong();
+
+			// Do so for all layers of all components current processed.
+			for ( auto& [ nnCompo, ppLayer ] : ppNote->get_layers_selected() ) {
+				const auto pSample = ppNote->getSample( nnCompo,
+														ppLayer->nSelectedLayer );
+				const int nNewNoteLength =
+					TransportPosition::computeFrameFromTick(
+						ppNote->get_position() + ppNote->get_length(),
+						&fTickMismatch, pSample->get_sample_rate() ) -
+					TransportPosition::computeFrameFromTick(
+						ppNote->get_position(), &fTickMismatch,
+						pSample->get_sample_rate() );
+
+				// The ratio between the old and new note length determines the
+				// scaling of the length. This is only applied to the part of
+				// the sample _not_ rendered yet to ensure consistency.
+				//
+				// BUG When handling several tempo changes while rendering a
+				// single note, calculating the ratio between note lengths is
+				// not a proper drop in for the tempo change anymore as the
+				// original note length and not the patched one from the last
+				// change is required. But this is too much of an edge-case and
+				// won't be covered here.
+				const int nSamplePosition =
+					static_cast<int>(std::floor(ppLayer->fSamplePosition));
+				ppLayer->nNoteLength = nSamplePosition +
+					static_cast<int>(std::round(
+						static_cast<float>(ppLayer->nNoteLength - nSamplePosition) *
+						nNewNoteLength /
+						static_cast<float>(ppLayer->nNoteLength)));
+			}
+		}
 	}
 }
 
@@ -615,28 +654,28 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		// layer again for all other samples.
 		if ( nAlreadySelectedLayer != -1 &&
 			 pInstr->sample_selection_alg() != Instrument::VELOCITY ) {
-			nAlreadySelectedLayer = pSelectedLayer->SelectedLayer;
+			nAlreadySelectedLayer = pSelectedLayer->nSelectedLayer;
 		}
 
-		if( pSelectedLayer->SelectedLayer == -1 ) {
+		if( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
 			nReturnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
-		auto pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+		auto pLayer = pCompo->get_layer( pSelectedLayer->nSelectedLayer );
 		float fLayerGain = pLayer->get_gain();
 		float fLayerPitch = pLayer->get_pitch();
 
-		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
+		if ( pSelectedLayer->fSamplePosition >= pSample->get_frames() ) {
 			// Due to rounding errors in renderNoteResample() the
 			// sample position can occassionaly exceed the maximum
 			// frames of a sample. AFAICS this is not itself
 			// harmful. So, we just log a warning if the difference is
 			// larger, which might be caused by a different problem.
-			if ( pSelectedLayer->SamplePosition >= pSample->get_frames() + 3 ) {
+			if ( pSelectedLayer->fSamplePosition >= pSample->get_frames() + 3 ) {
 				WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
-							.arg( pSelectedLayer->SamplePosition )
+							.arg( pSelectedLayer->fSamplePosition )
 							.arg( pSample->get_frames() ) );
 			}
 			nReturnValues[nReturnValueIndex] = true;
@@ -719,7 +758,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
-		if ( (int) pSelectedLayer->SamplePosition == 0  && ! pInstr->is_muted() ) {
+		if ( (int) pSelectedLayer->fSamplePosition == 0  && ! pInstr->is_muted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
 				pHydrogen->getMidiOutput()->handleQueueNote( pNote );
 			}
@@ -965,29 +1004,33 @@ bool Sampler::renderNoteResample(
 		fStep = 1;
 	}
 
-	int nNoteLength;
-	if ( pNote->get_length() == -1 ) {
-		// No custom length set by the user. Play the whole sample.
-		nNoteLength = pSample->get_frames();
-	}
-	else {
-		// The user set a custom duration of the note in the
-		// PatternEditor. This will be used instead of the full sample
-		// length.
-		double fTickMismatch;
+	// The length of a note is only calculated once when first encountering it.
+	// This makes us robust again glitches due to tempo changes.
+	if ( pSelectedLayerInfo->nNoteLength == -1 ) {
+		if ( pNote->get_length() == -1 ) {
+			// No custom length set by the user. Play the whole sample.
+			pSelectedLayerInfo->nNoteLength = pSample->get_frames();
+		}
+		else {
+			// The user set a custom duration of the note in the
+			// PatternEditor. This will be used instead of the full sample
+			// length.
+			double fTickMismatch;
 		
-		nNoteLength = 
-			TransportPosition::computeFrameFromTick(
-				pNote->get_position() + pNote->get_length(),
-				&fTickMismatch, pSample->get_sample_rate() ) -
-			TransportPosition::computeFrameFromTick(
-				pNote->get_position(), &fTickMismatch,
-				pSample->get_sample_rate() );
+			pSelectedLayerInfo->nNoteLength =
+				TransportPosition::computeFrameFromTick(
+					pNote->get_position() + pNote->get_length(),
+					&fTickMismatch, pSample->get_sample_rate() ) -
+				TransportPosition::computeFrameFromTick(
+					pNote->get_position(), &fTickMismatch,
+					pSample->get_sample_rate() );
+		}
 	}
 
 	// The number of frames of the sample left to process.
 	const int nRemainingFrames = static_cast<int>(
-		static_cast<float>(nNoteLength - pSelectedLayerInfo->SamplePosition) /
+		static_cast<float>(pSelectedLayerInfo->nNoteLength -
+						   pSelectedLayerInfo->fSamplePosition) /
 		fStep );
 
 	bool bRetValue = true; // the note is ended
@@ -1008,7 +1051,7 @@ bool Sampler::renderNoteResample(
 		nAvail_bytes = nRemainingFrames;
 	}
 
-	double fSamplePos = pSelectedLayerInfo->SamplePosition;
+	double fSamplePos = pSelectedLayerInfo->fSamplePosition;
 	const int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
 
 	auto pSample_data_L = pSample->get_data_l();
@@ -1192,7 +1235,7 @@ bool Sampler::renderNoteResample(
 		bRetValue = false;
 	}
 	
-	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
+	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fStep;
 	pInstrument->set_peak_l( fInstrPeak_L );
 	pInstrument->set_peak_r( fInstrPeak_R );
 
