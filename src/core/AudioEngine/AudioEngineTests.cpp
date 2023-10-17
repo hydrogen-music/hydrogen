@@ -1679,13 +1679,13 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						
 						const int nSampleFrames =
 							ppNewNote->get_instrument()->get_component( nn )
-							->get_layer( pSelectedLayer->SelectedLayer )
+							->get_layer( pSelectedLayer->nSelectedLayer )
 							->get_sample()->get_frames();
 						const double fExpectedFrames =
-							std::min( static_cast<double>(pSelectedLayer->SamplePosition) +
+							std::min( static_cast<double>(pSelectedLayer->fSamplePosition) +
 									  fPassedFrames,
 									  static_cast<double>(nSampleFrames) );
-						if ( std::abs( ppNewNote->get_layer_selected( nn )->SamplePosition -
+						if ( std::abs( ppNewNote->get_layer_selected( nn )->fSamplePosition -
 									   fExpectedFrames ) > 1 ) {
 							AudioEngineTests::throwException(
 								QString( "[checkAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
@@ -1695,7 +1695,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 								.arg( nSampleFrames ).arg( fExpectedFrames, 0, 'f' )
 								.arg( ppOldNote->getSample( nn )->get_sample_rate() )
 								.arg( nSampleRate )
-								.arg( ppNewNote->get_layer_selected( nn )->SamplePosition -
+								.arg( ppNewNote->get_layer_selected( nn )->fSamplePosition -
 									  fExpectedFrames, 0, 'g', 30 ) );
 						}
 					}
