@@ -436,7 +436,18 @@ void Sampler::handleTimelineOrTempoChange() {
 
 		// For notes of custom length we have to rescale the amount of the
 		// sample still left for rendering to properly adopt the tempo change.
-		if ( ppNote->isPartiallyRendered() && ppNote->get_length() != -1 ) {
+		//
+		// This is only done on manual tempo changes, like changes through the
+		// BPM widget, but not when passing a tempo marker. In case
+		// UsedTickSize() of a note is -1, the timeline was activated when
+		// picked up by the audio engine.
+		//
+		// BUG adding/deleting a tempo marker or toggling the timeline is not
+		// properly handled in here. But since this only occurs seldomly and
+		// this code only takes effect if a note with custom length is currently
+		// rendered, we skip this edge case.
+		if ( ppNote->isPartiallyRendered() && ppNote->get_length() != -1 &&
+			 ppNote->getUsedTickSize() != -1 ) {
 
 			double fTickMismatch;
 			const auto pSong = Hydrogen::get_instance()->getSong();
@@ -465,6 +476,7 @@ void Sampler::handleTimelineOrTempoChange() {
 				// won't be covered here.
 				const int nSamplePosition =
 					static_cast<int>(std::floor(ppLayer->fSamplePosition));
+
 				ppLayer->nNoteLength = nSamplePosition +
 					static_cast<int>(std::round(
 						static_cast<float>(ppLayer->nNoteLength - nSamplePosition) *
