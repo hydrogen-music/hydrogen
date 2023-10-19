@@ -2499,6 +2499,16 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 													   pAutomationPath->get_value( fPos ) );
 						}
 
+						// Ensure the custom length of the note does not exceed
+						// the length of the current pattern.
+						if ( pCopiedNote->get_length() != -1 ) {
+							pCopiedNote->set_length(
+								std::min(
+									static_cast<long>(pCopiedNote->get_length()),
+									static_cast<long>(pPattern->get_length()) -
+									m_pQueuingPosition->getPatternTickPosition() ) );
+						}
+
 						// DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
 						// 		  .arg( m_pQueuingPosition->toQString() )
 						// 		  .arg( pCopiedNote->toQString() ) );
