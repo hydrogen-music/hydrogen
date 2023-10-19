@@ -24,15 +24,26 @@
 
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <QTextStream>
 
 class AudioBenchmark : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(AudioBenchmark);
 	CPPUNIT_TEST(audioBenchmark);
 	CPPUNIT_TEST_SUITE_END();
+
 	static bool bEnabled;
+	QTextStream out;
+
+	void timeADSR();
+	double timeExport( int nSampleRate,
+					   H2Core::Interpolation::InterpolateMode interpolateMode,
+					   double fReference = 0.0,
+					   double *pfRMS = nullptr );
+
  public:
 	void audioBenchmark(void);
 	static void enable() { bEnabled = true; }
+	AudioBenchmark() : out( stdout ) {}
 };
 
 
