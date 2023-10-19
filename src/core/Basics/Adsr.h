@@ -63,6 +63,7 @@ class ADSR : public Object<ADSR>
 		void setRelease( unsigned int value );
 		unsigned int getRelease();
 
+
 		/**
 		 * Sets #m_state to #State::Attack
 		 */
@@ -88,7 +89,7 @@ class ADSR : public Object<ADSR>
 		 * covered in a run of applyADSR() depends on #m_state.
 		 *
 		 * If no note length was specified by the user in the GUI,
-		 * #m_fSustain will be applied will the end of the
+		 * #m_fSustain will be applied till the end of the
 		 * corresponding sample and ADSR application won't enter
 		 * release phase which would apply a falling exponential for
 		 * #m_nRelease frames and zero all following frames.
@@ -105,6 +106,18 @@ class ADSR : public Object<ADSR>
 
 		bool applyADSR( float *pLeft, float *pRight, int nFinalBufferPos, int nReleaseFrame, float fStep );
 
+		/** possible states */
+		enum class State {
+			Attack = 0,
+			Decay,
+			Sustain,
+			Release,
+			Idle
+		};
+	static QString StateToQString( State state );
+
+		State getState() const;
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -115,15 +128,6 @@ class ADSR : public Object<ADSR>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-		/** possible states */
-		enum class State {
-			Attack = 0,
-			Decay,
-			Sustain,
-			Release,
-			Idle
-		};
-	static QString StateToQString( State state );
 	
 		unsigned int m_nAttack;		///< Attack phase duration in frames
 		unsigned int m_nDecay;		///< Decay phase duration in frames
@@ -190,6 +194,9 @@ inline void ADSR::setRelease( unsigned int value )
 inline unsigned int ADSR::getRelease()
 {
 	return m_nRelease;
+}
+inline ADSR::State ADSR::getState() const {
+	return m_state;
 }
 
 };
