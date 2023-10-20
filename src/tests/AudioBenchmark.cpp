@@ -22,6 +22,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QString>
+#include <QtGlobal>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -37,6 +38,11 @@
 #include <ctime>
 
 using namespace H2Core;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt {
+	auto endl = ::endl;
+};
+#endif
 
 bool AudioBenchmark::bEnabled = false;
 
