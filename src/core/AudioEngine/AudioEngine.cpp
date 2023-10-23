@@ -1022,18 +1022,20 @@ void AudioEngine::stopAudioDrivers()
 {
 	INFOLOG( "" );
 
+	this->lock( RIGHT_HERE );
+
 	if ( m_state == State::Playing ) {
-		this->stopPlayback(); 
+		this->stopPlayback();
 	}
 
 	if ( ( m_state != State::Prepared )
 		 && ( m_state != State::Ready ) ) {
 		ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
 				  .arg( static_cast<int>(m_state) ) );
+		this->unlock();
 		return;
 	}
 
-	this->lock( RIGHT_HERE );
 
 	setState( State::Initialized );
 
