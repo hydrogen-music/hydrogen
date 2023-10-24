@@ -1071,10 +1071,15 @@ bool Sampler::renderNoteResample(
 				pSelectedLayerInfo->fSamplePosition) / fStep ));
 
 		if ( nNoteEnd < 0 ) {
-			ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fStep: %5")
-					  .arg( nNoteEnd ).arg( pSelectedLayerInfo->nNoteLength )
-					  .arg( pSelectedLayerInfo->fSamplePosition )
-					  .arg( nFinalBufferPos ).arg( fStep ) );
+			if ( ! pInstrument->is_filter_active() ) {
+				// In case resonance filtering is active the sampler stops
+				// rendering of the sample at the custom note length but let's
+				// the filter itself ring on.
+				ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fStep: %5")
+						  .arg( nNoteEnd ).arg( pSelectedLayerInfo->nNoteLength )
+						  .arg( pSelectedLayerInfo->fSamplePosition )
+						  .arg( nFinalBufferPos ).arg( fStep ) );
+			}
 			nNoteEnd = 0;
 		}
 	}
