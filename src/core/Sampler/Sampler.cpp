@@ -1016,33 +1016,12 @@ bool Sampler::renderNoteResample(
 		fStep = 1;
 	}
 
-	// The length of a note is only calculated once when first encountering it.
-	// This makes us robust again glitches due to tempo changes.
-	if ( pSelectedLayerInfo->nNoteLength == -1 ) {
-		if ( pNote->get_length() == -1 ) {
-			// No custom length set by the user. Play the whole sample.
-			pSelectedLayerInfo->nNoteLength = pSample->get_frames();
-		}
-		else {
-			// The user set a custom duration of the note in the
-			// PatternEditor. This will be used instead of the full sample
-			// length.
-			double fTickMismatch;
-		
-			pSelectedLayerInfo->nNoteLength =
-				TransportPosition::computeFrameFromTick(
-					pNote->get_position() + pNote->get_length(),
-					&fTickMismatch, pSample->get_sample_rate() ) -
-				TransportPosition::computeFrameFromTick(
-					pNote->get_position(), &fTickMismatch,
-					pSample->get_sample_rate() );
-		}
-	}
-
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
+	const int nSampleFrames = pSample->get_frames();
 	// The number of frames of the sample left to process.
 	const int nRemainingFrames = static_cast<int>(
-		static_cast<float>(pSelectedLayerInfo->nNoteLength -
-						   pSelectedLayerInfo->fSamplePosition) /
+		(static_cast<float>(nSampleFrames) - pSelectedLayerInfo->fSamplePosition) /
 		fStep );
 
 	bool bRetValue = true; // the note is ended
@@ -1066,9 +1045,50 @@ bool Sampler::renderNoteResample(
 	double fSamplePos = pSelectedLayerInfo->fSamplePosition;
 	const int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
 
-	auto pSample_data_L = pSample->get_data_l();
-	auto pSample_data_R = pSample->get_data_r();
-	const int nSampleFrames = pSample->get_frames();
+	int nNoteEnd;
+	// If the user set a custom length of the note in the PatternEditor, we will
+	// use it to trigger the releases of the note. Otherwise, the whole sample
+	// will be played back.
+	if ( pNote->get_length() != -1 &&
+		 pNote->get_adsr()->getState() != ADSR::State::Release ) {
+		if ( pSelectedLayerInfo->nNoteLength == -1 ) {
+			// The length of a note is only calculated once when first
+			// encountering it. This makes us robust again glitches due to tempo
+			// changes.
+			double fTickMismatch;
+
+			pSelectedLayerInfo->nNoteLength =
+				TransportPosition::computeFrameFromTick(
+					pNote->get_position() + pNote->get_length(),
+					&fTickMismatch, pSample->get_sample_rate() ) -
+				TransportPosition::computeFrameFromTick(
+					pNote->get_position(), &fTickMismatch,
+					pSample->get_sample_rate() );
+		}
+
+		nNoteEnd = std::min(nFinalBufferPos + 1, static_cast<int>(
+			(static_cast<float>(pSelectedLayerInfo->nNoteLength) -
+				pSelectedLayerInfo->fSamplePosition) / fStep ));
+
+		if ( nNoteEnd < 0 ) {
+			if ( ! pInstrument->is_filter_active() ) {
+				// In case resonance filtering is active the sampler stops
+				// rendering of the sample at the custom note length but let's
+				// the filter itself ring on.
+				ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fStep: %5")
+						  .arg( nNoteEnd ).arg( pSelectedLayerInfo->nNoteLength )
+						  .arg( pSelectedLayerInfo->fSamplePosition )
+						  .arg( nFinalBufferPos ).arg( fStep ) );
+			}
+			nNoteEnd = 0;
+		}
+	}
+	else {
+		// Do not apply release but play the whole sample instead. In case we
+		// already released a note of custom length, we will use the whole
+		// buffer to apply the release decay.
+		nNoteEnd = nFinalBufferPos + 1;
+	}
 
 	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -1186,8 +1206,8 @@ bool Sampler::renderNoteResample(
 		fSamplePos += fStep;
 	}
 
-	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos,
-						   nFinalBufferPos + 1, fStep ) ) {
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd,
+						   fStep ) ) {
 		bRetValue = true;
 	}
 
