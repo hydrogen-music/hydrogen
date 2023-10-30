@@ -11,35 +11,31 @@ if(COMMAND CMAKE_POLICY)
 	cmake_policy(SET CMP0003 NEW)   # add_library
 	cmake_policy(SET CMP0006 NEW)   # bundle destination property
 endif()
-#
-# PROJECT INFO
-#
+
 project(hydrogen)
+
+## Determine proper semantic version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "2")
 set(VERSION_PATCH "2")
+#set(VERSION_SUFFIX "beta1")
 
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+set(DISPLAY_VERSION "${VERSION}")
+
+if(VERSION_SUFFIX)
+    set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
+endif()
 
 # Consider any tagged commit as a release build
 execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
 if(GIT_TAG)
-        set(IS_DEVEL_BUILD "false")
+    set(IS_DEVEL_BUILD "false")
 else()
-        set(IS_DEVEL_BUILD "true")
+    set(IS_DEVEL_BUILD "true")
+    execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION)
+    set(DISPLAY_VERSION "${DISPLAY_VERSION}+${GIT_REVISION}")
 endif()
-      
-if(VERSION_SUFFIX)
-	set(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
-else()
-	if(GIT_TAG)
-		set(DISPLAY_VERSION "${VERSION}")
-	else()
-		execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
-		set(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
-	endif()
-endif(VERSION_SUFFIX)
-
 
 set(LIBSNDFILE_VERSION_PREV "1.0.17")
 
