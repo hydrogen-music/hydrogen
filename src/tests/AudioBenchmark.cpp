@@ -22,6 +22,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QString>
+#include <QtGlobal>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -37,6 +38,11 @@
 #include <ctime>
 
 using namespace H2Core;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+namespace Qt {
+	auto endl = ::endl;
+};
+#endif
 
 bool AudioBenchmark::bEnabled = false;
 
@@ -92,7 +98,9 @@ static QString showNumber( double f ) {
 	}
 }
 
-static QString showTimes( std::vector< clock_t > &times, int nFrames ) {
+
+static QString showTimes( std::vector< clock_t > &times, int nFrames,
+						  double *pfMean = nullptr, double *pfRMS = nullptr) {
 	double fTotal = std::accumulate(times.begin(), times.end(), 0) * 1.0 / CLOCKS_PER_SEC;
 	double fMean = fTotal / times.size();
 
@@ -104,13 +112,20 @@ static QString showTimes( std::vector< clock_t > &times, int nFrames ) {
 	}
 	double fRMS = sqrt( fTotalError ) / times.size();
 
+	if ( pfMean ) {
+		*pfMean = fMean;
+	}
+	if ( pfRMS ) {
+		*pfRMS = fRMS;
+	}
+
 	return QString( "%1s (%2 frames/sec) +/- %3%" )
 		.arg( showNumber( fMean ) )
 		.arg( showNumber( nFrames * 1.0 / fMean) )
 		.arg( 100.0 * fRMS / fMean, 0, 'f', 3 );
 }
 
-static void timeADSR() {
+void AudioBenchmark::timeADSR() {
 	const int nFrames = 4096;
 	float data_L[nFrames], data_R[nFrames];
 	int nIterations = 32;
@@ -130,19 +145,24 @@ static void timeADSR() {
 		times.push_back( end - start );
 	}
 
-	qDebug() << "ADSR time: " << showTimes( times, nFrames );
+	out << "ADSR time: " << showTimes( times, nFrames ) << Qt::endl;
 }
 
-static void timeExport( int nSampleRate ) {
+double AudioBenchmark::timeExport( int nSampleRate,
+								   Interpolation::InterpolateMode interpolateMode,
+								   double fReference,
+								   double *pfRMS ) {
 	auto outFile = Filesystem::tmp_file_path("test.wav");
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nIterations = 32;
 	std::vector< clock_t > times;
 	long long nFrames = 0, nFramesNew;
 
+	auto oldInterpolateMode = pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
+	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( interpolateMode );
+
 	// Run through once to warm caches etc.
 	exportCurrentSong( outFile, 44100 );
-
 
 	for ( int i = 0; i < nIterations; i++ ) {
 
@@ -161,10 +181,27 @@ static void timeExport( int nSampleRate ) {
 		times.push_back( end - start );
 	}
 
-	qDebug() << "Sample rate " << nSampleRate << " times: " << showTimes( times, nFrames * 5 );
+	double fRMS, fMean;
+	QString sTimes = showTimes( times, nFrames * 5, &fMean, &fRMS );
+	out << "Sample rate " << nSampleRate;
+	if ( nSampleRate != 44100 ) {
+		out << " (" + Interpolation::ModeToQString( interpolateMode ) + ")";
+	}
+	out << " times: " << sTimes;
+	if ( fReference != 0.0 ) {
+		double fDelta = 100.0 * ( fMean - fReference) / fReference;
+		out << " (" << ( ( fDelta >= 0 ) ? "+" : "" ) << fDelta << "%)";
+	}
+	out << Qt::endl;
+
+	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( oldInterpolateMode );
 
 	Filesystem::rm( outFile );
 
+	if ( pfRMS ) {
+		*pfRMS = fRMS;
+	}
+	return fMean;
 }
 
 void AudioBenchmark::audioBenchmark(void)
@@ -172,10 +209,11 @@ void AudioBenchmark::audioBenchmark(void)
 	if ( !bEnabled ) {
 		return;
 	}
+
 	___INFOLOG( "" );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	qDebug() << "Benchmark ADSR method:";
+	out << "Benchmark ADSR method:" << Qt::endl;
 	timeADSR();
 
 	auto songFile = H2TEST_FILE("functional/test.h2song");
@@ -196,13 +234,16 @@ void AudioBenchmark::audioBenchmark(void)
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	qDebug() << "\n=== Audio engine benchmark ===";
+	out << "\n=== Audio engine benchmark ===" << Qt::endl;
 
-	timeExport( 44100 );
-	timeExport( 48000 );
+	double fRef = timeExport( 44100, Interpolation::InterpolateMode::Linear );
+	timeExport( 44101, Interpolation::InterpolateMode::Linear, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Cosine, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Third, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Cubic, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Hermite, fRef );
 
-
-	qDebug() << "Now with ADSR";
+	out << "Now with ADSR" << Qt::endl;
 	pSong = Song::load( songADSRFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
@@ -217,9 +258,13 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 
-	timeExport( 44100 );
-	timeExport( 48000 );
+	timeExport( 44100, Interpolation::InterpolateMode::Linear, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Linear, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Cosine, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Third, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Cubic, fRef );
+	timeExport( 44101, Interpolation::InterpolateMode::Hermite, fRef );
 
-	qDebug() << "---";
+	out << "---" << Qt::endl;
 	___INFOLOG( "passed" );
 }

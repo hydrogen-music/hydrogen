@@ -58,6 +58,8 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __license( License() ),
 					 __imageLicense( License() )
 {
+	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
+	__path = usrDrumkitPath.filePath( __name );
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	__instruments = std::make_shared<InstrumentList>();
 }
@@ -491,11 +493,11 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 	return true;
 }
 
-bool Drumkit::save_image( const QString& dk_dir, bool bSilent ) const
+bool Drumkit::save_image( const QString& sDrumkitDir, bool bSilent ) const
 {
-	if ( __image.length() > 0 ) {
+	if ( ! __image.isEmpty() && sDrumkitDir != __path ) {
 		QString src = __path + "/" + __image;
-		QString dst = dk_dir + "/" + __image;
+		QString dst = sDrumkitDir + "/" + __image;
 		if ( Filesystem::file_exists( src, bSilent ) ) {
 			if ( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hydrogen_theme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/theme">
- <version>1.2.0</version>
+ <version>1.2.2</version>
  <colorTheme>
   <songEditor>
    <backgroundColor>128,134,152</backgroundColor>
@@ -28,7 +28,7 @@
    <noteVelocityDefaultColor>40,40,40</noteVelocityDefaultColor>
    <noteVelocityHalfColor>89,131,175</noteVelocityHalfColor>
    <noteVelocityZeroColor>255,255,255</noteVelocityZeroColor>
-   <noteOffColor>0,0,0</noteOffColor>
+   <noteOffColor>71,79,191</noteOffColor>
    <lineColor>45,45,45</lineColor>
    <line1Color>55,55,55</line1Color>
    <line2Color>75,75,75</line2Color>

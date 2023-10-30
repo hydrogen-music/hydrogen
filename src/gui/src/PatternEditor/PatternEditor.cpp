@@ -199,6 +199,10 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
@@ -258,7 +262,29 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		if ( pNote->get_length() != -1 ) {
 			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
 			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
-			width = m_fGridWidth * pNote->get_length() / fStep;
+
+			// if there is a stop-note to the right of this note, only draw-
+			// its length till there.
+			int nLength = pNote->get_length();
+			auto notes = m_pPattern->get_notes();
+			for ( const auto& [ _, ppNote ] : *m_pPattern->get_notes() ) {
+				if ( ppNote != nullptr &&
+					 // noteOff note
+					 ppNote->get_note_off() &&
+					 // located in the same row
+					 ppNote->get_instrument() == pNote->get_instrument() &&
+					 // left of the NoteOff
+					 pNote->get_position() < ppNote->get_position() &&
+					 // custom length reaches beyond NoteOff
+					 pNote->get_position() + pNote->get_length() >
+					 ppNote->get_position() ) {
+					// In case there are multiple stop-notes present, take the
+					// shortest distance.
+					nLength = std::min( ppNote->get_position() - pNote->get_position(), nLength );
+				}
+			}
+
+			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			if ( bSelected ) {
@@ -266,8 +292,20 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 			}
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
-			p.drawRect( x_pos, y_pos +2, width, 3 );
+
+			// Since the note body is transparent for an inactive note, we try
+			// to start the tail at its boundary. For regular notes we do not
+			// care about an overlap, as it ensures that there are no white
+			// artifacts between tail and note body regardless of the scale
+			// factor.
+			int nRectOnsetX = x_pos;
+			int nRectWidth = width;
+			if ( ! bIsForeground ) {
+				nRectOnsetX = nRectOnsetX + w/2;
+				nRectWidth = nRectWidth - w/2;
+			}
+
+			p.drawRect( nRectOnsetX, y_pos +2, nRectWidth, 3 );
 			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
 		}
 
@@ -296,6 +334,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 			if ( x_pos >= m_nActiveWidth ) {
 				noteOffBrush.setColor( noteoffInactiveColor );
 			}
+		}
+
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
 
 		p.setPen( Qt::NoPen );
