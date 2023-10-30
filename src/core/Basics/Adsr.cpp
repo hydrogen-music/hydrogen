@@ -176,6 +176,13 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFinalBufferPos, int nRel
 {
 	int nBufferPos = 0;
 
+	// If the release point is somehow in the past, move direcly to Release
+	if ( nReleaseFrame <= 0 && m_state != State::Release && m_state != State::Idle ) {
+		WARNINGLOG( QString( "Impossibly early release for ADSR: " ).arg( this->toQString() ) );
+		nReleaseFrame = 0;
+		m_state = State::Release;
+	}
+
 	if ( m_state == State::Attack ) {
 		int nAttackFrames = std::min( nFinalBufferPos, nReleaseFrame );
 		if ( nAttackFrames * fStep > m_nAttack ) {

@@ -102,8 +102,9 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 
 void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-										 bool bDoAdd, bool bDoDelete ) {
-	
+										 bool bDoAdd, bool bDoDelete,
+										 bool bIsNoteOff ) {
+
 	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
 		// No pattern selected.
 		return;
@@ -131,7 +132,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	float fProbability = 1.0f;
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
-	bool isNoteOff = false;
+	bool isNoteOff = bIsNoteOff;
 
 	if ( pOldNote && !bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
@@ -182,6 +183,9 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	int nInstruments = pSong->getInstrumentList()->size();
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
@@ -204,37 +208,11 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
-	{
-		//shift + leftClick: add noteOff note
-		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
-		if ( pNote != nullptr ) {
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
-																			 row,
-																			 m_nSelectedPatternNumber,
-																			 pNote->get_length(),
-																			 pNote->get_velocity(),
-																			 pNote->getPan(),
-																			 pNote->get_lead_lag(),
-																			 pNote->get_key(),
-																			 pNote->get_octave(),
-																			 pNote->get_probability(),
-																			 true,
-																			 false,
-																			 false,
-																			 false,
-																			 pNote->get_note_off() );
-			pHydrogenApp->m_pUndoStack->push( action );
-		} else {
-			// Add stop-note
-			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row, m_nSelectedPatternNumber,
-																   pNote != nullptr );
-			pHydrogenApp->m_pUndoStack->push( action );
-		}
-	}
-	else if ( ev->button() == Qt::LeftButton ) {
+	if ( ev->button() == Qt::LeftButton ) {
 
-		addOrRemoveNote( nColumn, nRealColumn, row );
+		// Pressing Shift causes the added note to be of NoteOff type.
+		addOrRemoveNote( nColumn, nRealColumn, row, true, true,
+						 ev->modifiers() & Qt::ShiftModifier );
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
@@ -424,13 +402,16 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		bool bFound = false;
 		FOREACH_NOTE_IT_BOUND_END( notes, it, nColumn ) {
 			Note *pNote = it->second;
-			assert( pNote );
-			if ( ( isNoteOff && pNote->get_note_off() )
-				 || ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id()
-					  && pNote->get_key() == oldNoteKeyVal 
-					  && pNote->get_octave() == oldOctaveKeyVal
-					  && pNote->get_velocity() == oldVelocity
-					  && pNote->get_probability() == fProbability ) ) {
+			if ( pNote == nullptr ) {
+				ERRORLOG( "Invalid note" );
+				continue;
+			}
+			if ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id() &&
+				 ( ( isNoteOff && pNote->get_note_off() ) ||
+				   ( pNote->get_key() == oldNoteKeyVal &&
+					 pNote->get_octave() == oldOctaveKeyVal &&
+					 pNote->get_velocity() == oldVelocity &&
+					 pNote->get_probability() == fProbability ) ) ) {
 				notes->erase( it );
 				delete pNote;
 				bFound = true;
@@ -630,7 +611,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false,
 														   false,
 														   false,
-														   true ) );
+														   pNote->get_note_off() ) );
 			}
 
 		} else {
@@ -650,7 +631,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false,
 														   false,
 														   false,
-														   false ) );
+														   pNote->get_note_off() ) );
 			} else {
 				// Move note
 				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
@@ -807,6 +788,13 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
+
+	if ( m_selection.isLasso() ) {
+		// Since event was used to alter the note selection, we invalidate
+		// background and force a repainting of all note symbols (including
+		// whether or not they are selected).
+		invalidateBackground();
+	}
 
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
@@ -1066,6 +1054,9 @@ void DrumPatternEditor::paste()
 ///
 void DrumPatternEditor::drawPattern(QPainter& painter)
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
 	auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
@@ -1158,6 +1149,9 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 ///
 void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
 	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {

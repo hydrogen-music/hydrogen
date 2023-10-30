@@ -74,6 +74,8 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	 * other hand, it's opened via "Save As" anything goes.
 	 */
 	bool m_bDrumkitNameLocked;
+
+	QString m_sNewImagePath;
 	
 };
 

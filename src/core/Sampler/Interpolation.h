@@ -36,6 +36,24 @@ namespace Interpolation
 								Cubic = 3,
 								Hermite = 4 };
 
+	static const QString ModeToQString( InterpolateMode mode )
+	{
+		switch ( mode ) {
+		case InterpolateMode::Linear:
+			return "Linear";
+		case InterpolateMode::Cosine:
+			return "Cosine";
+		case InterpolateMode::Third:
+			return "Third";
+		case InterpolateMode::Cubic:
+			return "Cubic";
+		case InterpolateMode::Hermite:
+			return "Hermite";
+		default:
+			return "<unknown>";
+		}
+	}
+
 	inline static float linear_Interpolate( float y1, float y2, float mu )
 	{
 			/*

@@ -273,20 +273,6 @@ private:
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
-	bool renderNoteNoResample(
-		std::shared_ptr<Sample> pSample,
-		Note *pNote,
-		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
-		std::shared_ptr<InstrumentComponent> pCompo,
-		std::shared_ptr<DrumkitComponent> pDrumCompo,
-		int nBufferSize,
-		int nInitialSilence,
-		float cost_L,
-		float cost_R,
-		float cost_track_L,
-		float cost_track_R
-	);
-
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
@@ -294,7 +280,7 @@ private:
 		std::shared_ptr<InstrumentComponent> pCompo,
 		std::shared_ptr<DrumkitComponent> pDrumCompo,
 		int nBufferSize,
-		int nInitialSilence,
+		int nInitialBufferPos,
 		float cost_L,
 		float cost_R,
 		float cost_track_L,

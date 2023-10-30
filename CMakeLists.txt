@@ -17,7 +17,7 @@ ENDIF()
 PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "2")
-SET(VERSION_PATCH "1")
+SET(VERSION_PATCH "2")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -148,6 +148,16 @@ IF(WANT_APPIMAGE)
   SET(H2CORE_HAVE_APPIMAGE TRUE)
 ELSE()
   SET(H2CORE_HAVE_APPIMAGE FALSE)
+ENDIF()
+
+# Whether or not Hydrogen checks during runtime whether the JACK
+# server is installed. As we can not ship the shared libs of the
+# server ourselves, this feature is meant for build resulting in
+# portable bundles.
+IF(WANT_DYNAMIC_JACK_CHECK)
+    SET(H2CORE_HAVE_DYNAMIC_JACK_CHECK TRUE)
+ELSE()
+    SET(H2CORE_HAVE_DYNAMIC_JACK_CHECK FALSE)
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -347,7 +357,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
 * Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
-* AppImage build               : ${H2CORE_HAVE_APPIMAGE}\n"
+* AppImage build               : ${H2CORE_HAVE_APPIMAGE}
+* Dynamic JACK support check   : ${H2CORE_HAVE_DYNAMIC_JACK_CHECK}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")

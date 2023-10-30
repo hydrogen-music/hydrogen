@@ -228,7 +228,8 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 	H2Core::Hydrogen::get_instance()->restartDrivers();
 }
 
-void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName )
+void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
+							 int nSampleRate, int nSampleDepth )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -245,9 +246,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	___DEBUGLOG( "pre startExportSession" );
-	pHydrogen->startExportSession( 44100, 16 );
-	___DEBUGLOG( "pre startExportSong" );
+	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
 	pHydrogen->startExportSong( sFileName );
 
 	bool bDone = false;
@@ -280,7 +279,8 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName 
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
-	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
+	___INFOLOG( QString("Audio export [%1 | %2] took [%3] seconds")
+				.arg( nSampleRate ).arg( nSampleDepth ).arg( t ) );
 }
 
 void TestHelper::exportSong( const QString& sFileName )
