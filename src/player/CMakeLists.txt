@@ -1,7 +1,7 @@
 
-FILE(GLOB_RECURSE h2player_SRCS *.cpp)
+file(GLOB_RECURSE h2player_SRCS *.cpp)
 
-INCLUDE_DIRECTORIES(
+include_directories(
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${QT_INCLUDES}
@@ -9,14 +9,14 @@ INCLUDE_DIRECTORIES(
     ${JACK_INCLUDE_DIRS}
 )
 
-ADD_EXECUTABLE(h2player WIN32 MACOSX_BUNDLE ${h2player_SRCS} )
+add_executable(h2player WIN32 MACOSX_BUNDLE ${h2player_SRCS} )
 
-SET_PROPERTY(TARGET h2player PROPERTY CXX_STANDARD 17)
-TARGET_LINK_LIBRARIES(h2player
+set_property(TARGET h2player PROPERTY CXX_STANDARD 17)
+target_link_libraries(h2player
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
 	)
 
-ADD_DEPENDENCIES(h2player hydrogen-core-${VERSION})
+add_dependencies(h2player hydrogen-core-${VERSION})
 
-INSTALL(TARGETS h2player RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
+install(TARGETS h2player RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
