@@ -1,12 +1,12 @@
 
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
 
-FILE(GLOB_RECURSE hydrogen_INCLUDES *.h)
-FILE(GLOB_RECURSE hydrogen_SOURCES *.cpp *.cc *.c)
-LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+file(GLOB_RECURSE hydrogen_INCLUDES *.h)
+file(GLOB_RECURSE hydrogen_SOURCES *.cpp *.cc *.c)
+list(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-ADD_LIBRARY( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
-INCLUDE_DIRECTORIES( include
+add_library( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
+include_directories( include
     ${CMAKE_SOURCE_DIR}/src                     # regular headers
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
     ${CMAKE_CURRENT_BINARY_DIR}/../             # generated config.h
@@ -28,7 +28,7 @@ INCLUDE_DIRECTORIES( include
     ${RUBBERBAND_INCLUDE_DIRS}
 )
 
-TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
+target_link_libraries(hydrogen-core-${VERSION}
     ${LIBTAR_LIBRARIES}
     ${LIBARCHIVE_LIBRARIES}
     ${LIBSNDFILE_LIBRARIES}
@@ -50,7 +50,7 @@ TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
     ${OSC_LIBRARIES}
 )
 
-TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
+target_link_libraries(hydrogen-core-${VERSION}
 	Qt5::Core
 	Qt5::Xml
 	Qt5::XmlPatterns
@@ -58,24 +58,24 @@ TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
 )
 
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )
-SET_PROPERTY(TARGET hydrogen-core-${VERSION} PROPERTY CXX_STANDARD 17)
+set_property(TARGET hydrogen-core-${VERSION} PROPERTY CXX_STANDARD 17)
 
 
-IF(WIN32)
+if(WIN32)
     # On Windows we do not want to install import library (.dll.a)
-    INSTALL(TARGETS hydrogen-core-${VERSION}
+    install(TARGETS hydrogen-core-${VERSION}
         LIBRARY DESTINATION "${H2_LIB_PATH}"
         RUNTIME DESTINATION "${H2_LIB_PATH}"
     )
-ELSE()
-    INSTALL(TARGETS hydrogen-core-${VERSION}
+else()
+    install(TARGETS hydrogen-core-${VERSION}
         LIBRARY DESTINATION "${H2_LIB_PATH}"
         RUNTIME DESTINATION "${H2_LIB_PATH}"
         ARCHIVE DESTINATION "${H2_LIB_PATH}"
     )
-ENDIF()
+endif()
 
-IF(NOT APPLE AND NOT WIN32)
-    INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/src/core DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" )
-ENDIF()
+if(NOT APPLE AND NOT WIN32)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/core DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" )
+endif()
