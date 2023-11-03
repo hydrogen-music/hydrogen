@@ -160,19 +160,24 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 			sLastLoadedDrumkitName, true );
 	}
 
+	// Ensure we do not overwrite the original drumkit when altering the one
+	// associated with the current song.
+	std::shared_ptr<Drumkit> pNewDrumkit;
 	if ( pDrumkit == nullptr ) {
 		// We could not load a dedicated kit. Falling back to the default one.
-		pDrumkit = std::make_shared<Drumkit>();
+		pNewDrumkit = std::make_shared<Drumkit>();
+	} else {
+		pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	}
 
 	// Assign the loaded parts and load samples.
-	pDrumkit->setComponents( pComponents );
-	pDrumkit->setInstruments( pInstrumentList );
+	pNewDrumkit->setComponents( pComponents );
+	pNewDrumkit->setInstruments( pInstrumentList );
 
 	float fBpm = pNode->read_float( "bpm", 120, false, false, true );
-	pDrumkit->loadSamples( fBpm );
+	pNewDrumkit->loadSamples( fBpm );
 
-	return pDrumkit;
+	return pNewDrumkit;
 }
 
 void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
