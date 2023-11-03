@@ -62,15 +62,40 @@ class ADSR;
 class Instrument;
 class InstrumentList;
 
+/** Auxiliary variables storing the rendering state of a #H2Core::Note within
+ * the #H2Core::Sampler */
 struct SelectedLayerInfo {
-	/** Selected layer during layer selection
-	 * 
-	 * If set to -1 (during creation), Sampler::renderNote() will
-	 * determine which layer to use and overrides this variable with
-	 * the corresponding value.
-	 */
-	int SelectedLayer;
-	float SamplePosition;	///< place marker for overlapping process() cycles
+	/** Selected layer during rendering in the #H2Core::Sampler.
+	 *
+	 * If set to -1 (during creation), Sampler::renderNote() will determine
+	 * which layer to use and overrides this variable with the corresponding
+	 * value. */
+	int nSelectedLayer;
+
+	/** Stores the frame till which the #H2Core::Sample of the selected
+	 * #H2Core::InstrumentLayer using #nSelectedLayer was already rendered. If
+	 * several cycles of #Sampler::renderNote() are required, this variable
+	 * corresponds to the starting point of each cycle.
+	 *
+	 * It is given in float instead of int/long - what one might expect when
+	 * talking about frames - since it also serves as the fraction of the
+	 * #H2Core::Sample already processed in case it has to be resampled. */
+	float fSamplePosition;
+
+	/** Frame / #fSamplePosition at which rendering of the current note is
+	 * considered done.
+	 *
+	 * For regular notes this is the number of frames of the #H2Core::Sample
+	 * corresponding to #nSelectedLayer.
+	 *
+	 * If, however, the user specifies the length of a note things are more
+	 * complex. The length is specified in the GUI in **ticks** and this
+	 * variable is the corresponding value in frames. Now, whenever manually
+	 * adjusting the tempo or adding/deleting a tempo marker the length of the
+	 * note in frames differs for the new speed. In case rendering did already
+	 * started, it is important to not rescale the whole length of the note but
+	 * just the fraction between #fSamplePosition and the former #nNoteLength.*/
+	int nNoteLength;
 };
 
 /**
@@ -226,6 +251,7 @@ class Note : public H2Core::Object<Note>
 		 * selected sample
 		 * */
 	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID );
+	std::map<int, std::shared_ptr<SelectedLayerInfo>> get_layers_selected() const;
 
 
 		void set_probability( float value );
@@ -597,6 +623,11 @@ inline void Note::set_probability( float value )
 inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
 {
 	return __layers_selected[ CompoID ];
+}
+
+inline std::map<int, std::shared_ptr<SelectedLayerInfo>> Note::get_layers_selected() const
+{
+	return __layers_selected;
 }
 
 inline int Note::get_humanize_delay() const

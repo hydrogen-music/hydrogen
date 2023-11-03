@@ -80,7 +80,9 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 							 int nNewRow,
 							 H2Core::Note *note);
 
-		void addOrRemoveNote( int nColumn, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
+		void addOrRemoveNote( int nColumn, int nRealColumn, int row,
+							  bool bDoAdd = true, bool bDoDelete = true,
+							  bool bIsNoteOff = false );
 		void undoRedoAction(    int column,
 								NotePropertiesRuler::Mode mode,
 								int nSelectedPatternNumber,

@@ -45,6 +45,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bDrumkitNameLocked( bDrumkitNameLocked )
+ , m_sNewImagePath( "" )
 {
 	setObjectName( "SoundLibraryPropertiesDialog" );
 	
@@ -437,34 +438,22 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	}
 	
 	// Try to get the drumkit directory and open file browser
-	QString drumkitDir = m_pDrumkit->get_path();
+	QString sDrumkitDir = m_pDrumkit->get_path();
 
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), drumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
+	QString sFilePath = QFileDialog::getOpenFileName(this, tr("Open Image"), sDrumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
 
 	// If cancel was clicked just abort
-	if ( fileName == nullptr )
-	{
+	if ( sFilePath == nullptr || sFilePath.isEmpty() ) {
 		return;
 	}
 
-	// If this file is in different directory copy it here
-	
-	QFile file( fileName );
-	QFileInfo fileInfo(file.fileName());
+	m_sNewImagePath = sFilePath;
 
-	if ( fileInfo.dir().path() != drumkitDir )
-	{
-		INFOLOG("Copying " + fileName + " to " + drumkitDir.toLocal8Bit() );
-		if ( !QFile::copy( fileName, drumkitDir + "/" + fileInfo.fileName() ))
-		{
-			WARNINGLOG( "Could not copy " + fileInfo.fileName() + " to " + drumkitDir );
-		}
+	QFileInfo fileInfo( sFilePath );
+	QString sFileName( fileInfo.fileName() );
+	imageText->setText( sFileName );
 
-	}
-	QString filename(fileInfo.fileName());
-	imageText->setText( filename );
-	m_pDrumkit->set_image( filename );
-	updateImage( fileName );
+	updateImage( sFilePath );
 }
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
@@ -533,7 +522,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	License newImageLicense( sNewImageLicenseString );
 	newImageLicense.setCopyrightHolder( m_pDrumkit->get_author() );
 
-		
+	const QString sOldPath = m_pDrumkit->get_path();
 	if ( m_pDrumkit->get_name() != nameTxt->text() ) {
 		m_pDrumkit->set_name( nameTxt->text() );
 		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() +
@@ -552,8 +541,22 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		ERRORLOG( "User cancelled dialog due to licensing issues." );
 		return;
 	}
-		
-	m_pDrumkit->set_image( imageText->text() );
+
+	// Will contain image which should be removed. To keep the previous image,
+	// this string should be empty.
+	QString sOldImagePath;
+	if ( imageText->text() != m_pDrumkit->get_image() ) {
+		int nRes = QMessageBox::information( this, "Hydrogen",
+											 tr( "Delete previous drumkit image" )
+											 .append( QString( " [%1]" ).arg( m_pDrumkit->get_image() ) ),
+											 QMessageBox::Yes | QMessageBox::No );
+		if ( nRes == QMessageBox::Yes ) {
+			sOldImagePath = QString( "%1/%2" ).arg( sOldPath )
+				.arg( m_pDrumkit->get_image() );
+		}
+		m_pDrumkit->set_image( imageText->text() );
+	}
+
 	if ( m_pDrumkit->get_image_license() != newImageLicense ) {
 		m_pDrumkit->set_image_license( newImageLicense );
 	}
@@ -562,11 +565,32 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	saveDrumkitMap();
 
+	// Write new properties to disk.
 	if ( ! m_pDrumkit->save() ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
 		return;
+	}
+
+	// Copy the selected image into the drumkit folder (in case a file outside
+	// of it was selected.)
+	if ( ! m_sNewImagePath.isEmpty() ) {
+		QFileInfo fileInfo( m_sNewImagePath );
+
+		if ( fileInfo.dir().absolutePath() != m_pDrumkit->get_path() ) {
+			INFOLOG( QString( "Copying [%1] into [%2]" ).arg( m_sNewImagePath )
+					 .arg( m_pDrumkit->get_path() ) );
+			const QString sTargetPath =
+				QString( "%1/%2" ).arg( m_pDrumkit->get_path() )
+				.arg( fileInfo.fileName() );
+			// Logging is done in file_copy.
+			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
+		}
+	}
+
+	if ( ! sOldImagePath.isEmpty() ) {
+		Filesystem::rm( sOldImagePath, false, false );
 	}
 
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();

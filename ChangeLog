@@ -17,6 +17,35 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  mode they move transport to be beginning and next is updating
 		  pending stacked patterns.
 
+XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.2.3
+	* Fixed
+		- Restore mute button state of master mixer strip on song load.
+		- Recorded MIDI notes were inserted ahead of the beat (#1851).
+		- Drumkit Property Dialog:
+				- Images were written regardless whether one hits the ok or
+				  cancel button.
+				- When using Save As to create a new drumkit, the added image
+				  was put in the old drumkit folder instead and not properly
+				  copied into the new one.
+		- Allow to Save As drumkits derived from kits not found on the
+			current system.
+		- Audio Engine: In Song Mode with Loop Mode deactivated Hydrogen
+			missed notes very close to the end of the song.
+		- Fix crash on playing back notes with custom length (#1852).
+		- macOS: fix naming of CoreMIDI header (#1865).
+		- Fix various rendering issues with custom length notes.
+		- Pattern Editor (#1859):
+				- Only delete stop notes clicked by the user.
+				- Proper undo of moving notes out of DrumPatternEditor.
+				- Custom note lengths are now only drawn till the next stop note.
+				- Highlight selected stop notes too.
+				- Update selected notes visually on left and right keyboard
+				  movement.
+				- Fixed stop note color which was no different than
+					the default note color (#1854).
+
+
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
 	* Added

@@ -58,8 +58,12 @@ class TestHelper {
 	 *
 	 * \param sSongFile Path to Hydrogen file
 	 * \param sFileName Output file name
+	 * @param nSampleRate sample rate using which to export
+	 * @param nSampleDepth sample depth using which to export
 	 */
-	static void exportSong( const QString& sSongFile, const QString& sFileName );
+	static void exportSong( const QString& sSongFile,
+							const QString& sFileName,
+							int nSampleRate = 44100, int nSampleDepth = 16 );
 	/**
 	 * Export the current song within Hydrogen to audio file @a sFileName;
 	 *
