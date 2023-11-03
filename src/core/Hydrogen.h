@@ -89,7 +89,7 @@ public:
 	 * return central instance of the audio engine
 	 */
 	AudioEngine*		getAudioEngine() const;
-	SoundLibraryDatabase* getSoundLibraryDatabase() const {
+	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
 
@@ -562,7 +562,7 @@ private:
 	 */
 	AudioEngine*	m_pAudioEngine;
 
-	SoundLibraryDatabase* m_pSoundLibraryDatabase;
+	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
 	/** 
 	 * Constructor, entry point, and initialization of the

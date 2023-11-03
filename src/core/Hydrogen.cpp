@@ -148,7 +148,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 		toggleOscServer( true );
 	}
 
-	m_pSoundLibraryDatabase = new SoundLibraryDatabase();
+	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
 }
 
 Hydrogen::~Hydrogen()
@@ -171,7 +171,6 @@ Hydrogen::~Hydrogen()
 	
 	killInstruments();
 
-	delete m_pSoundLibraryDatabase;
 	delete m_pCoreActionController;
 	delete m_pAudioEngine;
 
