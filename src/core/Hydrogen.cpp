@@ -122,14 +122,15 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 
 	INFOLOG( "[Hydrogen]" );
 
-	m_pSong = std::make_shared<Song>();
+	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
+	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
 
 	m_pTimeline = std::make_shared<Timeline>();
 	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
 	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
-	
+
 	m_pAudioEngine = new AudioEngine();
 	Playlist::create_instance();
 
@@ -139,7 +140,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	__instance = this;
 
 	m_pAudioEngine->startAudioDrivers();
-	
+
 	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
 	}
@@ -148,7 +149,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 		toggleOscServer( true );
 	}
 
-	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
 }
 
 Hydrogen::~Hydrogen()
