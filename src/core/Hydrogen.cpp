@@ -288,13 +288,13 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 {
 	assert ( pSong );
 
-	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
-
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
 		return;
 	}
+
+	// Move to the beginning.
+	setSelectedPatternNumber( 0 );
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
