@@ -374,9 +374,10 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
 	std::shared_ptr<Drumkit> pDrumkit;
-	if ( !pRootNode->firstChildElement( "drumkit_info").isNull() ) {
+	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info");
+	if ( ! drumkitNode.isNull() ) {
 		// Current format (>= 1.3.0) storing a proper Drumkit
-		pDrumkit = Drumkit::loadFrom( pRootNode, "", bSilent );
+		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", bSilent );
 	}
 	else {
 		// Older format (< 1.3.0) storing only selected elements
@@ -764,7 +765,11 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 
 	if ( !bLegacy ) {
 		// Current format
-		m_pDrumkit->saveTo( pRootNode, bSilent );
+		//
+		// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated
+		// by a ancient design desicion and we will stick to it.
+		auto drumkitNode = pRootNode->createNode( "drumkit_info" );
+		m_pDrumkit->saveTo( &drumkitNode, bSilent );
 	} else {
 		Legacy::saveEmbeddedSongDrumkit( pRootNode, m_pDrumkit, bSilent );
 	}
