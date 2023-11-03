@@ -851,7 +851,7 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 	}
 }
 
-std::shared_ptr<Song> Song::getEmptySong()
+std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	std::shared_ptr<Song> pSong =
 		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
@@ -890,9 +890,17 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	pSong->setFilename( Filesystem::empty_song_path() );
 
-	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
-	QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
+	if ( pDB != nullptr ) {
+		// During startup
+		pSoundLibraryDatabase = pDB;
+	} else {
+		pSoundLibraryDatabase =
+			Hydrogen::get_instance()->getSoundLibraryDatabase();
+	}
+
+	const QString sDefaultDrumkitPath = Filesystem::drumkit_default_kit();
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDefaultDrumkitPath );
 	if ( pDrumkit == nullptr ) {
 		for ( const auto& pEntry : pSoundLibraryDatabase->getDrumkitDatabase() ) {

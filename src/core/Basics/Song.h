@@ -48,6 +48,7 @@ class Pattern;
 class Drumkit;
 class PatternList;
 class AutomationPath;
+class SoundLibraryDatabase;
 class Timeline;
 
 /**
@@ -122,13 +123,24 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		None = 3
 	};
 
+		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
+		 * constructor. It is just a minimal version with not all its members
+		 * properly initialized and can causes crashes (in the
+		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
+		 * instead. */
 		Song( QString sName = "",
 			  const QString& sAuthor = "hydrogen",
 			  float fBpm = 120,
 			  float fVolume = 0.5 );
 		~Song();
 
-		static std::shared_ptr<Song> getEmptySong();
+		/** Creates the default / fallback song.
+		 *
+		 * @param pDB When creating an empty song during startup, the
+		 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
+		 *   compensated by passing the created instance directly instead. */
+		static std::shared_ptr<Song> getEmptySong(
+			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
 
 	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
 	/** Writes the song as .h2song to disk.
