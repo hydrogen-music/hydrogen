@@ -530,12 +530,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 bool CoreActionController::openSong( const QString& sSongPath, const QString& sRecoverSongPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
-		// Stops recording, all queued MIDI notes, and the playback of
-		// the audio driver.
-		pHydrogen->sequencerStop();
-	}
-	
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
 		// Filesystem::isSongPathValid takes care of the error log message.
@@ -564,16 +558,8 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 
 bool CoreActionController::openSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
 	
-	auto pHydrogen = Hydrogen::get_instance();
- 
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
-		// Stops recording, all queued MIDI notes, and the playback of
-		// the audio driver.
-		pHydrogen->sequencerStop();
-	}
-	
 	if ( pSong == nullptr ) {
-		ERRORLOG( QString( "Unable to open song." ) );
+		ERRORLOG( QString( "Invalid song." ) );
 		return false;
 	}
 
@@ -583,6 +569,12 @@ bool CoreActionController::openSong( std::shared_ptr<Song> pSong, bool bRelinkin
 bool CoreActionController::setSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencerStop();
+	}
 
 	// Update the Song.
 	pHydrogen->setSong( pSong, bRelinking );
