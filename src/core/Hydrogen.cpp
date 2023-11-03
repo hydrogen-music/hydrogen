@@ -308,8 +308,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, m_pSong has to be set prior to the call of
-	// audioEngine_setSong().
+	// AudioEngine::setSong().
 	m_pSong = pSong;
+	pSong->getDrumkit()->loadSamples();
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.

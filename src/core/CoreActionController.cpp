@@ -1018,6 +1018,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	if ( pDrumkit != nullptr ) {
 
 		auto pHydrogen = Hydrogen::get_instance();
+		auto pAudioEngine = pHydrogen->getAudioEngine();
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr ) {
 
@@ -1025,9 +1026,22 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 					 .arg( pDrumkit->getName() )
 					 .arg( pDrumkit->getPath() ) );
 
-			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+			// Use a cloned version of the kit from e.g. the SoundLibrary in
+			// order to not overwrite the original when altering the properties
+			// of the current kit.
+			auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+
+			// It would be more clean to lock the audio engine _before_ loading
+			// the samples. We might pass a tempo marker while loading and users
+			// of Rubberband end up with a wrong sample length. But this is an
+			// edge-case and the regular user will benefit from a load prior to
+			// the locking resulting in lesser XRUNs.
+			pNewDrumkit->loadSamples(
+				pAudioEngine->getTransportPosition()->getBpm() );
+
+			pAudioEngine->lock( RIGHT_HERE );
 		
-			pSong->setDrumkit( pDrumkit );
+			pSong->setDrumkit( pNewDrumkit );
 			
 			if ( pHydrogen->getSelectedInstrumentNumber() >=
 				 pSong->getDrumkit()->getInstruments()->size() ) {
@@ -1038,7 +1052,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 
 			pHydrogen->renameJackPorts( pSong );
 			
-			pHydrogen->getAudioEngine()->unlock();
+			pAudioEngine->unlock();
 	
 			initExternalControlInterfaces();
 

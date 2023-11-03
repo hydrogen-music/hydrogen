@@ -174,9 +174,6 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 	pNewDrumkit->setComponents( pComponents );
 	pNewDrumkit->setInstruments( pInstrumentList );
 
-	float fBpm = pNode->read_float( "bpm", 120, false, false, true );
-	pNewDrumkit->loadSamples( fBpm );
-
 	return pNewDrumkit;
 }
 
