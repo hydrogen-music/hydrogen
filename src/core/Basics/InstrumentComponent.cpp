@@ -41,7 +41,7 @@
 namespace H2Core
 {
 
-int InstrumentComponent::m_nMaxLayers;
+int InstrumentComponent::m_nMaxLayers = 16;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	: __related_drumkit_componentID( related_drumkit_componentID )
