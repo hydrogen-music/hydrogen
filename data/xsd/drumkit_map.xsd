@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			      targetNamespace="http://www.hydrogen-music.org/drumkit_map"
+			      xmlns:h2="http://www.hydrogen-music.org/drumkit_map"
+			      elementFormDefault="qualified">
+
+  <!-- Maps an instrument of the drumkit specified by its instrument
+       number in the kit's instrument list to a more general identifier
+       (type). The latter will be used to more easily map instruments of
+       different drumkit onto each other when switching drumkits and
+       patterns.-->
+  <xsd:element name="mapping">
+	  <xsd:complexType>
+	    <xsd:sequence>
+		    <xsd:element name="type" type="xsd:string"/>
+		    <!-- Determined by the position of the instrument in the
+		         instrument list within the Pattern Editor. This property
+		         is called `id` within an `instrument` element in
+		         `drumkit.xml`.-->
+		    <xsd:element name="instrumentID"	type="xsd:integer"/>
+	    </xsd:sequence>
+	  </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="drumkit_map">
+	  <xsd:complexType>
+	    <xsd:sequence>
+		    <xsd:element ref="h2:mapping" minOccurs="0" maxOccurs="unbounded"/>
+	    </xsd:sequence>
+	  </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

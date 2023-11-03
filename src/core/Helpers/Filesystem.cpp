@@ -43,6 +43,7 @@
 #define DEMOS           "demo_songs/"
 #define DOC             "doc/"
 #define DRUMKITS        "drumkits/"
+#define DRUMKIT_MAPS    "drumkit_maps/"
 #define I18N            "i18n/"
 #define IMG             "img/"
 #define PATTERNS        "patterns/"
@@ -67,6 +68,7 @@
 #define LOG_FILE		"hydrogen.log"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
+#define DRUMKIT_MAP_XSD "drumkit_map.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define DRUMKIT_DEFAULT_KIT "GMRockKit"
 #define PLAYLIST_XSD     "playlist.xsd"
@@ -80,7 +82,7 @@
 #define PATTERN_FILTER  "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
 #define SONG_FILTER     "*.h2song"
-#define THEME_FILTER     "*.h2theme"
+#define THEME_FILTER    "*.h2theme"
 
 namespace H2Core
 {
@@ -93,6 +95,7 @@ const QString Filesystem::themes_ext = ".h2theme";
 const QString Filesystem::patterns_ext = ".h2pattern";
 const QString Filesystem::playlist_ext = ".h2playlist";
 const QString Filesystem::drumkit_ext = ".h2drumkit";
+const QString Filesystem::drumkit_map_ext = ".h2map";
 const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
 const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
 const QString Filesystem::themes_filter_name = "Hydrogen Theme (*.h2theme)";
@@ -397,52 +400,65 @@ bool Filesystem::rm_fr( const QString& path, bool bSilent )
 
 bool Filesystem::check_sys_paths()
 {
-	bool ret = true;
-	if(  !dir_readable( __sys_data_path ) ) ret = false;
-	if( !file_readable( click_file_path() ) ) ret = false;
-	if(  !dir_readable( demos_dir() ) ) ret = false;
-	/* if(  !dir_readable( doc_dir() ) ) ret = false; */		// FIXME
-	if(  !dir_readable( sys_drumkits_dir() ) ) ret = false;
-	if( !file_readable( empty_sample_path() ) ) ret = false;
-	if( !file_readable( sys_config_path() ) ) ret = false;
-	if(  !dir_readable( i18n_dir() ) ) ret = false;
-	if(  !dir_readable( img_dir() ) ) ret = false;
-	if(  !dir_readable( sys_theme_dir() ) ) ret = false;
-	if(  !dir_readable( xsd_dir() ) ) ret = false;
-	if( !file_readable( pattern_xsd_path() ) ) ret = false;
-	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
-	if( !file_readable( playlist_xsd_path() ) ) ret = false;
+	QStringList dirsReadable = { __sys_data_path,	 demos_dir(),
+								 sys_drumkits_dir(), sys_drumkit_maps_dir(),
+								 xsd_dir(),			 sys_theme_dir(),
+								 img_dir(),			 i18n_dir() };
 
-	if ( ret ) {
-		INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	QStringList filesReadable = { click_file_path(),   empty_sample_path(),
+								  playlist_xsd_path(), drumkit_map_xsd_path(),
+								  drumkit_xsd_path(),  pattern_xsd_path(),
+								  sys_config_path() };
+
+	bool bChecksPassed = true;
+	for ( const auto& ssPath : dirsReadable ) {
+		if ( ! dir_readable( ssPath ) ) {
+			bChecksPassed = false;
+		}
 	}
-	
-	return ret;
+
+	for ( const auto& ssFile : filesReadable ) {
+		if ( ! file_readable( ssFile ) ) {
+			bChecksPassed = false;
+		}
+	}
+
+	if ( bChecksPassed ) {
+		INFOLOG( QString( "system wide data path %1 is usable." )
+				 .arg( __sys_data_path ) );
+	}
+
+	return bChecksPassed;
 }
 
+bool Filesystem::check_usr_paths() {
+	QStringList pathsUsable = { tmp_dir(),			__usr_data_path,
+								cache_dir(),		repositories_cache_dir(),
+								usr_drumkits_dir(), usr_drumkit_maps_dir(),
+								patterns_dir(),		playlists_dir(),
+								plugins_dir(),		scripts_dir(),
+								songs_dir(),		usr_theme_dir() };
 
-bool Filesystem::check_usr_paths()
-{
-	bool ret = true;
-	if( !path_usable( tmp_dir() ) ) ret = false;
-	if( !path_usable( __usr_data_path ) ) ret = false;
-	if( !path_usable( cache_dir() ) ) ret = false;
-	if( !path_usable( repositories_cache_dir() ) ) ret = false;
-	if( !path_usable( usr_drumkits_dir() ) ) ret = false;
-	if( !path_usable( patterns_dir() ) ) ret = false;
-	if( !path_usable( playlists_dir() ) ) ret = false;
-	if( !path_usable( plugins_dir() ) ) ret = false;
-	if( !path_usable( scripts_dir() ) ) ret = false;
-	if( !path_usable( songs_dir() ) ) ret = false;
-	if( file_exists( empty_song_path(), true ) ) ret = false;
-	if( !path_usable( usr_theme_dir() ) ) ret = false;
-	if( !file_writable( usr_config_path() ) ) ret = false;
+	QStringList filesWritable = { usr_config_path() };
+	
+	bool bChecksPassed = true;
+	for ( const auto& ssPath : pathsUsable ) {
+		if ( ! path_usable( ssPath ) ) {
+			bChecksPassed = false;
+		}
+	}
 
-	if ( ret ) {
+	for ( const auto& ssFile : filesWritable ) {
+		if ( ! file_writable( ssFile ) ) {
+			bChecksPassed = false;
+		}
+	}
+
+	if ( bChecksPassed ) {
 		INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
 	}
 	
-	return ret;
+	return bChecksPassed;
 }
 
 QString Filesystem::sys_data_path()
@@ -521,6 +537,10 @@ QString Filesystem::drumkit_xsd_path( )
 {
 	return xsd_dir() + DRUMKIT_XSD;
 }
+QString Filesystem::drumkit_map_xsd_path( )
+{
+	return xsd_dir() + DRUMKIT_MAP_XSD;
+}
 QString Filesystem::pattern_xsd_path( )
 {
 	return xsd_dir() + DRUMPAT_XSD;
@@ -594,6 +614,14 @@ QString Filesystem::sys_drumkits_dir()
 QString Filesystem::usr_drumkits_dir()
 {
 	return __usr_data_path + DRUMKITS;
+}
+QString Filesystem::sys_drumkit_maps_dir()
+{
+	return __sys_data_path + DRUMKIT_MAPS;
+}
+QString Filesystem::usr_drumkit_maps_dir()
+{
+	return __usr_data_path + DRUMKIT_MAPS;
 }
 QString Filesystem::playlists_dir()
 {
@@ -1120,6 +1148,78 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 	return sDrumkitPath;
 #endif
 }
+
+QString Filesystem::getDrumkitMapFromKit( const QString& sDrumkitPath ) {
+
+	if ( sDrumkitPath.isEmpty() ) {
+		// We have to be careful to not create a QDir with an empty
+		// string as this would represent the current working
+		// directory.
+		ERRORLOG( "Empty drumkit path" );
+		return QString();
+	}
+
+	QDir drumkitDir( sDrumkitPath );
+	if ( ! dir_readable( sDrumkitPath ) ) {
+		ERRORLOG( QString( "Unable to access drumkit folder [%1]" )
+					  .arg( sDrumkitPath ) );
+		return QString();
+	}
+
+	// Search for a .h2map within the drumkit folder.
+	QStringList mapFiles =
+		drumkitDir.entryList( { QString( "*%1" ).arg( drumkit_map_ext ) } );
+
+	if ( mapFiles.size() == 0 ) {
+		DEBUGLOG( QString( "No drumkit map file found in kit folder [%1]" )
+					  .arg( sDrumkitPath ) );
+		return QString();
+	}
+
+	if ( mapFiles.size() > 1 ) {
+		WARNINGLOG( QString( "More than one drumkit map file detected in "
+							 "drumkit folder [%1]: [%2]. Using [%3]" )
+						.arg( sDrumkitPath )
+						.arg( mapFiles.join( "," ) )
+						.arg( mapFiles[0] ) );
+	}
+
+	DEBUGLOG( QString( "Using drumkit map file [%1] for kit [%2]" )
+				  .arg( drumkitDir.filePath( mapFiles[0] ) )
+				  .arg( sDrumkitPath ) );
+	return drumkitDir.filePath( mapFiles[0] );
+}
+
+QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser ) {
+	QString sMapDir;
+	if ( bUser ) {
+		sMapDir = usr_drumkit_maps_dir();
+	} else {
+		sMapDir = sys_drumkit_maps_dir();
+	}
+
+	if ( ! dir_readable( sMapDir ) ) {
+		ERRORLOG( QString( "Unable to access drumkit map folder [%1]" )
+					  .arg( sMapDir ) );
+		return QString();
+	}
+
+	QString sTarget = QString( "%1%2" ).arg( sDrumkitName )
+		.arg( drumkit_map_ext );
+	
+	QDir mapDir( sMapDir );
+	// The mapping file must exactly match drumkit name.
+	if ( mapDir.exists( sTarget ) ) {
+		DEBUGLOG(
+			QString( "Found map file [%1] for kit [%2]" )
+				.arg( mapDir.filePath( sTarget ) )
+				.arg( sDrumkitName ) );
+		return mapDir.filePath( sTarget );
+	}
+
+	return QString();
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

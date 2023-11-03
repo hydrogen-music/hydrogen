@@ -1,6 +1,5 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -20,33 +19,31 @@
  *
  */
 
-#ifndef LCDDisplay_H
-#define LCDDisplay_H
-
+#ifndef LCDTextEdit_H
+#define LCDTextEdit_H
 
 #include <QtGui>
 #include <QtWidgets>
-#include <QLineEdit>
+#include <QTextEdit>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
-#include <vector>
-
-/** Non-interactive display used for both numerical values and the
-	status display.*/
+/** Wrapper around QTextEdit to provide highlighting while hovering.
+ *
+ * Why is it called LCD...? To keep the name in line with the other widget,
+ * which happen to be designed like a LCD display in older versions of
+ * Hydrogen. */
 /** \ingroup docGUI docWidgets*/
-class LCDDisplay : public QLineEdit, public H2Core::Object<LCDDisplay>
+class LCDTextEdit : public QTextEdit, public H2Core::Object<LCDTextEdit>
 {
-    H2_OBJECT(LCDDisplay)
+    H2_OBJECT(LCDTextEdit)
 	Q_OBJECT
 
 public:
-	LCDDisplay( QWidget* pParent, QSize size = QSize( 0, 0 ), bool bFixedFont = false, bool bIsActive = true );
-	~LCDDisplay();
+	LCDTextEdit( QWidget* pParent, bool bIsActive = true );
+	~LCDTextEdit();
 
-	void setUseRedFont( bool bUseRedFont );
-	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
@@ -56,7 +53,6 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 protected:
-	QSize m_size;
 	virtual void paintEvent( QPaintEvent *ev ) override;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
@@ -65,17 +61,14 @@ private:
 	void updateFont();
 	void updateStyleSheet();
 
-	bool m_bFixedFont;
-	bool m_bUseRedFont;
 	bool m_bEntered;
 	bool m_bIsActive;
-
 	std::vector<int> m_fontPointSizes;
 };
-inline bool LCDDisplay::getIsActive() const {
+inline bool LCDTextEdit::getIsActive() const {
 	return m_bIsActive;
 }
-inline bool LCDDisplay::getIsHovered() const {
+inline bool LCDTextEdit::getIsHovered() const {
 	return m_bEntered;
 }
 

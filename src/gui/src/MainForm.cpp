@@ -609,8 +609,6 @@ void MainForm::startAutosaveTimer() {
 		}
 		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
 										   static_cast<float>(nAutosavesPerHour) ) );
-	} else {
-		DEBUGLOG( "Autosave disabled" );
 	}
 }
 
@@ -1454,6 +1452,7 @@ void MainForm::action_instruments_exportLibrary() {
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
+		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
 		SoundLibraryExportDialog exportDialog( this, pNewDrumkit );
 		exportDialog.exec();
 	}
@@ -1499,6 +1498,7 @@ void MainForm::action_instruments_saveLibrary()
 		auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
+		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
 		
 		if ( ! HydrogenApp::checkDrumkitLicense( pNewDrumkit ) ) {
 			ERRORLOG( "User cancelled dialog due to licensing issues." );
@@ -2276,7 +2276,8 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
 		pNewDrumkit->set_components( pSong->getComponents() );
-		
+		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
+
 		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
 		if ( dialog.exec() == QDialog::Accepted ) {
 			// Saving was successful.

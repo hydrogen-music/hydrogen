@@ -1,6 +1,5 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -21,19 +20,16 @@
  *
  */
 
-#include "LCDDisplay.h"
+#include "LCDTextEdit.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
 #include <core/Globals.h>
 #include <core/Preferences/Theme.h>
 
-LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIsActive )
- : QLineEdit( pParent )
- , m_size( size )
+LCDTextEdit::LCDTextEdit( QWidget* pParent, bool bIsActive )
+ : QTextEdit( pParent )
  , m_bEntered( false )
- , m_bFixedFont( bFixedFont )
- , m_bUseRedFont( false )
  , m_bIsActive( bIsActive )
 {
 	setReadOnly( ! bIsActive );
@@ -42,9 +38,8 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIs
 		setFocusPolicy( Qt::NoFocus );
 	}
 	setAlignment( Qt::AlignCenter );
-	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	// Derive a set of scaling-dependent font sizes on the basis of
 	// the default font size determined by Qt itself.
@@ -66,28 +61,17 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIs
 	m_fontPointSizes[ 1 ] = m_fontPointSizes[ 0 ] + nStepSize;
 	m_fontPointSizes[ 2 ] = m_fontPointSizes[ 0 ] + 2 * nStepSize;
 	
-	if ( ! size.isNull() ) {
-		adjustSize();
-		setFixedSize( size );
-	}
-
 	updateFont();
 	updateStyleSheet();
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDDisplay::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &LCDTextEdit::onPreferencesChanged );
 }
 
-LCDDisplay::~LCDDisplay() {
+LCDTextEdit::~LCDTextEdit() {
 }
 
-void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
-	if ( bUseRedFont != m_bUseRedFont ) {
-		m_bUseRedFont = bUseRedFont;
-		updateStyleSheet();
-	}
-}
-
-void LCDDisplay::setIsActive( bool bIsActive ) {
+void LCDTextEdit::setIsActive( bool bIsActive ) {
 	m_bIsActive = bIsActive;;
 
 	setReadOnly( ! bIsActive );
@@ -103,12 +87,8 @@ void LCDDisplay::setIsActive( bool bIsActive ) {
 	update();
 }
 
-void LCDDisplay::updateFont() {
-	
-	if ( m_bFixedFont ) {
-		return;
-	}
-	
+void LCDTextEdit::updateFont() {
+
 	auto pPref = H2Core::Preferences::get_instance();
 
 	int nIndex = 1;
@@ -118,33 +98,26 @@ void LCDDisplay::updateFont() {
 		nIndex = 2;
 	}
 
-	QFont newFont = font();
-	newFont.setFamily( pPref->getLevel3FontFamily() );
-	newFont.setPointSize( m_fontPointSizes[ nIndex ] );
-	setFont( newFont );
+	setFontFamily( pPref->getLevel3FontFamily() );
+	setFontPointSize( m_fontPointSizes[ nIndex ] );
+	setPlainText( toPlainText() );
 }
 
-void LCDDisplay::updateStyleSheet() {
+void LCDTextEdit::updateStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor textColor, textColorActive;
-	if ( m_bUseRedFont ) {
-		textColor = pPref->getColorTheme()->m_buttonRedColor;
-		textColorActive = pPref->getColorTheme()->m_buttonRedColor;
-	} else {
-		textColor = pPref->getColorTheme()->m_windowTextColor;
-		textColorActive = pPref->getColorTheme()->m_widgetTextColor;
-	}
-	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+	QColor textColor = pPref->getColorTheme()->m_windowTextColor;
+	QColor textColorActive = pPref->getColorTheme()->m_widgetTextColor;
 
+	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
 	QColor backgroundColorActive = pPref->getColorTheme()->m_widgetColor;
 
 	QString sStyleSheet = QString( "\
-QLineEdit:enabled { \
+QTextEdit:enabled { \
     color: %1; \
     background-color: %2; \
 } \
-QLineEdit:disabled { \
+QTextEdit:disabled { \
     color: %3; \
     background-color: %4; \
 }" )
@@ -153,22 +126,10 @@ QLineEdit:disabled { \
 		.arg( textColor.name() )
 		.arg( backgroundColor.name() );
 
-	// For fixed font displays we have to add the current font
-	// parameters as well to avoid any inherited changes.
-	if ( m_bFixedFont && font().pixelSize() > 0 ) {
-		sStyleSheet.append( QString( "\
-QLineEdit { \
-    font-size: %1px; \
-    font-family: %2; \
-}" )
-							.arg( font().pixelSize() )
-							.arg( font().family() ) );
-	}
-
 	setStyleSheet( sStyleSheet );
 }
 
-void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDTextEdit::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateFont();
@@ -176,16 +137,15 @@ void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	}
 }
 
-void LCDDisplay::paintEvent( QPaintEvent *ev ) {
+void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QLineEdit::paintEvent( ev );
-	updateFont();
+	QTextEdit::paintEvent( ev );
 
 	// Hovering highlights
 	if ( m_bEntered || hasFocus() ) {
-		QPainter painter(this);
+		QPainter painter( viewport() );
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
@@ -205,18 +165,18 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 		pen.setColor( colorHighlightActive );
 		pen.setWidth( 3 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 0, 0, width() - 1, height() - 1 ), 3, 3 );
+		painter.drawRoundedRect( QRect( 0, 0, viewport()->width() - 1, viewport()->height() - 1 ), 3, 3 );
 	}
 }
 
-void LCDDisplay::enterEvent( QEvent* ev ) {
-	QLineEdit::enterEvent( ev );
+void LCDTextEdit::enterEvent( QEvent* ev ) {
+	QTextEdit::enterEvent( ev );
 	m_bEntered = true;
 	update();
 }
 
-void LCDDisplay::leaveEvent( QEvent* ev ) {
-	QLineEdit::leaveEvent( ev );
+void LCDTextEdit::leaveEvent( QEvent* ev ) {
+	QTextEdit::leaveEvent( ev );
 	m_bEntered = false;
 	update();
 }

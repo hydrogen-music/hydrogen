@@ -19,6 +19,7 @@ hydrogen.*
 *.so
 *.make
 *.swp
+/.cache/
 
 # Ignore `gtags` artifacts
 GPATH

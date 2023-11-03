@@ -36,6 +36,7 @@ namespace H2Core
 class XMLDoc;
 class XMLNode;
 class DrumkitComponent;
+class DrumkitMap;
 
 /**
  * Drumkit info
@@ -104,7 +105,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * supported by Hydrogen 0.9.7 or higher (whether it should be
 	 * composed of DrumkitComponents).
 	 */
-	QString getExportName( const QString& sComponentName, bool bRecentVersion ) const;
+	QString getExportName( const QString& sComponentName = "", bool bRecentVersion = true ) const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
@@ -219,6 +220,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 
+		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
+		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
+
+		const std::shared_ptr<DrumkitMap>	getDrumkitMapFallback() const;
+
 	/**
 	 * Assign the license stored in #m_license to all samples
 	 * contained in the kit.
@@ -297,6 +303,28 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	static bool loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent = false );
 
+		/** Maps the instruments of the kit to universal
+		 * #H2Core::DrumkitMap::Type using which seemless switching of drumkits
+		 * can be done.
+		 *
+		 * When saving the drumkit, this map is written into
+		 * $USR_DATA_DIR/drumkit_map/$KIT_NAME.h2map and _not_ into the drumkit
+		 * folder itself. This way, the original mapping - if provided by the
+		 * kit creator or as part of the Hydrogen installation - can still be
+		 * used as a fallback. The map can be reset to its initial state be
+		 * loading the kit with fallback mapping and saving it again.
+		 *
+		 * When exporting the drumkit, this map (and not the fallback one) will
+		 * be bundled in the resulting .h2drumkit. */
+		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
+
+		/** Set whenever both a user-defined map and one found in the kit itself
+		 * or installed with Hydrogen is found. It can be used as a fallback
+		 * when switch between kits.
+		 *
+		 * It is not written to disk when saving or exporting the drumkit.
+		 * */
+		std::shared_ptr<DrumkitMap> m_pDrumkitMapFallback;
 };
 
 // DEFINITIONS
@@ -386,6 +414,15 @@ inline const bool Drumkit::samples_loaded() const
 inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::get_components()
 {
 	return __components;
+}
+inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
+	return m_pDrumkitMap;
+}
+inline void	Drumkit::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
+	m_pDrumkitMap = pDrumkitMap;
+}
+inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMapFallback() const {
+	return m_pDrumkitMapFallback;
 }
 
 };

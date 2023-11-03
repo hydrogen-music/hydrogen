@@ -89,6 +89,7 @@ namespace H2Core
 		static const QString patterns_ext;
 		static const QString playlist_ext;
 		static const QString drumkit_ext;
+		static const QString drumkit_map_ext;
 		static const QString themes_ext;
 		static const QString songs_filter_name;
 		static const QString themes_filter_name;
@@ -160,6 +161,7 @@ namespace H2Core
 		static QString drumkit_xsd( );
 		/** returns the path to the drumkit XSD (xml schema definition) file */
 		static QString drumkit_xsd_path( );
+		static QString drumkit_map_xsd_path( );
 		/** @return List of absolute paths to all formerly used
 			drumkit.xsd files.*/
 		static QStringList drumkit_xsd_legacy_paths( );
@@ -194,6 +196,8 @@ namespace H2Core
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */
 		static QString usr_drumkits_dir();
+		static QString sys_drumkit_maps_dir();
+		static QString usr_drumkit_maps_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
 		/** returns user playlist path, add file extension */
@@ -465,6 +469,31 @@ namespace H2Core
 		 *   a drumkit.xml file.
 		 */
 		static DrumkitType determineDrumkitType( const QString& sPath );
+
+		/** Retrieves the #H2Core::DrumkitMap file for a drumkit folder @a
+		 * sDrumkitPath.
+		 *
+		 * @param sDrumkitPath Absolute path to the drumkit directory
+		 *   (containing a drumkit.xml) file as unique identifier.
+		 *
+		 * @return an empty string in case no file was found.
+		 */
+		static QString getDrumkitMapFromKit( const QString& sDrumkitPath );
+		/** Retrieves a #h2Core::DrumkitMap file for a kit names @a sDrumkitPath
+		 * from either the system or the user data folder.
+		 *
+		 * It checks either #Filesystem::usr_drumkit_maps_dir() and
+		 * #Filesystem::sys_drumkit_maps_dir() (depending on @a bUser) for a @a
+		 * sDrumkitPath.h2map file. E.g. /data/drumkits/GMRockKit/ is associated
+		 * with data/drumkit_maps/GMRockKit.h2map but
+		 * data/drumkit_maps/gmrockkit.h2map is not.
+		 *
+		 * @param sDrumkitName Name of a drumkit
+		 * @param bUser Whether to search the user or system data folder.
+		 *
+		 * @return an empty string in case no file was found.
+		 **/
+		static QString getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser );
 
 		/**
 		 * Reroutes stored drumkit paths pointing to a temporary
