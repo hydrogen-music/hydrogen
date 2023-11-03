@@ -42,6 +42,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
+#include <core/Basics/InstrumentComponent.h>
 
 #include <QDir>
 //#include <QApplication>
@@ -55,6 +56,10 @@ void Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {
 		__instance = new Preferences;
+
+		// Propagate loaded settings
+		InstrumentComponent::setMaxLayers( __instance->getMaxLayers() );
+
 	}
 }
 

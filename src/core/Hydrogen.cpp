@@ -129,7 +129,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
-	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
 
 	m_pAudioEngine = new AudioEngine();
 	Playlist::create_instance();
