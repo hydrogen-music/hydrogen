@@ -81,9 +81,14 @@ void InstrumentComponent::set_layer( std::shared_ptr<InstrumentLayer> layer, int
 	__layers[ idx ] = layer;
 }
 
-void InstrumentComponent::setMaxLayers( int layers )
+void InstrumentComponent::setMaxLayers( int nLayers )
 {
-	m_nMaxLayers = layers;
+	if ( nLayers <= 1 ) {
+		ERRORLOG( QString( "Attempting to set a max layer [%1] smaller than 1. Aborting" )
+				  .arg( nLayers ) );
+		return;
+	}
+	m_nMaxLayers = nLayers;
 }
 
 int InstrumentComponent::getMaxLayers()
