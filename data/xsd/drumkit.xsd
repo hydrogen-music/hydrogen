@@ -52,15 +52,51 @@
 	</xsd:complexType>
 </xsd:element>
 
+<!-- VOLUME ENVELOPE NODE -->
+<xsd:element name="volume">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="volume-position"	type="xsd:nonNegativeInteger"/>
+			<xsd:element name="volume-value"	type="xsd:nonNegativeInteger"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
+
+<!-- PAN ENVELOPE NODE -->
+<xsd:element name="pan">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="pan-position"	type="xsd:nonNegativeInteger"/>
+			<xsd:element name="pan-value"		type="xsd:nonNegativeInteger"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
+
 <!-- LAYER -->
 <xsd:element name="layer">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="filename"	type="xsd:string"/>
-			<xsd:element name="min"			type="xsd:float"/>
-			<xsd:element name="max"			type="xsd:float"/>
-			<xsd:element name="gain"		type="xsd:float"/>
-			<xsd:element name="pitch"		type="xsd:float"/>
+			<xsd:element name="filename"		type="xsd:string"/>
+			<xsd:element name="min"				type="xsd:float"/>
+			<xsd:element name="max"				type="xsd:float"/>
+			<xsd:element name="gain"			type="xsd:float"/>
+			<xsd:element name="pitch"			type="xsd:float"/>
+			<xsd:element name="ismodified"		type="h2:bool" minOccurs="0"/>
+			<xsd:element name="smode"			type="xsd:string" minOccurs="0"/>
+			<xsd:element name="startframe"		type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="loopframe"		type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="loops"			type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="endframe"		type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="userubber"		type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="rubberdivider"	type="xsd:float" minOccurs="0"/>
+			<xsd:element name="rubberCsettings"	type="xsd:nonNegativeInteger" minOccurs="0"/>
+			<xsd:element name="rubberPitch"		type="xsd:float" minOccurs="0"/>
+			<xsd:sequence>
+				<xsd:element ref="h2:volume" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:sequence>
+				<xsd:element ref="h2:pan" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:element>
@@ -71,6 +107,8 @@
 		<xsd:sequence>
 			<xsd:element name="id"					type="xsd:integer"/>
 			<xsd:element name="name"				type="xsd:string"/>
+			<xsd:element name="drumkitPath"			type="xsd:string" minOccurs="0">
+			<xsd:element name="drumkit"				type="xsd:string" minOccurs="0">
 			<xsd:element name="volume"				type="xsd:decimal"/>
 			<xsd:element name="isMuted"				type="h2:bool"/>
 			<xsd:element name="isSoloed"			type="h2:bool"/>
