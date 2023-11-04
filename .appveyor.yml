@@ -123,8 +123,8 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils
+        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
 
         # Install a recent PortMidi version
         git clone https://github.com/PortMidi/PortMidi || exit 1
@@ -203,7 +203,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_fresh # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_doc # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -232,7 +232,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update || exit 1
         sudo apt-get install -y clang libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils itstool libxml2-utils xmlto gettext || exit 1
 
         # The doxygen version provided in the repo is bricked and
         # would crash the `liblo` build.
@@ -288,6 +288,7 @@ for:
             -DWANT_RUBBERBAND=1 \
             -DWANT_APPIMAGE=1 \
             -DWANT_DYNAMIC_JACK_CHECK=1 \
+            -DWANT_DOCUMENTATION=1 \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
             -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
@@ -399,6 +400,9 @@ for:
 
       fi
 
+      # Add packages required for the documentation toolchain.
+      brew install itstool xmlto libxml2 gettext
+
       export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
       export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
 
@@ -408,12 +412,19 @@ for:
 
       git submodule init && git submodule update
 
+      # Only build the docs if we intend to upload the artifacts
+      BUILD_DOCS=0
+      if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
+        BUILD_DOCS=1
+      fi
+
       # Do the build
       (
           mkdir build &&                                                        \
               cd build &&                                                       \
               cmake -DWANT_LASH=1                                               \
                     -DWANT_LRDF=1                                               \
+                    -DWANT_DOCUMENTATION=$BUILD_DOCS                            \
                     -DWANT_RUBBERBAND=1 .. &&                                   \
               make -j $CPUS
       ) || exit 1
@@ -481,6 +492,13 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
+
+          REM *** Only install documentation toolchain if we intend to upload artifacts ***
+          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-itstool
+          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-xmlto
+          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libxml2
+          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-gettext
+
           c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
           ccache -M 256M
           ccache -s
@@ -489,11 +507,15 @@ for:
           git submodule init
           git submodule update
 
+          REM *** Only build the docs if we intend to upload the artifacts ***
+          set BUILD_DOCS=0
+          if %UPLOAD_ARTIFACTS%=="true" set BUILD_DOCS=1
+
           REM *** Configure build ***
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DWANT_DOCUMENTATION=%BUILD_DOCS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache..
 
     build_script:
       - cmd: |-
