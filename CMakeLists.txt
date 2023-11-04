@@ -89,7 +89,7 @@ option(WANT_APPIMAGE "Build Linux AppImage" OFF)
 
 option(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 
-option(WANT_DOCUMENTATION "Build and install the manual and tutorial" ON)
+option(WANT_DOCUMENTATION "Build and install the manual and tutorial" OFF)
 
 include(Sanitizers)
 include(StatusSupportOptions)
