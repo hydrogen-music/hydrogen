@@ -517,7 +517,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DWANT_DOCUMENTATION=%BUILD_DOCS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DWANT_DOCUMENTATION=%BUILD_DOCS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
