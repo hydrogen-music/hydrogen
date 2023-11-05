@@ -497,7 +497,7 @@ for:
 
           REM *** Only install documentation toolchain if we intend to upload artifacts ***
           if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-itstool
-          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-xmlto
+          if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q xmlto
           if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libxml2
           if %UPLOAD_ARTIFACTS%=="true" c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-gettext
 
