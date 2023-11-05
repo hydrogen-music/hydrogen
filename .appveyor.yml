@@ -329,7 +329,9 @@ for:
         --output appimage || exit 1
 
       echo -e "\n *** Upload AppImage ***\n"
-      appveyor PushArtifact Hydrogen-x86_64.AppImage || exit 1
+      TARGET_NAME=Hydrogen-${TARGET_VERSION}-x86_64.AppImage
+      mv Hydrogen-x86_64.AppImage $TARGET_NAME || exit 1
+      appveyor PushArtifact $TARGET_NAME || exit 1
 
   - 
     cache: /Users/appveyor/cache_dir
@@ -433,7 +435,7 @@ for:
       (
         cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
-        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-${TARGET_VERSION}.dmg
 
         if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
