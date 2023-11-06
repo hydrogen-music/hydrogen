@@ -59,7 +59,7 @@ void* PortMidiDriver_thread( void* param )
 	// SysEx messages in PortMidi spread across multiple PmEvents and
 	// it is our responsibility to put them together.
 	MidiMessage sysExMsg;
-	while ( instance->m_bRunning ) {
+	while ( instance->m_bRunning && instance->m_pMidiIn != nullptr ) {
 		length = Pm_Read( instance->m_pMidiIn, buffer, 1 );
 		if ( length > 0 ) {
 
@@ -324,6 +324,8 @@ void PortMidiDriver::open()
 		if ( sMidiPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI input device [%1] not found." )
 					  .arg( sMidiPortName ) );
+		} else {
+			INFOLOG( QString( "No MIDI input device selected" ) );
 		}
 		m_pMidiIn = nullptr;
 	}
@@ -351,11 +353,13 @@ void PortMidiDriver::open()
 		if ( sMidiOutputPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI output device [%1] not found." )
 						.arg( sMidiOutputPortName ) );
+		} else {
+			INFOLOG( QString( "No MIDI output device selected" ) );
 		}
 		m_pMidiOut = nullptr;
 	}
 
-	if ( m_pMidiOut != nullptr || m_pMidiIn != nullptr ) {
+	if ( m_pMidiIn != nullptr ) {
 		m_bRunning = true;
 
 		pthread_attr_t attr;
