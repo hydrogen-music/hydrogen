@@ -506,10 +506,6 @@ if(MINGW)
     set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
 
-    if(H2CORE_HAVE_DEBUG)
-        set(DEBUG_SUFFIX "_dbg")
-    endif()
-
     # Installers for 32- vs. 64-bit CMake:
     #  - Root install directory (displayed to end user at installer-run time)
     #  - "NSIS package/display name" (text used in the installer GUI)
@@ -522,7 +518,7 @@ if(MINGW)
     else()
 		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 		set(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win32${DEBUG_SUFFIX}")
+		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win32")
 		#set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     endif()
 
