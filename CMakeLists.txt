@@ -33,8 +33,27 @@ if(GIT_TAG)
     set(IS_DEVEL_BUILD "false")
 else()
     set(IS_DEVEL_BUILD "true")
-    execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION)
-    set(DISPLAY_VERSION "${DISPLAY_VERSION}+${GIT_REVISION}")
+
+    # For developer builds we append some additional data to version.
+    #
+    # Attention: the code for determining the version string is present in the
+    # .appveyor file too. Be sure to tweak both.
+    execute_process(COMMAND git describe --abbrev=0 OUTPUT_VARIABLE GIT_LAST_TAG)
+    if(${DISPLAY_VERSION} MATCHES ${GIT_LAST_TAG})
+        # If the last tag matches the display version (we are working on the
+        # same branch the tag is located in - the release branch), we will use
+        # `git describe` since it nicely adds the number of commits passed since
+        # the tag next to the current commit id.
+        execute_process(COMMAND git describe --tags OUTPUT_VARIABLE GIT_DESCRIPTION)
+        set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
+    else()
+        # We are working on a release which is not a patch release of the last
+        # one (feature branch, develop branch, master after splitting of a
+        # dedicated release branch). We just add the commit hash to the display
+        # version.
+        execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION)
+        set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
+    endif()
 endif()
 
 set(LIBSNDFILE_VERSION_PREV "1.0.17")
@@ -498,12 +517,12 @@ if(MINGW)
     if(WIN64)
         set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
 		set(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
-		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
+		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win64")
 		#set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
     else()
 		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 		set(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32${DEBUG_SUFFIX}")
+		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win32${DEBUG_SUFFIX}")
 		#set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     endif()
 

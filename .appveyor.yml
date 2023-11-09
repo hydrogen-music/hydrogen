@@ -90,6 +90,41 @@ init:
           UPLOAD_ARTIFACTS=true
       fi
 
+      # In case we are not at a tag, we append some additional information to a)
+      # indicate that the artifact is not an official release and b) allow use
+      # to track down which sources it corresponds to.
+      #
+      # Attention: the code for determining the version string is present in the
+      # top-level CMakeLists.txt file too. Be sure to tweak both.
+      DISPLAY_VERSION=$TARGET_VERSION
+      if [[ "$(git describe --abbrev=0)" == "$TARGET_VERSION" ]]; then
+          # If the last tag matches the display version (we are working on the
+          # same branch the tag is located in - the release branch), we will use
+          # `git describe` since it nicely adds the number of commits passed
+          # since the tag next to the current commit id.
+          DISPLAY_VERSION=$(git describe --tags)
+      else
+          # We are working on a release which is not a patch release of the last
+          # one (feature branch, develop branch, master after splitting of a
+          # dedicated release branch). We just add the commit hash to the
+          # display version.
+          DISPLAY_VERSION="$TARGET_VERSION-$(git log --pretty=format:'%h' -n 1)"
+      fi
+
+  - cmd: |-
+      REM *** Upload artifacts in case either the branch is named *-artifacts or HEAD is located on a tag. ***
+      if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
+      if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
+
+      set DISPLAY_VERSION=%TARGET_VERSION%
+      FOR /F "delims=" %i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG='%i'
+      FOR /F "delims=" %i IN ('"git describe --tags"') DO set GIT_DESCRIPTION='%i'
+      REM *** Note: no single quotes around the last %i as the output is already quoted ***
+      FOR /F "delims=" %i IN ('"git log --pretty=format:'%h' -n 1"') DO set GIT_COMMIT_HASH=%i
+
+      if %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%GIT_DESCRIPTION%
+      if not %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%TARGET_VERSION%-%GIT_COMMIT_HASH% tb
+
 for:
   - 
     matrix:
@@ -328,7 +363,9 @@ for:
         --output appimage || exit 1
 
       echo -e "\n *** Upload AppImage ***\n"
-      appveyor PushArtifact Hydrogen-x86_64.AppImage || exit 1
+      TARGET_NAME=Hydrogen-${DISPLAY_VERSION}-x86_64.AppImage
+      mv Hydrogen-x86_64.AppImage ${TARGET_NAME} || exit 1
+      appveyor PushArtifact ${TARGET_NAME} || exit 1
 
   - 
     cache: /Users/appveyor/cache_dir
@@ -422,7 +459,7 @@ for:
       (
         cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
-        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
 
         if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
@@ -453,11 +490,6 @@ for:
     cache: '%USERPROFILE%\AppData\Roaming\ccache'
     before_build:
       cmd: |-
-
-          REM *** Upload artifacts in case either the branch is named ***
-          REM *** *-artifacts or HEAD is located on a tag. ***
-          if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
-          if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
 
           if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 appveyor exit
 
@@ -548,8 +580,8 @@ on_finish:
   - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeConfigureLog.yaml
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win64.exe || cmd /c "exit /b 1"
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win32.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win32.exe || cmd /c "exit /b 1"
 
   - cmd: |
       if %UPLOAD_ARTIFACTS%=="true" curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
