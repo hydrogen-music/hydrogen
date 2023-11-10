@@ -28,8 +28,8 @@ if(VERSION_SUFFIX)
 endif()
 
 # Consider any tagged commit as a release build
-execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
-if(GIT_TAG)
+execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_ON_TAG)
+if(GIT_ON_TAG)
     set(IS_DEVEL_BUILD "false")
 else()
     set(IS_DEVEL_BUILD "true")
@@ -38,20 +38,24 @@ else()
     #
     # Attention: the code for determining the version string is present in the
     # .appveyor file too. Be sure to tweak both.
-    execute_process(COMMAND git describe --abbrev=0 OUTPUT_VARIABLE GIT_LAST_TAG)
-    if(${DISPLAY_VERSION} MATCHES ${GIT_LAST_TAG})
+    execute_process(COMMAND git describe --abbrev=0
+        OUTPUT_VARIABLE GIT_LAST_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    if("${DISPLAY_VERSION}" STREQUAL "${GIT_LAST_TAG}")
         # If the last tag matches the display version (we are working on the
         # same branch the tag is located in - the release branch), we will use
         # `git describe` since it nicely adds the number of commits passed since
         # the tag next to the current commit id.
-        execute_process(COMMAND git describe --tags OUTPUT_VARIABLE GIT_DESCRIPTION)
+        execute_process(COMMAND git describe --tags
+            OUTPUT_VARIABLE GIT_DESCRIPTION OUTPUT_STRIP_TRAILING_WHITESPACE)
         set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
     else()
         # We are working on a release which is not a patch release of the last
         # one (feature branch, develop branch, master after splitting of a
         # dedicated release branch). We just add the commit hash to the display
         # version.
-        execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION)
+        execute_process(COMMAND git log --pretty=format:'%h' -n 1
+            OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
         set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
     endif()
 endif()
