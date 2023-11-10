@@ -21,20 +21,53 @@ set(VERSION_PATCH "2")
 #set(VERSION_SUFFIX "beta1")
 
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-set(DISPLAY_VERSION "${VERSION}")
-
-if(VERSION_SUFFIX)
-    set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
-endif()
 
 # Consider any tagged commit as a release build
-execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
-if(GIT_TAG)
+execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_ON_TAG)
+if(GIT_ON_TAG)
     set(IS_DEVEL_BUILD "false")
 else()
     set(IS_DEVEL_BUILD "true")
-    execute_process(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION)
-    set(DISPLAY_VERSION "${DISPLAY_VERSION}+${GIT_REVISION}")
+endif()
+
+# In order to avoid for things to get out of sync, it is also possible to hand
+# over a version (from e.g. the build pipeline) and bypass the version string
+# composition in here. But this only affects display string. Major, minor, and
+# patch version in here must still match the TARGET_VERSION of the pipeline!
+set(DISLPAY_VERSION_PIPELINE "" CACHE INTERNAL "")
+
+if(NOT ${DISPLAY_VERSION_PIPELINE} STREQUAL "")
+    set(DISPLAY_VERSION "${DISPLAY_VERSION_PIPELINE}")
+else()
+    set(DISPLAY_VERSION "${VERSION}")
+
+    if(VERSION_SUFFIX)
+        set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
+    endif()
+
+    if(GIT_ON_TAG)
+        # For developer builds we append some additional data to version.
+        execute_process(COMMAND git describe --abbrev=0
+            OUTPUT_VARIABLE GIT_LAST_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        if("${DISPLAY_VERSION}" STREQUAL "${GIT_LAST_TAG}")
+            # If the last tag matches the display version (we are working on the
+            # same branch the tag is located in - the release branch), we will use
+            # `git describe` since it nicely adds the number of commits passed since
+            # the tag next to the current commit id.
+            execute_process(COMMAND git describe --tags
+                OUTPUT_VARIABLE GIT_DESCRIPTION OUTPUT_STRIP_TRAILING_WHITESPACE)
+            set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
+        else()
+            # We are working on a release which is not a patch release of the last
+            # one (feature branch, develop branch, master after splitting of a
+            # dedicated release branch). We just add the commit hash to the display
+            # version.
+            execute_process(COMMAND git log --pretty=format:'%h' -n 1
+                OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+            set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
+        endif()
+    endif()
 endif()
 
 set(LIBSNDFILE_VERSION_PREV "1.0.17")
@@ -487,10 +520,6 @@ if(MINGW)
     set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
 
-    if(H2CORE_HAVE_DEBUG)
-        set(DEBUG_SUFFIX "_dbg")
-    endif()
-
     # Installers for 32- vs. 64-bit CMake:
     #  - Root install directory (displayed to end user at installer-run time)
     #  - "NSIS package/display name" (text used in the installer GUI)
@@ -498,12 +527,12 @@ if(MINGW)
     if(WIN64)
         set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
 		set(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
-		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
+		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win64")
 		#set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
     else()
 		set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 		set(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32${DEBUG_SUFFIX}")
+		set(CPACK_PACKAGE_FILE_NAME "Hydrogen-${DISPLAY_VERSION}-win32")
 		#set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     endif()
 
