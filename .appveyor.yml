@@ -548,10 +548,9 @@ for:
           FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG=%%i
           echo %GIT_LAST_TAG%
 
-          FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION='%%i'
+          FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION=%%i
           echo %GIT_DESCRIPTION%
 
-          REM *** Note: no single quotes around the last %%i as the output is already quoted ***
           FOR /F "delims=" %%i IN ('"git log --pretty=format:'%%h' -n 1"') DO set GIT_COMMIT_HASH=%%i
           echo %GIT_COMMIT_HASH%
 
@@ -567,6 +566,9 @@ for:
           REM *** display version.
           if not %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%TARGET_VERSION%-%GIT_COMMIT_HASH%
 
+          REM *** Remove quotes from variable as this would prevent use from
+          REM *** properly find the file during upload.
+          set DISPLAY_VERSION=%DISPLAY_VERSION:'=%
           echo %DISPLAY_VERSION%
 
           if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 appveyor exit
