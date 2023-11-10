@@ -543,7 +543,7 @@ for:
           FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG='%%i'
           FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION='%%i'
           REM *** Note: no single quotes around the last %%i as the output is already quoted ***
-          FOR /F "delims=" %%i IN ('"git log --pretty=format:'%h' -n 1"') DO set GIT_COMMIT_HASH=%%i
+          FOR /F "delims=" %%i IN ('"git log --pretty=format:'%%h' -n 1"') DO set GIT_COMMIT_HASH=%%i
 
           REM *** If the last tag matches the display version (we are working on the
           REM *** same branch the tag is located in - the release branch), we will use
