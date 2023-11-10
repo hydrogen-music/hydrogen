@@ -545,7 +545,7 @@ for:
 
           echo %TARGET_VERSION%
 
-          FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG='%%i'
+          FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG=%%i
           echo %GIT_LAST_TAG%
 
           FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION='%%i'
