@@ -45,7 +45,7 @@ else()
         set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
     endif()
 
-    if(GIT_ON_TAG)
+    if(NOT GIT_ON_TAG)
         # For developer builds we append some additional data to version.
         execute_process(COMMAND git describe --abbrev=0
             OUTPUT_VARIABLE GIT_LAST_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -58,6 +58,7 @@ else()
             execute_process(COMMAND git describe --tags
                 OUTPUT_VARIABLE GIT_DESCRIPTION OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
+            message(STATUS "MATCH")
         else()
             # We are working on a release which is not a patch release of the last
             # one (feature branch, develop branch, master after splitting of a
@@ -66,9 +67,11 @@ else()
             execute_process(COMMAND git log --pretty=format:'%h' -n 1
                 OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
+            message(STATUS "MIS")
         endif()
     endif()
 endif()
+message(STATUS "${DISPLAY_VERSION}")
 
 set(LIBSNDFILE_VERSION_PREV "1.0.17")
 
