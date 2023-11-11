@@ -10,6 +10,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  keyboard shortcut. If those actions require input arguments,
 		  they are retrieved using popup dialogs.
 	* Changed
+		- Prerelease version suffix (alpha, beta, rc..) are now appended to
+			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 		- Preferences dialog can now be smoothly resized.
 		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as
 		  their OSC counterparts - do now wrap transport around the

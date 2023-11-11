@@ -22,6 +22,10 @@ set(VERSION_SUFFIX "alpha")
 
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
+if(VERSION_SUFFIX)
+    set(VERSION "${VERSION}-${VERSION_SUFFIX}")
+endif()
+
 # Consider any tagged commit as a release build
 execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_ON_TAG)
 if(GIT_ON_TAG)
@@ -40,10 +44,6 @@ if(NOT ${DISPLAY_VERSION_PIPELINE} STREQUAL "")
     set(DISPLAY_VERSION "${DISPLAY_VERSION_PIPELINE}")
 else()
     set(DISPLAY_VERSION "${VERSION}")
-
-    if(VERSION_SUFFIX)
-        set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
-    endif()
 
     if(NOT GIT_ON_TAG)
         # For developer builds we append some additional data to version.
