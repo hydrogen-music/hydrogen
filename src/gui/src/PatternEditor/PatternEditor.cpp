@@ -680,19 +680,19 @@ QPoint PatternEditor::movingGridOffset( ) const {
 void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
-	const QColor colorsActive[5] = {
+	const std::vector<QColor> colorsActive = {
 		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
 	};
-	const QColor colorsInactive[5] = {
+	const std::vector<QColor> colorsInactive = {
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 190 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 200 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 210 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 230 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 250 ) ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -738,13 +738,15 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		while ( m_nResolution >= nRes ) {
 			nColour++;
 			float x = PatternEditor::nMargin + fStep;
-			p.setPen( QPen( colorsActive[ nColour ], 1, style ) );
+			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
+							1, style ) );
 			while ( x < m_nActiveWidth + fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 				x += fStep * 2;
 			}
-			
-			p.setPen( QPen( colorsInactive[ nColour ], 1, style ) );
+
+			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
+							1, style ) );
 			while ( x < m_nEditorWidth ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 				x += fStep * 2;
