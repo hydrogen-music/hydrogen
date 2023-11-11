@@ -27,6 +27,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Fixed stop note color which was no different than
 					the default note color (#1854).
 				- Fixed grid line rendering on rational pattern size nominator.
+				- Fixed grid line colors on very fine resolution.
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
