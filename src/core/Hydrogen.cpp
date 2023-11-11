@@ -892,9 +892,12 @@ void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
 	}
 }
 
-void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock, bool bForce )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
+		if ( bForce ) {
+			EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		}
 		return;
 	}
 

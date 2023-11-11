@@ -1198,7 +1198,7 @@ void AudioEngine::handleSelectedPattern() {
 			}
 		}
 
-		pHydrogen->setSelectedPatternNumber( nPatternNumber, true );
+		pHydrogen->setSelectedPatternNumber( nPatternNumber, true, true );
 	}
 }
 
