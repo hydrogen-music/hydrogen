@@ -37,15 +37,17 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix crash on playing back notes with custom length (#1852).
 		- macOS: fix naming of CoreMIDI header (#1865).
 		- Fix various rendering issues with custom length notes.
-		- Pattern Editor (#1859):
-				- Only delete stop notes clicked by the user.
-				- Proper undo of moving notes out of DrumPatternEditor.
-				- Custom note lengths are now only drawn till the next stop note.
-				- Highlight selected stop notes too.
+		- Pattern Editor:
+				- Only delete stop notes clicked by the user. (#1859)
+				- Proper undo of moving notes out of DrumPatternEditor. (#1859)
+				- Custom note lengths are now only drawn till the next stop
+				  note. (#1859)
+				- Highlight selected stop notes too. (#1859)
 				- Update selected notes visually on left and right keyboard
-				  movement.
+				  movement. (#1859)
 				- Fixed stop note color which was no different than
 					the default note color (#1854).
+				- Fixed grid line rendering on rational pattern size nominator.
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
