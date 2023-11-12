@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
+cmake_minimum_required(VERSION 3.8)
 add_definitions()
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/core/include            # core headers
@@ -11,11 +11,11 @@ include_directories(
     ${RUBBERBAND_INCLUDE_DIRS}
 )
 
-FILE(GLOB_RECURSE TESTS_SRCS *.cpp)
+file(GLOB_RECURSE TESTS_SRCS *.cpp)
 link_directories()
 add_executable(tests ${TESTS_SRCS})
 
-SET_PROPERTY(TARGET tests PROPERTY CXX_STANDARD 17)
+set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tests
 	hydrogen-core-${VERSION}
@@ -25,10 +25,10 @@ target_link_libraries(tests
 	Qt5::Network
 )
 
-IF(Backtrace_FOUND)
+if(Backtrace_FOUND)
 	target_link_libraries(tests
 		${Backtrace_LIBRARIES}
 	)
-ENDIF()
+endif()
 
 add_dependencies(tests hydrogen-core-${VERSION})
