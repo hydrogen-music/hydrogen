@@ -127,7 +127,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	auto pDrumkit =
 		Drumkit::loadFrom( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
-							bSilent );
+						   false, bSilent );
 	
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
@@ -170,7 +170,10 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	return pDrumkit;
 }
 
-std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
+											const QString& sDrumkitPath,
+											bool bCurrentKit,
+											bool bSilent )
 {
 	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
@@ -220,9 +223,8 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node, const QString& sDrumk
 	}
 
 	auto pInstrumentList = InstrumentList::load_from( node,
-													  sDrumkitPath,
-													  sDrumkitName,
-													  license, false );
+													  sDrumkitPath, sDrumkitName,
+													  license, bCurrentKit, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
@@ -421,11 +423,15 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 		root.appendChild( doc.createComment( License::getGPLLicenseNotice( m_sAuthor ) ) );
 	}
 	
-	saveTo( &root, nComponentID, bRecentVersion, bSilent );
+	saveTo( &root, nComponentID, bRecentVersion, false, bSilent );
 	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
 }
 
-void Drumkit::saveTo( XMLNode* node, int component_id, bool bRecentVersion, bool bSilent ) const
+void Drumkit::saveTo( XMLNode* node,
+					  int component_id,
+					  bool bRecentVersion,
+					  bool bCurrentKit,
+					  bool bSilent ) const
 {
 	node->write_string( "name", m_sName );
 	node->write_string( "author", m_sAuthor );
@@ -478,13 +484,15 @@ void Drumkit::saveTo( XMLNode* node, int component_id, bool bRecentVersion, bool
 	}
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->save_to( node, component_id, bRecentVersion, false );
+		m_pInstruments->save_to( node, component_id, bRecentVersion,
+								 bCurrentKit );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->save_to( node, component_id, bRecentVersion );
+		pInstrumentList->save_to( node, component_id, bRecentVersion,
+								  bCurrentKit );
 	}
 }
 

@@ -128,21 +128,24 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
+void InstrumentComponent::save_to( XMLNode* pNode,
+								   int component_id,
+								   bool bRecentVersion,
+								   bool bCurrentKit )
 {
 	XMLNode component_node;
 	if ( bRecentVersion ) {
-		component_node = node->createNode( "instrumentComponent" );
+		component_node = pNode->createNode( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = get_layer( n );
-		if( pLayer != nullptr ) {
-			if( bRecentVersion ) {
-				pLayer->save_to( &component_node, bFull );
+		if ( pLayer != nullptr ) {
+			if ( bRecentVersion ) {
+				pLayer->save_to( &component_node, bCurrentKit );
 			} else {
-				pLayer->save_to( node, bFull );
+				pLayer->save_to( pNode, bCurrentKit );
 			}
 		}
 	}

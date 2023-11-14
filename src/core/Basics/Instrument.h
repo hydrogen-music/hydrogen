@@ -113,30 +113,41 @@ class Instrument : public H2Core::Object<Instrument>
 
 		/**
 		 * save the instrument within the given XMLNode
+		 *
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
-		 * component.
+		 *   component.
 		 * \param bRecentVersion Whether the drumkit format should be
-		 * supported by Hydrogen 0.9.7 or higher (whether it should be
-		 * composed of DrumkitComponents).
-		 * \param bFull Whether to write all parameters of the
-		 * contained #Sample as well. This will be done when storing
-		 * an #Instrument as part of a #Song but not when storing
-		 * as part of a #Drumkit.
+		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
+		 *   composed of DrumkitComponents).
+		 * \param bCurrentKit Whether the instrument is part of a
+		 *   stand-alone kit or part of a song. In the latter case all samples
+		 *   located in the corresponding drumkit folder and are referenced by
+		 *   filenames. In the former case, each instrument might be
+		 *   associated with a different kit and the lookup folder for the
+		 *   samples are stored on a per-instrument basis.
 		 */
-	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
+		void save_to( XMLNode* node, int component_id,
+					  bool bRecentVersion = true, bool bCurrentKit = false );
+
 		/**
 		 * load an instrument from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit
-		 * data. If empty, it will be read from @a pNode.
+		 *   data. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName Name of the drumkit found in @a
-		 * sDrumkitPath.
+		 *   sDrumkitPath.
 		 * \param license License assigned to all Samples that will be
-		 * loaded. If empty, the license will be read from @a
-		 * sDrumkitPath.
+		 *   loaded. If empty, the license will be read from @a
+		 *   sDrumkitPath.
+		 * @param bCurrentKit If true samples are loaded on a
+		 *   per-instrument basis. If the filename of the sample is a plain
+		 *   filename, it will be searched for in the folder associated with the
+		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
+		 *   (unique identifier locally). If it is an absolute path, it will be
+		 *   loaded directly.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new Instrument instance
 		 */
@@ -144,6 +155,7 @@ class Instrument : public H2Core::Object<Instrument>
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
 													  const License& license = License(),
+													  bool bCurrentKit = false,
 													  bool bSilent = false );
 
 		///< set the name of the instrument

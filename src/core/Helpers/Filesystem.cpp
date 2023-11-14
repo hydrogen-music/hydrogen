@@ -725,45 +725,38 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-QString Filesystem::prepare_sample_path( const QString& fname )
+QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 {
-	int idx = get_basename_idx_under_drumkit( fname );
-	if ( idx >= 0 ) {
-		return fname.midRef( idx ).toString();
-	}
-	return fname;
-}
-
-bool Filesystem::file_is_under_drumkit( const QString& fname )
-{
-	return get_basename_idx_under_drumkit( fname ) != -1;
-}
-
-int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
-{
-	if( fname.startsWith( usr_drumkits_dir() ) )
-	{
-		int start = usr_drumkits_dir().size();
-		int index = fname.indexOf( "/", start );
-		QString dk_name = fname.midRef( start , index - start).toString();
-		if ( usr_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
+	// Check whether the provided absolute sample path is located within a
+	// drumkit directory in either the user or system drumkit folder.
+	int nIndexMatch = -1;
+	if ( sSamplePath.startsWith( usr_drumkits_dir() ) ) {
+		int nStart = usr_drumkits_dir().size();
+		int nIndex = sSamplePath.indexOf( "/", nStart );
+		QString sDrumkitName =
+			sSamplePath.midRef( nStart , nIndex - nStart ).toString();
+		if ( usr_drumkit_list().contains( sDrumkitName ) ) {
+			nIndexMatch = nIndex + 1;
 		}
 	}
 
-	if( fname.startsWith( sys_drumkits_dir() ) )
-	{
-		int start = sys_drumkits_dir().size();
-		int index = fname.indexOf( "/", start);
-		QString dk_name = fname.midRef( start, index - start).toString();
-		if ( sys_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
+	if ( sSamplePath.startsWith( sys_drumkits_dir() ) )	{
+		int nStart = sys_drumkits_dir().size();
+		int nIndex = sSamplePath.indexOf( "/", nStart);
+		QString sDrumkitName =
+			sSamplePath.midRef( nStart, nIndex - nStart ).toString();
+		if ( sys_drumkit_list().contains( sDrumkitName ) ) {
+			nIndexMatch = nIndex + 1;
 		}
 	}
 
-	return -1;
-}
+	if ( nIndexMatch >= 0 ) {
+		// Sample is located in a drumkit folder. Just return basename.
+		return sSamplePath.midRef( nIndexMatch ).toString();
+	}
 
+	return sSamplePath;
+}
 
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {

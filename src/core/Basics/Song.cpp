@@ -377,7 +377,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
 		// Current format (>= 1.3.0) storing a proper Drumkit
-		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", bSilent );
+		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", true, bSilent );
 	}
 	else {
 		// Older format (< 1.3.0) storing only selected elements
@@ -769,7 +769,11 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 		// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated
 		// by a ancient design desicion and we will stick to it.
 		auto drumkitNode = pRootNode->createNode( "drumkit_info" );
-		m_pDrumkit->saveTo( &drumkitNode, bSilent );
+		m_pDrumkit->saveTo( &drumkitNode,
+							-1, // All components
+							true, // Use the most-recent format
+							true, // Enable per-instrument sample loading
+							bSilent );
 	} else {
 		Legacy::saveEmbeddedSongDrumkit( pRootNode, m_pDrumkit, bSilent );
 	}

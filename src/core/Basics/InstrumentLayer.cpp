@@ -199,7 +199,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 	return pLayer;
 }
 
-void InstrumentLayer::save_to( XMLNode* node, bool bFull )
+void InstrumentLayer::save_to( XMLNode* node, bool bCurrentKit )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSample = get_sample();
@@ -211,7 +211,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	XMLNode layer_node = node->createNode( "layer" );
 
 	QString sFilename;
-	if ( bFull ) {
+	if ( bCurrentKit ) {
 
 		if ( pHydrogen->isUnderSessionManagement() ) {
 			// If we use the NSM support and the sample files to save
@@ -240,33 +240,31 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	layer_node.write_float( "gain", __gain );
 	layer_node.write_float( "pitch", __pitch );
 
-	if ( bFull ) {
-		layer_node.write_bool( "ismodified", pSample->get_is_modified() );
-		layer_node.write_string( "smode", pSample->get_loop_mode_string() );
+	layer_node.write_bool( "ismodified", pSample->get_is_modified() );
+	layer_node.write_string( "smode", pSample->get_loop_mode_string() );
 
-		Sample::Loops loops = pSample->get_loops();
-		layer_node.write_int( "startframe", loops.start_frame );
-		layer_node.write_int( "loopframe", loops.loop_frame );
-		layer_node.write_int( "loops", loops.count );
-		layer_node.write_int( "endframe", loops.end_frame );
+	Sample::Loops loops = pSample->get_loops();
+	layer_node.write_int( "startframe", loops.start_frame );
+	layer_node.write_int( "loopframe", loops.loop_frame );
+	layer_node.write_int( "loops", loops.count );
+	layer_node.write_int( "endframe", loops.end_frame );
 
-		Sample::Rubberband rubberband = pSample->get_rubberband();
-		layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
-		layer_node.write_float( "rubberdivider", rubberband.divider );
-		layer_node.write_int( "rubberCsettings", rubberband.c_settings );
-		layer_node.write_float( "rubberPitch", rubberband.pitch );
+	Sample::Rubberband rubberband = pSample->get_rubberband();
+	layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
+	layer_node.write_float( "rubberdivider", rubberband.divider );
+	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
+	layer_node.write_float( "rubberPitch", rubberband.pitch );
 
-		for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
-			XMLNode volumeNode = layer_node.createNode( "volume" );
-			volumeNode.write_int( "volume-position", velocity.frame );
-			volumeNode.write_int( "volume-value", velocity.value );
-		}
+	for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
+		XMLNode volumeNode = layer_node.createNode( "volume" );
+		volumeNode.write_int( "volume-position", velocity.frame );
+		volumeNode.write_int( "volume-value", velocity.value );
+	}
 
-		for ( const auto& pan : *pSample->get_pan_envelope() ) {
-			XMLNode panNode = layer_node.createNode( "pan" );
-			panNode.write_int( "pan-position", pan.frame );
-			panNode.write_int( "pan-value", pan.value );
-		}
+	for ( const auto& pan : *pSample->get_pan_envelope() ) {
+		XMLNode panNode = layer_node.createNode( "pan" );
+		panNode.write_int( "pan-position", pan.frame );
+		panNode.write_int( "pan-value", pan.value );
 	}
 }
 

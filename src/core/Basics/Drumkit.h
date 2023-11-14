@@ -72,27 +72,46 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		/**
 		 * load a drumkit from an XMLNode
+		 *
 		 * \param pNode the XMLDode to read from
 		 * \param sPath the directory holding the drumkit data
+		 * @param bCurrentKit If true samples are loaded on a
+		 *   per-instrument basis. If the filename of the sample is a plain
+		 *   filename, it will be searched for in the folder associated with the
+		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
+		 *   (unique identifier locally). If it is an absolute path, it will be
+		 *   loaded directly. This mode corresponds to loading the Drumkit as
+		 *   part of a song (which allows composition of a drumkit from various
+		 *   kits and new instruments/samples). If `false`, it corresponds to
+		 *   the kit being loaded as part of the `SoundLibraryDatabase`.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
 		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
-												   const QString& sPath,
-												   bool bSilent = false );
+												  const QString& sPath,
+												  bool bCurrentKit = false,
+												  bool bSilent = false );
 
 		/*
 		 * save the drumkit within the given XMLNode
+		 *
 		 * \param pNode the XMLNode to feed
 		 * \param nComponent_id to chose the component to save or -1 for all
 		 * \param bRecentVersion Whether the drumkit format should be
-		 * supported by Hydrogen 0.9.7 or higher (whether it should be
-		 * composed of DrumkitComponents).
+		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
+		 *   composed of DrumkitComponents).
+		 * \param bCurrentKit Whether the instruments are part of a
+		 *   stand-alone kit or part of a song. In the latter case all samples
+		 *   located in the corresponding drumkit folder and are referenced by
+		 *   filenames. In the former case, each instrument might be
+		 *   associated with a different kit and the lookup folder for the
+		 *   samples are stored on a per-instrument basis.
 		 */
 		void saveTo( XMLNode* pNode,
-					  int nComponent_id = -1,
-					  bool bRecentVersion = true,
-					  bool bSilent = false ) const;
+					 int nComponent_id = -1,
+					 bool bRecentVersion = true,
+					 bool bCurrentKit = false,
+					 bool bSilent = false ) const;
 
 
 		/**

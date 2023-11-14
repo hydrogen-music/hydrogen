@@ -720,10 +720,7 @@ private:
 
 
 /**
- * AudioEngineLocking
- *
- * This is a base class for shared data structures which may be
- * modified by the AudioEngine. These should only be modified or
+ * This is a base class for data structures which should only be modified or
  * trusted by a thread holding the AudioEngine lock.
  *
  * Any class which implements a data structure which can be modified

@@ -91,6 +91,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
 													  license, // per-instrument licenses
+													  true, // allow composition
 													  bSilent );
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;

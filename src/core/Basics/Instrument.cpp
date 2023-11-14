@@ -259,7 +259,12 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 	}
 }
 
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
+												   const QString& sDrumkitPath,
+												   const QString& sDrumkitName,
+												   const License& license,
+												   bool bCurrentKit,
+												   bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
@@ -279,9 +284,9 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 									pNode->read_int( "Release", 1000, true, false, bSilent ) ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( sDrumkitPath.isEmpty() || sDrumkitName.isEmpty() ) {
-		// Instrument is not read as part of a Drumkit but as part of
-		// a Song. The drumkit meta info will be read from disk.
+	if ( bCurrentKit ) {
+		// Instrument is not read as part of a plain Drumkit but as part of a
+		// Song.
 		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
 													 false, bSilent );
 		
@@ -320,9 +325,9 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 				// the other one in system-space can be distinguished.
 				Filesystem::Lookup lookup =
 					static_cast<Filesystem::Lookup>(
-													pNode->read_int( "drumkitLookup",
-																	 static_cast<int>(Filesystem::Lookup::stacked),
-																	 false, false, bSilent ) );
+						pNode->read_int( "drumkitLookup",
+										 static_cast<int>(Filesystem::Lookup::stacked),
+										 false, false, bSilent ) );
 			
 				sInstrumentDrumkitPath =
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
@@ -573,13 +578,16 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
+void Instrument::save_to( XMLNode* node,
+						  int component_id,
+						  bool bRecentVersion,
+						  bool bCurrentKit )
 {
 	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 
-	if ( bFull ) {
+	if ( bCurrentKit ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
 		InstrumentNode.write_string( "drumkit", __drumkit_name );
 	}
@@ -635,13 +643,15 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 	InstrumentNode.write_int( "higher_cc", __higher_cc );
 
 	for ( int i=0; i<MAX_FX; i++ ) {
-		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
+		InstrumentNode.write_float( QString( "FX%1Level" )
+									.arg( i+1 ), __fx_level[i] );
 	}
 	
 	for ( auto& pComponent : *__components ) {
-		if( component_id == -1 ||
+		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( &InstrumentNode, component_id, bRecentVersion, bFull );
+			pComponent->save_to( &InstrumentNode, component_id,
+								 bRecentVersion, bCurrentKit );
 		}
 	}
 }
