@@ -454,6 +454,28 @@ void XmlTest::testPlaylist()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testCompatibility() {
+	QStringList testSongs;
+	testSongs << H2TEST_FILE( "/song/test_song_1.2.2.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.2.1.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.2.0.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.2.0-beta1.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.1.1.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.1.0.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.1.0-beta1.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.0.2.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.0.1.h2song" )
+			  << H2TEST_FILE( "/song/test_song_1.0.0.h2song" )
+			  << H2TEST_FILE( "/song/test_song_0.9.7.h2song" );
+
+	for ( const auto& ssSong : testSongs ) {
+		___INFOLOG(ssSong);
+		auto pSong = H2Core::Song::load( ssSong, false );
+		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+	}
+}
+
 void XmlTest::tearDown() {
 
 	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
