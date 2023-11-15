@@ -26,6 +26,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <QTextStream>
 
+#include <core/Sampler/Interpolation.h>
+
 class AudioBenchmark : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(AudioBenchmark);
 	CPPUNIT_TEST(audioBenchmark);
