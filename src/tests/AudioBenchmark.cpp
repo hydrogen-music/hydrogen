@@ -47,9 +47,6 @@ namespace Qt {
 
 bool AudioBenchmark::bEnabled = false;
 
-CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
-
-
 static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();

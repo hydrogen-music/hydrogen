@@ -23,15 +23,18 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "AdsrTest.h"
+#include "AudioBenchmark.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
+#include "EventQueueTest.cpp"
 #include "FilesystemTest.h"
 #include "FunctionalTests.cpp"
 #include "InstrumentListTest.cpp"
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiNoteTest.cpp"
+#include "NetworkTest.h"
 #include "NoteTest.cpp"
 #include "OscServerTest.h"
 #include "PatternTest.h"
@@ -42,15 +45,18 @@
 #include "XmlTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
 #ifdef H2CORE_HAVE_OSC
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
