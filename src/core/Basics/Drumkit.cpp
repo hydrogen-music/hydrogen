@@ -311,10 +311,12 @@ void Drumkit::upgrade( bool bSilent ) {
 				 .arg( m_sName ).arg( m_sPath ) );
 	}
 
-	QString sBackupFile = Filesystem::drumkit_backup_path( m_sPath );
-	Filesystem::file_copy( m_sPath, sBackupFile,
-						  false, // do not overwrite existing files
-						  bSilent );
+	QString sBackupFile = Filesystem::drumkit_backup_path(
+		Filesystem::drumkit_file( m_sPath ) );
+	Filesystem::file_copy( Filesystem::drumkit_file( m_sPath ),
+						   sBackupFile,
+						   false, // do not overwrite existing files
+						   bSilent );
 
 	save( "", -1, true, bSilent);
 }
