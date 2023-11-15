@@ -107,8 +107,8 @@
 		<xsd:sequence>
 			<xsd:element name="id"					type="xsd:integer"/>
 			<xsd:element name="name"				type="xsd:string"/>
-			<xsd:element name="drumkitPath"			type="xsd:string" minOccurs="0">
-			<xsd:element name="drumkit"				type="xsd:string" minOccurs="0">
+			<xsd:element name="drumkitPath"			type="xsd:string" minOccurs="0"/>
+			<xsd:element name="drumkit"				type="xsd:string" minOccurs="0"/>
 			<xsd:element name="volume"				type="xsd:decimal"/>
 			<xsd:element name="isMuted"				type="h2:bool"/>
 			<xsd:element name="isSoloed"			type="h2:bool"/>
@@ -146,7 +146,7 @@
 				<xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 		</xsd:sequence>
-</xsd:complexType>
+	</xsd:complexType>
 </xsd:element>
 
 <!-- DRUMKIT -->
