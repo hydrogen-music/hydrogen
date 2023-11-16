@@ -150,7 +150,7 @@
      <pitch>0</pitch>
     </layer>
     <layer>
-     <filename>/home/phil/git/hydrogen/src/tests/data/drumkits/baseKit/crash.wav</filename>
+     <filename>../drumkits/baseKit/crash.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -276,7 +276,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>/home/phil/git/hydrogen/src/tests/data/drumkits/baseKit/hh.wav</filename>
+     <filename>../drumkits/baseKit/hh.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>

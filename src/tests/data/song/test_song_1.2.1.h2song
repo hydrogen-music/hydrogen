@@ -154,7 +154,7 @@
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>/home/phil/git/hydrogen/src/tests/data/drumkits/baseKit/crash.wav</filename>
+     <filename>../drumkits/baseKit/crash.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
@@ -264,7 +264,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>/home/phil/git/hydrogen/src/tests/data/drumkits/baseKit/snare.wav</filename>
+     <filename>../drumkits/baseKit/snare.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
