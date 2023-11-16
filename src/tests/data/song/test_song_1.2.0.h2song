@@ -301,7 +301,7 @@
   <instrument>
    <id>1</id>
    <name>Stick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/none/existing/path/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>

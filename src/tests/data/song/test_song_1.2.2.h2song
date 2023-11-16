@@ -35,7 +35,7 @@
   <instrument>
    <id>0</id>
    <name>Kick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/none/existing/path/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
