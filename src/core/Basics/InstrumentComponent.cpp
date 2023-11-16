@@ -96,7 +96,12 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
 {
 	int nId = pNode->read_int( "component_id", EMPTY_INSTR_ID,
 							  false, false, bSilent );
@@ -116,8 +121,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 			break;
 		}
 
-		auto pLayer = InstrumentLayer::load_from( &layer_node, sDrumkitPath,
-												  drumkitLicense, bSilent );
+		auto pLayer = InstrumentLayer::load_from(
+			&layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->set_layer( pLayer, nLayer );
 			nLayer++;

@@ -47,8 +47,9 @@
 
 namespace H2Core {
 
-std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
-														  bool bSilent ) {
+std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
+	XMLNode* pNode, const QString& sSongPath, bool bSilent )
+{
 
 	// These old kits contain only an instrument list and all instrument
 	// components and rely on sample loading per-instrument. How the kit itself
@@ -90,6 +91,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit( XMLNode* pNode,
 	auto pInstrumentList = InstrumentList::load_from( pNode,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
+													  sSongPath,
 													  license, // per-instrument licenses
 													  true, // allow composition
 													  bSilent );
@@ -195,7 +197,13 @@ void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
 	pDrumkit->getInstruments()->save_to( pRootNode, -1, true, true );
 }
 
-std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {
+std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
+{
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
 	}
@@ -214,8 +222,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 				break;
 			}
 
-			auto pLayer = InstrumentLayer::load_from( &layerNode, sDrumkitPath,
-													  drumkitLicense, bSilent );
+			auto pLayer = InstrumentLayer::load_from(
+				&layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
 				pCompo->set_layer( pLayer, nLayer );
 				nLayer++;

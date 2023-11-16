@@ -127,7 +127,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	auto pDrumkit =
 		Drumkit::loadFrom( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
-						   false, bSilent );
+						   "", false, bSilent );
 	
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
@@ -172,6 +172,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 											const QString& sDrumkitPath,
+											const QString& sSongPath,
 											bool bCurrentKit,
 											bool bSilent )
 {
@@ -222,9 +223,8 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 		pDrumkit->getComponents()->push_back(pDrumkitComponent);
 	}
 
-	auto pInstrumentList = InstrumentList::load_from( node,
-													  sDrumkitPath, sDrumkitName,
-													  license, bCurrentKit, false );
+	auto pInstrumentList = InstrumentList::load_from(
+		node, sDrumkitPath, sDrumkitName, sSongPath, license, bCurrentKit, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );

@@ -75,6 +75,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \param pNode the XMLDode to read from
 		 * \param sPath the directory holding the drumkit data
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   drumkit is contained in. It is used to resolve sample paths
+		 *   relative to the .h2song file.
 		 * @param bCurrentKit If true samples are loaded on a
 		 *   per-instrument basis. If the filename of the sample is a plain
 		 *   filename, it will be searched for in the folder associated with the
@@ -89,6 +92,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
 												  const QString& sPath,
+												  const QString& sSongPath,
 												  bool bCurrentKit = false,
 												  bool bSilent = false );
 

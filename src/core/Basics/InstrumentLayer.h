@@ -111,17 +111,22 @@ namespace H2Core
 		void save_to( XMLNode* node, bool bCurrentKit = false );
 		/**
 		 * load an instrument layer from an XMLNode
+		 *
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit data
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   instrument layer is contained in. It is used to resolve sample
+		 *   paths relative to the .h2song file.
 		 * \param drumkitLicense License assigned to all #Sample
-		 * contain in the loaded #InstrumentLayer.
+		 *   contain in the loaded #InstrumentLayer.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new InstrumentLayer instance
 		 */
 		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* pNode,
 														   const QString& sDrumkitPath,
+														   const QString& sSongPath = "",
 														   const License& drumkitLicense = License(),
 														   bool bSilent = false );
 		/** Formatted string version for debugging purposes.

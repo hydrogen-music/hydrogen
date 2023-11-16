@@ -200,6 +200,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param node the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the #Drumkit
 		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   instrument list is contained in. It is used to resolve sample
+		 *   paths relative to the .h2song file.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a dk_path.
 		 * @param bCurrentKit If true samples are loaded on a
@@ -216,6 +219,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
 													  const QString& sDrumkitPath,
 													  const QString& sDrumkitName,
+													  const QString& sSongPath = "",
 													  const License& license = License(),
 													  bool bCurrentKit = false,
 													  bool bSilent = false );

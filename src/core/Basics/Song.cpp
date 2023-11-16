@@ -373,15 +373,16 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
+	const auto sSongPath = Filesystem::absolute_path( sFilename );
 	std::shared_ptr<Drumkit> pDrumkit;
 	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
 		// Current format (>= 1.3.0) storing a proper Drumkit
-		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", true, bSilent );
+		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", sSongPath, true, bSilent );
 	}
 	else {
 		// Older format (< 1.3.0) storing only selected elements
-		pDrumkit = Legacy::loadEmbeddedSongDrumkit( pRootNode, bSilent );
+		pDrumkit = Legacy::loadEmbeddedSongDrumkit( pRootNode, sSongPath, bSilent );
 	}
 
 	if ( pDrumkit == nullptr ) {

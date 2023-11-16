@@ -137,6 +137,9 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   data. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName Name of the drumkit found in @a
 		 *   sDrumkitPath.
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   instrument is contained in. It is used to resolve sample paths
+		 *   relative to the .h2song file.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a
 		 *   sDrumkitPath.
@@ -154,6 +157,7 @@ class Instrument : public H2Core::Object<Instrument>
 		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
+													  const QString& sSongPath = "",
 													  const License& license = License(),
 													  bool bCurrentKit = false,
 													  bool bSilent = false );

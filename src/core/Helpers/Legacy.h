@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <memory>
+#include <core/License.h>
 
 namespace H2Core {
 
@@ -50,8 +51,14 @@ class Legacy : public H2Core::Object<Legacy> {
 	 * These did not store proper drumkits but raw instrument lists and
 	 * components as well as some meta data. this is already about 90% of make a
 	 * drumkit a drumkit but the pieces missing let to various inconsistencies
-	 * and bugs.*/
+	 * and bugs.
+	 *
+	 * @param sSongPath If not empty, absolute path to the .h2song file the
+	 *   drumkit is contained in. It is used to resolve sample paths relative to
+	 *   the .h2song file.
+	 * */
 	static std::shared_ptr<Drumkit> loadEmbeddedSongDrumkit( XMLNode* pRootNode,
+															 const QString& sSongPath = "",
 															 bool bSilent = false );
 
 	/** backward compatibility for saving the current drumkit parts to .h2song
@@ -69,8 +76,22 @@ class Legacy : public H2Core::Object<Legacy> {
 	 *	from an #Instrument which itself did not contain one yet.
 	 *
 	 * This code was used to load a #Song of version <= 0.9.0.
+	 *
+	 * \param pNode the XMLDode to read from
+	 * \param sDrumkitPath the directory holding the drumkit data
+	 * @param sSongPath If not empty, absolute path to the .h2song file the
+	 *   instrument component is contained in. It is used to resolve sample
+	 *   paths relative to the .h2song file.
+	 * \param drumkitLicense License assigned to all #Sample
+	 *   contain in the loaded #InstrumentLayer.
+	 * \param bSilent if set to true, all log messages except of
+	 *   errors and warnings are suppressed
 	 */
-	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent = false );
+	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode,
+																		 const QString& sDrumkitPath,
+																		 const QString& sSongPath = "",
+																		 const License& drumkitLicense = License(),
+																		 bool bSilent = false );
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file
