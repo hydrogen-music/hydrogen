@@ -58,6 +58,9 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 				auto pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {
 					auto pSample = pLayer->get_sample();
+					if ( pSample == nullptr ) {
+						return false;
+					}
 					if( loaded ) {
 						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
 							return false;
