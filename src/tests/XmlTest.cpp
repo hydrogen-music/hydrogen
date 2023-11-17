@@ -458,6 +458,7 @@ void XmlTest::testPlaylist()
 }
 
 void XmlTest::testCompatibility() {
+	___INFOLOG( "" );
 	QStringList testSongs;
 	testSongs << H2TEST_FILE( "/song/test_song_1.2.2.h2song" )
 			  << H2TEST_FILE( "/song/test_song_1.2.1.h2song" )
@@ -477,6 +478,20 @@ void XmlTest::testCompatibility() {
 		CPPUNIT_ASSERT( pSong != nullptr );
 		CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
 	}
+
+	// Check that invalid paths and drumkit names could indeed result in missing
+	// samples.
+	testSongs.clear();
+	testSongs << H2TEST_FILE( "/song/test_song_invalid_drumkit_name.h2song" )
+			  << H2TEST_FILE( "/song/test_song_invalid_sample_path.h2song" );
+
+	for ( const auto& ssSong : testSongs ) {
+		___INFOLOG(ssSong);
+		auto pSong = H2Core::Song::load( ssSong, false );
+		CPPUNIT_ASSERT( pSong != nullptr );
+		CPPUNIT_ASSERT( pSong->hasMissingSamples() );
+	}
+	___INFOLOG( "passed" );
 }
 
 void XmlTest::tearDown() {
