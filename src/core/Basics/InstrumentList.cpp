@@ -421,9 +421,9 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 }
 
 
-bool InstrumentList::isAnyInstrumentSoloed()
+bool InstrumentList::isAnyInstrumentSoloed() const
 {
-	for ( auto &pInstrument : __instruments ) {
+	for ( const auto& pInstrument : __instruments ) {
 		if ( pInstrument->is_soloed() ) {
 			return true;
 		}
@@ -431,6 +431,25 @@ bool InstrumentList::isAnyInstrumentSoloed()
 	return false;
 }
 
+bool InstrumentList::isAnyInstrumentSampleLoaded() const {
+	for ( const auto& pInstrument : __instruments ) {
+		if ( pInstrument != nullptr ) {
+			for ( const auto& pCompo : *pInstrument->get_components() ) {
+				if ( pCompo != nullptr ) {
+					for ( const auto& pLayer : pCompo->get_layers() ) {
+						if ( pLayer != nullptr &&
+							 pLayer->get_sample() != nullptr &&
+							 pLayer->get_sample()->isLoaded() ) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
 
 };
 

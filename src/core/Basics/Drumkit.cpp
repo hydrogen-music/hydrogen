@@ -555,9 +555,10 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	return true;
 }
 
-void Drumkit::setInstruments( std::shared_ptr<InstrumentList> instruments )
+void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments )
 {
-	m_pInstruments = instruments;
+	m_pInstruments = pInstruments;
+	m_bSamplesLoaded = pInstruments->isAnyInstrumentSampleLoaded();
 }
 
 void Drumkit::setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components )
