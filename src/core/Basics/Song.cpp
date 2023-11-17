@@ -267,16 +267,18 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		pSong->setMode( Song::Mode::Pattern );
 	}
 
+	const auto sSongPath = Filesystem::absolute_path( sFilename );
+
 	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
 													false, true, bSilent ) );
-	if ( sPlaybackTrack.left( 2 ) == "./" ||
-		 sPlaybackTrack.left( 2 ) == ".\\" ) {
+	QFileInfo playbackTrackInfo( sPlaybackTrack );
+	if ( playbackTrackInfo.isRelative() ) {
 		// Playback track has been made portable by manually
 		// converting the absolute path stored by Hydrogen into a
 		// relative one.
-		QFileInfo info( sFilename );
-		sPlaybackTrack = info.absoluteDir()
-			.filePath( sPlaybackTrack.right( sPlaybackTrack.size() - 2 ) );
+		QFileInfo songPathInfo( sSongPath );
+		sPlaybackTrack = songPathInfo.absoluteDir()
+			.absoluteFilePath( sPlaybackTrack );
 	}
 
 	// Check the file of the playback track and resort to the default
@@ -284,7 +286,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	if ( ! sPlaybackTrack.isEmpty() &&
 		 ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
 		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
-				  .arg( sPlaybackTrack ) );
+				  .arg( sPlaybackTrack ) )
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
@@ -373,7 +375,6 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
-	const auto sSongPath = Filesystem::absolute_path( sFilename );
 	std::shared_ptr<Drumkit> pDrumkit;
 	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
