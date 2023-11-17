@@ -897,7 +897,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 	}
 	
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		if ( hasJackAudioDriver() && pSong != nullptr ) {
+		if ( hasJackAudioDriver() ) {
 
 			// When restarting the audio driver after loading a new song under
 			// Non session management all ports have to be registered _prior_

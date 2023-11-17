@@ -1015,73 +1015,77 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditiona
 }
 
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
-	if ( pDrumkit != nullptr ) {
-
-		auto pHydrogen = Hydrogen::get_instance();
-		auto pAudioEngine = pHydrogen->getAudioEngine();
-		auto pSong = pHydrogen->getSong();
-		if ( pSong != nullptr ) {
-
-			INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-					 .arg( pDrumkit->getName() )
-					 .arg( pDrumkit->getPath() ) );
-
-			// Use a cloned version of the kit from e.g. the SoundLibrary in
-			// order to not overwrite the original when altering the properties
-			// of the current kit.
-			auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
-
-			// It would be more clean to lock the audio engine _before_ loading
-			// the samples. We might pass a tempo marker while loading and users
-			// of Rubberband end up with a wrong sample length. But this is an
-			// edge-case and the regular user will benefit from a load prior to
-			// the locking resulting in lesser XRUNs.
-			pNewDrumkit->loadSamples(
-				pAudioEngine->getTransportPosition()->getBpm() );
-
-			pAudioEngine->lock( RIGHT_HERE );
-		
-			pSong->setDrumkit( pNewDrumkit );
-			
-			if ( pHydrogen->getSelectedInstrumentNumber() >=
-				 pSong->getDrumkit()->getInstruments()->size() ) {
-				pHydrogen->setSelectedInstrumentNumber(
-					std::max( 0, pSong->getDrumkit()->getInstruments()->size() -1 ),
-					false );
-			}
-
-			pHydrogen->renameJackPorts( pSong );
-			
-			pAudioEngine->unlock();
-	
-			initExternalControlInterfaces();
-
-			pHydrogen->setIsModified( true );
-	
-			// Create a symbolic link in the session folder when under session
-			// management.
-			if ( pHydrogen->isUnderSessionManagement() ) {
-				pHydrogen->setSessionDrumkitNeedsRelinking( true );
-			}
-
-			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
-		}
-		else {
-			ERRORLOG( "No song set yet" );
-			return false;
-		}
-	}
-	else {
+	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+			.arg( pDrumkit->getName() )
+			.arg( pDrumkit->getPath() ) );
+
+	// Use a cloned version of the kit from e.g. the SoundLibrary in
+	// order to not overwrite the original when altering the properties
+	// of the current kit.
+	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+
+	// It would be more clean to lock the audio engine _before_ loading
+	// the samples. We might pass a tempo marker while loading and users
+	// of Rubberband end up with a wrong sample length. But this is an
+	// edge-case and the regular user will benefit from a load prior to
+	// the locking resulting in lesser XRUNs.
+	pNewDrumkit->loadSamples(
+		pAudioEngine->getTransportPosition()->getBpm());
+
+	pAudioEngine->lock(RIGHT_HERE);
+
+	pSong->setDrumkit(pNewDrumkit);
+
+	// Remap instruments in pattern list to ensure component indices for
+	// SelectedLayerInfo's are up to date for the current kit.
+	for ( auto& pPattern : *pSong->getPatternList() ) {
+		for ( auto& pNote : *pPattern->get_notes() ) {
+			pNote.second->map_instrument( pNewDrumkit->getInstruments() );
+		}
+	}
+
+	pHydrogen->renameJackPorts(pSong);
+
+	pAudioEngine->unlock();
+
+	if ( pHydrogen->getSelectedInstrumentNumber() >=
+		 pNewDrumkit->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber(
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false);
+	}
+
+	initExternalControlInterfaces();
+
+	pHydrogen->setIsModified( true );
+
+	// Create a symbolic link in the session folder when under session
+	// management.
+	if ( pHydrogen->isUnderSessionManagement() ) {
+		pHydrogen->setSessionDrumkitNeedsRelinking(true);
+	}
+
+	EventQueue::get_instance()->push_event(EVENT_DRUMKIT_LOADED, 0);
+
 	return true;
 }
 
-bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath ) {
+bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
+                                          const QString &sNewPath) {
 
-	if ( sNewPath.isEmpty() ) {
+        if ( sNewPath.isEmpty() ) {
 		INFOLOG( QString( "Upgrading kit at [%1] inplace." )
 				 .arg( sDrumkitPath ) );
 	} else {
