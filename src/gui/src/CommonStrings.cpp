@@ -484,6 +484,16 @@ CommonStrings::CommonStrings(){
 		/*: Shown in table headers when referring to a license of an object.*/
 	m_sLicense = tr( "License" );
 
+	/*: Names an action in e.g. the component drop down menu in the instrument
+	 *  editor*/
+	m_sMenuActionAdd = tr( "Add" );
+	/*: Names an action in e.g. the component drop down menu in the instrument
+	 *  editor*/
+	m_sMenuActionDelete = tr( "Delete" );
+	/*: Names an action in e.g. the component drop down menu in the instrument
+	 *  editor*/
+	m_sMenuActionRename = tr( "Rename" );
+
 }
 
 CommonStrings::~CommonStrings(){}

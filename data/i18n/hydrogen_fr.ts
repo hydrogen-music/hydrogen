@@ -974,6 +974,21 @@ Are you sure?</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
         <translation type="unfinished">Licence</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <translation type="unfinished">Ajouter</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <translation type="unfinished">Effacer</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>

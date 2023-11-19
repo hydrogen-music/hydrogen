@@ -504,6 +504,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	auto pCompoList = pSong->getDrumkit()->getComponents();
 	
 	m_pInstrument = pHydrogen->getSelectedInstrument();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	// update layer list
 	if ( pSong != nullptr && m_pInstrument != nullptr &&
@@ -585,9 +586,9 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			}
 		}
 		itemsCompo.append("--sep--");
-		itemsCompo.append("add");
-		itemsCompo.append("delete");
-		itemsCompo.append("rename");
+		itemsCompo.append( pCommonStrings->getMenuActionAdd() );
+		itemsCompo.append( pCommonStrings->getMenuActionDelete() );
+		itemsCompo.append( pCommonStrings->getMenuActionRename() );
 
 		update();
 

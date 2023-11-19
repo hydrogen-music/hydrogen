@@ -201,7 +201,11 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getComponent() const { return m_sComponent; }
 	const QString& getSample() const { return m_sSample; }
 	const QString& getLicense() const { return m_sLicense; }
-	
+
+	const QString& getMenuActionAdd() const { return m_sMenuActionAdd; }
+	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
+	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -362,5 +366,9 @@ private:
 	QString m_sComponent;
 	QString m_sSample;
 	QString m_sLicense;
+
+	QString m_sMenuActionAdd;
+	QString m_sMenuActionDelete;
+	QString m_sMenuActionRename;
 };
 #endif
