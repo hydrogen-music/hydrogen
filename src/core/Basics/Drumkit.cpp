@@ -177,7 +177,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
-											bool bCurrentKit,
+											bool bSongKit,
 											bool bSilent )
 {
 	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
@@ -228,7 +228,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 	}
 
 	auto pInstrumentList = InstrumentList::load_from(
-		node, sDrumkitPath, sDrumkitName, sSongPath, license, bCurrentKit, false );
+		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
@@ -436,7 +436,7 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 void Drumkit::saveTo( XMLNode* node,
 					  int component_id,
 					  bool bRecentVersion,
-					  bool bCurrentKit,
+					  bool bSongKit,
 					  bool bSilent ) const
 {
 	node->write_string( "name", m_sName );
@@ -491,14 +491,14 @@ void Drumkit::saveTo( XMLNode* node,
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
 		m_pInstruments->save_to( node, component_id, bRecentVersion,
-								 bCurrentKit );
+								 bSongKit );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id, bRecentVersion,
-								  bCurrentKit );
+								  bSongKit );
 	}
 }
 

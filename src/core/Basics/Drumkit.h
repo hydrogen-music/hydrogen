@@ -108,7 +108,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   drumkit is contained in. It is used to resolve sample paths
 		 *   relative to the .h2song file.
-		 * @param bCurrentKit If true samples are loaded on a
+		 * @param bSongKit If true samples are loaded on a
 		 *   per-instrument basis. If the filename of the sample is a plain
 		 *   filename, it will be searched for in the folder associated with the
 		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
@@ -123,7 +123,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
 												  const QString& sPath,
 												  const QString& sSongPath,
-												  bool bCurrentKit = false,
+												  bool bSongKit = false,
 												  bool bSilent = false );
 
 		/*
@@ -134,7 +134,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bRecentVersion Whether the drumkit format should be
 		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
 		 *   composed of DrumkitComponents).
-		 * \param bCurrentKit Whether the instruments are part of a
+		 * \param bSongKit Whether the instruments are part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and are referenced by
 		 *   filenames. In the former case, each instrument might be
@@ -144,7 +144,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void saveTo( XMLNode* pNode,
 					 int nComponent_id = -1,
 					 bool bRecentVersion = true,
-					 bool bCurrentKit = false,
+					 bool bSongKit = false,
 					 bool bSilent = false ) const;
 
 

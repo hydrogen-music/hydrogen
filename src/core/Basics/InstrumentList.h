@@ -184,7 +184,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param bRecentVersion Whether the drumkit format should be
 		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
 		 *   composed of DrumkitComponents).
-		 * \param bCurrentKit Whether the instruments are part of a
+		 * \param bSongKit Whether the instruments are part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and are referenced by
 		 *   filenames. In the former case, each instrument might be
@@ -192,7 +192,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   samples are stored on a per-instrument basis.
 		 */
 		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true,
-					  bool bCurrentKit = false );
+					  bool bSongKit = false );
 
 		/**
 		 * load an instrument list from an XMLNode
@@ -205,7 +205,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   paths relative to the .h2song file.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a dk_path.
-		 * @param bCurrentKit If true samples are loaded on a
+		 * @param bSongKit If true samples are loaded on a
 		 *   per-instrument basis. If the filename of the sample is a plain
 		 *   filename, it will be searched for in the folder associated with the
 		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
@@ -221,7 +221,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 													  const QString& sDrumkitName,
 													  const QString& sSongPath = "",
 													  const License& license = License(),
-													  bool bCurrentKit = false,
+													  bool bSongKit = false,
 													  bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component

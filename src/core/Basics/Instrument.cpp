@@ -264,7 +264,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 												   const QString& sDrumkitName,
 												   const QString& sSongPath,
 												   const License& license,
-												   bool bCurrentKit,
+												   bool bSongKit,
 												   bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
@@ -285,7 +285,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 									pNode->read_int( "Release", 1000, true, false, bSilent ) ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( bCurrentKit ) {
+	if ( bSongKit ) {
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
@@ -583,13 +583,13 @@ void Instrument::unload_samples()
 void Instrument::save_to( XMLNode* node,
 						  int component_id,
 						  bool bRecentVersion,
-						  bool bCurrentKit )
+						  bool bSongKit )
 {
 	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 
-	if ( bCurrentKit ) {
+	if ( bSongKit ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
 		InstrumentNode.write_string( "drumkit", __drumkit_name );
 	}
@@ -653,7 +653,7 @@ void Instrument::save_to( XMLNode* node,
 		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
 			pComponent->save_to( &InstrumentNode, component_id,
-								 bRecentVersion, bCurrentKit );
+								 bRecentVersion, bSongKit );
 		}
 	}
 }

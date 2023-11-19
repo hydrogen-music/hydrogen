@@ -136,7 +136,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 void InstrumentComponent::save_to( XMLNode* pNode,
 								   int component_id,
 								   bool bRecentVersion,
-								   bool bCurrentKit )
+								   bool bSongKit )
 {
 	XMLNode component_node;
 	if ( bRecentVersion ) {
@@ -148,9 +148,9 @@ void InstrumentComponent::save_to( XMLNode* pNode,
 		auto pLayer = get_layer( n );
 		if ( pLayer != nullptr ) {
 			if ( bRecentVersion ) {
-				pLayer->save_to( &component_node, bCurrentKit );
+				pLayer->save_to( &component_node, bSongKit );
 			} else {
-				pLayer->save_to( pNode, bCurrentKit );
+				pLayer->save_to( pNode, bSongKit );
 			}
 		}
 	}

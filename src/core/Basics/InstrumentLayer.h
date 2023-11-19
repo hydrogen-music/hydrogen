@@ -98,7 +98,7 @@ namespace H2Core
 		 * save the instrument layer within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param bCurrentKit Whether the instrument is part of a
+		 * \param bSongKit Whether the instrument is part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and just their basenames
 		 *   are written. In the former case, each instrument might be
@@ -108,7 +108,7 @@ namespace H2Core
 		 *   whether just the basename or - if not - the absolute path will be
 		 *   stored.
 		 */
-		void save_to( XMLNode* node, bool bCurrentKit = false );
+		void save_to( XMLNode* node, bool bSongKit = false );
 		/**
 		 * load an instrument layer from an XMLNode
 		 *

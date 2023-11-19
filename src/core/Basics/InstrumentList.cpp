@@ -73,7 +73,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	const QString& sDrumkitName,
 	const QString& sSongPath,
 	const License& license,
-	bool bCurrentKit,
+	bool bSongKit,
 	bool bSilent )
 {
 
@@ -96,7 +96,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 
 		auto pInstrument = Instrument::load_from(
 			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
-			license, bCurrentKit, bSilent );
+			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
 		}
@@ -119,7 +119,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 void InstrumentList::save_to( XMLNode* node,
 							  int component_id,
 							  bool bRecentVersion,
-							  bool bCurrentKit )
+							  bool bSongKit )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
@@ -127,7 +127,7 @@ void InstrumentList::save_to( XMLNode* node,
 		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
 			pInstrument->save_to( &instruments_node, component_id, bRecentVersion,
-								  bCurrentKit );
+								  bSongKit );
 		}
 	}
 }

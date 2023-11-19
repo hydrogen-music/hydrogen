@@ -234,7 +234,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	return pLayer;
 }
 
-void InstrumentLayer::save_to( XMLNode* node, bool bCurrentKit )
+void InstrumentLayer::save_to( XMLNode* node, bool bSongKit )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSample = get_sample();
@@ -246,7 +246,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bCurrentKit )
 	XMLNode layer_node = node->createNode( "layer" );
 
 	QString sFilename;
-	if ( bCurrentKit ) {
+	if ( bSongKit ) {
 
 		if ( pHydrogen->isUnderSessionManagement() ) {
 			// If we use the NSM support and the sample files to save
