@@ -862,12 +862,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation type="unfinished"></translation>
@@ -1448,6 +1442,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4415,10 +4413,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Overwrite %1 notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

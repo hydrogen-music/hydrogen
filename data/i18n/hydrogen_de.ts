@@ -865,14 +865,6 @@ Are you sure?</source>
         <translation>Lizenz Warnung</translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation>Schlagzeug des aktuellen Liedes konnte nicht auf der Festplatte gefunden werden
-Bitte laden Sie erst ein existierendes Schlagzeug.
-Aktuelles:</translation>
-    </message>
-    <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation>system</translation>
@@ -1452,6 +1444,10 @@ Overwrite the existing file?</source>
     <message>
         <source>The name of the drumkit must not be left empty</source>
         <translation>Der Name des Schlagzeuges muss gesetzt werden</translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4421,10 +4417,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Overwrite %1 notes</source>
         <translation>Überschreibe %1 Noten</translation>
-    </message>
-    <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation>Füge NOTE_OFF Note hinzu ( %1, %2 )</translation>
     </message>
     <message>
         <source>Change note length</source>

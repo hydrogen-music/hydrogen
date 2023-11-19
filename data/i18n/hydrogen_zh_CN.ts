@@ -863,14 +863,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished">在磁盘上找不到在当前乐曲中注册的鼓组。
-请先加载现有鼓组。
-当前鼓组：</translation>
-    </message>
-    <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation type="unfinished"></translation>
@@ -1451,6 +1443,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4419,10 +4415,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Overwrite %1 notes</source>
         <translation>覆盖 %1 音符</translation>
-    </message>
-    <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation>添加 NOTE_OFF 音符 ( %1, %2 )</translation>
     </message>
     <message>
         <source>Change note length</source>

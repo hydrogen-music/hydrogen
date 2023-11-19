@@ -866,14 +866,6 @@ Are you sure?</source>
         <translation>Aviso de Licencia</translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation>El drumkit registrado en la canción actual no se pudo encontrar en el disco.
-Por favor carga un drumkit existente primero.
-Kit actual:</translation>
-    </message>
-    <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation>sistema</translation>
@@ -1455,6 +1447,10 @@ Overwrite the existing file?</source>
     <message>
         <source>The name of the drumkit must not be left empty</source>
         <translation>El nombre del drumkit no debe dejarse en blanco</translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4438,10 +4434,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Overwrite %1 notes</source>
         <translation>Sobreescribir %1 notas</translation>
-    </message>
-    <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation>Añadir nota NOTE_OFF ( %1, %2 )</translation>
     </message>
     <message>
         <source>Change note length</source>
