@@ -127,7 +127,7 @@ Song::~Song()
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
-	m_pDrumkit->setIsCurrentDrumkit( true );
+	m_pDrumkit->setType( Drumkit::Type::Song );
 }
 
 void Song::setBpm( float fBpm ) {

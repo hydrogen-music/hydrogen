@@ -1052,23 +1052,6 @@ QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
 	return sPath;
 }
 
-Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
-	const QString sAbsolutePath = absolute_path( sPath );
-	if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
-		return DrumkitType::System;
-	}
-	else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
-		return DrumkitType::User;
-	}
-	else {
-		if ( dir_writable( sAbsolutePath, true ) ) {
-			return DrumkitType::SessionReadWrite;
-		} else {
-			return DrumkitType::SessionReadOnly;
-		}
-	}
-}
-
 QStringList Filesystem::drumkit_xsd_legacy_paths() {
 	const QDir legacyDir( xsd_legacy_dir() );
 

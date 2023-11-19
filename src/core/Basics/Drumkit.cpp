@@ -56,6 +56,7 @@ namespace H2Core
 
 Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 					 m_pInstruments( nullptr ),
+					 m_type( Type::User ),
 					 m_sName( "empty" ),
 					 m_sAuthor( "undefined author" ),
 					 m_sInfo( "No information available." ),
@@ -73,6 +74,7 @@ Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	Object(),
+	m_type( other->getType() ),
 	m_sPath( other->getPath() ),
 	m_sName( other->getName() ),
 	m_sAuthor( other->getAuthor() ),
@@ -133,6 +135,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
 	}
+
+	pDrumkit->setType( DetermineType( pDrumkit->getPath() ) );
 
 	// Load drumkit maps corresponding to this kit.
 	//
@@ -1100,7 +1104,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 QString Drumkit::getPath() const {
 #ifdef H2CORE_HAVE_OSC
-	if ( m_bIsCurrentDrumkit ) {
+	if ( m_type == Type::Song ) {
 		return Filesystem::ensure_session_compatibility( m_sPath );
 	}
 #endif
@@ -1165,11 +1169,51 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 	}
 }
 
+Drumkit::Type Drumkit::DetermineType( const QString& sPath ) {
+	if ( ! sPath.isEmpty() ) {
+		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
+		if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
+			return Type::System;
+		}
+		else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
+			return Type::User;
+		}
+		else {
+			if ( Filesystem::dir_writable( sAbsolutePath, true ) ) {
+				return Type::SessionReadWrite;
+			} else {
+				return Type::SessionReadOnly;
+			}
+		}
+	} else {
+		return Type::Song;
+	}
+}
+
+QString Drumkit::TypeToString( Type type ) {
+	switch( type ) {
+	case Type::System:
+		return "System";
+	case Type::User:
+		return "User";
+	case Type::SessionReadOnly:
+		return "SessionReadOnly";
+	case Type::SessionReadWrite:
+		return "SessionReadWrite";
+	case Type::Song:
+		return "Song";
+	default:
+		return QString( "Unknown type [%1]" ).arg( static_cast<int>(type) );
+	}
+}
+
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
+			.append( QString( "%1%2type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( TypeToString( m_type ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
@@ -1193,7 +1237,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( " path: %1" ).arg( m_sPath ) )
+			.append( QString( " type: %1" ).arg( TypeToString( m_type ) ) )
+			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )
 			.append( QString( ", author: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", info: %1" ).arg( m_sInfo ) )

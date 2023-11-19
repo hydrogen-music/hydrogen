@@ -173,11 +173,10 @@ void SoundLibraryPanel::updateTree()
 		auto pDrumkit = pDrumkitEntry.second;
 		if ( pDrumkit != nullptr ) {
 			QString sItemLabel = pDrumkit->getName();
-			auto drumkitType =
-				Filesystem::determineDrumkitType( pDrumkitEntry.first );
+			const auto drumkitType = pDrumkit->getType();
 
 			QTreeWidgetItem* pDrumkitItem;
-			if ( drumkitType == Filesystem::DrumkitType::System ) {
+			if ( drumkitType == Drumkit::Type::System ) {
 				if ( m_pTreeSystemDrumkitsItem == nullptr ) {
 					m_pTreeSystemDrumkitsItem = new QTreeWidgetItem();
 					m_pTreeSystemDrumkitsItem->setText( 0, tr( "System drumkits" ) );
@@ -188,7 +187,7 @@ void SoundLibraryPanel::updateTree()
 				sItemLabel.append( QString( " (%1)" )
 								   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
 			}
-			else if ( drumkitType == Filesystem::DrumkitType::User ) {
+			else if ( drumkitType == Drumkit::Type::User ) {
 				if ( m_pTreeUserDrumkitsItem == nullptr ) {
 					m_pTreeUserDrumkitsItem = new QTreeWidgetItem();
 					m_pTreeUserDrumkitsItem->setText( 0, tr( "User drumkits" ) );
@@ -196,7 +195,8 @@ void SoundLibraryPanel::updateTree()
 				}
 
 				pDrumkitItem = new QTreeWidgetItem( m_pTreeUserDrumkitsItem );
-			} else {
+			} else if ( drumkitType == Drumkit::Type::SessionReadOnly ||
+						drumkitType == Drumkit::Type::SessionReadWrite ) {
 				if ( m_pTreeSessionDrumkitsItem == nullptr ) {
 					m_pTreeSessionDrumkitsItem = new QTreeWidgetItem();
 					m_pTreeSessionDrumkitsItem->setText( 0, tr( "Session drumkits" ) );
@@ -205,8 +205,10 @@ void SoundLibraryPanel::updateTree()
 				pDrumkitItem = new QTreeWidgetItem( m_pTreeSessionDrumkitsItem );
 				sItemLabel.append( QString( " (%1)" )
 								   .arg( pCommonStrings->getSoundLibrarySessionSuffix() ) );
+			} else {
+				ERRORLOG( QString( "Drumkits of type [%1] should not end up in the SoundLibrary." )
+						  .arg( Drumkit::TypeToString( drumkitType ) ) );
 			}
-
 
 			// Ensure uniqueness of the label.
 			int nCount = 1;
@@ -442,9 +444,9 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 	if ( __sound_library_tree->currentItem()->parent() == m_pTreeSessionDrumkitsItem ) {
 		const QString sDrumkitName = __sound_library_tree->currentItem()->text( 0 );
 		const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-		const auto drumkitType = Filesystem::determineDrumkitType( sDrumkitPath );
+		const auto drumkitType = Drumkit::DetermineType( sDrumkitPath );
 		
-		if ( drumkitType == Filesystem::DrumkitType::SessionReadOnly ) {
+		if ( drumkitType == Drumkit::Type::SessionReadOnly ) {
 			__drumkit_menu_system->popup( pos );
 		} else {
 			__drumkit_menu->popup( pos );
@@ -744,13 +746,13 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
 	const QString sDrumkitName = pItem->text(0);
 	const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-	const auto drumkitType = Filesystem::determineDrumkitType( sDrumkitPath );
+	const auto drumkitType = Drumkit::DetermineType( sDrumkitPath );
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( pItem->parent() == m_pTreeSystemDrumkitsItem ||
 		 ( pItem->parent() == m_pTreeSessionDrumkitsItem &&
-		   drumkitType == Filesystem::DrumkitType::SessionReadOnly ) ) {
+		   drumkitType == Drumkit::Type::SessionReadOnly ) ) {
 		QMessageBox::warning( this, "Hydrogen", QString( "\"%1\" " )
 							  .arg(sDrumkitName)
 							  .append( tr( "is a read-only drumkit and can't be deleted.") ) );

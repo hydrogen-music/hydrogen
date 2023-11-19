@@ -45,6 +45,36 @@ class Drumkit : public H2Core::Object<Drumkit>
 {
 		H2_OBJECT(Drumkit)
 	public:
+
+	/** Indicates usage, storage, and access permissions of a kit.*/
+	enum class Type {
+		/** Kit is located in the system-level drumkit folder, loaded into the
+		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
+		System = 0,
+		/** Kit is located in the user-level drumkit folder, loaded into the
+		 * #H2Core::SoundlibraryDatabase during startup, and can be modified.*/
+		User = 1,
+		/** Kit is located at an arbitrary location of the host system and was
+		 * loaded into Hydrogen during a session using e.g. OSC or its location
+		 * was provided during startup. It is transient and located in a place
+		 * the user only has read-only access and can not be modified.*/
+		SessionReadOnly = 2,
+		/** Kit is located at an arbitrary location of the host system and was
+		 * loaded into Hydrogen during a session using e.g. OSC or its location
+		 * was provided during startup. It is transient and can be modified.*/
+		SessionReadWrite = 3,
+		/** In contrast to the other types this drumkit was not loaded from a
+		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
+		 * is part of a song and loaded with a .h2song or created with a new
+		 * song. It is stored with the song when saving the song and can be
+		 * converted into a regular kit by saving / exporting the drumkit. All
+		 * its metadata, like drumkit image, end up in a cache folder for
+		 * Hydrogen.*/
+		Song = 4
+	};
+		static QString TypeToString( Type type );
+		static Type DetermineType( const QString& sPath );
+
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
@@ -190,7 +220,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * and Filesystem::drumkit_ext.
 	 *
 	 * exportTo() ? well, export is a protected name within C++. So,
-	 * we needed a less obvious name. 
+	 * we needed a less obvious name.
 	 *
 	 * \param sTargetDir Folder which will contain the resulting
 	 * .h2drumkit file.
@@ -202,7 +232,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param bSilent Whether debug and info messages should be
 	 * logged.
 	 *
-	 * \return true on success 
+	 * \return true on success
 	 */
 	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
@@ -218,6 +248,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
+		void setType( Type type );
+		Type getType() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
@@ -249,9 +281,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
 
-		bool getIsCurrentDrumkit() const;
-		void setIsCurrentDrumkit( bool bIsCurrentDrumkit );
-
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
 	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
@@ -275,6 +304,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		*/
 		void recalculateRubberband( float fBpm );
 
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -293,14 +323,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License m_license;				///< drumkit license description
 		QString m_sImage;				///< drumkit image filename
 		License m_imageLicense;			///< drumkit image license
+		/** Transient property neither written to a drumkit.xml nor to a .h2song
+		 * but determined when loading the kit. */
+		Type m_type;
 
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> m_pComponents;  ///< list of drumkit component
 
-		/** Whether the kit is the one used as current kit in the song. If
-		 * `false`, it is one of the kits stored in the #H2Core::SoundLibrary.*/
-		bool m_bIsCurrentDrumkit;
 
 		/**
 		 * save the drumkit image into the new directory
@@ -385,6 +415,13 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
+inline void Drumkit::setType( Drumkit::Type type ) {
+	m_type = type;
+}
+inline Drumkit::Type Drumkit::getType() const {
+	return m_type;
+}
+
 inline void Drumkit::setPath( const QString& path )
 {
 	m_sPath = path;
@@ -455,12 +492,6 @@ inline const License& Drumkit::getImageLicense() const
 inline const bool Drumkit::areSamplesLoaded() const
 {
 	return m_bSamplesLoaded;
-}
-inline bool Drumkit::getIsCurrentDrumkit() const {
-	return m_bIsCurrentDrumkit;
-}
-inline void Drumkit::setIsCurrentDrumkit( bool bIsCurrentDrumkit ) {
-	m_bIsCurrentDrumkit = bIsCurrentDrumkit;
 }
 
 inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents()

@@ -65,10 +65,10 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
-		auto drumkitType = Filesystem::determineDrumkitType(
-			pDrumkit->getPath() );
-		if ( drumkitType == Filesystem::DrumkitType::User ||
-			 drumkitType == Filesystem::DrumkitType::SessionReadWrite ) {
+		auto drumkitType = pDrumkit->getType();
+		if ( drumkitType == Drumkit::Type::User ||
+			 drumkitType == Drumkit::Type::SessionReadWrite ||
+			 drumkitType == Drumkit::Type::Song ) {
 			bDrumkitWritable = true;
 		}
 

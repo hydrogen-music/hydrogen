@@ -1504,12 +1504,13 @@ void MainForm::action_instruments_saveLibrary()
 		return;
 	}
 	
-	auto drumkitType = Filesystem::determineDrumkitType(pDrumkit->getPath() );
+	const auto drumkitType = pDrumkit->getType();
 
 	// In case the user does not have write access to the folder of
 	// pDrumkit, the save as dialog will be opened.
-	if ( drumkitType == Filesystem::DrumkitType::User ||
-		 drumkitType == Filesystem::DrumkitType::SessionReadWrite ) {
+	if ( drumkitType == Drumkit::Type::User ||
+		 drumkitType == Drumkit::Type::SessionReadWrite ||
+		 drumkitType == Drumkit::Type::Song ) {
 
 		if ( ! HydrogenApp::checkDrumkitLicense( pDrumkit ) ) {
 			ERRORLOG( "User cancelled dialog due to licensing issues." );
