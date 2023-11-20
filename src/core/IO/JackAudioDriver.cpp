@@ -1093,7 +1093,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
 
 	// Current pattern
-	Pattern* pPattern;
+	Pattern* pPattern = nullptr;
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
 	int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( nPatternNumber != -1 &&
