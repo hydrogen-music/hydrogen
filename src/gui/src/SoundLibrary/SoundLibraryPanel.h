@@ -64,7 +64,6 @@ private slots:
 	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
 	void on_drumkitDeleteAction();
-	void on_drumkitPropertiesAction();
 	void on_drumkitExportAction();
 	void on_songLoadAction();
 	void on_patternLoadAction();
@@ -75,6 +74,7 @@ signals:
 	void item_changed(bool bDrumkitSelected);
 
 private:
+		void editDrumkitProperties( bool bDuplicate );
 	void updateTree();
 	void test_expandedItems();
 	void update_background_color();

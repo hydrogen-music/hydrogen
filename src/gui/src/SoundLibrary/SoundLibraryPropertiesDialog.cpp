@@ -54,13 +54,12 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	setWindowTitle( tr( "SoundLibrary Properties" ) );
 	adjustSize();
 	setMinimumSize( width(), height() );
 
 	setupLicenseComboBox( licenseComboBox );
 	setupLicenseComboBox( imageLicenseComboBox );
-	
+
 	bool bDrumkitWritable = false;
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
@@ -75,8 +74,12 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 		nameTxt->setText( pDrumkit->getName() );
 
 		if ( bDrumkitNameLocked ) {
+			setWindowTitle( tr( "Edit Drumkit Properties" ) );
 			nameTxt->setIsActive( false );
-			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven't done so already) using right click > load and select Drumkits > Save As in the main menu" ) );
+			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
+		}
+		else {
+			setWindowTitle( tr( "Create New Drumkit" ) );
 		}
 		
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );

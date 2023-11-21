@@ -80,10 +80,12 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionLoad(), this,
 							   SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionDuplicate(), this,
+							   [=](){ editDrumkitProperties( true );} );
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionExport(), this,
 							   SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionProperties(), this,
-							   SLOT( on_drumkitPropertiesAction() ) );
+							   [=](){ editDrumkitProperties( false );} );
 	__drumkit_menu->addSeparator();
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionDelete(), this,
 							   SLOT( on_drumkitDeleteAction() ) );
@@ -92,10 +94,12 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu_system = new QMenu( this );
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionLoad(), this,
 									  SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionDuplicate(), this,
+									  [=](){ editDrumkitProperties( true );} );
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionExport(), this,
 									  SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionProperties(),
-									  this, SLOT( on_drumkitPropertiesAction() ) );
+									  [=](){ editDrumkitProperties( false );} );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
@@ -818,10 +822,7 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	exportDialog.exec();
 }
 
-
-
-void SoundLibraryPanel::on_drumkitPropertiesAction()
-{
+void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	
@@ -839,7 +840,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, true );
+	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate );
 	dialog.exec();
 }
 

@@ -1445,10 +1445,6 @@ Overwrite the existing file?</source>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
-        <source>SoundLibrary Properties</source>
-        <translation>Eigenschaften der Soundbibliothek</translation>
-    </message>
-    <message>
         <source>Saving of this drumkit failed.</source>
         <translation>Speichern des Schlagzeugs ist fehlgeschlagen.</translation>
     </message>
@@ -1459,10 +1455,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Bilddatei (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation>Die Änderung des Schlagzeugnamen führt zum Erzeugen eines neuen Schlagzeuges. Dafür muss das Schlagzeug mittels Rechtsklick geladen werden und Schlagzeug &gt; Speichern Unter im Hauptmenü ausgewählt werden</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
@@ -1482,6 +1474,18 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

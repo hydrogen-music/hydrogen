@@ -1445,10 +1445,6 @@ Overwrite the existing file?</source>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
-        <source>SoundLibrary Properties</source>
-        <translation>サウンドライブラリーのプロパティー</translation>
-    </message>
-    <message>
         <source>Saving of this drumkit failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1458,10 +1454,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1482,6 +1474,18 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

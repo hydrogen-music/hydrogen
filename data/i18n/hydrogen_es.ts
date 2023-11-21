@@ -1448,10 +1448,6 @@ Overwrite the existing file?</source>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
-        <source>SoundLibrary Properties</source>
-        <translation>Propiedades de la Librería de Sonidos</translation>
-    </message>
-    <message>
         <source>Saving of this drumkit failed.</source>
         <translation>Error al guardar drumkit.</translation>
     </message>
@@ -1462,10 +1458,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Archivos de Imagen (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation>Modificar el nombre de un drumkit resultará en la creación de uno nuevo. Para hacerlo, debes cargar el drumkit (si no lo has hecho ya) con clic derecho &gt; cargar y selecciona Drumkits &gt; Guardar Como en el menú principal</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
@@ -1485,6 +1477,18 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
