@@ -20,10 +20,10 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_PROPERTIES_DIALOG_H
-#define SOUND_LIBRARY_PROPERTIES_DIALOG_H
+#ifndef DRUMKIT_PROPERTIES_DIALOG_H
+#define DRUMKIT_PROPERTIES_DIALOG_H
 
-#include "ui_SoundLibraryPropertiesDialog_UI.h"
+#include "ui_DrumkitPropertiesDialog_UI.h"
 #include "../Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
@@ -35,18 +35,18 @@ namespace H2Core
 {
 
 /** \ingroup docGUI*/
-class SoundLibraryPropertiesDialog :  public QDialog,
-									  protected WidgetWithLicenseProperty,
-									  public Ui_SoundLibraryPropertiesDialog_UI,
-									  public H2Core::Object<SoundLibraryPropertiesDialog>
+class DrumkitPropertiesDialog :  public QDialog,
+								 protected WidgetWithLicenseProperty,
+								 public Ui_DrumkitPropertiesDialog_UI,
+								 public H2Core::Object<DrumkitPropertiesDialog>
 {
-	H2_OBJECT(SoundLibraryPropertiesDialog)
+	H2_OBJECT(DrumkitPropertiesDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryPropertiesDialog( QWidget* pParent,
+		DrumkitPropertiesDialog( QWidget* pParent,
 									  std::shared_ptr<Drumkit> pDrumkit,
 									  bool bDrumkitNameLocked );
-		~SoundLibraryPropertiesDialog();
+		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
 	private slots:
@@ -63,7 +63,7 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
-	 * This dialog can be accessed both via SoundLibrary/MainForm >
+	 * This dialog can be accessed both via Drumkit/MainForm >
 	 * Drumkits -> Properties and MainForm > Drumkits -> Save
 	 * As. Historically they were two distinct dialogs featuring
 	 * pretty much exactly the same fields.

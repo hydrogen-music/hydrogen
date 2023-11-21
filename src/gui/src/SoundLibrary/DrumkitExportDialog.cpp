@@ -20,7 +20,7 @@
  *
  */
 
-#include "SoundLibraryExportDialog.h"
+#include "DrumkitExportDialog.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 #include "../Widgets/FileDialog.h"
@@ -31,7 +31,7 @@
 
 using namespace H2Core;
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
+DrumkitExportDialog::DrumkitExportDialog( QWidget* pParent,
 													std::shared_ptr<Drumkit> pDrumkit )
 	: QDialog( pParent ),
 	  m_pDrumkit( pDrumkit )
@@ -59,13 +59,13 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
 	}
 }
 
-SoundLibraryExportDialog::~SoundLibraryExportDialog()
+DrumkitExportDialog::~DrumkitExportDialog()
 {
 }
 
 
 
-void SoundLibraryExportDialog::on_exportBtn_clicked()
+void DrumkitExportDialog::on_exportBtn_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
@@ -138,7 +138,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 							  sTargetName );
 }
 
-void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
+void DrumkitExportDialog::on_drumkitPathTxt_textChanged( QString str )
 {
 	QString path = drumkitPathTxt->text();
 	if (path.isEmpty()) {
@@ -149,7 +149,7 @@ void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
 	}
 }
 
-void SoundLibraryExportDialog::on_browseBtn_clicked()
+void DrumkitExportDialog::on_browseBtn_clicked()
 {
 	QString sPath = Preferences::get_instance()->getLastExportDrumkitDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -173,17 +173,17 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 	}
 }
 
-void SoundLibraryExportDialog::on_cancelBtn_clicked()
+void DrumkitExportDialog::on_cancelBtn_clicked()
 {
 	accept();
 }
 
-void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
+void DrumkitExportDialog::on_versionList_currentIndexChanged( int index )
 {
 	updateComponentList();
 }
 
-void SoundLibraryExportDialog::updateComponentList( )
+void DrumkitExportDialog::updateComponentList( )
 {
 	componentList->clear();
 

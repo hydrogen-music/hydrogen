@@ -20,7 +20,7 @@
  *
  */
 
-#include "SoundLibraryOpenDialog.h"
+#include "DrumkitOpenDialog.h"
 
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "../CommonStrings.h"
@@ -29,7 +29,7 @@
 
 using namespace H2Core;
 
-SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
+DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 	: QDialog( pParent )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -71,26 +71,26 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 }
 
 
-SoundLibraryOpenDialog::~SoundLibraryOpenDialog()
+DrumkitOpenDialog::~DrumkitOpenDialog()
 {
 
 }
 
 
-void SoundLibraryOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
+void DrumkitOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
 {
 	m_pOkBtn->setEnabled( bDrumkitSelected );
 }
 
 
-void SoundLibraryOpenDialog::on_open_btn_clicked()
+void DrumkitOpenDialog::on_open_btn_clicked()
 {
 	m_pSoundLibraryPanel->on_drumkitLoadAction();
 	accept();
 }
 
 
-void SoundLibraryOpenDialog::on_cancel_btn_clicked()
+void DrumkitOpenDialog::on_cancel_btn_clicked()
 {
 	accept();
 }

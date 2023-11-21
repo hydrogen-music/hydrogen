@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SoundLibraryPropertiesDialog_UI</class>
- <widget class="QDialog" name="SoundLibraryPropertiesDialog_UI">
+ <class>DrumkitPropertiesDialog_UI</class>
+ <widget class="QDialog" name="DrumkitPropertiesDialog_UI">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -488,7 +488,7 @@
   <connection>
    <sender>m_cancelBtn</sender>
    <signal>clicked()</signal>
-   <receiver>SoundLibraryPropertiesDialog_UI</receiver>
+   <receiver>DrumkitPropertiesDialog_UI</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

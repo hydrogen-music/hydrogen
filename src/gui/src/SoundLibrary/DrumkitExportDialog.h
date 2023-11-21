@@ -20,35 +20,42 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_OPEN_DIALOG_H
-#define SOUND_LIBRARY_OPEN_DIALOG_H
+#ifndef DRUMKIT_EXPORT_DIALOG_H
+#define DRUMKIT_EXPORT_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>
 
+#include "ui_DrumkitExportDialog_UI.h"
+
 #include <core/Object.h>
+#include <core/Basics/Drumkit.h>
 
-class SoundLibraryPanel;
-
+///
+///
+///
 /** \ingroup docGUI*/
-class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Object<SoundLibraryOpenDialog>
+class DrumkitExportDialog :  public QDialog, public Ui_DrumkitExportDialog_UI,  public H2Core::Object<DrumkitExportDialog>
 {
-	H2_OBJECT(SoundLibraryOpenDialog)
+	H2_OBJECT(DrumkitExportDialog)
 	Q_OBJECT
 	public:
-		explicit SoundLibraryOpenDialog( QWidget* pParent );
-		~SoundLibraryOpenDialog();
+	DrumkitExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
+		~DrumkitExportDialog();
 
-	private slots:
-		void on_soundLib_item_changed( bool bDrumkitSelected );
-
-		void on_cancel_btn_clicked();
-		void on_open_btn_clicked();
-
-	private:
-		SoundLibraryPanel*	m_pSoundLibraryPanel;
-		QPushButton*		m_pOkBtn;
-		QPushButton*		m_pCancelBtn;
+private slots:
+	void on_exportBtn_clicked();
+	void on_browseBtn_clicked();
+	void on_cancelBtn_clicked();
+	void on_versionList_currentIndexChanged( int index );
+	void on_drumkitPathTxt_textChanged( QString str );
+	
+private:
+	void updateComponentList();
+	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
+	QStringList m_components;
 };
 
+
 #endif
+

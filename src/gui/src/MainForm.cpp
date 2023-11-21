@@ -67,9 +67,9 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
-#include "SoundLibrary/SoundLibraryOpenDialog.h"
-#include "SoundLibrary/SoundLibraryExportDialog.h"
-#include "SoundLibrary/SoundLibraryPropertiesDialog.h"
+#include "SoundLibrary/DrumkitOpenDialog.h"
+#include "SoundLibrary/DrumkitExportDialog.h"
+#include "SoundLibrary/DrumkitPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
@@ -1387,7 +1387,7 @@ void MainForm::action_instruments_addComponent()
 
 void MainForm::action_banks_open()
 {
-	SoundLibraryOpenDialog dialog( this );
+	DrumkitOpenDialog dialog( this );
 	dialog.exec();
 }
 
@@ -1470,7 +1470,7 @@ void MainForm::action_instruments_exportLibrary() {
 		return;
 	}
 
-	SoundLibraryExportDialog exportDialog( this, pDrumkit );
+	DrumkitExportDialog exportDialog( this, pDrumkit );
 	exportDialog.exec();
 }
 
@@ -1766,7 +1766,7 @@ void MainForm::onFixMidiSetup()
 void MainForm::onFixMissingSamples()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	SoundLibraryOpenDialog dialog( this );
+	DrumkitOpenDialog dialog( this );
 	dialog.exec();
 
 	m_pMissingSamplesInfoBar->hide();
@@ -2268,7 +2268,7 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		return;
 	}
 
-	SoundLibraryPropertiesDialog dialog( this, pDrumkit, bDrumkitNameLocked );
+	DrumkitPropertiesDialog dialog( this, pDrumkit, bDrumkitNameLocked );
 	dialog.exec();
 }
 

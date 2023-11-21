@@ -28,8 +28,8 @@
 #include "SoundLibraryTree.h"
 #include "FileBrowser.h"
 
-#include "SoundLibraryPropertiesDialog.h"
-#include "SoundLibraryExportDialog.h"
+#include "DrumkitPropertiesDialog.h"
+#include "DrumkitExportDialog.h"
 
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
@@ -818,7 +818,7 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
 	
-	SoundLibraryExportDialog exportDialog( this, pDrumkit );
+	DrumkitExportDialog exportDialog( this, pDrumkit );
 	exportDialog.exec();
 }
 
@@ -840,7 +840,7 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate );
+	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate );
 	dialog.exec();
 }
 

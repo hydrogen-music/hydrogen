@@ -26,9 +26,8 @@
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 
-#include "SoundLibraryPropertiesDialog.h"
+#include "DrumkitPropertiesDialog.h"
 #include "../InstrumentRack.h"
-#include "SoundLibraryPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
@@ -41,13 +40,13 @@
 namespace H2Core
 {
 
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkit, bool bDrumkitNameLocked )
+DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkit, bool bDrumkitNameLocked )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bDrumkitNameLocked( bDrumkitNameLocked )
  , m_sNewImagePath( "" )
 {
-	setObjectName( "SoundLibraryPropertiesDialog" );
+	setObjectName( "DrumkitPropertiesDialog" );
 	
 	setupUi( this );
 
@@ -197,13 +196,13 @@ QTextEdit { \
 }
 
 
-SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
+DrumkitPropertiesDialog::~DrumkitPropertiesDialog()
 {
 	INFOLOG( "DESTROY" );
 }
 
 /// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
-void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
+void DrumkitPropertiesDialog::showEvent( QShowEvent *e )
 {
 	if ( m_pDrumkit != nullptr &&
 		 ! m_pDrumkit->getImage().isEmpty() ) {
@@ -215,7 +214,7 @@ void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateLicensesTable() {
+void DrumkitPropertiesDialog::updateLicensesTable() {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
@@ -282,7 +281,7 @@ void SoundLibraryPropertiesDialog::updateLicensesTable() {
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateMappingTable() {
+void DrumkitPropertiesDialog::updateMappingTable() {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
@@ -367,7 +366,7 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 	mappingTable->setRowCount( nnCell );
 }
 
-void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
+void DrumkitPropertiesDialog::licenseComboBoxChanged( int ) {
 
 	licenseStringTxt->setText( License::LicenseTypeToQString(
 		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
@@ -384,7 +383,7 @@ void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
 	updateLicensesTable();
 }
 	
-void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
+void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 
 	imageLicenseStringTxt->setText( License::LicenseTypeToQString(
 		static_cast<License::LicenseType>( imageLicenseComboBox->currentIndex() ) ) );
@@ -399,7 +398,7 @@ void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateImage( QString& filename )
+void DrumkitPropertiesDialog::updateImage( QString& filename )
 {
 	QPixmap *pPixmap = new QPixmap ( filename );
 
@@ -434,7 +433,7 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 
 }
 
-void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
+void DrumkitPropertiesDialog::on_imageBrowsePushButton_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		return;
@@ -459,7 +458,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	updateImage( sFilePath );
 }
 
-void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
+void DrumkitPropertiesDialog::on_saveBtn_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		return;
@@ -605,7 +604,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 }
 
-void SoundLibraryPropertiesDialog::saveDrumkitMap() {
+void DrumkitPropertiesDialog::saveDrumkitMap() {
 	auto pMap = std::make_shared<DrumkitMap>();
 
 	for ( int ii = 0; ii < mappingTable->rowCount(); ++ii ) {
