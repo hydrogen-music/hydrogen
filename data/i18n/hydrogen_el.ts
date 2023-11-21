@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Σταμάτημα</translation>
+        <translation>Σταμάτημα</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Σίγηση</translation>
+        <translation>Σίγηση</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Γενικά</translation>
+        <translation>Γενικά</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">Όργανο</translation>
+        <translation>Όργανο</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Στρώματα</translation>
+        <translation>Στρώματα</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Μείκτης</translation>
+        <translation>Μείκτης</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -461,22 +461,22 @@ B</source>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Πτώση</translation>
+        <translation>Πτώση</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Διάρκεια</translation>
+        <translation>Διάρκεια</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Απελευθέρωση</translation>
+        <translation>Απελευθέρωση</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Κανάλι</translation>
+        <translation>Κανάλι</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Εισαγόμενο</translation>
+        <translation>Εισαγόμενο</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">Χτ.ΑνάΛεπ.</translation>
+        <translation>Χτ.ΑνάΛεπ.</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">Ταχύτητα</translation>
+        <translation>Ταχύτητα</translation>
     </message>
     <message>
         <source>Master</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">ανενεργό</translation>
+        <translation>ανενεργό</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -796,27 +796,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Εντάξει</translation>
+        <translation>&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Αποθήκευση</translation>
+        <translation>&amp;Αποθήκευση</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Α&amp;κύρωση</translation>
+        <translation>Α&amp;κύρωση</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Από&amp;ρριψη</translation>
+        <translation>Από&amp;ρριψη</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Ανα&amp;παραγωγή</translation>
+        <translation>Ανα&amp;παραγωγή</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -929,12 +929,12 @@ Are you sure?</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Πανόψη</translation>
+        <translation>Πανόψη</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Αποκοπή Φίλτρου</translation>
+        <translation>Αποκοπή Φίλτρου</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -959,7 +959,7 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Συστατικό</translation>
+        <translation>Συστατικό</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -969,21 +969,41 @@ Are you sure?</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Άδεια</translation>
+        <translation>Άδεια</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Προσθήκη</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Προσθήκη</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Διαγραφή</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Διαγραφή</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Φόρτωμα</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Ιδιότητες</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1073,7 +1093,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
+        <translation>Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1082,14 +1102,14 @@ Are you sure?</source>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Το αρχείο % υπάρχει. Να επανωγραφεί;</translation>
+        <translation>Το αρχείο % υπάρχει. Να επανωγραφεί;</translation>
     </message>
 </context>
 <context>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Διάλογος</translation>
+        <translation>Διάλογος</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1097,11 +1117,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">Εξε&amp;ρεύνηση...</translation>
+        <translation>Εξε&amp;ρεύνηση...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1109,19 +1129,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
+        <translation>&amp;Εξαγωγή</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Κλείσιμο</translation>
+        <translation>&amp;Κλείσιμο</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -1354,7 +1374,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Άνοιγμα</translation>
+        <translation>Άνοιγμα</translation>
     </message>
     <message>
         <source>Temporary directory</source>
@@ -1482,7 +1502,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Σφάλμα στο φόρτωμα του τραγουδιού.</translation>
+        <translation>Σφάλμα στο φόρτωμα του τραγουδιού.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1730,7 +1750,7 @@ Value</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Όργανο</translation>
+        <translation>Όργανο</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -2266,7 +2286,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
+        <translation>&amp;Εξαγωγή</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2683,19 +2703,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">Α&amp;κύρωση</translation>
+        <translation>Α&amp;κύρωση</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;Εντάξει</translation>
+        <translation>&amp;Εντάξει</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
@@ -2967,7 +2987,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">ανενεργό</translation>
+        <translation>ανενεργό</translation>
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
@@ -3548,7 +3568,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Γενικά</translation>
+        <translation>Γενικά</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3668,7 +3688,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Επεξεργαστής Τραγουδιού</translation>
+        <translation>Επεξεργαστής Τραγουδιού</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3776,7 +3796,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
+        <translation>Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4371,7 +4391,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Καθάρισμα</translation>
+        <translation>&amp;Καθάρισμα</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4442,7 +4462,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Καθάρισμα των στιγμάτων</translation>
+        <translation>Καθάρισμα των στιγμάτων</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -5220,7 +5240,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Προβολή του Μείκτη</translation>
+        <translation>Προβολή του Μείκτη</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5657,14 +5677,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Διαγραφή</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Ιδιότητες</translation>
-    </message>
-    <message>
         <source>Load Pattern</source>
         <translation>Φόρτωμα Μήτρας</translation>
     </message>
@@ -5689,7 +5701,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Αδυναμία εξαγωγής της μήτρας.</translation>
+        <translation>Αδυναμία εξαγωγής της μήτρας.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
@@ -5697,11 +5709,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Αποθηκεύτηκε η μήτρα.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποθηκεύτηκε η μήτρα.</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5777,7 +5785,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
+        <translation>&amp;Εξαγωγή</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5801,7 +5809,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Όλα</translation>
+        <translation>Όλα</translation>
     </message>
 </context>
 <context>
@@ -5975,33 +5983,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation>Άνοιγμα Βιβλιοθήκης Ήχων</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>Φόρτωμα</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Φόρτωμα</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Εξαγωγή</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Ιδιότητες</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Διαγραφή</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Ομάδες κρουστών του συστήματος</translation>
@@ -6125,7 +6109,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Γενικά</translation>
+        <translation>Γενικά</translation>
     </message>
 </context>
 <context>
@@ -6159,7 +6143,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Κλείσιμο</translation>
+        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>

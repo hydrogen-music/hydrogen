@@ -23,6 +23,7 @@
 #include "SoundLibraryOpenDialog.h"
 
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
@@ -31,6 +32,7 @@ using namespace H2Core;
 SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 	: QDialog( pParent )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	setWindowTitle( tr( "Open Sound Library" ) );
 	setFixedSize( 280, 380 );
@@ -50,10 +52,10 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	pButtonsBox->addStretch();
 
-	m_pOkBtn = new QPushButton( tr("Load") );
+	m_pOkBtn = new QPushButton( pCommonStrings->getMenuActionLoad() );
 	pButtonsBox->addWidget( m_pOkBtn );
 
-	m_pCancelBtn = new QPushButton( tr("Cancel") );
+	m_pCancelBtn = new QPushButton( pCommonStrings->getButtonCancel() );
 	pButtonsBox->addWidget( m_pCancelBtn );
 
 	pButtonsBox->addStretch();

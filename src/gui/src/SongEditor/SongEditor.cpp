@@ -1413,6 +1413,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  , m_pBackgroundPixmap( nullptr )
  , m_nRowHovered( -1 )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
@@ -1441,10 +1442,13 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	m_pPatternPopup->addAction( tr("Duplicate"),  this, SLOT( patternPopup_duplicate() ) );
-	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDuplicate(), this,
+								SLOT( patternPopup_duplicate() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionDelete(), this,
+								SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
-	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( pCommonStrings->getMenuActionProperties(), this,
+								SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( tr("Load Pattern"),  this, SLOT( patternPopup_load() ) );
 	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
 	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );

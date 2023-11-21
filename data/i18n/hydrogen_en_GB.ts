@@ -973,17 +973,37 @@ Are you sure?</source>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5572,14 +5592,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Load Pattern</source>
         <translation></translation>
     </message>
@@ -5610,10 +5622,6 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
         <translation></translation>
     </message>
     <message>
@@ -5888,33 +5896,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation></translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation></translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation></translation>

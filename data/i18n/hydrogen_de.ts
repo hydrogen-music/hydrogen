@@ -962,32 +962,52 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Komponente</translation>
+        <translation>Komponente</translation>
     </message>
     <message>
         <source>Sample</source>
         <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
-        <translation type="unfinished">Sample</translation>
+        <translation>Sample</translation>
     </message>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Lizenz</translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Hinzufügen</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Löschen</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Laden</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Eigenschaften</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Duplizieren</translation>
     </message>
 </context>
 <context>
@@ -5653,14 +5673,6 @@ Fortsetzen?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Eigenschaften</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Speichere Pattern</translation>
     </message>
@@ -5697,10 +5709,6 @@ Soll sie überschrieben werden?</translation>
     <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation>Pattern konnte nicht in temporären Ordner gespeichert.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>Duplizieren</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5970,29 +5978,9 @@ Soll sie überschrieben werden?</translation>
         <source>Open Sound Library</source>
         <translation>Öffne Soundbibliothek</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>Laden</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Laden</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Exportieren</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Schlagzeuge des Systems</translation>
@@ -6008,10 +5996,6 @@ Soll sie überschrieben werden?</translation>
     <message>
         <source>Patterns</source>
         <translation>Pattern</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Eigenschaften</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -6115,7 +6099,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Übersicht</translation>
+        <translation>Übersicht</translation>
     </message>
 </context>
 <context>

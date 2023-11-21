@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">静音</translation>
+        <translation>静音</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">乐器</translation>
+        <translation>乐器</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">层</translation>
+        <translation>层</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">混音器</translation>
+        <translation>混音器</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -456,27 +456,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">延音</translation>
+        <translation>延音</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">释音</translation>
+        <translation>释音</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">通道</translation>
+        <translation>通道</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">BPM</translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -638,7 +638,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">摇摆</translation>
+        <translation>摇摆</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">力度</translation>
+        <translation>力度</translation>
     </message>
     <message>
         <source>Master</source>
@@ -693,7 +693,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Show piano roll editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
-        <translation type="unfinished">显示钢琴卷帘编辑器</translation>
+        <translation>显示钢琴卷帘编辑器</translation>
     </message>
     <message>
         <source>Unable to start audio driver!</source>
@@ -717,7 +717,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>JACK timebase support is disabled in the Preferences</source>
-        <translation type="unfinished">在首选项中禁用了 JACK Timebase 支持</translation>
+        <translation>在首选项中禁用了 JACK Timebase 支持</translation>
     </message>
     <message>
         <source>Waiting...</source>
@@ -740,7 +740,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished">无法加载乐器</translation>
+        <translation>无法加载乐器</translation>
     </message>
     <message>
         <source>on</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">关</translation>
+        <translation>关</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -772,7 +772,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation type="unfinished">使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
+        <translation>使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
@@ -781,12 +781,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Not compiled</source>
         <extracomment>Displayed in the Preferences dialog in the info section for a particular driver in case it is not properly supported on the system.</extracomment>
-        <translation type="unfinished">未编译</translation>
+        <translation>未编译</translation>
     </message>
     <message>
         <source>None</source>
         <extracomment>Displayed in the Preferences dialog within a driver combobox in case no driver was selected.</extracomment>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Both buffer size and sample rate can only be altered in the configuration of the JACK server itself.</source>
@@ -796,27 +796,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">确定(&amp;O)</translation>
+        <translation>确定(&amp;O)</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">保存(&amp;S)</translation>
+        <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">取消(&amp;C)</translation>
+        <translation>取消(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">丢弃(&amp;D)</translation>
+        <translation>丢弃(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">播放(&amp;P)</translation>
+        <translation>播放(&amp;P)</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -828,12 +828,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
 Are you sure?</source>
         <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
 &apos; character introduces a linebreak and must not be translated</extracomment>
-        <translation type="unfinished">有未保存的更改。这些更改将丢失。
+        <translation>有未保存的更改。这些更改将丢失。
 是否确定？</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation type="unfinished">不再显示此消息</translation>
+        <translation>不再显示此消息</translation>
     </message>
     <message>
         <source>License String</source>
@@ -930,12 +930,12 @@ Are you sure?</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">声相</translation>
+        <translation>声相</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">截频过滤器</translation>
+        <translation>截频过滤器</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -960,7 +960,7 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">组件</translation>
+        <translation>组件</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -970,22 +970,42 @@ Are you sure?</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">许可协议</translation>
+        <translation>许可协议</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">添加</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">删除</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>加载</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>导出</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>属性</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>重复</translation>
     </message>
 </context>
 <context>
@@ -1519,7 +1539,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished">乐曲另存为： </translation>
+        <translation>乐曲另存为： </translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
@@ -3545,7 +3565,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3665,7 +3685,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">乐曲编辑器</translation>
+        <translation>乐曲编辑器</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3773,7 +3793,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">启动音频驱动时出错</translation>
+        <translation>启动音频驱动时出错</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4254,7 +4274,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>B</source>
-        <translation type="unfinished">B</translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>S</source>
@@ -4270,7 +4290,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>R</source>
@@ -4366,7 +4386,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">清除(&amp;C)</translation>
+        <translation>清除(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4378,7 +4398,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">重复</translation>
+        <translation>重复</translation>
     </message>
 </context>
 <context>
@@ -5215,7 +5235,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">显示混音器</translation>
+        <translation>显示混音器</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5651,14 +5671,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>属性</translation>
-    </message>
-    <message>
         <source>Load Pattern</source>
         <translation>加载样式</translation>
     </message>
@@ -5691,10 +5703,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>重复</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5770,7 +5778,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">导出(&amp;E)</translation>
+        <translation>导出(&amp;E)</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5794,7 +5802,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">全部</translation>
+        <translation>全部</translation>
     </message>
 </context>
 <context>
@@ -5968,33 +5976,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation>打开声音库</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>加载</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>加载</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>导出</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>属性</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>系统鼓组</translation>
@@ -6115,7 +6099,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
 </context>
 <context>

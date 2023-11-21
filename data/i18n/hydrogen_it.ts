@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Escludi</translation>
+        <translation>Escludi</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">Strumento</translation>
+        <translation>Strumento</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Livelli</translation>
+        <translation>Livelli</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -456,27 +456,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">Attacco</translation>
+        <translation>Attacco</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Decadimento</translation>
+        <translation>Decadimento</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Sostegno</translation>
+        <translation>Sostegno</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Rilascio</translation>
+        <translation>Rilascio</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Canale</translation>
+        <translation>Canale</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Ingresso</translation>
+        <translation>Ingresso</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">BPM</translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -638,7 +638,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Swing</translation>
+        <translation>Swing</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">Velocità</translation>
+        <translation>Velocità</translation>
     </message>
     <message>
         <source>Master</source>
@@ -693,7 +693,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Show piano roll editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
-        <translation type="unfinished">Mostra editor del piano</translation>
+        <translation>Mostra editor del piano</translation>
     </message>
     <message>
         <source>Unable to start audio driver!</source>
@@ -740,7 +740,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished">Non è possibile caricare lo strumento</translation>
+        <translation>Non è possibile caricare lo strumento</translation>
     </message>
     <message>
         <source>on</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">off</translation>
+        <translation>off</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -801,12 +801,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Salva</translation>
+        <translation>&amp;Salva</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -816,7 +816,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Ri&amp;produci</translation>
+        <translation>Ri&amp;produci</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -929,12 +929,12 @@ Are you sure?</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Pan</translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Filtro di taglio</translation>
+        <translation>Filtro di taglio</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -959,7 +959,7 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Componente</translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -969,21 +969,41 @@ Are you sure?</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Licenza</translation>
+        <translation>Licenza</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Aggiungi</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Elimina</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Apri</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Esporta</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Proprietà</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1314,7 +1334,7 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
@@ -1518,7 +1538,7 @@ Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</transl
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished">Canzone salvata con nome: </translation>
+        <translation>Canzone salvata con nome: </translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
@@ -2141,7 +2161,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished">Non è possibile salvare la libreria.</translation>
+        <translation>Non è possibile salvare la libreria.</translation>
     </message>
     <message>
         <source>Drum&amp;kits</source>
@@ -2545,7 +2565,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
@@ -2654,15 +2674,15 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
@@ -2681,7 +2701,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">Pulisci selezione</translation>
+        <translation>Pulisci selezione</translation>
     </message>
     <message>
         <source>B</source>
@@ -2740,19 +2760,19 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternEditor</name>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished">&amp;Taglia</translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Copia</translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Incolla</translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Elimina</translation>
+        <translation>&amp;Elimina</translation>
     </message>
     <message>
         <source>Select &amp;all</source>
@@ -2760,7 +2780,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished">Pulisci selezione</translation>
+        <translation>Pulisci selezione</translation>
     </message>
     <message>
         <source>Placing these notes here will overwrite %1 duplicate notes.</source>
@@ -2938,7 +2958,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">off</translation>
+        <translation>off</translation>
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
@@ -3512,7 +3532,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3740,7 +3760,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Errore durante l&apos;avvio del driver audio</translation>
+        <translation>Errore durante l&apos;avvio del driver audio</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4333,7 +4353,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Svuota</translation>
+        <translation>&amp;Svuota</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4404,7 +4424,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Elimina note</translation>
+        <translation>Elimina note</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -5159,7 +5179,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Mostra mixer</translation>
+        <translation>Mostra mixer</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5595,14 +5615,6 @@ Confermi?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Elimina</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Proprietà</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Salva Pattern</translation>
     </message>
@@ -5626,7 +5638,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Non riesco a esportare il modello.</translation>
+        <translation>Non riesco a esportare il modello.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
@@ -5634,11 +5646,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Pattern salvato.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern salvato.</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5714,7 +5722,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Esporta</translation>
+        <translation>&amp;Esporta</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5738,7 +5746,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Tutti</translation>
+        <translation>Tutti</translation>
     </message>
 </context>
 <context>
@@ -5912,29 +5920,9 @@ Sovrascrivere il modello esistente?</translation>
         <source>Open Sound Library</source>
         <translation>Apri libreria sonora</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>Apri</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annulla</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Apri</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Esporta</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Elimina</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Drumkit di sistema</translation>
@@ -5950,10 +5938,6 @@ Sovrascrivere il modello esistente?</translation>
     <message>
         <source>Patterns</source>
         <translation>Pattern</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Proprietà</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -6057,7 +6041,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
 </context>
 <context>

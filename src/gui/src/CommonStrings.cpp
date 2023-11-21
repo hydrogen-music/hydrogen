@@ -484,15 +484,20 @@ CommonStrings::CommonStrings(){
 		/*: Shown in table headers when referring to a license of an object.*/
 	m_sLicense = tr( "License" );
 
-	/*: Names an action in e.g. the component drop down menu in the instrument
-	 *  editor*/
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionAdd = tr( "Add" );
-	/*: Names an action in e.g. the component drop down menu in the instrument
-	 *  editor*/
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionDelete = tr( "Delete" );
-	/*: Names an action in e.g. the component drop down menu in the instrument
-	 *  editor*/
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionRename = tr( "Rename" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionLoad = tr( "Load" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionExport = tr( "Export" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionProperties = tr( "Properties" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionDuplicate = tr( "Duplicate" );
 
 }
 

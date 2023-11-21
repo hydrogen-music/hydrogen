@@ -75,32 +75,44 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __pattern_item_list( nullptr )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	__drumkit_menu = new QMenu( this );
-	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
-	__drumkit_menu->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
-	__drumkit_menu->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionLoad(), this,
+							   SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionExport(), this,
+							   SLOT( on_drumkitExportAction() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionProperties(), this,
+							   SLOT( on_drumkitPropertiesAction() ) );
 	__drumkit_menu->addSeparator();
-	__drumkit_menu->addAction( tr( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionDelete(), this,
+							   SLOT( on_drumkitDeleteAction() ) );
 
 	// A version with reduced functionality for read-only drumkits
 	__drumkit_menu_system = new QMenu( this );
-	__drumkit_menu_system->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
-	__drumkit_menu_system->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
-	__drumkit_menu_system->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
+	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionLoad(), this,
+									  SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionExport(), this,
+									  SLOT( on_drumkitExportAction() ) );
+	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionProperties(),
+									  this, SLOT( on_drumkitPropertiesAction() ) );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
-	__song_menu->addAction( tr( "Load" ), this, SLOT( on_songLoadAction() ) );
+	__song_menu->addAction( pCommonStrings->getMenuActionLoad(), this,
+							SLOT( on_songLoadAction() ) );
 
 	__pattern_menu = new QMenu( this );
 	__pattern_menu->addSeparator();
-	__pattern_menu->addAction( tr( "Load" ), this, SLOT( on_patternLoadAction() ) );
-	__pattern_menu->addAction( tr( "Delete" ), this, SLOT( on_patternDeleteAction() ) );
+	__pattern_menu->addAction( pCommonStrings->getMenuActionLoad(), this,
+							   SLOT( on_patternLoadAction() ) );
+	__pattern_menu->addAction( pCommonStrings->getMenuActionDelete(), this,
+							   SLOT( on_patternDeleteAction() ) );
 
 	__pattern_menu_list = new QMenu( this );
 	__pattern_menu_list->addSeparator();
-	__pattern_menu_list->addAction( tr( "Load" ), this, SLOT( on_patternLoadAction() ) );
+	__pattern_menu_list->addAction( pCommonStrings->getMenuActionLoad(), this,
+									SLOT( on_patternLoadAction() ) );
 
 // DRUMKIT LIST
 	__sound_library_tree = new SoundLibraryTree( nullptr );

@@ -963,32 +963,52 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Componente</translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Sample</source>
         <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
-        <translation type="unfinished">Sample</translation>
+        <translation>Sample</translation>
     </message>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Licencia</translation>
+        <translation>Licencia</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Añadir</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Añadir</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Eliminar</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Cargar</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Propiedades</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Duplicar</translation>
     </message>
 </context>
 <context>
@@ -5670,14 +5690,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Eliminar</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Propiedades</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Guardar Patrón</translation>
     </message>
@@ -5710,10 +5722,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Pattern saved.</source>
         <translation>Patrón guardado.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>Duplicar</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5987,29 +5995,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation>Abrir Librería de Sonidos</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>Cargar</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Cargar</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Exportar</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Eliminar</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Drumkits del sistema</translation>
@@ -6025,10 +6013,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Patterns</source>
         <translation>Patrones</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Propiedades</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -6134,7 +6118,7 @@ Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y ma
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">General</translation>
+        <translation>General</translation>
     </message>
 </context>
 <context>

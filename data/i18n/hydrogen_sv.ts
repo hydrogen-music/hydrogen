@@ -5,7 +5,7 @@
     <name>AboutDialog</name>
     <message>
         <source>About</source>
-        <translation type="unfinished">Om</translation>
+        <translation>Om</translation>
     </message>
     <message>
         <source>Website</source>
@@ -48,19 +48,19 @@
     <name>AboutDialog_UI</name>
     <message>
         <source>About Hydrogen</source>
-        <translation type="unfinished">Om Hydrogen</translation>
+        <translation>Om Hydrogen</translation>
     </message>
     <message>
         <source>A&amp;bout</source>
-        <translation type="unfinished">Om</translation>
+        <translation>Om</translation>
     </message>
     <message>
         <source>&amp;Authors</source>
-        <translation type="unfinished">&amp;Upphovsmän</translation>
+        <translation>&amp;Upphovsmän</translation>
     </message>
     <message>
         <source>&amp;License</source>
-        <translation type="unfinished">&amp;Licens</translation>
+        <translation>&amp;Licens</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -86,31 +86,31 @@
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Process time</source>
-        <translation type="unfinished">Process tid</translation>
+        <translation>Process tid</translation>
     </message>
     <message>
         <source>Song position</source>
-        <translation type="unfinished">Sång position</translation>
+        <translation>Sång position</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Mönster</translation>
+        <translation>Mönster</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation type="unfinished">Valt mönster</translation>
+        <translation>Valt mönster</translation>
     </message>
     <message>
         <source>Selected instrument</source>
-        <translation type="unfinished">Valt instrument</translation>
+        <translation>Valt instrument</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Buffer storlek</translation>
+        <translation>Buffer storlek</translation>
     </message>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished">Kopplad till</translation>
+        <translation>Kopplad till</translation>
     </message>
     <message>
         <source>###</source>
@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stopp</translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -268,7 +268,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Ljudlöst</translation>
+        <translation>Ljudlöst</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -476,7 +476,7 @@ B</source>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Kanal</translation>
+        <translation>Kanal</translation>
     </message>
     <message>
         <source>Note</source>
@@ -801,17 +801,17 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Spara</translation>
+        <translation>&amp;Spara</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;No</translation>
+        <translation>&amp;No</translation>
     </message>
     <message>
         <source>&amp;Play</source>
@@ -973,17 +973,37 @@ Are you sure?</source>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Ta bort</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Ladda</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Exportera</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Egenskaper</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -991,7 +1011,7 @@ Are you sure?</source>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Ljudlöst</translation>
+        <translation>Ljudlöst</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -1073,7 +1093,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Exportera MIDI fil</translation>
+        <translation>Exportera MIDI fil</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1097,7 +1117,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Bläddra...</translation>
+        <translation>&amp;Bläddra...</translation>
     </message>
     <message>
         <source>Alt+B</source>
@@ -1109,7 +1129,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportera</translation>
+        <translation>&amp;Exportera</translation>
     </message>
     <message>
         <source>Alt+E</source>
@@ -1117,7 +1137,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Stäng</translation>
+        <translation>&amp;Stäng</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -1128,7 +1148,7 @@ Overwrite the existing file?</source>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation type="unfinished">Exportera sång</translation>
+        <translation>Exportera sång</translation>
     </message>
     <message>
         <source>The file %1 exists. 
@@ -1168,15 +1188,15 @@ Overwrite the existing file?</source>
     <name>ExportSongDialog_UI</name>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Bläddra...</translation>
+        <translation>&amp;Bläddra...</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportera</translation>
+        <translation>&amp;Exportera</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Stäng</translation>
+        <translation>&amp;Stäng</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -1466,7 +1486,7 @@ Overwrite the existing file?</source>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Sång Editor</translation>
+        <translation>Sång Editor</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -1482,7 +1502,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Kunde inte ladda sång.</translation>
+        <translation>Kunde inte ladda sång.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1533,23 +1553,23 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
-        <translation type="unfinished">Slumpvald pitch faktor</translation>
+        <translation>Slumpvald pitch faktor</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation type="unfinished">Filter resonans</translation>
+        <translation>Filter resonans</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
-        <translation type="unfinished">Visa instrument egenskaper</translation>
+        <translation>Visa instrument egenskaper</translation>
     </message>
     <message>
         <source>Show layers properties</source>
-        <translation type="unfinished">Visa lager egenskaper</translation>
+        <translation>Visa lager egenskaper</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nytt instrument namn</translation>
+        <translation>Nytt instrument namn</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
@@ -1640,7 +1660,7 @@ Value</source>
     <name>InstrumentLine</name>
     <message>
         <source>Randomize velocity</source>
-        <translation type="unfinished">Slumpvald hastighet</translation>
+        <translation>Slumpvald hastighet</translation>
     </message>
     <message>
         <source>Delete instrument</source>
@@ -1690,7 +1710,7 @@ Value</source>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nytt instrument namn</translation>
+        <translation>Nytt instrument namn</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
@@ -1756,46 +1776,46 @@ Value</source>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>FX bypass</source>
-        <translation type="unfinished">FX förbikoppling</translation>
+        <translation>FX förbikoppling</translation>
     </message>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished">Ändra FX parametrar</translation>
+        <translation>Ändra FX parametrar</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation type="unfinished">Ladspa FX namn</translation>
+        <translation>Ladspa FX namn</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation type="unfinished">Effekt retur</translation>
+        <translation>Effekt retur</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished">Välj FX</translation>
+        <translation>Välj FX</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished">Aktivera</translation>
+        <translation>Aktivera</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished">[%1] LADSPA FX Egenskaper</translation>
+        <translation>[%1] LADSPA FX Egenskaper</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished">Deaktivera</translation>
+        <translation>Deaktivera</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation type="unfinished">LADSPA FX %1 Egenskaper</translation>
+        <translation>LADSPA FX %1 Egenskaper</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation type="unfinished">Inget plugin</translation>
+        <translation>Inget plugin</translation>
     </message>
     <message>
         <source>Remove FX</source>
@@ -1814,11 +1834,11 @@ Value</source>
     <name>LadspaFXSelector</name>
     <message>
         <source>Select LADSPA FX</source>
-        <translation type="unfinished">Välj LADSPA FX</translation>
+        <translation>Välj LADSPA FX</translation>
     </message>
     <message>
         <source>Groups</source>
-        <translation type="unfinished">Grupper</translation>
+        <translation>Grupper</translation>
     </message>
     <message>
         <source>Stereo</source>
@@ -1849,11 +1869,11 @@ Value</source>
     <name>LadspaFXSelector_UI</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>### fx type</source>
-        <translation type="unfinished">### fx typ</translation>
+        <translation>### fx typ</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -1962,67 +1982,67 @@ MIDI = %2</source>
     <name>MainForm</name>
     <message>
         <source>Hydrogen Ready.</source>
-        <translation type="unfinished">Hydrogen Klar.</translation>
+        <translation>Hydrogen Klar.</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Ny</translation>
+        <translation>&amp;Ny</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished">&amp;Öppna...</translation>
+        <translation>&amp;Öppna...</translation>
     </message>
     <message>
         <source>Open &amp;Demo</source>
-        <translation type="unfinished">Öppna &amp;Demo...</translation>
+        <translation>Öppna &amp;Demo...</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">&amp;Spara</translation>
+        <translation>&amp;Spara</translation>
     </message>
     <message>
         <source>&amp;Preferences</source>
-        <translation type="unfinished">&amp;Inställningar...</translation>
+        <translation>&amp;Inställningar...</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">&amp;Avsluta</translation>
+        <translation>&amp;Avsluta</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation type="unfinished">&amp;Om...</translation>
+        <translation>&amp;Om...</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation type="unfinished">Spara sång</translation>
+        <translation>Spara sång</translation>
     </message>
     <message>
         <source>Open song</source>
-        <translation type="unfinished">Öppna sång</translation>
+        <translation>Öppna sång</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
-        <translation type="unfinished">Okänd ljud drivrutin</translation>
+        <translation>Okänd ljud drivrutin</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Kunde inte starta ljud drivrutin</translation>
+        <translation>Kunde inte starta ljud drivrutin</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation type="unfinished">Jack drivrutin: server nedstängd</translation>
+        <translation>Jack drivrutin: server nedstängd</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation type="unfinished">Jack drivrutin: kan inte aktivera klient</translation>
+        <translation>Jack drivrutin: kan inte aktivera klient</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation type="unfinished">Jack drivrutin: kan inte koppla output port</translation>
+        <translation>Jack drivrutin: kan inte koppla output port</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation type="unfinished">Jack drivrutin: fel i port register</translation>
+        <translation>Jack drivrutin: fel i port register</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
@@ -2217,7 +2237,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportera</translation>
+        <translation>&amp;Exportera</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2443,11 +2463,11 @@ The session needs to be saved before exporting will can be continued.
     <name>MasterMixerLine</name>
     <message>
         <source>Humanize velocity</source>
-        <translation type="unfinished">Förmänskliga hastighet</translation>
+        <translation>Förmänskliga hastighet</translation>
     </message>
     <message>
         <source>Humanize time</source>
-        <translation type="unfinished">Förmänskliga tid</translation>
+        <translation>Förmänskliga tid</translation>
     </message>
     <message>
         <source>Set master volume [%1]</source>
@@ -2513,7 +2533,7 @@ The session needs to be saved before exporting will can be continued.
     <name>Mixer</name>
     <message>
         <source>Show FX panel</source>
-        <translation type="unfinished">Visa FX panel</translation>
+        <translation>Visa FX panel</translation>
     </message>
     <message>
         <source>Show instrument peaks</source>
@@ -2552,11 +2572,11 @@ The session needs to be saved before exporting will can be continued.
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation type="unfinished">Spela sample</translation>
+        <translation>Spela sample</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Ljudlöst</translation>
+        <translation>Ljudlöst</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -2642,7 +2662,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -2814,27 +2834,27 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
-        <translation type="unfinished">Hör nya noter</translation>
+        <translation>Hör nya noter</translation>
     </message>
     <message>
         <source>Zoom in</source>
-        <translation type="unfinished">Zooma in</translation>
+        <translation>Zooma in</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation type="unfinished">Zooma ut</translation>
+        <translation>Zooma ut</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation type="unfinished">Mönster editor - %1</translation>
+        <translation>Mönster editor - %1</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation type="unfinished">Hör nya noter = På</translation>
+        <translation>Hör nya noter = På</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation type="unfinished">Hör nya noter = Av</translation>
+        <translation>Hör nya noter = Av</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
@@ -2941,30 +2961,30 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation type="unfinished">Fyll med valt mönster</translation>
+        <translation>Fyll med valt mönster</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
         <source>&amp;Fill</source>
-        <translation type="unfinished">&amp;Fyll</translation>
+        <translation>&amp;Fyll</translation>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Rensa</translation>
+        <translation>&amp;Rensa</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished">Till:</translation>
+        <translation>Till:</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished">Från:</translation>
+        <translation>Från:</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Form 1</source>
@@ -2987,18 +3007,18 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation type="unfinished">Mönster egenskaper</translation>
+        <translation>Mönster egenskaper</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation type="unfinished">Nytt Mönster Namn</translation>
+        <translation>Nytt Mönster Namn</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -3043,55 +3063,55 @@ The session needs to be saved before exporting will can be continued.
     <name>PlayerControl</name>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Tillbakaspolning</translation>
+        <translation>Tillbakaspolning</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation type="unfinished">Spela/ Pause</translation>
+        <translation>Spela/ Pause</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stopp</translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Snabbt Fram</translation>
+        <translation>Snabbt Fram</translation>
     </message>
     <message>
         <source>Loop song</source>
-        <translation type="unfinished">Loopa sång</translation>
+        <translation>Loopa sång</translation>
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation type="unfinished">Mönster Läge</translation>
+        <translation>Mönster Läge</translation>
     </message>
     <message>
         <source>Song Mode</source>
-        <translation type="unfinished">Sång Läge</translation>
+        <translation>Sång Läge</translation>
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">Spelar.</translation>
+        <translation>Spelar.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Stoppad.</translation>
+        <translation>Stoppad.</translation>
     </message>
     <message>
         <source>Song mode selected.</source>
-        <translation type="unfinished">Sång läge valt.</translation>
+        <translation>Sång läge valt.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation type="unfinished">Mönster läge valt.</translation>
+        <translation>Mönster läge valt.</translation>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation type="unfinished">Loopa sång = På</translation>
+        <translation>Loopa sång = På</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation type="unfinished">Loopa sång = Av</translation>
+        <translation>Loopa sång = Av</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -3339,7 +3359,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Tillbakaspolning</translation>
+        <translation>Tillbakaspolning</translation>
     </message>
     <message>
         <source>Play/ Pause/ Load selected song</source>
@@ -3347,11 +3367,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stopp</translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Snabbt Fram</translation>
+        <translation>Snabbt Fram</translation>
     </message>
     <message>
         <source>Please save your song first</source>
@@ -3418,7 +3438,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Inställningar</translation>
+        <translation>Inställningar</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
@@ -3615,7 +3635,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Sång Editor</translation>
+        <translation>Sång Editor</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3723,7 +3743,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Kunde inte starta ljud drivrutin</translation>
+        <translation>Kunde inte starta ljud drivrutin</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -3766,59 +3786,59 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <name>PreferencesDialog_UI</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>&amp;General</source>
-        <translation type="unfinished">&amp;Allmänt</translation>
+        <translation>&amp;Allmänt</translation>
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation type="unfinished">Ljud &amp;System</translation>
+        <translation>Ljud &amp;System</translation>
     </message>
     <message>
         <source>Polyphony</source>
-        <translation type="unfinished">Polyfoni</translation>
+        <translation>Polyfoni</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="unfinished">Enhet</translation>
+        <translation>Enhet</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Buffer storlek</translation>
+        <translation>Buffer storlek</translation>
     </message>
     <message>
         <source>Metronome volume</source>
-        <translation type="unfinished">Metronome volym</translation>
+        <translation>Metronome volym</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alla</translation>
+        <translation>Alla</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Kanal</translation>
+        <translation>Kanal</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation type="unfinished">&amp;Utseende</translation>
+        <translation>&amp;Utseende</translation>
     </message>
     <message>
         <source>Application font</source>
-        <translation type="unfinished">Applikation font</translation>
+        <translation>Applikation font</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Stil</translation>
+        <translation>Stil</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Långsam</translation>
+        <translation>Långsam</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Snabb</translation>
+        <translation>Snabb</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -4316,7 +4336,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Rensa</translation>
+        <translation>&amp;Rensa</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4387,7 +4407,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Rensa noter</translation>
+        <translation>Rensa noter</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -4512,7 +4532,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Stäng</translation>
+        <translation>&amp;Stäng</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
@@ -5448,32 +5468,32 @@ p, li { white-space: pre-wrap; }
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Sång Editor</translation>
+        <translation>Sång Editor</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation type="unfinished">Rensa mönster sekvens</translation>
+        <translation>Rensa mönster sekvens</translation>
     </message>
     <message>
         <source>Create new pattern</source>
-        <translation type="unfinished">Skapa nytt mönster</translation>
+        <translation>Skapa nytt mönster</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation type="unfinished">Flytta ner valt mönster</translation>
+        <translation>Flytta ner valt mönster</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation type="unfinished">Flytta upp valt mönster</translation>
+        <translation>Flytta upp valt mönster</translation>
     </message>
     <message>
         <source>Select mode</source>
-        <translation type="unfinished">Val läge</translation>
+        <translation>Val läge</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation type="unfinished">Varning, detta kommer att radera din mönster sekvens.
+        <translation>Varning, detta kommer att radera din mönster sekvens.
 Är du säker?</translation>
     </message>
     <message>
@@ -5549,7 +5569,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -5568,7 +5588,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -5577,14 +5597,6 @@ Are you sure?</source>
 </context>
 <context>
     <name>SongEditorPatternList</name>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Ta bort</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="unfinished">Egenskaper</translation>
-    </message>
     <message>
         <source>Save Pattern</source>
         <translation type="unfinished"></translation>
@@ -5604,10 +5616,6 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5646,26 +5654,26 @@ Overwrite the existing pattern?</source>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation type="unfinished">Sång egenskaper</translation>
+        <translation>Sång egenskaper</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Song name</source>
-        <translation type="unfinished">Låt namn</translation>
+        <translation>Låt namn</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Upphovsman</translation>
+        <translation>Upphovsman</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation type="unfinished">Anteckningar</translation>
+        <translation>Anteckningar</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Avbryt</translation>
+        <translation>&amp;Avbryt</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -5696,7 +5704,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportera</translation>
+        <translation>&amp;Exportera</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5720,14 +5728,14 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alla</translation>
+        <translation>Alla</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exportera</translation>
+        <translation>Exportera</translation>
     </message>
     <message>
         <source>Component</source>
@@ -5755,7 +5763,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -5786,7 +5794,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Upphovsman: %1</translation>
+        <translation>Upphovsman: %1</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
@@ -5794,7 +5802,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Importera drumkit</translation>
+        <translation>Importera drumkit</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
@@ -5814,7 +5822,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Mönster</translation>
+        <translation>Mönster</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
@@ -5894,29 +5902,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">Ladda</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">Ladda</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Exportera</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Ta bort</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation type="unfinished"></translation>
@@ -5931,11 +5919,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Mönster</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="unfinished">Egenskaper</translation>
+        <translation>Mönster</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -5994,7 +5978,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Upphovsman</translation>
+        <translation>Upphovsman</translation>
     </message>
     <message>
         <source>Information</source>
@@ -6006,7 +5990,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>Drumkit License</source>
@@ -6018,7 +6002,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Bläddra</translation>
+        <translation>Bläddra</translation>
     </message>
     <message>
         <source>Image License</source>
@@ -6064,7 +6048,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6104,7 +6088,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>

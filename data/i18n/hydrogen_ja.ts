@@ -234,7 +234,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">停止</translation>
+        <translation>停止</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -339,7 +339,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">ミュート</translation>
+        <translation>ミュート</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -379,12 +379,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">一般</translation>
+        <translation>一般</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">インストルメント</translation>
+        <translation>インストルメント</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -394,7 +394,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">レイヤー</translation>
+        <translation>レイヤー</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -437,7 +437,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">ミキサー</translation>
+        <translation>ミキサー</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -457,27 +457,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">アタック</translation>
+        <translation>アタック</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">ディケイ</translation>
+        <translation>ディケイ</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">サステイン</translation>
+        <translation>サステイン</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">リリース</translation>
+        <translation>リリース</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">キャンセル</translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <source>Note</source>
@@ -592,7 +592,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">入力</translation>
+        <translation>入力</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -639,7 +639,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">スウィング</translation>
+        <translation>スウィング</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -649,7 +649,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">ベロシティー</translation>
+        <translation>ベロシティー</translation>
     </message>
     <message>
         <source>Master</source>
@@ -694,7 +694,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Show piano roll editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
-        <translation type="unfinished">ピアノロールエディターの表示</translation>
+        <translation>ピアノロールエディターの表示</translation>
     </message>
     <message>
         <source>Unable to start audio driver!</source>
@@ -751,7 +751,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">オフ</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -802,22 +802,22 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">保存(&amp;S)</translation>
+        <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">キャンセル(&amp;C)</translation>
+        <translation>キャンセル(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">破棄(&amp;D)</translation>
+        <translation>破棄(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">再生(&amp;P)</translation>
+        <translation>再生(&amp;P)</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -930,12 +930,12 @@ Are you sure?</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">パン</translation>
+        <translation>パン</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">カットオフフィルター</translation>
+        <translation>カットオフフィルター</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -970,21 +970,41 @@ Are you sure?</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">ライセンス</translation>
+        <translation>ライセンス</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">追加</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>追加</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">削除</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>読み込み</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>エクスポート</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -992,11 +1012,11 @@ Are you sure?</source>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">ミュート</translation>
+        <translation>ミュート</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">ソロ</translation>
+        <translation>ソロ</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1074,7 +1094,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">MIDI ファイルへのエクスポート</translation>
+        <translation>MIDI ファイルへのエクスポート</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1083,7 +1103,7 @@ Are you sure?</source>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">ファイル %1 は存在しています。
+        <translation>ファイル %1 は存在しています。
 上書きしますか?</translation>
     </message>
 </context>
@@ -1091,7 +1111,7 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1099,7 +1119,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">参照(&amp;B)...</translation>
+        <translation>参照(&amp;B)...</translation>
     </message>
     <message>
         <source>Alt+B</source>
@@ -1111,7 +1131,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">エクスポート(&amp;E)</translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>Alt+E</source>
@@ -1119,7 +1139,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">閉じる(&amp;C)</translation>
+        <translation>閉じる(&amp;C)</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -1327,7 +1347,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Export directory:</source>
@@ -1357,7 +1377,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">開く</translation>
+        <translation>開く</translation>
     </message>
     <message>
         <source>Temporary directory</source>
@@ -1469,7 +1489,7 @@ Overwrite the existing file?</source>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">ソングエディタ</translation>
+        <translation>ソングエディタ</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -1477,7 +1497,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">ミキサー</translation>
+        <translation>ミキサー</translation>
     </message>
     <message>
         <source>modified</source>
@@ -1485,7 +1505,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">ソングの読み込みに失敗しました。</translation>
+        <translation>ソングの読み込みに失敗しました。</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1685,7 +1705,7 @@ Value</source>
     <message>
         <source>Solo</source>
         <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation type="unfinished">ソロ</translation>
+        <translation>ソロ</translation>
     </message>
     <message>
         <source>Rename instrument</source>
@@ -1693,15 +1713,15 @@ Value</source>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">新しいインストルメント名</translation>
+        <translation>新しいインストルメント名</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <translation type="unfinished">ノートを8つおきに挿入 {1/12 ?}</translation>
+        <translation>ノートを8つおきに挿入 {1/12 ?}</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <translation type="unfinished">ノートを8つおきに挿入 {1/16 ?}</translation>
+        <translation>ノートを8つおきに挿入 {1/16 ?}</translation>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
@@ -1733,7 +1753,7 @@ Value</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">インストルメント</translation>
+        <translation>インストルメント</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -2258,7 +2278,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">エクスポート(&amp;E)</translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2566,7 +2586,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">ミキサー</translation>
+        <translation>ミキサー</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
@@ -2675,7 +2695,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">キャンセル(&amp;C)</translation>
+        <translation>キャンセル(&amp;C)</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -2959,7 +2979,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">オフ</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
@@ -3533,7 +3553,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation>一般</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3653,7 +3673,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">ソングエディタ</translation>
+        <translation>ソングエディタ</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3761,7 +3781,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">オーディオドライバーにエラーが発生</translation>
+        <translation>オーディオドライバーにエラーが発生</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4354,7 +4374,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">除去(&amp;C)</translation>
+        <translation>除去(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4425,7 +4445,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">ノートのクリア</translation>
+        <translation>ノートのクリア</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -5190,7 +5210,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">ミキサーを表示</translation>
+        <translation>ミキサーを表示</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5558,7 +5578,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">ベロシティー</translation>
+        <translation>ベロシティー</translation>
     </message>
     <message>
         <source>selected pattern mode</source>
@@ -5626,14 +5646,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>プロパティー</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>パターンの保存</translation>
     </message>
@@ -5657,7 +5669,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">パターンをエクスポートできませんでした。</translation>
+        <translation>パターンをエクスポートできませんでした。</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
@@ -5665,11 +5677,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">パターンを保存しました。</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>パターンを保存しました。</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5745,7 +5753,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">エクスポート(&amp;E)</translation>
+        <translation>エクスポート(&amp;E)</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5769,7 +5777,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">すべて</translation>
+        <translation>すべて</translation>
     </message>
 </context>
 <context>
@@ -5792,7 +5800,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">参照...</translation>
+        <translation>参照...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
@@ -5943,29 +5951,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">読み込み</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>読み込み</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>エクスポート</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>システムのドラムキット</translation>
@@ -5981,10 +5969,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Patterns</source>
         <translation>パターン</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>プロパティ</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -6068,7 +6052,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">参照</translation>
+        <translation>参照</translation>
     </message>
     <message>
         <source>Image License</source>
@@ -6084,7 +6068,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation>一般</translation>
     </message>
 </context>
 <context>
@@ -6118,7 +6102,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>

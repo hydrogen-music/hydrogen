@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Зупинити</translation>
+        <translation>Зупинити</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Приглушити</translation>
+        <translation>Приглушити</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Загальні</translation>
+        <translation>Загальні</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">Інструмент</translation>
+        <translation>Інструмент</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Шари</translation>
+        <translation>Шари</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Мікшер</translation>
+        <translation>Мікшер</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -456,27 +456,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">Атака</translation>
+        <translation>Атака</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Перше затухання</translation>
+        <translation>Перше затухання</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Стабільна фаза</translation>
+        <translation>Стабільна фаза</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Кінцеве затухання</translation>
+        <translation>Кінцеве затухання</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Канал</translation>
+        <translation>Канал</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Вхід</translation>
+        <translation>Вхід</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">уд/хв</translation>
+        <translation>уд/хв</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -638,7 +638,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Свінг</translation>
+        <translation>Свінг</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">Сила натиску</translation>
+        <translation>Сила натиску</translation>
     </message>
     <message>
         <source>Master</source>
@@ -693,7 +693,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Show piano roll editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
-        <translation type="unfinished">Показати матричний редактор</translation>
+        <translation>Показати матричний редактор</translation>
     </message>
     <message>
         <source>Unable to start audio driver!</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">вимкн</translation>
+        <translation>вимкн</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -796,27 +796,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Гаразд</translation>
+        <translation>&amp;Гаразд</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Записати</translation>
+        <translation>&amp;Записати</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Скасувати</translation>
+        <translation>&amp;Скасувати</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Відмовитися від змін</translation>
+        <translation>&amp;Відмовитися від змін</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Програти</translation>
+        <translation>&amp;Програти</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -929,12 +929,12 @@ Are you sure?</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Панорама</translation>
+        <translation>Панорама</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Фільтр відсікання</translation>
+        <translation>Фільтр відсікання</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -959,7 +959,7 @@ Are you sure?</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Компонент</translation>
+        <translation>Компонент</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -969,21 +969,41 @@ Are you sure?</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Ліцензія</translation>
+        <translation>Ліцензія</translation>
     </message>
     <message>
         <source>Add</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Додати</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Додати</translation>
     </message>
     <message>
         <source>Delete</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
-        <translation type="unfinished">Видалити</translation>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Видалити</translation>
     </message>
     <message>
         <source>Rename</source>
-        <extracomment>Names an action in e.g. the component drop down menu in the instrument * editor</extracomment>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Завантажити</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Експорт</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Властивості</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1073,7 +1093,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Експорт файлу MIDI</translation>
+        <translation>Експорт файлу MIDI</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1082,7 +1102,7 @@ Are you sure?</source>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Файл %1 вже існує. 
+        <translation>Файл %1 вже існує.
 Перезаписати його?</translation>
     </message>
 </context>
@@ -1090,7 +1110,7 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Діалог</translation>
+        <translation>Діалог</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1098,31 +1118,31 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Огляд...</translation>
+        <translation>&amp;Огляд...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+о</translation>
+        <translation>Alt+о</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished">Спосіб:</translation>
+        <translation>Спосіб:</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Експорт</translation>
+        <translation>&amp;Експорт</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+е</translation>
+        <translation>Alt+е</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Закрити</translation>
+        <translation>&amp;Закрити</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+т</translation>
+        <translation>Alt+т</translation>
     </message>
 </context>
 <context>
@@ -1356,7 +1376,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Відкрити</translation>
+        <translation>Відкрити</translation>
     </message>
     <message>
         <source>Temporary directory</source>
@@ -1484,7 +1504,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Помилка при завантаженні композиції.</translation>
+        <translation>Помилка при завантаженні композиції.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1732,7 +1752,7 @@ Value</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Інструмент</translation>
+        <translation>Інструмент</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -2264,7 +2284,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Експорт</translation>
+        <translation>&amp;Експорт</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2681,19 +2701,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Скасувати</translation>
+        <translation>&amp;Скасувати</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+т</translation>
+        <translation>Alt+т</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;Гаразд</translation>
+        <translation>&amp;Гаразд</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
@@ -2965,7 +2985,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">вимкн</translation>
+        <translation>вимкн</translation>
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
@@ -3544,7 +3564,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Загальні</translation>
+        <translation>Загальні</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3664,7 +3684,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Редактор композицій</translation>
+        <translation>Редактор композицій</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3772,7 +3792,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Помилка при завантаженні звукового драйвера</translation>
+        <translation>Помилка при завантаженні звукового драйвера</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4365,7 +4385,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">О&amp;чистити</translation>
+        <translation>О&amp;чистити</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4436,7 +4456,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Стерти всі ноти</translation>
+        <translation>Стерти всі ноти</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -5214,7 +5234,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Показати мікшер</translation>
+        <translation>Показати мікшер</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5650,14 +5670,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Властивості</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Зберегти патерн</translation>
     </message>
@@ -5681,7 +5693,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Не вдалось експортувати патерн.</translation>
+        <translation>Не вдалось експортувати патерн.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
@@ -5689,11 +5701,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Патерн збережено.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Патерн збережено.</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5769,7 +5777,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Експорт</translation>
+        <translation>&amp;Експорт</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -5793,7 +5801,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Всі</translation>
+        <translation>Всі</translation>
     </message>
 </context>
 <context>
@@ -5967,29 +5975,9 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation>Відкрити бібліотеку звуків</translation>
     </message>
-    <message>
-        <source>Load</source>
-        <translation>Завантажити</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Скасувати</translation>
-    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Завантажити</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Експорт</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Системні набори</translation>
@@ -6005,10 +5993,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Patterns</source>
         <translation>Патернів</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Властивості</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
@@ -6114,7 +6098,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Загальні</translation>
+        <translation>Загальні</translation>
     </message>
 </context>
 <context>
@@ -6148,7 +6132,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Закрити</translation>
+        <translation>Закрити</translation>
     </message>
 </context>
 <context>
