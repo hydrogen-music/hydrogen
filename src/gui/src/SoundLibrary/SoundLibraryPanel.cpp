@@ -26,7 +26,6 @@
 #include <QtWidgets>
 
 #include "SoundLibraryTree.h"
-#include "FileBrowser.h"
 
 #include "DrumkitPropertiesDialog.h"
 #include "DrumkitExportDialog.h"

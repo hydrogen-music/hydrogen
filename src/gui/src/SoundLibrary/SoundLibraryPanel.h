@@ -80,9 +80,9 @@ private:
 	void update_background_color();
 	
 	SoundLibraryTree *__sound_library_tree;
-	//FileBrowser *m_pFileBrowser;
 
 	QPoint __start_drag_position;
+
 	QMenu* __drumkit_menu;
 	QMenu* __drumkit_menu_system;
 	QMenu* __song_menu;

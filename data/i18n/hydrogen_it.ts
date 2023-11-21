@@ -1490,13 +1490,6 @@ Sovrascrivere il file esistente?</translation>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
