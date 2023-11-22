@@ -602,6 +602,18 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 			continue;
 		}
 
+		// In case the instrument has no samples in this component, we skip it.
+		bool bSampleFound = false;
+		for ( const auto& ppLayer : ppInstrumentComponent->get_layers() ) {
+			if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
+				bSampleFound = true;
+				break;
+			}
+		}
+		if ( ! bSampleFound ) {
+			continue;
+		}
+
 		auto ppComponent = pInstrumentKit->getComponent(
 			ppInstrumentComponent->get_drumkit_componentID() );
 
