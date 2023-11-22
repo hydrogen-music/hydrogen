@@ -543,23 +543,6 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 	return m_pInstruments->summarizeContent( m_pComponents );
 }
 
-bool Drumkit::remove( const QString& sDrumkitDir )
-{
-	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit folder" ).arg( sDrumkitDir ) );
-		return false;
-	}
-	
-	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
-	if ( ! Filesystem::rm( sDrumkitDir, true ) ) {
-		ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
-		return false;
-	}
-
-	Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
-	return true;
-}
-	
 bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
 {
 	if ( sTargetPath.isEmpty() ) {

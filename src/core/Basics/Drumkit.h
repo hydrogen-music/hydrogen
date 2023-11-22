@@ -227,13 +227,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \return true on success
 	 */
 	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
-		/**
-		 * remove a drumkit from the disk
-		 *
-		 * \param sDrumkitDir Path to #Drumkit
-		 * \return true on success
-		 */
-		static bool remove( const QString& sDrumkitDir );
 
 		/** set m_pInstruments, delete existing one */
 		void setInstruments( std::shared_ptr<InstrumentList> instruments );

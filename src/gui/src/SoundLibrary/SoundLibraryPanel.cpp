@@ -799,10 +799,17 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	bool bSuccess = Drumkit::remove( m_drumkitRegister[ pItem->text(0) ] );
+
+	const QString sDrumkitDir = m_drumkitRegister[ pItem->text(0) ];
+	INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	const bool bOk = Filesystem::rm( sDrumkitDir, true );
+
 	QApplication::restoreOverrideCursor();
-	if ( ! bSuccess ) {
+
+	if ( ! bOk ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
+	} else {
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->updateDrumkits();
 	}
 }
 
