@@ -180,14 +180,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void unloadSamples();
 
 	/**
-	 * Loads the license information of a drumkit contained in
-	 * directory @a sDrumkitDir.
-	 *
-	 * \param sDrumkitDir Directory containing a drumkit.xml file.
-	 */
-	static License loadLicenseFrom( const QString& sDrumkitDir,
-									bool bSilent = false );
-	/**
 	 * Returns the base name used when exporting the drumkit.
 	 *
 	 * \param sComponentName Name of a particular component used in
@@ -348,15 +340,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return true on success
 		 */
 	bool saveSamples( const QString& dk_dir, bool bSilent = false ) const;
-
-/**
-	 *
-	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and
-	 * takes care of all the error handling.
-	 *
-	 * \return true on success.
-	 */
-	static bool loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent = false );
 
 		/** Maps the instruments of the kit to universal
 		 * #H2Core::DrumkitMap::Type using which seemless switching of drumkits

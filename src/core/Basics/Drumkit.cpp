@@ -255,60 +255,6 @@ void Drumkit::loadSamples( float fBpm )
 	}
 }
 
-License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
-{
-	XMLDoc doc;
-	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
-		XMLNode root = doc.firstChildElement( "drumkit_info" );
-
-		QString sAuthor = root.read_string( "author", "undefined author",
-											true, true, bSilent );
-		QString sLicenseString = root.read_string( "license", "undefined license",
-												   false, true, bSilent  );
-		if ( sLicenseString.isNull() ) {
-			ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
-					  .arg( sDrumkitDir ) );
-			return std::move( License() );
-		}
-
-		return std::move( License( sLicenseString, sAuthor ) );
-	}
-
-	return std::move( License() );
-}
-
-bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {
-
-	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitDir ) );
-		return false;
-	}
-
-	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
-
-	if( ! pDoc->read( sDrumkitPath, Filesystem::drumkit_xsd_path(), true ) ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( QString( "[%1] does not validate against drumkit schema. Trying to retrieve its name nevertheless.")
-						.arg( sDrumkitPath ) );
-		}
-		
-		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
-			ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
-					  .arg( sDrumkitPath ) );
-			return false;
-		}
-	}
-	
-	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
-	if ( root.isNull() ) {
-		ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )
-				  .arg( sDrumkitPath ) );
-		return false;
-	}
-
-	return true;
-}
-
 void Drumkit::upgrade( bool bSilent ) {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Upgrading drumkit [%1] in [%2]" )
