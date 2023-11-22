@@ -91,7 +91,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
@@ -133,16 +133,13 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 		__fx_level[i] = other->get_fx_level( i );
 	}
 
-	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 	for ( auto& pComponent : *other->get_components() ) {
 		__components->push_back( std::make_shared<InstrumentComponent>( pComponent ) );
 	}
 }
 
-Instrument::~Instrument()
-{
-	delete __components;
-}
+Instrument::~Instrument() {}
 
 std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 												   const QString& sDrumkitPath,
