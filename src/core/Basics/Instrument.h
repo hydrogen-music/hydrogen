@@ -74,31 +74,6 @@ class Instrument : public H2Core::Object<Instrument>
 		~Instrument();
 
 		/**
-		 * creates a new Instrument, loads samples from a given instrument within a given drumkit
-		 * \param drumkit_name the drumkit to search the instrument in
-		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * \return a new Instrument instance
-		 */
-		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_path, const QString& instrument_name );
-
-		/**
-		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
-		 * \param drumkit_path the drumkit to search the instrument in
-		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * for the drumkit.
-		 */
-		void load_from( const QString& drumkit_path, const QString& instrument_name );
-
-		/**
-		 * loads instrument from a given instrument into a `live` Instrument object.
-		 * \param drumkit the drumkit the instrument belongs to
-		 * \param instrument to load samples and members from
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 */
-		void load_from( std::shared_ptr<Drumkit> drumkit, std::shared_ptr<Instrument> instrument );
-
-		/**
 		 * Calls the InstrumentLayer::load_sample() member
 		 * function of all layers of each component of the
 		 * Instrument.

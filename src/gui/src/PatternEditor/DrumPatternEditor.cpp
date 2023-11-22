@@ -39,6 +39,7 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -1800,30 +1801,34 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set" );
 		return;
 	}
 	auto pDrumkit = pSong->getDrumkit();
 	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
 	auto pComponents = pDrumkit->getComponents();
-	
-	auto pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
-	if ( pNewInstrument == nullptr ||
-		 ( pNewInstrument->get_name() == "Empty Instrument" &&
-		   pNewInstrument->get_drumkit_path().isEmpty() ) ){
-		// Under normal circumstances this should not been reached.
+
+	auto pNewDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+	if ( pNewDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
+				  .arg( sDrumkitPath ).arg( sInstrumentName ) );
+		QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
+		return;
+	}
+	const auto pTargetInstrument = pNewDrumkit->getInstruments()->find( sInstrumentName );
+	if ( pTargetInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+				  .arg( sInstrumentName ).arg( sDrumkitPath ) );
 		QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
 		return;
 	}
 
-	auto pNewDrumkit =
-		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-	if( pNewDrumkit == nullptr ){
-		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitPath ) );
-		return;
-	}
-
+	auto pNewInstrument = std::make_shared<Instrument>( pTargetInstrument );
+	pNewInstrument->load_samples(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
@@ -1946,14 +1951,33 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	std::shared_ptr<Instrument> pNewInstrument;
-	if( sDrumkitPath == "" ){
-		pNewInstrument = std::make_shared<Instrument>( pSong->getDrumkit()->getInstruments()->size() -1, sInstrumentName );
-	} else {
-		pNewInstrument = Instrument::load_instrument( sDrumkitPath, sInstrumentName );
-	}
-	if( pNewInstrument == nullptr ) {
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set." );
 		return;
+	}
+
+	std::shared_ptr<Instrument> pNewInstrument;
+	if ( sDrumkitPath.isEmpty() ){
+		pNewInstrument = std::make_shared<Instrument>( pSong->getDrumkit()->getInstruments()->size() -1, sInstrumentName );
+	}
+	else {
+		auto pNewDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+		if ( pNewDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
+					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
+			return;
+		}
+		const auto pTargetInstrument = pNewDrumkit->getInstruments()->find( sInstrumentName );
+		if ( pTargetInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
+			return;
+		}
+
+		pNewInstrument = std::make_shared<Instrument>( pTargetInstrument );
+		pNewInstrument->load_samples(
+			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+
 	}
 
 	// create a new valid ID for this instrument

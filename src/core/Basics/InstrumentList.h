@@ -155,12 +155,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		std::shared_ptr<Instrument> findMidiNote( const int note );
 		/**
-		 * swap the instruments of two different indexes
-		 * \param idx_a the first index
-		 * \param idx_b the second index
-		 */
-		void swap( int idx_a, int idx_b );
-		/**
 		 * move an instrument from a position to another
 		 * \param idx_a the start index
 		 * \param idx_b the finish index
@@ -228,16 +222,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	 * name, file name, the license of all associated samples.
 	 */
 	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
-
-		/**
-		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".
-		 *
-		 * Check whether the same MIDI note is assignedto every
-		 * instrument - that condition makes MIDI export unusable.
-		 * When so, assign each instrument consecutive MIDI note
-		 * starting from #MIDI_DEFAULT_OFFSET.
-		 */
-		void fix_issue_307();
 
 		/**
 		 * Check if all instruments have assigned the same

@@ -310,21 +310,6 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pInstrument = H2Core::Instrument::load_instrument( sDrumkitPath, "Kick" );
-		CPPUNIT_ASSERT( pInstrument != nullptr );
-		pInstrument = nullptr;
-		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
-	}
-	
-	{
-		auto pInstrument = H2Core::Instrument::load_instrument( sDrumkitPath, "Kick" );
-		pInstrument->load_from( sDrumkitPath, "Snare" );
-		CPPUNIT_ASSERT( pInstrument != nullptr );
-		pInstrument = nullptr;
-		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
-	}
-
-	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrument.xml" ) ) );
 		node = doc.firstChildElement( "instrument" );
 		auto pInstrument = H2Core::Instrument::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ) );

@@ -269,17 +269,6 @@ std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> ins
 	return nullptr;
 }
 
-void InstrumentList::swap( int idx_a, int idx_b )
-{
-	assert( idx_a >= 0 && idx_a < __instruments.size() );
-	assert( idx_b >= 0 && idx_b < __instruments.size() );
-	if( idx_a == idx_b ) return;
-	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-	auto tmp = __instruments[idx_a];
-	__instruments[idx_a] = __instruments[idx_b];
-	__instruments[idx_b] = tmp;
-}
-
 void InstrumentList::move( int idx_a, int idx_b )
 {
 	assert( idx_a >= 0 && idx_a < __instruments.size() );
@@ -335,14 +324,6 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 	}
 
 	return results;
-}
-
-void InstrumentList::fix_issue_307()
-{
-	if ( has_all_midi_notes_same() ) {
-		WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
-		set_default_midi_out_notes();
-	}
 }
 
 bool InstrumentList::has_all_midi_notes_same() const
@@ -424,7 +405,7 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 bool InstrumentList::isAnyInstrumentSoloed() const
 {
 	for ( const auto& pInstrument : __instruments ) {
-		if ( pInstrument->is_soloed() ) {
+		if ( pInstrument != nullptr && pInstrument->is_soloed() ) {
 			return true;
 		}
 	}

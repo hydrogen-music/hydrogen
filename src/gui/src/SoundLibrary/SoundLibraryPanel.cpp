@@ -43,6 +43,7 @@
 
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
@@ -394,16 +395,35 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		// Double clicking a drumkit
 	}
 	else {
+		auto pHydrogen = Hydrogen::get_instance();
+
 		// Double clicking an instrument
 		QString sSelectedName = item->text(0);
 
-		QString sInstrName = sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
+		QString sInstrumentName = sSelectedName.remove( 0, sSelectedName.indexOf( "] " ) + 2 );
 		QString sDrumkitName = item->parent()->text(0);
 		QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
-		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
-				 .arg( sInstrName ).arg( sDrumkitName ).arg( sDrumkitPath ) );
 
-		auto pInstrument = Instrument::load_instrument( sDrumkitPath, sInstrName );
+		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+			sDrumkitPath );
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
+					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
+			return;
+		}
+		const auto pTargetInstrument = pDrumkit->getInstruments()->find( sInstrumentName );
+		if ( pTargetInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
+			return;
+		}
+
+		auto pInstrument = std::make_shared<Instrument>( pTargetInstrument );
+		pInstrument->load_samples(
+			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+
+		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
+				 .arg( sInstrumentName ).arg( sDrumkitName ).arg( sDrumkitPath ) );
 
 		if ( pInstrument == nullptr ) {
 			ERRORLOG( "Unable to load instrument. Abort" );
