@@ -431,13 +431,6 @@ void PatternEditor::alignToGrid() {
 	for ( auto pNote : m_selection ) {
 		notesToAlign.push_back( pNote );
 	}
-	// If selection is empty, use all notes in the pattern
-	if ( notesToAlign.empty() ) {
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes, it) {
-			notesToAlign.push_back( it->second );
-		}
-	}
 	if ( notesToAlign.empty() ) {
 		return;
 	}
