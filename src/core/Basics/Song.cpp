@@ -1157,7 +1157,7 @@ void Song::setPanLawKNorm( float fKNorm ) {
 	}
 }
 
-void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
+void Song::removeInstrument( int nInstrumentNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pInstr = m_pDrumkit->getInstruments()->get( nInstrumentNumber );
 	if ( pInstr == nullptr ) {
@@ -1165,37 +1165,17 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 		return;
 	}
 
-	if ( bConditional ) {
-		// If a note was assigned to this instrument in any pattern,
-		// the instrument will be kept instead of discarded.
-		for ( const auto& pPattern : *m_pPatternList ) {
-			if ( pPattern->references( pInstr ) ) {
-				INFOLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
-				return;
-			}
-		}
-	} else {
-		for ( const auto& pPattern : *m_pPatternList ) {
-			pPattern->purge_instrument( pInstr, false );
-		}
-	}
-
-	// In case there is just this one instrument left, reset it
-	// instead of removing it.
-	if ( m_pDrumkit->getInstruments()->size() == 1 ){
-		pInstr->set_name( (QString( "Instrument 1" )) );
-		for ( auto& pCompo : *pInstr->get_components() ) {
-			// remove all layers
-			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				pCompo->set_layer( nullptr, nLayer );
-			}
-		}
-		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
-		return;
+	for ( const auto& pPattern : *m_pPatternList ) {
+		pPattern->purge_instrument( pInstr, false );
 	}
 
 	// delete the instrument from the instruments list
-	m_pDrumkit->getInstruments()->del( nInstrumentNumber );
+	m_pDrumkit->removeInstrument( nInstrumentNumber );
+
+	// Ensure there is always one instrument left.
+	if ( m_pDrumkit->getInstruments()->size() < 1 ) {
+		m_pDrumkit->addInstrument( std::make_shared<Instrument>() );
+	}
 
 	// At this point the instrument has been removed from both the
 	// instrument list and every pattern in the song.  Hence there's no way

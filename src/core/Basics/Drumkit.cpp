@@ -511,6 +511,231 @@ void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments )
 	m_bSamplesLoaded = pInstruments->isAnyInstrumentSampleLoaded();
 }
 
+
+void Drumkit::removeInstrument( int nInstrumentNumber ) {
+	auto pInstrument = m_pInstruments->get( nInstrumentNumber );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( nInstrumentNumber ) );
+		return;
+	}
+
+	m_pInstruments->del( nInstrumentNumber );
+
+	// Check which components of this instrument do contain samples
+	std::vector componentsWithSamplesIds = std::vector<int>();
+	for ( const auto& ppComponent : *pInstrument->get_components() ) {
+		if ( ppComponent != nullptr ) {
+			for ( const auto& ppLayer : ppComponent->get_layers() ) {
+				if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
+					componentsWithSamplesIds.push_back(
+						ppComponent->get_drumkit_componentID() );
+					break;
+				}
+			}
+		}
+	}
+
+	// Check whether there are other instruments holding samples in those
+	// components as well. If not, delete the component.
+	for ( const auto nnComponentId : componentsWithSamplesIds ) {
+		bool bOtherSamplesFound = false;
+		for ( const auto& ppInstrument : *m_pInstruments ) {
+			if ( ppInstrument != nullptr &&
+				 ppInstrument->get_id() != nInstrumentNumber ) {
+				for ( const auto& ppComponent : *ppInstrument->get_components() ) {
+					if ( ppComponent != nullptr ) {
+						for ( const auto& ppLayer : ppComponent->get_layers() ) {
+							if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
+								bOtherSamplesFound = true;
+								break;
+							}
+						}
+					}
+
+					if ( bOtherSamplesFound ) {
+						break;
+					}
+				}
+			}
+
+			if ( bOtherSamplesFound ) {
+				break;
+			}
+		}
+
+		if ( ! bOtherSamplesFound ) {
+			INFOLOG( QString( "No other samples found for component [%1]. Removing it." )
+					 .arg( nnComponentId ) );
+			removeComponent( nnComponentId );
+		}
+	}
+}
+
+void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "invalid instrument" );
+		return;
+	}
+
+	if ( pInstrument->get_drumkit_path().isEmpty() ) {
+		ERRORLOG( "Provided instrument does not feature a drumkit path" );
+		return;
+	}
+
+	auto pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+		->getDrumkit( pInstrument->get_drumkit_path() );
+	if ( pInstrumentKit == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve kit [%1] associated with instrument." )
+				  .arg( pInstrument->get_drumkit_path() ) );
+		return;
+	}
+
+	// Ensure instrument components are contained in the Drumkit (compared by
+	// name). If not, add them. But due to the original design of the components
+	// we have to compare the DrumkitComponents (not the more light-weighted
+	// InstrumentComponents). If for some reason we fail the retrieve the
+	// drumkit corresponding to the instrument, we can not do the component
+	// mapping. But this should not happen.
+	for ( const auto& ppInstrumentComponent : *pInstrument->get_components() ) {
+		if ( ppInstrumentComponent == nullptr ) {
+			continue;
+		}
+
+		auto ppComponent = pInstrumentKit->getComponent(
+			ppInstrumentComponent->get_drumkit_componentID() );
+
+		int nOldID = ppComponent->get_id();
+
+		int nNewId = -1;
+		for ( const auto& ppThisKitsComponent : *m_pComponents ) {
+			if ( ppThisKitsComponent != nullptr &&
+				 ppThisKitsComponent->get_name().compare(
+					 ppComponent->get_name() ) == 0 ) {
+				nNewId = ppThisKitsComponent->get_id();
+			}
+		}
+
+		if ( nNewId == -1 ) {
+			// No matching component in this drumkit found.
+			//
+			// Get an ID not used as drumkit component ID by the drumkit
+			// currently loaded.
+			nNewId = m_pComponents->size();
+			for ( int ii = 0; ii < m_pComponents->size(); ++ii ) {
+				bool bIsPresent = false;
+				for ( const auto& ppComp : *m_pComponents ) {
+					if ( ppComp != nullptr && ppComp->get_id() == ii ) {
+						bIsPresent = true;
+						break;
+					}
+				}
+
+				if ( ! bIsPresent ){
+					nNewId = ii;
+					break;
+				}
+			}
+
+			auto pNewComponent = std::make_shared<DrumkitComponent>( ppComponent );
+			pNewComponent->set_id( nNewId );
+
+			addComponent( pNewComponent );
+		}
+		else {
+			// Component is already present. We just have to rewire it.
+			ppInstrumentComponent->set_drumkit_componentID( nNewId );
+		}
+	}
+
+	// Add components of this drumkit not already present in the instrument.
+	for ( const auto& ppThisKitsComponent : *m_pComponents ) {
+		if ( ppThisKitsComponent != nullptr ) {
+			bool bIsPresent = false;
+			for ( const auto& ppInstrumentCompnent : *pInstrument->get_components() ) {
+				if ( ppInstrumentCompnent != nullptr &&
+					 ppInstrumentCompnent->get_drumkit_componentID() ==
+					 ppThisKitsComponent->get_id() ) {
+					bIsPresent = true;
+					break;
+				}
+			}
+
+			if ( ! bIsPresent ){
+				auto pNewInstrCompo = std::make_shared<InstrumentComponent>(
+					ppThisKitsComponent->get_id() );
+				pInstrument->get_components()->push_back( pNewInstrCompo );
+			}
+		}
+	}
+
+	// create a new valid ID for this instrument
+	int nNewId = m_pInstruments->size();
+	for ( int ii = 0; ii < m_pInstruments->size(); ++ii ) {
+		bool bIsPresent = false;
+		for ( const auto& ppInstrument : *m_pInstruments ) {
+			if ( ppInstrument != nullptr &&
+				 ppInstrument->get_id() == ii ) {
+				bIsPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bIsPresent ) {
+			nNewId = ii;
+			break;
+		}
+	}
+
+	pInstrument->set_id( nNewId );
+
+	m_pInstruments->add( pInstrument );
+}
+
+void Drumkit::removeComponent( int nId ) {
+	for ( int ii = 0; ii < m_pComponents->size(); ++ii ) {
+		auto ppComponent = m_pComponents->at( ii );
+		if ( ppComponent != nullptr && ppComponent->get_id() == nId ) {
+			m_pComponents->erase( m_pComponents->begin() + ii );
+			break;
+		}
+	}
+
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		auto pComponents = ppInstrument->get_components();
+		for ( int ii = 0; ii < pComponents->size(); ++ii ) {
+			auto ppComponent = pComponents->at( ii );
+			if ( ppComponent != nullptr &&
+				 ppComponent->get_drumkit_componentID() == nId ) {
+				pComponents->erase( pComponents->begin() + ii );
+				break;
+			}
+		}
+	}
+}
+
+void Drumkit::addComponent( std::shared_ptr<DrumkitComponent> pComponent ) {
+	// Sanity check
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid component" );
+		return;
+	}
+
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == pComponent ) {
+			ERRORLOG( "Component is already present" );
+			return;
+		}
+	}
+
+	m_pComponents->push_back( pComponent );
+
+	for ( auto& ppInstrument : *m_pInstruments ) {
+		ppInstrument->get_components()->push_back(
+			std::make_shared<InstrumentComponent>(pComponent->get_id()) );
+	}
+}
+
 void Drumkit::setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components )
 {
 	m_pComponents = components;

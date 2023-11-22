@@ -738,7 +738,7 @@ void Hydrogen::removeInstrument( int nInstrumentNumber ) {
 
 		m_pAudioEngine->lock( RIGHT_HERE );
 
-		pSong->removeInstrument( nInstrumentNumber, false );
+		pSong->removeInstrument( nInstrumentNumber );
 		
 		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
 			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
@@ -746,6 +746,11 @@ void Hydrogen::removeInstrument( int nInstrumentNumber ) {
 					pSong->getDrumkit()->getInstruments()->size() ) {
 			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->getInstruments()->size() - 1 ) );
 		}
+
+		if ( hasJackAudioDriver() ) {
+			renameJackPorts( m_pSong );
+		}
+
 		m_pAudioEngine->unlock();
 		
 		setIsModified( true );

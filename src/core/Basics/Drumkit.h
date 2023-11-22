@@ -228,8 +228,21 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 
+		/** Removes an instrument from the drumkit and cleans up its
+		 * components.
+		 *
+		 * In case the instrument @a nInstrumentNumber was the only one holding
+		 * samples in a component, this component will be removed from the
+		 * drumkit. */
+		void removeInstrument( int nInstrumentNumber );
+
+		/** Add an instrument to the kit and takes care of registering its
+		 * components.*/
+		void addInstrument( std::shared_ptr<Instrument> pInstrument );
+
 		/** set m_pInstruments, delete existing one */
 		void setInstruments( std::shared_ptr<InstrumentList> instruments );
+
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
@@ -269,6 +282,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
 	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
+
+		/** Deletes a component from the kit and all included instruments. */
+		void removeComponent( int nId );
+		/** Add a component to the kit and all included instruments. */
+		void addComponent( std::shared_ptr<DrumkitComponent> pComponent );
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );

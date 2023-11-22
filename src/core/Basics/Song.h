@@ -284,7 +284,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void removeInstrument( int nInstrumentNumber, bool bConditional );
+	void removeInstrument( int nInstrumentNumber );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 

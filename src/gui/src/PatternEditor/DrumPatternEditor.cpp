@@ -1767,35 +1767,18 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents )
+void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->removeInstrument( nTargetInstrument );
 
-	auto pDrumkitComponents = pHydrogen->getSong()->getDrumkit()->getComponents();
-
-	for ( const auto& nComponent : *AddedComponents ) {
-
-		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
-			auto pTmpDrumkitComponent = pDrumkitComponents->at( n );
-			if ( pTmpDrumkitComponent->get_id() == nComponent ) {
-				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
-				break;
-			}
-		}
-	}
-
-	if ( pHydrogen->hasJackAudioDriver() ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
-		pHydrogen->renameJackPorts( pHydrogen->getSong() );
-		m_pAudioEngine->unlock();
-	}
-	
 	updateEditor();
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents)
+void  DrumPatternEditor::functionDropInstrumentRedoAction( const QString& sDrumkitPath,
+														   const QString& sInstrumentName,
+														   int nTargetInstrument )
 {
 	auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1809,7 +1792,6 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
-	auto pComponents = pDrumkit->getComponents();
 
 	auto pNewDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 	if ( pNewDrumkit == nullptr ) {
@@ -1831,108 +1813,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-
-	// Ensure the components of the loaded drumkit are present in
-	// the current song as well.
-	auto pOldInstrumentComponents = new std::vector<std::shared_ptr<InstrumentComponent>>( pNewInstrument->get_components()->begin(), pNewInstrument->get_components()->end() );
-	pNewInstrument->get_components()->clear();
-
-	for ( auto pComponent : *(pNewDrumkit->getComponents()) ) {
-		int nOldID = pComponent->get_id();
-
-		// Gets the ID of the drumkit component registered to the
-		// current song that matches the name of the pComponent.
-		int nNewId = -1;
-		for ( const auto& ppComponentCurrent : *pComponents ) {
-			if ( ppComponentCurrent->get_name().compare(
-					 pComponent->get_name() ) == 0 ) {
-				nNewId = ppComponentCurrent->get_id();
-			}
-		}
-
-		if ( nNewId == -1 ) {
-			// No component in the currently loaded drumkit found
-			// matching pComponent.
-			//
-			// Get an ID not used as drumkit component ID by the
-			// drumkit currently loaded.
-			nNewId = pComponents->size();
-			for ( int ii = 0; ii < pComponents->size(); ++ii ) {
-				bool bIsPresent = false;
-				for ( const auto& ppComp : *pComponents ) {
-					if ( ppComp->get_id() == ii ) {
-						bIsPresent = true;
-						break;
-					}
-				}
-
-				if ( ! bIsPresent ){
-					nNewId = ii;
-					break;
-				}
-			}
-
-			// Create an unique component name based on the old.
-			QString sNewName = pComponent->get_name();
-			bool bUnique = false;
-			int ii = 0;
-			while ( ! bUnique ){
-				bool bNameFound = false;
-				for ( const auto& ppComp : *pComponents ) {
-					if ( ppComp->get_name() == sNewName ) {
-						bNameFound = true;
-						break;
-					}
-				}
-
-				if ( ! bNameFound ) {
-					bUnique = true;
-				} else {
-					sNewName.append( "_new" );
-				}
-
-				++ii;
-				if ( ii > 100 ) {
-					// That's a bit much
-					break;
-				}
-			}
-
-			pAddedComponents->push_back( nNewId );
-
-			pComponent->set_id( nNewId );
-			pComponent->set_name( sNewName );
-			auto pNewComponent = std::make_shared<DrumkitComponent>( pComponent );
-			pSong->getDrumkit()->getComponents()->push_back( pNewComponent );
-		}
-
-		for ( auto pOldInstrCompo : *pOldInstrumentComponents ) {
-			if( pOldInstrCompo->get_drumkit_componentID() == nOldID ) {
-				auto pNewInstrCompo = std::make_shared<InstrumentComponent>( pOldInstrCompo );
-				pNewInstrCompo->set_drumkit_componentID( nNewId );
-
-				pNewInstrument->get_components()->push_back( pNewInstrCompo );
-			}
-		}
-	}
-		
-	pOldInstrumentComponents->clear();
-	delete pOldInstrumentComponents;
-		
-	// create a new valid ID for this instrument
-	int nID = -1;
-	for ( uint i = 0; i < pSong->getDrumkit()->getInstruments()->size(); ++i ) {
-		auto pInstr = pSong->getDrumkit()->getInstruments()->get( i );
-		if ( pInstr->get_id() > nID ) {
-			nID = pInstr->get_id();
-		}
-	}
-	++nID;
-
-	pNewInstrument->set_id( nID );
-
-	pSong->getDrumkit()->getInstruments()->add( pNewInstrument );
-
+	pDrumkit->addInstrument( pNewInstrument );
 	pHydrogen->renameJackPorts( pSong );
 
 	pHydrogen->setIsModified( true );
@@ -1947,7 +1828,10 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitPath,
 	updateEditor();
 }
 
-void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString sInstrumentName, QString sDrumkitPath )
+void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList,
+															int nSelectedInstrument,
+															const QString& sInstrumentName,
+															const QString& sDrumkitPath )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1980,20 +1864,8 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 
 	}
 
-	// create a new valid ID for this instrument
-	int nID = -1;
-	for ( uint i = 0; i < pSong->getDrumkit()->getInstruments()->size(); ++i ) {
-		auto pInstr = pSong->getDrumkit()->getInstruments()->get( i );
-		if ( pInstr->get_id() > nID ) {
-			nID = pInstr->get_id();
-		}
-	}
-	++nID;
-
-	pNewInstrument->set_id( nID );
-
 	m_pAudioEngine->lock( RIGHT_HERE );
-	pSong->getDrumkit()->getInstruments()->add( pNewInstrument );
+	pSong->getDrumkit()->addInstrument( pNewInstrument );
 
 	pHydrogen->renameJackPorts( pSong );
 
