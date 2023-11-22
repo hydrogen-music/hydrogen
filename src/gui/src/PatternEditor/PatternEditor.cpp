@@ -85,13 +85,13 @@ PatternEditor::PatternEditor( QWidget *pParent,
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) ) );
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
-	m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
+	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
@@ -332,6 +332,17 @@ void PatternEditor::selectNone()
 {
 	m_selection.clearSelection();
 	m_selection.updateWidgetGroup();
+}
+
+void PatternEditor::showPopupMenu( const QPoint &pos )
+{
+	// Enable or disable menu actions that only operate on selections.
+	bool bEmpty = m_selection.isEmpty();
+	for ( auto & action : m_selectionActions ) {
+		action->setEnabled( !bEmpty );
+	}
+
+	m_pPopupMenu->popup( pos );
 }
 
 ///

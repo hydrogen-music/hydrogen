@@ -258,6 +258,10 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
+	QList< QAction * > m_selectionActions;
+
+	void showPopupMenu( const QPoint & pos );
+
 	int getColumn( int x, bool bUseFineGrained = false ) const;
 	QPoint movingGridOffset() const;
 
