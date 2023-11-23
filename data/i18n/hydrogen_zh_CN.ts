@@ -1899,6 +1899,10 @@ Value</source>
         <source>Delete all notes on %1</source>
         <translation>删除 %1 的所有音符</translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>添加乐器</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>

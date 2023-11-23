@@ -1898,6 +1898,10 @@ Value</source>
         <source>Delete all notes on %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>

@@ -1911,6 +1911,10 @@ Valeur</translation>
         <source>Delete all notes on %1</source>
         <translation>Effacer toutes les notes sur %1</translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>Ajouter un instrument</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>

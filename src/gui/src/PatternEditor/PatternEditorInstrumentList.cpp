@@ -132,6 +132,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionDeleteNotesAllPatterns() ) );
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
+	m_pFunctionPopup->addAction( tr( "Add instrument" ),
+								 HydrogenApp::get_instance()->getMainForm(),
+								 SLOT( action_drumkit_addInstrument() ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
 	auto deleteAction = m_pFunctionPopup->addAction( tr( "Delete instrument" ) );
 	connect( deleteAction, &QAction::triggered, this, [=](){
