@@ -320,14 +320,10 @@ void MainForm::createMenuBar()
 							SLOT( action_file_new() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 	
-	m_pFileMenu->addSeparator();				// -----
-	
 	m_pFileMenu->addAction( tr( "Song Properties" ), this,
 							SLOT( action_file_songProperties() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
 	
-	m_pFileMenu->addSeparator();				// -----
-
 	m_pFileMenu->addAction( sLabelOpen, this,
 							SLOT( action_file_open() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
@@ -394,12 +390,14 @@ void MainForm::createMenuBar()
 	m_pDrumkitMenu->addAction( tr( "&New" ), this,
 							   SLOT( action_instruments_clearAll() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
-	m_pDrumkitMenu->addAction( tr( "&Open" ), this,
-							   SLOT( action_banks_open() ),
-							   pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
+
 	m_pDrumkitMenu->addAction( tr( "&Properties" ), this,
 							   SLOT( action_banks_properties() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
+
+	m_pDrumkitMenu->addAction( tr( "&Open" ), this,
+							   SLOT( action_banks_open() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
