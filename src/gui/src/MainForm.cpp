@@ -388,45 +388,45 @@ void MainForm::createMenuBar()
 	// DRUMKITS MENU
 	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
 	m_pDrumkitMenu->addAction( tr( "&New" ), this,
-							   SLOT( action_instruments_clearAll() ),
+							   SLOT( action_drumkit_new() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
 
 	m_pDrumkitMenu->addAction( tr( "&Properties" ), this,
-							   SLOT( action_banks_properties() ),
+							   SLOT( action_drumkit_properties() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
 	m_pDrumkitMenu->addAction( tr( "&Open" ), this,
-							   SLOT( action_banks_open() ),
+							   SLOT( action_drumkit_open() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
 	m_pDrumkitMenu->addAction( tr( "Add &Instrument" ), this,
-							   SLOT( action_instruments_addInstrument() ),
+							   SLOT( action_drumkit_addInstrument() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
 	m_pDrumkitMenu->addAction( tr( "Add &Component" ), this,
-							   SLOT( action_instruments_addComponent() ),
+							   SLOT( action_drumkit_addComponent() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
 	m_pDrumkitMenu->addAction( tr( "&Save" ), this,
-							   SLOT( action_instruments_saveLibrary() ),
+							   SLOT( action_drumkit_save() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
 	m_pDrumkitMenu->addAction( tr( "Save &As" ), this,
-							   SLOT( action_instruments_saveAsLibrary() ),
+							   SLOT( action_drumkit_saveAs() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
 	m_pDrumkitMenu->addAction( tr( "&Export" ), this,
-							   SLOT( action_instruments_exportLibrary() ),
+							   SLOT( action_drumkit_export() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
 	m_pDrumkitMenu->addAction( tr( "&Import" ), this,
-							   SLOT( action_instruments_importLibrary() ),
+							   SLOT( action_drumkit_import() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
 	m_pDrumkitMenu->addAction( tr( "On&line Import" ), this,
-							   SLOT( action_instruments_onlineImportLibrary() ),
+							   SLOT( action_drumkit_onlineImport() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
 
 	// VIEW MENU
@@ -1345,14 +1345,14 @@ void MainForm::action_window_showAutomationArea()
 
 
 
-void MainForm::action_instruments_addInstrument()
+void MainForm::action_drumkit_addInstrument()
 {
 	SE_mainMenuAddInstrumentAction *pAction = new SE_mainMenuAddInstrumentAction();
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
 
-void MainForm::action_instruments_addComponent()
+void MainForm::action_drumkit_addComponent()
 {
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
@@ -1377,14 +1377,14 @@ void MainForm::action_instruments_addComponent()
 }
 
 
-void MainForm::action_banks_open()
+void MainForm::action_drumkit_open()
 {
 	DrumkitOpenDialog dialog( this );
 	dialog.exec();
 }
 
 
-void MainForm::action_instruments_clearAll()
+void MainForm::action_drumkit_new()
 {
 	switch( 
 			 QMessageBox::information( 	this,					//NOLINT
@@ -1449,7 +1449,7 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 }
 
 
-void MainForm::action_instruments_exportLibrary() {
+void MainForm::action_drumkit_export() {
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1469,21 +1469,21 @@ void MainForm::action_instruments_exportLibrary() {
 
 
 
-void MainForm::action_instruments_importLibrary()
+void MainForm::action_drumkit_import()
 {
 	SoundLibraryImportDialog dialog( this, false );
 	dialog.exec();
 }
 
 
-void MainForm::action_instruments_onlineImportLibrary()
+void MainForm::action_drumkit_onlineImport()
 {
 	SoundLibraryImportDialog dialog( this, true );
 	dialog.exec();
 }
 
 
-void MainForm::action_instruments_saveLibrary()
+void MainForm::action_drumkit_save()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1517,12 +1517,12 @@ void MainForm::action_instruments_saveLibrary()
 		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
 	}
 	else {
-		action_instruments_saveAsLibrary();
+		action_drumkit_saveAs();
 	}
 }
 
 
-void MainForm::action_instruments_saveAsLibrary()
+void MainForm::action_drumkit_saveAs()
 {
 	editDrumkitProperties( false );
 }
@@ -2241,7 +2241,7 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-void MainForm::action_banks_properties() {
+void MainForm::action_drumkit_properties() {
 	editDrumkitProperties( true );
 }
 
@@ -2938,38 +2938,38 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::NewDrumkit:
-				action_instruments_clearAll();
+				action_drumkit_new();
 				break;
 			case Shortcuts::Action::OpenDrumkit:
-				action_banks_open();
+				action_drumkit_open();
 				break;
 			case Shortcuts::Action::EditDrumkitProperties:
-				action_banks_properties();
+				action_drumkit_properties();
 				break;
 			case Shortcuts::Action::SaveDrumkit:
-				action_instruments_saveLibrary();
+				action_drumkit_save();
 				break;
 			case Shortcuts::Action::SaveAsDrumkit:
-				action_instruments_saveAsLibrary();
+				action_drumkit_saveAs();
 				break;
 			case Shortcuts::Action::ExportDrumkit:
-				action_instruments_exportLibrary();
+				action_drumkit_export();
 				break;
 			case Shortcuts::Action::ImportDrumkit:
-				action_instruments_importLibrary();
+				action_drumkit_import();
 				break;
 			case Shortcuts::Action::ImportOnlineDrumkit:
-				action_instruments_onlineImportLibrary();
+				action_drumkit_onlineImport();
 				break;
 
 			case Shortcuts::Action::AddInstrument:
-				action_instruments_addInstrument();
+				action_drumkit_addInstrument();
 				break;
 			case Shortcuts::Action::ClearAllInstruments:
-				action_instruments_clearAll();
+				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				action_instruments_addComponent();
+				action_drumkit_addComponent();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

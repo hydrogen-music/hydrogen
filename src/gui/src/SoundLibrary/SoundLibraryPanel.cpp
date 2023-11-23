@@ -93,10 +93,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu->addSeparator();
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionImport(),
 							   HydrogenApp::get_instance()->getMainForm(),
-							   SLOT( action_instruments_importLibrary() ) );
+							   SLOT( action_drumkit_import() ) );
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionOnlineImport(),
 							   HydrogenApp::get_instance()->getMainForm(),
-							   SLOT( action_instruments_onlineImportLibrary() ) );
+							   SLOT( action_drumkit_onlineImport() ) );
 
 	// A version with reduced functionality for read-only drumkits
 	__drumkit_menu_system = new QMenu( this );
@@ -112,10 +112,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu_system->addSeparator();
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionImport(),
 									  HydrogenApp::get_instance()->getMainForm(),
-									  SLOT( action_instruments_importLibrary() ) );
+									  SLOT( action_drumkit_import() ) );
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionOnlineImport(),
 									  HydrogenApp::get_instance()->getMainForm(),
-									  SLOT( action_instruments_onlineImportLibrary() ) );
+									  SLOT( action_drumkit_onlineImport() ) );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();

@@ -150,19 +150,19 @@ public slots:
 		void action_report_bug();
 		void action_donate();
 
-		void action_instruments_addInstrument();
-		void action_instruments_clearAll();
-		void action_instruments_saveLibrary();
-		void action_instruments_saveAsLibrary();
-		void action_instruments_exportLibrary();
-		void action_instruments_importLibrary();
-		void action_instruments_onlineImportLibrary();
-		void action_instruments_addComponent();
+		void action_drumkit_new();
+		void action_drumkit_properties();
+		void action_drumkit_open();
+		void action_drumkit_addInstrument();
+		void action_drumkit_addComponent();
+		void action_drumkit_save();
+		void action_drumkit_saveAs();
+		void action_drumkit_export();
+		void action_drumkit_import();
+		void action_drumkit_onlineImport();
 
 		void functionDeleteInstrument( int nInstrument );
 
-		void action_banks_properties();
-		void action_banks_open();
 		
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
