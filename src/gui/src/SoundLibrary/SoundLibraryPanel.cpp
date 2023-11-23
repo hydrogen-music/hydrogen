@@ -91,9 +91,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionExport(), this,
 							   SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu->addSeparator();
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionImport(),
-							   HydrogenApp::get_instance()->getMainForm(),
-							   SLOT( action_drumkit_import() ) );
+	__drumkit_menu->addAction( pCommonStrings->getMenuActionImport(), this,
+							   [=](){ HydrogenApp::get_instance()->getMainForm()->
+									   action_drumkit_import( false ); } );
 	__drumkit_menu->addAction( pCommonStrings->getMenuActionOnlineImport(),
 							   HydrogenApp::get_instance()->getMainForm(),
 							   SLOT( action_drumkit_onlineImport() ) );
@@ -110,9 +110,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionExport(), this,
 									  SLOT( on_drumkitExportAction() ) );
 	__drumkit_menu_system->addSeparator();
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionImport(),
-									  HydrogenApp::get_instance()->getMainForm(),
-									  SLOT( action_drumkit_import() ) );
+	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionImport(), this,
+									  [=](){ HydrogenApp::get_instance()->getMainForm()->
+											  action_drumkit_import( false ); } );
 	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionOnlineImport(),
 									  HydrogenApp::get_instance()->getMainForm(),
 									  SLOT( action_drumkit_onlineImport() ) );

@@ -1470,8 +1470,10 @@ void MainForm::action_drumkit_export() {
 
 
 
-void MainForm::action_drumkit_import() {
+void MainForm::action_drumkit_import( bool bLoad ) {
 	auto pPreferences = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 
 	QString sPath = pPreferences->getLastImportDrumkitDirectory();
 	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
@@ -1504,10 +1506,37 @@ void MainForm::action_drumkit_import() {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	try {
-		H2Core::Drumkit::install( sFilename );
+		QString sImportedPath;
+		if ( ! H2Core::Drumkit::install( sFilename, "", &sImportedPath ) ) {
+			QApplication::restoreOverrideCursor();
+			QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
+			return;
+		}
 
 		// update the drumkit list
-		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+		pSoundLibraryDatabase->update();
+
+		if ( bLoad ) {
+#ifdef H2CORE_HAVE_LIBARCHIVE
+			if ( ! sImportedPath.isEmpty() ) {
+				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
+				if ( pDrumkit == nullptr ) {
+					ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
+							  .arg( sFilename ) );
+					return;
+				}
+
+				pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
+			}
+			else {
+				ERRORLOG( QString( "Unable to determine imported path for [%1]" )
+						  .arg( sFilename ) );
+			}
+#else
+			WARNINGLOG( "Imported drumkit was not loaded. This feature is only supported when compiled with libarchive." );
+#endif
+		}
+
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen",
 								  QString( tr( "Drumkit imported in %1" )
@@ -1517,7 +1546,6 @@ void MainForm::action_drumkit_import() {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
 	}
-
 }
 
 

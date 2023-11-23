@@ -780,7 +780,10 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 	return m_pInstruments->summarizeContent( m_pComponents );
 }
 
-bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
+bool Drumkit::install( const QString& sSourcePath,
+					   const QString& sTargetPath,
+					   QString* pInstalledPath,
+					   bool bSilent )
 {
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
@@ -839,6 +842,9 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 	} else {
 		dk_dir = Filesystem::usr_drumkits_dir() + "/";
 	}
+
+	// Keep track of where the artifacts where extracted to
+	QString sExtractedDir = "";
 		
 	while ( ( r = archive_read_next_header( arch, &entry ) ) != ARCHIVE_EOF ) {
 		if ( r != ARCHIVE_OK ) {
@@ -849,6 +855,11 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 			break;
 		}
 		QString np = dk_dir + archive_entry_pathname( entry );
+
+		if ( np.contains( Filesystem::drumkit_xml() ) ) {
+			QFileInfo npInfo( np );
+			sExtractedDir = npInfo.absoluteDir().absolutePath();
+		}
 
 		QByteArray newpath = np.toLocal8Bit();
 
@@ -867,6 +878,10 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 		}
 	}
 	archive_read_close( arch );
+
+	if ( pInstalledPath != nullptr ) {
+		*pInstalledPath = sExtractedDir;
+	}
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
 	archive_read_finish( arch );

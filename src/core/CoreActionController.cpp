@@ -1379,7 +1379,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path to a compressed .h2drumkit file. It will
 		// be extracted to a temporary folder and loaded from there.
-		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), true ) ) {
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), nullptr, true ) ) {
 			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 			return nullptr;
@@ -1448,7 +1448,7 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		return false;
 	}
 
-	if ( ! Drumkit::install( sDrumkitPath, sTarget, true ) ) {
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, nullptr, true ) ) {
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;

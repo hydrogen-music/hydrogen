@@ -158,7 +158,9 @@ public slots:
 		void action_drumkit_save();
 		void action_drumkit_saveAs();
 		void action_drumkit_export();
-		void action_drumkit_import();
+		/** @param bLoad whether to just import the kit or, in addition, load
+		 * the imported kit. */
+		void action_drumkit_import( bool bLoad = true );
 		void action_drumkit_onlineImport();
 
 		void functionDeleteInstrument( int nInstrument );

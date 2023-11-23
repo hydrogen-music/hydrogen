@@ -195,15 +195,20 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Extract a .h2drumkit file.
 		 *
 		 * \param sSourcePath Absolute path to the new drumkit archive
-		 * \param sTargetPath Absolute path to where the new drumkit
-		 * should be extracted to. If left empty, the user's drumkit
-		 * folder will be used.
-		 * \param bSilent Whether debug and info messages should be
-		 * logged.
+		 * \param sTargetPath Absolute path to where the new drumkit should be
+		 *   extracted to. If left empty, the user's drumkit folder will be
+		 *   used.
+		 * \param pImportedDir When using libarchive to extract the kit, this
+		 *   variable will be set to the path of the folder the kit was
+		 *   extracted to.
+		 * \param bSilent Whether debug and info messages should be logged.
 		 *
 		 * \return true on success
 		 */
-	static bool install( const QString& sSourcePath, const QString& sTargetPath = "", bool bSilent = false );
+	static bool install( const QString& sSourcePath,
+						 const QString& sTargetPath = "",
+						 QString* pImportedDir = nullptr,
+						 bool bSilent = false );
 
 	/**
 	 * Compresses the drumkit into a .h2drumkit file.
