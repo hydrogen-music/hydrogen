@@ -1009,6 +1009,16 @@ Are you sure?</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Dupliquer</translation>
     </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Importer</translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Importation en ligne</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>

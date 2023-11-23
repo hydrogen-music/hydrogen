@@ -498,6 +498,10 @@ CommonStrings::CommonStrings(){
 	m_sMenuActionProperties = tr( "Properties" );
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionDuplicate = tr( "Duplicate" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionImport = tr( "Import" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionOnlineImport = tr( "Online Import" );
 
 }
 

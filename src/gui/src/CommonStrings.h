@@ -209,6 +209,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionExport() const { return m_sMenuActionExport; }
 	const QString& getMenuActionProperties() const { return m_sMenuActionProperties; }
 	const QString& getMenuActionDuplicate() const { return m_sMenuActionDuplicate; }
+	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
+	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -378,5 +380,7 @@ private:
 	QString m_sMenuActionExport;
 	QString m_sMenuActionProperties;
 	QString m_sMenuActionDuplicate;
+	QString m_sMenuActionImport;
+	QString m_sMenuActionOnlineImport;
 };
 #endif
