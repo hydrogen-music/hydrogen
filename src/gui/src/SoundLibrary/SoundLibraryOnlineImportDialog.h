@@ -20,11 +20,11 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_IMPORT_DIALOG_H
-#define SOUND_LIBRARY_IMPORT_DIALOG_H
+#ifndef SOUND_LIBRARY_ONLINE_IMPORT_DIALOG_H
+#define SOUND_LIBRARY_ONLINE_IMPORT_DIALOG_H
 
 
-#include "ui_SoundLibraryImportDialog_UI.h"
+#include "ui_SoundLibraryOnlineImportDialog_UI.h"
 #include <QNetworkReply>
 #include "../EventListener.h"
 
@@ -36,16 +36,16 @@
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
 /** \ingroup docGUI*/
-class SoundLibraryImportDialog :  public QDialog,
-								  public Ui_SoundLibraryImportDialog_UI,
-								  public H2Core::Object<SoundLibraryImportDialog>,
+class SoundLibraryOnlineImportDialog :  public QDialog,
+								  public Ui_SoundLibraryOnlineImportDialog_UI,
+								  public H2Core::Object<SoundLibraryOnlineImportDialog>,
 								  public EventListener
 {
-    H2_OBJECT(SoundLibraryImportDialog)
+    H2_OBJECT(SoundLibraryOnlineImportDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );
-		~SoundLibraryImportDialog();
+		SoundLibraryOnlineImportDialog( QWidget* pParent );
+		~SoundLibraryOnlineImportDialog();
 
 	virtual void soundLibraryChangedEvent() override;
 
@@ -55,8 +55,6 @@ class SoundLibraryImportDialog :  public QDialog,
 		void on_EditListBtn_clicked();
 		void on_UpdateListBtn_clicked();
 		void on_DownloadBtn_clicked();
-		void on_BrowseBtn_clicked();
-		void on_InstallBtn_clicked();
 
 		void on_close_btn_clicked();
 

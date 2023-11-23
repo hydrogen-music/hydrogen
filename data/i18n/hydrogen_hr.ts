@@ -1083,7 +1083,7 @@ Are you sure?</source>
     <name>DrumkitExportDialog</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Izbaci</translation>
+        <translation>&amp;Izbaci</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -1111,18 +1111,18 @@ Are you sure?</source>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Sve</translation>
+        <translation>Sve</translation>
     </message>
 </context>
 <context>
     <name>DrumkitExportDialog_UI</name>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Izbaci</translation>
+        <translation>Izbaci</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Otkaži</translation>
+        <translation>Otkaži</translation>
     </message>
     <message>
         <source>Path</source>
@@ -1130,7 +1130,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Pretražuj...</translation>
+        <translation>Pretražuj...</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1160,11 +1160,11 @@ Are you sure?</source>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">Informacije</translation>
+        <translation>Informacije</translation>
     </message>
     <message>
         <source>Image License</source>
@@ -1172,7 +1172,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Pretraži</translation>
+        <translation>Pretraži</translation>
     </message>
     <message>
         <source>Drumkit License</source>
@@ -1180,11 +1180,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Ime</translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>Image</source>
@@ -1200,11 +1200,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished">Spremi</translation>
+        <translation>Spremi</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Otkaži</translation>
+        <translation>Otkaži</translation>
     </message>
 </context>
 <context>
@@ -2594,6 +2594,18 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Umetni set bubnjeva</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
     </message>
 </context>
 <context>
@@ -5838,7 +5850,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Ubaci zvučnu knjižnicu</translation>
@@ -5856,34 +5868,6 @@ Overwrite the existing pattern?</source>
         <translation>Osvježavanje zvučne knjižnice...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Instalirano</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Novo</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Skidanje zvučne knjižnice...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Umetni set bubnjeva</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Zvučna knjižnica umetnuta u %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Setovi bubnjeva</translation>
     </message>
@@ -5896,6 +5880,18 @@ Overwrite the existing pattern?</source>
         <translation>Uzorci</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Instalirano</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Novo</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5903,59 +5899,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <source>Dialog</source>
-        <translation></translation>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Skidanje zvučne knjižnice...</translation>
     </message>
     <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Zvučna knjižnica umetnuta u %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dijalog</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Osvježi popis</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Ime zvučne knjižnice</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Skini i instaliraj</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Lokalni fajl</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Pretražuj...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instaliraj</translation>
+        <source>Edit server list</source>
+        <translation>Uredi popis servera</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Uredi server listu</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
+        <source>Sound Library Name</source>
+        <translation>Ime zvučne knjižnice</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5963,8 +5951,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Skini i instaliraj</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zatvori</translation>
     </message>
 </context>
 <context>

@@ -2623,6 +2623,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Увези бубњеве</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Догодила се грешка током увоза бубњева.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5896,18 +5908,14 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
-        <source>Patterns</source>
-        <translation>Мустре</translation>
+        <source>Sound Library import</source>
+        <translation>Увоз гарнитура бубњева</translation>
     </message>
     <message>
         <source>Sound library</source>
         <translation>Бубњеви</translation>
-    </message>
-    <message>
-        <source>Sound Library import</source>
-        <translation>Увоз гарнитура бубњева</translation>
     </message>
     <message>
         <source>Status</source>
@@ -5916,6 +5924,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Освежавам списак гарнитура бубњева...</translation>
+    </message>
+    <message>
+        <source>Drumkits</source>
+        <translation>Бубњеви</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation>Песме</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation>Мустре</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -5930,12 +5950,16 @@ Overwrite the existing pattern?</source>
         <translation>Аутор: %1</translation>
     </message>
     <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Преузимам гарнитуру бубњева...</translation>
+        <source>Drumkit License: %1</source>
+        <translation>Лиценца за бубњеве: %1</translation>
     </message>
     <message>
-        <source>Import drumkit</source>
-        <translation>Увези бубњеве</translation>
+        <source>Image License: %1</source>
+        <translation>Лиценца за слику: %1</translation>
+    </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Преузимам гарнитуру бубњева...</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
@@ -5945,84 +5969,52 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Догодила се грешка током увоза бубњева.</translation>
     </message>
-    <message>
-        <source>Drumkits</source>
-        <translation>Бубњеви</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Песме</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Лиценца за бубњеве: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Лиценца за слику: %1</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Прозорче</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Мрежа</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Обнови списак</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Назив бубњева</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Аутор...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Преузми и постави</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Локална датотека</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Разгледај...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Инсталирај</translation>
-    </message>
-    <message>
         <source>Edit server list</source>
         <translation>Уреди списак сервера</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Затвори</translation>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <source>Sound Library Name</source>
+        <translation>Назив бубњева</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>СловнаОзнака</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Лиценца за слику...</translation>
+        <source>Author...</source>
+        <translation>Аутор...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Лиценца за бубњеве...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Лиценца за слику...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Преузми и постави</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Затвори</translation>
     </message>
 </context>
 <context>

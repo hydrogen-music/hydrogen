@@ -2648,6 +2648,18 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importer un kit de batterie</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5920,14 +5932,14 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importation de la bibliothèque de sons</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Bibliothèque de sons</translation>
+        <translation>Bibliothèque</translation>
     </message>
     <message>
         <source>Status</source>
@@ -5936,34 +5948,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Mise à jour de la liste de la bibliothèque de sons...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Installé</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nouveau</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Auteur : %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Téléchargement de la bibliothèque de sons...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importer un kit de batterie</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>La bibliothèque de sons a été importée dans %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
     </message>
     <message>
         <source>Drumkits</source>
@@ -5978,6 +5962,18 @@ Overwrite the existing pattern?</source>
         <translation>Motifs</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Installé</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nouveau</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Auteur : %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Licence du kit de batterie : %1</translation>
     </message>
@@ -5985,68 +5981,64 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation>Licence de l&apos;image : %1</translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Téléchargement de la bibliothèque de sons...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>La bibliothèque de sons a été importée dans %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Mettre à jour la liste</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nom de la bibliothèque de sons</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Auteur...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Télécharger et installer</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Fichier local</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Explorer...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Installer</translation>
+        <source>Edit server list</source>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Modifier la liste des serveurs</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
+        <source>Sound Library Name</source>
+        <translation>Nom de la bibliothèque de sons</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>Label de texte</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Licence de l&apos;image...</translation>
+        <source>Author...</source>
+        <translation>Auteur...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Licence du kit de batterie...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Licence de l&apos;image...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Télécharger et installer</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
     </message>
 </context>
 <context>

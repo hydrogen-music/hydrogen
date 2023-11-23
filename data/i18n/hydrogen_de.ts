@@ -2637,6 +2637,18 @@ Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Schlagzeug importieren</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Ein Fehler trat beim Importieren der Soundbibliothek auf.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5904,7 +5916,7 @@ Soll sie überschrieben werden?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Soundbibliothek importieren</translation>
@@ -5922,6 +5934,18 @@ Soll sie überschrieben werden?</translation>
         <translation>Liste der Soundbibliotheken wird aktualisiert...</translation>
     </message>
     <message>
+        <source>Drumkits</source>
+        <translation>Schlagzeuge</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation>Lieder</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation>Patterns</translation>
+    </message>
+    <message>
         <source>Installed</source>
         <translation>Installiert</translation>
     </message>
@@ -5932,6 +5956,14 @@ Soll sie überschrieben werden?</translation>
     <message>
         <source>Author: %1</source>
         <translation>Autor: %1</translation>
+    </message>
+    <message>
+        <source>Drumkit License: %1</source>
+        <translation>Schlagzeug-Lizenz: %1</translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation>Bild-Lizenz: %1</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
@@ -5945,92 +5977,52 @@ Soll sie überschrieben werden?</translation>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Ein Fehler trat beim Importieren der Soundbibliothek auf.</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Schlagzeug importieren</translation>
-    </message>
-    <message>
-        <source>Drumkits</source>
-        <translation>Schlagzeuge</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Lieder</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Pattern</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Schlagzeug-Lizenz: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Bild-Lizenz: %1</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Liste aktualisieren</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Name der Soundbibliothek</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Herunterladen und installieren</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Lokale Datei</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Durchsuchen...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Installieren</translation>
+        <source>Edit server list</source>
+        <translation>Bearbeite Server-Liste</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Bearbeite Server-Liste</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schliessen</translation>
+        <source>Sound Library Name</source>
+        <translation>Name der Soundbibliothek</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>Textlabel</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Bild-Lizenz...</translation>
+        <source>Author...</source>
+        <translation>Autor...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Schlagzeug-Lizenz...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Bild-Lizenz...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Herunterladen und installieren</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schliessen</translation>
     </message>
 </context>
 <context>

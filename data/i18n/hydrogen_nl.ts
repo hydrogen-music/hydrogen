@@ -2596,6 +2596,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Drumkit importeren</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Er is een fout opgetreden bij het importeren van de geluid bibliotheek.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5835,7 +5847,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Geluid bibliotheek importeren</translation>
@@ -5853,34 +5865,6 @@ Overwrite the existing pattern?</source>
         <translation>Geluid bibliotheek updaten ...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Geïnstalleerd</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nieuw</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Auteur: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Geluid bibliotheek downloaden ...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Drumkit importeren</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Geluid bibliotheek geïmporteerd in %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Er is een fout opgetreden bij het importeren van de geluid bibliotheek.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Drumkits</translation>
     </message>
@@ -5893,6 +5877,18 @@ Overwrite the existing pattern?</source>
         <translation>Patronen</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Geïnstalleerd</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nieuw</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Auteur: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5900,59 +5896,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Geluid bibliotheek downloaden ...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Geluid bibliotheek geïmporteerd in %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Er is een fout opgetreden bij het importeren van de geluid bibliotheek.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Update lijst</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Geluid bibliotheek naam</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Auteur ...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Downloaden en installeren</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Lokaal bestand</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Bladeren ...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Installeren</translation>
+        <source>Edit server list</source>
+        <translation>Bewerk server lijst</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Bewerk server lijst</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Sluiten</translation>
+        <source>Sound Library Name</source>
+        <translation>Geluid bibliotheek naam</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Auteur ...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5960,8 +5948,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Downloaden en installeren</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Sluiten</translation>
     </message>
 </context>
 <context>

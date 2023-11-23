@@ -2622,6 +2622,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>ドラムキットのインポート</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>サウンドライブラリーのインポートでエラーが発生しました。</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5877,7 +5889,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>サウンドライブラリーのインポート</translation>
@@ -5895,34 +5907,6 @@ Overwrite the existing pattern?</source>
         <translation>サウンドライブラリーリストの更新...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>インストール済</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>新規</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>作者: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>サウンドライブラリーのダウンロード...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>ドラムキットのインポート</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>%1 にサウンドライブラリーをインポートしました</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>サウンドライブラリーのインポートでエラーが発生しました。</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>ドラムキット</translation>
     </message>
@@ -5935,6 +5919,18 @@ Overwrite the existing pattern?</source>
         <translation>パターン</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>インストール済</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>新規</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>作者: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5942,59 +5938,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>サウンドライブラリーのダウンロード...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>%1 にサウンドライブラリーをインポートしました</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>サウンドライブラリーのインポートでエラーが発生しました。</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>インターネット</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>リストの更新</translation>
     </message>
     <message>
+        <source>Edit server list</source>
+        <translation>サーバーリストを編集</translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sound Library Name</source>
         <translation>サウンドライブラリー名</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Author...</source>
         <translation>作者...</translation>
     </message>
     <message>
-        <source>Download and install</source>
-        <translation>ダウンロードとインストール</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>ローカルファイル</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>参照...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>インストール</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Edit server list</source>
-        <translation>サーバーリストの編集</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6002,8 +5990,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>ダウンロードとインストール</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
     </message>
 </context>
 <context>

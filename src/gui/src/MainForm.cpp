@@ -20,6 +20,7 @@
  *
  */
 
+#include <core/H2Exception.h>
 #include <core/EventQueue.h>
 #include <core/Version.h>
 #include <core/Hydrogen.h>
@@ -66,7 +67,7 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
-#include "SoundLibrary/SoundLibraryImportDialog.h"
+#include "SoundLibrary/SoundLibraryOnlineImportDialog.h"
 #include "SoundLibrary/DrumkitOpenDialog.h"
 #include "SoundLibrary/DrumkitExportDialog.h"
 #include "SoundLibrary/DrumkitPropertiesDialog.h"
@@ -1469,16 +1470,60 @@ void MainForm::action_drumkit_export() {
 
 
 
-void MainForm::action_drumkit_import()
-{
-	SoundLibraryImportDialog dialog( this, false );
-	dialog.exec();
+void MainForm::action_drumkit_import() {
+	auto pPreferences = H2Core::Preferences::get_instance();
+
+	QString sPath = pPreferences->getLastImportDrumkitDirectory();
+	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
+
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
+	fd.setDirectory( sPath );
+
+	fd.setWindowTitle( tr( "Import drumkit" ) );
+
+	QString sFilename = "";
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
+	} else {
+		// Closed
+		return;
+	}
+
+	if ( sFilename.isEmpty() ) {
+		ERRORLOG( "No drumkit file selected." );
+		return;
+	}
+
+	pPreferences->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	try {
+		H2Core::Drumkit::install( sFilename );
+
+		// update the drumkit list
+		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
+		QApplication::restoreOverrideCursor();
+		QMessageBox::information( this, "Hydrogen",
+								  QString( tr( "Drumkit imported in %1" )
+										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
+	}
+	catch( H2Core::H2Exception ex ) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
+	}
+
 }
 
 
 void MainForm::action_drumkit_onlineImport()
 {
-	SoundLibraryImportDialog dialog( this, true );
+	SoundLibraryOnlineImportDialog dialog( this );
 	dialog.exec();
 }
 

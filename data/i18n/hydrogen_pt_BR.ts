@@ -2627,6 +2627,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importar drumkit</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5900,14 +5912,14 @@ Sobrescrever o padrão existente?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importar biblioteca de som</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Biblioteca de som</translation>
+        <translation>Biblioteca de Som</translation>
     </message>
     <message>
         <source>Status</source>
@@ -5916,34 +5928,6 @@ Sobrescrever o padrão existente?</translation>
     <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Atualizando lista de Bibliotecas de Som...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Instalado</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Novo</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Baixando Biblioteca de Som</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importar drumkit</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Biblioteca de som importada em %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
     </message>
     <message>
         <source>Drumkits</source>
@@ -5958,6 +5942,18 @@ Sobrescrever o padrão existente?</translation>
         <translation>Padrões</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Instalado</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Novo</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Licença do drumkit: %1</translation>
     </message>
@@ -5965,68 +5961,64 @@ Sobrescrever o padrão existente?</translation>
         <source>Image License: %1</source>
         <translation>Licença da imagem: %1</translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Baixando Biblioteca de Som</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Biblioteca de som importada em %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Diálogo</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Atualizar lista</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nome da Biblioteca de Som</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Baixar e instalar</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Arquivo local</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Procurar...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalar</translation>
+        <source>Edit server list</source>
+        <translation>Editar lista dos servidores</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Editar lista de servidores</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fechar</translation>
+        <source>Sound Library Name</source>
+        <translation>Nome da Biblioteca de Som</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>Rótulo de texto</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Licença da imagem...</translation>
+        <source>Author...</source>
+        <translation>Autor...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Licença do Drumkit...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Licença da imagem...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Baixar e instalar</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fechar</translation>
     </message>
 </context>
 <context>

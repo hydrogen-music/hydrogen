@@ -2629,6 +2629,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>导入鼓组</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>导入声音库时发生错误。</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5902,7 +5914,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>声音库导入</translation>
@@ -5963,20 +5975,12 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>导入声音库时发生错误。</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>导入鼓组</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>互联网</translation>
     </message>
     <message>
         <source>Update list</source>
@@ -5999,32 +6003,20 @@ Overwrite the existing pattern?</source>
         <translation>文字标签</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>图像许可协议...</translation>
+        <source>Author...</source>
+        <translation>作者...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>鼓组许可协议...</translation>
     </message>
     <message>
-        <source>Author...</source>
-        <translation>作者...</translation>
+        <source>Image License...</source>
+        <translation>图像许可协议...</translation>
     </message>
     <message>
         <source>Download and install</source>
         <translation>下载并安装</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>本地文件</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>浏览...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>安装</translation>
     </message>
     <message>
         <source>Close</source>

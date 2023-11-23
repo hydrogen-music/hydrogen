@@ -20,7 +20,7 @@
  *
  */
 
-#include "SoundLibraryImportDialog.h"
+#include "SoundLibraryOnlineImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
 
@@ -46,7 +46,7 @@
 
 const int max_redirects = 30;
 
-SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
+SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent )
  : QDialog( pParent )
 {
 	setupUi( this );
@@ -66,24 +66,17 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 	SoundLibraryInfoLbl->setText( "" );
 	DownloadBtn->setEnabled( false );
 
-	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
 
 	adjustSize();
 	setFixedSize( width(), height() );
-
-	if( bOnlineImport){
-		 tabWidget->setCurrentIndex( 0 );
-	} else {
-		 tabWidget->setCurrentIndex( 1 );
-	}
 }
 
 
 
 
-SoundLibraryImportDialog::~SoundLibraryImportDialog()
+SoundLibraryOnlineImportDialog::~SoundLibraryOnlineImportDialog()
 {
 	if ( auto pH2App = HydrogenApp::get_instance() ) {
 		pH2App->removeEventListener( this );
@@ -91,7 +84,7 @@ SoundLibraryImportDialog::~SoundLibraryImportDialog()
 }
 
 //update combo box
-void SoundLibraryImportDialog::updateRepositoryCombo()
+void SoundLibraryOnlineImportDialog::updateRepositoryCombo()
 {
 	H2Core::Preferences* pref = H2Core::Preferences::get_instance();
 
@@ -112,7 +105,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	reloadRepositoryData();
 }
 
-void SoundLibraryImportDialog::onRepositoryComboBoxIndexChanged(int i)
+void SoundLibraryOnlineImportDialog::onRepositoryComboBoxIndexChanged(int i)
 {
 	UNUSED(i);
 
@@ -121,7 +114,7 @@ void SoundLibraryImportDialog::onRepositoryComboBoxIndexChanged(int i)
 		QString cacheFile = getCachedFilename();
 		if( !H2Core::Filesystem::file_exists( cacheFile, true ) )
 		{
-			SoundLibraryImportDialog::on_UpdateListBtn_clicked();
+			SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked();
 		}
 		reloadRepositoryData();
 	}
@@ -130,14 +123,14 @@ void SoundLibraryImportDialog::onRepositoryComboBoxIndexChanged(int i)
 ///
 /// Edit the server list
 ///
-void SoundLibraryImportDialog::on_EditListBtn_clicked()
+void SoundLibraryOnlineImportDialog::on_EditListBtn_clicked()
 {
 	SoundLibraryRepositoryDialog repoDialog( this );
 	repoDialog.exec();
 	updateRepositoryCombo();
 }
 
-void SoundLibraryImportDialog::clearImageCache()
+void SoundLibraryOnlineImportDialog::clearImageCache()
 {
 	// Note: After a kit is installed the list refreshes and this gets called to
 	// clear the image cache - maybe we want to keep the cache in this case?
@@ -156,7 +149,7 @@ void SoundLibraryImportDialog::clearImageCache()
 	}
 }
 
-QString SoundLibraryImportDialog::getCachedFilename()
+QString SoundLibraryOnlineImportDialog::getCachedFilename()
 {
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
 	QString serverMd5 = QString(QCryptographicHash::hash(( repositoryCombo->currentText().toLatin1() ),QCryptographicHash::Md5).toHex());
@@ -164,7 +157,7 @@ QString SoundLibraryImportDialog::getCachedFilename()
 	return cacheFile;
 }
 
-QString SoundLibraryImportDialog::getCachedImageFilename()
+QString SoundLibraryOnlineImportDialog::getCachedImageFilename()
 {
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
 	QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
@@ -173,7 +166,7 @@ QString SoundLibraryImportDialog::getCachedImageFilename()
 }
 
 
-void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QString& data)
+void SoundLibraryOnlineImportDialog::writeCachedData(const QString& fileName, const QString& data)
 {
 	if( data.isEmpty() )
 	{
@@ -193,7 +186,7 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 	outFile.close();
 }
 
-void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
+void SoundLibraryOnlineImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
 {
 	QString cacheFile = getCachedImageFilename() ;
 
@@ -209,7 +202,7 @@ void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixm
 	outFile.close();
 }
 
-QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
+QString SoundLibraryOnlineImportDialog::readCachedData(const QString& fileName)
 {
 	QString content;
 	QFile inFile( fileName );
@@ -232,7 +225,7 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 	return content;
 }
 
-QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
+QString SoundLibraryOnlineImportDialog::readCachedImage( const QString& imageFile )
 {
 	QString cacheFile = getCachedImageFilename() ;
 
@@ -246,7 +239,7 @@ QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 	return cacheFile;
 }
 
-void SoundLibraryImportDialog::reloadRepositoryData()
+void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 {
 	QString sDrumkitXML;
 	QString cacheFile = getCachedFilename();
@@ -328,7 +321,7 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 ///
 /// Download and update the drumkit list
 ///
-void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
+void SoundLibraryOnlineImportDialog::on_UpdateListBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	QString downloadUrl = repositoryCombo->currentText();
@@ -376,7 +369,7 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 
 
 
-void SoundLibraryImportDialog::updateSoundLibraryList()
+void SoundLibraryOnlineImportDialog::updateSoundLibraryList()
 {
 	// build the sound library tree
 	m_pDrumkitTree->clear();
@@ -424,13 +417,13 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 
 }
 
-void SoundLibraryImportDialog::soundLibraryChangedEvent() {
+void SoundLibraryOnlineImportDialog::soundLibraryChangedEvent() {
 	updateSoundLibraryList();
 }
 
 
 /// Is the SoundLibrary already installed?
-bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo )
+bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo )
 {
 	// check if the filename matches with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
@@ -460,7 +453,7 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core::Sound
 	return false;
 }
 
-void SoundLibraryImportDialog::loadImage(QString img )
+void SoundLibraryOnlineImportDialog::loadImage(QString img )
 {
 	QPixmap pixmap;
 	pixmap.load( img ) ;
@@ -469,7 +462,7 @@ void SoundLibraryImportDialog::loadImage(QString img )
 	showImage( pixmap );
 }
 
-void SoundLibraryImportDialog::showImage( QPixmap pixmap )
+void SoundLibraryOnlineImportDialog::showImage( QPixmap pixmap )
 {
 	int x = (int) drumkitImageLabel->size().width();
 	int y = drumkitImageLabel->size().height();
@@ -494,7 +487,7 @@ void SoundLibraryImportDialog::showImage( QPixmap pixmap )
 }
 
 
-void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous  )
+void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous  )
 {
 	UNUSED( previous );
 	if ( current ) {
@@ -594,7 +587,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 
 
-void SoundLibraryImportDialog::on_DownloadBtn_clicked()
+void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	QString selected = m_pDrumkitTree->currentItem()->text(0);
@@ -677,61 +670,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 	}
 }
 
-
-
-
-void SoundLibraryImportDialog::on_BrowseBtn_clicked()
-{
-	QString sPath = H2Core::Preferences::get_instance()->getLastImportDrumkitDirectory();
-	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
-		sPath = QDir::homePath();
-	}
-
-	FileDialog fd(this);
-	fd.setAcceptMode( QFileDialog::AcceptOpen );
-	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
-	fd.setDirectory( sPath );
-
-	fd.setWindowTitle( tr( "Import drumkit" ) );
-
-	QString filename = "";
-	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-	}
-
-	if (filename != "") {
-		SoundLibraryPathTxt->setText( filename );
-		H2Core::Preferences::get_instance()->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
-		InstallBtn->setEnabled ( true );
-	}
-}
-
-
-
-
-void SoundLibraryImportDialog::on_InstallBtn_clicked()
-{
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	
-	try {
-		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
-		// update the drumkit list
-		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
-		QApplication::restoreOverrideCursor();
-		QMessageBox::information( this, "Hydrogen",
-								  QString( tr( "SoundLibrary imported in %1" )
-										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
-	}
-	catch( H2Core::H2Exception ex ) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
-	}
-}
-
-
-
-void SoundLibraryImportDialog::on_close_btn_clicked()
+void SoundLibraryOnlineImportDialog::on_close_btn_clicked()
 {
 	accept();
 }

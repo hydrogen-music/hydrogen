@@ -2600,6 +2600,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importar kit de bateria</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Hi ha hagut un error a l&apos;importar la llibreria de sò.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5843,7 +5855,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importació de llibreria de sò</translation>
@@ -5861,6 +5873,18 @@ Overwrite the existing pattern?</source>
         <translation>Actualitzant llista de llibreries de sò...</translation>
     </message>
     <message>
+        <source>Drumkits</source>
+        <translation>Kits de bateria</translation>
+    </message>
+    <message>
+        <source>Songs</source>
+        <translation>Cançons</translation>
+    </message>
+    <message>
+        <source>Patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Installed</source>
         <translation>Instalació completa</translation>
     </message>
@@ -5871,6 +5895,14 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Author: %1</source>
         <translation>Autor: %1</translation>
+    </message>
+    <message>
+        <source>Drumkit License: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
@@ -5884,83 +5916,39 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Hi ha hagut un error a l&apos;importar la llibreria de sò.</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importar kit de bateria</translation>
-    </message>
-    <message>
-        <source>Drumkits</source>
-        <translation>Kits de bateria</translation>
-    </message>
-    <message>
-        <source>Songs</source>
-        <translation>Cançons</translation>
-    </message>
-    <message>
-        <source>Patterns</source>
-        <translation>Patrons</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Diàleg</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Actualitzar llista</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nom de la llibreria de sò</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Descarregar i instalar</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Fitxer local</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Navegar...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalar</translation>
+        <source>Edit server list</source>
+        <translation>Editar llista de servidors</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Editar la llista de servidors</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Tancar</translation>
+        <source>Sound Library Name</source>
+        <translation>Nom de la llibreria de sò</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5968,8 +5956,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Descarregar i instalar</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Tancar</translation>
     </message>
 </context>
 <context>

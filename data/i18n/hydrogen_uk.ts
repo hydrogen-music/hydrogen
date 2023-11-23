@@ -2628,6 +2628,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Імпортувати набір</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Під час імпорту бібліотеки звуків трапилась помилка.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5901,7 +5913,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Імпорт бібліотеки звуків</translation>
@@ -5919,34 +5931,6 @@ Overwrite the existing pattern?</source>
         <translation>Оновлення списку звукових бібліотек...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Встановлено</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Нова</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Автор: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Звантаження бібліотеки звуків...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Імпортувати набір</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Бібліотеку звуків імпортовано в %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Під час імпорту бібліотеки звуків трапилась помилка.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Набори перкусії</translation>
     </message>
@@ -5959,6 +5943,18 @@ Overwrite the existing pattern?</source>
         <translation>Патернів</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Встановлено</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Нова</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Автор: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Ліцензія набору: %1</translation>
     </message>
@@ -5966,68 +5962,64 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation>Ліцензія зображення: %1</translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Звантаження бібліотеки звуків...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Бібліотеку звуків імпортовано в %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Під час імпорту бібліотеки звуків трапилась помилка.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Інтернет</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Оновити список</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Назва бібліотеки звуків</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Автор...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Звантажити і встановити</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Локальний файл</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Огляд...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Встановити</translation>
+        <source>Edit server list</source>
+        <translation>Змінити список серверів</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Змінити список серверів</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрити</translation>
+        <source>Sound Library Name</source>
+        <translation>Назва бібліотеки звуків</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>Напис</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Ліцензія зображення...</translation>
+        <source>Author...</source>
+        <translation>Автор...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Ліцензія набору...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Ліцензія зображення...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Звантажити і встановити</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрити</translation>
     </message>
 </context>
 <context>

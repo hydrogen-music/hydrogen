@@ -2595,6 +2595,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importovat bicí sadu</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5838,7 +5850,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Import knihovny zvuků</translation>
@@ -5856,34 +5868,6 @@ Overwrite the existing pattern?</source>
         <translation>Aktualizace seznamu knihoven zvuků...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Instalováno</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nový</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Stahování knihovny zvuků...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importovat bicí sadu</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Knihovna zvuků importována do %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Bicí sady</translation>
     </message>
@@ -5896,6 +5880,18 @@ Overwrite the existing pattern?</source>
         <translation>Paterny</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Instalováno</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nový</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5903,59 +5899,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Stahování knihovny zvuků...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Knihovna zvuků importována do %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Aktualizovat seznam</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Název knihovny zvuků</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Stáhnout a nainstalovat</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Lokální soubor</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Procházet...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalovat</translation>
+        <source>Edit server list</source>
+        <translation>Upravit seznam serverů</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Upravit seznam serverů</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
+        <source>Sound Library Name</source>
+        <translation>Název knihovny zvuků</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5963,8 +5951,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Stáhnout a nainstalovat</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
     </message>
 </context>
 <context>

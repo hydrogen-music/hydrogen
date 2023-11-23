@@ -2626,6 +2626,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importar batería</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Produciuse un erro ao importar a biblioteca de son.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5881,7 +5893,7 @@ Sobrescribir o patrón existente?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importar biblioteca de son</translation>
@@ -5899,34 +5911,6 @@ Sobrescribir o patrón existente?</translation>
         <translation>Actualizando a lista de bibliotecas de son...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Instalado</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Novo</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Descargando biblioteca de son...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importar batería</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Biblioteca de son importada en %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Produciuse un erro ao importar a biblioteca de son.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Baterías</translation>
     </message>
@@ -5939,6 +5923,18 @@ Sobrescribir o patrón existente?</translation>
         <translation>Patróns</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Instalado</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Novo</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5946,59 +5942,51 @@ Sobrescribir o patrón existente?</translation>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Descargando biblioteca de son...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Biblioteca de son importada en %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Produciuse un erro ao importar a biblioteca de son.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Diálogo</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Actualizar a lista</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nome da biblioteca de son</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Descargar e instalar</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Ficheiro local</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Examinar...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalar</translation>
+        <source>Edit server list</source>
+        <translation>Editar a lista de servidores</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Editar a lista de servidores</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Pechar</translation>
+        <source>Sound Library Name</source>
+        <translation>Nome da biblioteca de son</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6006,8 +5994,12 @@ Sobrescribir o patrón existente?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Descargar e instalar</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Pechar</translation>
     </message>
 </context>
 <context>

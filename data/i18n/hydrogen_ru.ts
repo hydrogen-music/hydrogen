@@ -1083,7 +1083,7 @@ Are you sure?</source>
     <name>DrumkitExportDialog</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Экспорт</translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>Export Drumkit</source>
@@ -1107,88 +1107,88 @@ Are you sure?</source>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Каталог</translation>
+        <translation>Каталог</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Все</translation>
+        <translation>Все</translation>
     </message>
 </context>
 <context>
     <name>DrumkitExportDialog_UI</name>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Экспорт</translation>
+        <translation>Экспорт</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Расположение</translation>
+        <translation>Расположение</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Просмотреть...</translation>
+        <translation>Просмотреть...</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished">Версия</translation>
+        <translation>Версия</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished">0.9.7 и новее</translation>
+        <translation>0.9.7 и новее</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished">0.9.6 и старше</translation>
+        <translation>0.9.6 и старше</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished">Компонент</translation>
+        <translation>Компонент</translation>
     </message>
 </context>
 <context>
     <name>DrumkitOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished">Открыть звуковую библиотеку</translation>
+        <translation>Открыть звуковую библиотеку</translation>
     </message>
 </context>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
         <source>General</source>
-        <translation type="unfinished">Общие</translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">Информация</translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished">Лицензия на изображение</translation>
+        <translation>Лицензия на изображение</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished">Лицензия на драмкит</translation>
+        <translation>Лицензия на драмкит</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Автор</translation>
+        <translation>Автор</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished">Изображение</translation>
+        <translation>Изображение</translation>
     </message>
     <message>
         <source>Mapping</source>
@@ -1200,11 +1200,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished">Сохранить</translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отменить</translation>
     </message>
 </context>
 <context>
@@ -1550,11 +1550,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished">Открыть изображение</translation>
+        <translation>Открыть изображение</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished">Файлы изображений (*.png *.jpg *.jpeg)</translation>
+        <translation>Файлы изображений (*.png *.jpg *.jpeg)</translation>
     </message>
     <message>
         <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
@@ -1574,7 +1574,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished">Не удалось сохранить этот драмкит.</translation>
+        <translation>Не удалось сохранить этот драмкит.</translation>
     </message>
 </context>
 <context>
@@ -2623,6 +2623,18 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Импортировать драмкит</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
     </message>
 </context>
 <context>
@@ -5872,7 +5884,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Импорт звуковой библиотеки</translation>
@@ -5890,34 +5902,6 @@ Overwrite the existing pattern?</source>
         <translation>Список звуковых библиотек обновляется...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Установлена</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Новая</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Автор: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Скачивается библиотека звуков...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Импортировать драмкит</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Библиотека звуков импортирована в %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Драмкиты</translation>
     </message>
@@ -5930,6 +5914,18 @@ Overwrite the existing pattern?</source>
         <translation>Паттерны</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Установлена</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Новая</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Автор: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Лицензия на драмкит: %1</translation>
     </message>
@@ -5937,59 +5933,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation>Лицензия на изображение: %1</translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Скачивается библиотека звуков...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Библиотека звуков импортирована в %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Диалог</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Интернет</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Обновить список</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Название библиотеки звуков</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Автор...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Скачать и установить</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Локальный файл</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Просмотреть...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Установить</translation>
+        <source>Edit server list</source>
+        <translation>Изменить список серверов</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Изменить список серверов</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
+        <source>Sound Library Name</source>
+        <translation>Название библиотеки звуков</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Автор...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5997,8 +5985,12 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Скачать и установить</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>

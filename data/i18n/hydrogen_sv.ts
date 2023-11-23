@@ -2589,6 +2589,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importera drumkit</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5828,7 +5840,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation type="unfinished"></translation>
@@ -5846,34 +5858,6 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Upphovsman: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importera drumkit</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5886,6 +5870,18 @@ Overwrite the existing pattern?</source>
         <translation>Mönster</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Upphovsman: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5893,15 +5889,23 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <source>Dialog</source>
+        <source>Downloading SoundLibrary...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Internet</source>
+        <source>SoundLibrary imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
+    <message>
+        <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5909,27 +5913,7 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Install</source>
+        <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5937,11 +5921,7 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close</source>
+        <source>Sound Library Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5949,11 +5929,23 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Image License...</source>
+        <source>Author...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Drumkit License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

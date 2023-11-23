@@ -2592,6 +2592,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Import zestawu perkusyjnego</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Wystąpił błąd podczas importowania Biblioteki Dźwięków.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5831,7 +5843,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importuj bibliotekę dzwięków</translation>
@@ -5849,34 +5861,6 @@ Overwrite the existing pattern?</source>
         <translation>Uaktualnianie listy Biblioteki Dźwięków...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Zainstalowane</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nowy</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Ściąganie Biblioteki Dźwięków...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Import zestawu perkusyjnego</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Biblioteka Dźwięków zaimportowana w %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Wystąpił błąd podczas importowania Biblioteki Dźwięków.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5889,6 +5873,18 @@ Overwrite the existing pattern?</source>
         <translation>Układy</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Zainstalowane</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nowy</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5896,59 +5892,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Ściąganie Biblioteki Dźwięków...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Biblioteka Dźwięków zaimportowana w %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Wystąpił błąd podczas importowania Biblioteki Dźwięków.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Aktualizacja listy</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nazwa Biblioteki Dźwięków</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Ściągnij i zainstaluj</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Plik lokalny</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Przeglądaj...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalacja</translation>
+        <source>Edit server list</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="unfinished"></translation>
+        <source>Sound Library Name</source>
+        <translation>Nazwa Biblioteki Dźwięków</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5956,7 +5944,11 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
+        <source>Download and install</source>
+        <translation>Ściągnij i zainstaluj</translation>
+    </message>
+    <message>
+        <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

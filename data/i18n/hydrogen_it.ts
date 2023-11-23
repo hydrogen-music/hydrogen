@@ -2601,6 +2601,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importa drumkit</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>C&apos;é stato un errore importando la Sound Library.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5846,7 +5858,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importa libreria sonora</translation>
@@ -5864,34 +5876,6 @@ Sovrascrivere il modello esistente?</translation>
         <translation>Aggiorno la lista delle librerie sonore...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Installato</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nuovo</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autore: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Scaricamento libreria sonora...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importa drumkit</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Libreria sonora importata in %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>C&apos;é stato un errore importando la Sound Library.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Drumkit</translation>
     </message>
@@ -5904,6 +5888,18 @@ Sovrascrivere il modello esistente?</translation>
         <translation>Pattern</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Installato</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nuovo</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autore: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Licenza drumkit</translation>
     </message>
@@ -5911,68 +5907,64 @@ Sovrascrivere il modello esistente?</translation>
         <source>Image License: %1</source>
         <translation>Licenza immagine: %1</translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <source>Dialog</source>
-        <translation></translation>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Scaricamento libreria sonora...</translation>
     </message>
     <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Libreria sonora importata in %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>C&apos;é stato un errore importando la Sound Library.</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialogo</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Aggiorna lista</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nome libreria sonora</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autore...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Scarica e installa</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>File locale</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Cerca...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Installa</translation>
+        <source>Edit server list</source>
+        <translation>Modifica lista server</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Modifica lista server</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Chiudi</translation>
+        <source>Sound Library Name</source>
+        <translation>Nome libreria sonora</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autore...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
+        <translation>Licenza drumkit...</translation>
     </message>
     <message>
         <source>Image License...</source>
         <translation>Licenza immagine</translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation>Licenza drumkit...</translation>
+        <source>Download and install</source>
+        <translation>Scarica e installa</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
     </message>
 </context>
 <context>

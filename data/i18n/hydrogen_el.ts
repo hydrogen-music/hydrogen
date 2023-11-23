@@ -2630,6 +2630,18 @@ The session needs to be saved before exporting will can be continued.
         <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Εισαγωγή ομάδας κρουστών</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Παρουσιάστηκε κάποιο σφάλμα στην εισαγωγή της ΒιβλιοθήκηςΉχων.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5909,7 +5921,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Εισαγωγή Βιβλιοθήκης Ήχων</translation>
@@ -5951,6 +5963,14 @@ Overwrite the existing pattern?</source>
         <translation>Δημιουργός: %1</translation>
     </message>
     <message>
+        <source>Drumkit License: %1</source>
+        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation>Άδεια της Εικόνας: %1</translation>
+    </message>
+    <message>
         <source>Downloading SoundLibrary...</source>
         <translation>Λαμβάνεται η ΒιβλιοθήκηΉχων...</translation>
     </message>
@@ -5962,80 +5982,52 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Παρουσιάστηκε κάποιο σφάλμα στην εισαγωγή της ΒιβλιοθήκηςΉχων.</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Εισαγωγή ομάδας κρουστών</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Άδεια της Εικόνας: %1</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Διάλογος</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Διαδίκτυο</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Ενημέρωση του κατάλογου</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Όνομα της Βιβλιοθήκης Ήχων</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Δημιουργός...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Λήψη και εγκατάσταση</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Τοπικό αρχείο</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Εξερεύνηση...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Εγκατάσταση</translation>
+        <source>Edit server list</source>
+        <translation>Επεξεργασία της λίστας των εξυπηρετητών</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Επεξεργασία της λίστας των εξυπηρετητών</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Κλείσιμο</translation>
+        <source>Sound Library Name</source>
+        <translation>Όνομα της Βιβλιοθήκης Ήχων</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>ΕτικέταΚείμενου</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Άδεια της Εικόνας...</translation>
+        <source>Author...</source>
+        <translation>Δημιουργός...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Άδεια της Ομάδας Κρουστών...</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation>Άδεια της Εικόνας...</translation>
+    </message>
+    <message>
+        <source>Download and install</source>
+        <translation>Λήψη και εγκατάσταση</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>
