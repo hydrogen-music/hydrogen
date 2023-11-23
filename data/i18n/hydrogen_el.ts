@@ -2314,10 +2314,6 @@ Do you want to discard the changes?
         <translation>Αποτυχία αποθήκευσης αυτής της βιβλιοθήκης.</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>Ομάδες &amp;Κρουστών</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>&amp;Προβολή</translation>
     </message>
@@ -2422,15 +2418,7 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2622,6 +2610,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

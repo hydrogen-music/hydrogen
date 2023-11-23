@@ -2181,10 +2181,6 @@ MIDI = %2</translation>
         <translation>撤销(&amp;U)</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>鼓组(&amp;K)</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>视图(&amp;V)</translation>
     </message>
@@ -2435,16 +2431,8 @@ Do you want to discard the changes?
         <translation>在线导入(&amp;L)</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>乐器(&amp;S)</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>添加乐器(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>清除全部(&amp;R)</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2621,6 +2609,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

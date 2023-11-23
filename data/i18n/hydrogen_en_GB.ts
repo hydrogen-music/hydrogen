@@ -2146,10 +2146,6 @@ MIDI = %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation></translation>
     </message>
@@ -2393,15 +2389,7 @@ Do you want to discard the changes?
         <translation></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation></translation>
     </message>
     <message>
@@ -2576,6 +2564,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

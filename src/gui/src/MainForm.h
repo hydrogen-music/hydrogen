@@ -298,8 +298,7 @@ public slots:
 
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;
-		QMenu* m_pDrumkitsMenu;
-		QMenu* m_pInstrumentsMenu;
+		QMenu* m_pDrumkitMenu;
 		QMenu* m_pViewMenu;
 		QMenu* m_pOptionsMenu;
 		QMenu* m_pDebugMenu;

@@ -390,52 +390,46 @@ void MainForm::createMenuBar()
 							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 	// DRUMKITS MENU
-	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
-	m_pDrumkitsMenu->addAction( tr( "&New" ), this,
-								SLOT( action_instruments_clearAll() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Open" ), this,
-								SLOT( action_banks_open() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this,
-								SLOT( action_banks_properties() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
+	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
+	m_pDrumkitMenu->addAction( tr( "&New" ), this,
+							   SLOT( action_instruments_clearAll() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "&Open" ), this,
+							   SLOT( action_banks_open() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "&Properties" ), this,
+							   SLOT( action_banks_properties() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
-	m_pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( tr( "&Save" ), this,
-								SLOT( action_instruments_saveLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this,
-								SLOT( action_instruments_saveAsLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "Add &Instrument" ), this,
+							   SLOT( action_instruments_addInstrument() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
+	m_pDrumkitMenu->addAction( tr( "Add &Component" ), this,
+							   SLOT( action_instruments_addComponent() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
-	m_pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( tr( "&Export" ), this,
-								SLOT( action_instruments_exportLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Import" ), this,
-								SLOT( action_instruments_importLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this,
-								SLOT( action_instruments_onlineImportLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "&Save" ), this,
+							   SLOT( action_instruments_saveLibrary() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "Save &As" ), this,
+							   SLOT( action_instruments_saveAsLibrary() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "&Export" ), this,
+							   SLOT( action_instruments_exportLibrary() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
 
-	// INSTRUMENTS MENU
-	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
-	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this,
-								   SLOT( action_instruments_addInstrument() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
-	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this,
-								   SLOT( action_instruments_clearAll() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::ClearAllInstruments ) );
+	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pInstrumentsMenu->addSeparator();				// -----
-
-	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this,
-								   SLOT( action_instruments_addComponent() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
+	m_pDrumkitMenu->addAction( tr( "&Import" ), this,
+							   SLOT( action_instruments_importLibrary() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "On&line Import" ), this,
+							   SLOT( action_instruments_onlineImportLibrary() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
 
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
@@ -1633,8 +1627,7 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 		m_pFileMenu->setFont( font );
 		m_pUndoMenu->setFont( font );
-		m_pDrumkitsMenu->setFont( font );
-		m_pInstrumentsMenu->setFont( font );
+		m_pDrumkitMenu->setFont( font );
 		m_pViewMenu->setFont( font );
 		m_pOptionsMenu->setFont( font );
 		if ( m_pDebugMenu != nullptr ) {

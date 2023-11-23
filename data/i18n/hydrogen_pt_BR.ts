@@ -2315,10 +2315,6 @@ Deseja descartar as mudanças?
         <translation>Falha ao salvar esta biblioteca.</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>Drum&amp;kits</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>&amp;Visualizar</translation>
     </message>
@@ -2411,15 +2407,7 @@ Deseja descartar as mudanças?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2619,6 +2607,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

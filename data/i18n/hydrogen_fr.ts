@@ -2322,10 +2322,6 @@ Voulez-vous abandonner ces changements ?
         <translation>La sauvegarde de cette bibliothèque a échouée</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>&amp;Kits de batterie</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>A&amp;ffichage</translation>
     </message>
@@ -2486,16 +2482,8 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Importation en &amp;ligne</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>In&amp;struments</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>Ajouter un &amp;instrument</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>Nettoye&amp;r tout</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2641,6 +2629,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Import &amp;Demo Into Session</source>
         <translation>Importer la &amp;démo dans une session</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

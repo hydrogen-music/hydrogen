@@ -2323,10 +2323,6 @@ Möchtest Du diese verwerfen?
         <translation>Speichern der Bibliothek ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>Schlagzeuge</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>Fenster</translation>
     </message>
@@ -2448,16 +2444,8 @@ Are you sure you want to save?</source>
         <translation>Aus dem Internet &amp;herunterladen</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>In&amp;strumente</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>&amp;Instrument hinzufügen</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>&amp;Alle Instrument löschen</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2629,6 +2617,10 @@ Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2329,10 +2329,6 @@ El playlist actual contiene cambios sin guardar.
         <translation>Error al guardar esta librería.</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>Drum&amp;kits</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>&amp;Ver</translation>
     </message>
@@ -2433,16 +2429,8 @@ El playlist actual contiene cambios sin guardar.
         <translation>Importar On&amp;line</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>In&amp;strumentos</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>Añadir &amp;Instrumento</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>Limpia&amp;r Todo</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2640,6 +2628,10 @@ Hay que guardar la sesión antes de continuar con la exportación.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
