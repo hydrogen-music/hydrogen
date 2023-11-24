@@ -237,10 +237,12 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 		
 	pDrumkit->setInstruments( pInstrumentList );
 
-	// Instead of making the *::load_from() functions more complex by
-	// passing the license down to each sample, we will make the
-	// drumkit assign its license to each sample in here.
-	pDrumkit->propagateLicense();
+	if ( ! bSongKit ) {
+		// Instead of making the *::load_from() functions more complex by
+		// passing the license down to each sample, we will make the
+		// drumkit assign its license to each sample in here.
+		pDrumkit->propagateLicense();
+	}
 
 	return pDrumkit;
 
