@@ -94,11 +94,21 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 			colorHighlightActive.setAlpha( 150 );
 		}
 
+		int nWidth, nHeight;
+		if ( ! m_size.isNull() ) {
+			nWidth = m_size.width();
+			nHeight = m_size.height();
+		}
+		else {
+			nWidth = width();
+			nHeight = height();
+		}
+
 		QPen pen;
 		pen.setColor( colorHighlightActive );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 1, 1, m_size.width() - 2, m_size.height() - 2 ), 3, 3 );
+		painter.drawRoundedRect( QRect( 1, 1, nWidth - 2, nHeight - 2 ), 3, 3 );
 	}
 }
 
