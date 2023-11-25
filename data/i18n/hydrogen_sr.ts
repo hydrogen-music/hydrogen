@@ -3057,10 +3057,6 @@ The session needs to be saved before exporting will can be continued.
         <translation>Пожури или Окасни</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Учитани бубњеви</translation>
-    </message>
-    <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Квантизуј долазне догађаје МИДИ/клавијатуре = Искљ</translation>
     </message>
@@ -3126,6 +3122,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

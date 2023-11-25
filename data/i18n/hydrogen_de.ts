@@ -3076,10 +3076,6 @@ Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann
         <translation>Vorlauf (lead) und Verzögerung (lag)</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Geladene Soundbibliothek</translation>
-    </message>
-    <message>
         <source>NoteKey</source>
         <translation>NoteKey</translation>
     </message>
@@ -3142,6 +3138,10 @@ Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann
     <message>
         <source>Pattern editor - No pattern selected</source>
         <translation>Pattern Editor - Kein Pattern ausgewählt</translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

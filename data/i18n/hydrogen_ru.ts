@@ -3062,10 +3062,6 @@ The session needs to be saved before exporting will can be continued.
         <translation>Смещение во времени</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Загружена библиотека звуков</translation>
-    </message>
-    <message>
         <source>Show piano roll editor</source>
         <translation>Показать матричный редактор</translation>
     </message>
@@ -3127,6 +3123,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

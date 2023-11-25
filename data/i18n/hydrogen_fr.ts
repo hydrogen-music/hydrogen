@@ -3082,10 +3082,6 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
         <translation>Avance et retard</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Bibliothèque chargée</translation>
-    </message>
-    <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Quantifier les événements entrant du clavier/MIDI = inactif</translation>
     </message>
@@ -3152,6 +3148,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Pattern editor - No pattern selected</source>
         <translation>Éditeur de motif - aucun motif sélectionné</translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

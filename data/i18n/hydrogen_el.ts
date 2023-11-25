@@ -3012,10 +3012,6 @@ The session needs to be saved before exporting will can be continued.
 <context>
     <name>PatternEditorPanel</name>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Φορτωμένη Βιβλιοθήκη Ήχων</translation>
-    </message>
-    <message>
         <source>Hear new notes</source>
         <translation>Άκουσμα νέων στιγμάτων</translation>
     </message>
@@ -3133,6 +3129,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

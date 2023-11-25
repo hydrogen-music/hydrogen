@@ -2966,10 +2966,6 @@ The session needs to be saved before exporting will can be continued.
 <context>
     <name>PatternEditorPanel</name>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Hear new notes</source>
         <translation></translation>
     </message>
@@ -3088,6 +3084,10 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>Pattern editor - No pattern selected</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -3086,10 +3086,6 @@ Hay que guardar la sesión antes de continuar con la exportación.
         <translation>Desfase Negativo y Positivo</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Librería de Sonidos cargada</translation>
-    </message>
-    <message>
         <source>NoteKey</source>
         <translation>Clave de Nota</translation>
     </message>
@@ -3152,6 +3148,10 @@ Hay que guardar la sesión antes de continuar con la exportación.
     <message>
         <source>Pattern editor - No pattern selected</source>
         <translation>Editor de patrones - Ningún patrón seleccionado</translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

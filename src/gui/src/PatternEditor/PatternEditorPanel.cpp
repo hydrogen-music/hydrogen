@@ -54,19 +54,19 @@ using namespace H2Core;
 #include <cmath>
 
 
-void PatternEditorPanel::updateSLnameLabel( )
+void PatternEditorPanel::updateDrumkitLabel( )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
-	m_pSLlabel->setFont( font );
+	m_pDrumkitLabel->setFont( font );
 
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr ) {
 		auto pDrumkit = pSong->getDrumkit();
 		if ( pDrumkit != nullptr ) {
-			m_pSLlabel->setText( pDrumkit->getName() );
+			m_pDrumkitLabel->setText( pDrumkit->getName() );
 		}
 	}
 }
@@ -112,19 +112,23 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	//soundlibrary name
-	m_pSLlabel = new QLabel( nullptr );
-	m_pSLlabel->setFont( boldFont );
-	m_pSLlabel->setFixedSize( 170, 20 );
-	m_pSLlabel->move( 10, 3 );
-	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
-	m_pEditorTop1_hbox->addWidget( m_pSLlabel );
+	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
+										  ClickableLabel::Color::Bright, true );
+	m_pDrumkitLabel->setFont( boldFont );
+	m_pDrumkitLabel->setFixedSize( 170, 20 );
+	m_pDrumkitLabel->move( 10, 3 );
+	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
+	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr ) {
 		auto pDrumkit = pSong->getDrumkit();
 		if ( pDrumkit != nullptr ) {
-			m_pSLlabel->setText( pDrumkit->getName() );
+			m_pDrumkitLabel->setText( pDrumkit->getName() );
 		}
 	}
+	connect( m_pDrumkitLabel, &ClickableLabel::labelClicked,
+			 [=]() { HydrogenApp::get_instance()->getMainForm()->
+					 action_drumkit_properties(); } );
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
@@ -657,7 +661,7 @@ PatternEditorPanel::~PatternEditorPanel()
 }
 
 void PatternEditorPanel::drumkitLoadedEvent() {
-	updateSLnameLabel();
+	updateDrumkitLabel();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -1141,7 +1145,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		// Performs an editor update with updateEditor() (and no argument).
 		selectedPatternChangedEvent();
 		selectedInstrumentChangedEvent();
-		updateSLnameLabel();
+		updateDrumkitLabel();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
 	}
@@ -1261,7 +1265,7 @@ void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes chan
 		// because they will always carry the same.
 		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		boldFont.setBold( true );
-		m_pSLlabel->setFont( boldFont );
+		m_pDrumkitLabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
 
 		updateStyleSheet();
