@@ -214,6 +214,7 @@ public slots:
 	virtual void paste() = 0;
 	virtual void cut();
 	virtual void alignToGrid();
+	virtual void randomizeVelocity();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );

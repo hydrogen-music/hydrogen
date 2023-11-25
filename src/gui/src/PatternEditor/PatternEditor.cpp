@@ -90,6 +90,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) ) );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
 
@@ -467,6 +468,56 @@ void PatternEditor::alignToGrid() {
 	pUndo->endMacro();
 }
 
+
+void PatternEditor::randomizeVelocity()
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+		// No pattern selected. Nothing to be randomized.
+		return;
+	}
+
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	validateSelection();
+
+	std::list< Note * > notes;
+	for ( auto pNote : m_selection ) {
+		notes.push_back( pNote );
+	}
+	if ( notes.empty() ) {
+		return;
+	}
+
+	pUndo->beginMacro( "Randomize notes velocity" );
+
+	for ( Note *pNote : notes ) {
+		float fVal = ( rand() % 100 ) / 100.0;
+		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
+						   0.0, 1.0 );
+		SE_editNotePropertiesVolumeAction *action =
+			new SE_editNotePropertiesVolumeAction( pNote->get_position(),
+												   PatternEditor::Mode::Velocity,
+												   m_nSelectedPatternNumber,
+												   pInstrumentList->index( pNote->get_instrument() ),
+												   fVal,
+												   pNote->get_velocity(),
+												   pNote->getPan(),
+												   pNote->getPan(),
+												   pNote->get_lead_lag(),
+												   pNote->get_lead_lag(),
+												   pNote->get_probability(),
+												   pNote->get_probability(),
+												   pNote->get_key(),
+												   pNote->get_key(),
+												   pNote->get_octave(),
+												   pNote->get_octave() );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	}
+	pUndo->endMacro();
+
+}
 
 void PatternEditor::setCurrentInstrument( int nInstrument ) {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
