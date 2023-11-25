@@ -119,7 +119,6 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
-	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
 	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
 	connect( selectNotesAction, &QAction::triggered, this,
 			 &InstrumentLine::selectInstrumentNotes );
@@ -608,69 +607,6 @@ void InstrumentLine::functionFillNotes( int every )
 	}
 
 }
-
-
-
-void InstrumentLine::functionRandomizeVelocity()
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-		// No pattern selected. Nothing to be randomized.
-		return;
-	}
-
-	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
-
-
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	QStringList noteVeloValue;
-	QStringList oldNoteVeloValue;
-
-	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != nullptr) {
-		int nPatternSize = pCurrentPattern->get_length();
-		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			return;
-		}
-		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-		for (int i = 0; i < nPatternSize; i += nResolution) {
-			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
-				Note *pNote = it->second;
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					float fVal = ( rand() % 100 ) / 100.0;
-					oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
-					fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
-					if ( fVal < 0  ) {
-						fVal = 0;
-					}
-					if ( fVal > 1 ) {
-						fVal = 1;
-					}
-					noteVeloValue << QString("%1").arg(fVal);
-				}
-			}
-		}
-		SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
-	}
-}
-
 
 
 void InstrumentLine::functionRenameInstrument()
