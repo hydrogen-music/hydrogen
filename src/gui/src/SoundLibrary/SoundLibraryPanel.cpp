@@ -206,7 +206,7 @@ void SoundLibraryPanel::updateTree()
 			continue;
 		}
 
-		QString sItemLabel = ppDrumkit->getName();
+		const QString sItemLabel = pSoundLibraryDatabase->getUniqueLabel( ssPath );
 		const auto drumkitType = ppDrumkit->getType();
 
 		QTreeWidgetItem* pDrumkitItem;
@@ -218,8 +218,6 @@ void SoundLibraryPanel::updateTree()
 			}
 
 			pDrumkitItem = new QTreeWidgetItem( m_pTreeSystemDrumkitsItem );
-			sItemLabel.append( QString( " (%1)" )
-							   .arg( pCommonStrings->getSoundLibrarySystemSuffix() ) );
 		}
 		else if ( drumkitType == Drumkit::Type::User ) {
 			if ( m_pTreeUserDrumkitsItem == nullptr ) {
@@ -238,8 +236,6 @@ void SoundLibraryPanel::updateTree()
 				m_pTreeSessionDrumkitsItem->setFont( 0, boldFont );
 			}
 			pDrumkitItem = new QTreeWidgetItem( m_pTreeSessionDrumkitsItem );
-			sItemLabel.append( QString( " (%1)" )
-							   .arg( pCommonStrings->getSoundLibrarySessionSuffix() ) );
 		}
 		else {
 			ERRORLOG( QString( "Drumkits of type [%1] should not end up in the SoundLibrary." )
@@ -247,19 +243,10 @@ void SoundLibraryPanel::updateTree()
 			continue;
 		}
 
-		// Ensure uniqueness of the label.
-		int nCount = 1;
-		QString sUniqueItemLabel = sItemLabel;
-		while ( m_drumkitLabels.contains( sUniqueItemLabel ) ) {
-			sUniqueItemLabel = QString( "%1 (%2)" )
-				.arg( sItemLabel ).arg( nCount );
-			nCount++;
-		}
-
-		m_drumkitLabels << sUniqueItemLabel;
-		m_drumkitRegister[ sUniqueItemLabel ] = ssPath;
+		m_drumkitLabels << sItemLabel;
+		m_drumkitRegister[ sItemLabel ] = ssPath;
 			
-		pDrumkitItem->setText( 0, sUniqueItemLabel );
+		pDrumkitItem->setText( 0, sItemLabel );
 		pDrumkitItem->setToolTip( 0, ssPath );
 		if ( ! m_bInItsOwnDialog ) {
 			auto pInstrList = ppDrumkit->getInstruments();

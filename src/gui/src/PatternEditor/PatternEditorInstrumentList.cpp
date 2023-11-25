@@ -32,6 +32,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 using namespace H2Core;
 
 #include "CommonStrings.h"
@@ -177,7 +178,8 @@ void InstrumentLine::set( std::shared_ptr<Instrument> pInstrument ) {
 	if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
 		// Instrument belongs to a kit in the SoundLibrary (and was not created
 		// anew).
-		QString sKit( pInstrument->get_drumkit_name() );
+		QString sKit = Hydrogen::get_instance()->getSoundLibraryDatabase()->
+			getUniqueLabel( pInstrument->get_drumkit_path() );
 		if ( sKit.isEmpty() ) {
 			// This should not happen. But drumkit.xml files can be created by
 			// hand and we should account for it.

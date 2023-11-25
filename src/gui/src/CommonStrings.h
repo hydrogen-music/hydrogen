@@ -177,9 +177,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
 	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
 
-	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
-	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
-	
 	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
 	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
 	const QString& getInputCaptureColumn() const { return m_sInputCaptureColumn; }
@@ -347,9 +344,6 @@ private:
 	QString m_sLicenseCopyleftWarning;
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
-	
-	QString m_sSoundLibrarySystemSuffix;
-	QString m_sSoundLibrarySessionSuffix;
 	
 	QString m_sInputCaptureBpm;
 	QString m_sInputCaptureVolume;

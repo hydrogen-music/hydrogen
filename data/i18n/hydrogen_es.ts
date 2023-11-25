@@ -866,19 +866,9 @@ Are you sure?</source>
         <translation>Aviso de Licencia</translation>
     </message>
     <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation>sistema</translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
         <translation>No tienes permisos de escritura en la carpeta seleccionada. Por favor selecciona otra.</translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation>sesión</translation>
     </message>
     <message>
         <source>Define a keybinding for the selected shortcut</source>
@@ -5935,6 +5925,19 @@ Overwrite the existing pattern?</source>
     <message>
         <source>License</source>
         <translation>Licencia</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryDatabase</name>
+    <message>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
+        <translation>sistema</translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
+        <translation>sesión</translation>
     </message>
 </context>
 <context>
