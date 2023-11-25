@@ -358,8 +358,6 @@ void SoundLibraryPanel::updateTree()
 			}
 		}
 	}
-	
-	update_background_color();
 }
 
 
@@ -700,48 +698,10 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QApplication::restoreOverrideCursor();
 }
 
-void SoundLibraryPanel::drumkitLoadedEvent() {
-	update_background_color();
-}
-
-void SoundLibraryPanel::selectedInstrumentChangedEvent() {
-	update_background_color();
-}
-
-void SoundLibraryPanel::update_background_color()
-{
-	restore_background_color();
-	change_background_color();
-}
-
-
-
-void SoundLibraryPanel::restore_background_color()
-{
-	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
-		for (int i = 0; i < m_pTreeSystemDrumkitsItem->childCount() ; i++){
-			( m_pTreeSystemDrumkitsItem->child( i ) )->setBackground( 0, QBrush() );		
-		}
-	}
-
-	if ( m_pTreeUserDrumkitsItem != nullptr ) {
-		for (int i = 0; i < m_pTreeUserDrumkitsItem->childCount() ; i++){
-			( m_pTreeUserDrumkitsItem->child( i ) )->setBackground(0, QBrush() );
-		}
-	}
-
-	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
-		for (int i = 0; i < m_pTreeSessionDrumkitsItem->childCount() ; i++){
-			( m_pTreeSessionDrumkitsItem->child( i ) )->setBackground( 0, QBrush() );		
-		}
-	}
-
-}
-
 QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const {
-	for ( const auto& entry : m_drumkitRegister ) {
-		if ( entry.second == sDrumkitPath ) {
-			return entry.first;
+	for ( const auto& [ssLabel, ssPath] : m_drumkitRegister ) {
+		if ( ssPath == sDrumkitPath ) {
+			return ssLabel;
 		}
 	}
 
@@ -750,52 +710,6 @@ QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const 
 QString SoundLibraryPanel::getDrumkitPath( const QString& sDrumkitLabel ) const {
 	return m_drumkitRegister.at( sDrumkitLabel );
 }
-
-void SoundLibraryPanel::change_background_color()
-{
-	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
-		return;
-	}
-	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
-	QString sDrumkitLabel = getDrumkitLabel( sDrumkitPath );
-
-	if ( sDrumkitLabel.isEmpty() ) {
-		ERRORLOG( QString( "Unable to find label corresponding to drumkit [%1]. No highlighting applied" )
-				  .arg( sDrumkitPath ) );
-		return;
-	}
-
-	if ( m_pTreeSystemDrumkitsItem != nullptr ) {
-		for ( int i = 0; i < m_pTreeSystemDrumkitsItem->childCount() ; i++){
-			if ( ( m_pTreeSystemDrumkitsItem->child( i ) )->text( 0 ) == sDrumkitLabel ){
-				( m_pTreeSystemDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				return;
-			}
-		}
-	}
-
-	if ( m_pTreeUserDrumkitsItem != nullptr ) {
-		for (int i = 0; i < m_pTreeUserDrumkitsItem->childCount() ; i++){
-			if ( ( m_pTreeUserDrumkitsItem->child( i ))->text( 0 ) == sDrumkitLabel ){
-				( m_pTreeUserDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				break;
-			}
-		}
-	}
-	
-	if ( m_pTreeSessionDrumkitsItem != nullptr ) {
-		for ( int i = 0; i < m_pTreeSessionDrumkitsItem->childCount() ; i++){
-			if ( ( m_pTreeSessionDrumkitsItem->child( i ) )->text( 0 ) == sDrumkitLabel ){
-				( m_pTreeSessionDrumkitsItem->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				return;
-			}
-		}
-	}
-
-}
-
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
@@ -1018,12 +932,5 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 				}
 			}
 		}
-	}
-}
-
-void SoundLibraryPanel::updateSongEvent( int nValue ) {
-	// A new song got loaded
-	if ( nValue == 0 ) {
-		update_background_color();
 	}
 }

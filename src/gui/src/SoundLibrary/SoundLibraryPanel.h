@@ -48,9 +48,6 @@ public:
 	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
 	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
 	
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent( int nValue ) override;
-	virtual void selectedInstrumentChangedEvent() override;
 	virtual void soundLibraryChangedEvent() override;
 
 public slots:
@@ -77,8 +74,7 @@ private:
 		void editDrumkitProperties( bool bDuplicate );
 	void updateTree();
 	void test_expandedItems();
-	void update_background_color();
-	
+
 	SoundLibraryTree *__sound_library_tree;
 
 	QPoint __start_drag_position;
@@ -98,8 +94,6 @@ private:
 
 	bool __expand_pattern_list;
 	bool __expand_songs_list;
-	void restore_background_color();
-	void change_background_color();
 
 	/**
 	 * Used to uniquely identify the drumkit corresponding to an item
