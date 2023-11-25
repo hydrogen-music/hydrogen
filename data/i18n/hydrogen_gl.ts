@@ -1901,6 +1901,11 @@ Value</source>
         <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>

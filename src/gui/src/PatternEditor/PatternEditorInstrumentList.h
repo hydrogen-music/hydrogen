@@ -58,13 +58,10 @@ class InstrumentLine : public PixmapWidget
 		explicit InstrumentLine(QWidget* pParent);
 
 	int getNumber() const;
-	
-		void setName(const QString& sName);
-		void setSelected(bool isSelected);
+
+		void set( std::shared_ptr<H2Core::Instrument> pInstrument );
 		void setNumber(int nIndex);
-		void setMuted(bool isMuted);
-		void setSoloed( bool soloed );
-		void setSamplesMissing( bool bSamplesMissing );
+		void setSelected(bool isSelected);
 
 	static constexpr int m_nButtonWidth = 18;
 
@@ -116,6 +113,12 @@ public slots:
 
 	void updateStyleSheet();
 	void setRowSelection( RowSelection rowSelection );
+
+		void setName(const QString& sName);
+		void setToolTip( const QString& sToolTip );
+		void setMuted(bool isMuted);
+		void setSoloed( bool soloed );
+		void setSamplesMissing( bool bSamplesMissing );
 
 	/** Whether the cursor entered the boundary of the widget.*/
 	bool m_bEntered;

@@ -161,11 +161,50 @@ void InstrumentLine::setRowSelection( RowSelection rowSelection ) {
 	}
 }
 
+void InstrumentLine::set( std::shared_ptr<Instrument> pInstrument ) {
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Imvalid instrument" );
+		return;
+	}
+
+	setName( pInstrument->get_name() );
+	setMuted( pInstrument->is_muted() );
+	setSoloed( pInstrument->is_soloed() );
+	setSamplesMissing( pInstrument->has_missing_samples() );
+
+	// Create a tool tip uniquely stating the drumkit the instrument belongs to.
+	QString sToolTip( pInstrument->get_name() );
+	if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
+		// Instrument belongs to a kit in the SoundLibrary (and was not created
+		// anew).
+		QString sKit( pInstrument->get_drumkit_name() );
+		if ( sKit.isEmpty() ) {
+			// This should not happen. But drumkit.xml files can be created by
+			// hand and we should account for it.
+			sKit = pInstrument->get_drumkit_path();
+		}
+
+		/*: Shown in a tooltop and indicating the drumkit (to the right of this
+		 *  string) an instrument (to the left of this string) is loaded
+		 *  from. */
+		sToolTip.append( " (" ).append( tr( "imported from" ) )
+			.append( QString( " [%1])" ).arg( sKit ) );
+	}
+
+	setToolTip( sToolTip );
+}
 
 void InstrumentLine::setName(const QString& sName)
 {
 	if ( m_pNameLbl->text() != sName ){
 		m_pNameLbl->setText(sName);
+	}
+}
+
+void InstrumentLine::setToolTip(const QString& sToolTip)
+{
+	if ( m_pNameLbl->toolTip() != sToolTip ){
+		m_pNameLbl->setToolTip( sToolTip );
 	}
 }
 
@@ -868,13 +907,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			auto pInstr = pInstrList->get(nInstr);
 			assert(pInstr);
 
-			pLine->setNumber(nInstr);
-			pLine->setName( pInstr->get_name() );
+			pLine->setNumber( nInstr );
+			pLine->set( pInstr );
 			pLine->setSelected( nInstr == nSelectedInstr );
-			pLine->setMuted( pInstr->is_muted() );
-			pLine->setSoloed( pInstr->is_soloed() );
-
-			pLine->setSamplesMissing( pInstr->has_missing_samples() );
 		}
 	}
 
@@ -1035,10 +1070,8 @@ void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrum
 							  .arg( ii ) );
 					return;
 				}
-				
-				pInstrumentLine->setName( pInstrument->get_name() );
-				pInstrumentLine->setMuted( pInstrument->is_muted() );
-				pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+
+				pInstrumentLine->set( pInstrument );
 			}
 		}
 	}
@@ -1058,8 +1091,6 @@ void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrum
 			return;
 		}
 
-		pInstrumentLine->setName( pInstrument->get_name() );
-		pInstrumentLine->setMuted( pInstrument->is_muted() );
-		pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+		pInstrumentLine->set( pInstrument );
 	}
 }
