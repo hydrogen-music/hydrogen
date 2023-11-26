@@ -154,7 +154,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
 			
-	QLabel* pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
+	auto pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	pLabel1->resize( QSize( 20, 17 ) );
 	pLabel1->setText( "/" );
 	pLabel1->setFont( boldFont );
@@ -534,14 +534,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 
-	m_pPatternNameLbl = new QLabel( nullptr );
+	m_pPatternNameLbl = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
+											ClickableLabel::Color::Bright, true );
 	m_pPatternNameLbl->setFont( boldFont );
-	m_pPatternNameLbl->setText( "pattern name label" );
-	m_pPatternNameLbl->setPalette(label_palette);
-
-
-
-
+	m_pPatternNameLbl->setPalette( label_palette );
+	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
+			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
+					 getSongEditorPatternList()->patternPopup_properties(); } );
 
 
 // NOTE_PROPERTIES BUTTONS

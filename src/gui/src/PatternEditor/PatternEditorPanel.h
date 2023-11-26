@@ -219,7 +219,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		QScrollBar *		m_pPatternEditorVScrollBar;
 
 		// TOOLBAR
-		QLabel *			m_pPatternNameLbl;
+		ClickableLabel*			m_pPatternNameLbl;
 		Button *			m_pRandomVelocityBtn;
 		// ~ TOOLBAR
 
