@@ -6054,14 +6054,6 @@ Are you sure?</source>
 Está certo disto?</translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Não é possível deletar o drumkit carregado atualmente: 
-  &quot;%1&quot;.
-Para deletar este drumkit, carregue antes outro drumkit.</translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>Aviso, o drumkit &quot;%1&quot; drumkit será deletado do disco.
@@ -6100,6 +6092,12 @@ Você gostaria de manter ou descartar os instrumentos e anotações restantes?
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

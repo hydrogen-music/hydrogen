@@ -6057,14 +6057,6 @@ Are you sure?</source>
         <translation>Achtung! Das ausgewählte Pattern wird von der Festplatte gelöscht werden. Bist Du sicher? </translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Das aktuell geladene Schlagzeug kann nicht gelöscht werden: 
-  &quot;%1&quot;.
-Um es dennoch zu löschen, muss zuerst ein anderes geladen werden.</translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>Achtung! Das Schlagzeug &quot;%1&quot; wird von der Festplatte gelöscht.
@@ -6103,6 +6095,12 @@ Would you like to keep or discard the remaining instruments and notes?
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation>ist schreibgeschützt und kann nicht gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -6068,14 +6068,6 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation>保留</translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>无法删除当前加载的鼓组：
-  &quot;%1&quot;。
-要删除此鼓组，请先加载另一个鼓组。</translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>警告，&quot;%1&quot; 鼓组将从磁盘上删除。
@@ -6102,6 +6094,12 @@ Are you sure?</source>
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

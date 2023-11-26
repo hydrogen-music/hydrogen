@@ -49,6 +49,8 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -700,6 +702,7 @@ QString SoundLibraryPanel::getDrumkitPath( const QString& sDrumkitLabel ) const 
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
+	const auto pSong = Hydrogen::get_instance()->getSong();
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
 	const QString sDrumkitName = pItem->text(0);
 	const QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
@@ -716,9 +719,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	// If we delete the current loaded drumkit we can get trouble with some
-	// empty pointers
-	auto pSong = Hydrogen::get_instance()->getSong();
+	// If we delete a kit containing samples used and loaded in the current
+	// song's drumkit, we get into trouble.
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -726,8 +728,41 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	if ( pDrumkit == nullptr ) {
 		return;
 	}
-	if ( sDrumkitPath == pDrumkit->getPath() ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
+
+	// For a sample to be contained both the instrument's drumkit path must
+	// match the selected one and the instrument has to contain at least one
+	// sample with a non-empty, relative path.
+	bool bSampleContained = false;
+	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
+		if ( ppInstrument != nullptr &&
+			 ppInstrument->get_drumkit_path() == sDrumkitPath ) {
+			for ( const auto& ppComponent : *ppInstrument->get_components() ) {
+				if ( ppComponent != nullptr ) {
+					for ( const auto& ppLayer : ppComponent->get_layers() ) {
+						if ( ppLayer != nullptr &&
+							 ppLayer->get_sample() != nullptr &&
+							 ! ppLayer->get_sample()->get_raw_filepath().isEmpty() &&
+							 ppLayer->get_sample()->get_raw_filepath().contains(
+								 sDrumkitPath ) ) {
+							bSampleContained = true;
+							break;
+						}
+					}
+				}
+
+				if ( bSampleContained ) {
+					break;
+				}
+			}
+		}
+
+		if ( bSampleContained ) {
+			break;
+		}
+	}
+	if ( bSampleContained ) {
+		QMessageBox::critical( this, "Hydrogen", tr( "It is not possible to delete drumkit: \n  [%1]\nIt contains samples used and loaded in the current song kit.")
+							  .arg( sDrumkitName ) );
 		return;
 	}
 

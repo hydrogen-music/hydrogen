@@ -6074,15 +6074,6 @@ Are you sure?</source>
 Voulez-vous continuer?</translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Il n&apos;est pas possible de supprimer le kit de batterie actuellement chargé : 
-  &quot;%1&quot;.
-Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
-        </translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>Attention, le kit &quot;%1&quot; va être effacé du disque.
@@ -6122,6 +6113,12 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation>est un kit de batterie en lecture seule et ne peut être supprimé.</translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

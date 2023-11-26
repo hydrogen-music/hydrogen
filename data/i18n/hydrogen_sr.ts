@@ -6050,14 +6050,6 @@ Are you sure?</source>
 Желите ли да одабрану мустру уклоните са диска?</translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Не можете уклонити бубњеве који су тренутно учитани: 
-  „%1“.
-Да би сте то урадили најпре учитајте друге бубњеве.</translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>ПАЖЊА: „%1“ ће бити уклоњени са диска.
@@ -6096,6 +6088,12 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
