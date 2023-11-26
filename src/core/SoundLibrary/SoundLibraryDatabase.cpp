@@ -108,7 +108,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 					 .arg( pDrumkit->getName() ).arg( sDrumkitPath ) );
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
-			m_drumkitUniqueLabels[ sDrumkitPath ] = makeUniqueLabel( pDrumkit );
+			registerUniqueLabel( sDrumkitPath, pDrumkit );
 		}
 		else {
 			ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
@@ -125,7 +125,7 @@ void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTri
 	auto pDrumkit = Drumkit::load( sDrumkitPath );
 	if ( pDrumkit != nullptr ) {
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
-		m_drumkitUniqueLabels[ sDrumkitPath ] = makeUniqueLabel( pDrumkit );
+		registerUniqueLabel( sDrumkitPath, pDrumkit );
 	}
 	else {
 		ERRORLOG( QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath ) );
@@ -177,7 +177,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		m_customDrumkitPaths << sDrumkitPath;
 
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
-		m_drumkitUniqueLabels[ sDrumkitPath ] = makeUniqueLabel( pDrumkit );
+		registerUniqueLabel( sDrumkitPath, pDrumkit );
 		
 		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
 				  .arg( pDrumkit->getName() )
@@ -191,7 +191,8 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	return m_drumkitDatabase.at( sDrumkitPath );
 }
 
-QString SoundLibraryDatabase::makeUniqueLabel( std::shared_ptr<Drumkit> pDrumkit ) {
+void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
+												std::shared_ptr<Drumkit> pDrumkit ) {
 
 	QString sLabel = pDrumkit->getName();
 	const auto drumkitType = pDrumkit->getType();
@@ -222,6 +223,9 @@ QString SoundLibraryDatabase::makeUniqueLabel( std::shared_ptr<Drumkit> pDrumkit
 		return false;
 	};
 
+	// Ensure we do not pick up the label for this kit.
+	m_drumkitUniqueLabels[ sDrumkitPath ] = "";
+
 	while ( labelContained( sUniqueItemLabel ) ) {
 		sUniqueItemLabel = QString( "%1 (%2)" ).arg( sLabel ).arg( nCount );
 		nCount++;
@@ -229,11 +233,10 @@ QString SoundLibraryDatabase::makeUniqueLabel( std::shared_ptr<Drumkit> pDrumkit
 		if ( nCount > 1000 ) {
 			// That's a bit much.
 			ERRORLOG( "Something went wrong in determining an unique label" );
-			return "";
 		}
 	}
 
-	return sUniqueItemLabel;
+	m_drumkitUniqueLabels[ sDrumkitPath ] = sUniqueItemLabel;
 }
 
 QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) {

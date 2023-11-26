@@ -128,7 +128,8 @@ private:
 	 */
 	QStringList m_customDrumkitPaths;
 
-		QString makeUniqueLabel( std::shared_ptr<Drumkit> pDrumkit );
+		void registerUniqueLabel( const QString& sDrumkitPath,
+							  std::shared_ptr<Drumkit> pDrumkit );
 };
 }; // namespace H2Core
 
