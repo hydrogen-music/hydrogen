@@ -1577,15 +1577,6 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		}
 		
 		if (ev->button() == Qt::RightButton)  {
-
-			if ( m_rowSelection == RowSelection::Dialog ) {
-				// There is still a dialog window opened from the last
-				// time. It needs to be closed before the popup will
-				// be shown again.
-				ERRORLOG( "A dialog is still opened. It needs to be closed first." );
-				return;
-			}
-			
 			m_nRowClicked = nRow;
 			setRowSelection( RowSelection::Popup );
 			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
