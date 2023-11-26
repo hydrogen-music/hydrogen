@@ -36,7 +36,6 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
-#include "../Widgets/WidgetWithHighlightedList.h"
 
 namespace H2Core
 {
@@ -49,7 +48,6 @@ class Button;
 /** \ingroup docGUI*/
 class InstrumentLine : public PixmapWidget
 					 , protected WidgetWithScalableFont<8, 10, 12>
-					 , protected WidgetWithHighlightedList
 {
     H2_OBJECT(InstrumentLine)
 	Q_OBJECT
@@ -112,7 +110,6 @@ public slots:
 		H2Core::Pattern* getCurrentPattern();
 
 	void updateStyleSheet();
-	void setRowSelection( RowSelection rowSelection );
 
 		void setName(const QString& sName);
 		void setToolTip( const QString& sToolTip );
