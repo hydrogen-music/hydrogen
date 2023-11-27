@@ -335,6 +335,11 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) )
 				.append( QString( "%1%2%2%2mapping:\n" ).arg( sPrefix ).arg( s ) );
 		}
+		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
+			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+							.arg( ssPath ).arg( ssLabel ) );
+		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
 			sOutput.append( QString( "%3\n" )
@@ -352,9 +357,14 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 
 		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& [ ssPath, _ ] : m_drumkitDatabase ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssPath ) );
+		for ( const auto& [ ssPath, ppDrumkit ] : m_drumkitDatabase ) {
+			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+							.arg( ssPath ).arg( ppDrumkit->getName() ) );
+		}
+		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
+			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+							.arg( ssPath ).arg( ssLabel ) );
 		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
