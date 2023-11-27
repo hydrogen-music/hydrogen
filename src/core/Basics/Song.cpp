@@ -927,12 +927,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 
 	if ( pDrumkit == nullptr ) {
 		// In case we fail to load the default kit, we use an empty one.
-		pDrumkit = std::make_shared<Drumkit>();
-		auto pInstrList = std::make_shared<InstrumentList>();
-		auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID,
-													   "New instrument" );
-		pInstrList->add( pNewInstr );
-		pDrumkit->setInstruments( pInstrList );
+		pDrumkit = Drumkit::getEmptyDrumkit();
 	}
 	else {
 		pDrumkit = std::make_shared<Drumkit>(pDrumkit);

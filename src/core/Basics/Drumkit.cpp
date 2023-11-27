@@ -99,6 +99,17 @@ Drumkit::~Drumkit()
 {
 }
 
+std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
+	auto pDrumkit = std::make_shared<Drumkit>();
+	auto pInstrList = std::make_shared<InstrumentList>();
+	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID,
+												   "New instrument" );
+	pInstrList->add( pNewInstr );
+	pDrumkit->setInstruments( pInstrList );
+
+	return pDrumkit;
+}
+
 std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {

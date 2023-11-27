@@ -82,6 +82,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** drumkit destructor, delete #m_pInstruments */
 		~Drumkit();
 
+		static std::shared_ptr<Drumkit> getEmptyDrumkit();
+
 		/**
 		 * Load drumkit information from a directory.
 		 *
