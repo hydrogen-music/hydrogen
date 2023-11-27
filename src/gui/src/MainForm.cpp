@@ -1523,8 +1523,9 @@ void MainForm::action_drumkit_import( bool bLoad ) {
 							  .arg( sFilename ) );
 					return;
 				}
-
-				pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
+				auto pAction = new SE_switchDrumkitAction(
+					pDrumkit, pHydrogen->getSong()->getDrumkit(), false );
+				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 			}
 			else {
 				ERRORLOG( QString( "Unable to determine imported path for [%1]" )
