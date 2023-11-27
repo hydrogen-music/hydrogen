@@ -585,7 +585,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 		return;
 	}
 
-	auto pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+	const auto pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
 		->getDrumkit( pInstrument->get_drumkit_path() );
 	if ( pInstrumentKit == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve kit [%1] associated with instrument." )

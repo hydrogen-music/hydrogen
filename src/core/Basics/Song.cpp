@@ -934,6 +934,9 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 		pInstrList->add( pNewInstr );
 		pDrumkit->setInstruments( pInstrList );
 	}
+	else {
+		pDrumkit = std::make_shared<Drumkit>(pDrumkit);
+	}
 
 	pSong->setDrumkit( pDrumkit );
 

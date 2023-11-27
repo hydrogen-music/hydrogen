@@ -801,7 +801,7 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
 	
-	DrumkitExportDialog exportDialog( this, pDrumkit );
+	DrumkitExportDialog exportDialog( this, std::make_shared<Drumkit>(pDrumkit) );
 	exportDialog.exec();
 }
 
