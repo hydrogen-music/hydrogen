@@ -1387,10 +1387,10 @@ void MainForm::action_drumkit_open()
 
 void MainForm::action_drumkit_new()
 {
-	switch( 
-			 QMessageBox::information( 	this,					//NOLINT
-						   	"Hydrogen",
-							tr("Clear all instruments?"),
+	switch(
+			 QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "Replace the drumkit of the current song with an empty one?" ),
 							QMessageBox::Cancel | QMessageBox::Ok,
 							QMessageBox::Cancel)) {
 	case QMessageBox::Ok:
@@ -1405,13 +1405,11 @@ void MainForm::action_drumkit_new()
 	}
 
 	// Remove all instruments
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pList = pSong->getDrumkit()->getInstruments();
-	for (uint i = pList->size(); i > 0; i--) {
-		functionDeleteInstrument(i - 1);
-	}
+	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	auto pAction = new SE_switchDrumkitAction(
+		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
 void MainForm::functionDeleteInstrument( int nInstrument )

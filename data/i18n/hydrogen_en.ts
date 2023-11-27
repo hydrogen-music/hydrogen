@@ -2228,10 +2228,6 @@ Are you sure you want to save?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation></translation>
     </message>
@@ -2590,6 +2586,10 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4609,6 +4609,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Altering the length of the current pattern</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

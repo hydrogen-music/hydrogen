@@ -2241,10 +2241,6 @@ MIDI = %2</translation>
         <translation>&amp;Info</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>¿Eliminar todos los instrumentos?</translation>
-    </message>
-    <message>
         <source>Unknown error %1</source>
         <translation>Error desconocido %1</translation>
     </message>
@@ -2654,6 +2650,10 @@ Hay que guardar la sesión antes de continuar con la exportación.
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Ocurrió un error al importar la Librería de Sonidos.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4683,6 +4683,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Alterando la longitud del patrón actual</translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

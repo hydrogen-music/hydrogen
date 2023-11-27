@@ -2216,10 +2216,6 @@ Do you want to save the changes?
         <translation>nepoznata pogreška %1</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Izbrisati sve instrumente?</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Koristiš verziju Hydrogena koja je još u razvoju, molimo te da nam pomogneš tako da nas izvjestiš o greškama ili daš svoj savjet na hydrogen-devel mailing listu.&lt;br&gt;&lt;br&gt;Hvala!</translation>
     </message>
@@ -2601,6 +2597,10 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Došlo je do pogreške pri ubacivanju zvučne knjižnice.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4623,6 +4623,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

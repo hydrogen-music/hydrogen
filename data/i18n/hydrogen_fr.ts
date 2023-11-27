@@ -2238,10 +2238,6 @@ MIDI = %2</translation>
         <translation>Erreur inconnue %1</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Effacer tous les instruments ?</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci !</translation>
     </message>
@@ -2654,6 +2650,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4683,6 +4683,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Modification de la durée du motif en cours</translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

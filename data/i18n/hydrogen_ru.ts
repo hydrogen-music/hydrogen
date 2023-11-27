@@ -2231,10 +2231,6 @@ MIDI = %2</source>
         <translation>Неизвестная ошибка %1</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Очистить все инструменты?</translation>
-    </message>
-    <message>
         <source>Could not save song.</source>
         <translation>Не удалось сохранить композицию.</translation>
     </message>
@@ -2630,6 +2626,10 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4650,6 +4650,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
