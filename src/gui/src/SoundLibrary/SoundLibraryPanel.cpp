@@ -41,6 +41,7 @@
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
+#include "../UndoActions.h"
 
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -678,11 +679,29 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-	assert( pDrumkit );
+	auto pAction = new SE_switchDrumkitAction( pDrumkit, pSong->getDrumkit(),
+											   conditionalLoad );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+}
+
+void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+									   std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+									   bool bConditionalLoad ) {
+	if ( pNewDrumkit == nullptr || pOldDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit provided" );
+		return;
+	}
+
+	// Unload all samples of the old kit in order to save memory. In addition,
+	// in case any of the samples were delete between undo and redo, we do not
+	// get into trouble but just print some error messages during the attempt
+	// sample load.
+	pOldDrumkit->unloadSamples();
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	pHydrogen->getCoreActionController()->setDrumkit( pDrumkit, conditionalLoad );
+	Hydrogen::get_instance()->getCoreActionController()
+		->setDrumkit( pNewDrumkit, bConditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }

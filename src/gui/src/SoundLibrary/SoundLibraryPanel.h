@@ -52,6 +52,9 @@ public:
 
 public slots:
 	void on_drumkitLoadAction();
+		void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+							std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+							bool bConditionalLoad );
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );

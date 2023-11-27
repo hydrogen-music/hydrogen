@@ -31,11 +31,13 @@
 #include <vector>
 
 #include <core/Basics/Note.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
+#include "InstrumentRack.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/PatternFillDialog.h"
@@ -43,7 +45,7 @@
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
-#include "PatternEditor/NotePropertiesRuler.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 
 
@@ -1114,6 +1116,41 @@ private:
 };
 
 // ~pattern editor commands
+
+class SE_switchDrumkitAction : public QUndoCommand {
+	public:
+		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+								std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+								bool bConditionalLoad ) :
+			m_pNewDrumkit( pNewDrumkit ),
+			m_pOldDrumkit( pOldDrumkit ),
+			m_bConditionalLoad( bConditionalLoad )
+		{
+			setText( QString( "%1: [%2] -> [%3]" )
+					 .arg( QObject::tr( "Switching drumkits" ) )
+					 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
+					 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
+
+		}
+		virtual void undo() {
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getSoundLibraryPanel()->switchDrumkit( m_pOldDrumkit,
+													   m_pNewDrumkit,
+													   m_bConditionalLoad );
+		}
+		virtual void redo() {
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getSoundLibraryPanel()->switchDrumkit( m_pNewDrumkit,
+													   m_pOldDrumkit,
+													   m_bConditionalLoad );
+		}
+
+	private:
+		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
+		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
+		bool m_bConditionalLoad;
+};
+
 //=====================================================================================================================================
 //piano roll editor commands
 
