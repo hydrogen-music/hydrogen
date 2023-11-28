@@ -617,10 +617,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	//---------------------------------------------------------
 
 	auto pComponents = pInstr->get_components();
-	bool nReturnValues[ pComponents->size() ];
+	auto returnValues = std::vector<bool>( pComponents->size() );
 
 	for( int i = 0; i < pComponents->size(); i++ ){
-		nReturnValues[i] = false;
+		returnValues[i] = false;
 	}
 
 	int nReturnValueIndex = 0;
@@ -655,7 +655,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
 										 nAlreadySelectedLayer );
 		if ( pSample == nullptr ) {
-			nReturnValues[nReturnValueIndex] = true;
+			returnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
@@ -672,7 +672,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		if( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
-			nReturnValues[nReturnValueIndex] = true;
+			returnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
@@ -691,7 +691,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 							.arg( pSelectedLayer->fSamplePosition )
 							.arg( pSample->get_frames() ) );
 			}
-			nReturnValues[nReturnValueIndex] = true;
+			returnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
@@ -778,7 +778,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
+		returnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
 
 		nReturnValueIndex++;
 	}
@@ -791,7 +791,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		return true;
 	}
 
-	for ( const auto& bReturnValue : nReturnValues ) {
+	for ( const auto& bReturnValue : returnValues ) {
 		if ( ! bReturnValue ) {
 			return false;
 		}
