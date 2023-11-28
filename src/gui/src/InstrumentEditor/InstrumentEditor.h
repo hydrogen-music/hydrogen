@@ -71,8 +71,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 	virtual void instrumentParametersChangedEvent( int ) override;
 		// ~ implements EventListener interface
 		void update();
-		static int findFreeDrumkitComponentId( int startingPoint = 0 );
-
 
 	public slots:
 	/** Used by #Shotlist */

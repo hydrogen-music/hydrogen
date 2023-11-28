@@ -1359,9 +1359,20 @@ void MainForm::action_drumkit_addComponent()
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 	if ( bIsOkPressed  ) {
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong == nullptr ) {
+			ERRORLOG( "Invalid song" );
+			return;
+		}
 
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
-		pHydrogen->getSong()->getDrumkit()->getComponents()->push_back( pDrumkitComponent );
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit == nullptr ) {
+			ERRORLOG( "Invalid drumkit" );
+			return;
+		}
+
+		auto pDrumkitComponent = pDrumkit->addComponent();
+		pDrumkitComponent->set_name( sNewName );
 
 		selectedInstrumentChangedEvent();
 

@@ -1282,41 +1282,37 @@ void InstrumentEditor::update()
 	}
 }
 
-int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
-{
-	bool bFoundFreeSlot = true;
-	auto pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getComponents();
-	for ( const auto& pComponent : *pDrumkitComponentList ) {
-		if ( pComponent->get_id() == startingPoint ) {
-			bFoundFreeSlot = false;
-			break;
-		}
-	}
-
-	if(bFoundFreeSlot) {
-		return startingPoint;
-	} else {
-		return findFreeDrumkitComponentId( startingPoint + 1 );
-	}
-}
-
 void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 {
 	QString sSelectedAction = pAction->text();
 
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
 
-	if( sSelectedAction.compare("add") == 0 ) {
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	if ( sSelectedAction.compare("add") == 0 ) {
 		if ( m_pInstrument ) {
 			bool bIsOkPressed;
-			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
+			QString sNewName =
+				QInputDialog::getText( this, "Hydrogen", tr( "Component name" ),
+									   QLineEdit::Normal, "New Component",
+									   &bIsOkPressed );
 			if ( bIsOkPressed  ) {
-				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( findFreeDrumkitComponentId(), sNewName );
-				pHydrogen->getSong()->getDrumkit()->getComponents()->push_back( pDrumkitComponent );
-
-				//auto instrument_component = std::make_shared<InstrumentComponent>( dm_component->get_id() );
-				//instrument_component->set_gain( 1.0f );
-				//m_pInstrument->get_components()->push_back( instrument_component );
+				auto pDrumkitComponent = pDrumkit->addComponent();
+				if ( pDrumkitComponent == nullptr ) {
+					ERRORLOG( "Unable to add drumkit component" );
+					return;
+				}
+				pDrumkitComponent->set_name( sNewName );
 
 				m_nSelectedComponent = pDrumkitComponent->get_id();
 				m_pLayerPreview->set_selected_component( pDrumkitComponent->get_id() );
@@ -1327,7 +1323,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-				pHydrogen->renameJackPorts(pHydrogen->getSong());
+				pHydrogen->renameJackPorts( pSong );
 #endif
 			}
 			else {
@@ -1336,16 +1332,16 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		auto pDrumkitComponents = pHydrogen->getSong()->getDrumkit()->getComponents();
+		auto pDrumkitComponents = pDrumkit->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
-		auto pDrumkitComponent = pHydrogen->getSong()->getDrumkit()->getComponent( m_nSelectedComponent );
+		auto pDrumkitComponent = pDrumkit->getComponent( m_nSelectedComponent );
 
-		auto pInstruments = pHydrogen->getSong()->getDrumkit()->getInstruments();
+		auto pInstruments = pDrumkit->getInstruments();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1377,7 +1373,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		auto pDrumkitComponents = pHydrogen->getSong()->getDrumkit()->getComponents();
+		auto pDrumkitComponents = pDrumkit->getComponents();
 		for ( const auto& pComponent : *pDrumkitComponents ) {
 			if ( pComponent->get_name().compare( sSelectedAction ) == 0) {
 				m_nSelectedComponent = pComponent->get_id();
@@ -1397,7 +1393,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 
 #ifdef H2CORE_HAVE_JACK
-			pHydrogen->renameJackPorts(pHydrogen->getSong());
+			pHydrogen->renameJackPorts( pSong );
 #endif
 		}
 
