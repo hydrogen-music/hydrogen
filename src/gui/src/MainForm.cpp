@@ -1371,8 +1371,13 @@ void MainForm::action_drumkit_addComponent()
 			return;
 		}
 
-		auto pDrumkitComponent = pDrumkit->addComponent();
-		pDrumkitComponent->set_name( sNewName );
+		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		auto pNewDrumkitComponent = pNewDrumkit->addComponent();
+		pNewDrumkitComponent->set_name( sNewName );
+
+		auto pAction = new SE_switchDrumkitAction(
+			pNewDrumkit, pDrumkit, false );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 		selectedInstrumentChangedEvent();
 
