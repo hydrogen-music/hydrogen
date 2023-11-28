@@ -713,13 +713,15 @@ void Drumkit::removeComponent( int nId ) {
 	}
 
 	for ( const auto& ppInstrument : *m_pInstruments ) {
-		auto pComponents = ppInstrument->get_components();
-		for ( int ii = 0; ii < pComponents->size(); ++ii ) {
-			auto ppComponent = pComponents->at( ii );
-			if ( ppComponent != nullptr &&
-				 ppComponent->get_drumkit_componentID() == nId ) {
-				pComponents->erase( pComponents->begin() + ii );
-				break;
+		if ( ppInstrument != nullptr ) {
+			auto pComponents = ppInstrument->get_components();
+			for ( int ii = 0; ii < pComponents->size(); ++ii ) {
+				auto ppComponent = pComponents->at( ii );
+				if ( ppComponent != nullptr &&
+					 ppComponent->get_drumkit_componentID() == nId ) {
+					pComponents->erase( pComponents->begin() + ii );
+					break;
+				}
 			}
 		}
 	}
