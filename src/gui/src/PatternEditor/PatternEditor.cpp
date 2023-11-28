@@ -434,23 +434,19 @@ void PatternEditor::alignToGrid() {
 		return;
 	}
 
+	validateSelection();
+	if ( m_selection.isEmpty() ) {
+		return;
+	}
+
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	validateSelection();
-
-	std::list< Note * > notesToAlign;
-	for ( auto pNote : m_selection ) {
-		notesToAlign.push_back( pNote );
-	}
-	if ( notesToAlign.empty() ) {
-		return;
-	}
 
 	// Move the notes
 	pUndo->beginMacro( "align notes to grid" );
 
-	for ( Note *pNote : notesToAlign ) {
+	for ( Note *pNote : m_selection ) {
 
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		int nPosition = pNote->get_position();
@@ -471,28 +467,24 @@ void PatternEditor::alignToGrid() {
 
 void PatternEditor::randomizeVelocity()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-
-	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
 		// No pattern selected. Nothing to be randomized.
 		return;
 	}
 
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	validateSelection();
-
-	std::list< Note * > notes;
-	for ( auto pNote : m_selection ) {
-		notes.push_back( pNote );
-	}
-	if ( notes.empty() ) {
+	if ( m_selection.isEmpty() ) {
 		return;
 	}
 
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
 	pUndo->beginMacro( "Randomize notes velocity" );
 
-	for ( Note *pNote : notes ) {
+	for ( Note *pNote : m_selection ) {
+
 		float fVal = ( rand() % 100 ) / 100.0;
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
@@ -513,8 +505,9 @@ void PatternEditor::randomizeVelocity()
 												   pNote->get_key(),
 												   pNote->get_octave(),
 												   pNote->get_octave() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		pUndo->push( action );
 	}
+
 	pUndo->endMacro();
 
 }
