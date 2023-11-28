@@ -919,6 +919,29 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 
 void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, std::shared_ptr<Song> pSong )
 {
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Invalid instrument" );
+		return;
+	}
+
+	if ( pInstrumentComponent == nullptr ) {
+		ERRORLOG( "Invalid instrument component" );
+		return;
+	}
+
+	auto pDrumkitComponent = pSong->getDrumkit()->getComponent(
+		pInstrumentComponent->get_drumkit_componentID() );
+	if ( pDrumkitComponent == nullptr ) {
+		ERRORLOG( QString( "Drumkit component of ID [%1] could not be found." )
+				  .arg( pInstrumentComponent->get_drumkit_componentID() ) );
+		return;
+	}
+
 	QString sComponentName;
 
 	// The function considers `m_nTrackPortCount' as the number of
@@ -943,8 +966,6 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 	}
 
 	// Now that we're sure there is an n'th port, rename it.
-	auto pDrumkitComponent = pSong->getDrumkit()->getComponent(
-		pInstrumentComponent->get_drumkit_componentID() );
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
 
