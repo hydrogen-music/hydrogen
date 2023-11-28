@@ -292,8 +292,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		/** Deletes a component from the kit and all included instruments. */
 		void removeComponent( int nId );
-		/** Add a component to the kit and all included instruments. */
+
+		/** Adds a component to the kit and all included instruments. */
 		void addComponent( std::shared_ptr<DrumkitComponent> pComponent );
+		/** Creates a new component with a free ID and adds it to the kit as
+		 * well as all included instruments.
+		 *
+		 * @return the created component for further ues. */
+		std::shared_ptr<DrumkitComponent> addComponent();
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
@@ -406,6 +412,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	void propagateLicense();
 
+		int findUnusedComponentId() const;
 
 };
 

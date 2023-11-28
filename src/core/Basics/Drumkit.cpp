@@ -646,21 +646,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 			//
 			// Get an ID not used as drumkit component ID by the drumkit
 			// currently loaded.
-			nNewId = m_pComponents->size();
-			for ( int ii = 0; ii < m_pComponents->size(); ++ii ) {
-				bool bIsPresent = false;
-				for ( const auto& ppComp : *m_pComponents ) {
-					if ( ppComp != nullptr && ppComp->get_id() == ii ) {
-						bIsPresent = true;
-						break;
-					}
-				}
-
-				if ( ! bIsPresent ){
-					nNewId = ii;
-					break;
-				}
-			}
+			nNewId = findUnusedComponentId();
 
 			auto pNewComponent = std::make_shared<DrumkitComponent>( ppComponent );
 			pNewComponent->set_id( nNewId );
@@ -737,6 +723,35 @@ void Drumkit::removeComponent( int nId ) {
 			}
 		}
 	}
+}
+
+int Drumkit::findUnusedComponentId() const {
+	int nNewId = m_pComponents->size();
+	for ( int ii = 0; ii < m_pComponents->size(); ++ii ) {
+		bool bIsPresent = false;
+		for ( const auto& ppComp : *m_pComponents ) {
+			if ( ppComp != nullptr && ppComp->get_id() == ii ) {
+				bIsPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bIsPresent ){
+			nNewId = ii;
+			break;
+		}
+	}
+
+	return nNewId;
+}
+
+std::shared_ptr<DrumkitComponent> Drumkit::addComponent() {
+	auto pNewComponent = std::make_shared<DrumkitComponent>();
+	pNewComponent->set_id( findUnusedComponentId() );
+
+	addComponent( pNewComponent );
+
+	return pNewComponent;
 }
 
 void Drumkit::addComponent( std::shared_ptr<DrumkitComponent> pComponent ) {
