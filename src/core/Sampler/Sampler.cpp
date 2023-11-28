@@ -619,23 +619,25 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	auto pComponents = pInstr->get_components();
 	auto returnValues = std::vector<bool>( pComponents->size() );
 
-	for( int i = 0; i < pComponents->size(); i++ ){
-		returnValues[i] = false;
+	for ( int ii = 0; ii < pComponents->size(); ++ii ){
+		returnValues[ ii ] = false;
 	}
 
-	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
-	bool bComponentFound = false;
 
-	for ( const auto& pCompo : *pComponents ) {
+	for ( int ii = 0; ii < pComponents->size(); ++ii ) {
+		auto pCompo = pComponents->at( ii );
+		if ( pCompo == nullptr ) {
+			ERRORLOG( QString( "Component [%1] is invalid" ).arg( ii ) );
+			continue;
+		}
+
 		std::shared_ptr<DrumkitComponent> pMainCompo = nullptr;
 
 		if ( pNote->get_specific_compo_id() != -1 &&
 			 pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
-			nReturnValueIndex++;
 			continue;
 		}
-		bComponentFound = true;
 
 		if ( pInstr->is_preview_instrument() ||
 			 pInstr->is_metronome_instrument() ){
@@ -655,8 +657,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
 										 nAlreadySelectedLayer );
 		if ( pSample == nullptr ) {
-			returnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 
@@ -672,8 +673,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		if( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
-			returnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 		auto pLayer = pCompo->get_layer( pSelectedLayer->nSelectedLayer );
@@ -691,8 +691,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 							.arg( pSelectedLayer->fSamplePosition )
 							.arg( pSample->get_frames() ) );
 			}
-			returnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 
@@ -778,17 +777,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		returnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
-
-		nReturnValueIndex++;
-	}
-
-	// Sanity check whether the note could be rendered.
-	if ( ! bComponentFound ) {
-		ERRORLOG( QString( "Specific note component [%1] not found in instrument associated with note: [%2]" )
-				  .arg( pNote->get_specific_compo_id() )
-				  .arg( pNote->toQString() ) );
-		return true;
+		returnValues[ ii ] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {
