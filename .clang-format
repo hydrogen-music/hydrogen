@@ -5,8 +5,8 @@ Language:				Cpp
 UseTab:								Always
 TabWidth:							4
 IndentWidth:						4
-SortIncludes:						false #just for the moment..
-ColumnLimit:						120
+SortIncludes:						true #just for the moment..
+ColumnLimit:						80
 
 #Everything else..
 AlignAfterOpenBracket:					Align
@@ -15,7 +15,8 @@ AllowShortFunctionsOnASingleLine:		InlineOnly
 BreakBeforeBraces:						Linux
 BinPackArguments:						true
 BinPackParameters:						true
-SpacesInParentheses:					false #this is new for H2
+NamespaceIndentation:					NI_Inner
+SpacesInParentheses:				    true
 SpaceAfterCStyleCast:					true
 KeepEmptyLinesAtTheStartOfBlocks:		false
 

@@ -20,11 +20,15 @@
  *
  */
 
+#include <map>
+#include <set>
+
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
@@ -99,11 +103,9 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 						  .arg( sDrumkitPath ) );
 				continue;
 			}
-			else {
-				INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
-						 .arg( pDrumkit->get_name() )
-						 .arg( sDrumkitPath ) );
-			}
+
+			INFOLOG( QString( "Drumkit [%1] loaded from [%2]" )
+					 .arg( pDrumkit->get_name() ).arg( sDrumkitPath ) );
 
 			m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		}
@@ -174,6 +176,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		}
 
 		m_customDrumkitPaths << sDrumkitPath;
+
 		m_drumkitDatabase[ sDrumkitPath ] = pDrumkit;
 		
 		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
@@ -186,6 +189,49 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	}
 	
 	return m_drumkitDatabase.at( sDrumkitPath );
+}
+
+std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
+	std::vector<DrumkitMap::Type> results;
+
+	// All types available
+	std::multiset<DrumkitMap::Type> allTypes;
+	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
+		if ( ppDrumkit != nullptr && ppDrumkit->getDrumkitMap() != nullptr &&
+			 ppDrumkit->getDrumkitMapFallback() != nullptr ) {
+			allTypes.merge( ppDrumkit->getDrumkitMap()->getAllTypes() );
+			allTypes.merge( ppDrumkit->getDrumkitMapFallback()->getAllTypes() );
+		}
+	}
+
+	// Count number of occurrences of types
+	std::multimap<int, DrumkitMap::Type> typesCounted;
+	DrumkitMap::Type sLastType;
+	for ( const auto& ssType : allTypes ) {
+		if ( sLastType != ssType ) {
+			typesCounted.insert( {
+				static_cast<int>(allTypes.count( ssType )),
+				ssType } );
+			sLastType = ssType;
+		}
+	}
+
+	// Create sorted list of types (sorting is done by map internally as we used
+	// the number of occurrences as keys).
+	results.resize( typesCounted.size() );
+	// Reverse insertion order to have highest key (most occurrences) first in
+	// resulting vector.
+	int ii = static_cast<int>(typesCounted.size()) - 1;
+ 	for ( const auto& [ _, ssType ] : typesCounted ) {
+		if ( ii < 0 ) {
+			ERRORLOG( "Unexpected index" );
+			break;
+		}
+		 results[ ii ] = ssType;
+		 --ii;
+	 }
+
+	return std::move( results );
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
@@ -234,7 +280,8 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ssPath, ddrumkit ] : m_drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) );
+							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) )
+				.append( QString( "%1%2%2%2mapping:\n" ).arg( sPrefix ).arg( s ) );
 		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
@@ -253,9 +300,9 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 
 		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& eentry : m_drumkitDatabase ) {
+		for ( const auto& [ ssPath, _ ] : m_drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( eentry.first ) );
+							.arg( ssPath ) );
 		}
 		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {

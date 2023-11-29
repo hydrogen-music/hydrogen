@@ -47,6 +47,7 @@ class Instrument;
 class InstrumentList;
 class Pattern;
 class Drumkit;
+class DrumkitMap;
 class DrumkitComponent;
 class PatternList;
 class AutomationPath;
@@ -220,6 +221,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		std::shared_ptr<DrumkitComponent>	getComponent( int nID ) const;
 
+		std::shared_ptr<DrumkitMap>			getDrumkitMap() const;
+		void			setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
+
 		void			readTempPatternList( const QString& sFilename );
 		bool			writeTempPatternList( const QString& sFilename );
 							
@@ -339,7 +343,9 @@ private:
 		///< Instrument list
 		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
 		///< list of drumkit component
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;				
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;
+		/** Mapping of the drumkit of the current song*/
+		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
 		QString			m_sFilename;
 
 		/**
@@ -657,6 +663,13 @@ inline void Song::setMode( Song::Mode mode )
 inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Song::getComponents() const
 {
 	return m_pComponents;
+}
+
+inline std::shared_ptr<DrumkitMap> Song::getDrumkitMap() const {
+	return m_pDrumkitMap;
+}
+inline void	Song::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
+	m_pDrumkitMap = pDrumkitMap;
 }
 
 inline AutomationPath* Song::getVelocityAutomationPath() const

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			       xmlns="http://www.hydrogen-music.org/drumkit_map">
+  <mapping>
+	  <type>Bass Drum</type>
+	  <instrumentID>0</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Bass Drum 2</type>
+	  <instrumentID>1</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Snare</type>
+	  <instrumentID>2</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Snare 2</type>
+	  <instrumentID>3</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Snare 3</type>
+	  <instrumentID>4</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Snare Rimshot</type>
+	  <instrumentID>5</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Tom Low</type>
+	  <instrumentID>6</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Tom High</type>
+	  <instrumentID>7</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Tom Mid</type>
+	  <instrumentID>8</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Hi-hat Closed</type>
+	  <instrumentID>9</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Hi-hat Closed 2</type>
+	  <instrumentID>10</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Hi-hat Closed 3</type>
+	  <instrumentID>11</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Hi-hat Open</type>
+	  <instrumentID>12</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Hi-hat Open 2</type>
+	  <instrumentID>13</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Crash</type>
+	  <instrumentID>14</instrumentID>
+  </mapping>
+  <mapping>
+	  <type>Cowbell</type>
+	  <instrumentID>15</instrumentID>
+  </mapping>
+</drumkit_map>

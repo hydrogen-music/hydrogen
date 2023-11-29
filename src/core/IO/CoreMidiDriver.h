@@ -33,7 +33,7 @@
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
-#include <CoreMidi/CoreMidi.h>
+#include <CoreMIDI/CoreMIDI.h>
 
 namespace H2Core
 {

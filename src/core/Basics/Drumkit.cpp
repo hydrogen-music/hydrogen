@@ -36,6 +36,7 @@
 
 #include <core/Basics/Sample.h>
 #include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -58,8 +59,13 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __license( License() ),
 					 __imageLicense( License() )
 {
+	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
+	__path = usrDrumkitPath.filePath( __name );
 	__components = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	__instruments = std::make_shared<InstrumentList>();
+
+	m_pDrumkitMap = std::make_shared<DrumkitMap>();
+	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
@@ -79,6 +85,9 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	for ( const auto& pComponent : *other->get_components() ) {
 		__components->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
+
+	m_pDrumkitMap = std::make_shared<DrumkitMap>( other->m_pDrumkitMap );
+	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>( other->m_pDrumkitMapFallback );
 }
 
 Drumkit::~Drumkit()
@@ -121,11 +130,40 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
 	}
-	
+
+	// Load drumkit maps corresponding to this kit.
+	//
+	// Order of precedeence:
+	// 1. USER_DATA_DIR/drumkit_maps/KIT_NAME.h2map
+	// 2. *.h2map file in drumkit folder itself
+	// 3. SYS_DATA_DIR/drumkit_maps/KIT_NAME.h2map
+	//
+	// If both 1. and another map file is present, 1. will be assigned to m_pDrumkitMap
+	// and the other one to m_pDrumkitMapFallback. In case all there variants are
+	// present, only 2. is assigned to m_pDrumkitMapFallback.
+	const QString sUserMapFile =
+		Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), true );
+
+	QString sMapFile = Filesystem::getDrumkitMapFromKit( sDrumkitPath );
+	if ( sMapFile.isEmpty() ){
+		sMapFile = Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), false );
+	}
+
+	if ( ! sUserMapFile.isEmpty() ) {
+		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sUserMapFile );
+
+		if ( ! sMapFile.isEmpty() ) {
+			pDrumkit->m_pDrumkitMapFallback = DrumkitMap::load( sMapFile );
+		}
+	}
+	else if ( ! sMapFile.isEmpty() ) {
+		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sMapFile );
+	}
+
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, sDrumkitPath );
 	}
-	
+
 	return pDrumkit;
 }
 
@@ -367,6 +405,17 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 		return false;
 	}
 
+	// Save drumkit map (primary one)
+		const QString sDrumkitMapPath = QString( "%1/%2%3" )
+			.arg( Filesystem::usr_drumkit_maps_dir() )
+			.arg( getExportName() )
+			.arg( Filesystem::drumkit_map_ext );
+        if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
+			ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
+				  .arg( sDrumkitMapPath ) );
+		return false;
+	}
+
 	// Ensure all instruments and associated samples will hold the
 	// same license as the overall drumkit and are associated to
 	// it. (Not important for saving itself but for consistency and
@@ -491,11 +540,11 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 	return true;
 }
 
-bool Drumkit::save_image( const QString& dk_dir, bool bSilent ) const
+bool Drumkit::save_image( const QString& sDrumkitDir, bool bSilent ) const
 {
-	if ( __image.length() > 0 ) {
+	if ( ! __image.isEmpty() && sDrumkitDir != __path ) {
 		QString src = __path + "/" + __image;
-		QString dst = dk_dir + "/" + __image;
+		QString dst = sDrumkitDir + "/" + __image;
 		if ( Filesystem::file_exists( src, bSilent ) ) {
 			if ( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
@@ -726,6 +775,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		return false;
 	}
 
+	if ( ! Filesystem::dir_readable( __path, true ) ) {
+		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
+				  .arg( __path ) );
+		return false;
+	}
+
 	// When performing an export of a single component, the resulting
 	// file will be <DRUMKIT_NAME>_<COMPONENT_NAME>.h2drumkit. This
 	// itself is nice because the user can not choose the name of the
@@ -799,13 +854,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		}
 	}
 
-	if ( ! Filesystem::dir_readable( __path, true ) ) {
-		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
-				  .arg( __path ) );
-		set_name( sOldDrumkitName );
-		return false;
-	}
-	
 	QDir sourceDir( __path );
 
 	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
@@ -828,7 +876,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	suffixBlacklist << "wav" << "flac" << "aifc" << "aif" << "aiff" << "au"
 					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
 					 << "mp1" << "mp2" << "mp3";
-	
+
+	// We won't copy the original drumkit map (fallback) neither but write the
+	// current user-level one.
+	suffixBlacklist << "h2map";
+
 	bool bSampleFound;
 	
 	for ( const auto& ssFile : sourceFilesList ) {
@@ -865,9 +917,10 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 				if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
 												 Qt::CaseInsensitive ) ) {
 
-					// We do not want to export any old backups
-					// created during the upgrade process of the
-					// drumkits.
+					// We do not want to export any old backups created during
+					// the upgrade process of the drumkits. As these were
+					// introduced using suffixes, like .bak.1, .bak.2, etc,
+					// adding `bak` to the blacklist will not work.
 					if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
 							 ssFile.contains( ".bak" ) ) ) {
 						filesUsed << sourceDir.filePath( ssFile );
@@ -876,6 +929,13 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			}
 		}
 	}
+
+	// Store a copy of the current drumkit map and add it to the included files.
+	QString sTmpMapPath = tmpFolder.filePath( QString( "%1%2" )
+									 .arg( sDrumkitName )
+									 .arg( Filesystem::drumkit_map_ext ) );
+	m_pDrumkitMap->save( sTmpMapPath );
+	filesUsed << sTmpMapPath;
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
@@ -1057,6 +1117,11 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
+		sOutput.append( QString( "%1%2m_pDrumkitMap: %3" ).arg( sPrefix ).arg( s )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pDrumkitMapFallback: %3" ).arg( sPrefix ).arg( s )
+						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) );
+
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
@@ -1075,7 +1140,11 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}
 		}
-		sOutput.append( "]\n" );
+		sOutput.append( QString( ", [m_pDrumkitMap: %1]" )
+						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", [m_pDrumkitMapFallback: %1]" )
+						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) )
+			.append( "]\n" );
 	}
 	
 	return sOutput;

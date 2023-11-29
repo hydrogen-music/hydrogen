@@ -99,6 +99,7 @@ AudioEngine::AudioEngine()
 		, m_pLocker({nullptr, 0, nullptr, false})
 		, m_fLastTickEnd( 0 )
 		, m_bLookaheadApplied( false )
+		, m_nLoopsDone( 0 )
 {
 	m_pTransportPosition = std::make_shared<TransportPosition>( "Transport" );
 	m_pQueuingPosition = std::make_shared<TransportPosition>( "Queuing" );
@@ -341,7 +342,15 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
 
+#ifdef H2CORE_HAVE_LADSPA
+	for ( int ii = 0; ii < MAX_FX; ++ii ) {
+		m_fFXPeak_L[ ii ] = 0;
+		m_fFXPeak_R[ ii ] = 0;
+	}
+#endif
+
 	m_fLastTickEnd = 0;
+	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
 	m_fSongSizeInTicks = MAX_NOTES;
@@ -464,6 +473,7 @@ void AudioEngine::resetOffsets() {
 	clearNoteQueues();
 
 	m_fLastTickEnd = 0;
+	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
 	m_pTransportPosition->setFrameOffsetTempo( 0 );
@@ -499,6 +509,20 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 
 	// We are not updating the queuing position in here. This will be
 	// done in updateNoteQueue().
+}
+
+bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong->getMode() == Song::Mode::Song &&
+		 ( pSong->getLoopMode() == Song::LoopMode::Disabled &&
+		   pPos->getDoubleTick() >= m_fSongSizeInTicks ||
+		   pSong->getLoopMode() == Song::LoopMode::Finishing &&
+		   pPos->getDoubleTick() >= m_fSongSizeInTicks *
+		   (1 + static_cast<double>(m_nLoopsDone)) ) ) {
+		return true;
+	}
+
+	return false;
 }
 
 void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
@@ -1004,18 +1028,20 @@ void AudioEngine::stopAudioDrivers()
 {
 	INFOLOG( "" );
 
+	this->lock( RIGHT_HERE );
+
 	if ( m_state == State::Playing ) {
-		this->stopPlayback(); 
+		this->stopPlayback();
 	}
 
 	if ( ( m_state != State::Prepared )
 		 && ( m_state != State::Ready ) ) {
 		ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
 				  .arg( static_cast<int>(m_state) ) );
+		this->unlock();
 		return;
 	}
 
-	this->lock( RIGHT_HERE );
 
 	setState( State::Initialized );
 
@@ -1048,6 +1074,14 @@ void AudioEngine::restartAudioDrivers()
 		this->startPlayback();
 	}
 
+}
+
+void AudioEngine::handleLoopModeChanged() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong->getLoopMode() == Song::LoopMode::Finishing ) {
+		m_nLoopsDone = static_cast<int>(std::floor(
+			m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks ));
+	}
 }
 
 void AudioEngine::handleDriverChange() {
@@ -1109,7 +1143,7 @@ void AudioEngine::setupLadspaFX()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( ! pSong ) {
+	if ( pSong == nullptr ) {
 		return;
 	}
 
@@ -1122,12 +1156,8 @@ void AudioEngine::setupLadspaFX()
 
 		pFX->deactivate();
 
-		Effects::get_instance()->getLadspaFX( nFX )->connectAudioPorts(
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R,
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R
-					);
+		pFX->connectAudioPorts( pFX->m_pBuffer_L, pFX->m_pBuffer_R,
+								pFX->m_pBuffer_L, pFX->m_pBuffer_R );
 		pFX->activate();
 	}
 #endif
@@ -1168,11 +1198,11 @@ void AudioEngine::handleSelectedPattern() {
 			}
 		}
 
-		pHydrogen->setSelectedPatternNumber( nPatternNumber, true );
+		pHydrogen->setSelectedPatternNumber( nPatternNumber, true, true );
 	}
 }
 
-void AudioEngine::switchMode() {
+void AudioEngine::handleSongModeChanged() {
 	reset( true );
 
 	const auto pSong = Hydrogen::get_instance()->getSong();
@@ -1194,7 +1224,6 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	if ( getState() == State::Playing || getState() == State::Testing ) {
 		// Current transport position.
 		nFrame = m_pTransportPosition->getFrame();
-		
 	} else {
 		// In case the playback is stopped we pretend it is still
 		// rolling using the realtime ticks while disregarding tempo
@@ -1371,32 +1400,45 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
-	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
-	if ( nResNoteQueue == -1 ) {	// end of song
-		___INFOLOG( "End of song received" );
-		pAudioEngine->stop();
-		pAudioEngine->stopPlayback();
-		pAudioEngine->locate( 0 );
-
-		// Tell GUI to move the playhead position to the beginning of
-		// the song again since it only updates it in case transport
-		// is rolling.
-		EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
-
-		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
-			___INFOLOG( "End of song." );
-
-			// TODO: This part of the code might not be reached
-			// anymore.
-			pAudioEngine->unlock();
-			return 1;	// kill the audio AudioDriver thread
-		}
-	}
+	pAudioEngine->updateNoteQueue( nframes );
 
 	pAudioEngine->processAudio( nframes );
 
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		pAudioEngine->incrementTransportPosition( nframes );
+
+		// Check whether the end of the song has been reached.
+		if ( pAudioEngine->isEndOfSongReached(
+				 pAudioEngine->m_pTransportPosition ) ) {
+
+			___INFOLOG( "End of song received" );
+
+			if ( pHydrogen->getMidiOutput() != nullptr ) {
+				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
+			}
+
+			pAudioEngine->stop();
+			pAudioEngine->stopPlayback();
+			pAudioEngine->locate( 0 );
+
+			// Tell GUI to move the playhead position to the beginning of
+			// the song again since it only updates it in case transport
+			// is rolling.
+			EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
+
+			if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) !=
+				 nullptr ) {
+				___INFOLOG( "End of song." );
+
+				// TODO This part of the code might not be reached
+				// anymore.
+				pAudioEngine->unlock();
+				return 1;	// kill the audio AudioDriver thread
+			}
+		}
+		else {
+			// We are not at the end of the song, keep rolling.
+			pAudioEngine->incrementTransportPosition( nframes );
+		}
 	}
 
 	timeval finishTimeval = currentTime2();
@@ -2181,10 +2223,6 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart = pPos->getFrame();
 	}
 	
-	// We don't use the getLookaheadInFrames() function directly
-	// because the lookahead contains both a frame-based and a
-	// tick-based component and would be twice as expensive to
-	// calculate using the mentioned call.
 	long long nLeadLagFactor = getLeadLagInFrames( pPos->getDoubleTick() );
 
 	// Timeline disabled: 
@@ -2268,7 +2306,7 @@ double AudioEngine::coarseGrainTick( double fTick ) {
 		}
 	}
 
-int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
+void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -2294,7 +2332,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	}
 
 	if ( getState() != State::Playing && getState() != State::Testing ) {
-		return 0;
+		return;
 	}
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
@@ -2340,25 +2378,9 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			updateSongTransportPosition( static_cast<double>(nnTick),
 										 nNewFrame, m_pQueuingPosition );
 
-			if ( ( pSong->getLoopMode() != Song::LoopMode::Enabled ) &&
-				 ( ( nPreviousPosition > m_pQueuingPosition->getPatternStartTick() +
-					 m_pQueuingPosition->getPatternTickPosition() ) ||
-				   pSong->getPatternGroupVector()->size() == 0 ) ) {
-
-				// DEBUGLOG( QString( "nPreviousPosition: %1, curr: %2, transport pos: %3, queuing pos: %4" )
-				// 		 .arg( nPreviousPosition )
-				// 		 .arg( m_pQueuingPosition->getPatternStartTick() +
-				// 			   m_pQueuingPosition->getPatternTickPosition() )
-				// 		 .arg( m_pTransportPosition->toQString() )
-				// 		 .arg( m_pQueuingPosition->toQString() ) );
-				
-				INFOLOG( "End of song reached." );
-
-				if( pHydrogen->getMidiOutput() != nullptr ){
-					pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-				}
-
-				return -1;
+			if ( isEndOfSongReached( m_pQueuingPosition ) ) {
+				// Queueing reached end of the song.
+				return;
 			}
 		}
 		else if ( pHydrogen->getMode() == Song::Mode::Pattern )	{
@@ -2417,7 +2439,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
 				continue;
 			} else {
-				return 0;
+				return;
 			}
 		}
 		//////////////////////////////////////////////////////////////
@@ -2487,10 +2509,20 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 													   pAutomationPath->get_value( fPos ) );
 						}
 
+						// Ensure the custom length of the note does not exceed
+						// the length of the current pattern.
+						if ( pCopiedNote->get_length() != -1 ) {
+							pCopiedNote->set_length(
+								std::min(
+									static_cast<long>(pCopiedNote->get_length()),
+									static_cast<long>(pPattern->get_length()) -
+									m_pQueuingPosition->getPatternTickPosition() ) );
+						}
+
 						// DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
 						// 		  .arg( m_pQueuingPosition->toQString() )
 						// 		  .arg( pCopiedNote->toQString() ) );
-						
+
 						pCopiedNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 					}
@@ -2499,7 +2531,7 @@ int AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		}
 	}
 
-	return 0;
+	return;
 }
 
 void AudioEngine::noteOn( Note *note )
@@ -2573,11 +2605,6 @@ long long AudioEngine::getLeadLagInFrames( double fTick ) {
 	// 			.arg( nFrameEnd - nFrameStart ).arg( fTick, 0, 'f' ) );
 
 	return nFrameEnd - nFrameStart;
-}
-
-long long AudioEngine::getLookaheadInFrames() {
-	return getLeadLagInFrames( m_pTransportPosition->getDoubleTick() ) +
-		AudioEngine::nMaxTimeHumanize + 1;
 }
 
 const PatternList* AudioEngine::getPlayingPatterns() const {
