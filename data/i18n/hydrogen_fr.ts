@@ -2319,10 +2319,6 @@ Voulez-vous abandonner ces changements ?
         <translation>Pro&amp;jet</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Nom du composant</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>La sauvegarde de cette bibliothèque a échouée</translation>
     </message>

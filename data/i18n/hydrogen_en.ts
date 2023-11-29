@@ -2224,10 +2224,6 @@ Are you sure you want to save?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation></translation>
     </message>

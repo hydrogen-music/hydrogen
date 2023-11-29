@@ -2308,10 +2308,6 @@ Do you want to discard the changes?
         <translation>Про&amp;јекат</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Назив компоненте</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Није успело чување ових бубњева.</translation>
     </message>

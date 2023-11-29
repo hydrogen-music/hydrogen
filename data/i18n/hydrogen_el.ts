@@ -2311,10 +2311,6 @@ Do you want to discard the changes?
         <translation>Ε&amp;ργασία</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Όνομα του συστατικού</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Αποτυχία αποθήκευσης αυτής της βιβλιοθήκης.</translation>
     </message>

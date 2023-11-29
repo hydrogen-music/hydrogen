@@ -154,7 +154,6 @@ public slots:
 		void action_drumkit_properties();
 		void action_drumkit_open();
 		void action_drumkit_addInstrument();
-		void action_drumkit_addComponent();
 		void action_drumkit_save();
 		void action_drumkit_saveAs();
 		void action_drumkit_export();

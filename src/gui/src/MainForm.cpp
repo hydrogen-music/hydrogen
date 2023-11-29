@@ -51,6 +51,8 @@
 #include "HydrogenApp.h"
 #include "Skin.h"
 #include "InstrumentRack.h"
+#include "InstrumentEditor/InstrumentEditor.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "LadspaFXProperties.h"
@@ -62,7 +64,6 @@
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -405,9 +406,11 @@ void MainForm::createMenuBar()
 	m_pDrumkitMenu->addAction( tr( "Add &Instrument" ), this,
 							   SLOT( action_drumkit_addInstrument() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
-	m_pDrumkitMenu->addAction( tr( "Add &Component" ), this,
-							   SLOT( action_drumkit_addComponent() ),
-							   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
+	m_pDrumkitMenu->addAction(
+		tr( "Add &Component" ),
+		InstrumentEditorPanel::get_instance()->getInstrumentEditor(),
+		SLOT( addComponentAction() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
@@ -1351,48 +1354,6 @@ void MainForm::action_drumkit_addInstrument()
 	SE_mainMenuAddInstrumentAction *pAction = new SE_mainMenuAddInstrumentAction();
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
-
-
-void MainForm::action_drumkit_addComponent()
-{
-	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
-	if ( bIsOkPressed  ) {
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		auto pSong = pHydrogen->getSong();
-		if ( pSong == nullptr ) {
-			ERRORLOG( "Invalid song" );
-			return;
-		}
-
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit == nullptr ) {
-			ERRORLOG( "Invalid drumkit" );
-			return;
-		}
-
-		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		auto pNewDrumkitComponent = pNewDrumkit->addComponent();
-		pNewDrumkitComponent->set_name( sNewName );
-
-		auto pAction = new SE_switchDrumkitAction(
-			pNewDrumkit, pDrumkit, false );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-
-		selectedInstrumentChangedEvent();
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->renameJackPorts(pHydrogen->getSong());
-#endif
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-}
-
 
 void MainForm::action_drumkit_open()
 {
@@ -3057,7 +3018,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				action_drumkit_addComponent();
+				InstrumentEditorPanel::get_instance()->
+					getInstrumentEditor()->addComponentAction();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

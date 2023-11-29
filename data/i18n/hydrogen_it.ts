@@ -2286,10 +2286,6 @@ Do you want to discard the changes?
         <translation>Pro&amp;getto</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Nome componente</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Non è possibile salvare la libreria.</translation>
     </message>

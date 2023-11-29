@@ -2307,10 +2307,6 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>

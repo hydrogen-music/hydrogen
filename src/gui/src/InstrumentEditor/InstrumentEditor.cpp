@@ -45,6 +45,7 @@ using namespace H2Core;
 
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../UndoActions.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"
 #include "../Widgets/ClickableLabel.h"
@@ -1317,15 +1318,16 @@ void InstrumentEditor::addComponentAction() {
 		return;
 	}
 
-	auto pDrumkitComponent = pDrumkit->addComponent();
-	if ( pDrumkitComponent == nullptr ) {
-		ERRORLOG( "Unable to add drumkit component" );
-		return;
-	}
-	pDrumkitComponent->set_name( sNewName );
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	auto pNewDrumkitComponent = pNewDrumkit->addComponent();
+	pNewDrumkitComponent->set_name( sNewName );
 
-	m_nSelectedComponent = pDrumkitComponent->get_id();
-	m_pLayerPreview->set_selected_component( pDrumkitComponent->get_id() );
+	auto pAction = new SE_switchDrumkitAction(
+		pNewDrumkit, pDrumkit, false );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+
+	m_nSelectedComponent = pNewDrumkitComponent->get_id();
+	m_pLayerPreview->set_selected_component( pNewDrumkitComponent->get_id() );
 
 	selectedInstrumentChangedEvent();
 

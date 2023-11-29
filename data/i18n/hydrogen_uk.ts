@@ -2321,10 +2321,6 @@ Do you want to discard the changes?
         <translation>&amp;Параметри</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Назва компонента</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Не вдалось зберегти цю бібліотеку.</translation>
     </message>

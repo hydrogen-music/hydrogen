@@ -2320,10 +2320,6 @@ Möchtest Du diese verwerfen?
         <translation>Pro&amp;jekt</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Komponentenname</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Speichern der Bibliothek ist fehlgeschlagen.</translation>
     </message>

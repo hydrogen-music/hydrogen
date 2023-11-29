@@ -2312,10 +2312,6 @@ Deseja descartar as mudanças?
         <translation>Pro&amp;jeto</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Nome do componente</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Falha ao salvar esta biblioteca.</translation>
     </message>

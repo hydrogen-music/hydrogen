@@ -2326,10 +2326,6 @@ El playlist actual contiene cambios sin guardar.
         <translation>Pro&amp;yecto</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Nombre componente</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Error al guardar esta librería.</translation>
     </message>

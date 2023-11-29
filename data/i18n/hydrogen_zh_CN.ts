@@ -2260,10 +2260,6 @@ Are you sure you want to save?</source>
         <translation>打开样式</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>组件名称</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>保存该库失败。</translation>
     </message>

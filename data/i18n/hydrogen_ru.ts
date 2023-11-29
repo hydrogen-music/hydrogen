@@ -2309,10 +2309,6 @@ Do you want to discard the changes?
         <translation>&amp;Проект</translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Название компонента</translation>
-    </message>
-    <message>
         <source>Saving of this library failed.</source>
         <translation>Не удалось сохранить эту библиотеку.</translation>
     </message>
