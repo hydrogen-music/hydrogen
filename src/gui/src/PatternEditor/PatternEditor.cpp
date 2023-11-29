@@ -444,7 +444,7 @@ void PatternEditor::alignToGrid() {
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	// Move the notes
-	pUndo->beginMacro( "align notes to grid" );
+	pUndo->beginMacro( tr( "Align notes to grid" ) );
 
 	for ( Note *pNote : m_selection ) {
 
@@ -481,7 +481,7 @@ void PatternEditor::randomizeVelocity()
 	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
-	pUndo->beginMacro( "Randomize notes velocity" );
+	pUndo->beginMacro( tr( "Random velocity" ) );
 
 	for ( Note *pNote : m_selection ) {
 
