@@ -70,13 +70,16 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 	virtual void updateSongEvent( int ) override;
 	virtual void instrumentParametersChangedEvent( int ) override;
 		// ~ implements EventListener interface
-		void update();
 
 	public slots:
 	/** Used by #Shotlist */
 	void showLayers( bool bShow );
 		void showSampleEditor();
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void addComponentAction();
+		void deleteComponentAction();
+		void renameComponentAction();
+		void switchComponentAction( int nId );
 
 	private slots:
 		void rotaryChanged(WidgetWithInput *ref);
@@ -85,7 +88,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
 		void labelCompoClicked( ClickableLabel* pRef );
-		void compoChangeAddDelete(QAction*);
 		void onDropDownCompoClicked();
 
 		void muteGroupChanged( double fValue );
@@ -213,9 +215,10 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		// Component
 		ClickableLabel *m_pCompoNameLbl;
-		Button *m_buttonDropDownCompo;
-		QStringList itemsCompo;
-		QMenu *popCompo;
+		Button *m_DropDownCompoBtn;
+		QStringList m_itemsCompo;
+		QMenu *m_pComponentMenu;
+		void populateComponentMenu();
 
 		Rotary *m_pCompoGainRotary;
 		LCDDisplay *m_pCompoGainLCD;
