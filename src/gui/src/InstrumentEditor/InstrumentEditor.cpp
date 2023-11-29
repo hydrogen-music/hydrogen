@@ -458,6 +458,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	//component handling
 	m_pComponentMenu = new QMenu( this );
+	updateComponentLabels();
 	populateComponentMenu();
 	// ~ component handling
 
@@ -481,6 +482,7 @@ InstrumentEditor::~InstrumentEditor()
 void InstrumentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		updateComponentLabels();
 		selectedInstrumentChangedEvent();
 
 		// The function call above sets some spurious isModified when
@@ -491,6 +493,7 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 }
 
 void InstrumentEditor::drumkitLoadedEvent() {
+	updateComponentLabels();
 	selectedInstrumentChangedEvent();
 }
 
@@ -580,20 +583,25 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		bool bFound = false;
 		for ( const auto& ppComponent : *pCompoList ) {
-			if ( ppComponent->get_id() == m_nSelectedComponent ) {
+			if ( ppComponent != nullptr &&
+				 ppComponent->get_id() == m_nSelectedComponent ) {
 				bFound = true;
 				break;
 			}
 		}
-		if ( !bFound ){
+		if ( ! bFound ){
 			m_nSelectedComponent = pCompoList->front()->get_id();
 		}
 
 		auto pTmpComponent = pSong->getDrumkit()->getComponent( m_nSelectedComponent );
+		if ( pTmpComponent == nullptr ) {
+			ERRORLOG( QString( "Unable to get component [%1]" )
+					  .arg( m_nSelectedComponent ) );
+			return;
+		}
 
-		assert(pTmpComponent);
-
-		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
+		m_pCompoNameLbl->setText(
+			m_uniqueComponentLabels[ m_nSelectedComponent ] );
 
 		if ( m_nSelectedLayer >= 0 ) {
 			
@@ -1274,11 +1282,11 @@ void InstrumentEditor::populateComponentMenu()
 	m_pComponentMenu->clear();
 
 	// Actions to switch between the drumkits
-	for ( const auto& pComponent : *pDrumkit->getComponents() ) {
-		if ( pComponent != nullptr ) {
+	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
+		if ( ppComponent != nullptr ) {
 			m_pComponentMenu->addAction(
-				pComponent->get_name(), this,
-				[=](){ switchComponentAction( pComponent->get_id() ); } );;
+				m_uniqueComponentLabels[ ppComponent->get_id() ], this,
+				[=](){ switchComponentAction( ppComponent->get_id() ); } );;
 		}
 	}
 	m_pComponentMenu->addSeparator();
@@ -1288,6 +1296,43 @@ void InstrumentEditor::populateComponentMenu()
 								 SLOT( deleteComponentAction() ) );
 	m_pComponentMenu->addAction( pCommonStrings->getMenuActionRename(), this,
 								 SLOT( renameComponentAction() ) );
+}
+
+void InstrumentEditor::updateComponentLabels() {
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	m_uniqueComponentLabels.clear();
+
+	QStringList uniqueLabels;
+	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
+		if ( ppComponent != nullptr ) {
+			const auto sName = ppComponent->get_name();
+			const int nId = ppComponent->get_id();
+			if ( uniqueLabels.contains( sName ) ) {
+				m_uniqueComponentLabels[ nId ] =
+					QString( "%1 (%2)" ).arg( sName ).arg( nId );
+			}
+			else {
+				m_uniqueComponentLabels[ nId ] = sName;
+				uniqueLabels << sName;
+			}
+		}
+	}
 }
 
 void InstrumentEditor::addComponentAction() {
@@ -1432,7 +1477,7 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 		return;
 	}
 
-	m_pCompoNameLbl->setText( pComponent->get_name() );
+	m_pCompoNameLbl->setText( m_uniqueComponentLabels[ nId ] );
 	m_nSelectedComponent = nId;
 
 	m_pLayerPreview->set_selected_component( nId );
