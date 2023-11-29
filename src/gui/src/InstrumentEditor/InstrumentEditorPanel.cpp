@@ -73,28 +73,6 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 	INFOLOG( "DESTROY" );
 }
 
-void InstrumentEditorPanel::drumkitLoadedEvent() {
-	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	
-	auto pComponentList = pSong->getDrumkit()->getComponents();
-	if ( pComponentList != nullptr && pComponentList->size() > 0 ) {
-		m_pInstrumentEditor->selectComponent( pComponentList->front()->get_id() );
-	} else {
-		m_pInstrumentEditor->selectComponent( -1 );
-	}
-	m_pInstrumentEditor->selectedInstrumentChangedEvent();
-}
-
-void InstrumentEditorPanel::updateSongEvent( int nValue ) {
-	// A new song got loaded
-	if ( nValue == 0 ) {
-		drumkitLoadedEvent();
-	}
-}
-
 void InstrumentEditorPanel::selectLayer( int nLayer )
 {
 	m_pInstrumentEditor->selectLayer( nLayer );

@@ -45,9 +45,6 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentE
 		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
 		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent( int ) override;
-		
 		InstrumentEditor* getInstrumentEditor() const;
 
 		void selectLayer( int nLayer );
