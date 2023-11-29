@@ -217,7 +217,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 	} else if ( ev->button() == Qt::RightButton ) {
 
-		m_pPopupMenu->popup( ev->globalPos() );
+		showPopupMenu( ev->globalPos() );
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );

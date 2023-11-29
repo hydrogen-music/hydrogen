@@ -9,6 +9,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Most actions available via MIDI or OSC can also be assigned to a
 		  keyboard shortcut. If those actions require input arguments,
 		  they are retrieved using popup dialogs.
+		- Align to grid action in Pattern Editor to align
+		  exsiting notes to current grid.
 	* Changed
 		- Prerelease version suffix (alpha, beta, rc..) are now appended to
 			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.

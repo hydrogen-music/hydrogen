@@ -336,6 +336,10 @@ public:
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
 
+	bool isEmpty() const {
+		return m_pSelectionGroup->m_selectedElements.empty();
+	}
+
 	void removeFromSelection( Elem e, bool bCheck = true ) {
 		std::vector<Elem> v { e };
 		if ( !bCheck || m_pWidget->checkDeselectElements( v ) ) {

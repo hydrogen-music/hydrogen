@@ -85,12 +85,14 @@ PatternEditor::PatternEditor( QWidget *pParent,
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) ) );
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
+	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
@@ -375,6 +377,17 @@ void PatternEditor::selectNone()
 	m_selection.updateWidgetGroup();
 }
 
+void PatternEditor::showPopupMenu( const QPoint &pos )
+{
+	// Enable or disable menu actions that only operate on selections.
+	bool bEmpty = m_selection.isEmpty();
+	for ( auto & action : m_selectionActions ) {
+		action->setEnabled( !bEmpty );
+	}
+
+	m_pPopupMenu->popup( pos );
+}
+
 ///
 /// Copy selection to clipboard in XML
 ///
@@ -449,6 +462,96 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		}
 	}
 	m_selection.updateWidgetGroup();
+}
+
+
+///
+/// Align selected (or all) notes to the current grid
+///
+void PatternEditor::alignToGrid() {
+
+	// Align selected notes to grid.
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected.
+		return;
+	}
+
+	validateSelection();
+	if ( m_selection.isEmpty() ) {
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	// Move the notes
+	pUndo->beginMacro( tr( "Align notes to grid" ) );
+
+	for ( Note *pNote : m_selection ) {
+
+		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		int nPosition = pNote->get_position();
+		int nNewInstrument = nInstrument;
+		int nGranularity = granularity();
+		// Round to the nearest position in the current grid. We add 1 to round up when the note is precisely
+		// in the middle. This allows us to change a 4/4 pattern to a 6/8 swing feel by changing the grid to
+		// 1/8th triplest, and hitting 'align'.
+		int nNewPosition = nGranularity * ( (nPosition+(nGranularity/2)+1) / nGranularity );
+		// Move note
+		pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
+											nNewPosition, nNewInstrument, pNote ) );
+	}
+
+	pUndo->endMacro();
+}
+
+
+void PatternEditor::randomizeVelocity()
+{
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected. Nothing to be randomized.
+		return;
+	}
+
+	validateSelection();
+	if ( m_selection.isEmpty() ) {
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	pUndo->beginMacro( tr( "Random velocity" ) );
+
+	for ( Note *pNote : m_selection ) {
+
+		float fVal = ( rand() % 100 ) / 100.0;
+		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
+						   0.0, 1.0 );
+		SE_editNotePropertiesVolumeAction *action =
+			new SE_editNotePropertiesVolumeAction( pNote->get_position(),
+												   PatternEditor::Mode::Velocity,
+												   m_nSelectedPatternNumber,
+												   pInstrumentList->index( pNote->get_instrument() ),
+												   fVal,
+												   pNote->get_velocity(),
+												   pNote->getPan(),
+												   pNote->getPan(),
+												   pNote->get_lead_lag(),
+												   pNote->get_lead_lag(),
+												   pNote->get_probability(),
+												   pNote->get_probability(),
+												   pNote->get_key(),
+												   pNote->get_key(),
+												   pNote->get_octave(),
+												   pNote->get_octave() );
+		pUndo->push( action );
+	}
+
+	pUndo->endMacro();
+
 }
 
 void PatternEditor::setCurrentInstrument( int nInstrument ) {

@@ -213,6 +213,8 @@ public slots:
 	virtual void copy();
 	virtual void paste() = 0;
 	virtual void cut();
+	virtual void alignToGrid();
+	virtual void randomizeVelocity();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -256,6 +258,10 @@ protected:
 
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
+
+	QList< QAction * > m_selectionActions;
+
+	void showPopupMenu( const QPoint & pos );
 
 	int getColumn( int x, bool bUseFineGrained = false ) const;
 	QPoint movingGridOffset() const;
