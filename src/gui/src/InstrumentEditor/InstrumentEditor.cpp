@@ -333,7 +333,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  ClickableLabel::Color::Bright, true );
 	m_pCompoNameLbl->move( 5, 4 );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
-			 this, SLOT( labelCompoClicked(ClickableLabel*) ) );
+			 this, SLOT( labelCompoClicked() ) );
 
 	m_DropDownCompoBtn = new Button( m_pLayerProp, QSize( 18, 18 ),
 										Button::Type::Push, "dropdown.svg", "",
@@ -1047,29 +1047,68 @@ void InstrumentEditor::setAutoVelocity()
 	}
 }
 
-void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
+void InstrumentEditor::labelCompoClicked()
 {
-	UNUSED( pRef );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
 		return;
 	}
-	auto pComponent = pSong->getDrumkit()->getComponent( m_nSelectedComponent );
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	auto pComponent = pDrumkit->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve selected component [%1]" )
+				  .arg( m_nSelectedComponent ) );
 		return;
 	}
+
 	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 
 	if ( bIsOkPressed && sOldName != sNewName ) {
-		pComponent->set_name( sNewName );
-
-		Hydrogen::get_instance()->setIsModified( true );
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+		 auto pAction = new SE_renameComponentAction(
+			 sNewName, sOldName, m_nSelectedComponent );
+		 HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 	}
+}
+
+void InstrumentEditor::renameComponent( int nComponentId, const QString& sNewName ) {
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	auto pComponent = pDrumkit->getComponent( nComponentId );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1]" )
+				  .arg( nComponentId ) );
+		return;
+	}
+
+	pComponent->set_name( sNewName );
+	m_pCompoNameLbl->setText( sNewName );
+	updateComponentLabels();
+	populateComponentMenu();
+
+	Hydrogen::get_instance()->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void InstrumentEditor::selectComponent( int nComponent )
@@ -1444,7 +1483,7 @@ void InstrumentEditor::deleteComponentAction() {
 }
 
 void InstrumentEditor::renameComponentAction() {
-	labelCompoClicked( nullptr );
+	labelCompoClicked();
 }
 
 void InstrumentEditor::switchComponentAction( int nId ) {

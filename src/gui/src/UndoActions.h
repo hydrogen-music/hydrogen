@@ -38,6 +38,7 @@
 
 #include "HydrogenApp.h"
 #include "InstrumentRack.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/PatternFillDialog.h"
@@ -1182,6 +1183,32 @@ class SE_switchDrumkitAction : public QUndoCommand {
 		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
 		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
 		bool m_bConditionalLoad;
+};
+
+class SE_renameComponentAction : public QUndoCommand {
+	public:
+		SE_renameComponentAction( const QString& sNewName,
+								  const QString& sOldName,
+								  int nComponentId ) :
+			m_sNewName( sNewName ),
+			m_sOldName( sOldName ),
+			m_nComponentId( nComponentId ) {
+			setText( QString( "%1: [%2] -> [%3]" )
+					 .arg( QObject::tr( "Rename component" ) )
+					 .arg( sOldName ).arg( sNewName ) );
+		}
+		virtual void undo() {
+			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
+				->renameComponent( m_nComponentId, m_sOldName );
+		}
+		virtual void redo() {
+			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
+				->renameComponent( m_nComponentId, m_sNewName );
+		}
+	private:
+		QString m_sNewName;
+		QString m_sOldName;
+		int m_nComponentId;
 };
 
 //=====================================================================================================================================

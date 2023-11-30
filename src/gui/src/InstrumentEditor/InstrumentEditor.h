@@ -63,6 +63,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void setFileforLayer(QString filename );
 
 		void selectComponent( int nComponent );
+		void renameComponent( int nComponentId, const QString& sNewName );
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent() override;
@@ -87,7 +88,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void filterActiveBtnClicked();
 		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
-		void labelCompoClicked( ClickableLabel* pRef );
+		void labelCompoClicked();
 		void onDropDownCompoClicked();
 
 		void muteGroupChanged( double fValue );
