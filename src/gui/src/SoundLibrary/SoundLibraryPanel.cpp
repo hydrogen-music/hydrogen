@@ -693,11 +693,12 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 		return;
 	}
 
-	// Unload all samples of the old kit in order to save memory. In addition,
-	// in case any of the samples were delete between undo and redo, we do not
-	// get into trouble but just print some error messages during the attempt
-	// sample load.
+	// Unload all samples in order to save memory. The `setDrumkit` function
+	// will take care of loading the new ones. In addition, in case any of the
+	// samples were delete between undo and redo, we do not get into trouble but
+	// just print some error messages during the attempt sample load.
 	pOldDrumkit->unloadSamples();
+	pNewDrumkit->unloadSamples();
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
