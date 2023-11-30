@@ -590,7 +590,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			}
 		}
 		if ( ! bFound ){
-			m_nSelectedComponent = pCompoList->front()->get_id();
+			selectComponent( pCompoList->front()->get_id() );
 		}
 
 		auto pTmpComponent = pSong->getDrumkit()->getComponent( m_nSelectedComponent );
@@ -1079,7 +1079,7 @@ void InstrumentEditor::selectComponent( int nComponent )
 	}
 
 	m_nSelectedComponent = nComponent;
-	m_pLayerPreview->set_selected_component(m_nSelectedComponent);
+	m_pLayerPreview->set_selected_component( m_nSelectedComponent );
 }
 
 void InstrumentEditor::labelClicked( ClickableLabel* pRef )
@@ -1376,8 +1376,7 @@ void InstrumentEditor::addComponentAction() {
 		pNewDrumkit, pDrumkit, false );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
-	m_nSelectedComponent = pNewDrumkitComponent->get_id();
-	m_pLayerPreview->set_selected_component( pNewDrumkitComponent->get_id() );
+	selectComponent( pNewDrumkitComponent->get_id() );
 
 	selectedInstrumentChangedEvent();
 
@@ -1436,7 +1435,7 @@ void InstrumentEditor::deleteComponentAction() {
 		}
 	}
 
-	m_nSelectedComponent = pDrumkitComponents->front()->get_id();
+	selectComponent( pDrumkitComponents->front()->get_id() );
 
 
 	selectedInstrumentChangedEvent();
@@ -1466,11 +1465,11 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 		return;
 	}
 
-	m_nSelectedComponent = -1;
+	int nSelectedComponent = -1;
 	auto pDrumkitComponents = pDrumkit->getComponents();
 	for ( const auto& pComponent : *pDrumkitComponents ) {
 		if ( pComponent->get_id() == nId ) {
-			m_nSelectedComponent = pComponent->get_id();
+			nSelectedComponent = pComponent->get_id();
 			break;
 		}
 	}
@@ -1483,9 +1482,8 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 	}
 
 	m_pCompoNameLbl->setText( m_uniqueComponentLabels[ nId ] );
-	m_nSelectedComponent = nId;
 
-	m_pLayerPreview->set_selected_component( nId );
+	selectComponent( nId );
 
 	selectedInstrumentChangedEvent();
 
