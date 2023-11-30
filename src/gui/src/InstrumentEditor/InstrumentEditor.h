@@ -88,7 +88,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void filterActiveBtnClicked();
 		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
-		void labelCompoClicked();
 		void onDropDownCompoClicked();
 
 		void muteGroupChanged( double fValue );

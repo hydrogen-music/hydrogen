@@ -333,7 +333,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  ClickableLabel::Color::Bright, true );
 	m_pCompoNameLbl->move( 5, 4 );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
-			 this, SLOT( labelCompoClicked() ) );
+			 this, SLOT( renameComponentAction() ) );
 
 	m_DropDownCompoBtn = new Button( m_pLayerProp, QSize( 18, 18 ),
 										Button::Type::Push, "dropdown.svg", "",
@@ -1047,7 +1047,7 @@ void InstrumentEditor::setAutoVelocity()
 	}
 }
 
-void InstrumentEditor::labelCompoClicked()
+void InstrumentEditor::renameComponentAction()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1414,17 +1414,13 @@ void InstrumentEditor::addComponentAction() {
 	auto pNewDrumkitComponent = pNewDrumkit->addComponent();
 	pNewDrumkitComponent->set_name( sNewName );
 
+	selectComponent( pNewDrumkitComponent->get_id() );
+
 	auto pAction = new SE_switchDrumkitAction(
 		pNewDrumkit, pDrumkit, false,
 		SE_switchDrumkitAction::Type::AddComponent, sNewName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
-	selectComponent( pNewDrumkitComponent->get_id() );
-
-	selectedInstrumentChangedEvent();
-
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
 	pHydrogen->renameJackPorts( pSong );
@@ -1476,14 +1472,6 @@ void InstrumentEditor::deleteComponentAction() {
 		pNewDrumkit, pDrumkit, false,
 		SE_switchDrumkitAction::Type::DeleteComponent, sOldName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-
-	selectedInstrumentChangedEvent();
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-}
-
-void InstrumentEditor::renameComponentAction() {
-	labelCompoClicked();
 }
 
 void InstrumentEditor::switchComponentAction( int nId ) {
