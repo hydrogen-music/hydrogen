@@ -1292,8 +1292,13 @@ void InstrumentEditor::populateComponentMenu()
 	m_pComponentMenu->addSeparator();
 	m_pComponentMenu->addAction( pCommonStrings->getMenuActionAdd(), this,
 								 SLOT( addComponentAction() ) );
-	m_pComponentMenu->addAction( pCommonStrings->getMenuActionDelete(), this,
-								 SLOT( deleteComponentAction() ) );
+	auto pDeleteAction = m_pComponentMenu->addAction(
+		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponentAction() ) );
+	if ( pDrumkit->getComponents()->size() < 2 ) {
+		// If there is just a single component present, it must not be removed.
+		pDeleteAction->setEnabled( false );
+	}
+
 	m_pComponentMenu->addAction( pCommonStrings->getMenuActionRename(), this,
 								 SLOT( renameComponentAction() ) );
 }
