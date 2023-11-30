@@ -4684,6 +4684,18 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Switching drumkits</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>

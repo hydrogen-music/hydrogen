@@ -679,8 +679,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-	auto pAction = new SE_switchDrumkitAction( pDrumkit, pSong->getDrumkit(),
-											   conditionalLoad );
+	auto pAction = new SE_switchDrumkitAction(
+		pDrumkit, pSong->getDrumkit(), conditionalLoad,
+		SE_switchDrumkitAction::Type::SwitchDrumkit );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 

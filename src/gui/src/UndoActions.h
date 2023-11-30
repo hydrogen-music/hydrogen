@@ -1119,18 +1119,51 @@ private:
 
 class SE_switchDrumkitAction : public QUndoCommand {
 	public:
+		/** Switching entire drumkits is a rather clean way to accomplish a
+		 * number of different task. To still display the proper text in the
+		 * undo history, this enum is used to indicate the intention calling
+		 * this undo action. */
+		enum class Type {
+			/** Actual switching of two fully-fledge kits */
+			SwitchDrumkit = 0,
+			/** Replace the current kit with an empty one */
+			NewDrumkit = 1,
+			/** Replace the current kit with a copy containing an additional
+			 * component */
+			AddComponent = 2,
+			/** Replace the current kit with a copy from which one component was
+			 * removed. */
+			DeleteComponent = 3
+		};
+
 		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
 								std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
-								bool bConditionalLoad ) :
+								bool bConditionalLoad, Type type,
+								const QString& sComponentName = "" ) :
 			m_pNewDrumkit( pNewDrumkit ),
 			m_pOldDrumkit( pOldDrumkit ),
 			m_bConditionalLoad( bConditionalLoad )
 		{
-			setText( QString( "%1: [%2] -> [%3]" )
-					 .arg( QObject::tr( "Switching drumkits" ) )
-					 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
-					 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
-
+			switch ( type ) {
+			case Type::SwitchDrumkit:
+				setText( QString( "%1: [%2] -> [%3]" )
+						 .arg( QObject::tr( "Switching drumkits" ) )
+						 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
+						 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
+				break;
+			case Type::NewDrumkit:
+				setText( QObject::tr( "Replace song drumkit with new and empty one" ) );
+				break;
+			case Type::AddComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Adding component" ) )
+						 .arg( sComponentName ) );
+				break;
+			case Type::DeleteComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Remove component" ) )
+						 .arg( sComponentName ) );
+			}
 		}
 		virtual void undo() {
 			HydrogenApp::get_instance()->getInstrumentRack()->

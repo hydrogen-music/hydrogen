@@ -1385,7 +1385,8 @@ void MainForm::action_drumkit_new()
 	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false );
+		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false,
+		SE_switchDrumkitAction::Type::NewDrumkit );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
@@ -1501,7 +1502,8 @@ void MainForm::action_drumkit_import( bool bLoad ) {
 					return;
 				}
 				auto pAction = new SE_switchDrumkitAction(
-					pDrumkit, pHydrogen->getSong()->getDrumkit(), false );
+					pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
+					SE_switchDrumkitAction::Type::SwitchDrumkit );
 				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 			}
 			else {

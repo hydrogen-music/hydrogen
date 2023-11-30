@@ -1373,7 +1373,8 @@ void InstrumentEditor::addComponentAction() {
 	pNewDrumkitComponent->set_name( sNewName );
 
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, pDrumkit, false );
+		pNewDrumkit, pDrumkit, false,
+		SE_switchDrumkitAction::Type::AddComponent, sNewName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 	selectComponent( pNewDrumkitComponent->get_id() );
@@ -1406,23 +1407,32 @@ void InstrumentEditor::deleteComponentAction() {
 		return;
 	}
 
-	auto pDrumkitComponents = pDrumkit->getComponents();
-
-	if ( pDrumkitComponents->size() == 1 ) {
+	if ( pDrumkit->getComponents()->size() == 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 		return;
 	}
+
+	auto pComponent = pDrumkit->getComponent( m_nSelectedComponent );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to find selected component [%1]" )
+				  .arg( m_nSelectedComponent ) );
+		return;
+	}
+
+	auto sOldName = pComponent->get_name();
+
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	pNewDrumkit->removeComponent( m_nSelectedComponent );
 
 	// Fall back to the first component.
-	selectComponent( pDrumkitComponents->front()->get_id() );
+	selectComponent( pDrumkit->getComponents()->front()->get_id() );
 
 	// Undoing the deletion of a drumkit component is a rather difficult path as
 	// it also involves all associated instrument components and their samples.
 	// It's both more easy and clean to just switch between the entire drumkits.
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, pDrumkit, false );
+		pNewDrumkit, pDrumkit, false,
+		SE_switchDrumkitAction::Type::DeleteComponent, sOldName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 	selectedInstrumentChangedEvent();
