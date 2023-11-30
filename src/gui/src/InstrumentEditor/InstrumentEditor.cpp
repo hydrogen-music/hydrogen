@@ -1284,9 +1284,12 @@ void InstrumentEditor::populateComponentMenu()
 	// Actions to switch between the drumkits
 	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
 		if ( ppComponent != nullptr ) {
-			m_pComponentMenu->addAction(
+			auto pAction = m_pComponentMenu->addAction(
 				m_uniqueComponentLabels[ ppComponent->get_id() ], this,
 				[=](){ switchComponentAction( ppComponent->get_id() ); } );;
+			if ( ppComponent->get_id() == m_nSelectedComponent ) {
+				m_pComponentMenu->setDefaultAction( pAction );
+			}
 		}
 	}
 	m_pComponentMenu->addSeparator();
