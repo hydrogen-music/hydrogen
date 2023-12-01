@@ -579,6 +579,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	saveDrumkitMap();
 
+	bool bOldImageDeleted = false;
 	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
@@ -598,6 +599,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 		if ( ! sOldImagePath.isEmpty() ) {
 			Filesystem::rm( sOldImagePath, false, false );
+			bOldImageDeleted = true;
 		}
 
 		// When editing the properties of the current kit, the new version will
@@ -626,6 +628,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Write new properties/drumkit to disk.
 	if ( ! m_pDrumkit->save() ) {
+
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
@@ -635,6 +638,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// Copy the selected image into the drumkit folder (in case a file outside
 	// of it was selected.)
 	if ( ! m_sNewImagePath.isEmpty() ) {
+
 		QFileInfo fileInfo( m_sNewImagePath );
 
 		if ( fileInfo.dir().absolutePath() != m_pDrumkit->getPath() ) {
@@ -648,7 +652,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		}
 	}
 
-	if ( ! sOldImagePath.isEmpty() ) {
+	if ( ! sOldImagePath.isEmpty() && ! bOldImageDeleted ) {
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
