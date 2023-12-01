@@ -36,6 +36,7 @@
 #include <core/Basics/AutomationPath.h>
 #include <core/Helpers/Filesystem.h>
 
+#include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "InstrumentRack.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -1134,7 +1135,9 @@ class SE_switchDrumkitAction : public QUndoCommand {
 			AddComponent = 2,
 			/** Replace the current kit with a copy from which one component was
 			 * removed. */
-			DeleteComponent = 3
+			DeleteComponent = 3,
+			/** Editing properties of the current song's kit. */
+			EditProperties = 4
 		};
 
 		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
@@ -1164,6 +1167,11 @@ class SE_switchDrumkitAction : public QUndoCommand {
 				setText( QString( "%1 [%2]" )
 						 .arg( QObject::tr( "Remove component" ) )
 						 .arg( sComponentName ) );
+				break;
+			case Type::EditProperties:
+				setText( HydrogenApp::get_instance()->getCommonStrings()
+						 ->getActionEditDrumkitProperties() );
+				break;
 			}
 		}
 		virtual void undo() {

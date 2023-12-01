@@ -1009,6 +1009,10 @@ Are you sure?</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Importation en ligne</translation>
     </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1540,10 +1544,6 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation>Le kit de batterie actuel est en lecture seule. Veuillez utiliser Kits de batterie &gt; Sauvegarder sous dans le menu principal pour en créer un nouveau d&apos;abord.</translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>Ouvrir une image</translation>
     </message>
@@ -1570,6 +1570,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Saving of this drumkit failed.</source>
         <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2319,10 +2323,6 @@ Voulez-vous abandonner ces changements ?
         <translation>Pro&amp;jet</translation>
     </message>
     <message>
-        <source>Saving of this library failed.</source>
-        <translation>La sauvegarde de cette bibliothèque a échouée</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>A&amp;ffichage</translation>
     </message>
@@ -2465,10 +2465,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>&amp;Properties</source>
         <translation>&amp;Propriétés</translation>
-    </message>
-    <message>
-        <source>Save &amp;As</source>
-        <translation>Sauvegarder &amp;sous</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -2649,6 +2645,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5367,14 +5367,6 @@ p, li { white-space: pre-wrap; }
         <translation>Modifier les propriétés du kit de batterie</translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation>Sauvegarder les modifications du kit de batterie actuel</translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation>Sauvegarder les modifications vers un nouveau kit de batterie</translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation>Exporter le kit de batterie vers un disque</translation>
     </message>
@@ -5665,6 +5657,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>All Categories</source>
         <translation>Toutes les catégories</translation>
+    </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

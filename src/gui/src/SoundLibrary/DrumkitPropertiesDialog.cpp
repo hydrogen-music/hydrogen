@@ -24,7 +24,9 @@
 #include <QtWidgets>
 
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "../CommonStrings.h"
+#include "../UndoActions.h"
 
 #include "DrumkitPropertiesDialog.h"
 #include "../InstrumentRack.h"
@@ -40,10 +42,12 @@
 namespace H2Core
 {
 
-DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkit, bool bDrumkitNameLocked )
+DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
+												  std::shared_ptr<Drumkit> pDrumkit,
+												  bool bEditingNotSaving )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
- , m_bDrumkitNameLocked( bDrumkitNameLocked )
+ , m_bEditingNotSaving( bEditingNotSaving )
  , m_sNewImagePath( "" )
 {
 	setObjectName( "DrumkitPropertiesDialog" );
@@ -72,13 +76,18 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent, std::shared_
 
 		nameTxt->setText( pDrumkit->getName() );
 
-		if ( bDrumkitNameLocked ) {
-			setWindowTitle( tr( "Edit Drumkit Properties" ) );
-			nameTxt->setIsActive( false );
-			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
+		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+			setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
 		}
 		else {
-			setWindowTitle( tr( "Create New Drumkit" ) );
+			if ( bEditingNotSaving ) {
+				setWindowTitle( tr( "Edit Drumkit Properties" ) );
+				nameTxt->setIsActive( false );
+				nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
+			}
+			else {
+				setWindowTitle( tr( "Create New Drumkit" ) );
+			}
 		}
 		
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
@@ -118,8 +127,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent, std::shared_
 
 	// In case the drumkit name is not locked/the dialog is used as
 	// "Save As" nothing needs to be disabled.
-	if ( ! bDrumkitWritable && bDrumkitNameLocked ) {
-		QString sToolTip = tr( "The current drumkit is read-only. Please use Drumkits > Save As in the main menu to create a new one first." );
+	if ( ! bDrumkitWritable && bEditingNotSaving ) {
+		QString sToolTip = tr( "The current drumkit is read-only. Please use 'Duplicate' to move a copy into user space." );
 		
 		// The drumkit is read-only. Thus we won't support altering
 		// any of its properties.
@@ -463,10 +472,11 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit == nullptr ) {
 		return;
 	}
-	
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
     
 	// Sanity checks.
 	//
@@ -547,7 +557,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// Will contain image which should be removed. To keep the previous image,
 	// this string should be empty.
 	QString sOldImagePath;
-	if ( imageText->text() != m_pDrumkit->getImage() ) {
+	if ( imageText->text() != m_pDrumkit->getImage() &&
+		 ! m_pDrumkit->getImage().isEmpty() ) {
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			tr( "Delete previous drumkit image" )
@@ -568,7 +579,52 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	saveDrumkitMap();
 
-	// Write new properties to disk.
+	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		// Copy the selected image into our cache folder as the kit is a
+		// floating one associated to a song.
+		if ( ! m_sNewImagePath.isEmpty() ) {
+			QFileInfo fileInfo( m_sNewImagePath );
+
+			const QString sTargetPath = QDir( Filesystem::cache_dir() )
+				.absoluteFilePath( fileInfo.completeBaseName() );
+			INFOLOG( QString( "Copying [%1] to [%2]" ).arg( m_sNewImagePath )
+					 .arg( sTargetPath ) );
+
+			m_pDrumkit->setImage( sTargetPath );
+
+			// Logging is done in file_copy.
+			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
+		}
+
+		if ( ! sOldImagePath.isEmpty() ) {
+			Filesystem::rm( sOldImagePath, false, false );
+		}
+
+		// When editing the properties of the current kit, the new version will
+		// be loaded in a way that can be undone.
+		//
+		// TODO this affects mostly metadata and can be done more efficiently.
+		// But due to the license propagation into the instruments, we switch
+		// the entire kit for now.
+		auto pAction = new SE_switchDrumkitAction(
+			m_pDrumkit, pSong->getDrumkit(), false,
+			SE_switchDrumkitAction::Type::EditProperties );
+		pHydrogenApp->m_pUndoStack->push( pAction );
+
+		// Since we hit save on the song's drumkit, we should also save the song
+		// for the sake of consistency.
+		pHydrogenApp->getMainForm()->action_file_save();
+
+		if ( m_bEditingNotSaving ) {
+			// We are not saving the kit to the Sound Library and are done for
+			// now.
+			QApplication::restoreOverrideCursor();
+			accept();
+			return;
+		}
+	}
+
+	// Write new properties/drumkit to disk.
 	if ( ! m_pDrumkit->save() ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
@@ -597,7 +653,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
-			
+
 	QApplication::restoreOverrideCursor();
 
 	accept();

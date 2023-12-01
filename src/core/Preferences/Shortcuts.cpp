@@ -517,10 +517,7 @@ void Shortcuts::createActionInfoMap() {
 										 "Edit drumkit properties" ) );
 	insertActionInfo( Shortcuts::Action::SaveDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Save modifications to current drumkit" ) );
-	insertActionInfo( Shortcuts::Action::SaveAsDrumkit, Category::MainMenu,
-					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Save modifications to new drumkit" ) );
+										 "Save current drumkit to Sound Library" ) );
 	insertActionInfo( Shortcuts::Action::ExportDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export drumkit to disk" ) );

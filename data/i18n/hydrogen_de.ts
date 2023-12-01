@@ -1009,6 +1009,10 @@ Are you sure?</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Aus dem Internet herunterladen</translation>
     </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1536,10 +1540,6 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation>Das aktuellen Schlagzeug ist nur les- aber nicht schreibbar. Bitte erstellen Sie über Schlagzeug &gt; Speichern Unter im Hauptmenü erst eine Neues.</translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>Öffne Bild</translation>
     </message>
@@ -1566,6 +1566,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Saving of this drumkit failed.</source>
         <translation>Speichern des Schlagzeugs ist fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2320,10 +2324,6 @@ Möchtest Du diese verwerfen?
         <translation>Pro&amp;jekt</translation>
     </message>
     <message>
-        <source>Saving of this library failed.</source>
-        <translation>Speichern der Bibliothek ist fehlgeschlagen.</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>Fenster</translation>
     </message>
@@ -2427,10 +2427,6 @@ Are you sure you want to save?</source>
     <message>
         <source>&amp;Properties</source>
         <translation>&amp;Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Save &amp;As</source>
-        <translation>Speichern &amp;unter</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -2638,6 +2634,10 @@ Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5350,14 +5350,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5647,6 +5639,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>All Categories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

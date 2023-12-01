@@ -1007,6 +1007,10 @@ Are you sure?</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>在线导入</translation>
     </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1536,10 +1540,6 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation>打开图像</translation>
     </message>
@@ -1566,6 +1566,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Saving of this drumkit failed.</source>
         <translation>保存该鼓组失败。</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2260,10 +2264,6 @@ Are you sure you want to save?</source>
         <translation>打开样式</translation>
     </message>
     <message>
-        <source>Saving of this library failed.</source>
-        <translation>保存该库失败。</translation>
-    </message>
-    <message>
         <source>Song drumkit samples</source>
         <translation>鼓组乐曲采样</translation>
     </message>
@@ -2414,10 +2414,6 @@ Do you want to discard the changes?
     <message>
         <source>&amp;Properties</source>
         <translation>属性(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Save &amp;As</source>
-        <translation>另存为(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -2630,6 +2626,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5348,14 +5348,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5645,6 +5637,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>All Categories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

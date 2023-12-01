@@ -45,7 +45,7 @@ class DrumkitPropertiesDialog :  public QDialog,
 	public:
 		DrumkitPropertiesDialog( QWidget* pParent,
 									  std::shared_ptr<Drumkit> pDrumkit,
-									  bool bDrumkitNameLocked );
+									  bool bEditingNotSaving );
 		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -63,19 +63,10 @@ class DrumkitPropertiesDialog :  public QDialog,
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
-	 * This dialog can be accessed both via Drumkit/MainForm >
-	 * Drumkits -> Properties and MainForm > Drumkits -> Save
-	 * As. Historically they were two distinct dialogs featuring
-	 * pretty much exactly the same fields.
-	 *
-	 * In order to keep the general menu structure both choices are
-	 * still supported but a small tweak was introduced to make them
-	 * work slightly differently. When accessed via "Properties" this
-	 * variable is set to true and it is not possible to create new
-	 * drumkits by altering the name of an existing one. If, on the
-	 * other hand, it's opened via "Save As" anything goes.
+	 * This dialog can be used to both alter the properties of a drumkit as well
+	 * as to save it as a new kit.
 	 */
-	bool m_bDrumkitNameLocked;
+	bool m_bEditingNotSaving;
 
 	QString m_sNewImagePath;
 	

@@ -209,6 +209,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
 	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
 
+		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -376,5 +378,7 @@ private:
 	QString m_sMenuActionDuplicate;
 	QString m_sMenuActionImport;
 	QString m_sMenuActionOnlineImport;
+
+		QString m_sActionEditDrumkitProperties;
 };
 #endif

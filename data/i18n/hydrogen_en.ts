@@ -1006,6 +1006,10 @@ Are you sure?</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation></translation>
     </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1533,10 +1537,6 @@ Overwrite the existing file?</source>
         <translation></translation>
     </message>
     <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Open Image</source>
         <translation></translation>
     </message>
@@ -1563,6 +1563,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Saving of this drumkit failed.</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2224,10 +2228,6 @@ Are you sure you want to save?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Saving of this library failed.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Song drumkit samples</source>
         <translation></translation>
     </message>
@@ -2371,10 +2371,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Properties</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save &amp;As</source>
         <translation></translation>
     </message>
     <message>
@@ -2585,6 +2581,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5270,14 +5270,6 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation></translation>
     </message>
@@ -5568,6 +5560,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>All Categories</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

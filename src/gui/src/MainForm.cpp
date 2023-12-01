@@ -414,12 +414,9 @@ void MainForm::createMenuBar()
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pDrumkitMenu->addAction( tr( "&Save" ), this,
+	m_pDrumkitMenu->addAction( tr( "&Save To Sound Library" ), this,
 							   SLOT( action_drumkit_save() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
-	m_pDrumkitMenu->addAction( tr( "Save &As" ), this,
-							   SLOT( action_drumkit_saveAs() ),
-							   pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
 	m_pDrumkitMenu->addAction( tr( "&Export" ), this,
 							   SLOT( action_drumkit_export() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
@@ -1533,56 +1530,10 @@ void MainForm::action_drumkit_onlineImport()
 	dialog.exec();
 }
 
-
 void MainForm::action_drumkit_save()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit != nullptr ){
-		return;
-	}
-	
-	const auto drumkitType = pDrumkit->getType();
-
-	// In case the user does not have write access to the folder of
-	// pDrumkit, the save as dialog will be opened.
-	if ( drumkitType == Drumkit::Type::User ||
-		 drumkitType == Drumkit::Type::SessionReadWrite ||
-		 drumkitType == Drumkit::Type::Song ) {
-
-		if ( ! HydrogenApp::checkDrumkitLicense( pDrumkit ) ) {
-			ERRORLOG( "User cancelled dialog due to licensing issues." );
-			return;
-		}
-		
-		if ( ! pDrumkit->save() ) {
-			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
-			return;
-		}
-
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
-	}
-	else {
-		action_drumkit_saveAs();
-	}
+	editDrumkitProperties( true );
 }
-
-
-void MainForm::action_drumkit_saveAs()
-{
-	editDrumkitProperties( false );
-}
-
-
-
-
-
-
 
 ///
 /// Window close event
@@ -2293,10 +2244,10 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 }
 
 void MainForm::action_drumkit_properties() {
-	editDrumkitProperties( true );
+	editDrumkitProperties( false );
 }
 
-void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
+void MainForm::editDrumkitProperties( bool bWriteToDisk )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -2310,7 +2261,11 @@ void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
 		return;
 	}
 
-	DrumkitPropertiesDialog dialog( this, pDrumkit, bDrumkitNameLocked );
+	// We create a copy of the kit to assure not dirty data set in the dialog is
+	// leaked into the current song.
+	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+
+	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk );
 	dialog.exec();
 }
 
@@ -2999,9 +2954,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::SaveDrumkit:
 				action_drumkit_save();
-				break;
-			case Shortcuts::Action::SaveAsDrumkit:
-				action_drumkit_saveAs();
 				break;
 			case Shortcuts::Action::ExportDrumkit:
 				action_drumkit_export();

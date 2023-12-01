@@ -496,6 +496,7 @@ CommonStrings::CommonStrings(){
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionOnlineImport = tr( "Online Import" );
 
+	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 }
 
 CommonStrings::~CommonStrings(){}

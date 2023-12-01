@@ -155,7 +155,6 @@ public slots:
 		void action_drumkit_open();
 		void action_drumkit_addInstrument();
 		void action_drumkit_save();
-		void action_drumkit_saveAs();
 		void action_drumkit_export();
 		/** @param bLoad whether to just import the kit or, in addition, load
 		 * the imported kit. */
@@ -237,7 +236,7 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
-	void editDrumkitProperties( bool bDrumkitNameLocked );
+	void editDrumkitProperties( bool bWriteToDisk );
 		void updateRecentUsedSongList();
 
 		HydrogenApp*	h2app;
