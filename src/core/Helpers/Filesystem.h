@@ -485,6 +485,18 @@ namespace H2Core
 		 */
 		static QString rerouteDrumkitPath( const QString& sDrumkitPath );
 
+			/** In order to store stuff in e.g. our cache folder without neither
+			 * loosing their original file names nor risking to overwrite
+			 * existing files, this function addes a template prefix to a
+			 * path.
+			 *
+			 * Companion function of deleteUniquePrefix() */
+			static QString addUniquePrefix( const QString& sBaseFilePath );
+			/** If @a sUniqueFilePath contains a prefix introduced by
+			 * addUniquePrefix(), this function removes it and restores the
+			 * original base name of the file.*/
+			static QString removeUniquePrefix( const QString& sUniqueFilePath );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent

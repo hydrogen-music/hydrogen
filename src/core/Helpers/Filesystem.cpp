@@ -20,6 +20,8 @@
  *
  */
 
+#include <random>
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
@@ -1194,6 +1196,65 @@ QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUse
 	}
 
 	return QString();
+}
+
+QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
+
+	QString sChars( "abcdefghijklmnopqrstuvwxuzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
+
+	// a seed source for the random number engine
+	std::random_device randomDevice;
+	// seeded mersenne_twister engine producing random unsigned integers.
+	std::mt19937 randomEngine( randomDevice() );
+	// Transformation of the above random number to comply with our constraints.
+	std::uniform_int_distribution<int> distr( 0, sChars.size() - 1 );
+
+	// A prefix will be formatted as "tmp-XXXXXX-" with X being a latin
+	// character or digit.
+	auto createPrefix = [&](){
+		QString sPrefix( "tmp-" );
+		for ( int ii = 0; ii < 6; ++ii ) {
+			sPrefix.append( sChars.at( distr( randomEngine ) ) );
+		}
+
+		return std::move( sPrefix.append( "-" ) );
+	};
+
+	QFileInfo baseInfo( sBaseFilePath );
+
+	QString sUniquePath = baseInfo.absoluteDir()
+		.absoluteFilePath( createPrefix() + baseInfo.completeBaseName() );
+
+	int maxTries = 100;
+	int ii = 0;
+	while ( file_exists( sUniquePath ) ) {
+		sUniquePath = baseInfo.absoluteDir()
+			.absoluteFilePath( createPrefix() + baseInfo.completeBaseName() );
+
+		ii++;
+		if ( ii >= maxTries ) {
+			ERRORLOG( QString( "Unable to create unique path for [%1]" )
+					  .arg( sBaseFilePath ) );
+			return "";
+		}
+	}
+
+	return std::move( sUniquePath );
+}
+
+QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
+	QRegExp prefix( "tmp-[\\w]{6}-+" );
+
+	if ( sUniqueFilePath.contains( prefix  ) ) {
+		QFileInfo info( sUniqueFilePath );
+		return info.absoluteDir().
+			absoluteFilePath( info.completeBaseName().remove( prefix ) );
+	}
+	else {
+		WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
+					.arg( sUniqueFilePath ) );
+		return sUniqueFilePath;
+	}
 }
 
 };

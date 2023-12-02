@@ -605,8 +605,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		if ( ! m_sNewImagePath.isEmpty() ) {
 			QFileInfo fileInfo( m_sNewImagePath );
 
-			const QString sTargetPath = QDir( Filesystem::cache_dir() )
-				.absoluteFilePath( fileInfo.completeBaseName() );
+			const QString sTargetPath = Filesystem::addUniquePrefix(
+				QDir( Filesystem::cache_dir() )
+				.absoluteFilePath( fileInfo.completeBaseName() ) );
 			INFOLOG( QString( "Copying [%1] to [%2]" ).arg( m_sNewImagePath )
 					 .arg( sTargetPath ) );
 

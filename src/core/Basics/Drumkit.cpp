@@ -504,9 +504,18 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 
 bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 {
-	if ( ! m_sImage.isEmpty() && sDrumkitDir != m_sPath ) {
-		QString sSrc = m_sPath + "/" + m_sImage;
-		QString sDst = sDrumkitDir + "/" + m_sImage;
+	// In case we deal with a song kit the associated image was stored in
+	// Hydrogen's cache folder (as saving it next to the .h2song file would be
+	// not practical and error prone). In order to preserve the original
+	// filename, a random prefix was introduced. This has to be stripped first.
+	QString sImage( m_sImage );
+	if ( m_type == Type::Song ) {
+		sImage = Filesystem::removeUniquePrefix( sImage );
+	}
+
+	if ( ! sImage.isEmpty() && sDrumkitDir != m_sPath ) {
+		QString sSrc = m_sPath + "/" + sImage;
+		QString sDst = sDrumkitDir + "/" + sImage;
 		if ( Filesystem::file_exists( sSrc, bSilent ) ) {
 			if ( ! Filesystem::file_copy( sSrc, sDst, bSilent ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2")
