@@ -1570,6 +1570,10 @@ Overwrite the existing file?</source>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>

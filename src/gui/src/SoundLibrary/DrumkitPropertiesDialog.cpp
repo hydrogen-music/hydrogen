@@ -77,7 +77,12 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		nameTxt->setText( pDrumkit->getName() );
 
 		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
-			setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+			if ( bEditingNotSaving ) {
+				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+			}
+			else {
+				setWindowTitle( tr( "Save a copy of the current drumkit to the Sound Library" ) );
+			}
 		}
 		else {
 			if ( bEditingNotSaving ) {
