@@ -583,7 +583,6 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkit->setImageLicense( newImageLicense );
 	}
 	
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	saveDrumkitMap();
 
@@ -629,15 +628,23 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		if ( m_bEditingNotSaving ) {
 			// We are not saving the kit to the Sound Library and are done for
 			// now.
-			QApplication::restoreOverrideCursor();
 			accept();
 			return;
 		}
 
 		// We are saving the drumkit.
+	}
+
+	// Read-only and song kits we can only duplicate into the user folder.
+	if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
+		 m_pDrumkit->getType() == Drumkit::Type::System ||
+		 m_pDrumkit->getType() == Drumkit::Type::Song ) {
 		m_pDrumkit->setPath(
 			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}
+
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	// Write new properties/drumkit to disk.
 	if ( ! m_pDrumkit->save() ) {
