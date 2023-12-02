@@ -172,12 +172,15 @@ QTextEdit { \
 	saveBtn->setFixedFontSize( 12 );
 	saveBtn->setSize( QSize( 70, 23 ) );
 	saveBtn->setBorderRadius( 3 );
+	saveBtn->setType( Button::Type::Push );
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
+	m_cancelBtn->setType( Button::Type::Push );
 	imageBrowsePushButton->setFixedFontSize( 12 );
 	imageBrowsePushButton->setBorderRadius( 3 );
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
+	imageBrowsePushButton->setType( Button::Type::Push );
 	
 	mappingTable->setColumnCount( 3 );
 	mappingTable->setHorizontalHeaderLabels(
