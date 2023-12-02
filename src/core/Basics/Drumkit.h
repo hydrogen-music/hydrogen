@@ -271,10 +271,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void setInfo( const QString& info );
 		/** #m_sInfo accessor */
 		const QString& getInfo() const;
-		/** @param license new value for #m_license
-		 * @param bPropagate whether the license should also be set to all
-		 *   contained instruments and samples */
-		void setLicense( const License& license, bool bPropagate );
+		/** #m_license setter */
+		void setLicense( const License& license );
 		/** #m_license accessor */
 		const License& getLicense() const;
 		/** #m_sImage setter */
@@ -467,6 +465,11 @@ inline void Drumkit::setInfo( const QString& info )
 inline const QString& Drumkit::getInfo() const
 {
 	return m_sInfo;
+}
+
+inline void Drumkit::setLicense( const License& license )
+{
+	m_license = license;
 }
 
 inline const License& Drumkit::getLicense() const
