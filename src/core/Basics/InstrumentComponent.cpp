@@ -134,7 +134,6 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 }
 
 void InstrumentComponent::save_to( XMLNode* pNode,
-								   int component_id,
 								   bool bRecentVersion,
 								   bool bSongKit )
 {
