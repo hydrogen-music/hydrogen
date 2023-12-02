@@ -633,6 +633,10 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			accept();
 			return;
 		}
+
+		// We are saving the drumkit.
+		m_pDrumkit->setPath(
+			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}
 
 	// Write new properties/drumkit to disk.
