@@ -497,6 +497,7 @@ CommonStrings::CommonStrings(){
 	m_sMenuActionOnlineImport = tr( "Online Import" );
 
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
+	m_sActionIrreversible = tr( "This action can not be undone!" );
 }
 
 CommonStrings::~CommonStrings(){}

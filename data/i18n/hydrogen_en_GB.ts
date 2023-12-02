@@ -1010,6 +1010,10 @@ Are you sure?</source>
         <source>Edit Drumkit Properties of Current Song</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1570,6 +1574,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

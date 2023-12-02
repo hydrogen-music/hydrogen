@@ -643,6 +643,21 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}
 
+	// Check whether there is already a kit present we would overwrite.
+	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), false ) ) {
+		int nRes = QMessageBox::information(
+			this, "Hydrogen",
+			QString( "%1\n%2\n\n%3" )
+			/*: asked when saving a drumkit to a certain location */
+			.arg( tr( "Overwrite existing drumkit stored in" ) )
+			.arg( m_pDrumkit->getPath() )
+			.arg( pCommonStrings->getActionIrreversible() ),
+			QMessageBox::Yes | QMessageBox::No );
+		if ( nRes != QMessageBox::Yes ) {
+			INFOLOG( "Aborted by user to not overwrite drumkit" );
+			return;
+		}
+	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
