@@ -1432,7 +1432,7 @@ void MainForm::action_drumkit_export() {
 	}
 	
 	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit != nullptr ){
+	if ( pDrumkit == nullptr ){
 		return;
 	}
 
