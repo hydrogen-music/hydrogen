@@ -209,7 +209,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 	License license( node->read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->m_sAuthor );
-	pDrumkit->setLicense( license );
+	pDrumkit->m_license = license;
 
 	// As of 2022 we have no drumkits featuring an image in
 	// stock. Thus, verbosity of this one will be turned of in order
@@ -781,6 +781,14 @@ void Drumkit::addComponent( std::shared_ptr<DrumkitComponent> pComponent ) {
 void Drumkit::setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components )
 {
 	m_pComponents = components;
+}
+
+void Drumkit::setLicense( const License& license, bool bPropagate ) {
+	m_license = license;
+
+	if ( bPropagate ) {
+		propagateLicense();
+	}
 }
 
 void Drumkit::propagateLicense(){

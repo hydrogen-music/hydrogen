@@ -553,13 +553,24 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		
 	// Only update the license in case it changed (in order to not
 	// overwrite an attribution).
-	if ( m_pDrumkit->getLicense() != newLicense ) {
-		m_pDrumkit->setLicense( newLicense );
+	auto oldLicense = m_pDrumkit->getLicense();
+	if ( oldLicense != newLicense ) {
+		// First, just set the license of the kit and not of any contained
+		// instrument and sample. This way we can run a consistency check and
+		// inform the user about possible issues. E.g. mixing incompatible
+		// licenses.
+		m_pDrumkit->setLicense( newLicense, false );
 	}
 
 	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
 		ERRORLOG( "User cancelled dialog due to licensing issues." );
 		return;
+	}
+
+	if ( oldLicense != newLicense ) {
+		// Now, propagate the new license to all instruments and samples as
+		// well.
+		m_pDrumkit->setLicense( newLicense, true );
 	}
 
 	// Will contain image which should be removed. To keep the previous image,
