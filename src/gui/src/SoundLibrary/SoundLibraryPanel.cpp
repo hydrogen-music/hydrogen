@@ -80,45 +80,37 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	__drumkit_menu = new QMenu( this );
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionLoad(), this,
-							   SLOT( on_drumkitLoadAction() ) );
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionProperties(), this,
-							   [=](){ editDrumkitProperties( false );} );
-	__drumkit_menu->addSeparator();
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionDuplicate(), this,
-							   [=](){ editDrumkitProperties( true );} );
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionDelete(), this,
-							   SLOT( on_drumkitDeleteAction() ) );
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionExport(), this,
-							   SLOT( on_drumkitExportAction() ) );
-	__drumkit_menu->addSeparator();
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionImport(), this,
-							   [=](){ HydrogenApp::get_instance()->getMainForm()->
-									   action_drumkit_import( false ); } );
-	__drumkit_menu->addAction( pCommonStrings->getMenuActionOnlineImport(),
-							   HydrogenApp::get_instance()->getMainForm(),
-							   SLOT( action_drumkit_onlineImport() ) );
 
-	// A version with reduced functionality for read-only drumkits
+	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable) {
+		pMenu->addAction( pCommonStrings->getMenuActionLoad(), this,
+						  SLOT( on_drumkitLoadAction() ) );
+		pMenu->addAction( pCommonStrings->getMenuActionProperties(), this,
+						  [=](){ editDrumkitProperties( false );} );
+		pMenu->addSeparator();
+		pMenu->addAction( pCommonStrings->getMenuActionDuplicate(), this,
+						  [=](){ editDrumkitProperties( true );} );
+		auto pDeleteAction =
+			pMenu->addAction( pCommonStrings->getMenuActionDelete(), this,
+							  SLOT( on_drumkitDeleteAction() ) );
+		if ( ! bWritable ) {
+			pDeleteAction->setEnabled( false );
+		}
+		pMenu->addAction( pCommonStrings->getMenuActionExport(), this,
+						  SLOT( on_drumkitExportAction() ) );
+		pMenu->addSeparator();
+		pMenu->addAction( pCommonStrings->getMenuActionImport(), this,
+						  [=](){ HydrogenApp::get_instance()->getMainForm()->
+								  action_drumkit_import( false ); } );
+		pMenu->addAction( pCommonStrings->getMenuActionOnlineImport(),
+						  HydrogenApp::get_instance()->getMainForm(),
+						  SLOT( action_drumkit_onlineImport() ) );
+	};
+
+	__drumkit_menu = new QMenu( this );
+	addDrumkitActions( __drumkit_menu, true );
+
 	__drumkit_menu_system = new QMenu( this );
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionLoad(), this,
-									  SLOT( on_drumkitLoadAction() ) );
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionProperties(),
-									  [=](){ editDrumkitProperties( false );} );
-	__drumkit_menu_system->addSeparator();
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionDuplicate(), this,
-									  [=](){ editDrumkitProperties( true );} );
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionExport(), this,
-									  SLOT( on_drumkitExportAction() ) );
-	__drumkit_menu_system->addSeparator();
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionImport(), this,
-									  [=](){ HydrogenApp::get_instance()->getMainForm()->
-											  action_drumkit_import( false ); } );
-	__drumkit_menu_system->addAction( pCommonStrings->getMenuActionOnlineImport(),
-									  HydrogenApp::get_instance()->getMainForm(),
-									  SLOT( action_drumkit_onlineImport() ) );
+	addDrumkitActions( __drumkit_menu_system, false );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
