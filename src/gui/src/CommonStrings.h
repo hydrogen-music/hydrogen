@@ -212,6 +212,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
+		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -382,5 +384,7 @@ private:
 
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;
+
+		QString m_sErrorNotFound;
 };
 #endif

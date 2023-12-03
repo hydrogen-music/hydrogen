@@ -1017,6 +1017,10 @@ Are you sure?</source>
         <source>This action can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1585,6 +1589,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

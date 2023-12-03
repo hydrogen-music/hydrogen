@@ -415,14 +415,29 @@ void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 	}
 }
 
-void DrumkitPropertiesDialog::updateImage( QString& filename )
+void DrumkitPropertiesDialog::updateImage( QString& sFilePath )
 {
-	QPixmap *pPixmap = new QPixmap ( filename );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+	//  Styling used in case we assign text not images.
+	drumkitImageLabel->setStyleSheet(
+		QString( "QLabel { color: %1; background-color: %2;}" )
+		.arg( pColorTheme->m_windowTextColor.name() )
+		.arg( pColorTheme->m_windowColor.name() ) );
+	drumkitImageLabel->show();
+
+	if ( ! Filesystem::file_exists( sFilePath, false ) ) {
+		drumkitImageLabel->setText( "File could not be found." );
+		return;
+	}
+
+	QPixmap *pPixmap = new QPixmap ( sFilePath );
 
 	// Check whether the loading worked.
 	if ( pPixmap->isNull() ) {
-		ERRORLOG( QString( "Unable to load pixmap from [%1]" ).arg( filename ) );
-		drumkitImageLabel->hide();
+		ERRORLOG( QString( "Unable to load pixmap from [%1]" ).arg( sFilePath ) );
+		drumkitImageLabel->setText( tr( "Unable to load pixmap" ) );
 		return;
 	}
 	
@@ -432,15 +447,12 @@ void DrumkitPropertiesDialog::updateImage( QString& filename )
 	float labelAspect = (float) x / y;
 	float imageAspect = (float) pPixmap->width() / pPixmap->height();
 
-	if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) )
-	{
-		if ( labelAspect >= imageAspect )
-		{
+	if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) ) {
+		if ( labelAspect >= imageAspect ) {
 			// image is taller or the same as label frame
 			*pPixmap = pPixmap->scaledToHeight( y );
 		}
-		else
-		{
+		else {
 			// image is wider than label frame
 			*pPixmap = pPixmap->scaledToWidth( x );
 		}

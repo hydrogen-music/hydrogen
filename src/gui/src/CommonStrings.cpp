@@ -498,6 +498,8 @@ CommonStrings::CommonStrings(){
 
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
+
+	m_sErrorNotFound = tr( "File could not be found!" );
 }
 
 CommonStrings::~CommonStrings(){}
