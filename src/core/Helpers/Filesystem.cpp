@@ -343,8 +343,14 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 	if ( overwrite && file_exists( dst, true ) ) {
 		rm( dst, true, bSilent );
 	}
-	
-	return QFile::copy( src, dst );
+
+	bool bOk = QFile::copy( src, dst );
+	if ( ! bOk ) {
+		ERRORLOG( QString( "Error while copying [%1] to [%2]" )
+				  .arg( src ).arg( dst ) );
+	}
+
+	return bOk;
 }
 
 bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
