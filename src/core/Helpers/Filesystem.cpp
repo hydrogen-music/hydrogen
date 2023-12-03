@@ -1229,13 +1229,13 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 	QFileInfo baseInfo( sBaseFilePath );
 
 	QString sUniquePath = baseInfo.absoluteDir()
-		.absoluteFilePath( createPrefix() + baseInfo.completeBaseName() );
+		.absoluteFilePath( createPrefix() + baseInfo.fileName() );
 
 	int maxTries = 100;
 	int ii = 0;
-	while ( file_exists( sUniquePath ) ) {
+	while ( file_exists( sUniquePath, true ) ) {
 		sUniquePath = baseInfo.absoluteDir()
-			.absoluteFilePath( createPrefix() + baseInfo.completeBaseName() );
+			.absoluteFilePath( createPrefix() + baseInfo.fileName() );
 
 		ii++;
 		if ( ii >= maxTries ) {
@@ -1251,10 +1251,11 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
 	QRegExp prefix( "tmp-[\\w]{6}-+" );
 
-	if ( sUniqueFilePath.contains( prefix  ) ) {
+	if ( sUniqueFilePath.contains( prefix ) ) {
 		QFileInfo info( sUniqueFilePath );
+
 		return info.absoluteDir().
-			absoluteFilePath( info.completeBaseName().remove( prefix ) );
+			absoluteFilePath( info.fileName().remove( prefix ) );
 	}
 	else {
 		WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )

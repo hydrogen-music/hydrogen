@@ -279,6 +279,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void setImage( const QString& image );
 		/** #m_sImage accessor */
 		const QString& getImage() const;
+		/** As #m_sImage can be a plain file name specifying an image file
+		 * located in the drumkit folder or an absolute path to an image
+		 * somewhere on the users disk (in our cache folder in case of song
+		 * kits), this function allows to access it in a common way.*/
+		QString getAbsoluteImagePath() const;
 		/** #m_imageLicense setter */
 		void setImageLicense( const License& imageLicense );
 		/** #m_imageLicense accessor */

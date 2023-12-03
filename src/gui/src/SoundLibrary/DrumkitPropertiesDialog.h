@@ -58,7 +58,7 @@ class DrumkitPropertiesDialog :  public QDialog,
   private:
 	void updateMappingTable();
 	void updateLicensesTable();
-	void updateImage( QString& filename );
+	void updateImage( const QString& sFilePath );
 	void saveDrumkitMap();
 
 	std::shared_ptr<Drumkit> m_pDrumkit;

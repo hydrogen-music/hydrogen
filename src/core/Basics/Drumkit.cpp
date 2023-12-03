@@ -402,7 +402,19 @@ void Drumkit::saveTo( XMLNode* node,
 	node->write_string( "author", m_sAuthor );
 	node->write_string( "info", m_sInfo );
 	node->write_string( "license", m_license.getLicenseString() );
-	node->write_string( "image", m_sImage );
+
+	QString sImage;
+	if ( bSongKit ) {
+		sImage = m_sImage;
+	}
+	else {
+		// Other routines take care of copying the image into the (top level of
+		// the) selected drumkit folder. We can thus just store the file name of
+		// the image.
+		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage ) )
+			.fileName();
+	}
+	node->write_string( "image", sImage );
 	node->write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
@@ -504,27 +516,54 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 
 bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 {
+	if ( m_sImage.isEmpty() ) {
+		// No image
+		return true;
+	}
+
 	// In case we deal with a song kit the associated image was stored in
 	// Hydrogen's cache folder (as saving it next to the .h2song file would be
 	// not practical and error prone). In order to preserve the original
 	// filename, a random prefix was introduced. This has to be stripped first.
-	QString sImage( m_sImage );
+	QString sTargetImagePath( getAbsoluteImagePath() );
+	QString sTargetImageName( getAbsoluteImagePath() );
 	if ( m_type == Type::Song ) {
-		sImage = Filesystem::removeUniquePrefix( sImage );
+		sTargetImageName = Filesystem::removeUniquePrefix( sTargetImagePath );
 	}
 
-	if ( ! sImage.isEmpty() && sDrumkitDir != m_sPath ) {
-		QString sSrc = m_sPath + "/" + sImage;
-		QString sDst = sDrumkitDir + "/" + sImage;
-		if ( Filesystem::file_exists( sSrc, bSilent ) ) {
-			if ( ! Filesystem::file_copy( sSrc, sDst, bSilent ) ) {
-				ERRORLOG( QString( "Error copying %1 to %2")
-						  .arg( sSrc ).arg( sDst ) );
-				return false;
-			}
+	if ( sTargetImagePath.contains( sDrumkitDir ) ) {
+		// Image is already present in target folder.
+		return true;
+	}
+
+	QFileInfo info( sTargetImageName );
+	const QString sDestination =
+		QDir( sDrumkitDir ).absoluteFilePath( info.fileName() );
+
+	if ( Filesystem::file_exists( sTargetImagePath, bSilent ) ) {
+		if ( ! Filesystem::file_copy( sTargetImagePath, sDestination, bSilent ) ) {
+			ERRORLOG( QString( "Error copying image [%1] to [%2]")
+					  .arg( sTargetImagePath ).arg( sDestination ) );
+			return false;
 		}
 	}
 	return true;
+}
+
+QString Drumkit::getAbsoluteImagePath() const {
+	// No image set.
+	if ( m_sImage.isEmpty() ) {
+		return std::move( QString() );
+	}
+
+	QFileInfo info( m_sImage );
+	if ( info.isRelative() ) {
+		// Image was stored as plain filename and is located in drumkit folder.
+		return std::move( QDir( m_sPath ).absoluteFilePath( m_sImage ) );
+	}
+	else {
+		return m_sImage;
+	}
 }
 
 void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments )

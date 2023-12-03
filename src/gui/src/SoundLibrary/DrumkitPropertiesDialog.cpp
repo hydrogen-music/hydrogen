@@ -48,7 +48,6 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bEditingNotSaving( bEditingNotSaving )
- , m_sNewImagePath( "" )
 {
 	setObjectName( "DrumkitPropertiesDialog" );
 	
@@ -101,8 +100,11 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		License license = pDrumkit->getLicense();
 		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
 		licenseStringTxt->setText( license.getLicenseString() );
-	
-		imageText->setText( QString( pDrumkit->getImage() ) );
+
+		// Will contain a file name in case of an image file located in the
+		// drumkit folder or an absolute path in case of one located outside of
+		// it (in our cache folder in case of a song kit).
+		imageText->setText( pDrumkit->getImage() );
 
 		License imageLicense = pDrumkit->getImageLicense();
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
@@ -222,9 +224,8 @@ DrumkitPropertiesDialog::~DrumkitPropertiesDialog()
 void DrumkitPropertiesDialog::showEvent( QShowEvent *e )
 {
 	if ( m_pDrumkit != nullptr &&
-		 ! m_pDrumkit->getImage().isEmpty() ) {
-		QString sImage = m_pDrumkit->getPath() + "/" + m_pDrumkit->getImage();
-		updateImage( sImage );
+		 ! m_pDrumkit->getAbsoluteImagePath().isEmpty() ) {
+		updateImage( m_pDrumkit->getAbsoluteImagePath() );
 	}
 	else {
 		drumkitImageLabel->hide();
@@ -415,7 +416,7 @@ void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 	}
 }
 
-void DrumkitPropertiesDialog::updateImage( QString& sFilePath )
+void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pColorTheme = Preferences::get_instance()->getColorTheme();
@@ -471,19 +472,17 @@ void DrumkitPropertiesDialog::on_imageBrowsePushButton_clicked()
 	// Try to get the drumkit directory and open file browser
 	QString sDrumkitDir = m_pDrumkit->getPath();
 
-	QString sFilePath = QFileDialog::getOpenFileName(this, tr("Open Image"), sDrumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
+	QString sFilePath =
+		QFileDialog::getOpenFileName( this, tr("Open Image"),
+									  sDrumkitDir,
+									  tr("Image Files (*.png *.jpg *.jpeg)" ) );
 
 	// If cancel was clicked just abort
 	if ( sFilePath == nullptr || sFilePath.isEmpty() ) {
 		return;
 	}
 
-	m_sNewImagePath = sFilePath;
-
-	QFileInfo fileInfo( sFilePath );
-	QString sFileName( fileInfo.fileName() );
-	imageText->setText( sFileName );
-
+	imageText->setText( sFilePath );
 	updateImage( sFilePath );
 }
 
@@ -577,18 +576,28 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// Will contain image which should be removed. To keep the previous image,
 	// this string should be empty.
 	QString sOldImagePath;
-	if ( imageText->text() != m_pDrumkit->getImage() &&
-		 ! m_pDrumkit->getImage().isEmpty() ) {
-		int nRes = QMessageBox::information(
-			this, "Hydrogen",
-			tr( "Delete previous drumkit image" )
-			  .append( QString( " [%1]" ).arg( m_pDrumkit->getImage() ) ),
-			QMessageBox::Yes | QMessageBox::No );
-		if ( nRes == QMessageBox::Yes ) {
-			sOldImagePath = QString( "%1/%2" ).arg( sOldPath )
-				.arg( m_pDrumkit->getImage() );
+	// If set, indicates that the image has changed and the new one requires
+	// copying.
+	QString sNewImagePath;
+	if ( imageText->text() != m_pDrumkit->getImage() ) {
+
+		// Only ask for deleting the previous file if it exists.
+		if ( ! m_pDrumkit->getImage().isEmpty() &&
+			 Filesystem::file_exists( m_pDrumkit->getAbsoluteImagePath(),
+									  true ) ) {
+			int nRes = QMessageBox::information(
+				this, "Hydrogen",
+				tr( "Delete previous drumkit image" )
+				.append( QString( " [%1]" )
+						 .arg( m_pDrumkit->getAbsoluteImagePath() ) ),
+				QMessageBox::Yes | QMessageBox::No );
+			if ( nRes == QMessageBox::Yes ) {
+				sOldImagePath = m_pDrumkit->getAbsoluteImagePath();
+			}
 		}
+
 		m_pDrumkit->setImage( imageText->text() );
+		sNewImagePath = imageText->text();
 	}
 
 	if ( m_pDrumkit->getImageLicense() != newImageLicense ) {
@@ -602,19 +611,17 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
-		if ( ! m_sNewImagePath.isEmpty() ) {
-			QFileInfo fileInfo( m_sNewImagePath );
+		if ( ! sNewImagePath.isEmpty() ) {
+			QFileInfo fileInfo( sNewImagePath );
 
 			const QString sTargetPath = Filesystem::addUniquePrefix(
 				QDir( Filesystem::cache_dir() )
-				.absoluteFilePath( fileInfo.completeBaseName() ) );
-			INFOLOG( QString( "Copying [%1] to [%2]" ).arg( m_sNewImagePath )
-					 .arg( sTargetPath ) );
-
-			m_pDrumkit->setImage( sTargetPath );
+				.absoluteFilePath( fileInfo.fileName() ) );
 
 			// Logging is done in file_copy.
-			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
+			if ( Filesystem::file_copy( sNewImagePath, sTargetPath, true, false ) ) {
+				m_pDrumkit->setImage( sTargetPath );
+			}
 		}
 
 		if ( ! sOldImagePath.isEmpty() ) {
@@ -684,18 +691,16 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Copy the selected image into the drumkit folder (in case a file outside
 	// of it was selected.)
-	if ( ! m_sNewImagePath.isEmpty() ) {
+	if ( ! sNewImagePath.isEmpty() ) {
 
-		QFileInfo fileInfo( m_sNewImagePath );
+		QFileInfo fileInfo( sNewImagePath );
 
 		if ( fileInfo.dir().absolutePath() != m_pDrumkit->getPath() ) {
-			INFOLOG( QString( "Copying [%1] into [%2]" ).arg( m_sNewImagePath )
-					 .arg( m_pDrumkit->getPath() ) );
 			const QString sTargetPath =
-				QString( "%1/%2" ).arg( m_pDrumkit->getPath() )
-				.arg( fileInfo.fileName() );
+				QDir( m_pDrumkit->getPath() ).absoluteFilePath(fileInfo.fileName() );
+
 			// Logging is done in file_copy.
-			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
+			Filesystem::file_copy( sNewImagePath, sTargetPath, true, false );
 		}
 	}
 
