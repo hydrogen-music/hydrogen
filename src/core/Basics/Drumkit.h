@@ -23,6 +23,7 @@
 #ifndef H2C_DRUMKIT_H
 #define H2C_DRUMKIT_H
 
+#include <map>
 #include <memory>
 
 #include <core/Object.h>
@@ -222,18 +223,19 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * we needed a less obvious name.
 	 *
 	 * \param sTargetDir Folder which will contain the resulting
-	 * .h2drumkit file.
-	 * \param sComponentName Name of a particular component used in
-	 * case just a single component should be exported.
+	 *   .h2drumkit file.
+	 * \param nComponentId ID of a particular component used in
+	 *   case just a single component should be exported.
 	 * \param bRecentVersion Whether the drumkit format should be
-	 * supported by Hydrogen 0.9.7 or higher (whether it should be
-	 * composed of DrumkitComponents).
+	 *   supported by Hydrogen 0.9.7 or higher (whether it should be
+	 *   composed of DrumkitComponents).
 	 * \param bSilent Whether debug and info messages should be
-	 * logged.
+	 *   logged.
 	 *
 	 * \return true on success
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
+	bool exportTo( const QString& sTargetDir, int nComponentId = -1,
+				   bool bRecentVersion = true, bool bSilent = false );
 
 		/** Removes an instrument from the drumkit and cleans up its
 		 * components.
@@ -305,6 +307,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * @return the created component for further ues. */
 		std::shared_ptr<DrumkitComponent> addComponent();
+
+		/** Maps a compoment Id to an unique component label.*/
+		std::map<int, QString> generateUniqueComponentLabels() const;
 
 		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );

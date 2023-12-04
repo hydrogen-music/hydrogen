@@ -23,6 +23,8 @@
 #ifndef DRUMKIT_EXPORT_DIALOG_H
 #define DRUMKIT_EXPORT_DIALOG_H
 
+#include <map>
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -53,7 +55,7 @@ private slots:
 private:
 	void updateComponentList();
 	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
-	QStringList m_components;
+	std::map<int, QString> m_componentLabels;
 };
 
 

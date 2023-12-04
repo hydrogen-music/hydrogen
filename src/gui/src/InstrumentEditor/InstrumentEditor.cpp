@@ -1363,23 +1363,8 @@ void InstrumentEditor::updateComponentLabels() {
 		return;
 	}
 
-	m_uniqueComponentLabels.clear();
+	m_uniqueComponentLabels = pDrumkit->generateUniqueComponentLabels();
 
-	QStringList uniqueLabels;
-	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
-		if ( ppComponent != nullptr ) {
-			const auto sName = ppComponent->get_name();
-			const int nId = ppComponent->get_id();
-			if ( uniqueLabels.contains( sName ) ) {
-				m_uniqueComponentLabels[ nId ] =
-					QString( "%1 (%2)" ).arg( sName ).arg( nId );
-			}
-			else {
-				m_uniqueComponentLabels[ nId ] = sName;
-				uniqueLabels << sName;
-			}
-		}
-	}
 }
 
 void InstrumentEditor::addComponentAction() {

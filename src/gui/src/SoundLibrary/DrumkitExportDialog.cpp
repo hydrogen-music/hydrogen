@@ -51,10 +51,7 @@ DrumkitExportDialog::DrumkitExportDialog( QWidget* pParent,
 	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );
 
 	if ( pDrumkit != nullptr ) {
-		for ( const auto& pComponent : *pDrumkit->getComponents() ) {
-			m_components.append( pComponent->get_name() );
-		}
-
+		m_componentLabels = pDrumkit->generateUniqueComponentLabels();
 		updateComponentList();
 	}
 }
@@ -89,18 +86,38 @@ void DrumkitExportDialog::on_exportBtn_clicked()
 		
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 
-	QString sTargetComponent;
+	QString sTargetComponentName;
 	if ( componentList->currentIndex() == 0 && bRecentVersion ) {
 		// Exporting all components
-		sTargetComponent = "";
+		sTargetComponentName = "";
 	} else {
-		sTargetComponent = componentList->currentText();
+		sTargetComponentName = componentList->currentText();
+	}
+
+	// Retrieve the Id of the selected component
+	int nTargetComponentId = -1;
+	if ( ! sTargetComponentName.isEmpty() ) {
+		// These are unique
+		for ( const auto& [ nnId, ssLabel ] : m_componentLabels ) {
+			if ( ssLabel == sTargetComponentName ) {
+				nTargetComponentId = nnId;
+				break;
+			}
+		}
+
+		if ( nTargetComponentId == -1 ) {
+			ERRORLOG( QString( "No ID could be retrieved for component [%1]" )
+					  .arg( sTargetComponentName ) );
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getExportDrumkitFailure() );
+			return;
+		}
 	}
 		
 	// Check whether the resulting file does already exist and ask the
 	// user if it should be overwritten.
 	QString sTargetName = drumkitPathTxt->text() + "/" +
-		m_pDrumkit->getExportName( sTargetComponent, bRecentVersion ) +
+		m_pDrumkit->getExportName( sTargetComponentName, bRecentVersion ) +
 		Filesystem::drumkit_ext;
 	
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
@@ -125,7 +142,7 @@ void DrumkitExportDialog::on_exportBtn_clicked()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
 	if ( ! m_pDrumkit->exportTo( drumkitPathTxt->text(), // Target folder
-								 sTargetComponent, // Selected component
+								 nTargetComponentId, // Selected component
 								 bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::critical( this, "Hydrogen",
@@ -197,7 +214,7 @@ void DrumkitExportDialog::updateComponentList( )
 		componentList->insertSeparator( 1 );
 	}
 
-	for ( const auto& sComponentName : m_components ) {
-		componentList->addItem( sComponentName );
+	for ( const auto& [ nnId, ssLabel ] : m_componentLabels ) {
+		componentList->addItem( ssLabel );
 	}
 }
