@@ -1021,6 +1021,10 @@ Are you sure?</source>
         <source>File could not be found!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation>Impossible d&apos;exporter un kit de batterie</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1101,10 +1105,6 @@ Are you sure?</source>
     <message>
         <source>The file [%1] does already exist and will be overwritten.</source>
         <translation>Le fichier [%1] existe déjà et sera écrasé.</translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation>Impossible d&apos;exporter un kit de batterie</translation>
     </message>
     <message>
         <source>Drumkit exported to</source>

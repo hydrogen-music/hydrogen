@@ -1425,6 +1425,8 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 
 void MainForm::action_drumkit_export() {
 
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1436,7 +1438,39 @@ void MainForm::action_drumkit_export() {
 		return;
 	}
 
-	DrumkitExportDialog exportDialog( this, pDrumkit );
+	// The song drumkit we want to export is a somewhat floating one. It does
+	// not contain samples by itself but is composed by instrument that either
+	// borrow their samples from kits in the Sound Library or access them using
+	// absolute paths. To allow exporting it, we save it to a temporary folder
+	// and proceed with a regular export from there.
+	QTemporaryDir tmpDir;
+    if ( ! tmpDir.isValid() ) {
+		ERRORLOG( "Unable to create tmp folder" );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
+		return;
+    }
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+
+	INFOLOG( QString( "Saving song kit to temporary folder [%1] for export" )
+			 .arg( tmpDir.path() ) );
+
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	pNewDrumkit->setPath( tmpDir.path() );
+
+	if ( ! pNewDrumkit->save( tmpDir.path() ) ) {
+		QApplication::restoreOverrideCursor();
+		ERRORLOG( QString( "Unable to save kit to tmp folder [%1]" )
+				  .arg( tmpDir.path() ) );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
+		return;
+	}
+
+	QApplication::restoreOverrideCursor();
+
+	DrumkitExportDialog exportDialog( this, pNewDrumkit );
 	exportDialog.exec();
 }
 

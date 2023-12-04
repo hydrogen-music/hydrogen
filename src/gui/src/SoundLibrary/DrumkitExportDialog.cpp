@@ -128,7 +128,8 @@ void DrumkitExportDialog::on_exportBtn_clicked()
 								 sTargetComponent, // Selected component
 								 bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical( this, "Hydrogen", tr("Unable to export drumkit") );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
 		return;
 	}
 
