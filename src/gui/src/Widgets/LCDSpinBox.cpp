@@ -285,7 +285,7 @@ double LCDSpinBox::valueFromText( const QString& sText ) const {
 }
 
 void LCDSpinBox::setValue( double fValue ) {
-	if ( value() == fValue ) {
+	if ( value() == fValue && ! cleanText().isEmpty() ) {
 		return;
 	}
 
