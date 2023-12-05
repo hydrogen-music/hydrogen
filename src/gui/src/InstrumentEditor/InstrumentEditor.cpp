@@ -66,7 +66,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, m_nSelectedLayer( 0 )
 	, m_fPreviousMidiOutChannel( -1.0 )
 	, m_nSelectedComponent( -1 )
-	, m_bEnabled( true )
+	, m_bIsActive( true )
 {
 	setFixedWidth( 290 );
 
@@ -479,14 +479,14 @@ InstrumentEditor::~InstrumentEditor()
 	//INFOLOG( "DESTROY" );
 }
 
-void InstrumentEditor::enable( bool bEnable ) {
-	if ( m_bEnabled == bEnable ) {
+void InstrumentEditor::activate( bool bActivate ) {
+	if ( m_bIsActive == bActivate ) {
 		return;
 	}
 
-	m_bEnabled = bEnable;
+	m_bIsActive = bActivate;
 
-	if ( bEnable ) {
+	if ( bActivate ) {
 		m_pNameLbl->setEnabled( true );
 
 		m_pAttackRotary->setIsActive( true );
@@ -623,7 +623,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	if ( pSong != nullptr && m_pInstrument != nullptr &&
 		 pCompoList != nullptr && pCompoList->size() > 0 ) {
 
-		enable( true );
+		activate( true );
 
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
@@ -747,7 +747,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		}
 	}
 	else {
-		enable( false );
+		activate( false );
 		m_pNameLbl->setText( "" );
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
@@ -764,7 +764,7 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 	
 	// Check if either this particular line or all lines should be updated.
 	if ( m_pInstrument != nullptr ) {
-		enable( true );
+		activate( true );
 
 		if ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
 			 nInstrumentNumber == -1 ) {
@@ -783,7 +783,7 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 		// selected instrument we don't have to do anything.
 	}
 	else {
-		enable( false );
+		activate( false );
 
 		m_pNameLbl->setText( "" );
 		m_pWaveDisplay->updateDisplay( nullptr );
