@@ -85,7 +85,12 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive;
+		if ( isEnabled() )
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
