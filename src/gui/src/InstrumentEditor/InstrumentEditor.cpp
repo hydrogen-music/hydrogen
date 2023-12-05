@@ -488,6 +488,7 @@ void InstrumentEditor::activate( bool bActivate ) {
 
 	if ( bActivate ) {
 		m_pNameLbl->setEnabled( true );
+		m_pCompoNameLbl->setEnabled( true );
 
 		m_pAttackRotary->setIsActive( true );
 		m_pDecayRotary->setIsActive( true );
@@ -532,6 +533,7 @@ void InstrumentEditor::activate( bool bActivate ) {
 	}
 	else {
 		m_pNameLbl->setEnabled( false );
+		m_pCompoNameLbl->setEnabled( false );
 
 		m_pAttackRotary->setIsActive( false );
 		m_pDecayRotary->setIsActive( false );
@@ -749,6 +751,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	else {
 		activate( false );
 		m_pNameLbl->setText( "" );
+		m_pCompoNameLbl->setText( "" );
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
@@ -786,6 +789,7 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 		activate( false );
 
 		m_pNameLbl->setText( "" );
+		m_pCompoNameLbl->setText( "" );
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
