@@ -109,6 +109,11 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 
+		/** Whether a valid instrument was provided an all contained widgets
+		 * should be enabled. */
+		bool m_bEnabled;
+		void enable( bool bEnable );
+
 		Button *m_pShowInstrumentBtn;
 		Button *m_pShowLayersBtn;
 
@@ -201,8 +206,9 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		LCDDisplay *m_pLayerPitchFineLCD;
 
 		//LCDCombo *__pattern_size_combo;
-		LCDCombo *m_sampleSelectionAlg;
+		LCDCombo *m_pSampleSelectionCombo;
 		ClickableLabel* m_pSampleSelectionLbl;
+		void setupSampleSelectionCombo();
 
 		WaveDisplay *m_pWaveDisplay;
 
