@@ -81,7 +81,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * \return a pointer to the current NsmClient
 		 * singleton stored in #__instance.
 		 */
-		static NsmClient* get_instance() { assert(__instance); return __instance; }
+		static NsmClient* get_instance() { return __instance; }
 
 		/**
 		 * Informs the NSM server whether the current H2Core::Song is
