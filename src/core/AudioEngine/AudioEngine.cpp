@@ -1272,6 +1272,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			if ( ! pNote->get_instrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
+				delete pNote;
 				continue;
 			}
 
