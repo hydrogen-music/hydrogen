@@ -107,8 +107,9 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 	/*: Name assigned to a DrumkitComponent of a fresh kit created via the Main
 	 *  Menu > Drumkit > New. */
 	const QString sComponentName = QT_TRANSLATE_NOOP( "Drumkit", "Main");
-	/*: Name assigned to an Instrument created as part of a fresh kit created
-	 *  via the Main Menu > Drumkit > New. */
+	/*: Name assigned to an Instrument created either as part of a fresh kit
+	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
+	 *  action. */
 	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Drumkit", "New Instrument");
 
 	auto pDrumkit = std::make_shared<Drumkit>();
@@ -649,23 +650,43 @@ void Drumkit::removeInstrument( int nInstrumentNumber ) {
 	}
 }
 
+void Drumkit::addInstrument() {
+	/*: Name assigned to an Instrument created either as part of a fresh kit
+	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
+	 *  action. */
+	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Drumkit", "New Instrument");
+
+	auto pNewInstrument = std::make_shared<Instrument>();
+	pNewInstrument->set_name( sInstrumentName );
+
+	// The new instrument is manually added to a floating song kit. It must not
+	// have a drumkit path or drumkit name set. All contained samples have to be
+	// referenced by absolute paths.
+	if ( m_type != Type::Song ) {
+		pNewInstrument->set_drumkit_name( m_sName );
+		pNewInstrument->set_drumkit_path( m_sPath );
+	}
+
+	addInstrument( pNewInstrument );
+}
+
 void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "invalid instrument" );
 		return;
 	}
 
-	if ( pInstrument->get_drumkit_path().isEmpty() ) {
-		ERRORLOG( "Provided instrument does not feature a drumkit path" );
-		return;
-	}
-
-	const auto pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
-		->getDrumkit( pInstrument->get_drumkit_path() );
-	if ( pInstrumentKit == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve kit [%1] associated with instrument." )
-				  .arg( pInstrument->get_drumkit_path() ) );
-		return;
+	// In case a new instrument was added manually, there is no associated
+	// drumkit to load samples from.
+	std::shared_ptr<Drumkit> pInstrumentKit = nullptr;
+	if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
+		pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
+			->getDrumkit( pInstrument->get_drumkit_path() );
+		if ( pInstrumentKit == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve kit [%1] associated with instrument." )
+					  .arg( pInstrument->get_drumkit_path() ) );
+			return;
+		}
 	}
 
 	// Ensure instrument components are contained in the Drumkit (compared by
@@ -689,6 +710,11 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 		}
 		if ( ! bSampleFound ) {
 			continue;
+		}
+
+		if ( pInstrumentKit == nullptr ) {
+			ERRORLOG( "An instrument added to a kit must have either both components and an associated drumkit path or neither of them." );
+			return;
 		}
 
 		auto ppComponent = pInstrumentKit->getComponent(

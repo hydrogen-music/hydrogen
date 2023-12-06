@@ -248,6 +248,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Add an instrument to the kit and takes care of registering its
 		 * components.*/
 		void addInstrument( std::shared_ptr<Instrument> pInstrument );
+		/** Create and add a new and empty instrument. */
+		void addInstrument();
 
 		/** set m_pInstruments, delete existing one */
 		void setInstruments( std::shared_ptr<InstrumentList> instruments );

@@ -1103,7 +1103,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created as part of a fresh kit created * via the Main Menu &gt; Drumkit &gt; New.</extracomment>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

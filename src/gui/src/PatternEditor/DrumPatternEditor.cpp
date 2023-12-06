@@ -1939,36 +1939,18 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 		return;
 	}
 	
-	auto pList = pDrumkit->getInstruments();
-
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	// create a new valid ID for this instrument
-	int nID = -1;
-	for ( uint i = 0; i < pList->size(); ++i ) {
-		auto pInstr = pList->get( i );
-		if ( pInstr != nullptr &&
-			 ( pInstr->get_id() > nID ) ) {
-			nID = pInstr->get_id();
-		}
-	}
-	++nID;
-
-	auto pNewInstr = std::make_shared<Instrument>( nID, "New instrument");
-	pNewInstr->set_drumkit_path( pDrumkit->getPath() );
-	pNewInstr->set_drumkit_name( pDrumkit->getName() );
-	
-	pList->add( pNewInstr );
+	pDrumkit->addInstrument();
 
 	pHydrogen->renameJackPorts( pSong );
 
 	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 
-	pHydrogen->setSelectedInstrumentNumber( pList->size() - 1 );
-
-	updateEditor();
-
+	// Triggers an event which make the PatternEditor update itself.
+	pHydrogen->setSelectedInstrumentNumber(
+		pDrumkit->getInstruments()->size() - 1 );
 }
 /// ~undo / redo actions from pattern editor instrument list
 ///==========================================================
