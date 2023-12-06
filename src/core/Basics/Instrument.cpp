@@ -168,6 +168,9 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
 	if ( bSongKit ) {
+
+		bool bNoDrumkitRequired = false;
+
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
@@ -178,27 +181,35 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
 			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
 														 false, false, bSilent  );
 
+			if ( ! sInstrumentDrumkitPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_APPIMAGE
-			sInstrumentDrumkitPath =
-				Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
+				sInstrumentDrumkitPath =
+					Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
 #endif
 
-			// Check whether corresponding drumkit exist.
-			// When tweaking or assembling drumkits locally their
-			// absolute paths serve as unique identifiers to keep them
-			// apart. But in terms of portability (and to assure
-			// backward compatibility) paths are bad and we will use
-			// the drumkit name and check whether we can find the kit
-			// on the local system.
-			if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
-				WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
-							.arg( sInstrumentDrumkitPath )
-							.arg( sInstrumentDrumkitName ) );
-				sInstrumentDrumkitPath = "";
+				// Check whether corresponding drumkit exist. When tweaking or
+				// assembling drumkits locally their absolute paths serve as
+				// unique identifiers to keep them apart. But in terms of
+				// portability (and to assure backward compatibility) paths are
+				// bad and we will use the drumkit name and check whether we can
+				// find the kit on the local system.
+				if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
+					WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
+								.arg( sInstrumentDrumkitPath )
+								.arg( sInstrumentDrumkitName ) );
+					sInstrumentDrumkitPath = "";
+				}
+			}
+			else if ( sInstrumentDrumkitName.isEmpty() ) {
+				// Both empty drumkit path and name indicate that the instrument
+				// was added as a new one to the drumkit instead of importing it
+				// from another kit. It must only hold absolute paths for
+				// samples.
+				bNoDrumkitRequired = true;
 			}
 		}
 
-		if ( sInstrumentDrumkitPath.isEmpty() ) {
+		if ( sInstrumentDrumkitPath.isEmpty() && ! bNoDrumkitRequired ) {
 			if ( ! pNode->firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
 				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
