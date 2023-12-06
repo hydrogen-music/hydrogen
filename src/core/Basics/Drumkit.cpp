@@ -100,12 +100,28 @@ Drumkit::~Drumkit()
 }
 
 std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
+
+	/*: Name assigned to a fresh Drumkit created via the Main Menu > Drumkit >
+	 *  New. */
+	const QString sDrumkitName = QT_TRANSLATE_NOOP( "Drumkit", "New Drumkit");
+	/*: Name assigned to a DrumkitComponent of a fresh kit created via the Main
+	 *  Menu > Drumkit > New. */
+	const QString sComponentName = QT_TRANSLATE_NOOP( "Drumkit", "Main");
+	/*: Name assigned to an Instrument created as part of a fresh kit created
+	 *  via the Main Menu > Drumkit > New. */
+	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Drumkit", "New Instrument");
+
 	auto pDrumkit = std::make_shared<Drumkit>();
 	auto pInstrList = std::make_shared<InstrumentList>();
-	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID,
-												   "New instrument" );
+	auto pNewInstr = std::make_shared<Instrument>( 1, sInstrumentName );
 	pInstrList->add( pNewInstr );
 	pDrumkit->setInstruments( pInstrList );
+	pDrumkit->setName( sDrumkitName );
+
+	// This has to be done after adding an instrument list. This way it is
+	// ensured proper InstrumentComponents are created and assigned as well.
+	pDrumkit->addComponent();
+	pDrumkit->getComponents()->front()->set_name( sComponentName );
 
 	return pDrumkit;
 }

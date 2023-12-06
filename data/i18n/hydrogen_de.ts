@@ -1089,6 +1089,24 @@ Are you sure?</source>
     </message>
 </context>
 <context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created as part of a fresh kit created * via the Main Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DrumkitExportDialog</name>
     <message>
         <source>&amp;Export</source>
