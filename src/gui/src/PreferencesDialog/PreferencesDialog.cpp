@@ -379,7 +379,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// MIDI tab - list midi input ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiInput() ) {
+	if ( pHydrogen->getMidiInput() != nullptr ) {
 		std::vector<QString> midiOutList = pHydrogen->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
@@ -400,7 +400,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiOutportComboBox->setSize( midiTabWidgetSize );
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiOutput() ) {
+	if ( pHydrogen->getMidiOutput() != nullptr ) {
 		std::vector<QString> midiOutList = pHydrogen->getMidiOutput()->getInputPortList();
 
 		if ( midiOutList.size() != 0 ) {
