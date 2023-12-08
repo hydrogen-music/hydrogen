@@ -2643,20 +2643,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>¡No podrás deshacer esta acción tras guardar la canción nueva! Por favor primero exporta la canción actual de la sesión para guardarla.</translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation>
-Ha habido cambios recientes en la configuración de drumkits.
-Hay que guardar la sesión antes de continuar con la exportación.
-</translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation>No se pudo encontrar en tu sistema el drumkit [%1] utilizado en la sesión. Por favor instálalo para que la canción exportada funcione correctamente.</translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation>Canción guardada en</translation>
     </message>

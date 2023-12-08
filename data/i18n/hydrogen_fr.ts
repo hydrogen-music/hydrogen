@@ -2644,19 +2644,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Vous ne pourrez pas annuler cette action après avoir sauvegardé le nouveau morceau ! Veuillez d&apos;abord exporter le morceau actuel de la session afin de le conserver.</translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation>
-Des changements récents ont été apportés aux paramètres du kit de batterie.
-La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation.</translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation>Le kit de batterie [%1] utilisé dans la session n&apos;a pas été trouvé sur votre système. Veuillez l&apos;installer pour que le morceau exporté fonctionne correctement.</translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation>Morceau sauvegardé dans</translation>
     </message>

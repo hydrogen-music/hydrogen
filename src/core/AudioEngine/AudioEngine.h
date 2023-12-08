@@ -454,7 +454,7 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	/** Is allowed to call setSong().*/
-	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking );
+	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to use locate() to directly set the position in
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when

@@ -764,10 +764,6 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->openSong( pSong );
-	
-	// The drumkit of the new song will linked into the session
-	// folder during the next song save.
-	pHydrogen->setSessionDrumkitNeedsRelinking( true );
 }
 
 
@@ -782,30 +778,6 @@ void MainForm::action_file_save_as()
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-	if ( bUnderSessionManagement &&
-		 pHydrogen->getSessionDrumkitNeedsRelinking() ) {
-		// When used under session management "save as" will be used
-		// for exporting and Hydrogen is allowed to
-		// be in a transient state which is not ready for export. This
-		// way the user is able to undo e.g. loading a drumkit by
-		// closing the session without storing and the overall state
-		// is not getting bricked during unexpected shut downs.
-		//
-		// We will prompt for saving the changes applied to the
-		// drumkit usage and require the user to exit this transient
-		// state first.
-		if ( QMessageBox::information( this, "Hydrogen",
-									   tr( "\nThere have been recent changes to the drumkit settings.\n"
-										   "The session needs to be saved before exporting will can be continued.\n" ),
-		                               QMessageBox::Save | QMessageBox::Cancel,
-		                               QMessageBox::Save )
-		     == QMessageBox::Cancel ) {
-			INFOLOG( "Exporting cancelled at relinking" );
-			return;
-		}
-
-		action_file_save();
-	}
 
 	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -855,26 +827,6 @@ void MainForm::action_file_save_as()
 				sNewFilename += Filesystem::songs_ext;
 			}
 
-#ifdef H2CORE_HAVE_OSC
-			// In a session all main samples (last loaded drumkit) are taken
-			// from the session folder itself (either via a symlink or a copy of
-			// the whole drumkit). When exporting a song, these "local"
-			// references have to be replaced by global ones (drumkits in the
-			// system's or user's data folder).
-			if ( bUnderSessionManagement ) {
-				pHydrogen->setSessionIsExported( true );
-				int nRet = NsmClient::dereferenceDrumkit( pSong );
-				if ( nRet == -2 ) {
-					const auto pDrumkit = pSong->getDrumkit();
-					if ( pDrumkit != nullptr ) {
-						QMessageBox::warning( this, "Hydrogen",
-											  tr( "Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly." )
-											  .arg( pDrumkit->getName() ) );
-					}
-				}
-			}
-#endif
-
 			// We do not use the CoreActionController::saveSongAs
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
@@ -889,10 +841,6 @@ void MainForm::action_file_save_as()
 		if ( bUnderSessionManagement ) {
 			pSong->setFilename( sLastFilename );
 
-			if ( pSong->getDrumkit() != nullptr ) {
-				NsmClient::replaceDrumkitPath( pSong,
-											   pSong->getDrumkit()->getPath() );
-			}
 			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFilename );
 			pHydrogen->setSessionIsExported( false );
 		}

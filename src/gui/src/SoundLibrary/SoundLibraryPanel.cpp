@@ -852,7 +852,7 @@ void SoundLibraryPanel::on_songLoadAction()
 void SoundLibraryPanel::on_patternLoadAction() {
 
 	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
-	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
+	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip( 0 );
 	Hydrogen::get_instance()->getCoreActionController()
 		->openPattern( Filesystem::pattern_path( sDrumkitName,
 												 sPatternName ) );

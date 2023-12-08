@@ -511,9 +511,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
-		// The drumkit of the new song will linked into the session
-		// folder during the next song save.
-		pHydrogen->setSessionDrumkitNeedsRelinking( true );
 	}
 
 	pSong->setFilename( sSongPath );
@@ -556,17 +553,17 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
+bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	if ( pSong == nullptr ) {
 		ERRORLOG( QString( "Invalid song." ) );
 		return false;
 	}
 
-	return setSong( pSong, bRelinking );
+	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -577,7 +574,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong, bool bRelinking
 	}
 
 	// Update the Song.
-	pHydrogen->setSong( pSong, bRelinking );
+	pHydrogen->setSong( pSong );
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
@@ -619,25 +616,6 @@ bool CoreActionController::saveSong() {
 		return false;
 	}
 
-#ifdef H2CORE_HAVE_OSC
-	if ( pHydrogen->isUnderSessionManagement() &&
-		 pHydrogen->getSessionDrumkitNeedsRelinking() &&
-		 ! pHydrogen->getSessionIsExported() ) {
-
-		NsmClient::linkDrumkit( pSong );
-
-		// Properly set in NsmClient::linkDrumkit()
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			// In case the session folder is already present in the
-			// SoundLibraryDatabase, we have to update it (takes a while) to
-			// ensure it's clean and all kits are valid. If it's not present, we
-			// can skip it because loading is done lazily.
-			pHydrogen->getSoundLibraryDatabase()->updateDrumkit( pDrumkit->getPath() );
-		}
-	}
-#endif
-	
 	// Actual saving
 	bool bSaved = pSong->save( sSongPath );
 	if ( ! bSaved ) {
@@ -1070,12 +1048,6 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	initExternalControlInterfaces();
 
 	pHydrogen->setIsModified( true );
-
-	// Create a symbolic link in the session folder when under session
-	// management.
-	if ( pHydrogen->isUnderSessionManagement() ) {
-		pHydrogen->setSessionDrumkitNeedsRelinking(true);
-	}
 
 	EventQueue::get_instance()->push_event(EVENT_DRUMKIT_LOADED, 0);
 

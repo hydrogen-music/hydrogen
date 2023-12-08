@@ -112,7 +112,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
-					 , m_bSessionDrumkitNeedsRelinking( false )
 					 , m_bSessionIsExported( false )
 {
 	if ( __instance ) {
@@ -282,7 +281,7 @@ void Hydrogen::loadPlaybackTrack( QString sFilename )
 	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
+void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
 	assert ( pSong );
 
@@ -328,12 +327,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
-
-#ifdef H2CORE_HAVE_OSC
-	if ( isUnderSessionManagement() && bRelinking ) {
-		setSessionDrumkitNeedsRelinking( true );
-	}
-#endif
 }
 
 void Hydrogen::midiNoteOn( Note *note )

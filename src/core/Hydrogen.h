@@ -119,13 +119,8 @@ public:
 		/**
 		 * Sets the current song #m_pSong to @a newSong.
 		 * \param newSong Pointer to the new Song object.
-		 * \param bRelinking Whether the drumkit last loaded should be
-		 * relinked when under session management. This flag is used
-		 * to distinguish between the regular load of a song file
-		 * within a session and its replacement by another song (which
-		 * requires an update of the linked drumkit).
 		 */
-		void			setSong	( std::shared_ptr<Song> newSong, bool bRelinking = true );
+		void			setSong( std::shared_ptr<Song> pNewSong );
 
 	/**
 	 * Find a PatternList/column corresponding to the supplied tick
@@ -406,8 +401,6 @@ public:
 		supported.*/
 	bool			isUnderSessionManagement() const;
 
-	void			setSessionDrumkitNeedsRelinking( bool bNeedsRelinking );
-	bool			getSessionDrumkitNeedsRelinking() const;
 	void			setSessionIsExported( bool bIsExported );
 	bool			getSessionIsExported() const;
 
@@ -524,23 +517,6 @@ private:
 	 * Index of the pattern selected in the GUI or by a MIDI event.
 	 */
 	int				m_nSelectedPatternNumber;
-
-	/**
-	 * When using Hydrogen with session management it tries to keep
-	 * all central files within a session folder instead of using the
-	 * once found at the data folder at either user or system
-	 * level. This allows to zip and transfer a session without
-	 * requiring to move the whole data folder as well.
-	 *
-	 * As sample files can be quite large in both size and number the
-	 * drumkit is only linked into the session folder.
-	 *
-	 * This variable indicates whether a different drumkit was loaded
-	 * into the current song (by either directly loading a drumkit or
-	 * replacing the entire song) and thus a relinking is required
-	 * upon saving the song.
-	 */
-	bool			m_bSessionDrumkitNeedsRelinking;
 	/**
 	 * Indicates whether NSM session is saved or exported when entering
 	 * the CoreActionController::saveSong() function.
@@ -633,12 +609,6 @@ inline int Hydrogen::getSelectedInstrumentNumber() const
 	return m_nSelectedInstrumentNumber;
 }
 
-inline void Hydrogen::setSessionDrumkitNeedsRelinking( bool bNeedsRelinking ) {
-	m_bSessionDrumkitNeedsRelinking = bNeedsRelinking;
-}
-inline bool Hydrogen::getSessionDrumkitNeedsRelinking() const {
-	return m_bSessionDrumkitNeedsRelinking;
-}
 inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 	m_bSessionIsExported = bSessionIsExported;
 }

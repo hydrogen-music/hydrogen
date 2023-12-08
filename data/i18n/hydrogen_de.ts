@@ -2633,19 +2633,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Diese Aktion kann nach dem Speichern nicht rückgängig gemacht werden! Bitte exportieren sie den aktuellen Song erst aus der Session, um eine Kopie anzulegen.</translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation>
-Es gibt ungespeicherte Änderungen in den Schlagzeug Eigenschaften.
-Die Session muss gespeichert werden, ehe mit dem Export fortgefahren werden kann.</translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation>Schlagzeug [%1] in Session konnte nicht auf der Festplatte gefunden werden. Bitte installieren Sie es erst, damit der Export reibungslos funktioniert.</translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation>Lied gepeichert in</translation>
     </message>
