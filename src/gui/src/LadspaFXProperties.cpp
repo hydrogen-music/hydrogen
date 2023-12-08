@@ -334,6 +334,13 @@ void LadspaFXProperties::updateControls()
 void LadspaFXProperties::selectFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioDriver = pHydrogen->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return;
+	}
+
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
@@ -344,7 +351,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
-					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
+					int nSampleRate = pAudioDriver->getSampleRate();
 					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
 					break;
@@ -352,7 +359,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 			}
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
-			Hydrogen::get_instance()->restartLadspaFX();
+			pHydrogen->restartLadspaFX();
 			updateControls();
 		}
 		else {	// no plugin selected
