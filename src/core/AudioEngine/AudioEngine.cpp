@@ -950,10 +950,10 @@ void AudioEngine::startAudioDrivers()
 		return;
 	}
 
-	if ( m_pAudioDriver ) {	// check if audio driver is still alive
+	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
 		ERRORLOG( "The audio driver is still alive" );
 	}
-	if ( m_pMidiDriver ) {	// check if midi driver is still alive
+	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
 		ERRORLOG( "The MIDI driver is still active" );
 	}
 
