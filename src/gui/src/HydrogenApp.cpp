@@ -592,14 +592,22 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	showStatusBarMessage( QString( "XRUNS [%1]!!!" )
-						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ) );
+	const auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return;
+	}
+	showStatusBarMessage( QString( "XRUNS [%1]!!!" ) .arg( pAudioDriver->getXRuns() ) );
 }
 
 void HydrogenApp::updateWindowTitle()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	assert(pSong);
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		assert(pSong);
+		return;
+	}
 
 	QString sTitle = Filesystem::untitled_song_name();
 

@@ -42,7 +42,6 @@ class DrumkitComponent;
 class Instrument;
 struct SelectedLayerInfo;
 class InstrumentComponent;
-class AudioOutput;
 
 ///
 /// Waveform based sampler.
