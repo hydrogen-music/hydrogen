@@ -957,10 +957,10 @@ void AudioEngine::startAudioDrivers()
 		return;
 	}
 
-	if ( m_pAudioDriver ) {	// check if audio driver is still alive
+	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
 		ERRORLOG( "The audio driver is still alive" );
 	}
-	if ( m_pMidiDriver ) {	// check if midi driver is still alive
+	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
 		ERRORLOG( "The MIDI driver is still active" );
 	}
 
@@ -1199,7 +1199,7 @@ void AudioEngine::handleSelectedPattern() {
 			}
 		}
 
-		pHydrogen->setSelectedPatternNumber( nPatternNumber, true );
+		pHydrogen->setSelectedPatternNumber( nPatternNumber, true, true );
 	}
 }
 
@@ -1367,13 +1367,23 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		assert( pSong );
+		ERRORLOG( "Invalid song" );
+		return 1;
+	}
 
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		static_cast<JackAudioDriver*>( pHydrogen->getAudioOutput() )->updateTransportPosition();
+		auto pAudioDriver = pHydrogen->getAudioOutput();
+		if ( pAudioDriver == nullptr ) {
+			ERRORLOG( "AudioDriver is not ready!" );
+			assert( pAudioDriver );
+			return 1;
+		}
+		static_cast<JackAudioDriver*>( pAudioDriver )->updateTransportPosition();
 	}
 #endif
 

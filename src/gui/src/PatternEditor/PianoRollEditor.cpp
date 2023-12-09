@@ -525,7 +525,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
-		m_pPopupMenu->popup( ev->globalPos() );
+		showPopupMenu( ev->globalPos() );
 
 	}
 

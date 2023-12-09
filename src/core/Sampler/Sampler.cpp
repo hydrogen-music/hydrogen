@@ -118,9 +118,6 @@ void Sampler::process( uint32_t nFrames )
 		return;
 	}
 	
-	AudioOutput* pAudioOutpout = pHydrogen->getAudioOutput();
-	assert( pAudioOutpout );
-
 	memset( m_pMainOut_L, 0, nFrames * sizeof( float ) );
 	memset( m_pMainOut_R, 0, nFrames * sizeof( float ) );
 
@@ -535,6 +532,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 	long long nFrame;
 	auto pAudioDriver = pHydrogen->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return true;
+	}
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
@@ -791,12 +793,17 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
+		return true;
+	}
+
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
 		return true;
 	}
 
@@ -807,9 +814,13 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
-	auto pSample = pCompo->get_layer(0)->get_sample();
+	const auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	if ( pCompo == nullptr ) {
+		ERRORLOG( "Invalid component of playback instrument" );
+		return true;
+	}
 
+	auto pSample = pCompo->get_layer(0)->get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
 		EventQueue::get_instance()->push_event( EVENT_ERROR,
@@ -988,7 +999,27 @@ bool Sampler::renderNoteResample(
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return true;
+	}
+
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return true;
+	}
+
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return true;
+	}
+
 	auto pInstrument = pNote->get_instrument();
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Invalid note instrument" );
+		return true;
+	}
 
 	const float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 	const bool bResample = fNotePitch != 0 ||

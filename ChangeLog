@@ -9,7 +9,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Most actions available via MIDI or OSC can also be assigned to a
 		  keyboard shortcut. If those actions require input arguments,
 		  they are retrieved using popup dialogs.
+		- Align to grid action in Pattern Editor to align
+		  exsiting notes to current grid.
 	* Changed
+		- Prerelease version suffix (alpha, beta, rc..) are now appended to
+			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 		- Preferences dialog can now be smoothly resized.
 		- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as
 		  their OSC counterparts - do now wrap transport around the
@@ -35,15 +39,20 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix crash on playing back notes with custom length (#1852).
 		- macOS: fix naming of CoreMIDI header (#1865).
 		- Fix various rendering issues with custom length notes.
-		- Pattern Editor (#1859):
-				- Only delete stop notes clicked by the user.
-				- Proper undo of moving notes out of DrumPatternEditor.
-				- Custom note lengths are now only drawn till the next stop note.
-				- Highlight selected stop notes too.
+		- Fix potential crash/failing startup on Windows in case PortAudio
+			or PortMidi device is already occupied (#1893)
+		- Pattern Editor:
+				- Only delete stop notes clicked by the user. (#1859)
+				- Proper undo of moving notes out of DrumPatternEditor. (#1859)
+				- Custom note lengths are now only drawn till the next stop
+				  note. (#1859)
+				- Highlight selected stop notes too. (#1859)
 				- Update selected notes visually on left and right keyboard
-				  movement.
+				  movement. (#1859)
 				- Fixed stop note color which was no different than
 					the default note color (#1854).
+				- Fixed grid line rendering on rational pattern size nominator.
+				- Fixed grid line colors on very fine resolution.
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>

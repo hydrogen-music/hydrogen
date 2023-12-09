@@ -164,7 +164,7 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Midi driver info
 	MidiInput *pMidiDriver = pHydrogen->getMidiInput();
-	if (pMidiDriver) {
+	if ( pMidiDriver != nullptr ) {
 		midiDriverName->setText( pMidiDriver->class_name() );
 	}
 	else {

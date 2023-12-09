@@ -258,11 +258,16 @@ public:
 	/**
 	 * Sets #m_nSelectedPatternNumber.
 	 *
-	 *\param nPat Sets #m_nSelectedPatternNumber
-	 * \param bNeedsLock Whether the function was called with the
-	 * audio engine locked already or it should do so itself.
+	 * \param nPat Sets #m_nSelectedPatternNumber
+	 * \param bNeedsLock Whether the function was called with the audio engine
+	 *   locked already or it should do so itself.
+	 * \param bForce When present, the `EVENT_SELECTED_PATTERN_CHANGED` will be
+	 *   triggered regardless of @a nPat. This is important when rearranging
+	 *   patterns in the song editor while the pattern editor is locked.
 	 */
-	void			setSelectedPatternNumber( int nPat, bool bNeedsLock = true );
+	void			setSelectedPatternNumber( int nPat,
+											  bool bNeedsLock = true,
+											  bool bForce = false );
 
 	/**
 	 * Updates the selected pattern to the one recorded note will be

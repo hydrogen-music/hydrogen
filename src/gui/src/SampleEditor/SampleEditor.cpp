@@ -862,8 +862,16 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 		if ( ! m_bAdjusting ) on_PlayOrigPushButton_clicked();
 		return;
 	}
-	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->stopPlayingNotes();
+
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pAudioDriver = pHydrogen->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return;
+	}
+
+	if ( m_nSlframes > pAudioDriver->getSampleRate() * 60 ){
+		pHydrogen->getAudioEngine()->getSampler()->stopPlayingNotes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_bPlayButton = false;
@@ -871,7 +879,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	__loops.count = count; 
 	setUnclean();
 	setSamplelengthFrames();
-	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
+	if ( m_nSlframes > pAudioDriver->getSampleRate() * 60 * 30){ // >30 min
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);
 	}
 

@@ -39,6 +39,10 @@ int portAudioCallback(
 {
 	float *out = ( float* )outputBuffer;
 	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
+	if ( pDriver == nullptr ) {
+		___ERRORLOG( "Invalid driver pointer" );
+		return 1;
+	}
 
 	while ( framesPerBuffer > 0 ) {
 		unsigned long nFrames = std::min( (unsigned long) MAX_BUFFER_SIZE, framesPerBuffer );
@@ -90,7 +94,10 @@ QStringList PortAudioDriver::getHostAPIs()
 	int nHostAPIs = Pa_GetHostApiCount();
 	for ( int n = 0; n < nHostAPIs; n++ ) {
 		const PaHostApiInfo *pHostApiInfo = Pa_GetHostApiInfo( (PaHostApiIndex)n );
-		assert( pHostApiInfo != nullptr );
+		if ( pHostApiInfo == nullptr ) {
+			ERRORLOG( QString( "Invalid host API [%1]" ).arg( n ) );
+			continue;
+		}
 		hostAPIs.push_back( pHostApiInfo->name );
 	}
 
@@ -104,18 +111,28 @@ QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 		m_bInitialised = true;
 	}
 
+	QStringList devices;
 	if ( HostAPI.isNull() || HostAPI == "" ) {
 		WARNINGLOG( "Using default HostAPI" );
-		HostAPI = Pa_GetHostApiInfo( Pa_GetDefaultHostApi() )->name;
+		auto pInfo = Pa_GetHostApiInfo( Pa_GetDefaultHostApi() );
+		if ( pInfo == nullptr ) {
+			ERRORLOG( "Unable to obtain default Host API" );
+			return devices;
+		}
+		
+		HostAPI = pInfo->name;
 	}
 
-	QStringList devices;
 	int nDevices = Pa_GetDeviceCount();
 	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 		const PaDeviceInfo *pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		if ( pDeviceInfo == nullptr ) {
+			continue;
+		}
 
 		// Filter by API
-		if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != HostAPI ) {
+		auto pInfo = Pa_GetHostApiInfo( pDeviceInfo->hostApi );
+		if ( pInfo == nullptr || pInfo->name != HostAPI ) {
 			continue;
 		}
 		if ( pDeviceInfo->maxOutputChannels >= 2 ) {
@@ -163,9 +180,14 @@ int PortAudioDriver::connect()
 	const PaDeviceInfo *pDeviceInfo;
 	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 		pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		if ( pDeviceInfo == nullptr ) {
+			continue;
+		}
+		
 		// Filter by HostAPI
 		if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
-			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+			auto pInfo = Pa_GetHostApiInfo( pDeviceInfo->hostApi );
+			if ( pInfo == nullptr || pInfo->name != pPreferences->m_sPortAudioHostAPI ) {
 				continue;
 			}
 		}
@@ -230,7 +252,17 @@ int PortAudioDriver::connect()
 		return 1;
 	}
 
+	if ( m_pStream == nullptr ) {
+		ERRORLOG( "Invalid stream." );
+		return 1;
+	}
+
 	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
+	if ( pStreamInfo == nullptr ) {
+		ERRORLOG( "Invalid stream info." );
+		return 1;
+	}
+	
 	if ( (unsigned) pStreamInfo->sampleRate != m_nSampleRate ) {
 		ERRORLOG( QString( "Couldn't get sample rate %d, using %d instead" ).arg( m_nSampleRate ).arg( pStreamInfo->sampleRate ) );
 		m_nSampleRate = (unsigned) pStreamInfo->sampleRate;
@@ -249,18 +281,17 @@ int PortAudioDriver::connect()
 
 void PortAudioDriver::disconnect()
 {
-	int err = Pa_StopStream( m_pStream );
+	if ( m_pStream != nullptr ) {
+		
+		int err = Pa_StopStream( m_pStream );
+		if ( err != paNoError ) {
+			ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
+		}
 
-
-	if ( err != paNoError ) {
-		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
-	}
-
-	err = Pa_CloseStream( m_pStream );
-
-
-	if ( err != paNoError ) {
-		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
+		err = Pa_CloseStream( m_pStream );
+		if ( err != paNoError ) {
+			ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
+		}
 	}
 
 	m_bInitialised = false;
@@ -285,7 +316,16 @@ unsigned PortAudioDriver::getSampleRate()
 
 int PortAudioDriver::getLatency()
 {
+	if ( m_pStream == nullptr ) {
+		return 0;
+	}
+	
 	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
+	if ( pStreamInfo == nullptr ) {
+		ERRORLOG( "Invalid stream info" );
+		return 0;
+	}
+	
 	return std::max( static_cast<int>( pStreamInfo->outputLatency * getSampleRate() ),
 					 0 );
 }

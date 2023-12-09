@@ -227,10 +227,21 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	const auto pSong = pHydrogen->getSong();
 	const auto pTimeline = pHydrogen->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
-	assert( pSong );
+	const auto pAudioDriver = pHydrogen->getAudioOutput();
+
+	if ( pSong == nullptr || pTimeline == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		*fTickMismatch = 0;
+		return 0;
+	}
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		*fTickMismatch = 0;
+		return 0;
+	}
 
 	if ( nSampleRate == 0 ) {
-		nSampleRate = pHydrogen->getAudioOutput()->getSampleRate();
+		nSampleRate = pAudioDriver->getSampleRate();
 	}
 	const int nResolution = pSong->getResolution();
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
@@ -473,10 +484,19 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	const auto pSong = pHydrogen->getSong();
 	const auto pTimeline = pHydrogen->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
-	assert( pSong );
+	const auto pAudioDriver = pHydrogen->getAudioOutput();
+
+	if ( pSong == nullptr || pTimeline == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return 0;
+	}
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return 0;
+	}
 
 	if ( nSampleRate == 0 ) {
-		nSampleRate = pHydrogen->getAudioOutput()->getSampleRate();
+		nSampleRate = pAudioDriver->getSampleRate();
 	}
 	const int nResolution = pSong->getResolution();
 	double fTick = 0;

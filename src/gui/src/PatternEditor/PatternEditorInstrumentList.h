@@ -83,7 +83,6 @@ public slots:
 		void functionDeleteNotesAllPatterns();
 		void functionCutNotesAllPatterns();
 
-		void functionRandomizeVelocity();
 		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
