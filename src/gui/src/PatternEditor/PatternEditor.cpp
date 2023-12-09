@@ -483,7 +483,20 @@ void PatternEditor::alignToGrid() {
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	// Move the notes
@@ -521,7 +534,20 @@ void PatternEditor::randomizeVelocity()
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	pUndo->beginMacro( tr( "Random velocity" ) );

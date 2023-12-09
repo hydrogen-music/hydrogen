@@ -1852,10 +1852,6 @@ Wert</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <source>Randomize velocity</source>
-        <translation>Zufälliger Anschlag (velocity)</translation>
-    </message>
-    <message>
         <source>Delete instrument</source>
         <translation>Instrument löschen</translation>
     </message>
@@ -3044,6 +3040,22 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set note probability to</source>
         <translation>Noten Wahrscheinlichkeit gesetzt auf</translation>
+    </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Zufälliger Anschlag (velocity)</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>Zufällige Anschlagsstärke</translation>
     </message>
 </context>
 <context>
@@ -4642,10 +4654,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Fill notes</source>
         <translation>Fülle Pattern mit Noten</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>Zufällige Anschlagsstärke</translation>
     </message>
     <message>
         <source>Move instrument</source>

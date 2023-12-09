@@ -1857,10 +1857,6 @@ Valeur</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <source>Randomize velocity</source>
-        <translation>Vélocité aléatoire</translation>
-    </message>
-    <message>
         <source>Delete instrument</source>
         <translation>Effacer l&apos;instrument</translation>
     </message>
@@ -3054,6 +3050,22 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set note probability to</source>
         <translation>Régler la probabilité de la note sur</translation>
+    </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Vélocité aléatoire</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>Vélocité aléatoire</translation>
     </message>
 </context>
 <context>
@@ -4659,10 +4671,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Fill notes</source>
         <translation>Remplir de notes</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>Vélocité aléatoire</translation>
     </message>
     <message>
         <source>Move instrument</source>

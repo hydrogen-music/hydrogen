@@ -1856,10 +1856,6 @@ Valor</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <source>Randomize velocity</source>
-        <translation>Intensidad aleatoria</translation>
-    </message>
-    <message>
         <source>Delete instrument</source>
         <translation>Eliminar instrumento</translation>
     </message>
@@ -3053,6 +3049,22 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Set note probability to</source>
         <translation>Establecer probabilidad de nota en</translation>
+    </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Intensidad aleatoria</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>Velocidad al azar</translation>
     </message>
 </context>
 <context>
@@ -4658,10 +4670,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Fill notes</source>
         <translation>Rellenar notas</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>Velocidad al azar</translation>
     </message>
     <message>
         <source>Move instrument</source>

@@ -1895,10 +1895,6 @@ Value</source>
         <translation>填充 1/16 音符</translation>
     </message>
     <message>
-        <source>Randomize velocity</source>
-        <translation>随机化力度</translation>
-    </message>
-    <message>
         <source>Rename instrument</source>
         <translation>重命名乐器</translation>
     </message>
@@ -3037,6 +3033,22 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Set note probability to</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>随机化力度</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>随机化力度</translation>
     </message>
 </context>
 <context>
@@ -4642,10 +4654,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Fill notes</source>
         <translation>填充音符</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>随机化力度</translation>
     </message>
     <message>
         <source>Move instrument</source>

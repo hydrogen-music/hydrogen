@@ -1891,10 +1891,6 @@ Value</source>
         <translation></translation>
     </message>
     <message>
-        <source>Randomize velocity</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Rename instrument</source>
         <translation></translation>
     </message>
@@ -2991,6 +2987,22 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Set note probability to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4586,10 +4598,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
         <translation></translation>
     </message>
     <message>
