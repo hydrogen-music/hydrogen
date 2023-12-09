@@ -44,8 +44,9 @@ class DrumkitPropertiesDialog :  public QDialog,
 	Q_OBJECT
 	public:
 		DrumkitPropertiesDialog( QWidget* pParent,
-									  std::shared_ptr<Drumkit> pDrumkit,
-									  bool bEditingNotSaving );
+								 std::shared_ptr<Drumkit> pDrumkit,
+								 bool bEditingNotSaving,
+								 bool bSaveToNsmSession );
 		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -67,6 +68,11 @@ class DrumkitPropertiesDialog :  public QDialog,
 	 * as to save it as a new kit.
 	 */
 	bool m_bEditingNotSaving;
+
+		/** Whether the kit should be stored in the users' drumkit folder or in
+		 * the NSM session folder (only available when Hydrogen is under session
+		 * management). */
+		bool m_bSaveToNsmSession;
 
 	QString m_sNewImagePath;
 	

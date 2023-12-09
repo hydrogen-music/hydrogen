@@ -2687,6 +2687,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>&amp;Save To Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save &amp;To Session</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -5708,6 +5712,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

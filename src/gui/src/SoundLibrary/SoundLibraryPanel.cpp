@@ -836,7 +836,7 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate );
+	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate, false );
 	dialog.exec();
 }
 

@@ -36,6 +36,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
+#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -44,10 +45,12 @@ namespace H2Core
 
 DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 												  std::shared_ptr<Drumkit> pDrumkit,
-												  bool bEditingNotSaving )
+												  bool bEditingNotSaving,
+												  bool bSaveToNsmSession )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bEditingNotSaving( bEditingNotSaving )
+ , m_bSaveToNsmSession( bSaveToNsmSession )
 {
 	setObjectName( "DrumkitPropertiesDialog" );
 	
@@ -61,6 +64,12 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 
 	setupLicenseComboBox( licenseComboBox );
 	setupLicenseComboBox( imageLicenseComboBox );
+
+	if ( bSaveToNsmSession &&
+		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		ERRORLOG( "NSM session export request while there is no active NSM session. Saving to Sound Library instead." );
+		m_bSaveToNsmSession = false;
+	}
 
 	bool bDrumkitWritable = false;
 	//display the current drumkit infos into the qlineedit
@@ -78,6 +87,9 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
 			if ( bEditingNotSaving ) {
 				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+			}
+			else if ( m_bSaveToNsmSession ){
+				setWindowTitle( tr( "Save a copy of the current drumkit to NSM session folder" ) );
 			}
 			else {
 				setWindowTitle( tr( "Save a copy of the current drumkit to the Sound Library" ) );
@@ -654,10 +666,16 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// We are saving the drumkit.
 	}
 
-	// Read-only and song kits we can only duplicate into the user folder.
-	if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
-		 m_pDrumkit->getType() == Drumkit::Type::System ||
-		 m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	// Store the drumkit in the NSM session folder
+	if ( m_bSaveToNsmSession && m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		m_pDrumkit->setPath(
+			QDir( NsmClient::get_instance()->getSessionFolderPath() )
+			.absoluteFilePath( m_pDrumkit->getName() ) );
+
+	} // Read-only and song kits we can only duplicate into the user folder.
+	else if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
+			  m_pDrumkit->getType() == Drumkit::Type::System ||
+			  m_pDrumkit->getType() == Drumkit::Type::Song ) {
 		m_pDrumkit->setPath(
 			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}

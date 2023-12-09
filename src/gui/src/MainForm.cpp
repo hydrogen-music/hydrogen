@@ -416,7 +416,14 @@ void MainForm::createMenuBar()
 
 	m_pDrumkitMenu->addAction( tr( "&Save To Sound Library" ), this,
 							   SLOT( action_drumkit_save() ),
-							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
+							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+
+	if ( bUnderSessionManagement ) {
+		m_pDrumkitMenu->addAction( tr( "Save &To Session" ), this,
+								   SLOT( action_drumkit_save_to_session() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) );
+	}
+
 	m_pDrumkitMenu->addAction( tr( "&Export" ), this,
 							   SLOT( action_drumkit_export() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
@@ -1514,7 +1521,11 @@ void MainForm::action_drumkit_onlineImport()
 
 void MainForm::action_drumkit_save()
 {
-	editDrumkitProperties( true );
+	editDrumkitProperties( true, false );
+}
+
+void MainForm::action_drumkit_save_to_session() {
+	editDrumkitProperties( true, true );
 }
 
 ///
@@ -2226,10 +2237,10 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 }
 
 void MainForm::action_drumkit_properties() {
-	editDrumkitProperties( false );
+	editDrumkitProperties( false, false );
 }
 
-void MainForm::editDrumkitProperties( bool bWriteToDisk )
+void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -2247,7 +2258,8 @@ void MainForm::editDrumkitProperties( bool bWriteToDisk )
 	// leaked into the current song.
 	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 
-	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk );
+	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk,
+									bSaveToNsmSession );
 	dialog.exec();
 }
 
@@ -2934,7 +2946,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::EditDrumkitProperties:
 				action_drumkit_properties();
 				break;
-			case Shortcuts::Action::SaveDrumkit:
+			case Shortcuts::Action::SaveDrumkitToSoundLibrary:
 				action_drumkit_save();
 				break;
 			case Shortcuts::Action::ExportDrumkit:
