@@ -1612,6 +1612,10 @@ Overwrite the existing file?</source>
         <source>Unable to load pixmap</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
