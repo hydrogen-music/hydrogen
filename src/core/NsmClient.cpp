@@ -89,6 +89,7 @@ int NsmClient::OpenCallback( const char *name,
 	if ( !sessionFolder.exists() ) {
 		if ( !sessionFolder.mkpath( name ) ) {
 			NsmClient::printError( "Folder could not created." );
+			return ERR_LAUNCH_FAILED;
 		}
 	}
 
