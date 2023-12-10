@@ -294,7 +294,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	setSelectedPatternNumber( 0 );
 
 	if ( pCurrentSong != nullptr ) {
-		if ( isUnderSessionManagement() ) {
+		if ( isUnderSessionManagement() &&
+			 pCurrentSong->getFilename().contains(
+				 NsmClient::get_instance()->getSessionFolderPath() ) ) {
 			// When under session management Hydrogen is only allowed
 			// to replace the content of the session song but not to
 			// write to a different location.
