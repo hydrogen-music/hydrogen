@@ -214,6 +214,11 @@ namespace H2Core
 		/** returns list of usable user drumkits ( see Filesystem::drumkit_list ) */
 		static QStringList usr_drumkit_list( );
 		/**
+		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
+		 * \param path the path to search in for drumkits
+		 */
+		static QStringList drumkit_list( const QString& path );
+		/**
 		 * returns true if the drumkit exists within usable system or user drumkits
 		 * \param dk_name the drumkit name
 		 */
@@ -261,7 +266,7 @@ namespace H2Core
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
 		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit. 
+		 * for the drumkit.
 		 */
 		static QString drumkit_dir_search( const QString& dk_name, Lookup lookup );
 		/**
@@ -312,7 +317,7 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
-		
+
 		/**
 		 * Checks the path pointing to a .h2song.
 		 *
@@ -402,7 +407,7 @@ namespace H2Core
 		 * Convert a direct to an absolute path.
 		 */
 		static QString absolute_path( const QString& sFilename, bool bSilent = false );
-		/** 
+		/**
 		 * If Hydrogen is under session management, we support for paths
 		 * relative to the session folder. This is required to allow for
 		 * sessions being renamed or duplicated.
@@ -507,11 +512,6 @@ namespace H2Core
 		 * If this variable is non-empty, its content will be used as
 		 * an alternative to store and load the preferences.*/
 		static QString m_sPreferencesOverwritePath;
-		/**
-		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
-		 * \param path the path to search in for drumkits
-		 */
-		static QStringList drumkit_list( const QString& path );
 		/**
 		 * \return true if all the asked permissions are ok
 		 * \param path the path to the file to check

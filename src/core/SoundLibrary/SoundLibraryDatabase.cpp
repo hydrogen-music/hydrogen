@@ -94,6 +94,15 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 		}
 	}
 
+	// search custom drumkit folders for valid kits. Be careful not to add
+	// directories, which do not correspond to drumkits. This would lead to a
+	// lot of false positive error messages.
+	for ( const auto& sDrumkitFolder : m_customDrumkitFolders ) {
+		for ( const auto& sDrumkitName : Filesystem::drumkit_list( sDrumkitFolder ) ) {
+			drumkitPaths << QDir( sDrumkitFolder ).absoluteFilePath( sDrumkitName );
+		}
+	}
+
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
 		auto pDrumkit = Drumkit::load( sDrumkitPath );
 		if ( pDrumkit != nullptr ) {
@@ -243,6 +252,12 @@ QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) {
 	return m_drumkitUniqueLabels[ sDrumkitPath ];
 }
 
+void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder ) {
+	if ( ! m_customDrumkitFolders.contains( sDrumkitFolder ) ) {
+		m_customDrumkitFolders << sDrumkitFolder;
+	}
+}
+
 std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 	std::vector<DrumkitMap::Type> results;
 
@@ -352,6 +367,11 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
 							.arg( ssCustomPath ) );
 		}
+		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( ssCustomPath ) );
+		}
 	}
 	else {
 
@@ -375,6 +395,11 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 						.arg( m_patternCategories.join( ", " ) ) );
 		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
+			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
+							.arg( ssCustomPath ) );
+		}
+		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
 			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
 							.arg( ssCustomPath ) );
 		}

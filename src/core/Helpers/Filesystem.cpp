@@ -684,15 +684,16 @@ QString Filesystem::tmp_file_path( const QString &base )
 }
 
 // DRUMKITS
-QStringList Filesystem::drumkit_list( const QString& path )
+QStringList Filesystem::drumkit_list( const QString& sPath )
 {
+	QDir dir( sPath );
 	QStringList ok;
-	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-	foreach ( const QString& dk, possible ) {
-		if ( drumkit_valid( path + dk ) ) {
-			ok << dk;
+	QStringList possible = dir.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
+	for ( const QString& ssSubFolder : possible ) {
+		if ( drumkit_valid( dir.absoluteFilePath( ssSubFolder ) ) ) {
+			ok << ssSubFolder;
 		} else {
-			ERRORLOG( QString( "drumkit %1 is not usable" ).arg( dk ) );
+			ERRORLOG( QString( "drumkit [%1] is not usable" ).arg( ssSubFolder ) );
 		}
 	}
 	return ok;
@@ -777,53 +778,6 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, bool bSilent )
 {
-
-#ifdef H2CORE_HAVE_OSC
-	// When under session management the drumkit can also be located
-	// in - apart from the user and system path - a particular session
-	// folder. If it couldn't be found in there (or the found drumkit
-	// does not match `dk_name`), the session folder is skipped and
-	// the user and system paths will be traversed instead.
-	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		
-		QString sDrumkitPath = QString( "%1/%2" )
-			.arg( NsmClient::get_instance()->getSessionFolderPath() )
-			.arg( "drumkit" );
-		
-		// If the path is symbolic link, dereference it.
-		QFileInfo drumkitPathInfo( sDrumkitPath );
-		if ( drumkitPathInfo.isSymLink() ) {
-			sDrumkitPath = drumkitPathInfo.symLinkTarget();
-		}
-		
-		// Check whether the local drumkit does hold the right
-		// drumkit (using its name).
-		QString sDrumkitXMLPath = QString( "%1/%2" )
-				.arg( sDrumkitPath ).arg( "drumkit.xml" );
-
-		QString sSessionDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
-		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-		if ( pSoundLibraryDatabase != nullptr ) {
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-			if ( pDrumkit != nullptr ) {
-				sSessionDrumkitName = pDrumkit->getName();
-			}
-		}
-
-		if ( dk_name == sSessionDrumkitName ) {
-				// The local drumkit seems legit.	
-				return sDrumkitPath;
-		}
-		else if ( ! bSilent ) {
-			NsmClient::printError( QString( "Local drumkit [%1] name [%2] and the one stored in .h2song file [%3] do not match!" )
-								   .arg( sDrumkitXMLPath )
-								   .arg( sSessionDrumkitName )
-								   .arg( dk_name ) );
-		}
-	}
-			
-#endif
-	
 	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
 		if ( usr_drumkit_list().contains( dk_name ) ){
 			return usr_drumkits_dir() + dk_name;
@@ -861,34 +815,10 @@ QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
 			  .arg( dk_name ).arg( static_cast<int>(lookup) ) );
 	return "";
 }
-bool Filesystem::drumkit_valid( const QString& dk_path )
+bool Filesystem::drumkit_valid( const QString& sFolderPath )
 {
-#ifdef H2CORE_HAVE_OSC
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr &&
-		 pHydrogen->isUnderSessionManagement() ) {
-
-		// Explicit handling for relative drumkit paths supported in
-		// the session management.
-		QFileInfo info( dk_path );
-		if ( info.isRelative() ) {
-			QString sAbsoluteDrumkitPath = QString( "%1%2" )
-				.arg( NsmClient::get_instance()->getSessionFolderPath() )
-				// remove the leading dot indicating that the path is relative. 
-				.arg( dk_path.right( dk_path.size() - 1 ) );
-
-			QFileInfo infoAbs( sAbsoluteDrumkitPath );
-			if ( infoAbs.isSymLink() ) {
-				sAbsoluteDrumkitPath = infoAbs.symLinkTarget();
-			}
-
-			return file_readable( sAbsoluteDrumkitPath + "/" +
-								  DRUMKIT_XML, true );
-		}
-	}
-#endif
-		
-	return file_readable( dk_path + "/" + DRUMKIT_XML, true);
+	return file_readable( QDir( sFolderPath ).absoluteFilePath( DRUMKIT_XML ),
+						  true );
 }
 QString Filesystem::drumkit_file( const QString& dk_path )
 {

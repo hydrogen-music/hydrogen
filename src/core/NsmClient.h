@@ -126,12 +126,6 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * Sets #bNsmShutdown to true.*/
 		void shutdown();
 
-	/**
-	 * Checks whether there is a drumkit present in the session folder and loads
-	 * it into the #H2Core::SoundLibraryDatabase as a session kit.
-	 */
-	static void loadDrumkit();
-
 	/** Custom function to print a colored error message.
 	 *
 	 * Since the OpenCallback() and SaveCallback() functions will be

@@ -81,6 +81,12 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 		 * absolute path of the kit in the GUI. */
 		QString getUniqueLabel( const QString& sDrumkitPath );
 
+		/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
+		 * during an updateDrumkits()
+		 *
+		 * @param sDrumkitFolder Absolute path. */
+		void registerDrumkitFolder( const QString& sDrumkitFolder );
+
 	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
 	 * drumkits.
 	 *
@@ -127,6 +133,10 @@ private:
 	 * aforementioned folders.
 	 */
 	QStringList m_customDrumkitPaths;
+
+		/** Whole folders that will be scanned for drumkits in addition to the
+		 * system and user drumkti folder. */
+		QStringList m_customDrumkitFolders;
 
 		void registerUniqueLabel( const QString& sDrumkitPath,
 							  std::shared_ptr<Drumkit> pDrumkit );
