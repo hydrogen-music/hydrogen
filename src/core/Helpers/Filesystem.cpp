@@ -737,31 +737,31 @@ QStringList Filesystem::usr_drumkit_list( )
 QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 {
 	// Check whether the provided absolute sample path is located within a
-	// drumkit directory in either the user or system drumkit folder.
+	// known drumkit directory.
 	int nIndexMatch = -1;
-	if ( sSamplePath.startsWith( usr_drumkits_dir() ) ) {
-		int nStart = usr_drumkits_dir().size();
-		int nIndex = sSamplePath.indexOf( "/", nStart );
-		QString sDrumkitName =
-			sSamplePath.midRef( nStart , nIndex - nStart ).toString();
-		if ( usr_drumkit_list().contains( sDrumkitName ) ) {
-			nIndexMatch = nIndex + 1;
-		}
-	}
+	const QStringList drumkitFolders =
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders();
 
-	if ( sSamplePath.startsWith( sys_drumkits_dir() ) )	{
-		int nStart = sys_drumkits_dir().size();
-		int nIndex = sSamplePath.indexOf( "/", nStart);
-		QString sDrumkitName =
-			sSamplePath.midRef( nStart, nIndex - nStart ).toString();
-		if ( sys_drumkit_list().contains( sDrumkitName ) ) {
-			nIndexMatch = nIndex + 1;
+	for ( const auto& ssFolder : drumkitFolders ) {
+		if ( sSamplePath.startsWith( ssFolder ) ) {
+			int nStart = ssFolder.size();
+			int nIndex = sSamplePath.indexOf( "/", nStart );
+			QString sDrumkitName =
+				sSamplePath.midRef( nStart , nIndex - nStart ).toString();
+			if ( ssFolder.contains( sDrumkitName ) ) {
+				nIndexMatch = nIndex + 1;
+				break;
+			}
 		}
 	}
 
 	if ( nIndexMatch >= 0 ) {
 		// Sample is located in a drumkit folder. Just return basename.
-		return sSamplePath.midRef( nIndexMatch ).toString();
+		QString sShortenedPath = sSamplePath.midRef( nIndexMatch ).toString();
+		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
+				 .arg( sSamplePath ).arg( sShortenedPath ) );
+
+		return std::move( sShortenedPath );
 	}
 
 	return sSamplePath;
@@ -969,25 +969,6 @@ QString Filesystem::absolute_path( const QString& sFilename, bool bSilent ) {
 	}
 
 	return QString();
-}
-
-QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
-#ifdef H2CORE_HAVE_OSC
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr &&
-		 pHydrogen->isUnderSessionManagement() ) {
-
-		QFileInfo info( sPath );
-		if ( info.isRelative() ) {
-			return QString( "%1%2" )
-				.arg( NsmClient::get_instance()->getSessionFolderPath() )
-				// remove the leading dot indicating that the path is relative. 
-				.arg( sPath.right( sPath.size() - 1 ) );
-		}
-	}
-#endif
-
-	return sPath;
 }
 
 QStringList Filesystem::drumkit_xsd_legacy_paths() {

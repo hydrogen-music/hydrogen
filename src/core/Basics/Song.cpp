@@ -965,13 +965,13 @@ void Song::setIsModified( bool bIsModified )
 	if( Notify ) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 
+#ifdef H2CORE_HAVE_OSC
 		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
 			// If Hydrogen is under session management (NSM), tell the
 			// NSM server that the Song was modified.
-#ifdef H2CORE_HAVE_OSC
 			NsmClient::get_instance()->sendDirtyState( bIsModified );
-#endif
 		}
+#endif
 	}
 
 }

@@ -1396,12 +1396,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 }
 
 QString Drumkit::getPath() const {
-#ifdef H2CORE_HAVE_OSC
-	if ( m_type == Type::Song ) {
-		return Filesystem::ensure_session_compatibility( m_sPath );
-	}
-#endif
-
 	return m_sPath;
 }
 

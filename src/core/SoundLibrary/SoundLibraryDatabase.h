@@ -87,6 +87,8 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 		 * @param sDrumkitFolder Absolute path. */
 		void registerDrumkitFolder( const QString& sDrumkitFolder );
 
+		QStringList getDrumkitFolders() const;
+
 	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
 	 * drumkits.
 	 *

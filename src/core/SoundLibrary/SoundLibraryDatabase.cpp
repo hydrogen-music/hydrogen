@@ -258,6 +258,15 @@ void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder 
 	}
 }
 
+QStringList SoundLibraryDatabase::getDrumkitFolders() const {
+	QStringList drumkitFolders( m_customDrumkitFolders );
+
+	drumkitFolders << Filesystem::sys_drumkits_dir()
+		<< Filesystem::usr_drumkits_dir();
+
+	return std::move( drumkitFolders );
+}
+
 std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 	std::vector<DrumkitMap::Type> results;
 

@@ -127,40 +127,11 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 
 			}
 		}
-
-#ifdef H2CORE_HAVE_OSC
-		// When being under session management the relative paths are resolved
-		// with respect to the session folder instead of the .h2song file. This
-		// is done as Hydrogen itself is writing the relative paths in such a
-		// case.
-		if ( pHydrogen->isUnderSessionManagement() && 
-			 sFilename.contains( QDir::separator() ) ) {
-			// If we use the NSM support and the sample files to save
-			// are corresponding to the drumkit linked/located in the
-			// session folder, we have to ensure the relative paths
-			// are loaded. This is vital in order to support
-			// renaming, duplicating, and porting sessions.
-			QFileInfo sessionFolderInfo( NsmClient::get_instance()->getSessionFolderPath() );
-			sFilePath = sessionFolderInfo.absoluteDir().absoluteFilePath( sFilename );
-		}
-#endif
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
 	if ( Filesystem::file_exists( sFilePath, true ) ) {
-#ifdef H2CORE_HAVE_OSC
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			// When under session management, we just provide the relative path
-			// and let Filesystem::ensure_session_compatibility() ensure the
-			// consistency of all relative paths.
-			pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
-		}
-		else {
-			pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
-		}
-#else
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
-#endif
 
 		// If 'ismodified' is not present, InstrumentLayer was stored as
 		// part of a drumkit. All the additional Sample info, like Loops,
@@ -247,23 +218,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bSongKit )
 
 	QString sFilename;
 	if ( bSongKit ) {
-
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			// If we use the NSM support and the sample files to save
-			// are corresponding to the drumkit linked/located in the
-			// session folder, we have to ensure the relative paths
-			// are written out. This is vital in order to support
-			// renaming, duplicating, and porting sessions.
-			if ( pSample->get_raw_filepath().startsWith( '.' ) ) {
-				sFilename = pSample->get_raw_filepath();
-			}
-			else {
-				sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
-			}
-		}
-		else {
-			sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
-		}
+		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
 	}
 	else {
 		sFilename = pSample->get_filename();

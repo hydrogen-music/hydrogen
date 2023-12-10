@@ -568,7 +568,7 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitCompo
 
 QString Instrument::get_drumkit_path() const
 {
-	return Filesystem::ensure_session_compatibility( __drumkit_path );
+	return __drumkit_path;
 }
 
 bool Instrument::hasSamples() const {
