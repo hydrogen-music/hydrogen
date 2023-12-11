@@ -1043,29 +1043,8 @@ void resample( float *buffer_L, float *buffer_R, float *pSample_data_L, float *p
 					}
 				}
 
-				// Interpolate frame values from Sample domain to audio output range
-				switch ( mode ) {
-				case Interpolation::InterpolateMode::Linear:
-					fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
-					fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
-					break;
-				case Interpolation::InterpolateMode::Cosine:
-					fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
-					fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
-					break;
-				case Interpolation::InterpolateMode::Third:
-					fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
-					fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
-					break;
-				case Interpolation::InterpolateMode::Cubic:
-					fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
-					fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
-					break;
-				case Interpolation::InterpolateMode::Hermite:
-					fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
-					fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
-					break;
-				}
+				fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
+				fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
 			}
 		}
 
