@@ -294,13 +294,16 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	setSelectedPatternNumber( 0 );
 
 	if ( pCurrentSong != nullptr ) {
-		if ( isUnderSessionManagement() &&
-			 pCurrentSong->getFilename().contains(
-				 NsmClient::get_instance()->getSessionFolderPath() ) ) {
-			// When under session management Hydrogen is only allowed
-			// to replace the content of the session song but not to
-			// write to a different location.
-			pSong->setFilename( pCurrentSong->getFilename() );
+		if ( isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
+			if ( pCurrentSong->getFilename().contains(
+					 NsmClient::get_instance()->getSessionFolderPath() ) ) {
+				// When under session management Hydrogen is only allowed to
+				// replace the content of the session song but not to write to a
+				// different location.
+				pSong->setFilename( pCurrentSong->getFilename() );
+			}
+#endif
 		}
 		/** cares itself for acquiring the lock */
 		m_pAudioEngine->prepare();
