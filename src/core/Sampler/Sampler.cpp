@@ -918,43 +918,43 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 				//we reach the last audioframe.
 				//set this last frame to zero do nothing wrong.
-							fVal_L = 0.0;
-							fVal_R = 0.0;
+				fVal_L = 0.0;
+				fVal_R = 0.0;
 			} else {
 				// some interpolation methods need 4 frames data.
-					float last_l;
-					float last_r;
-					if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-						last_l = 0.0;
-						last_r = 0.0;
-					} else {
-						last_l =  pSample_data_L[nSamplePos + 2];
-						last_r =  pSample_data_R[nSamplePos + 2];
-					}
+				float last_l;
+				float last_r;
+				if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+					last_l = 0.0;
+					last_r = 0.0;
+				} else {
+					last_l =  pSample_data_L[nSamplePos + 2];
+					last_r =  pSample_data_R[nSamplePos + 2];
+				}
+
+				switch( m_interpolateMode ){
 	
-					switch( m_interpolateMode ){
-	
-						case Interpolation::InterpolateMode::Linear:
-								fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-								fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-								break;
-						case Interpolation::InterpolateMode::Cosine:
-								fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-								fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-								break;
-						case Interpolation::InterpolateMode::Third:
-								fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-						case Interpolation::InterpolateMode::Cubic:
-								fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-						case Interpolation::InterpolateMode::Hermite:
-								fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-					}
+				case Interpolation::InterpolateMode::Linear:
+					fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+					fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+					break;
+				case Interpolation::InterpolateMode::Cosine:
+					fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+					fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+					break;
+				case Interpolation::InterpolateMode::Third:
+					fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+					fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Cubic:
+					fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+					fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Hermite:
+					fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+					fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					break;
+				}
 			}
 
 			fVal_L *= pSong->getPlaybackTrackVolume();
@@ -979,6 +979,134 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	m_pPlaybackTrackInstrument->set_peak_r( fInstrPeak_R );
 
 	return true;
+}
+
+// Resample with constant interopolation mode
+//
+template < Interpolation::InterpolateMode mode, bool bResample >
+void resample( float *buffer_L, float *buffer_R, float *pSample_data_L, float *pSample_data_R,
+			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
+{
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
+		  ++nBufferPos ) {
+		float fVal_L, fVal_R;
+
+		int nSamplePos = static_cast<int>(fSamplePos);
+		double fDiff = fSamplePos - nSamplePos;
+		if ( ( nSamplePos - 1 ) >= nSampleFrames ) {
+			//we reach the last audioframe.
+			//set this last frame to zero do nothing wrong.
+			fVal_L = 0.0;
+			fVal_R = 0.0;
+		} else {
+			if ( ! bResample ) {
+				if ( nSamplePos < nSampleFrames ) {
+					fVal_L = pSample_data_L[ nSamplePos ];
+					fVal_R = pSample_data_R[ nSamplePos ];
+				} else {
+					fVal_L = 0.0;
+					fVal_R = 0.0;
+				}
+			}
+			else {
+				// Gather frame samples
+				float l0, l1, l2, l3, r0, r1, r2, r3;
+				// Short-circuit: the common case is that all required frames are within the sample.
+				if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
+					l0=  pSample_data_L[ nSamplePos-1 ];
+					l1 = pSample_data_L[ nSamplePos ];
+					l2 = pSample_data_L[ nSamplePos+1 ];
+					l3 = pSample_data_L[ nSamplePos+2 ];
+					r0 = pSample_data_R[ nSamplePos-1 ];
+					r1 = pSample_data_R[ nSamplePos ];
+					r2 = pSample_data_R[ nSamplePos+1 ];
+					r3 = pSample_data_R[ nSamplePos+2 ];
+				} else {
+					l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
+					// Some required frames are off the beginning or end of the sample.
+					if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
+						l0 = pSample_data_L[ nSamplePos-1 ];
+						r0 = pSample_data_R[ nSamplePos-1 ];
+					}
+					// Each successive frame may be past the end of the sample so check individually.
+					if ( nSamplePos < nSampleFrames ) {
+						l1 = pSample_data_L[ nSamplePos ];
+						r1 = pSample_data_R[ nSamplePos ];
+						if ( nSamplePos+1 < nSamplePos ) {
+							l2 = pSample_data_L[ nSamplePos+1 ];
+							r2 = pSample_data_R[ nSamplePos+1 ];
+							if ( nSamplePos+2 < nSamplePos ) {
+								l3 = pSample_data_L[ nSamplePos+2 ];
+								r3 = pSample_data_R[ nSamplePos+2 ];
+							}
+						}
+					}
+				}
+
+				// Interpolate frame values from Sample domain to audio output range
+				switch ( mode ) {
+				case Interpolation::InterpolateMode::Linear:
+					fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
+					fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
+					break;
+				case Interpolation::InterpolateMode::Cosine:
+					fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
+					fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Third:
+					fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Cubic:
+					fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Hermite:
+					fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
+				}
+			}
+		}
+
+		buffer_L[nBufferPos] = fVal_L;
+		buffer_R[nBufferPos] = fVal_R;
+
+		fSamplePos += fStep;
+	}
+}
+
+// Resample with runtime-selection of mode
+void resample( Interpolation::InterpolateMode mode, bool bResample,
+			   float *buffer_L, float *buffer_R, float *pSample_data_L, float *pSample_data_R,
+			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
+{
+	if ( !bResample )
+		resample< Interpolation::InterpolateMode::Linear, false >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																   nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+	else
+		switch (mode) {
+		case Interpolation::InterpolateMode::Linear:
+			resample< Interpolation::InterpolateMode::Linear, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																	  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			break;
+		case Interpolation::InterpolateMode::Cosine:
+			resample< Interpolation::InterpolateMode::Cosine, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																	  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			break;
+		case Interpolation::InterpolateMode::Third:
+			resample< Interpolation::InterpolateMode::Third, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																	 nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			break;
+		case Interpolation::InterpolateMode::Cubic:
+			resample< Interpolation::InterpolateMode::Cubic, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																	 nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			break;
+		case Interpolation::InterpolateMode::Hermite:
+			resample< Interpolation::InterpolateMode::Hermite, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+																	   nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			break;
+	}
 }
 
 bool Sampler::renderNoteResample(
@@ -1134,6 +1262,20 @@ bool Sampler::renderNoteResample(
 	float buffer_L[MAX_BUFFER_SIZE];
 	float buffer_R[MAX_BUFFER_SIZE];
 
+	// XXX plan
+	// - pre/main/post loops
+	//   - can we just use a MAX on nSamplePos to avoid checking?
+	//   - but if we can get the count right beforehand, even better I guess
+	// - pull out loops to templated functions that do <mode> and run a fixed count
+	//   - also track the max
+	// - split into fast loops *in* that function
+
+#if 1
+	resample( m_interpolateMode, bResample,
+			  buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+			  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+#else
+
 	// Main rendering loop.
 	// With some re-work, more of this could likely be vectorised fairly easily.
 	//   - assert no buffer aliasing
@@ -1197,26 +1339,26 @@ bool Sampler::renderNoteResample(
 
 				// Interpolate frame values from Sample domain to audio output range
 				switch ( m_interpolateMode ) {
-					case Interpolation::InterpolateMode::Linear:
-						fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
-						fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
-						break;
-					case Interpolation::InterpolateMode::Cosine:
-						fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
-						fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
-						break;
-					case Interpolation::InterpolateMode::Third:
-						fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
-						fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
-						break;
-					case Interpolation::InterpolateMode::Cubic:
-						fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
-						fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
-						break;
-					case Interpolation::InterpolateMode::Hermite:
-						fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
-						fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
-						break;
+				case Interpolation::InterpolateMode::Linear:
+					fVal_L = l1 * (1 - fDiff ) + l2 * fDiff;
+					fVal_R = r1 * (1 - fDiff ) + r2 * fDiff;
+					break;
+				case Interpolation::InterpolateMode::Cosine:
+					fVal_L = Interpolation::cosine_Interpolate( l1, l2, fDiff);
+					fVal_R = Interpolation::cosine_Interpolate( r1, r2, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Third:
+					fVal_L = Interpolation::third_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::third_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Cubic:
+					fVal_L = Interpolation::cubic_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::cubic_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
+				case Interpolation::InterpolateMode::Hermite:
+					fVal_L = Interpolation::hermite_Interpolate( l0, l1, l2, l3, fDiff);
+					fVal_R = Interpolation::hermite_Interpolate( r0, r1, r2, r3, fDiff);
+					break;
 				}
 			}
 		}
@@ -1226,6 +1368,8 @@ bool Sampler::renderNoteResample(
 
 		fSamplePos += fStep;
 	}
+
+#endif
 
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd,
 						   fStep ) ) {
