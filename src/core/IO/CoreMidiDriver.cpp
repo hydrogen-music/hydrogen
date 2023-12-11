@@ -29,6 +29,8 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Preferences/Preferences.h>
