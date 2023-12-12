@@ -667,11 +667,14 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Store the drumkit in the NSM session folder
+#ifdef H2CORE_HAVE_OSC
 	if ( m_bSaveToNsmSession && m_pDrumkit->getType() == Drumkit::Type::Song ) {
 		m_pDrumkit->setPath(
 			QDir( NsmClient::get_instance()->getSessionFolderPath() )
 			.absoluteFilePath( m_pDrumkit->getName() ) );
-
+#else
+	if ( false ) {
+#endif
 	} // Read-only and song kits we can only duplicate into the user folder.
 	else if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
 			  m_pDrumkit->getType() == Drumkit::Type::System ||
