@@ -984,7 +984,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 // Resample with constant interopolation mode
 //
 template < Interpolation::InterpolateMode mode, bool bResample >
-void resample( float *buffer_L, float *buffer_R, float *pSample_data_L, float *pSample_data_R,
+void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
 {
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
@@ -1057,7 +1058,8 @@ void resample( float *buffer_L, float *buffer_R, float *pSample_data_L, float *p
 
 // Resample with runtime-selection of mode
 void resample( Interpolation::InterpolateMode mode, bool bResample,
-			   float *buffer_L, float *buffer_R, float *pSample_data_L, float *pSample_data_R,
+			   float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
 {
 	if ( !bResample )
