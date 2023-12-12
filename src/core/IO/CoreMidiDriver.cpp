@@ -305,11 +305,22 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->get_instruments();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
 
-	unsigned int numInstruments = instList->size();
+	auto pInstrumentList = pDrumkit->getInstruments();
+
+	unsigned int numInstruments = pInstrumentList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		auto curInst = instList->get(index);
+		auto curInst = pInstrumentList->get(index);
 
 		int channel = curInst->get_midi_out_channel();
 		if (channel < 0) {
