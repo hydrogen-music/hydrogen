@@ -38,7 +38,6 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
-#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
