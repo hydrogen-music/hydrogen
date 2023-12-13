@@ -106,8 +106,9 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 		// QFileInfo::isRelative() can not be used in here as samples of
 		// drumkits within the user or system drumkit folder are stored
 		// relatively as well (by saving just the filename).
-		if ( sFilename.contains( QDir::separator() ) && ! sSongPath.isEmpty() ) {
-			// Sample path can be stored relative the .h2song file. This is
+		if ( ( sFilename.contains( QDir::separator() ) || sFilename.contains( "/" ) ) &&
+			 ! sSongPath.isEmpty() ) {
+			// Sample path can be stored relative to the .h2song file. This is
 			// mainly present to allow for more thorough unit test. It, however,
 			// has to be written manually. Hydrogen itself does not store paths
 			// relatively (except when under session management) to increase
