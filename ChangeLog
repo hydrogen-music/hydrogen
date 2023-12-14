@@ -18,6 +18,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix various rendering issues with custom length notes.
 		- Fix potential crash/failing startup on Windows in case PortAudio
 			or PortMidi device is already occupied (#1893)
+		- Fix crash on shutdown, song export, or driver changes in the
+			Preferences while using JACK on Linux (#1902, #1867, #1907)
 		- Pattern Editor:
 				- Only delete stop notes clicked by the user. (#1859)
 				- Proper undo of moving notes out of DrumPatternEditor. (#1859)
