@@ -986,10 +986,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 template < Interpolation::InterpolateMode mode, bool bResample >
 void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
-			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
+			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
-		  ++nBufferPos ) {
+	for ( int nFrame = 0; nFrame < nFrames; nFrame++) {
 		float fVal_L, fVal_R;
 
 		int nSamplePos = static_cast<int>(fSamplePos);
@@ -1049,8 +1048,8 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			}
 		}
 
-		buffer_L[nBufferPos] = fVal_L;
-		buffer_R[nBufferPos] = fVal_R;
+		buffer_L[nFrame] = fVal_L;
+		buffer_R[nFrame] = fVal_R;
 
 		fSamplePos += fStep;
 	}
@@ -1060,32 +1059,32 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 void resample( Interpolation::InterpolateMode mode, bool bResample,
 			   float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
-			   int nInitialBufferPos, int nFinalBufferPos, double &fSamplePos, float fStep, int nSampleFrames )
+			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
 	if ( !bResample )
 		resample< Interpolation::InterpolateMode::Linear, false >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																   nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																   nFrames, fSamplePos, fStep, nSampleFrames );
 	else
 		switch (mode) {
 		case Interpolation::InterpolateMode::Linear:
 			resample< Interpolation::InterpolateMode::Linear, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																	  nFrames, fSamplePos, fStep, nSampleFrames );
 			break;
 		case Interpolation::InterpolateMode::Cosine:
 			resample< Interpolation::InterpolateMode::Cosine, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																	  nFrames, fSamplePos, fStep, nSampleFrames );
 			break;
 		case Interpolation::InterpolateMode::Third:
 			resample< Interpolation::InterpolateMode::Third, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	 nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																	 nFrames, fSamplePos, fStep, nSampleFrames );
 			break;
 		case Interpolation::InterpolateMode::Cubic:
 			resample< Interpolation::InterpolateMode::Cubic, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	 nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																	 nFrames, fSamplePos, fStep, nSampleFrames );
 			break;
 		case Interpolation::InterpolateMode::Hermite:
 			resample< Interpolation::InterpolateMode::Hermite, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	   nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+																	   nFrames, fSamplePos, fStep, nSampleFrames );
 			break;
 	}
 }
@@ -1253,8 +1252,8 @@ bool Sampler::renderNoteResample(
 
 #if 1
 	resample( m_interpolateMode, bResample,
-			  buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-			  nInitialBufferPos, nFinalBufferPos, fSamplePos, fStep, nSampleFrames );
+			  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
+			  nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
 #else
 
 	// Main rendering loop.
