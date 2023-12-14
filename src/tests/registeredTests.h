@@ -24,6 +24,7 @@
 
 #include "AdsrTest.h"
 #include "AudioBenchmark.h"
+#include "AudioDriverTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
@@ -46,6 +47,7 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
