@@ -984,32 +984,17 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 void copySample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 				 float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
-				 int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
+				 int nFrames, double fSamplePos, float fStep, int nSampleFrames )
 {
-	for ( int nFrame = 0; nFrame < nFrames; nFrame++) {
-		int nSamplePos = static_cast<int>(fSamplePos);
-		float fVal_L, fVal_R;
+	int nSamplePos = static_cast<int>(fSamplePos);
+	int nFramesFromSample = std::min( nFrames, nSampleFrames - nSamplePos );
 
-		if ( ( nSamplePos - 1 ) >= nSampleFrames ) {
-			//we reach the last audioframe.
-			//set this last frame to zero do nothing wrong.
-			fVal_L = 0.0;
-			fVal_R = 0.0;
-		} else {
-			if ( nSamplePos < nSampleFrames ) {
-				fVal_L = pSample_data_L[ nSamplePos ];
-				fVal_R = pSample_data_R[ nSamplePos ];
-			} else {
-				fVal_L = 0.0;
-				fVal_R = 0.0;
-			}
-		}
+	memcpy( buffer_L, &pSample_data_L[ nSamplePos ], nFramesFromSample * sizeof( float ) );
+	memcpy( buffer_R, &pSample_data_R[ nSamplePos ], nFramesFromSample * sizeof( float ) );
 
-		buffer_L[nFrame] = fVal_L;
-		buffer_R[nFrame] = fVal_R;
-
-		fSamplePos += fStep;
-
+	if ( nFramesFromSample < nFrames ) {
+		memset( &buffer_L[ nFramesFromSample ], '0', ( nFrames - nFramesFromSample ) * sizeof( float ) );
+		memset( &buffer_R[ nFramesFromSample ], '0', ( nFrames - nFramesFromSample ) * sizeof( float ) );
 	}
 }
 
