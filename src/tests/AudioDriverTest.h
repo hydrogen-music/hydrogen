@@ -24,16 +24,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <QString>
+
 class AudioDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AudioDriverTest );
 	CPPUNIT_TEST( testDriverSwitching );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
+		virtual void setUp();
 		virtual void tearDown();
 
 		// Check that drivers can be switched without any crashes.
 		void testDriverSwitching();
+
+	private:
+		int m_nPrevBufferSize;
+		QString m_sPrevAudioDriver;
 };
 
 #endif
