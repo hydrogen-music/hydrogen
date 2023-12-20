@@ -783,7 +783,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
-	QMutexLocker mx( &m_MutexOutputPointer );
+	m_MutexOutputPointer.lock();
 	float *pBuffer_L, *pBuffer_R;
 
 	// clear main out Left and Right
@@ -805,7 +805,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 #endif
 
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 
 #ifdef H2CORE_HAVE_LADSPA
 	if ( getState() == State::Ready ||
@@ -889,7 +889,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	}
 
 	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
+	m_MutexOutputPointer.lock();
 
 	// Some audio drivers require to be already registered in the
 	// AudioEngine while being connected.
@@ -903,7 +903,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 
 	// Unlocking earlier might execute the jack process() callback before we
 	// are fully initialized.
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 	this->unlock();
 	
 	nRes = m_pAudioDriver->connect();
@@ -913,12 +913,12 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 				  .arg( sDriver ).arg( nRes ) );
 
 		this->lock( RIGHT_HERE );
-		mx.relock();
+		m_MutexOutputPointer.lock();
 		
 		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
 		
-		mx.unlock();
+		m_MutexOutputPointer.unlock();
 		this->unlock();
 
 		return nullptr;
@@ -978,7 +978,7 @@ void AudioEngine::startAudioDrivers()
 	}
 
 	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
+	m_MutexOutputPointer.lock();
 	
 	if ( pPref->m_sMidiDriver == "ALSA" ) {
 #ifdef H2CORE_HAVE_ALSA
@@ -1014,7 +1014,7 @@ void AudioEngine::startAudioDrivers()
 #endif
 	}
 	
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 	this->unlock();
 }
 
@@ -1048,10 +1048,10 @@ void AudioEngine::stopAudioDrivers()
 
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
-		QMutexLocker mx( &m_MutexOutputPointer );
+		m_MutexOutputPointer.lock();
 		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
-		mx.unlock();
+		m_MutexOutputPointer.unlock();
 	}
 
 	this->unlock();

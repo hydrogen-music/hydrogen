@@ -23,6 +23,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "AdsrTest.h"
+#include "AudioDriverTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
@@ -42,6 +43,7 @@
 #include "XmlTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
