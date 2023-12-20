@@ -1,5 +1,8 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3
+	* Added
+		- Forward compatibility for .h2song and drumkit changes introduced in
+			version 1.3.0
 	* Fixed
 		- Restore mute button state of master mixer strip on song load.
 		- Recorded MIDI notes were inserted ahead of the beat (#1851).

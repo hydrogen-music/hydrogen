@@ -46,6 +46,7 @@
 #include <core/Basics/AutomationPath.h>
 #include <core/AutomationPathSerializer.h>
 #include <core/Hydrogen.h>
+#include <core/Helpers/Future.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -371,32 +372,52 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
-	XMLNode componentListNode = pRootNode->firstChildElement( "componentList" );
-	if ( ( ! componentListNode.isNull()  ) ) {
-		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
-		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
-			if ( pDrumkitComponent != nullptr ) {
-				pSong->getComponents()->push_back( pDrumkitComponent );
-			}
-
-			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
-		}
+	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info" );
+	if ( ! drumkitNode.isNull() ) {
+		// Starting with Hydrogen 1.3.0 a proper drumkit will be stored as part
+		// of a song.
+		auto pDrumkitComponents = Future::loadDrumkitComponentsFromKit( &drumkitNode );
+		pSong->m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>(pDrumkitComponents);
 	}
 	else {
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-		pSong->getComponents()->push_back( pDrumkitComponent );
+		XMLNode componentListNode = pRootNode->firstChildElement( "componentList" );
+		if ( ( ! componentListNode.isNull()  ) ) {
+			XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
+			while ( ! componentNode.isNull()  ) {
+				auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+				if ( pDrumkitComponent != nullptr ) {
+					pSong->getComponents()->push_back( pDrumkitComponent );
+				}
+
+				componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
+			}
+		}
+		else {
+			auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
+			pSong->getComponents()->push_back( pDrumkitComponent );
+		}
 	}
 
 	// Instrument List
-	//
-	// By supplying no drumkit path the individual drumkit meta infos
-	// stored in the 'instrument' nodes will be used.
-	auto pInstrumentList = InstrumentList::load_from( pRootNode,
-													  "", // sDrumkitPath
-													  "", // sDrumkitName
-													  License(), // per-instrument licenses
-													  bSilent );
+	std::shared_ptr<InstrumentList> pInstrumentList;
+	if ( ! drumkitNode.isNull() ) {
+		// >= 1.3.0
+		pInstrumentList = InstrumentList::load_from( &drumkitNode,
+													 "", // sDrumkitPath
+													 "", // sDrumkitName
+													 License(), // per-instrument licenses
+													 bSilent );
+	}
+	else {
+		// By supplying no drumkit path the individual drumkit meta infos
+		// stored in the 'instrument' nodes will be used.
+		pInstrumentList = InstrumentList::load_from( pRootNode,
+													 "", // sDrumkitPath
+													 "", // sDrumkitName
+													 License(), // per-instrument licenses
+													 bSilent );
+	}
+
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
