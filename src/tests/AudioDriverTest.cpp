@@ -23,6 +23,13 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+
+void AudioDriverTest::setUp() {
+	auto pPref = H2Core::Preferences::get_instance();
+	m_nPrevBufferSize = pPref->m_nBufferSize;
+	m_sPrevAudioDriver = pPref->m_sAudioDriver;
+}
 
 void AudioDriverTest::testDriverSwitching() {
 	___INFOLOG("");
@@ -59,7 +66,10 @@ void AudioDriverTest::tearDown() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
+	auto pPref = H2Core::Preferences::get_instance();
+	pPref->m_nBufferSize = m_nPrevBufferSize;
+	pPref->m_sAudioDriver = m_sPrevAudioDriver;
+
 	pAudioEngine->stopAudioDrivers();
 	pAudioEngine->createAudioDriver( "Fake" );
-
 }
