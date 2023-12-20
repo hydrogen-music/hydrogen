@@ -22,6 +22,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/AudioEngine/AudioEngine.h>
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
@@ -116,7 +117,17 @@ void TransportPosition::setBpm( float fNewBpm ) {
 	m_fBpm = fNewBpm;
 
 	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
-		Hydrogen::get_instance()->recalculateRubberband( getBpm() );
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit == nullptr ) {
+			return;
+		}
+
+		pDrumkit->recalculateRubberband( getBpm() );
 	}
 }
  

@@ -25,7 +25,7 @@
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Pattern.h>
@@ -1306,7 +1306,7 @@ void AudioEngineTests::testHumanization() {
 		pSong->setHumanizeTimeValue( fValue );
 		pSong->setHumanizeVelocityValue( fValue );
 
-		pSong->getInstrumentList()->get( 0 )->set_random_pitch_factor( fValue );
+		pSong->getDrumkit()->getInstruments()->get( 0 )->set_random_pitch_factor( fValue );
 	};
 
 	auto setSwing = [&]( double fValue ) {

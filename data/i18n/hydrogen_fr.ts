@@ -865,27 +865,9 @@ Are you sure?</source>
         <translation>Avertissement de licence</translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation>Le kit de batterie inscrit dans le morceau actuel ne se trouve pas sur le disque.
-Veuillez d&apos;abord charger un kit de batterie existant.
-Kit actuel :</translation>
-    </message>
-    <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation>système</translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
         <translation>Vous n&apos;avez pas le droit d&apos;écriture dans le dossier sélectionné. Veuillez en sélectionner un autre.</translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation>session</translation>
     </message>
     <message>
         <source>Define a keybinding for the selected shortcut</source>
@@ -970,17 +952,78 @@ Kit actuel :</translation>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">Composant</translation>
+        <translation>Composant</translation>
     </message>
     <message>
         <source>Sample</source>
         <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
-        <translation type="unfinished">Échantillon</translation>
+        <translation>Échantillon</translation>
     </message>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Ajouter</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Effacer</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Charger</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Exporter</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Dupliquer</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Importer</translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Importation en ligne</translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation>Impossible d&apos;exporter un kit de batterie</translation>
     </message>
 </context>
 <context>
@@ -1043,6 +1086,148 @@ Kit actuel :</translation>
     <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation>Impossible de coller une sélection multi-motifs</translation>
+    </message>
+</context>
+<context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exporter</translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation>Exporter un kit de batterie</translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation>kit de batterie invalide</translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation>Le fichier [%1] existe déjà et sera écrasé.</translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation>Kit de batterie exporté vers</translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation>Répertoire</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Tous</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog_UI</name>
+    <message>
+        <source>Export</source>
+        <translation>Exporter</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Chemin</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>Explorer...</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation>0.9.7 et supérieur</translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation>0.9.6 et inférieur</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation>Composant</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation>Ouvrir une bibliothèque de son</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitPropertiesDialog_UI</name>
+    <message>
+        <source>General</source>
+        <translation>Général</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Information</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>Licence de l&apos;image</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Naviguer</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation>Licence du kit de batterie</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Auteur</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Image</translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>Enregistrer </translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -1340,13 +1525,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
@@ -1375,6 +1553,69 @@ Overwrite the existing file?</source>
     <message>
         <source>User data folder is not writable!</source>
         <translation>Le dossier de données de l&apos;utilisateur n&apos;est pas accessible en écriture !</translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::DrumkitPropertiesDialog</name>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Image</source>
+        <translation>Ouvrir une image</translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation>Fichiers d&apos;images (*.png *.jpg *.jpeg)</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation>La ligne de licence du kit de batterie spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation>La ligne de licence de l&apos;image spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation>Le nom du kit de batterie ne doit pas être laissé vide</translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1417,45 +1658,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Tag</source>
         <translation>Étiquette</translation>
-    </message>
-</context>
-<context>
-    <name>H2Core::SoundLibraryPropertiesDialog</name>
-    <message>
-        <source>SoundLibrary Properties</source>
-        <translation>Propriétés de la bibliothèque de sons</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>Ouvrir une image</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>Fichiers d&apos;images (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation>La modification du nom d&apos;un kit de batterie entraîne la création d&apos;un nouveau kit. Pour ce faire, vous devez charger le kit de batterie (si vous ne l&apos;avez pas déjà fait) en utilisant le clic droit de la souris &gt; charger et sélectionner kits de batterie &gt; Sauvegarder sous dans le menu principal</translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation>Le kit de batterie actuel est en lecture seule. Veuillez utiliser Kits de batterie &gt; Sauvegarder sous dans le menu principal pour en créer un nouveau d&apos;abord.</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation>La ligne de licence du kit de batterie spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
-    </message>
-    <message>
-        <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation>La ligne de licence de l&apos;image spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
-    </message>
-    <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation>Le nom du kit de batterie ne doit pas être laissé vide</translation>
     </message>
 </context>
 <context>
@@ -1640,13 +1842,24 @@ Value</source>
 
 Valeur</translation>
     </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished">Hasard</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
-    <message>
-        <source>Randomize velocity</source>
-        <translation>Vélocité aléatoire</translation>
-    </message>
     <message>
         <source>Delete instrument</source>
         <translation>Effacer l&apos;instrument</translation>
@@ -1744,6 +1957,15 @@ Valeur</translation>
     <message>
         <source>Delete all notes on %1</source>
         <translation>Effacer toutes les notes sur %1</translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>Ajouter un instrument</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2073,10 +2295,6 @@ MIDI = %2</translation>
         <translation>Erreur inconnue %1</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Effacer tous les instruments ?</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci !</translation>
     </message>
@@ -2156,18 +2374,6 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Pro&amp;ject</source>
         <translation>Pro&amp;jet</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Nom du composant</translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation>La sauvegarde de cette bibliothèque a échouée</translation>
-    </message>
-    <message>
-        <source>Drum&amp;kits</source>
-        <translation>&amp;Kits de batterie</translation>
     </message>
     <message>
         <source>&amp;View</source>
@@ -2314,10 +2520,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>&amp;Propriétés</translation>
     </message>
     <message>
-        <source>Save &amp;As</source>
-        <translation>Sauvegarder &amp;sous</translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
         <translation>&amp;Exporter</translation>
     </message>
@@ -2330,16 +2532,8 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Importation en &amp;ligne</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>In&amp;struments</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>Ajouter un &amp;instrument</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>Nettoye&amp;r tout</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2450,19 +2644,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Vous ne pourrez pas annuler cette action après avoir sauvegardé le nouveau morceau ! Veuillez d&apos;abord exporter le morceau actuel de la session afin de le conserver.</translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation>
-Des changements récents ont été apportés aux paramètres du kit de batterie.
-La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation.</translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation>Le kit de batterie [%1] utilisé dans la session n&apos;a pas été trouvé sur votre système. Veuillez l&apos;installer pour que le morceau exporté fonctionne correctement.</translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation>Morceau sauvegardé dans</translation>
     </message>
@@ -2485,6 +2666,34 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Import &amp;Demo Into Session</source>
         <translation>Importer la &amp;démo dans une session</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importer un kit de batterie</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;To Session</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2850,6 +3059,22 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
         <source>Set note probability to</source>
         <translation>Régler la probabilité de la note sur</translation>
     </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Vélocité aléatoire</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>Vélocité aléatoire</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -2911,10 +3136,6 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Lead and Lag</source>
         <translation>Avance et retard</translation>
-    </message>
-    <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Bibliothèque chargée</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
@@ -2983,6 +3204,10 @@ La session doit être sauvegardée avant de pouvoir continuer l&apos;exportation
     <message>
         <source>Pattern editor - No pattern selected</source>
         <translation>Éditeur de motif - aucun motif sélectionné</translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4440,10 +4665,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Écraser les notes %1</translation>
     </message>
     <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation>Ajouter une note NOTE_OFF ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Change note length</source>
         <translation>Changer la longueur de la note</translation>
     </message>
@@ -4458,10 +4679,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Fill notes</source>
         <translation>Remplir de notes</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>Vélocité aléatoire</translation>
     </message>
     <message>
         <source>Move instrument</source>
@@ -4518,6 +4735,26 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Modification de la durée du motif en cours</translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5186,14 +5423,6 @@ p, li { white-space: pre-wrap; }
         <translation>Modifier les propriétés du kit de batterie</translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation>Sauvegarder les modifications du kit de batterie actuel</translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation>Sauvegarder les modifications vers un nouveau kit de batterie</translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation>Exporter le kit de batterie vers un disque</translation>
     </message>
@@ -5485,6 +5714,14 @@ p, li { white-space: pre-wrap; }
         <source>All Categories</source>
         <translation>Toutes les catégories</translation>
     </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5663,14 +5900,6 @@ Voulez-vous continuer?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Effacer</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Propriétés</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Sauvegarder un motif</translation>
     </message>
@@ -5710,10 +5939,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Fill/Clear...</source>
         <translation>Remplir/effacer...</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>Dupliquer</translation>
     </message>
     <message>
         <source>Open Pattern to Replace </source>
@@ -5774,84 +5999,27 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog</name>
+    <name>SoundLibraryDatabase</name>
     <message>
-        <source>Directory</source>
-        <translation>Répertoire</translation>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
+        <translation>système</translation>
     </message>
     <message>
-        <source>&amp;Export</source>
-        <translation>&amp;Exporter</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation>Exporter un kit de batterie</translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation>kit de batterie invalide</translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation>Le fichier [%1] existe déjà et sera écrasé.</translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation>Impossible d&apos;exporter un kit de batterie</translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation>Kit de batterie exporté vers</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Tous</translation>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
+        <translation>session</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Exporter</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Composant</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Chemin</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Version</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Explorer...</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 et supérieur</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 et inférieur</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Importation de la bibliothèque de sons</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Bibliothèque de sons</translation>
+        <translation>Bibliothèque</translation>
     </message>
     <message>
         <source>Status</source>
@@ -5860,34 +6028,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Updating SoundLibrary list...</source>
         <translation>Mise à jour de la liste de la bibliothèque de sons...</translation>
-    </message>
-    <message>
-        <source>Installed</source>
-        <translation>Installé</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nouveau</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Auteur : %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Téléchargement de la bibliothèque de sons...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importer un kit de batterie</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>La bibliothèque de sons a été importée dans %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
     </message>
     <message>
         <source>Drumkits</source>
@@ -5902,6 +6042,18 @@ Overwrite the existing pattern?</source>
         <translation>Motifs</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Installé</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nouveau</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Auteur : %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation>Licence du kit de batterie : %1</translation>
     </message>
@@ -5909,99 +6061,68 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation>Licence de l&apos;image : %1</translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Téléchargement de la bibliothèque de sons...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>La bibliothèque de sons a été importée dans %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Mettre à jour la liste</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Nom de la bibliothèque de sons</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Auteur...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Télécharger et installer</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Fichier local</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Explorer...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Installer</translation>
+        <source>Edit server list</source>
+        <translation>Modifier la liste des serveurs</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Modifier la liste des serveurs</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
+        <source>Sound Library Name</source>
+        <translation>Nom de la bibliothèque de sons</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>Label de texte</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Licence de l&apos;image...</translation>
+        <source>Author...</source>
+        <translation>Auteur...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Licence du kit de batterie...</translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryOpenDialog</name>
     <message>
-        <source>Open Sound Library</source>
-        <translation>Ouvrir une bibliothèque de son</translation>
+        <source>Image License...</source>
+        <translation>Licence de l&apos;image...</translation>
     </message>
     <message>
-        <source>Load</source>
-        <translation>Charger</translation>
+        <source>Download and install</source>
+        <translation>Télécharger et installer</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
+        <source>Close</source>
+        <translation>Fermer</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Charger</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Exporter</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Effacer</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Kits de batterie du système</translation>
@@ -6019,23 +6140,10 @@ Overwrite the existing pattern?</source>
         <translation>Motifs</translation>
     </message>
     <message>
-        <source>Properties</source>
-        <translation>Propriété</translation>
-    </message>
-    <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Attention, le motif sélectionné sera effacé du disque. 
 Voulez-vous continuer?</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Il n&apos;est pas possible de supprimer le kit de batterie actuellement chargé : 
-  &quot;%1&quot;.
-Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
-        </translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
@@ -6078,56 +6186,11 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation>est un kit de batterie en lecture seule et ne peut être supprimé.</translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Auteur</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Information</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Enregistrer </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Licence du kit de batterie</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Image</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Naviguer</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation>Licence de l&apos;image</translation>
-    </message>
-    <message>
-        <source>Mapping</source>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">Général</translation>
     </message>
 </context>
 <context>

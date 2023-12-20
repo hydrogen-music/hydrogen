@@ -107,7 +107,7 @@ int main(int argc, char** argv){
 		switch( pippo ) {
 			case 'q':
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
-				hydrogen->sequencer_stop();
+				hydrogen->sequencerStop();
 
 				pSong = nullptr;
 				delete hydrogen;
@@ -123,11 +123,11 @@ int main(int argc, char** argv){
 				break;
 
 			case 'p':
-				hydrogen->sequencer_play();
+				hydrogen->sequencerPlay();
 				break;
 
 			case 's':
-				hydrogen->sequencer_stop();
+				hydrogen->sequencerStop();
 				break;
 
 			case 'b':

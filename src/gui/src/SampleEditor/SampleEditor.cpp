@@ -32,6 +32,7 @@
 
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -438,7 +439,7 @@ void SampleEditor::createNewLayer()
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr ) {
-			auto pInstrList = pSong->getInstrumentList();
+			auto pInstrList = pSong->getDrumkit()->getInstruments();
 			int nInstr = pHydrogen->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
@@ -609,7 +610,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getDrumkit()->getInstruments()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		return;
 	}
@@ -652,25 +653,33 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 void SampleEditor::on_PlayOrigPushButton_clicked()
 {
-	if (PlayOrigPushButton->text() == "Stop" ){
+	if ( PlayOrigPushButton->text() == "Stop" ){
 		testpTimer();
 		return;
 	}
 
-	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	if ( pInstr == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set" );
 		return;
 	}
 
-	/*
-	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
-	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
-	*/
-	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_path(), pInstr->get_name() );
-	auto pNewSample = Sample::load( pInstr->get_component( m_nSelectedComponent )->get_layer( selectedlayer )->get_sample()->get_filepath() );
+	const int nSelectedlayer =
+		InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get(
+		pHydrogen->getSelectedInstrumentNumber() );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "No instrument selected / Unable to retrieve instrument [%1]" )
+				  .arg( pHydrogen->getSelectedInstrumentNumber() ) );
+		return;
+	}
+
+	// preview_instrument deletes the last used preview instrument, therefore we
+	// have to construct a temporary instrument. Otherwise pInstrument would be
+	// deleted if consumed by preview_instrument.
+	auto pTmpInstrument = std::make_shared<Instrument>( pInstrument );
+	auto pNewSample = Sample::load( pInstrument->get_component( m_nSelectedComponent )->get_layer( nSelectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample != nullptr ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );

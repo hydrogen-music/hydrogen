@@ -27,7 +27,7 @@
 #include <QKeyEvent>
 
 /** Custom QTableWidget class for the mapping table in the
- * #SoundLibraryPropertiesDialog in order to navigation between the individual
+ * #DrumkitPropertiesDialog in order to navigation between the individual
  * type combo boxes using the tab key. */
 class MappingTable : public QTableWidget, public H2Core::Object<MappingTable> {
 	H2_OBJECT( MappingTable )

@@ -20,45 +20,44 @@
  *
  */
 
-#ifndef FILE_BROWSER_H
-#define FILE_BROWSER_H
+#ifndef DRUMKIT_EXPORT_DIALOG_H
+#define DRUMKIT_EXPORT_DIALOG_H
 
-
-#include <core/Object.h>
+#include <map>
 
 #include <QtGui>
 #include <QtWidgets>
 
+#include "ui_DrumkitExportDialog_UI.h"
+
+#include <core/Object.h>
+#include <core/Basics/Drumkit.h>
+
+///
+///
+///
 /** \ingroup docGUI*/
-class FileBrowser : public QWidget, private H2Core::Object<FileBrowser>
+class DrumkitExportDialog :  public QDialog, public Ui_DrumkitExportDialog_UI,  public H2Core::Object<DrumkitExportDialog>
 {
-    H2_OBJECT(FileBrowser)
+	H2_OBJECT(DrumkitExportDialog)
 	Q_OBJECT
 	public:
-		explicit FileBrowser( QWidget* pParent );
-		~FileBrowser();
+	DrumkitExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
+		~DrumkitExportDialog();
 
-	private slots:
-		void on_fileList_ItemChanged( QListWidgetItem * current, QListWidgetItem * previous );
-		void on_fileList_ItemActivated( QListWidgetItem* );
-
-		void on_dirList_ItemActivated( QListWidgetItem* );
-		void on_upBtnClicked();
-		void on_playBtnClicked();
-
-	private:
-		QLabel *m_pDirectoryLabel;
-		QPushButton* m_pUpBtn;
-		QLabel *m_pFileInfo;
-		QListWidget *m_pDirList;
-		QListWidget *m_pFileList;
-		QDir m_directory;
-
-
-		void loadDirectoryTree( const QString& basedir );
-		void updateFileInfo( QString sFilename, unsigned nSampleRate, unsigned nBytes );
-
+private slots:
+	void on_exportBtn_clicked();
+	void on_browseBtn_clicked();
+	void on_cancelBtn_clicked();
+	void on_versionList_currentIndexChanged( int index );
+	void on_drumkitPathTxt_textChanged( QString str );
+	
+private:
+	void updateComponentList();
+	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
+	std::map<int, QString> m_componentLabels;
 };
 
 
 #endif
+

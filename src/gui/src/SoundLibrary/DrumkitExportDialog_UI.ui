@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SoundLibraryExportDialog_UI</class>
- <widget class="QDialog" name="SoundLibraryExportDialog_UI">
+ <class>DrumkitExportDialog_UI</class>
+ <widget class="QDialog" name="DrumkitExportDialog_UI">
   <property name="geometry">
    <rect>
     <x>0</x>

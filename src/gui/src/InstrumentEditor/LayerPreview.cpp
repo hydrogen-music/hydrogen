@@ -96,9 +96,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-		if ( m_pInstrument ) {
+		if ( m_pInstrument != nullptr ) {
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
-			if(pComponent) {
+			if ( pComponent != nullptr ) {
 				auto pLayer = pComponent->get_layer( i );
 				if ( pLayer != nullptr ) {
 					nLayers++;
@@ -112,21 +112,26 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nColorScalingWidth = 90;
 	int nColorScaling = 100;
 
-	QColor layerLabelColor, layerSegmentColor;
+	QColor layerLabelColor, layerSegmentColor, highlightColor;
+	if ( InstrumentEditorPanel::get_instance()->getInstrumentEditor()->getIsActive() ) {
+		highlightColor = pPref->getColorTheme()->m_highlightColor;
+	} else {
+		highlightColor = pPref->getColorTheme()->m_lightColor;
+	}
 
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 		int y = 20 + m_nLayerHeight * i;
 		QString label = "< - >";
 		
-		if ( m_pInstrument ) {
+		if ( m_pInstrument != nullptr ) {
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
-			if( pComponent ) {
+			if ( pComponent != nullptr ) {
 				auto pLayer = pComponent->get_layer( i );
 				
-				if ( pLayer && nLayers > 0 ) {
+				if ( pLayer != nullptr && nLayers > 0 ) {
 					auto pSample = pLayer->get_sample();
-					if( pSample != nullptr) {
+					if ( pSample != nullptr ) {
 						label = pSample->get_filename();
 						layerSegmentColor =
 							pPref->getColorTheme()->m_accentColor.lighter( 130 );
@@ -155,7 +160,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 					
 					if ( m_nSelectedLayer == i ) {
-						p.setPen( pPref->getColorTheme()->m_highlightColor );
+						p.setPen( highlightColor );
 					} else {
 						p.setPen( pPref->getColorTheme()->m_windowTextColor.darker( 145 ) );
 					}
@@ -195,7 +200,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	}
 
 	// selected layer
-	p.setPen( pPref->getColorTheme()->m_highlightColor );
+	p.setPen( highlightColor );
 	int y = 20 + m_nLayerHeight * m_nSelectedLayer;
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 }
@@ -219,14 +224,12 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	
 	// select the last valid layer
 	if ( m_pInstrument != nullptr ) {
-		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-			auto p_compo = m_pInstrument->get_component( m_nSelectedComponent );
-			if ( p_compo ) {
-				if ( p_compo->get_layer( i ) ) {
-					m_nSelectedLayer = i;
-					bSelectedLayerChanged = true;
-					break;
-				}
+		for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			if ( pComponent != nullptr && pComponent->get_layer( i ) ) {
+				m_nSelectedLayer = i;
+				bSelectedLayerChanged = true;
+				break;
 			}
 			else {
 				m_nSelectedLayer = 0;
@@ -352,7 +355,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( !m_pInstrument ) {
+	if ( m_pInstrument == nullptr ) {
 		return;
 	}
 

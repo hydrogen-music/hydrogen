@@ -32,6 +32,7 @@
 #include <core/EventQueue.h>
 
 #include <pthread.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -638,7 +639,7 @@ void AlsaMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {

@@ -35,5 +35,4 @@ public:
 	void testSslSupport();
 
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 #endif

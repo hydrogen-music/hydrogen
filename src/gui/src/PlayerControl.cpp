@@ -43,6 +43,7 @@ https://www.gnu.org/licenses
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -666,11 +667,11 @@ void PlayerControl::playBtnClicked() {
 	}
 	
 	if ( m_pPlayBtn->isChecked() ) {
-		m_pHydrogen->sequencer_play();
+		m_pHydrogen->sequencerPlay();
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Playing.") );
 	}
 	else {
-		m_pHydrogen->sequencer_stop();
+		m_pHydrogen->sequencerStop();
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Pause.") );
 	}
 }
@@ -694,7 +695,7 @@ void PlayerControl::stopBtnClicked()
 	if ( ! m_pPlayBtn->isDown() ) {
 		m_pPlayBtn->setChecked(false);
 	}
-	m_pHydrogen->sequencer_stop();
+	m_pHydrogen->sequencerStop();
 	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
 }
@@ -816,12 +817,20 @@ void PlayerControl::rubberbandButtonToggle()
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	if ( m_pRubberBPMChange->isChecked() ) {
-		// Recalculate all samples ones just to be safe since the
-		// recalculation is just triggered if there is a tempo change
-		// in the audio engine.
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
-		pHydrogen->getAudioEngine()->unlock();
+		auto pSong = pHydrogen->getSong();
+
+		if ( pSong != nullptr ) {
+			auto pDrumkit = pSong->getDrumkit();
+			if ( pDrumkit != nullptr ) {
+				// Recalculate all samples ones just to be safe since the
+				// recalculation is just triggered if there is a tempo change
+				// in the audio engine.
+				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+				pDrumkit->recalculateRubberband(
+					pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+				pHydrogen->getAudioEngine()->unlock();
+			}
+		}
 		pPref->setRubberBandBatchMode(true);
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Recalculate all samples using Rubberband ON") );
 	}
@@ -834,7 +843,7 @@ void PlayerControl::rubberbandButtonToggle()
 
 void PlayerControl::bcbUpButtonClicked()
 {
-	int tmp = m_pHydrogen->getbeatsToCount();
+	int tmp = m_pHydrogen->getBeatsToCount();
 	char tmpb[3];
 
 	tmp ++;
@@ -844,12 +853,12 @@ void PlayerControl::bcbUpButtonClicked()
 	
 	sprintf(tmpb, "%02d", tmp );
 	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setbeatsToCount( tmp );
+	m_pHydrogen->setBeatsToCount( tmp );
 }
 
 void PlayerControl::bcbDownButtonClicked()
 {
-	int tmp = m_pHydrogen->getbeatsToCount();
+	int tmp = m_pHydrogen->getBeatsToCount();
 	char tmpb[3];
 	tmp --;
 	if (tmp < 2 ) {
@@ -857,7 +866,7 @@ void PlayerControl::bcbDownButtonClicked()
 	}
 	sprintf(tmpb, "%02d", tmp );
 	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setbeatsToCount( tmp );
+	m_pHydrogen->setBeatsToCount( tmp );
 }
 
 void PlayerControl::bctUpButtonClicked()

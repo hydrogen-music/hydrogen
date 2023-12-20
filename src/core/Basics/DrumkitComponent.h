@@ -41,7 +41,7 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 {
 		H2_OBJECT(DrumkitComponent)
 	public:
-		DrumkitComponent( const int id, const QString& name );
+		DrumkitComponent( const int id = 0, const QString& name = "empty" );
 		DrumkitComponent( std::shared_ptr<DrumkitComponent> other );
 		~DrumkitComponent();
 

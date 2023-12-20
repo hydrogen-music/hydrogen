@@ -32,6 +32,7 @@
 
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -1271,6 +1272,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			if ( ! pNote->get_instrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
+				delete pNote;
 				continue;
 			}
 
@@ -1283,7 +1285,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			m_songNoteQueue.pop();
 			pNote->get_instrument()->dequeue();
 			
-			const int nInstrument = pSong->getInstrumentList()->index( pNote->get_instrument() );
+			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
 			if( pNote->get_note_off() ){
 				delete pNote;
 			}
@@ -1552,7 +1554,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
-	for ( auto component : *pSong->getComponents() ) {
+	for ( auto component : *pSong->getDrumkit()->getComponents() ) {
 		DrumkitComponent *pComponent = component.get();
 		for ( unsigned i = 0; i < nFrames; ++i ) {
 			float compo_val_L = pComponent->get_out_L(i);
@@ -1626,8 +1628,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	this->unlock();
 }
 
-void AudioEngine::removeSong()
-{
+void AudioEngine::prepare() {
 	this->lock( RIGHT_HERE );
 
 	if ( getState() == State::Playing ) {

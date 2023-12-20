@@ -84,7 +84,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	NotePropertiesRuler::Mode getNotePropertiesMode() const;
 	
 
-		void updateSLnameLabel();
+		void updateDrumkitLabel();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
@@ -149,7 +149,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		H2Core::Pattern *	m_pPattern;
 	int m_nSelectedPatternNumber;
 		QPixmap				m_backgroundPixmap;
-		QLabel *			m_pSLlabel;
+		ClickableLabel*		m_pDrumkitLabel;
 
 	QWidget* m_pEditorTop1;
 	QWidget* m_pEditorTop2;
@@ -219,7 +219,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		QScrollBar *		m_pPatternEditorVScrollBar;
 
 		// TOOLBAR
-		QLabel *			m_pPatternNameLbl;
+		ClickableLabel*			m_pPatternNameLbl;
 		Button *			m_pRandomVelocityBtn;
 		// ~ TOOLBAR
 

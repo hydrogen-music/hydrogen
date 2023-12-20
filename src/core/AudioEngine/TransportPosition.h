@@ -153,8 +153,6 @@ private:
 	void setFrameOffsetTempo( long long nFrameOffset );
 	void setTickOffsetQueuing( double nTickOffset );
 	void setTickOffsetSongSize( double fTickOffset );
-	void setPlayingPatterns( PatternList* pPatternList );
-	void setNextPatterns( PatternList* pPatternList );
 	void setPatternSize( int nPatternSize );
 	void setLastLeadLagFactor( long long nValue );
 	void setBar( int nBar );

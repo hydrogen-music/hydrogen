@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_OPEN_DIALOG_H
-#define SOUND_LIBRARY_OPEN_DIALOG_H
+#ifndef DRUMKIT_OPEN_DIALOG_H
+#define DRUMKIT_OPEN_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -31,13 +31,13 @@
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
-class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Object<SoundLibraryOpenDialog>
+class DrumkitOpenDialog :  public QDialog,  public H2Core::Object<DrumkitOpenDialog>
 {
-	H2_OBJECT(SoundLibraryOpenDialog)
+	H2_OBJECT(DrumkitOpenDialog)
 	Q_OBJECT
 	public:
-		explicit SoundLibraryOpenDialog( QWidget* pParent );
-		~SoundLibraryOpenDialog();
+		explicit DrumkitOpenDialog( QWidget* pParent );
+		~DrumkitOpenDialog();
 
 	private slots:
 		void on_soundLib_item_changed( bool bDrumkitSelected );

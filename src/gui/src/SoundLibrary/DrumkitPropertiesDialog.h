@@ -20,10 +20,10 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_PROPERTIES_DIALOG_H
-#define SOUND_LIBRARY_PROPERTIES_DIALOG_H
+#ifndef DRUMKIT_PROPERTIES_DIALOG_H
+#define DRUMKIT_PROPERTIES_DIALOG_H
 
-#include "ui_SoundLibraryPropertiesDialog_UI.h"
+#include "ui_DrumkitPropertiesDialog_UI.h"
 #include "../Widgets/WidgetWithLicenseProperty.h"
 
 #include <core/Basics/Drumkit.h>
@@ -35,18 +35,19 @@ namespace H2Core
 {
 
 /** \ingroup docGUI*/
-class SoundLibraryPropertiesDialog :  public QDialog,
-									  protected WidgetWithLicenseProperty,
-									  public Ui_SoundLibraryPropertiesDialog_UI,
-									  public H2Core::Object<SoundLibraryPropertiesDialog>
+class DrumkitPropertiesDialog :  public QDialog,
+								 protected WidgetWithLicenseProperty,
+								 public Ui_DrumkitPropertiesDialog_UI,
+								 public H2Core::Object<DrumkitPropertiesDialog>
 {
-	H2_OBJECT(SoundLibraryPropertiesDialog)
+	H2_OBJECT(DrumkitPropertiesDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryPropertiesDialog( QWidget* pParent,
-									  std::shared_ptr<Drumkit> pDrumkit,
-									  bool bDrumkitNameLocked );
-		~SoundLibraryPropertiesDialog();
+		DrumkitPropertiesDialog( QWidget* pParent,
+								 std::shared_ptr<Drumkit> pDrumkit,
+								 bool bEditingNotSaving,
+								 bool bSaveToNsmSession );
+		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
 	private slots:
@@ -58,24 +59,20 @@ class SoundLibraryPropertiesDialog :  public QDialog,
   private:
 	void updateMappingTable();
 	void updateLicensesTable();
-	void updateImage( QString& filename );
+	void updateImage( const QString& sFilePath );
 	void saveDrumkitMap();
 
 	std::shared_ptr<Drumkit> m_pDrumkit;
 	/**
-	 * This dialog can be accessed both via SoundLibrary/MainForm >
-	 * Drumkits -> Properties and MainForm > Drumkits -> Save
-	 * As. Historically they were two distinct dialogs featuring
-	 * pretty much exactly the same fields.
-	 *
-	 * In order to keep the general menu structure both choices are
-	 * still supported but a small tweak was introduced to make them
-	 * work slightly differently. When accessed via "Properties" this
-	 * variable is set to true and it is not possible to create new
-	 * drumkits by altering the name of an existing one. If, on the
-	 * other hand, it's opened via "Save As" anything goes.
+	 * This dialog can be used to both alter the properties of a drumkit as well
+	 * as to save it as a new kit.
 	 */
-	bool m_bDrumkitNameLocked;
+	bool m_bEditingNotSaving;
+
+		/** Whether the kit should be stored in the users' drumkit folder or in
+		 * the NSM session folder (only available when Hydrogen is under session
+		 * management). */
+		bool m_bSaveToNsmSession;
 
 	QString m_sNewImagePath;
 	

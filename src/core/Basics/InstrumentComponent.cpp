@@ -41,7 +41,7 @@
 namespace H2Core
 {
 
-int InstrumentComponent::m_nMaxLayers;
+int InstrumentComponent::m_nMaxLayers = 16;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	: __related_drumkit_componentID( related_drumkit_componentID )
@@ -81,9 +81,14 @@ void InstrumentComponent::set_layer( std::shared_ptr<InstrumentLayer> layer, int
 	__layers[ idx ] = layer;
 }
 
-void InstrumentComponent::setMaxLayers( int layers )
+void InstrumentComponent::setMaxLayers( int nLayers )
 {
-	m_nMaxLayers = layers;
+	if ( nLayers <= 1 ) {
+		ERRORLOG( QString( "Attempting to set a max layer [%1] smaller than 1. Aborting" )
+				  .arg( nLayers ) );
+		return;
+	}
+	m_nMaxLayers = nLayers;
 }
 
 int InstrumentComponent::getMaxLayers()
@@ -91,7 +96,12 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
 {
 	int nId = pNode->read_int( "component_id", EMPTY_INSTR_ID,
 							  false, false, bSilent );
@@ -111,8 +121,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 			break;
 		}
 
-		auto pLayer = InstrumentLayer::load_from( &layer_node, sDrumkitPath,
-												  drumkitLicense, bSilent );
+		auto pLayer = InstrumentLayer::load_from(
+			&layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->set_layer( pLayer, nLayer );
 			nLayer++;
@@ -123,21 +133,23 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pN
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
+void InstrumentComponent::save_to( XMLNode* pNode,
+								   bool bRecentVersion,
+								   bool bSongKit )
 {
 	XMLNode component_node;
 	if ( bRecentVersion ) {
-		component_node = node->createNode( "instrumentComponent" );
+		component_node = pNode->createNode( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = get_layer( n );
-		if( pLayer != nullptr ) {
-			if( bRecentVersion ) {
-				pLayer->save_to( &component_node, bFull );
+		if ( pLayer != nullptr ) {
+			if ( bRecentVersion ) {
+				pLayer->save_to( &component_node, bSongKit );
 			} else {
-				pLayer->save_to( node, bFull );
+				pLayer->save_to( pNode, bSongKit );
 			}
 		}
 	}

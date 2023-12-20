@@ -35,6 +35,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -394,7 +395,7 @@ void PatternEditor::showPopupMenu( const QPoint &pos )
 void PatternEditor::copy()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -452,7 +453,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		return;
 	}
 	
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
@@ -482,7 +483,20 @@ void PatternEditor::alignToGrid() {
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	// Move the notes
@@ -520,7 +534,20 @@ void PatternEditor::randomizeVelocity()
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	pUndo->beginMacro( tr( "Random velocity" ) );
@@ -1364,7 +1391,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	Note* pDraggedNote = nullptr;
 	if ( editor == Editor::PianoRoll ) {
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentnumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1379,7 +1406,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1441,7 +1468,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	if ( editor == Editor::PianoRoll ) {
 		
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentNumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1456,7 +1483,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;

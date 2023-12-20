@@ -242,18 +242,6 @@ Pattern*  PatternList::find( const QString& name )
 	return nullptr;
 }
 
-void PatternList::swap( int idx_a, int idx_b )
-{
-	assertAudioEngineLocked();
-	assert( idx_a >= 0 && idx_a < __patterns.size() );
-	assert( idx_b >= 0 && idx_b < __patterns.size() );
-	if( idx_a == idx_b ) return;
-	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-	Pattern* tmp = __patterns[idx_a];
-	__patterns[idx_a] = __patterns[idx_b];
-	__patterns[idx_b] = tmp;
-}
-
 void PatternList::move( int idx_a, int idx_b )
 {
 	assertAudioEngineLocked();

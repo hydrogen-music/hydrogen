@@ -63,6 +63,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void setFileforLayer(QString filename );
 
 		void selectComponent( int nComponent );
+		void renameComponent( int nComponentId, const QString& sNewName );
+		bool getIsActive() const;
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent() override;
@@ -70,15 +72,16 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 	virtual void updateSongEvent( int ) override;
 	virtual void instrumentParametersChangedEvent( int ) override;
 		// ~ implements EventListener interface
-		void update();
-		static int findFreeDrumkitComponentId( int startingPoint = 0 );
-
 
 	public slots:
 	/** Used by #Shotlist */
 	void showLayers( bool bShow );
 		void showSampleEditor();
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void addComponentAction();
+		void deleteComponentAction();
+		void renameComponentAction();
+		void switchComponentAction( int nId );
 
 	private slots:
 		void rotaryChanged(WidgetWithInput *ref);
@@ -86,8 +89,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void filterActiveBtnClicked();
 		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
-		void labelCompoClicked( ClickableLabel* pRef );
-		void compoChangeAddDelete(QAction*);
 		void onDropDownCompoClicked();
 
 		void muteGroupChanged( double fValue );
@@ -104,10 +105,16 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
+
 	private:
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
+
+		/** Whether a valid instrument was provided an all contained widgets
+		 * should be enabled. */
+		bool m_bIsActive;
+		void activate( bool bActivate );
 
 		Button *m_pShowInstrumentBtn;
 		Button *m_pShowLayersBtn;
@@ -201,8 +208,9 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		LCDDisplay *m_pLayerPitchFineLCD;
 
 		//LCDCombo *__pattern_size_combo;
-		LCDCombo *m_sampleSelectionAlg;
+		LCDCombo *m_pSampleSelectionCombo;
 		ClickableLabel* m_pSampleSelectionLbl;
+		void setupSampleSelectionCombo();
 
 		WaveDisplay *m_pWaveDisplay;
 
@@ -215,9 +223,14 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		// Component
 		ClickableLabel *m_pCompoNameLbl;
-		Button *m_buttonDropDownCompo;
-		QStringList itemsCompo;
-		QMenu *popCompo;
+		Button *m_DropDownCompoBtn;
+		QStringList m_itemsCompo;
+		QMenu *m_pComponentMenu;
+		void populateComponentMenu();
+		void updateComponentLabels();
+		/** Maps a compoment Id to an unique component label used within the
+		 * InstrumentEditor.*/
+		std::map<int, QString> m_uniqueComponentLabels;
 
 		Rotary *m_pCompoGainRotary;
 		LCDDisplay *m_pCompoGainLCD;
@@ -226,5 +239,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void setAutoVelocity();
 };
 
+inline bool InstrumentEditor::getIsActive() const {
+	return m_bIsActive;
+}
 
 #endif

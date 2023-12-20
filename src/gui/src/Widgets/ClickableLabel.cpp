@@ -85,7 +85,12 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive;
+		if ( isEnabled() )
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -94,11 +99,21 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 			colorHighlightActive.setAlpha( 150 );
 		}
 
+		int nWidth, nHeight;
+		if ( ! m_size.isNull() ) {
+			nWidth = m_size.width();
+			nHeight = m_size.height();
+		}
+		else {
+			nWidth = width();
+			nHeight = height();
+		}
+
 		QPen pen;
 		pen.setColor( colorHighlightActive );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 1, 1, m_size.width() - 2, m_size.height() - 2 ), 3, 3 );
+		painter.drawRoundedRect( QRect( 1, 1, nWidth - 2, nHeight - 2 ), 3, 3 );
 	}
 }
 

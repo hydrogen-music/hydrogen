@@ -31,11 +31,15 @@
 #include <vector>
 
 #include <core/Basics/Note.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Helpers/Filesystem.h>
 
+#include "CommonStrings.h"
 #include "HydrogenApp.h"
+#include "InstrumentRack.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SongEditor/PatternFillDialog.h"
@@ -43,7 +47,7 @@
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
-#include "PatternEditor/NotePropertiesRuler.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 
 
@@ -986,33 +990,28 @@ public:
 		__sDrumkitPath = sDrumkitPath;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
-		__addedComponents = new std::vector<int>();
 	}
 
-	~SE_dragInstrumentAction()
-	{
-		delete __addedComponents;
-	}
+	~SE_dragInstrumentAction() {}
 
 	virtual void undo()
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, __addedComponents );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument );
 	}
 
 	virtual void redo()
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitPath, __sInstrumentName, __nTargetInstrument, __addedComponents );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitPath, __sInstrumentName, __nTargetInstrument );
 	}
 
 private:
 	QString __sDrumkitPath;
 	QString __sInstrumentName;
 	int __nTargetInstrument;
-	std::vector<int>* __addedComponents;
 };
 
 
@@ -1055,7 +1054,7 @@ public:
 		//qDebug() << "delete Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		//delete an instrument from list
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument, new std::vector<int>() );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument );
 	}
 private:
 	std::list< H2Core::Note* > __noteList;
@@ -1089,6 +1088,107 @@ private:
 };
 
 // ~pattern editor commands
+
+class SE_switchDrumkitAction : public QUndoCommand {
+	public:
+		/** Switching entire drumkits is a rather clean way to accomplish a
+		 * number of different task. To still display the proper text in the
+		 * undo history, this enum is used to indicate the intention calling
+		 * this undo action. */
+		enum class Type {
+			/** Actual switching of two fully-fledge kits */
+			SwitchDrumkit = 0,
+			/** Replace the current kit with an empty one */
+			NewDrumkit = 1,
+			/** Replace the current kit with a copy containing an additional
+			 * component */
+			AddComponent = 2,
+			/** Replace the current kit with a copy from which one component was
+			 * removed. */
+			DeleteComponent = 3,
+			/** Editing properties of the current song's kit. */
+			EditProperties = 4
+		};
+
+		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+								std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+								bool bConditionalLoad, Type type,
+								const QString& sComponentName = "" ) :
+			m_pNewDrumkit( pNewDrumkit ),
+			m_pOldDrumkit( pOldDrumkit ),
+			m_bConditionalLoad( bConditionalLoad )
+		{
+			switch ( type ) {
+			case Type::SwitchDrumkit:
+				setText( QString( "%1: [%2] -> [%3]" )
+						 .arg( QObject::tr( "Switching drumkits" ) )
+						 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
+						 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
+				break;
+			case Type::NewDrumkit:
+				setText( QObject::tr( "Replace song drumkit with new and empty one" ) );
+				break;
+			case Type::AddComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Adding component" ) )
+						 .arg( sComponentName ) );
+				break;
+			case Type::DeleteComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Remove component" ) )
+						 .arg( sComponentName ) );
+				break;
+			case Type::EditProperties:
+				setText( HydrogenApp::get_instance()->getCommonStrings()
+						 ->getActionEditDrumkitProperties() );
+				break;
+			}
+		}
+		virtual void undo() {
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getSoundLibraryPanel()->switchDrumkit( m_pOldDrumkit,
+													   m_pNewDrumkit,
+													   m_bConditionalLoad );
+		}
+		virtual void redo() {
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getSoundLibraryPanel()->switchDrumkit( m_pNewDrumkit,
+													   m_pOldDrumkit,
+													   m_bConditionalLoad );
+		}
+
+	private:
+		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
+		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
+		bool m_bConditionalLoad;
+};
+
+class SE_renameComponentAction : public QUndoCommand {
+	public:
+		SE_renameComponentAction( const QString& sNewName,
+								  const QString& sOldName,
+								  int nComponentId ) :
+			m_sNewName( sNewName ),
+			m_sOldName( sOldName ),
+			m_nComponentId( nComponentId ) {
+			setText( QString( "%1: [%2] -> [%3]" )
+					 .arg( QObject::tr( "Rename component" ) )
+					 .arg( sOldName ).arg( sNewName ) );
+		}
+		virtual void undo() {
+			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
+				->renameComponent( m_nComponentId, m_sOldName );
+		}
+		virtual void redo() {
+			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
+				->renameComponent( m_nComponentId, m_sNewName );
+		}
+	private:
+		QString m_sNewName;
+		QString m_sOldName;
+		int m_nComponentId;
+};
+
 //=====================================================================================================================================
 //piano roll editor commands
 

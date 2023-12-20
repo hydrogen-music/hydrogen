@@ -25,7 +25,7 @@
   <instrument>
    <id>0</id>
    <name>Kick</name>
-   <drumkit>GMkit</drumkit>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
@@ -56,7 +56,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>kick_Dry_b.flac</filename>
+     <filename>Kick-Med.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -77,7 +77,7 @@
   <instrument>
    <id>4</id>
    <name>Snare Rock</name>
-   <drumkit>GMkit</drumkit>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
@@ -108,7 +108,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>sn_Wet_b.flac</filename>
+     <filename>Snare-Hard.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -129,7 +129,7 @@
   <instrument>
    <id>13</id>
    <name>Crash</name>
-   <drumkit>GMkit</drumkit>
+   <drumkit>GMRockKit</drumkit>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
@@ -160,7 +160,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cra_Rock_a.flac</filename>
+     <filename>Crash-Hard.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -181,7 +181,7 @@
   <instrument>
    <id>14</id>
    <name>Ride Rock</name>
-   <drumkit>GMkit</drumkit>
+   <drumkit>GMRockKit</drumkit>
    <volume>0.8</volume>
    <isMuted>false</isMuted>
    <pan_L>0.58</pan_L>
@@ -212,7 +212,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cym_Rock_b.flac</filename>
+     <filename>Ride-Hard.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>

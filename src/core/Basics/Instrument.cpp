@@ -91,7 +91,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
@@ -133,133 +133,21 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 		__fx_level[i] = other->get_fx_level( i );
 	}
 
-	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 	for ( auto& pComponent : *other->get_components() ) {
 		__components->push_back( std::make_shared<InstrumentComponent>( pComponent ) );
 	}
 }
 
-Instrument::~Instrument()
-{
-	delete __components;
-}
+Instrument::~Instrument() {}
 
-std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_path, const QString& instrument_name )
-{
-	auto pInstrument = std::make_shared<Instrument>();
-	pInstrument->load_from( drumkit_path, instrument_name );
-	return pInstrument;
-}
-
-void Instrument::load_from( std::shared_ptr<Drumkit> pDrumkit, std::shared_ptr<Instrument> pInstrument )
-{
-	assert( pDrumkit );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit supplied" );
-		return;
-	}
-	
-	this->get_components()->clear();
-	
-	set_missing_samples( false );
-
-	for ( const auto& pSrcComponent : *pInstrument->get_components() ) {
-		auto pMyComponent = std::make_shared<InstrumentComponent>( pSrcComponent->get_drumkit_componentID() );
-		pMyComponent->set_gain( pSrcComponent->get_gain() );
-
-		this->get_components()->push_back( pMyComponent );
-
-		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto src_layer = pSrcComponent->get_layer( i );
-			auto my_layer = pMyComponent->get_layer( i );
-
-			if( src_layer == nullptr ) {
-				pMyComponent->set_layer( nullptr, i );
-			}
-			else {
-				std::shared_ptr<Sample> pSample = nullptr;
-				QString sSamplePath;
-				
-				if ( src_layer->get_sample() != nullptr ) {
-					QString sSamplePath = pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-					pSample = Sample::load( sSamplePath );
-				}
-				
-				if ( pSample == nullptr ) {
-					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." )
-							   .arg( sSamplePath ) );
-					set_missing_samples( true );
-					pMyComponent->set_layer( nullptr, i );
-
-				}
-				else {
-					pSample->setLicense( pDrumkit->get_license() );
-					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
-				}
-			}
-			my_layer = nullptr;
-		}
-	}
-
-	this->set_id( pInstrument->get_id() );
-	this->set_name( pInstrument->get_name() );
-	this->set_drumkit_path( pDrumkit->get_path() );
-	this->set_drumkit_name( pDrumkit->get_name() );
-	this->set_gain( pInstrument->get_gain() );
-	this->set_volume( pInstrument->get_volume() );
-	this->setPan( pInstrument->getPan() );
-	this->set_adsr( std::make_shared<ADSR>( *( pInstrument->get_adsr() ) ) );
-	this->set_filter_active( pInstrument->is_filter_active() );
-	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
-	this->set_filter_resonance( pInstrument->get_filter_resonance() );
-	this->set_pitch_offset( pInstrument->get_pitch_offset() );
-	this->set_random_pitch_factor( pInstrument->get_random_pitch_factor() );
-	this->set_mute_group( pInstrument->get_mute_group() );
-	this->set_midi_out_channel( pInstrument->get_midi_out_channel() );
-	this->set_midi_out_note( pInstrument->get_midi_out_note() );
-	this->set_stop_notes( pInstrument->is_stop_notes() );
-	this->set_sample_selection_alg( pInstrument->sample_selection_alg() );
-	this->set_active( pInstrument->is_active() );
-	this->set_soloed( pInstrument->is_soloed() );
-	this->set_muted( pInstrument->is_muted() );
-	this->set_hihat_grp( pInstrument->get_hihat_grp() );
-	this->set_lower_cc( pInstrument->get_lower_cc() );
-	this->set_higher_cc( pInstrument->get_higher_cc() );
-	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
-
-	for ( int ii = 0; ii < MAX_FX; ++ii ) {
-		this->set_fx_level( pInstrument->get_fx_level( ii ), ii );
-	}
-}
-
-void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrumentName )
-{
-	std::shared_ptr<Drumkit> pDrumkit;
-	
-	// Try to retrieve the name from cache first.
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-	}
-
-	assert( pDrumkit );
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )
-				  .arg( sDrumkitPath ) );
-		return;
-	}
-
-	auto pInstrument = pDrumkit->get_instruments()->find( sInstrumentName );
-	if ( pInstrument != nullptr ) {
-		load_from( pDrumkit, pInstrument );
-	}
-	else {
-		ERRORLOG( QString( "Unable to load instrument: instrument [%1] could not be found in drumkit [%2]" )
-				  .arg( sInstrumentName ).arg( sDrumkitPath ) );
-	}
-}
-
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
+												   const QString& sDrumkitPath,
+												   const QString& sDrumkitName,
+												   const QString& sSongPath,
+												   const License& license,
+												   bool bSongKit,
+												   bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
@@ -279,9 +167,12 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 									pNode->read_int( "Release", 1000, true, false, bSilent ) ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( sDrumkitPath.isEmpty() || sDrumkitName.isEmpty() ) {
-		// Instrument is not read as part of a Drumkit but as part of
-		// a Song. The drumkit meta info will be read from disk.
+	if ( bSongKit ) {
+
+		bool bNoDrumkitRequired = false;
+
+		// Instrument is not read as part of a plain Drumkit but as part of a
+		// Song.
 		sInstrumentDrumkitName = pNode->read_string( "drumkit", "", false,
 													 false, bSilent );
 		
@@ -290,27 +181,35 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			sInstrumentDrumkitPath = pNode->read_string( "drumkitPath", "",
 														 false, false, bSilent  );
 
+			if ( ! sInstrumentDrumkitPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_APPIMAGE
-			sInstrumentDrumkitPath =
-				Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
+				sInstrumentDrumkitPath =
+					Filesystem::rerouteDrumkitPath( sInstrumentDrumkitPath );
 #endif
 
-			// Check whether corresponding drumkit exist.
-			// When tweaking or assembling drumkits locally their
-			// absolute paths serve as unique identifiers to keep them
-			// apart. But in terms of portability (and to assure
-			// backward compatibility) paths are bad and we will use
-			// the drumkit name and check whether we can find the kit
-			// on the local system.
-			if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
-				WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
-							.arg( sInstrumentDrumkitPath )
-							.arg( sInstrumentDrumkitName ) );
-				sInstrumentDrumkitPath = "";
+				// Check whether corresponding drumkit exist. When tweaking or
+				// assembling drumkits locally their absolute paths serve as
+				// unique identifiers to keep them apart. But in terms of
+				// portability (and to assure backward compatibility) paths are
+				// bad and we will use the drumkit name and check whether we can
+				// find the kit on the local system.
+				if ( ! Filesystem::drumkit_valid( sInstrumentDrumkitPath ) ) {
+					WARNINGLOG( QString( "Couldn't find drumkit at [%1]. Searching for [%2] instead." )
+								.arg( sInstrumentDrumkitPath )
+								.arg( sInstrumentDrumkitName ) );
+					sInstrumentDrumkitPath = "";
+				}
+			}
+			else if ( sInstrumentDrumkitName.isEmpty() ) {
+				// Both empty drumkit path and name indicate that the instrument
+				// was added as a new one to the drumkit instead of importing it
+				// from another kit. It must only hold absolute paths for
+				// samples.
+				bNoDrumkitRequired = true;
 			}
 		}
 
-		if ( sInstrumentDrumkitPath.isEmpty() ) {
+		if ( sInstrumentDrumkitPath.isEmpty() && ! bNoDrumkitRequired ) {
 			if ( ! pNode->firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
 				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
@@ -320,9 +219,9 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 				// the other one in system-space can be distinguished.
 				Filesystem::Lookup lookup =
 					static_cast<Filesystem::Lookup>(
-													pNode->read_int( "drumkitLookup",
-																	 static_cast<int>(Filesystem::Lookup::stacked),
-																	 false, false, bSilent ) );
+						pNode->read_int( "drumkitLookup",
+										 static_cast<int>(Filesystem::Lookup::stacked),
+										 false, false, bSilent ) );
 			
 				sInstrumentDrumkitPath =
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
@@ -470,13 +369,13 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 			// itself. In case two drumkits contain an instrument from
 			// each other an infinite loop would be created.
 			auto pDrumkit = pSoundLibraryDatabase->getDrumkit(
-				pInstrument->get_drumkit_path(), false );
-			if ( pDrumkit == nullptr ) {
-				// Drumkit is not present in the database yet. Load
-				// its license from disk.
-				instrumentLicense = Drumkit::loadLicenseFrom( pInstrument->get_drumkit_path() );
+				pInstrument->get_drumkit_path() );
+			if ( pDrumkit != nullptr ) {
+				instrumentLicense = pDrumkit->getLicense();
 			} else {
-				instrumentLicense = pDrumkit->get_license();
+				// Associated drumkit could not be found on disk. Use unknown
+				// License as fallback.
+				instrumentLicense = License();
 			}
 		}
 	} else {
@@ -488,16 +387,17 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		XMLNode componentNode = pNode->firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
 			pInstrument->get_components()->
-				push_back( InstrumentComponent::load_from( &componentNode,
-														   pInstrument->get_drumkit_path(),
-														   instrumentLicense, bSilent ) );
+				push_back( InstrumentComponent::load_from(
+							   &componentNode, pInstrument->get_drumkit_path(),
+							   sSongPath, instrumentLicense, bSilent ) );
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
 		}
 	}
 	else {
 		// back compatibility code
-		auto pCompo = Legacy::loadInstrumentComponent( pNode, pInstrument->get_drumkit_path(),
-													   instrumentLicense, bSilent );
+		auto pCompo = Legacy::loadInstrumentComponent(
+			pNode, pInstrument->get_drumkit_path(), sSongPath, instrumentLicense,
+			bSilent );
 		if ( pCompo == nullptr ) {
 			ERRORLOG( QString( "Unable to load component for instrument [%1]. Aborting." )
 					  .arg( pInstrument->get_name() ) );
@@ -573,13 +473,16 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
+void Instrument::save_to( XMLNode* node,
+						  int component_id,
+						  bool bRecentVersion,
+						  bool bSongKit )
 {
 	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 
-	if ( bFull ) {
+	if ( bSongKit ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
 		InstrumentNode.write_string( "drumkit", __drumkit_name );
 	}
@@ -635,13 +538,14 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 	InstrumentNode.write_int( "higher_cc", __higher_cc );
 
 	for ( int i=0; i<MAX_FX; i++ ) {
-		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
+		InstrumentNode.write_float( QString( "FX%1Level" )
+									.arg( i+1 ), __fx_level[i] );
 	}
 	
 	for ( auto& pComponent : *__components ) {
-		if( component_id == -1 ||
+		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( &InstrumentNode, component_id, bRecentVersion, bFull );
+			pComponent->save_to( &InstrumentNode, bRecentVersion, bSongKit );
 		}
 	}
 }
@@ -664,7 +568,7 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitCompo
 
 QString Instrument::get_drumkit_path() const
 {
-	return Filesystem::ensure_session_compatibility( __drumkit_path );
+	return __drumkit_path;
 }
 
 bool Instrument::hasSamples() const {

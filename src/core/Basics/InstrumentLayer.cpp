@@ -83,60 +83,63 @@ void InstrumentLayer::unload_sample()
 	}
 }
 
-std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
+std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
-	QString sAbsoluteFilename = sFilename;
+	const QString sFilename =
+		pNode->read_string( "filename", "", false, false, bSilent );
 
-	if ( ! Filesystem::file_exists( sFilename, true ) && ! sDrumkitPath.isEmpty() &&
-		 ! sFilename.startsWith( "/" ) ) {
-
-#ifdef H2CORE_HAVE_OSC
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			// If we use the NSM support and the sample files to save
-			// are corresponding to the drumkit linked/located in the
-			// session folder, we have to ensure the relative paths
-			// are loaded. This is vital in order to support
-			// renaming, duplicating, and porting sessions.
-
-			// QFileInfo::isRelative() can not be used in here as
-			// samples within drumkits within the user or system
-			// drumkit folder are stored relatively as well (by saving
-			// just the filename).
-			if ( sFilename.left( 2 ) == "./" ||
-				 sFilename.left( 2 ) == ".\\" ) {
-				// Removing the leading "." of the relative path in
-				// sFilename while still using the associated folder
-				// separator.
-				sAbsoluteFilename = NsmClient::get_instance()->getSessionFolderPath() +
-					sFilename.right( sFilename.size() - 1 );
-			}
-			else {
-				sFilename = sDrumkitPath + "/" + sFilename;
-				sAbsoluteFilename = sFilename;
-			}
+	QFileInfo filenameInfo( sFilename );
+	QString sFilePath;
+	if ( filenameInfo.isAbsolute() ) {
+		// Samples with absolute filenames are those added using the
+		// InstrumentEditor.
+		sFilePath = sFilename;
+	}
+	else {
+		// QFileInfo::isRelative() can not be used in here as samples of
+		// drumkits within the user or system drumkit folder are stored
+		// relatively as well (by saving just the filename).
+		if ( ( sFilename.contains( QDir::separator() ) || sFilename.contains( "/" ) ) &&
+			 ! sSongPath.isEmpty() ) {
+			// Sample path can be stored relative to the .h2song file. This is
+			// mainly present to allow for more thorough unit test. It, however,
+			// has to be written manually. Hydrogen itself does not store paths
+			// relatively (except when under session management) to increase
+			// portability.
+			QFileInfo songPathInfo( sSongPath );
+			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFilename );
 		}
 		else {
-			sFilename = sDrumkitPath + "/" + sFilename;
-			sAbsoluteFilename = sFilename;
+			// Plain filenames of samples associated with an installed drumkit.
+			QFileInfo drumkitPathInfo( sDrumkitPath );
+			if ( drumkitPathInfo.isDir() ) {
+				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFilename );
+			} else {
+				// Path to drumkit.xml was entered. Not standard. Probably done
+				// manually.
+				sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath( sFilename );
+
+			}
 		}
-#else
-		sFilename = sDrumkitPath + "/" + sFilename;
-		sAbsoluteFilename = sFilename;
-#endif
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( Filesystem::file_exists( sAbsoluteFilename, true ) ) {
-		pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
+	if ( Filesystem::file_exists( sFilePath, true ) ) {
+		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
 		// If 'ismodified' is not present, InstrumentLayer was stored as
 		// part of a drumkit. All the additional Sample info, like Loops,
 		// envelopes etc., were not written to disk and we won't load the
 		// sample.
-		bool bIsModified = pNode->read_bool( "ismodified", false, true, false, true );
+		const bool bIsModified =
+			pNode->read_bool( "ismodified", false, true, false, true );
 		pSample->set_is_modified( bIsModified );
 	
 		if ( bIsModified ) {
@@ -185,8 +188,12 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 			}
 			pSample->set_pan_envelope( panEnvelope );
 		}
+	} else {
+		ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
+				  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
+				  .arg( sSongPath ) );
 	}
-	
+
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 	pLayer->set_start_velocity( pNode->read_float( "min", 0.0,
 												   true, true, bSilent  ) );
@@ -199,7 +206,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 	return pLayer;
 }
 
-void InstrumentLayer::save_to( XMLNode* node, bool bFull )
+void InstrumentLayer::save_to( XMLNode* node, bool bSongKit )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSample = get_sample();
@@ -211,24 +218,8 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	XMLNode layer_node = node->createNode( "layer" );
 
 	QString sFilename;
-	if ( bFull ) {
-
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			// If we use the NSM support and the sample files to save
-			// are corresponding to the drumkit linked/located in the
-			// session folder, we have to ensure the relative paths
-			// are written out. This is vital in order to support
-			// renaming, duplicating, and porting sessions.
-			if ( pSample->get_raw_filepath().startsWith( '.' ) ) {
-				sFilename = pSample->get_raw_filepath();
-			}
-			else {
-				sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
-			}
-		}
-		else {
-			sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
-		}
+	if ( bSongKit ) {
+		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
 	}
 	else {
 		sFilename = pSample->get_filename();
@@ -240,33 +231,31 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	layer_node.write_float( "gain", __gain );
 	layer_node.write_float( "pitch", __pitch );
 
-	if ( bFull ) {
-		layer_node.write_bool( "ismodified", pSample->get_is_modified() );
-		layer_node.write_string( "smode", pSample->get_loop_mode_string() );
+	layer_node.write_bool( "ismodified", pSample->get_is_modified() );
+	layer_node.write_string( "smode", pSample->get_loop_mode_string() );
 
-		Sample::Loops loops = pSample->get_loops();
-		layer_node.write_int( "startframe", loops.start_frame );
-		layer_node.write_int( "loopframe", loops.loop_frame );
-		layer_node.write_int( "loops", loops.count );
-		layer_node.write_int( "endframe", loops.end_frame );
+	Sample::Loops loops = pSample->get_loops();
+	layer_node.write_int( "startframe", loops.start_frame );
+	layer_node.write_int( "loopframe", loops.loop_frame );
+	layer_node.write_int( "loops", loops.count );
+	layer_node.write_int( "endframe", loops.end_frame );
 
-		Sample::Rubberband rubberband = pSample->get_rubberband();
-		layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
-		layer_node.write_float( "rubberdivider", rubberband.divider );
-		layer_node.write_int( "rubberCsettings", rubberband.c_settings );
-		layer_node.write_float( "rubberPitch", rubberband.pitch );
+	Sample::Rubberband rubberband = pSample->get_rubberband();
+	layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
+	layer_node.write_float( "rubberdivider", rubberband.divider );
+	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
+	layer_node.write_float( "rubberPitch", rubberband.pitch );
 
-		for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
-			XMLNode volumeNode = layer_node.createNode( "volume" );
-			volumeNode.write_int( "volume-position", velocity.frame );
-			volumeNode.write_int( "volume-value", velocity.value );
-		}
+	for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
+		XMLNode volumeNode = layer_node.createNode( "volume" );
+		volumeNode.write_int( "volume-position", velocity.frame );
+		volumeNode.write_int( "volume-value", velocity.value );
+	}
 
-		for ( const auto& pan : *pSample->get_pan_envelope() ) {
-			XMLNode panNode = layer_node.createNode( "pan" );
-			panNode.write_int( "pan-position", pan.frame );
-			panNode.write_int( "pan-value", pan.value );
-		}
+	for ( const auto& pan : *pSample->get_pan_envelope() ) {
+		XMLNode panNode = layer_node.createNode( "pan" );
+		panNode.write_int( "pan-position", pan.frame );
+		panNode.write_int( "pan-value", pan.value );
 	}
 }
 
