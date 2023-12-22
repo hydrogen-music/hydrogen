@@ -170,19 +170,21 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSiz
 		font.setPixelSize( nPixelSize );
 	}
 	font.setBold( true );
-	
-	setFont( font );
 
-	if ( ! m_size.isNull() ) {
+	if ( ! m_size.isNull() || width() > height() ) {
 		// Check whether the width of the text fits the available frame
 		// width of the label
-		while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
-				&& nPixelSize > 1 ) {
+		while ( QFontMetrics( font ).size( Qt::TextSingleLine, text() ).width() >
+				width() && nPixelSize > 1 ) {
 			nPixelSize--;
 			font.setPixelSize( nPixelSize );
-			setFont( font );
 		}
 	}
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
 }
 
 void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
