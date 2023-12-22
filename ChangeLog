@@ -77,6 +77,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 					the default note color (#1854).
 				- Fixed grid line rendering on rational pattern size nominator.
 				- Fixed grid line colors on very fine resolution.
+		- Fix broken file browser dialogs on Linux when using translations (#1908).
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
