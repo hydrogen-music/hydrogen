@@ -1,6 +1,7 @@
 package main
 
 import (
+    "context"
     "fmt"
     "log"
     "os/exec"
@@ -16,6 +17,10 @@ const oscHydrogenPort = 9000
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
 const hydrogenStartupTime = 3000
+// hydrogenTearDownTime gives an upper limit for the time required for
+// killHydrogen() to send a quit OSC signal, for Hydrogen to receive it and
+// finish its tear down.
+const hydrogenTearDownTime = 5000
 
 // hydrogenStartupChan is used by startHydrogen() to indicate that Hydrogen was
 // started.
@@ -53,9 +58,15 @@ func main() {
 // enables OSC and uses a specific port unlikely used by another Hydrogen
 // instance (in case another one is already running).
 func startHydrogen() error {
+    // Wait a couple of second till the program is killed. This is required
+    // since a crash of Hydrogen (what we want expect in the test) would result
+    // in a zombie process.
+    ctx, _ := context.WithTimeout(context.Background(),
+        (hydrogenTearDownTime + hydrogenStartupTime) * time.Millisecond)
+    cmd := exec.CommandContext(ctx, "hydrogen", "--driver", "jack", "--nosplash")
+
     hydrogenStartupChan <- true
 
-    cmd := exec.Command("hydrogen", "--driver", "jack", "--nosplash")
     output, err := cmd.Output()
     if err != nil {
         return fmt.Errorf("[startHydrogen] Exited with error [%v]:\n%v\n\n",
@@ -79,6 +90,7 @@ func killHydrogen(client *osc.Client) {
                 log.Fatalf("[killHydrogen] Unable to send OSC message: %v",
                     err.Error())
             }
+
             return
 
         default:
