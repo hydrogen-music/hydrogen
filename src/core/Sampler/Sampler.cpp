@@ -1032,10 +1032,10 @@ void resample( float *buffer_L, float *buffer_R, float *pSample_data_L, float *p
 					if ( nSamplePos < nSampleFrames ) {
 						l1 = pSample_data_L[ nSamplePos ];
 						r1 = pSample_data_R[ nSamplePos ];
-						if ( nSamplePos+1 < nSamplePos ) {
+						if ( nSamplePos+1 < nSampleFrames ) {
 							l2 = pSample_data_L[ nSamplePos+1 ];
 							r2 = pSample_data_R[ nSamplePos+1 ];
-							if ( nSamplePos+2 < nSamplePos ) {
+							if ( nSamplePos+2 < nSampleFrames ) {
 								l3 = pSample_data_L[ nSamplePos+2 ];
 								r3 = pSample_data_R[ nSamplePos+2 ];
 							}
