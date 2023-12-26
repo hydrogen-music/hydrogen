@@ -28,6 +28,7 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
@@ -45,9 +46,6 @@ namespace Qt {
 #endif
 
 bool AudioBenchmark::bEnabled = false;
-
-CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
-
 
 static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 {
@@ -229,7 +227,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
@@ -252,7 +250,7 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	pHydrogen->setSong( pSong );
-	pInstrumentList = pSong->getInstrumentList();
+	pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

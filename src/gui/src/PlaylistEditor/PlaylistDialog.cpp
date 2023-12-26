@@ -795,7 +795,7 @@ void PlaylistDialog::nodePlayBTN()
 		sFilename = m_pPlaylistItem->text ( 0 );
 
 		if( sFilename == pHydrogen->getSong()->getFilename()){
-			pHydrogen->sequencer_play();
+			pHydrogen->sequencerPlay();
 			return;
 		}
 
@@ -807,10 +807,10 @@ void PlaylistDialog::nodePlayBTN()
 			m_pPlayBtn->setChecked(false);
 		}
 
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 	}
 	else {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
 }
@@ -818,7 +818,7 @@ void PlaylistDialog::nodePlayBTN()
 void PlaylistDialog::nodeStopBTN()
 {
 	m_pPlayBtn->setChecked(false);
-	Hydrogen::get_instance()->sequencer_stop();
+	Hydrogen::get_instance()->sequencerStop();
 	Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 }
 

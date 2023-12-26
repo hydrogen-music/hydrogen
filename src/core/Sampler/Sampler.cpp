@@ -32,6 +32,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -117,16 +118,13 @@ void Sampler::process( uint32_t nFrames )
 		return;
 	}
 	
-	AudioOutput* pAudioOutpout = pHydrogen->getAudioOutput();
-	assert( pAudioOutpout );
-
 	memset( m_pMainOut_L, 0, nFrames * sizeof( float ) );
 	memset( m_pMainOut_R, 0, nFrames * sizeof( float ) );
 
 	// Track output queues are zeroed by
 	// audioEngine_process_clearAudioBuffers()
 
-	for ( auto& pComponent : *pSong->getComponents() ) {
+	for ( auto& pComponent : *pSong->getDrumkit()->getComponents() ) {
 		pComponent->reset_outs(nFrames);
 	}
 
@@ -534,6 +532,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 	long long nFrame;
 	auto pAudioDriver = pHydrogen->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return true;
+	}
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ||
 		 pAudioEngine->getState() == AudioEngine::State::Testing ) {
@@ -616,36 +619,38 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	//---------------------------------------------------------
 
 	auto pComponents = pInstr->get_components();
-	bool nReturnValues[ pComponents->size() ];
+	auto returnValues = std::vector<bool>( pComponents->size() );
 
-	for( int i = 0; i < pComponents->size(); i++ ){
-		nReturnValues[i] = false;
+	for ( int ii = 0; ii < pComponents->size(); ++ii ){
+		returnValues[ ii ] = false;
 	}
 
-	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
-	bool bComponentFound = false;
 
-	for ( const auto& pCompo : *pComponents ) {
+	for ( int ii = 0; ii < pComponents->size(); ++ii ) {
+		auto pCompo = pComponents->at( ii );
+		if ( pCompo == nullptr ) {
+			ERRORLOG( QString( "Component [%1] is invalid" ).arg( ii ) );
+			continue;
+		}
+
 		std::shared_ptr<DrumkitComponent> pMainCompo = nullptr;
 
 		if ( pNote->get_specific_compo_id() != -1 &&
 			 pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
-			nReturnValueIndex++;
 			continue;
 		}
-		bComponentFound = true;
 
 		if ( pInstr->is_preview_instrument() ||
 			 pInstr->is_metronome_instrument() ){
-			pMainCompo = pSong->getComponents()->front();
+			pMainCompo = pSong->getDrumkit()->getComponents()->front();
 		} else {
 			int nComponentID = pCompo->get_drumkit_componentID();
 			if ( nComponentID >= 0 ) {
-				pMainCompo = pSong->getComponent( nComponentID );
+				pMainCompo = pSong->getDrumkit()->getComponent( nComponentID );
 			} else {
 				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pSong->getComponents()->front();
+				pMainCompo = pSong->getDrumkit()->getComponents()->front();
 			}
 		}
 
@@ -654,8 +659,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
 										 nAlreadySelectedLayer );
 		if ( pSample == nullptr ) {
-			nReturnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 
@@ -671,8 +675,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		if( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
-			nReturnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 		auto pLayer = pCompo->get_layer( pSelectedLayer->nSelectedLayer );
@@ -690,8 +693,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 							.arg( pSelectedLayer->fSamplePosition )
 							.arg( pSample->get_frames() ) );
 			}
-			nReturnValues[nReturnValueIndex] = true;
-			nReturnValueIndex++;
+			returnValues[ ii ] = true;
 			continue;
 		}
 
@@ -702,7 +704,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
 								 ! pInstr->is_currently_exported() );
-		bool bAnyInstrumentIsSoloed = pSong->getInstrumentList()->isAnyInstrumentSoloed();
+		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
 		
@@ -777,20 +779,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
-
-		nReturnValueIndex++;
+		returnValues[ ii ] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
 	}
 
-	// Sanity check whether the note could be rendered.
-	if ( ! bComponentFound ) {
-		ERRORLOG( QString( "Specific note component [%1] not found in instrument associated with note: [%2]" )
-				  .arg( pNote->get_specific_compo_id() )
-				  .arg( pNote->toQString() ) );
-		return true;
-	}
-
-	for ( const auto& bReturnValue : nReturnValues ) {
+	for ( const auto& bReturnValue : returnValues ) {
 		if ( ! bReturnValue ) {
 			return false;
 		}
@@ -801,12 +793,17 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
+		return true;
+	}
+
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
 		return true;
 	}
 
@@ -817,9 +814,13 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
-	auto pSample = pCompo->get_layer(0)->get_sample();
+	const auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	if ( pCompo == nullptr ) {
+		ERRORLOG( "Invalid component of playback instrument" );
+		return true;
+	}
 
+	auto pSample = pCompo->get_layer(0)->get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
 		EventQueue::get_instance()->push_event( EVENT_ERROR,
@@ -998,7 +999,27 @@ bool Sampler::renderNoteResample(
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return true;
+	}
+
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return true;
+	}
+
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return true;
+	}
+
 	auto pInstrument = pNote->get_instrument();
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Invalid note instrument" );
+		return true;
+	}
 
 	const float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 	const bool bResample = fNotePitch != 0 ||

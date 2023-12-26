@@ -204,8 +204,8 @@ class Sample : public H2Core::Object<Sample>
 		 */
 		void unload();
 
-		/** \return true if both data channels are null pointers */
-		bool is_empty() const;
+		/** \return true if the associated sample file was loaded */
+		bool isLoaded() const;
 		QString get_filepath() const;
 		/** \return #__filepath */
 		const QString get_raw_filepath() const;
@@ -349,9 +349,8 @@ inline void Sample::unload()
 	__data_l = __data_r = nullptr;
 }
 
-inline bool Sample::is_empty() const
-{
-	return ( __data_l == 0 && __data_r == 0 );
+inline bool Sample::isLoaded() const {
+	return __frames != 0;
 }
 
 inline const QString Sample::get_raw_filepath() const

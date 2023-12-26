@@ -177,10 +177,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
 	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
 
-	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
-	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
-	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
-	
 	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
 	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
 	const QString& getInputCaptureColumn() const { return m_sInputCaptureColumn; }
@@ -196,13 +192,29 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 	
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
+	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
 
 	const QString& getInstrumentId() const { return m_sInstrumentId; }
 	const QString& getInstrumentType() const { return m_sInstrumentType; }
 	const QString& getComponent() const { return m_sComponent; }
 	const QString& getSample() const { return m_sSample; }
 	const QString& getLicense() const { return m_sLicense; }
-	
+
+	const QString& getMenuActionAdd() const { return m_sMenuActionAdd; }
+	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
+	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
+	const QString& getMenuActionLoad() const { return m_sMenuActionLoad; }
+	const QString& getMenuActionExport() const { return m_sMenuActionExport; }
+	const QString& getMenuActionProperties() const { return m_sMenuActionProperties; }
+	const QString& getMenuActionDuplicate() const { return m_sMenuActionDuplicate; }
+	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
+	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
+
+		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
+		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
+
+		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -339,10 +351,6 @@ private:
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
 	
-	QString m_sSoundLibraryFailedPreDrumkitLoad;
-	QString m_sSoundLibrarySystemSuffix;
-	QString m_sSoundLibrarySessionSuffix;
-	
 	QString m_sInputCaptureBpm;
 	QString m_sInputCaptureVolume;
 	QString m_sInputCaptureColumn;
@@ -358,11 +366,27 @@ private:
 	QString m_sInputCaptureTag;
 
 	QString m_sExportSongFailure;
+	QString m_sExportDrumkitFailure;
 
 	QString m_sInstrumentId;
 	QString m_sInstrumentType;
 	QString m_sComponent;
 	QString m_sSample;
 	QString m_sLicense;
+
+	QString m_sMenuActionAdd;
+	QString m_sMenuActionDelete;
+	QString m_sMenuActionRename;
+	QString m_sMenuActionLoad;
+	QString m_sMenuActionExport;
+	QString m_sMenuActionProperties;
+	QString m_sMenuActionDuplicate;
+	QString m_sMenuActionImport;
+	QString m_sMenuActionOnlineImport;
+
+		QString m_sActionEditDrumkitProperties;
+		QString m_sActionIrreversible;
+
+		QString m_sErrorNotFound;
 };
 #endif

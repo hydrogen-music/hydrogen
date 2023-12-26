@@ -379,7 +379,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// MIDI tab - list midi input ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiInput() ) {
+	if ( pHydrogen->getMidiInput() != nullptr ) {
 		std::vector<QString> midiOutList = pHydrogen->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
@@ -400,7 +400,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiOutportComboBox->setSize( midiTabWidgetSize );
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiOutput() ) {
+	if ( pHydrogen->getMidiOutput() != nullptr ) {
 		std::vector<QString> midiOutList = pHydrogen->getMidiOutput()->getInputPortList();
 
 		if ( midiOutList.size() != 0 ) {
@@ -1285,7 +1285,7 @@ void PreferencesDialog::updateDriverInfoLabel() {
 			.append( "</font></b>" );
 #else
 		auto pAlsaDriver =
-			dynamic_cast<H2Core::AlsaAudioDriver*>(Hydrogen::get_instance()->getAudioOutput());
+			dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver);
 		if ( pAlsaDriver != nullptr ) {
 			sInfo.append( "<br>" ).append( tr( "Currently connected to device: " ) )
 				.append( "<b>" ).append( pAlsaDriver->m_sAlsaAudioDevice )
@@ -1483,7 +1483,17 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 	latencyTargetLabel->show();
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
-	latencyValueLabel->setText( QString("Current: %1 frames").arg( H2Core::Hydrogen::get_instance()->getAudioOutput()->getLatency() ) );
+
+	const auto pAudioDriver = H2Core::Hydrogen::get_instance()->getAudioOutput();
+	int nLatency;
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return;
+	}
+	else {
+		nLatency = pAudioDriver->getLatency();
+	}
+	latencyValueLabel->setText( QString("Current: %1 frames").arg( nLatency ) );
 
 	bufferSizeSpinBox->setToolTip( "" );
 	sampleRateComboBox->setToolTip( "" );

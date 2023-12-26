@@ -28,10 +28,12 @@
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -258,7 +260,8 @@ static void
 JackMidiShutdown(void *arg)
 {
 	UNUSED(arg);
-	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
+	Hydrogen::get_instance()->getAudioEngine()->raiseError(
+		Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
 JackMidiDriver::JackMidiDriver()
@@ -445,7 +448,7 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 
 void JackMidiDriver::handleQueueAllNoteOff()
 {
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	std::shared_ptr<Instrument>		pCurInstr;
 	unsigned int numInstruments = pInstrList->size();
 	unsigned int i = 0;

@@ -11,7 +11,20 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  they are retrieved using popup dialogs.
 		- Align to grid action in Pattern Editor to align
 		  exsiting notes to current grid.
+		- Switching drumkits, replace the current kit by a new one, as well as
+			adding, deleting, and renaming drumkit components can now be undone.
+		- Pattern and drumkit properties can be edited by clicking the corresponding
+			name in the left column of the Pattern Editor.
 	* Changed
+		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
+			Tweaking its name, instruments etc. does not affect the kits in the Sound
+			Library (user and system drumkit folder) unless it is explicitly saved to
+			it. All actions in the Main Menu > Drumkit only affect the song's kit. All
+			actions in the Sound Library do only affect the selected kit and not the one
+			of the current song (except loading).
+		- .h2song file format changed. (forward compatible only with v1.2.3 and newer).
+		- Drumkit format XSD changed. Adjustments done in the Sample Editor are now
+			stored in the kit as well (previously, this was only possible in songs).
 		- Prerelease version suffix (alpha, beta, rc..) are now appended to
 			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 		- Preferences dialog can now be smoothly resized.
@@ -20,6 +33,15 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  beginning and end of a song if loop mode is enabled. In pattern
 		  mode they move transport to be beginning and next is updating
 		  pending stacked patterns.
+		- NSM:
+				- Drumkits are no longer linked into the session folder
+				- All drumkits in the session folder (proper drumkit folders containing
+				  samples. Linked ones are not supported) as available as session kits
+				  in the Sound Library.
+				- New action in Main Menu to save kit to session folder.
+	* Fixed
+		- Components can now carry arbitrary names and name duplication is handled
+			properly.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3
@@ -41,6 +63,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix various rendering issues with custom length notes.
 		- Fix potential crash/failing startup on Windows in case PortAudio
 			or PortMidi device is already occupied (#1893)
+		- Fix crash on shutdown, song export, or driver changes in the
+			Preferences while using JACK on Linux (#1902, #1867, #1907)
 		- Pattern Editor:
 				- Only delete stop notes clicked by the user. (#1859)
 				- Proper undo of moving notes out of DrumPatternEditor. (#1859)
@@ -53,6 +77,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 					the default note color (#1854).
 				- Fixed grid line rendering on rational pattern size nominator.
 				- Fixed grid line colors on very fine resolution.
+		- Fix broken file browser dialogs on Linux when using translations (#1908).
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>

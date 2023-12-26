@@ -24,71 +24,101 @@
 #include <QtWidgets>
 
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "../CommonStrings.h"
+#include "../UndoActions.h"
 
-#include "SoundLibraryPropertiesDialog.h"
+#include "DrumkitPropertiesDialog.h"
 #include "../InstrumentRack.h"
-#include "SoundLibraryPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
+#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
 
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, std::shared_ptr<Drumkit> pDrumkit, bool bDrumkitNameLocked )
+DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
+												  std::shared_ptr<Drumkit> pDrumkit,
+												  bool bEditingNotSaving,
+												  bool bSaveToNsmSession )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
- , m_bDrumkitNameLocked( bDrumkitNameLocked )
- , m_sNewImagePath( "" )
+ , m_bEditingNotSaving( bEditingNotSaving )
+ , m_bSaveToNsmSession( bSaveToNsmSession )
 {
-	setObjectName( "SoundLibraryPropertiesDialog" );
+	setObjectName( "DrumkitPropertiesDialog" );
 	
 	setupUi( this );
 
 	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	setWindowTitle( tr( "SoundLibrary Properties" ) );
 	adjustSize();
 	setMinimumSize( width(), height() );
 
 	setupLicenseComboBox( licenseComboBox );
 	setupLicenseComboBox( imageLicenseComboBox );
-	
+
+	if ( bSaveToNsmSession &&
+		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		ERRORLOG( "NSM session export request while there is no active NSM session. Saving to Sound Library instead." );
+		m_bSaveToNsmSession = false;
+	}
+
 	bool bDrumkitWritable = false;
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
-		auto drumkitType = Filesystem::determineDrumkitType(
-			pDrumkit->get_path() );
-		if ( drumkitType == Filesystem::DrumkitType::User ||
-			 drumkitType == Filesystem::DrumkitType::SessionReadWrite ) {
+		auto drumkitType = pDrumkit->getType();
+		if ( drumkitType == Drumkit::Type::User ||
+			 drumkitType == Drumkit::Type::SessionReadWrite ||
+			 drumkitType == Drumkit::Type::Song ) {
 			bDrumkitWritable = true;
 		}
 
-		nameTxt->setText( pDrumkit->get_name() );
+		nameTxt->setText( pDrumkit->getName() );
 
-		if ( bDrumkitNameLocked ) {
-			nameTxt->setIsActive( false );
-			nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven't done so already) using right click > load and select Drumkits > Save As in the main menu" ) );
+		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+			if ( bEditingNotSaving ) {
+				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+			}
+			else if ( m_bSaveToNsmSession ){
+				setWindowTitle( tr( "Save a copy of the current drumkit to NSM session folder" ) );
+			}
+			else {
+				setWindowTitle( tr( "Save a copy of the current drumkit to the Sound Library" ) );
+			}
+		}
+		else {
+			if ( bEditingNotSaving ) {
+				setWindowTitle( tr( "Edit Drumkit Properties" ) );
+				nameTxt->setIsActive( false );
+				nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
+			}
+			else {
+				setWindowTitle( tr( "Create New Drumkit" ) );
+			}
 		}
 		
-		authorTxt->setText( QString( pDrumkit->get_author() ) );
-		infoTxt->append( QString( pDrumkit->get_info() ) );
+		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
+		infoTxt->append( QString( pDrumkit->getInfo() ) );
 
-		License license = pDrumkit->get_license();
+		License license = pDrumkit->getLicense();
 		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
 		licenseStringTxt->setText( license.getLicenseString() );
-	
-		imageText->setText( QString( pDrumkit->get_image() ) );
 
-		License imageLicense = pDrumkit->get_image_license();
+		// Will contain a file name in case of an image file located in the
+		// drumkit folder or an absolute path in case of one located outside of
+		// it (in our cache folder in case of a song kit).
+		imageText->setText( pDrumkit->getImage() );
+
+		License imageLicense = pDrumkit->getImageLicense();
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
 		imageLicenseStringTxt->setText( imageLicense.getLicenseString() );
 	}
@@ -116,8 +146,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 
 	// In case the drumkit name is not locked/the dialog is used as
 	// "Save As" nothing needs to be disabled.
-	if ( ! bDrumkitWritable && bDrumkitNameLocked ) {
-		QString sToolTip = tr( "The current drumkit is read-only. Please use Drumkits > Save As in the main menu to create a new one first." );
+	if ( ! bDrumkitWritable && bEditingNotSaving ) {
+		QString sToolTip = tr( "The current drumkit is read-only. Please use 'Duplicate' to move a copy into user space." );
 		
 		// The drumkit is read-only. Thus we won't support altering
 		// any of its properties.
@@ -156,12 +186,15 @@ QTextEdit { \
 	saveBtn->setFixedFontSize( 12 );
 	saveBtn->setSize( QSize( 70, 23 ) );
 	saveBtn->setBorderRadius( 3 );
+	saveBtn->setType( Button::Type::Push );
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
+	m_cancelBtn->setType( Button::Type::Push );
 	imageBrowsePushButton->setFixedFontSize( 12 );
 	imageBrowsePushButton->setBorderRadius( 3 );
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
+	imageBrowsePushButton->setType( Button::Type::Push );
 	
 	mappingTable->setColumnCount( 3 );
 	mappingTable->setHorizontalHeaderLabels(
@@ -194,25 +227,24 @@ QTextEdit { \
 }
 
 
-SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
+DrumkitPropertiesDialog::~DrumkitPropertiesDialog()
 {
 	INFOLOG( "DESTROY" );
 }
 
 /// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
-void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
+void DrumkitPropertiesDialog::showEvent( QShowEvent *e )
 {
 	if ( m_pDrumkit != nullptr &&
-		 ! m_pDrumkit->get_image().isEmpty() ) {
-		QString sImage = m_pDrumkit->get_path() + "/" + m_pDrumkit->get_image();
-		updateImage( sImage );
+		 ! m_pDrumkit->getAbsoluteImagePath().isEmpty() ) {
+		updateImage( m_pDrumkit->getAbsoluteImagePath() );
 	}
 	else {
 		drumkitImageLabel->hide();
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateLicensesTable() {
+void DrumkitPropertiesDialog::updateLicensesTable() {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
@@ -249,7 +281,7 @@ void SoundLibraryPropertiesDialog::updateLicensesTable() {
 			pLicenseItem->setToolTip( ccontent->m_license.getLicenseString() );
 
 			// In case of a license mismatch we highlight the row
-			if ( ccontent->m_license != m_pDrumkit->get_license() ) {
+			if ( ccontent->m_license != m_pDrumkit->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
 					.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
 					.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
@@ -279,19 +311,19 @@ void SoundLibraryPropertiesDialog::updateLicensesTable() {
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateMappingTable() {
+void DrumkitPropertiesDialog::updateMappingTable() {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
 	if ( m_pDrumkit == nullptr || m_pDrumkit->getDrumkitMap() == nullptr ||
-		 m_pDrumkit->get_instruments() == nullptr ) {
+		 m_pDrumkit->getInstruments() == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
 
 	const auto pMap = m_pDrumkit->getDrumkitMap();
-	const auto pInstrumentList = m_pDrumkit->get_instruments();
+	const auto pInstrumentList = m_pDrumkit->getInstruments();
 
 	mappingTable->clearContents();
 	mappingTable->setRowCount( std::max( pMap->size(),
@@ -364,7 +396,7 @@ void SoundLibraryPropertiesDialog::updateMappingTable() {
 	mappingTable->setRowCount( nnCell );
 }
 
-void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
+void DrumkitPropertiesDialog::licenseComboBoxChanged( int ) {
 
 	licenseStringTxt->setText( License::LicenseTypeToQString(
 		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
@@ -381,7 +413,7 @@ void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
 	updateLicensesTable();
 }
 	
-void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
+void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 
 	imageLicenseStringTxt->setText( License::LicenseTypeToQString(
 		static_cast<License::LicenseType>( imageLicenseComboBox->currentIndex() ) ) );
@@ -396,14 +428,29 @@ void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 	}
 }
 
-void SoundLibraryPropertiesDialog::updateImage( QString& filename )
+void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 {
-	QPixmap *pPixmap = new QPixmap ( filename );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pColorTheme = Preferences::get_instance()->getColorTheme();
+
+	//  Styling used in case we assign text not images.
+	drumkitImageLabel->setStyleSheet(
+		QString( "QLabel { color: %1; background-color: %2;}" )
+		.arg( pColorTheme->m_windowTextColor.name() )
+		.arg( pColorTheme->m_windowColor.name() ) );
+	drumkitImageLabel->show();
+
+	if ( ! Filesystem::file_exists( sFilePath, false ) ) {
+		drumkitImageLabel->setText( "File could not be found." );
+		return;
+	}
+
+	QPixmap *pPixmap = new QPixmap ( sFilePath );
 
 	// Check whether the loading worked.
 	if ( pPixmap->isNull() ) {
-		ERRORLOG( QString( "Unable to load pixmap from [%1]" ).arg( filename ) );
-		drumkitImageLabel->hide();
+		ERRORLOG( QString( "Unable to load pixmap from [%1]" ).arg( sFilePath ) );
+		drumkitImageLabel->setText( tr( "Unable to load pixmap" ) );
 		return;
 	}
 	
@@ -413,15 +460,12 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 	float labelAspect = (float) x / y;
 	float imageAspect = (float) pPixmap->width() / pPixmap->height();
 
-	if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) )
-	{
-		if ( labelAspect >= imageAspect )
-		{
+	if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) ) {
+		if ( labelAspect >= imageAspect ) {
 			// image is taller or the same as label frame
 			*pPixmap = pPixmap->scaledToHeight( y );
 		}
-		else
-		{
+		else {
 			// image is wider than label frame
 			*pPixmap = pPixmap->scaledToWidth( x );
 		}
@@ -431,40 +475,39 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 
 }
 
-void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
+void DrumkitPropertiesDialog::on_imageBrowsePushButton_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		return;
 	}
 	
 	// Try to get the drumkit directory and open file browser
-	QString sDrumkitDir = m_pDrumkit->get_path();
+	QString sDrumkitDir = m_pDrumkit->getPath();
 
-	QString sFilePath = QFileDialog::getOpenFileName(this, tr("Open Image"), sDrumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
+	QString sFilePath =
+		QFileDialog::getOpenFileName( this, tr("Open Image"),
+									  sDrumkitDir,
+									  tr("Image Files (*.png *.jpg *.jpeg)" ) );
 
 	// If cancel was clicked just abort
 	if ( sFilePath == nullptr || sFilePath.isEmpty() ) {
 		return;
 	}
 
-	m_sNewImagePath = sFilePath;
-
-	QFileInfo fileInfo( sFilePath );
-	QString sFileName( fileInfo.fileName() );
-	imageText->setText( sFileName );
-
+	imageText->setText( sFilePath );
 	updateImage( sFilePath );
 }
 
-void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
+void DrumkitPropertiesDialog::on_saveBtn_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		return;
 	}
-	
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
     
 	// Sanity checks.
 	//
@@ -512,7 +555,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		sNewLicenseString = "";
 	}
 	License newLicense( sNewLicenseString );
-	newLicense.setCopyrightHolder( m_pDrumkit->get_author() );
+	newLicense.setCopyrightHolder( m_pDrumkit->getAuthor() );
 
 	QString sNewImageLicenseString( imageLicenseStringTxt->text() );
 	if ( imageLicenseComboBox->currentIndex() ==
@@ -520,21 +563,21 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		sNewImageLicenseString = "";
 	}
 	License newImageLicense( sNewImageLicenseString );
-	newImageLicense.setCopyrightHolder( m_pDrumkit->get_author() );
+	newImageLicense.setCopyrightHolder( m_pDrumkit->getAuthor() );
 
-	const QString sOldPath = m_pDrumkit->get_path();
-	if ( m_pDrumkit->get_name() != nameTxt->text() ) {
-		m_pDrumkit->set_name( nameTxt->text() );
-		m_pDrumkit->set_path( H2Core::Filesystem::usr_drumkits_dir() +
+	const QString sOldPath = m_pDrumkit->getPath();
+	if ( m_pDrumkit->getName() != nameTxt->text() ) {
+		m_pDrumkit->setName( nameTxt->text() );
+		m_pDrumkit->setPath( H2Core::Filesystem::usr_drumkits_dir() +
 							  nameTxt->text() );
 	}
-	m_pDrumkit->set_author( authorTxt->text() );
-	m_pDrumkit->set_info( infoTxt->toHtml() );
+	m_pDrumkit->setAuthor( authorTxt->text() );
+	m_pDrumkit->setInfo( infoTxt->toHtml() );
 		
 	// Only update the license in case it changed (in order to not
 	// overwrite an attribution).
-	if ( m_pDrumkit->get_license() != newLicense ) {
-		m_pDrumkit->set_license( newLicense );
+	if ( m_pDrumkit->getLicense() != newLicense ) {
+		m_pDrumkit->setLicense( newLicense );
 	}
 
 	if ( ! HydrogenApp::checkDrumkitLicense( m_pDrumkit ) ) {
@@ -545,28 +588,122 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	// Will contain image which should be removed. To keep the previous image,
 	// this string should be empty.
 	QString sOldImagePath;
-	if ( imageText->text() != m_pDrumkit->get_image() ) {
-		int nRes = QMessageBox::information( this, "Hydrogen",
-											 tr( "Delete previous drumkit image" )
-											 .append( QString( " [%1]" ).arg( m_pDrumkit->get_image() ) ),
-											 QMessageBox::Yes | QMessageBox::No );
-		if ( nRes == QMessageBox::Yes ) {
-			sOldImagePath = QString( "%1/%2" ).arg( sOldPath )
-				.arg( m_pDrumkit->get_image() );
+	// If set, indicates that the image has changed and the new one requires
+	// copying.
+	QString sNewImagePath;
+	if ( imageText->text() != m_pDrumkit->getImage() ) {
+
+		// Only ask for deleting the previous file if it exists.
+		if ( ! m_pDrumkit->getImage().isEmpty() &&
+			 Filesystem::file_exists( m_pDrumkit->getAbsoluteImagePath(),
+									  true ) ) {
+			int nRes = QMessageBox::information(
+				this, "Hydrogen",
+				tr( "Delete previous drumkit image" )
+				.append( QString( " [%1]" )
+						 .arg( m_pDrumkit->getAbsoluteImagePath() ) ),
+				QMessageBox::Yes | QMessageBox::No );
+			if ( nRes == QMessageBox::Yes ) {
+				sOldImagePath = m_pDrumkit->getAbsoluteImagePath();
+			}
 		}
-		m_pDrumkit->set_image( imageText->text() );
+
+		m_pDrumkit->setImage( imageText->text() );
+		sNewImagePath = imageText->text();
 	}
 
-	if ( m_pDrumkit->get_image_license() != newImageLicense ) {
-		m_pDrumkit->set_image_license( newImageLicense );
+	if ( m_pDrumkit->getImageLicense() != newImageLicense ) {
+		m_pDrumkit->setImageLicense( newImageLicense );
 	}
 	
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	saveDrumkitMap();
 
-	// Write new properties to disk.
+	bool bOldImageDeleted = false;
+	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		// Copy the selected image into our cache folder as the kit is a
+		// floating one associated to a song.
+		if ( ! sNewImagePath.isEmpty() ) {
+			QFileInfo fileInfo( sNewImagePath );
+
+			const QString sTargetPath = Filesystem::addUniquePrefix(
+				QDir( Filesystem::cache_dir() )
+				.absoluteFilePath( fileInfo.fileName() ) );
+
+			// Logging is done in file_copy.
+			if ( Filesystem::file_copy( sNewImagePath, sTargetPath, true, false ) ) {
+				m_pDrumkit->setImage( sTargetPath );
+			}
+		}
+
+		if ( ! sOldImagePath.isEmpty() ) {
+			Filesystem::rm( sOldImagePath, false, false );
+			bOldImageDeleted = true;
+		}
+
+		// When editing the properties of the current kit, the new version will
+		// be loaded in a way that can be undone.
+		//
+		// TODO this affects mostly metadata and can be done more efficiently.
+		// But due to the license propagation into the instruments, we switch
+		// the entire kit for now.
+		auto pAction = new SE_switchDrumkitAction(
+			m_pDrumkit, pSong->getDrumkit(), false,
+			SE_switchDrumkitAction::Type::EditProperties );
+		pHydrogenApp->m_pUndoStack->push( pAction );
+
+		// Since we hit save on the song's drumkit, we should also save the song
+		// for the sake of consistency.
+		pHydrogenApp->getMainForm()->action_file_save();
+
+		if ( m_bEditingNotSaving ) {
+			// We are not saving the kit to the Sound Library and are done for
+			// now.
+			accept();
+			return;
+		}
+
+		// We are saving the drumkit.
+	}
+
+	// Store the drumkit in the NSM session folder
+#ifdef H2CORE_HAVE_OSC
+	if ( m_bSaveToNsmSession && m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		m_pDrumkit->setPath(
+			QDir( NsmClient::get_instance()->getSessionFolderPath() )
+			.absoluteFilePath( m_pDrumkit->getName() ) );
+#else
+	if ( false ) {
+#endif
+	} // Read-only and song kits we can only duplicate into the user folder.
+	else if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
+			  m_pDrumkit->getType() == Drumkit::Type::System ||
+			  m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		m_pDrumkit->setPath(
+			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
+	}
+
+	// Check whether there is already a kit present we would overwrite.
+	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), false ) ) {
+		int nRes = QMessageBox::information(
+			this, "Hydrogen",
+			QString( "%1\n%2\n\n%3" )
+			/*: asked when saving a drumkit to a certain location */
+			.arg( tr( "Overwrite existing drumkit stored in" ) )
+			.arg( m_pDrumkit->getPath() )
+			.arg( pCommonStrings->getActionIrreversible() ),
+			QMessageBox::Yes | QMessageBox::No );
+		if ( nRes != QMessageBox::Yes ) {
+			INFOLOG( "Aborted by user to not overwrite drumkit" );
+			return;
+		}
+	}
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	// Write new properties/drumkit to disk.
 	if ( ! m_pDrumkit->save() ) {
+
 		QApplication::restoreOverrideCursor();
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
@@ -575,33 +712,32 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	// Copy the selected image into the drumkit folder (in case a file outside
 	// of it was selected.)
-	if ( ! m_sNewImagePath.isEmpty() ) {
-		QFileInfo fileInfo( m_sNewImagePath );
+	if ( ! sNewImagePath.isEmpty() ) {
 
-		if ( fileInfo.dir().absolutePath() != m_pDrumkit->get_path() ) {
-			INFOLOG( QString( "Copying [%1] into [%2]" ).arg( m_sNewImagePath )
-					 .arg( m_pDrumkit->get_path() ) );
+		QFileInfo fileInfo( sNewImagePath );
+
+		if ( fileInfo.dir().absolutePath() != m_pDrumkit->getPath() ) {
 			const QString sTargetPath =
-				QString( "%1/%2" ).arg( m_pDrumkit->get_path() )
-				.arg( fileInfo.fileName() );
+				QDir( m_pDrumkit->getPath() ).absoluteFilePath(fileInfo.fileName() );
+
 			// Logging is done in file_copy.
-			Filesystem::file_copy( m_sNewImagePath, sTargetPath, true, false );
+			Filesystem::file_copy( sNewImagePath, sTargetPath, true, false );
 		}
 	}
 
-	if ( ! sOldImagePath.isEmpty() ) {
+	if ( ! sOldImagePath.isEmpty() && ! bOldImageDeleted ) {
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
 	pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
-			
+
 	QApplication::restoreOverrideCursor();
 
 	accept();
 
 }
 
-void SoundLibraryPropertiesDialog::saveDrumkitMap() {
+void DrumkitPropertiesDialog::saveDrumkitMap() {
 	auto pMap = std::make_shared<DrumkitMap>();
 
 	for ( int ii = 0; ii < mappingTable->rowCount(); ++ii ) {

@@ -20,7 +20,7 @@
  *
  */
 
-#include "SoundLibraryExportDialog.h"
+#include "DrumkitExportDialog.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 #include "../Widgets/FileDialog.h"
@@ -31,7 +31,7 @@
 
 using namespace H2Core;
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
+DrumkitExportDialog::DrumkitExportDialog( QWidget* pParent,
 													std::shared_ptr<Drumkit> pDrumkit )
 	: QDialog( pParent ),
 	  m_pDrumkit( pDrumkit )
@@ -45,27 +45,24 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,
 	
 	setWindowTitle( QString( "%1 [%2]" )
 					.arg( tr( "Export Drumkit" ) )
-					.arg( pDrumkit != nullptr ? pDrumkit->get_name() : tr( "invalid drumkit" ) ) );
+					.arg( pDrumkit != nullptr ? pDrumkit->getName() : tr( "invalid drumkit" ) ) );
 	adjustSize();
 	setFixedSize( width(), height() );
 	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );
 
 	if ( pDrumkit != nullptr ) {
-		for ( const auto& pComponent : *pDrumkit->get_components() ) {
-			m_components.append( pComponent->get_name() );
-		}
-
+		m_componentLabels = pDrumkit->generateUniqueComponentLabels();
 		updateComponentList();
 	}
 }
 
-SoundLibraryExportDialog::~SoundLibraryExportDialog()
+DrumkitExportDialog::~DrumkitExportDialog()
 {
 }
 
 
 
-void SoundLibraryExportDialog::on_exportBtn_clicked()
+void DrumkitExportDialog::on_exportBtn_clicked()
 {
 	if ( m_pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
@@ -89,18 +86,38 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 
-	QString sTargetComponent;
+	QString sTargetComponentName;
 	if ( componentList->currentIndex() == 0 && bRecentVersion ) {
 		// Exporting all components
-		sTargetComponent = "";
+		sTargetComponentName = "";
 	} else {
-		sTargetComponent = componentList->currentText();
+		sTargetComponentName = componentList->currentText();
+	}
+
+	// Retrieve the Id of the selected component
+	int nTargetComponentId = -1;
+	if ( ! sTargetComponentName.isEmpty() ) {
+		// These are unique
+		for ( const auto& [ nnId, ssLabel ] : m_componentLabels ) {
+			if ( ssLabel == sTargetComponentName ) {
+				nTargetComponentId = nnId;
+				break;
+			}
+		}
+
+		if ( nTargetComponentId == -1 ) {
+			ERRORLOG( QString( "No ID could be retrieved for component [%1]" )
+					  .arg( sTargetComponentName ) );
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getExportDrumkitFailure() );
+			return;
+		}
 	}
 		
 	// Check whether the resulting file does already exist and ask the
 	// user if it should be overwritten.
 	QString sTargetName = drumkitPathTxt->text() + "/" +
-		m_pDrumkit->getExportName( sTargetComponent, bRecentVersion ) +
+		m_pDrumkit->getExportName( sTargetComponentName, bRecentVersion ) +
 		Filesystem::drumkit_ext;
 	
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
@@ -125,10 +142,11 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
 	if ( ! m_pDrumkit->exportTo( drumkitPathTxt->text(), // Target folder
-								 sTargetComponent, // Selected component
+								 nTargetComponentId, // Selected component
 								 bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical( this, "Hydrogen", tr("Unable to export drumkit") );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
 		return;
 	}
 
@@ -138,7 +156,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 							  sTargetName );
 }
 
-void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
+void DrumkitExportDialog::on_drumkitPathTxt_textChanged( QString str )
 {
 	QString path = drumkitPathTxt->text();
 	if (path.isEmpty()) {
@@ -149,7 +167,7 @@ void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
 	}
 }
 
-void SoundLibraryExportDialog::on_browseBtn_clicked()
+void DrumkitExportDialog::on_browseBtn_clicked()
 {
 	QString sPath = Preferences::get_instance()->getLastExportDrumkitDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -173,17 +191,17 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 	}
 }
 
-void SoundLibraryExportDialog::on_cancelBtn_clicked()
+void DrumkitExportDialog::on_cancelBtn_clicked()
 {
 	accept();
 }
 
-void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
+void DrumkitExportDialog::on_versionList_currentIndexChanged( int index )
 {
 	updateComponentList();
 }
 
-void SoundLibraryExportDialog::updateComponentList( )
+void DrumkitExportDialog::updateComponentList( )
 {
 	componentList->clear();
 
@@ -196,7 +214,7 @@ void SoundLibraryExportDialog::updateComponentList( )
 		componentList->insertSeparator( 1 );
 	}
 
-	for ( const auto& sComponentName : m_components ) {
-		componentList->addItem( sComponentName );
+	for ( const auto& [ nnId, ssLabel ] : m_componentLabels ) {
+		componentList->addItem( ssLabel );
 	}
 }

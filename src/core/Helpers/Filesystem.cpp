@@ -20,6 +20,8 @@
  *
  */
 
+#include <random>
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
@@ -341,8 +343,14 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 	if ( overwrite && file_exists( dst, true ) ) {
 		rm( dst, true, bSilent );
 	}
-	
-	return QFile::copy( src, dst );
+
+	bool bOk = QFile::copy( src, dst );
+	if ( ! bOk ) {
+		ERRORLOG( QString( "Error while copying [%1] to [%2]" )
+				  .arg( src ).arg( dst ) );
+	}
+
+	return bOk;
 }
 
 bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
@@ -676,15 +684,16 @@ QString Filesystem::tmp_file_path( const QString &base )
 }
 
 // DRUMKITS
-QStringList Filesystem::drumkit_list( const QString& path )
+QStringList Filesystem::drumkit_list( const QString& sPath )
 {
+	QDir dir( sPath );
 	QStringList ok;
-	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
-	foreach ( const QString& dk, possible ) {
-		if ( drumkit_valid( path + dk ) ) {
-			ok << dk;
+	QStringList possible = dir.entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
+	for ( const QString& ssSubFolder : possible ) {
+		if ( drumkit_valid( dir.absoluteFilePath( ssSubFolder ) ) ) {
+			ok << ssSubFolder;
 		} else {
-			ERRORLOG( QString( "drumkit %1 is not usable" ).arg( dk ) );
+			ERRORLOG( QString( "drumkit [%1] is not usable" ).arg( ssSubFolder ) );
 		}
 	}
 	return ok;
@@ -725,45 +734,38 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-QString Filesystem::prepare_sample_path( const QString& fname )
+QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 {
-	int idx = get_basename_idx_under_drumkit( fname );
-	if ( idx >= 0 ) {
-		return fname.midRef( idx ).toString();
-	}
-	return fname;
-}
+	// Check whether the provided absolute sample path is located within a
+	// known drumkit directory.
+	int nIndexMatch = -1;
+	const QStringList drumkitFolders =
+		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders();
 
-bool Filesystem::file_is_under_drumkit( const QString& fname )
-{
-	return get_basename_idx_under_drumkit( fname ) != -1;
-}
-
-int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
-{
-	if( fname.startsWith( usr_drumkits_dir() ) )
-	{
-		int start = usr_drumkits_dir().size();
-		int index = fname.indexOf( "/", start );
-		QString dk_name = fname.midRef( start , index - start).toString();
-		if ( usr_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
+	for ( const auto& ssFolder : drumkitFolders ) {
+		if ( sSamplePath.startsWith( ssFolder ) ) {
+			int nStart = ssFolder.size();
+			int nIndex = sSamplePath.indexOf( "/", nStart );
+			QString sDrumkitName =
+				sSamplePath.midRef( nStart , nIndex - nStart ).toString();
+			if ( ssFolder.contains( sDrumkitName ) ) {
+				nIndexMatch = nIndex + 1;
+				break;
+			}
 		}
 	}
 
-	if( fname.startsWith( sys_drumkits_dir() ) )
-	{
-		int start = sys_drumkits_dir().size();
-		int index = fname.indexOf( "/", start);
-		QString dk_name = fname.midRef( start, index - start).toString();
-		if ( sys_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
-		}
+	if ( nIndexMatch >= 0 ) {
+		// Sample is located in a drumkit folder. Just return basename.
+		QString sShortenedPath = sSamplePath.midRef( nIndexMatch ).toString();
+		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
+				 .arg( sSamplePath ).arg( sShortenedPath ) );
+
+		return std::move( sShortenedPath );
 	}
 
-	return -1;
+	return sSamplePath;
 }
-
 
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {
@@ -776,53 +778,6 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, bool bSilent )
 {
-
-#ifdef H2CORE_HAVE_OSC
-	// When under session management the drumkit can also be located
-	// in - apart from the user and system path - a particular session
-	// folder. If it couldn't be found in there (or the found drumkit
-	// does not match `dk_name`), the session folder is skipped and
-	// the user and system paths will be traversed instead.
-	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		
-		QString sDrumkitPath = QString( "%1/%2" )
-			.arg( NsmClient::get_instance()->getSessionFolderPath() )
-			.arg( "drumkit" );
-		
-		// If the path is symbolic link, dereference it.
-		QFileInfo drumkitPathInfo( sDrumkitPath );
-		if ( drumkitPathInfo.isSymLink() ) {
-			sDrumkitPath = drumkitPathInfo.symLinkTarget();
-		}
-		
-		// Check whether the local drumkit does hold the right
-		// drumkit (using its name).
-		QString sDrumkitXMLPath = QString( "%1/%2" )
-				.arg( sDrumkitPath ).arg( "drumkit.xml" );
-
-		QString sSessionDrumkitName( "seemsLikeTheKitCouldNotBeRetrievedFromTheDatabase" );
-		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-		if ( pSoundLibraryDatabase != nullptr ) {
-			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-			if ( pDrumkit != nullptr ) {
-				sSessionDrumkitName = pDrumkit->get_name();
-			}
-		}
-
-		if ( dk_name == sSessionDrumkitName ) {
-				// The local drumkit seems legit.	
-				return sDrumkitPath;
-		}
-		else if ( ! bSilent ) {
-			NsmClient::printError( QString( "Local drumkit [%1] name [%2] and the one stored in .h2song file [%3] do not match!" )
-								   .arg( sDrumkitXMLPath )
-								   .arg( sSessionDrumkitName )
-								   .arg( dk_name ) );
-		}
-	}
-			
-#endif
-	
 	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
 		if ( usr_drumkit_list().contains( dk_name ) ){
 			return usr_drumkits_dir() + dk_name;
@@ -860,34 +815,10 @@ QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
 			  .arg( dk_name ).arg( static_cast<int>(lookup) ) );
 	return "";
 }
-bool Filesystem::drumkit_valid( const QString& dk_path )
+bool Filesystem::drumkit_valid( const QString& sFolderPath )
 {
-#ifdef H2CORE_HAVE_OSC
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr &&
-		 pHydrogen->isUnderSessionManagement() ) {
-
-		// Explicit handling for relative drumkit paths supported in
-		// the session management.
-		QFileInfo info( dk_path );
-		if ( info.isRelative() ) {
-			QString sAbsoluteDrumkitPath = QString( "%1%2" )
-				.arg( NsmClient::get_instance()->getSessionFolderPath() )
-				// remove the leading dot indicating that the path is relative. 
-				.arg( dk_path.right( dk_path.size() - 1 ) );
-
-			QFileInfo infoAbs( sAbsoluteDrumkitPath );
-			if ( infoAbs.isSymLink() ) {
-				sAbsoluteDrumkitPath = infoAbs.symLinkTarget();
-			}
-
-			return file_readable( sAbsoluteDrumkitPath + "/" +
-								  DRUMKIT_XML, true );
-		}
-	}
-#endif
-		
-	return file_readable( dk_path + "/" + DRUMKIT_XML, true);
+	return file_readable( QDir( sFolderPath ).absoluteFilePath( DRUMKIT_XML ),
+						  true );
 }
 QString Filesystem::drumkit_file( const QString& dk_path )
 {
@@ -1040,42 +971,6 @@ QString Filesystem::absolute_path( const QString& sFilename, bool bSilent ) {
 	return QString();
 }
 
-QString Filesystem::ensure_session_compatibility( const QString& sPath ) {
-#ifdef H2CORE_HAVE_OSC
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr &&
-		 pHydrogen->isUnderSessionManagement() ) {
-
-		QFileInfo info( sPath );
-		if ( info.isRelative() ) {
-			return QString( "%1%2" )
-				.arg( NsmClient::get_instance()->getSessionFolderPath() )
-				// remove the leading dot indicating that the path is relative. 
-				.arg( sPath.right( sPath.size() - 1 ) );
-		}
-	}
-#endif
-
-	return sPath;
-}
-
-Filesystem::DrumkitType Filesystem::determineDrumkitType( const QString& sPath ) {
-	const QString sAbsolutePath = absolute_path( sPath );
-	if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
-		return DrumkitType::System;
-	}
-	else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
-		return DrumkitType::User;
-	}
-	else {
-		if ( dir_writable( sAbsolutePath, true ) ) {
-			return DrumkitType::SessionReadWrite;
-		} else {
-			return DrumkitType::SessionReadOnly;
-		}
-	}
-}
-
 QStringList Filesystem::drumkit_xsd_legacy_paths() {
 	const QDir legacyDir( xsd_legacy_dir() );
 
@@ -1218,6 +1113,66 @@ QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUse
 	}
 
 	return QString();
+}
+
+QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
+
+	QString sChars( "abcdefghijklmnopqrstuvwxuzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
+
+	// a seed source for the random number engine
+	std::random_device randomDevice;
+	// seeded mersenne_twister engine producing random unsigned integers.
+	std::mt19937 randomEngine( randomDevice() );
+	// Transformation of the above random number to comply with our constraints.
+	std::uniform_int_distribution<int> distr( 0, sChars.size() - 1 );
+
+	// A prefix will be formatted as "tmp-XXXXXX-" with X being a latin
+	// character or digit.
+	auto createPrefix = [&](){
+		QString sPrefix( "tmp-" );
+		for ( int ii = 0; ii < 6; ++ii ) {
+			sPrefix.append( sChars.at( distr( randomEngine ) ) );
+		}
+
+		return std::move( sPrefix.append( "-" ) );
+	};
+
+	QFileInfo baseInfo( sBaseFilePath );
+
+	QString sUniquePath = baseInfo.absoluteDir()
+		.absoluteFilePath( createPrefix() + baseInfo.fileName() );
+
+	int maxTries = 100;
+	int ii = 0;
+	while ( file_exists( sUniquePath, true ) ) {
+		sUniquePath = baseInfo.absoluteDir()
+			.absoluteFilePath( createPrefix() + baseInfo.fileName() );
+
+		ii++;
+		if ( ii >= maxTries ) {
+			ERRORLOG( QString( "Unable to create unique path for [%1]" )
+					  .arg( sBaseFilePath ) );
+			return "";
+		}
+	}
+
+	return std::move( sUniquePath );
+}
+
+QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
+	QRegExp prefix( "tmp-[\\w]{6}-+" );
+
+	if ( sUniqueFilePath.contains( prefix ) ) {
+		QFileInfo info( sUniqueFilePath );
+
+		return info.absoluteDir().
+			absoluteFilePath( info.fileName().remove( prefix ) );
+	}
+	else {
+		WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
+					.arg( sUniqueFilePath ) );
+		return sUniqueFilePath;
+	}
 }
 
 };

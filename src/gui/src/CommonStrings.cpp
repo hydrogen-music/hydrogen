@@ -422,15 +422,6 @@ CommonStrings::CommonStrings(){
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
 	
-	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
-	
-	/*: Suffix appended to a drumkit, song, or pattern name in case it
-	 * is found on system-level and is read-only. */
-	m_sSoundLibrarySystemSuffix = tr( "system" );
-	/*: Suffix appended to a drumkit that are loaded non-persistently
-	 *  into the current Hydrogen session. */
-	m_sSoundLibrarySessionSuffix = tr( "session" );
-
 	/*: Label shown in the input capture dialog for querying a new
 	  tempo value. */
 	m_sInputCaptureBpm = tr( "BPM" );
@@ -473,6 +464,7 @@ CommonStrings::CommonStrings(){
 	
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
+	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
 
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );
@@ -486,6 +478,29 @@ CommonStrings::CommonStrings(){
 		/*: Shown in table headers when referring to a license of an object.*/
 	m_sLicense = tr( "License" );
 
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionAdd = tr( "Add" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionDelete = tr( "Delete" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionRename = tr( "Rename" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionLoad = tr( "Load" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionExport = tr( "Export" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionProperties = tr( "Properties" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionDuplicate = tr( "Duplicate" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionImport = tr( "Import" );
+	/*: Names an action in a drop down or pop up menu. (with no further text)*/
+	m_sMenuActionOnlineImport = tr( "Online Import" );
+
+	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
+	m_sActionIrreversible = tr( "This action can not be undone!" );
+
+	m_sErrorNotFound = tr( "File could not be found!" );
 }
 
 CommonStrings::~CommonStrings(){}

@@ -20,6 +20,7 @@
  *
  */
 
+#include <core/H2Exception.h>
 #include <core/EventQueue.h>
 #include <core/Version.h>
 #include <core/Hydrogen.h>
@@ -37,7 +38,6 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
-#include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -50,6 +50,8 @@
 #include "HydrogenApp.h"
 #include "Skin.h"
 #include "InstrumentRack.h"
+#include "InstrumentEditor/InstrumentEditor.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "LadspaFXProperties.h"
@@ -61,15 +63,14 @@
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
-#include "SoundLibrary/SoundLibraryImportDialog.h"
-#include "SoundLibrary/SoundLibraryOpenDialog.h"
-#include "SoundLibrary/SoundLibraryExportDialog.h"
-#include "SoundLibrary/SoundLibraryPropertiesDialog.h"
+#include "SoundLibrary/SoundLibraryOnlineImportDialog.h"
+#include "SoundLibrary/DrumkitOpenDialog.h"
+#include "SoundLibrary/DrumkitExportDialog.h"
+#include "SoundLibrary/DrumkitPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
@@ -249,7 +250,7 @@ MainForm::~MainForm()
 	}
 
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 	
 	hide();
@@ -320,14 +321,10 @@ void MainForm::createMenuBar()
 							SLOT( action_file_new() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
 	
-	m_pFileMenu->addSeparator();				// -----
-	
 	m_pFileMenu->addAction( tr( "Song Properties" ), this,
 							SLOT( action_file_songProperties() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
 	
-	m_pFileMenu->addSeparator();				// -----
-
 	m_pFileMenu->addAction( sLabelOpen, this,
 							SLOT( action_file_open() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
@@ -390,52 +387,54 @@ void MainForm::createMenuBar()
 							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 	// DRUMKITS MENU
-	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
-	m_pDrumkitsMenu->addAction( tr( "&New" ), this,
-								SLOT( action_instruments_clearAll() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Open" ), this,
-								SLOT( action_banks_open() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this,
-								SLOT( action_banks_properties() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
+	m_pDrumkitMenu = pMenubar->addMenu( tr( "Drum&kit" ) );
+	m_pDrumkitMenu->addAction( tr( "&New" ), this,
+							   SLOT( action_drumkit_new() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
 
-	m_pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitMenu->addAction( tr( "&Properties" ), this,
+							   SLOT( action_drumkit_properties() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
 
-	m_pDrumkitsMenu->addAction( tr( "&Save" ), this,
-								SLOT( action_instruments_saveLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this,
-								SLOT( action_instruments_saveAsLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "&Open" ), this,
+							   SLOT( action_drumkit_open() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
 
-	m_pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( tr( "&Export" ), this,
-								SLOT( action_instruments_exportLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "&Import" ), this,
-								SLOT( action_instruments_importLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
-	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this,
-								SLOT( action_instruments_onlineImportLibrary() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "Add &Instrument" ), this,
+							   SLOT( action_drumkit_addInstrument() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
+	m_pDrumkitMenu->addAction(
+		tr( "Add &Component" ),
+		InstrumentEditorPanel::get_instance()->getInstrumentEditor(),
+		SLOT( addComponentAction() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
-	// INSTRUMENTS MENU
-	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
-	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this,
-								   SLOT( action_instruments_addInstrument() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
-	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this,
-								   SLOT( action_instruments_clearAll() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::ClearAllInstruments ) );
+	m_pDrumkitMenu->addSeparator();				// -----
 
-	m_pInstrumentsMenu->addSeparator();				// -----
+	m_pDrumkitMenu->addAction( tr( "&Save To Sound Library" ), this,
+							   SLOT( action_drumkit_save() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
 
-	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this,
-								   SLOT( action_instruments_addComponent() ),
-								   pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
+	if ( bUnderSessionManagement ) {
+		m_pDrumkitMenu->addAction( tr( "Save &To Session" ), this,
+								   SLOT( action_drumkit_save_to_session() ),
+								   pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) );
+	}
+
+	m_pDrumkitMenu->addAction( tr( "&Export" ), this,
+							   SLOT( action_drumkit_export() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
+
+	m_pDrumkitMenu->addSeparator();				// -----
+
+	m_pDrumkitMenu->addAction( tr( "&Import" ), this,
+							   SLOT( action_drumkit_import() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
+	m_pDrumkitMenu->addAction( tr( "On&line Import" ), this,
+							   SLOT( action_drumkit_onlineImport() ),
+							   pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
 
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
@@ -726,7 +725,7 @@ void MainForm::action_file_new()
 	
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -771,10 +770,6 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->openSong( pSong );
-	
-	// The drumkit of the new song will linked into the session
-	// folder during the next song save.
-	pHydrogen->setSessionDrumkitNeedsRelinking( true );
 }
 
 
@@ -789,30 +784,6 @@ void MainForm::action_file_save_as()
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
-	if ( bUnderSessionManagement &&
-		 pHydrogen->getSessionDrumkitNeedsRelinking() ) {
-		// When used under session management "save as" will be used
-		// for exporting and Hydrogen is allowed to
-		// be in a transient state which is not ready for export. This
-		// way the user is able to undo e.g. loading a drumkit by
-		// closing the session without storing and the overall state
-		// is not getting bricked during unexpected shut downs.
-		//
-		// We will prompt for saving the changes applied to the
-		// drumkit usage and require the user to exit this transient
-		// state first.
-		if ( QMessageBox::information( this, "Hydrogen",
-									   tr( "\nThere have been recent changes to the drumkit settings.\n"
-										   "The session needs to be saved before exporting will can be continued.\n" ),
-		                               QMessageBox::Save | QMessageBox::Cancel,
-		                               QMessageBox::Save )
-		     == QMessageBox::Cancel ) {
-			INFOLOG( "Exporting cancelled at relinking" );
-			return;
-		}
-
-		action_file_save();
-	}
 
 	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -839,7 +810,6 @@ void MainForm::action_file_save_as()
 	// Cachce a couple of things we have to restore when under session
 	// management.
 	QString sLastFilename = pSong->getFilename();
-	QString sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
 
 	if ( sLastFilename == Filesystem::empty_song_path() ) {
 		sDefaultFilename = Filesystem::default_song_name();
@@ -863,24 +833,6 @@ void MainForm::action_file_save_as()
 				sNewFilename += Filesystem::songs_ext;
 			}
 
-#ifdef H2CORE_HAVE_OSC
-			// In a session all main samples (last loaded drumkit) are
-			// taken from the session folder itself (either via a
-			// symlink or a copy of the whole drumkit). When exporting
-			// a song, these "local" references have to be replaced by
-			// global ones (drumkits in the system's or user's data
-			// folder).
-			if ( bUnderSessionManagement ) {
-				pHydrogen->setSessionIsExported( true );
-				int nRet = NsmClient::dereferenceDrumkit( pSong );
-				if ( nRet == -2 ) {
-					QMessageBox::warning( this, "Hydrogen",
-										  tr( "Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly." )
-										  .arg( pSong->getLastLoadedDrumkitName() ) );
-				}
-			}
-#endif
-
 			// We do not use the CoreActionController::saveSongAs
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
@@ -894,7 +846,7 @@ void MainForm::action_file_save_as()
 		// the original.
 		if ( bUnderSessionManagement ) {
 			pSong->setFilename( sLastFilename );
-			NsmClient::replaceDrumkitPath( pSong, sLastLoadedDrumkitPath );
+
 			h2app->showStatusBarMessage( tr("Song exported as: ") + sDefaultFilename );
 			pHydrogen->setSessionIsExported( false );
 		}
@@ -1040,7 +992,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 		
 	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	if ( nPatternRow == -1 ) {
@@ -1053,8 +1005,20 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	}
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ){
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		return;
+	}
 	
 	Pattern *pPattern = pSong->getPatternList()->get( nPatternRow );
+	if ( pPattern == nullptr ){
+		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
+				  .arg( nPatternRow ) );
+		return;
+	}
 
 	QString sPath = Preferences::get_instance()->getLastExportPatternAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -1082,7 +1046,8 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 	QString originalName = pPattern->get_name();
 	pPattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong, pHydrogen->getLastLoadedDrumkitName() );
+	QString path = Files::savePatternPath( filePath, pPattern, pSong,
+										   pDrumkit->getName() );
 	pPattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {
@@ -1138,7 +1103,7 @@ void MainForm::action_file_openPattern()
 
 		for ( auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getInstrumentList() );
+			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->getInstruments() );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
@@ -1173,7 +1138,7 @@ bool MainForm::prepareSongOpening() {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	return handleUnsavedChanges();
@@ -1335,51 +1300,25 @@ void MainForm::action_window_showAutomationArea()
 
 
 
-void MainForm::action_instruments_addInstrument()
+void MainForm::action_drumkit_addInstrument()
 {
 	SE_mainMenuAddInstrumentAction *pAction = new SE_mainMenuAddInstrumentAction();
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
-
-void MainForm::action_instruments_addComponent()
+void MainForm::action_drumkit_open()
 {
-	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
-	if ( bIsOkPressed  ) {
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
-
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
-		pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
-
-		selectedInstrumentChangedEvent();
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->renameJackPorts(pHydrogen->getSong());
-#endif
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-}
-
-
-void MainForm::action_banks_open()
-{
-	SoundLibraryOpenDialog dialog( this );
+	DrumkitOpenDialog dialog( this );
 	dialog.exec();
 }
 
 
-void MainForm::action_instruments_clearAll()
+void MainForm::action_drumkit_new()
 {
-	switch( 
-			 QMessageBox::information( 	this,					//NOLINT
-						   	"Hydrogen",
-							tr("Clear all instruments?"),
+	switch(
+			 QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "Replace the drumkit of the current song with an empty one?" ),
 							QMessageBox::Cancel | QMessageBox::Ok,
 							QMessageBox::Cancel)) {
 	case QMessageBox::Ok:
@@ -1394,20 +1333,19 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all instruments
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pList = pSong->getInstrumentList();
-	for (uint i = pList->size(); i > 0; i--) {
-		functionDeleteInstrument(i - 1);
-	}
+	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	auto pAction = new SE_switchDrumkitAction(
+		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false,
+		SE_switchDrumkitAction::Type::NewDrumkit );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
 void MainForm::functionDeleteInstrument( int nInstrument )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nInstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -1439,95 +1377,155 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 }
 
 
-void MainForm::action_instruments_exportLibrary() {
+void MainForm::action_drumkit_export() {
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	
-	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
-		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
-	
-	if ( pDrumkit != nullptr ){
-
-		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
-		pNewDrumkit->set_components( pSong->getComponents() );
-		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
-		SoundLibraryExportDialog exportDialog( this, pNewDrumkit );
-		exportDialog.exec();
+	if ( pSong == nullptr ) {
+		return;
 	}
-	else {
-		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
-							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
-							  .arg( pHydrogen->getLastLoadedDrumkitPath() ) );
-	}		
+	
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ){
+		return;
+	}
+
+	// The song drumkit we want to export is a somewhat floating one. It does
+	// not contain samples by itself but is composed by instrument that either
+	// borrow their samples from kits in the Sound Library or access them using
+	// absolute paths. To allow exporting it, we save it to a temporary folder
+	// and proceed with a regular export from there.
+	QTemporaryDir tmpDir;
+    if ( ! tmpDir.isValid() ) {
+		ERRORLOG( "Unable to create tmp folder" );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
+		return;
+    }
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+
+	INFOLOG( QString( "Saving song kit to temporary folder [%1] for export" )
+			 .arg( tmpDir.path() ) );
+
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	pNewDrumkit->setPath( tmpDir.path() );
+
+	if ( ! pNewDrumkit->save( tmpDir.path() ) ) {
+		QApplication::restoreOverrideCursor();
+		ERRORLOG( QString( "Unable to save kit to tmp folder [%1]" )
+				  .arg( tmpDir.path() ) );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
+		return;
+	}
+
+	QApplication::restoreOverrideCursor();
+
+	DrumkitExportDialog exportDialog( this, pNewDrumkit );
+	exportDialog.exec();
 }
 
 
 
 
-void MainForm::action_instruments_importLibrary()
+void MainForm::action_drumkit_import( bool bLoad ) {
+	auto pPreferences = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+
+	QString sPath = pPreferences->getLastImportDrumkitDirectory();
+	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
+
+	FileDialog fd(this);
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
+	fd.setDirectory( sPath );
+
+	fd.setWindowTitle( tr( "Import drumkit" ) );
+
+	QString sFilename = "";
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
+	} else {
+		// Closed
+		return;
+	}
+
+	if ( sFilename.isEmpty() ) {
+		ERRORLOG( "No drumkit file selected." );
+		return;
+	}
+
+	pPreferences->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	try {
+		QString sImportedPath;
+		if ( ! H2Core::Drumkit::install( sFilename, "", &sImportedPath ) ) {
+			QApplication::restoreOverrideCursor();
+			QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
+			return;
+		}
+
+		// update the drumkit list
+		pSoundLibraryDatabase->update();
+
+		if ( bLoad ) {
+#ifdef H2CORE_HAVE_LIBARCHIVE
+			if ( ! sImportedPath.isEmpty() ) {
+				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
+				if ( pDrumkit == nullptr ) {
+					ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
+							  .arg( sFilename ) );
+					return;
+				}
+				auto pAction = new SE_switchDrumkitAction(
+					pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
+					SE_switchDrumkitAction::Type::SwitchDrumkit );
+				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+			}
+			else {
+				ERRORLOG( QString( "Unable to determine imported path for [%1]" )
+						  .arg( sFilename ) );
+			}
+#else
+			WARNINGLOG( "Imported drumkit was not loaded. This feature is only supported when compiled with libarchive." );
+#endif
+		}
+
+		QApplication::restoreOverrideCursor();
+		QMessageBox::information( this, "Hydrogen",
+								  QString( tr( "Drumkit imported in %1" )
+										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
+	}
+	catch( H2Core::H2Exception ex ) {
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
+	}
+}
+
+
+void MainForm::action_drumkit_onlineImport()
 {
-	SoundLibraryImportDialog dialog( this, false );
+	SoundLibraryOnlineImportDialog dialog( this );
 	dialog.exec();
 }
 
-
-void MainForm::action_instruments_onlineImportLibrary()
+void MainForm::action_drumkit_save()
 {
-	SoundLibraryImportDialog dialog( this, true );
-	dialog.exec();
+	editDrumkitProperties( true, false );
 }
 
-
-void MainForm::action_instruments_saveLibrary()
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	
-	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->
-		getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
-	auto drumkitType = Filesystem::determineDrumkitType(
-		pHydrogen->getLastLoadedDrumkitPath() );
-
-	// In case the user does not have write access to the folder of
-	// pDrumkit, the save as dialog will be opened.
-	if ( pDrumkit != nullptr &&
-		 ( drumkitType == Filesystem::DrumkitType::User ||
-		   drumkitType == Filesystem::DrumkitType::SessionReadWrite ) ) {
-		auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
-		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
-		pNewDrumkit->set_components( pSong->getComponents() );
-		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
-		
-		if ( ! HydrogenApp::checkDrumkitLicense( pNewDrumkit ) ) {
-			ERRORLOG( "User cancelled dialog due to licensing issues." );
-			return;
-		}
-		
-		if ( ! pNewDrumkit->save() ) {
-			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
-			return;
-		}
-
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits();
-	}
-	else {
-		action_instruments_saveAsLibrary();
-	}
+void MainForm::action_drumkit_save_to_session() {
+	editDrumkitProperties( true, true );
 }
-
-
-void MainForm::action_instruments_saveAsLibrary()
-{
-	editDrumkitProperties( false );
-}
-
-
-
-
-
-
 
 ///
 /// Window close event
@@ -1548,7 +1546,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 void MainForm::action_file_export()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	ExportSongDialog *dialog = new ExportSongDialog(this);
@@ -1621,8 +1619,7 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 		m_pFileMenu->setFont( font );
 		m_pUndoMenu->setFont( font );
-		m_pDrumkitsMenu->setFont( font );
-		m_pInstrumentsMenu->setFont( font );
+		m_pDrumkitMenu->setFont( font );
 		m_pViewMenu->setFont( font );
 		m_pOptionsMenu->setFont( font );
 		if ( m_pDebugMenu != nullptr ) {
@@ -1711,7 +1708,7 @@ void MainForm::checkMissingSamples()
 void MainForm::checkMidiSetup()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getInstrumentList()->has_all_midi_notes_same() ) {
+	if ( pSong->getDrumkit()->getInstruments()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
 		m_pMidiSetupInfoBar = h2app->addInfoBar();
@@ -1743,7 +1740,7 @@ void MainForm::onFixMidiSetup()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		pSong->getInstrumentList()->set_default_midi_out_notes();
+		pSong->getDrumkit()->getInstruments()->set_default_midi_out_notes();
 		pHydrogen->setIsModified( true );
 
 		m_pMidiSetupInfoBar->hide();
@@ -1754,7 +1751,7 @@ void MainForm::onFixMidiSetup()
 void MainForm::onFixMissingSamples()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	SoundLibraryOpenDialog dialog( this );
+	DrumkitOpenDialog dialog( this );
 	dialog.exec();
 
 	m_pMissingSamplesInfoBar->hide();
@@ -1815,7 +1812,7 @@ void MainForm::action_debug_printObjects()
 void MainForm::action_file_export_midi()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	ExportMidiDialog *dialog = new ExportMidiDialog(this);
@@ -1829,7 +1826,7 @@ void MainForm::action_file_export_midi()
 void MainForm::action_file_export_lilypond()
 {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		Hydrogen::get_instance()->sequencerStop();
 	}
 
 	QMessageBox::information(
@@ -2238,63 +2235,31 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 	}
 }
 
-void MainForm::action_banks_properties() {
-	editDrumkitProperties( true );
+void MainForm::action_drumkit_properties() {
+	editDrumkitProperties( false, false );
 }
 
-void MainForm::editDrumkitProperties( bool bDrumkitNameLocked )
+void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession )
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	
-	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
-		->getDrumkit( pHydrogen->getLastLoadedDrumkitPath() );
-
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( QString( "Unable to find drumkit at path [%1]. Trying drumkit name [%2] instead." )
-				  .arg( pHydrogen->getLastLoadedDrumkitPath() )
-				  .arg( pHydrogen->getLastLoadedDrumkitName() ) );
-		// No luck when searching for the kit using the absolute path found in
-		// the .h2song. Let's try the last loaded drumkit name.
-		const QString sDrumkitPath =
-			Filesystem::drumkit_path_search( pHydrogen->getLastLoadedDrumkitName(),
-											 Filesystem::Lookup::stacked, true );
-		pDrumkit = pHydrogen->getSoundLibraryDatabase()
-			->getDrumkit( sDrumkitPath );
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
 	}
 
-	if ( pDrumkit == nullptr && ! bDrumkitNameLocked ) {
-		ERRORLOG( QString( "Unable to find drumkit of name [%1] either. Falling back to empty one." )
-				  .arg( pHydrogen->getLastLoadedDrumkitName() ) );
-		// If that didn't worked either and the user wants to "Save As", we fall
-		// back to the default kit.
-		pDrumkit = std::make_shared<Drumkit>();
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ){
+		ERRORLOG("Invalid drumkit")
+		return;
 	}
-	
-	if ( pDrumkit != nullptr ){
 
-		auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-		pNewDrumkit->set_instruments( pSong->getInstrumentList() );
-		pNewDrumkit->set_components( pSong->getComponents() );
-		pNewDrumkit->setDrumkitMap( pSong->getDrumkitMap() );
+	// We create a copy of the kit to assure not dirty data set in the dialog is
+	// leaked into the current song.
+	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 
-		SoundLibraryPropertiesDialog dialog( this, pNewDrumkit, bDrumkitNameLocked );
-		if ( dialog.exec() == QDialog::Accepted ) {
-			// Saving was successful.
-
-			if ( pNewDrumkit->get_path() != pDrumkit->get_path() ) {
-				// A new drumkit was created based on the original
-				// one. We call the drumkit setter to ensure
-				// everything in the Song and GUI is still in sync.
-				pHydrogen->getCoreActionController()->setDrumkit( pNewDrumkit, false );
-			}
-		}
-	}
-	else {
-		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
-							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
-							  .arg( pHydrogen->getLastLoadedDrumkitPath() ) );
-	}
+	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk,
+									bSaveToNsmSession );
+	dialog.exec();
 }
 
 void MainForm::updateSongEvent( int nValue ) {
@@ -2369,7 +2334,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	}
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
-		pHydrogen->sequencer_play();
+		pHydrogen->sequencerPlay();
 	}
 }
 
@@ -2499,7 +2464,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCaptureInstrument();
-				fMax = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
+				fMax = static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1;
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly prepared" )
@@ -2591,7 +2556,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				inputType2 = InputCaptureDialog::Type::Int;
 				sLabel2 = pCommonStrings->getInputCaptureInstrument();
-				fMax2 = static_cast<float>(pSong->getInstrumentList()->size()) - 1;
+				fMax2 = static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1;
 				break;
 
 			case Shortcuts::Action::TimelineAddMarker:
@@ -2683,13 +2648,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
+										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nInstrument = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getInstrumentList()->get( nInstrument );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
 						  .arg( nInstrument ) );
@@ -2742,13 +2707,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
 										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getInstrumentList()->size()) - 1 );
+										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nInstrument = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getInstrumentList()->get( nInstrument );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
 						  .arg( nInstrument ) );
@@ -2805,7 +2770,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				
 			case Shortcuts::Action::Panic:
 				//panic button stop all playing notes
-				pHydrogen->__panic();
+				pHydrogen->panic();
 				break;
 
 			case Shortcuts::Action::Play:
@@ -2972,38 +2937,36 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::NewDrumkit:
-				action_instruments_clearAll();
+				action_drumkit_new();
 				break;
 			case Shortcuts::Action::OpenDrumkit:
-				action_banks_open();
+				action_drumkit_open();
 				break;
 			case Shortcuts::Action::EditDrumkitProperties:
-				action_banks_properties();
+				action_drumkit_properties();
 				break;
-			case Shortcuts::Action::SaveDrumkit:
-				action_instruments_saveLibrary();
-				break;
-			case Shortcuts::Action::SaveAsDrumkit:
-				action_instruments_saveAsLibrary();
+			case Shortcuts::Action::SaveDrumkitToSoundLibrary:
+				action_drumkit_save();
 				break;
 			case Shortcuts::Action::ExportDrumkit:
-				action_instruments_exportLibrary();
+				action_drumkit_export();
 				break;
 			case Shortcuts::Action::ImportDrumkit:
-				action_instruments_importLibrary();
+				action_drumkit_import();
 				break;
 			case Shortcuts::Action::ImportOnlineDrumkit:
-				action_instruments_onlineImportLibrary();
+				action_drumkit_onlineImport();
 				break;
 
 			case Shortcuts::Action::AddInstrument:
-				action_instruments_addInstrument();
+				action_drumkit_addInstrument();
 				break;
 			case Shortcuts::Action::ClearAllInstruments:
-				action_instruments_clearAll();
+				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				action_instruments_addComponent();
+				InstrumentEditorPanel::get_instance()->
+					getInstrumentEditor()->addComponentAction();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

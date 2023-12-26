@@ -136,12 +136,6 @@ class XMLNode;
 		 */
 		Pattern* find( const QString& name );
 		/**
-		 * swap the patterns of two different indexes
-		 * \param idx_a the first index
-		 * \param idx_b the second index
-		 */
-		void swap( int idx_a, int idx_b );
-		/**
 		 * move a pattern from a position to another
 		 * \param idx_a the start index
 		 * \param idx_b the finish index

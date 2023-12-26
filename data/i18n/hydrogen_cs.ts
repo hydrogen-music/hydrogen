@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Ztlumit</translation>
+        <translation>Ztlumit</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Hlavní</translation>
+        <translation>Hlavní</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">Nástroj</translation>
+        <translation>Nástroj</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Vrstvy</translation>
+        <translation>Vrstvy</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Mixér</translation>
+        <translation>Mixér</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -456,27 +456,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">Síla</translation>
+        <translation>Síla</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Útlum</translation>
+        <translation>Útlum</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Výdrž</translation>
+        <translation>Výdrž</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Uvolnění</translation>
+        <translation>Uvolnění</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Kanál</translation>
+        <translation>Kanál</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Vstup</translation>
+        <translation>Vstup</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -638,7 +638,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Kolísání</translation>
+        <translation>Kolísání</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">Sila uderu</translation>
+        <translation>Sila uderu</translation>
     </message>
     <message>
         <source>Master</source>
@@ -796,22 +796,22 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Uložit</translation>
+        <translation>&amp;Uložit</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Storno</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Zahodit</translation>
+        <translation>&amp;Zahodit</translation>
     </message>
     <message>
         <source>&amp;Play</source>
@@ -862,24 +862,8 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -935,12 +919,12 @@ Current kit:</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Panorama</translation>
+        <translation>Panorama</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Ořez filtru</translation>
+        <translation>Ořez filtru</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -975,18 +959,79 @@ Current kit:</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Vymazat</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Nahrát</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Vlastnosti</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Ztlumit</translation>
+        <translation>Ztlumit</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Sólo</translation>
+        <translation>Sólo</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1016,7 +1061,7 @@ Current kit:</source>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
 </context>
 <context>
@@ -1038,6 +1083,148 @@ Current kit:</source>
     <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Export</translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Všechno</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog_UI</name>
+    <message>
+        <source>Export</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Storno</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>Procházet...</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitPropertiesDialog_UI</name>
+    <message>
+        <source>General</source>
+        <translation>Hlavní</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Informace</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Najít</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Název</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>Uložit</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Storno</translation>
     </message>
 </context>
 <context>
@@ -1064,7 +1251,7 @@ Current kit:</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Export MIDI souboru</translation>
+        <translation>Export MIDI souboru</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1080,7 +1267,7 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1088,11 +1275,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Procházet...</translation>
+        <translation>&amp;Procházet...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1100,19 +1287,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Export</translation>
+        <translation>&amp;Export</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Zavřít</translation>
+        <translation>&amp;Zavřít</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -1187,23 +1374,23 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>22050</source>
-        <translation type="unfinished">22050</translation>
+        <translation>22050</translation>
     </message>
     <message>
         <source>44100</source>
-        <translation type="unfinished">44100</translation>
+        <translation>44100</translation>
     </message>
     <message>
         <source>48000</source>
-        <translation type="unfinished">48000</translation>
+        <translation>48000</translation>
     </message>
     <message>
         <source>96000</source>
-        <translation type="unfinished">96000</translation>
+        <translation>96000</translation>
     </message>
     <message>
         <source>192000</source>
-        <translation type="unfinished">192000</translation>
+        <translation>192000</translation>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
@@ -1211,19 +1398,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>24</source>
-        <translation type="unfinished">24</translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>32</source>
-        <translation type="unfinished">32</translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Templates: </source>
@@ -1303,7 +1490,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
@@ -1315,7 +1502,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Export directory:</source>
@@ -1331,13 +1518,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
@@ -1345,7 +1525,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Otevřít</translation>
+        <translation>Otevřít</translation>
     </message>
     <message>
         <source>Temporary directory</source>
@@ -1365,6 +1545,69 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::DrumkitPropertiesDialog</name>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1411,49 +1654,10 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>H2Core::SoundLibraryPropertiesDialog</name>
-    <message>
-        <source>SoundLibrary Properties</source>
-        <translation>Vlastnosti zvukové knihovny</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor skladby</translation>
+        <translation>Editor skladby</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -1461,7 +1665,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixér</translation>
+        <translation>Mixér</translation>
     </message>
     <message>
         <source>modified</source>
@@ -1469,7 +1673,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Chyba při otevírání skladby.</translation>
+        <translation>Chyba při otevírání skladby.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1622,13 +1826,24 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
-    <message>
-        <source>Randomize velocity</source>
-        <translation>Náhodná síla úderu</translation>
-    </message>
     <message>
         <source>Delete instrument</source>
         <translation>Vymazat nástroj</translation>
@@ -1669,7 +1884,7 @@ Value</source>
     <message>
         <source>Solo</source>
         <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation type="unfinished">Sólo</translation>
+        <translation>Sólo</translation>
     </message>
     <message>
         <source>Rename instrument</source>
@@ -1677,7 +1892,7 @@ Value</source>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nový název nástroje</translation>
+        <translation>Nový název nástroje</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
@@ -1717,7 +1932,7 @@ Value</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Nástroj</translation>
+        <translation>Nástroj</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -1725,6 +1940,15 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2038,10 +2262,6 @@ MIDI = %2</source>
         <translation>Neznámá chyba %1</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Vymazat všechny nástroje?</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Používáte vývojovou verzi Hydrogenu. Prosíme, pomozte nám hlášením chyb nebo nápady na kontaktní adrese hydrogen-devel týmu.&lt;br&gt;&lt;br&gt;Děkujeme!</translation>
     </message>
@@ -2114,18 +2334,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drum&amp;kits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2213,12 +2421,8 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Export</translation>
+        <translation>&amp;Export</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2229,15 +2433,7 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2397,17 +2593,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2429,6 +2614,34 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Importovat bicí sadu</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2526,7 +2739,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixér</translation>
+        <translation>Mixér</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
@@ -2635,19 +2848,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Storno</translation>
+        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
@@ -2795,6 +3008,22 @@ The session needs to be saved before exporting will can be continued.
         <source>Set note probability to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Náhodná síla úderu</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -2862,10 +3091,6 @@ The session needs to be saved before exporting will can be continued.
         <translation>Preciznost</translation>
     </message>
     <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Nahraná zvuková knihovna</translation>
-    </message>
-    <message>
         <source>Show piano roll editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2927,6 +3152,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3336,7 +3565,7 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Zpět</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <source>Play/ Pause/ Load selected song</source>
@@ -3344,11 +3573,11 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Vpřed</translation>
+        <translation>Vpřed</translation>
     </message>
     <message>
         <source>Please save your song first</source>
@@ -3360,7 +3589,7 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pozastaveno.</translation>
+        <translation>Pozastaveno.</translation>
     </message>
     <message>
         <source>Playlist Browser</source>
@@ -3492,7 +3721,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Hlavní</translation>
+        <translation>Hlavní</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3612,7 +3841,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor skladby</translation>
+        <translation>Editor skladby</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3720,7 +3949,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Chyba při zavádění audio ovladače</translation>
+        <translation>Chyba při zavádění audio ovladače</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -3827,7 +4056,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Polyphony</source>
-        <translation type="unfinished">Vícehlas (polyfonie)</translation>
+        <translation>Vícehlas (polyfonie)</translation>
     </message>
     <message>
         <source>Metronome volume</source>
@@ -4313,7 +4542,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Vyčistit</translation>
+        <translation>&amp;Vyčistit</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4379,16 +4608,12 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change note length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Vymazat noty</translation>
+        <translation>Vymazat noty</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -4396,10 +4621,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4458,6 +4679,26 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Altering the length of the current pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -4501,11 +4742,11 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <name>SampleEditor_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Zavřít</translation>
+        <translation>&amp;Zavřít</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
@@ -4549,155 +4790,155 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>1/64</source>
-        <translation type="unfinished">1/64</translation>
+        <translation>1/64</translation>
     </message>
     <message>
         <source>1/32</source>
-        <translation type="unfinished">1/32</translation>
+        <translation>1/32</translation>
     </message>
     <message>
         <source>1/16</source>
-        <translation type="unfinished">1/16</translation>
+        <translation>1/16</translation>
     </message>
     <message>
         <source>1/8</source>
-        <translation type="unfinished">1/8</translation>
+        <translation>1/8</translation>
     </message>
     <message>
         <source>1/4</source>
-        <translation type="unfinished">1/4</translation>
+        <translation>1/4</translation>
     </message>
     <message>
         <source>1/2</source>
-        <translation type="unfinished">1/2</translation>
+        <translation>1/2</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished">6</translation>
+        <translation>6</translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished">7</translation>
+        <translation>7</translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished">9</translation>
+        <translation>9</translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished">10</translation>
+        <translation>10</translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished">11</translation>
+        <translation>11</translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished">12</translation>
+        <translation>12</translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished">13</translation>
+        <translation>13</translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished">14</translation>
+        <translation>14</translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished">15</translation>
+        <translation>15</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>17</source>
-        <translation type="unfinished">17</translation>
+        <translation>17</translation>
     </message>
     <message>
         <source>18</source>
-        <translation type="unfinished">18</translation>
+        <translation>18</translation>
     </message>
     <message>
         <source>19</source>
-        <translation type="unfinished">19</translation>
+        <translation>19</translation>
     </message>
     <message>
         <source>20</source>
-        <translation type="unfinished">20</translation>
+        <translation>20</translation>
     </message>
     <message>
         <source>21</source>
-        <translation type="unfinished">21</translation>
+        <translation>21</translation>
     </message>
     <message>
         <source>22</source>
-        <translation type="unfinished">22</translation>
+        <translation>22</translation>
     </message>
     <message>
         <source>23</source>
-        <translation type="unfinished">23</translation>
+        <translation>23</translation>
     </message>
     <message>
         <source>24</source>
-        <translation type="unfinished">24</translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>25</source>
-        <translation type="unfinished">25</translation>
+        <translation>25</translation>
     </message>
     <message>
         <source>26</source>
-        <translation type="unfinished">26</translation>
+        <translation>26</translation>
     </message>
     <message>
         <source>27</source>
-        <translation type="unfinished">27</translation>
+        <translation>27</translation>
     </message>
     <message>
         <source>28</source>
-        <translation type="unfinished">28</translation>
+        <translation>28</translation>
     </message>
     <message>
         <source>29</source>
-        <translation type="unfinished">29</translation>
+        <translation>29</translation>
     </message>
     <message>
         <source>30</source>
-        <translation type="unfinished">30</translation>
+        <translation>30</translation>
     </message>
     <message>
         <source>31</source>
-        <translation type="unfinished">31</translation>
+        <translation>31</translation>
     </message>
     <message>
         <source>32</source>
-        <translation type="unfinished">32</translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
@@ -4709,7 +4950,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>&amp;Apply Changes</source>
@@ -5102,14 +5343,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5143,7 +5376,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Zobrazit mixér</translation>
+        <translation>Zobrazit mixér</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5401,6 +5634,14 @@ p, li { white-space: pre-wrap; }
         <source>All Categories</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5511,7 +5752,7 @@ Určitě to chcete?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Sila uderu</translation>
+        <translation>Sila uderu</translation>
     </message>
     <message>
         <source>selected pattern mode</source>
@@ -5550,11 +5791,11 @@ Určitě to chcete?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Storno</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -5569,23 +5810,15 @@ Určitě to chcete?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Storno</translation>
+        <translation>Storno</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPatternList</name>
-    <message>
-        <source>Delete</source>
-        <translation>Vymazat</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Vlastnosti</translation>
-    </message>
     <message>
         <source>Save Pattern</source>
         <translation>Uložit patern</translation>
@@ -5617,11 +5850,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Patern uložen.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Patern uložen.</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5690,77 +5919,20 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog</name>
+    <name>SoundLibraryDatabase</name>
     <message>
-        <source>Directory</source>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Export</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation type="unfinished">Všechno</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Export</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished">Procházet...</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Storno</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Import knihovny zvuků</translation>
@@ -5778,34 +5950,6 @@ Overwrite the existing pattern?</source>
         <translation>Aktualizace seznamu knihoven zvuků...</translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation>Instalováno</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation>Nový</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation>Autor: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation>Stahování knihovny zvuků...</translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Importovat bicí sadu</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Knihovna zvuků importována do %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation>Bicí sady</translation>
     </message>
@@ -5818,6 +5962,18 @@ Overwrite the existing pattern?</source>
         <translation>Paterny</translation>
     </message>
     <message>
+        <source>Installed</source>
+        <translation>Instalováno</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nový</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Autor: %1</translation>
+    </message>
+    <message>
         <source>Drumkit License: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5825,59 +5981,51 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Downloading SoundLibrary...</source>
+        <translation>Stahování knihovny zvuků...</translation>
+    </message>
+    <message>
+        <source>SoundLibrary imported in %1</source>
+        <translation>Knihovna zvuků importována do %1</translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Vyskytla se chyba při importu knihovny zvuků.</translation>
+    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Aktualizovat seznam</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Název knihovny zvuků</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Autor...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Stáhnout a nainstalovat</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Lokální soubor</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Procházet...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Instalovat</translation>
+        <source>Edit server list</source>
+        <translation>Upravit seznam serverů</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Upravit seznam serverů</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
+        <source>Sound Library Name</source>
+        <translation>Název knihovny zvuků</translation>
     </message>
     <message>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author...</source>
+        <translation>Autor...</translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5885,39 +6033,16 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryOpenDialog</name>
-    <message>
-        <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <source>Download and install</source>
+        <translation>Stáhnout a nainstalovat</translation>
     </message>
     <message>
-        <source>Load</source>
-        <translation type="unfinished">Nahrát</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Storno</translation>
+        <source>Close</source>
+        <translation>Zavřít</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Nahrát</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Export</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Vymazat</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Systémové bicí sady</translation>
@@ -5935,20 +6060,10 @@ Overwrite the existing pattern?</source>
         <translation>Paterny</translation>
     </message>
     <message>
-        <source>Properties</source>
-        <translation>Vlastnosti</translation>
-    </message>
-    <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Varování: vybraný patern bude vymazán z disku.￼
 Určitě to chcete?</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
@@ -5987,56 +6102,11 @@ Would you like to keep or discard the remaining instruments and notes?
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informace</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Uložit</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Storno</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="unfinished">Najít</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">Hlavní</translation>
     </message>
 </context>
 <context>
@@ -6070,7 +6140,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Zavřít</translation>
+        <translation>Zavřít</translation>
     </message>
 </context>
 <context>
@@ -6098,15 +6168,15 @@ Would you like to keep or discard the remaining instruments and notes?
     <name>VirtualPatternDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Storno</translation>
+        <translation>Storno</translation>
     </message>
 </context>
 <context>

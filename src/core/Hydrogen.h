@@ -23,9 +23,7 @@
 #define HYDROGEN_H
 
 #include <core/config.h>
-#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
-#include <core/Basics/Sample.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
@@ -91,18 +89,16 @@ public:
 	 * return central instance of the audio engine
 	 */
 	AudioEngine*		getAudioEngine() const;
-	SoundLibraryDatabase* getSoundLibraryDatabase() const {
+	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
-	void			sequencer_play();
+	void			sequencerPlay();
 
 	/// Stop the internal sequencer
-	void			sequencer_stop();
-
-	void			midi_noteOn( Note *note );
+	void			sequencerStop();
 
 	///Last received midi message
 	MidiMessage::Event	getLastMidiEvent() const;
@@ -117,19 +113,14 @@ public:
 	
 		/**
 		 * Get the current song.
-		 * \return #__song
+		 * \return #m_pSong
 		 */ 	
-		std::shared_ptr<Song>			getSong() const{ return __song; }
+		std::shared_ptr<Song>			getSong() const{ return m_pSong; }
 		/**
-		 * Sets the current song #__song to @a newSong.
+		 * Sets the current song #m_pSong to @a newSong.
 		 * \param newSong Pointer to the new Song object.
-		 * \param bRelinking Whether the drumkit last loaded should be
-		 * relinked when under session management. This flag is used
-		 * to distinguish between the regular load of a song file
-		 * within a session and its replacement by another song (which
-		 * requires an update of the linked drumkit).
 		 */
-		void			setSong	( std::shared_ptr<Song> newSong, bool bRelinking = true );
+		void			setSong( std::shared_ptr<Song> pNewSong );
 
 	/**
 	 * Find a PatternList/column corresponding to the supplied tick
@@ -188,8 +179,6 @@ public:
 	triggers EVENT_TIMELINE_ACTIVATION.*/
 	void setIsTimelineActivated( bool bEnabled );
 
-	void			removeSong();
-
 	void updateSongSize();
 
 		void			addRealtimeNote ( int instrument,
@@ -203,32 +192,9 @@ public:
 		AudioOutput*		getAudioOutput() const;
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
-
-		/** Test if an Instrument has some Note in the Pattern (used to
-		    test before deleting an Instrument)*/
-		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
-
 		/** Delete an #Instrument.*/
 		void			removeInstrument( int nInstrumentNumber );
 
-		/** \return m_sLastLoadedDrumkitName */
-		QString	getLastLoadedDrumkitName() const;
-		/** \return m_sLastLoadedDrumkitPath */
-		QString	getLastLoadedDrumkitPath() const;
-
-		void			raiseError( unsigned nErrorCode );
-
-
-void			previewSample( Sample *pSample );
-	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
-
-	/** Recalculates all Samples using RubberBand for a specific
-		tempo @a fBpm.
-	*
-	* This function requires the calling function to lock the
-	* #AudioEngine first.
-	*/ 
-	void recalculateRubberband( float fBpm );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
 	void setIsModified( bool bIsModified );
@@ -285,7 +251,6 @@ void			previewSample( Sample *pSample );
 	};
 
 	void			onTapTempoAccelEvent();
-	void			setTapTempo( float fInterval );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -339,8 +304,8 @@ void			previewSample( Sample *pSample );
 	void			startNsmClient();
 
 	// beatconter
-	void			setbeatsToCount( int beatstocount);
-	int			getbeatsToCount();
+	void			setBeatsToCount( int beatstocount);
+	int			getBeatsToCount();
 	void			setNoteLength( float notelength);
 	float			getNoteLength();
 	int			getBcStatus();
@@ -354,7 +319,7 @@ void			previewSample( Sample *pSample );
 	    the GUI*/
 	void			onJackMaster();
 
-	void			__panic();
+	void			panic();
 	std::shared_ptr<Timeline>	getTimeline() const;
 	void			setTimeline( std::shared_ptr<Timeline> );
 	
@@ -441,17 +406,12 @@ void			previewSample( Sample *pSample );
 		supported.*/
 	bool			isUnderSessionManagement() const;
 
-	void			setSessionDrumkitNeedsRelinking( bool bNeedsRelinking );
-	bool			getSessionDrumkitNeedsRelinking() const;
 	void			setSessionIsExported( bool bIsExported );
 	bool			getSessionIsExported() const;
 
-	///midi lookuptable
-	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
-
 	/**
-	 * Add @a pInstr to __instrument_death_row and triggers
-	 * __kill_instruments().
+	 * Add @a pInstr to m_instrumentDeathRow and triggers
+	 * killInstruments().
 	 *
 	 * Since there might still be some notes of @a pInstr left in one
 	 * of the note queues, the instrument can not be deleted right
@@ -494,30 +454,29 @@ private:
 	 * the Hydrogen() constructor, set via setSong(), and accessed
 	 * via getSong().
 	 */
-	std::shared_ptr<Song>			__song;
+	std::shared_ptr<Song>			m_pSong;
 
 	/**
 	 * Auxiliary function setting a bunch of global variables.
 	 *
-	 * - #m_ntaktoMeterCompute = 1;
-	 * - #m_nbeatsToCount = 4;
+	 * - #m_fTaktoMeterCompute = 1;
+	 * - #m_nBeatsToCount = 4;
 	 * - #m_nEventCount = 1;
 	 * - #m_nTempoChangeCounter = 0;
 	 * - #m_nBeatCount = 1;
-	 * - #m_nCoutOffset = 0;
+	 * - #m_nCountOffset = 0;
 	 * - #m_nStartOffset = 0;
 	 */
 	void initBeatcounter();
 
 	// beatcounter
-	float			m_ntaktoMeterCompute;	///< beatcounter note length
-	int			m_nbeatsToCount;	///< beatcounter beats to count
+	float			m_fTaktoMeterCompute;	///< beatcounter note length
+	int			m_nBeatsToCount;	///< beatcounter beats to count
 	int			m_nEventCount;		///< beatcounter event
-	int			m_nTempoChangeCounter;	///< count tempochanges for timeArray
 	int			m_nBeatCount;		///< beatcounter beat to count
-	double			m_nBeatDiffs[16];	///< beat diff
+	double			m_fBeatDiffs[16];	///< beat diff
 	timeval 		m_CurrentTime;		///< timeval
-	int			m_nCoutOffset;		///ms default 0
+	int			m_nCountOffset;		///ms default 0
 	int			m_nStartOffset;		///ms default 0
 	// ~ beatcounter
 
@@ -548,7 +507,7 @@ private:
 	CoreActionController* 	m_pCoreActionController;
 	
 	/// Deleting instruments too soon leads to potential crashes.
-	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
+	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
 	
 	/**
 	 * Instrument currently focused/selected in the GUI. 
@@ -563,23 +522,6 @@ private:
 	 * Index of the pattern selected in the GUI or by a MIDI event.
 	 */
 	int				m_nSelectedPatternNumber;
-
-	/**
-	 * When using Hydrogen with session management it tries to keep
-	 * all central files within a session folder instead of using the
-	 * once found at the data folder at either user or system
-	 * level. This allows to zip and transfer a session without
-	 * requiring to move the whole data folder as well.
-	 *
-	 * As sample files can be quite large in both size and number the
-	 * drumkit is only linked into the session folder.
-	 *
-	 * This variable indicates whether a different drumkit was loaded
-	 * into the current song (by either directly loading a drumkit or
-	 * replacing the entire song) and thus a relinking is required
-	 * upon saving the song.
-	 */
-	bool			m_bSessionDrumkitNeedsRelinking;
 	/**
 	 * Indicates whether NSM session is saved or exported when entering
 	 * the CoreActionController::saveSong() function.
@@ -592,12 +534,16 @@ private:
 	 * event is followed by a note off event.
 	 */
 	int				m_nLastRecordedMIDINoteTick;
+
+	///midi lookuptable
+	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+
 	/**
 	 * Central instance of the audio engine. 
 	 */
 	AudioEngine*	m_pAudioEngine;
 
-	SoundLibraryDatabase* m_pSoundLibraryDatabase;
+	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
 	/** 
 	 * Constructor, entry point, and initialization of the
@@ -613,7 +559,9 @@ private:
 	 */
 	Hydrogen();
 
-	void __kill_instruments();
+	void killInstruments();
+
+	void			midiNoteOn( Note *note );
 
 	/**
 	 * Cache last incoming MIDI event to be used in #MidiSenseWidget.
@@ -666,12 +614,6 @@ inline int Hydrogen::getSelectedInstrumentNumber() const
 	return m_nSelectedInstrumentNumber;
 }
 
-inline void Hydrogen::setSessionDrumkitNeedsRelinking( bool bNeedsRelinking ) {
-	m_bSessionDrumkitNeedsRelinking = bNeedsRelinking;
-}
-inline bool Hydrogen::getSessionDrumkitNeedsRelinking() const {
-	return m_bSessionDrumkitNeedsRelinking;
-}
 inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 	m_bSessionIsExported = bSessionIsExported;
 }

@@ -25,7 +25,7 @@
 
 namespace H2Core {
 
-	License::License( const QString& sLicenseString, const QString& sCopyrightHolder ) :
+License::License( const QString& sLicenseString, const QString& sCopyrightHolder ) :
 	m_sLicenseString( sLicenseString ),
 	m_sCopyrightHolder( sCopyrightHolder )
 {

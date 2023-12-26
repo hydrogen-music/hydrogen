@@ -23,6 +23,7 @@
 
 #include <core/IO/PortMidiDriver.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -531,7 +532,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {

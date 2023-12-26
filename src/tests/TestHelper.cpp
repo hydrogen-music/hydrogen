@@ -27,6 +27,7 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include <core/EventQueue.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 
 #include <QProcess>
@@ -241,7 +242,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
@@ -291,7 +292,7 @@ void TestHelper::exportSong( const QString& sFileName )
 	auto pQueue = H2Core::EventQueue::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

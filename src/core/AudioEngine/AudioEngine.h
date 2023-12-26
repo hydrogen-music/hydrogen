@@ -437,6 +437,11 @@ public:
 	int getEnqueuedNotesNumber() const;
 
 	const QStringList getSupportedAudioDrivers() const;
+
+		/** Stops all playback, transport, and note rendering and set the engine
+		 * in #State::Prepared. (It is needs some interaction/configuration in
+		 * order to start again.) */
+	void			prepare();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -449,9 +454,7 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	/** Is allowed to call setSong().*/
-	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking );
-	/** Is allowed to call removeSong().*/
-	friend void Hydrogen::removeSong();
+	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to use locate() to directly set the position in
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
@@ -520,7 +523,6 @@ private:
 	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
-	void			removeSong();
 	void 			setState( State state );
 	void 			setNextState( State state );
 	State 			getNextState() const;
@@ -718,10 +720,7 @@ private:
 
 
 /**
- * AudioEngineLocking
- *
- * This is a base class for shared data structures which may be
- * modified by the AudioEngine. These should only be modified or
+ * This is a base class for data structures which should only be modified or
  * trusted by a thread holding the AudioEngine lock.
  *
  * Any class which implements a data structure which can be modified

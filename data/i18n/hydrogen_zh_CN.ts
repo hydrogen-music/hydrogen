@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">静音</translation>
+        <translation>静音</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Instrument</source>
         <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
-        <translation type="unfinished">乐器</translation>
+        <translation>乐器</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">层</translation>
+        <translation>层</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">混音器</translation>
+        <translation>混音器</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -456,27 +456,27 @@ B</source>
     <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished">起音</translation>
+        <translation>起音</translation>
     </message>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">衰减</translation>
+        <translation>衰减</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">延音</translation>
+        <translation>延音</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">释音</translation>
+        <translation>释音</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">通道</translation>
+        <translation>通道</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">BPM</translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -638,7 +638,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Swing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the swing humanization rotary. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">摇摆</translation>
+        <translation>摇摆</translation>
     </message>
     <message>
         <source>Timing</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">力度</translation>
+        <translation>力度</translation>
     </message>
     <message>
         <source>Master</source>
@@ -693,7 +693,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Show piano roll editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the PianoRollEditor.</extracomment>
-        <translation type="unfinished">显示钢琴卷帘编辑器</translation>
+        <translation>显示钢琴卷帘编辑器</translation>
     </message>
     <message>
         <source>Unable to start audio driver!</source>
@@ -717,7 +717,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>JACK timebase support is disabled in the Preferences</source>
-        <translation type="unfinished">在首选项中禁用了 JACK Timebase 支持</translation>
+        <translation>在首选项中禁用了 JACK Timebase 支持</translation>
     </message>
     <message>
         <source>Waiting...</source>
@@ -740,7 +740,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished">无法加载乐器</translation>
+        <translation>无法加载乐器</translation>
     </message>
     <message>
         <source>on</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">关</translation>
+        <translation>关</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -772,7 +772,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation type="unfinished">使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
+        <translation>使用外部 JACK Timebase Master 时，无法在 Hydrogen 中更改拍速</translation>
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
@@ -781,12 +781,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Not compiled</source>
         <extracomment>Displayed in the Preferences dialog in the info section for a particular driver in case it is not properly supported on the system.</extracomment>
-        <translation type="unfinished">未编译</translation>
+        <translation>未编译</translation>
     </message>
     <message>
         <source>None</source>
         <extracomment>Displayed in the Preferences dialog within a driver combobox in case no driver was selected.</extracomment>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Both buffer size and sample rate can only be altered in the configuration of the JACK server itself.</source>
@@ -796,27 +796,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">确定(&amp;O)</translation>
+        <translation>确定(&amp;O)</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">保存(&amp;S)</translation>
+        <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">取消(&amp;C)</translation>
+        <translation>取消(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">丢弃(&amp;D)</translation>
+        <translation>丢弃(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">播放(&amp;P)</translation>
+        <translation>播放(&amp;P)</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -828,12 +828,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
 Are you sure?</source>
         <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
 &apos; character introduces a linebreak and must not be translated</extracomment>
-        <translation type="unfinished">有未保存的更改。这些更改将丢失。
+        <translation>有未保存的更改。这些更改将丢失。
 是否确定？</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation type="unfinished">不再显示此消息</translation>
+        <translation>不再显示此消息</translation>
     </message>
     <message>
         <source>License String</source>
@@ -863,26 +863,8 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished">在磁盘上找不到在当前乐曲中注册的鼓组。
-请先加载现有鼓组。
-当前鼓组：</translation>
-    </message>
-    <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -938,12 +920,12 @@ Current kit:</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">声相</translation>
+        <translation>声相</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">截频过滤器</translation>
+        <translation>截频过滤器</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -968,7 +950,7 @@ Current kit:</source>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation type="unfinished">组件</translation>
+        <translation>组件</translation>
     </message>
     <message>
         <source>Sample</source>
@@ -978,7 +960,68 @@ Current kit:</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">许可协议</translation>
+        <translation>许可协议</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>加载</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>导出</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>属性</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>重复</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>导入</translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>在线导入</translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1041,6 +1084,148 @@ Current kit:</source>
     <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation>无法粘贴多样式选择</translation>
+    </message>
+</context>
+<context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>导出(&amp;E)</translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation>目录</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>全部</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog_UI</name>
+    <message>
+        <source>Export</source>
+        <translation>导出</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>路径</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>浏览...</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>版本</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation>0.9.7 及之后</translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation>0.9.6 及之前</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation>组件</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation>打开声音库</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitPropertiesDialog_UI</name>
+    <message>
+        <source>General</source>
+        <translation>常规</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>信息</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>图像许可协议</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>浏览</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation>鼓组许可协议</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>作者</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>图像</translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>保存 </translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -1336,13 +1521,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation>%1&lt;br&gt;%2 赫兹&lt;br&gt;%3 %4</translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
@@ -1370,6 +1548,69 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::DrumkitPropertiesDialog</name>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Image</source>
+        <translation>打开图像</translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation>图像文件（*.png *.jpg *.jpeg）</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <translation>保存该鼓组失败。</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1413,45 +1654,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Tag</source>
         <translation>标签</translation>
-    </message>
-</context>
-<context>
-    <name>H2Core::SoundLibraryPropertiesDialog</name>
-    <message>
-        <source>SoundLibrary Properties</source>
-        <translation>声音库属性</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>打开图像</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>图像文件（*.png *.jpg *.jpeg）</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>保存该鼓组失败。</translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1508,7 +1710,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished">乐曲另存为： </translation>
+        <translation>乐曲另存为： </translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
@@ -1628,6 +1830,21 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
@@ -1682,10 +1899,6 @@ Value</source>
         <translation>填充 1/16 音符</translation>
     </message>
     <message>
-        <source>Randomize velocity</source>
-        <translation>随机化力度</translation>
-    </message>
-    <message>
         <source>Rename instrument</source>
         <translation>重命名乐器</translation>
     </message>
@@ -1732,6 +1945,15 @@ Value</source>
     <message>
         <source>Delete all notes on %1</source>
         <translation>删除 %1 的所有音符</translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>添加乐器</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2025,10 +2247,6 @@ MIDI = %2</translation>
         <translation>撤销(&amp;U)</translation>
     </message>
     <message>
-        <source>Drum&amp;kits</source>
-        <translation>鼓组(&amp;K)</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>视图(&amp;V)</translation>
     </message>
@@ -2097,18 +2315,6 @@ Are you sure you want to save?</source>
     <message>
         <source>Open Pattern</source>
         <translation>打开样式</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>组件名称</translation>
-    </message>
-    <message>
-        <source>Clear all instruments?</source>
-        <translation>清除所有乐器？</translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation>保存该库失败。</translation>
     </message>
     <message>
         <source>Song drumkit samples</source>
@@ -2263,10 +2469,6 @@ Do you want to discard the changes?
         <translation>属性(&amp;P)</translation>
     </message>
     <message>
-        <source>Save &amp;As</source>
-        <translation>另存为(&amp;A)</translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
         <translation>导出(&amp;E)</translation>
     </message>
@@ -2279,16 +2481,8 @@ Do you want to discard the changes?
         <translation>在线导入(&amp;L)</translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation>乐器(&amp;S)</translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
         <translation>添加乐器(&amp;I)</translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
-        <translation>清除全部(&amp;R)</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
@@ -2433,17 +2627,6 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2465,6 +2648,34 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>导入鼓组</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>导入声音库时发生错误。</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2831,6 +3042,22 @@ The session needs to be saved before exporting will can be continued.
         <source>Set note probability to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>随机化力度</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation>随机化力度</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -2841,10 +3068,6 @@ The session needs to be saved before exporting will can be continued.
 </context>
 <context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>已加载的声音库</translation>
-    </message>
     <message>
         <source>Hear new notes</source>
         <translation>播放新音符</translation>
@@ -2963,6 +3186,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3534,7 +3761,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3654,7 +3881,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">乐曲编辑器</translation>
+        <translation>乐曲编辑器</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3762,7 +3989,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">启动音频驱动时出错</translation>
+        <translation>启动音频驱动时出错</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4243,7 +4470,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>B</source>
-        <translation type="unfinished">B</translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>S</source>
@@ -4259,7 +4486,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>R</source>
@@ -4355,7 +4582,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">清除(&amp;C)</translation>
+        <translation>清除(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4367,7 +4594,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">重复</translation>
+        <translation>重复</translation>
     </message>
 </context>
 <context>
@@ -4421,10 +4648,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>覆盖 %1 音符</translation>
     </message>
     <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation>添加 NOTE_OFF 音符 ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Change note length</source>
         <translation>修改音符长度</translation>
     </message>
@@ -4439,10 +4662,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Fill notes</source>
         <translation>填充音符</translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
-        <translation>随机化力度</translation>
     </message>
     <message>
         <source>Move instrument</source>
@@ -4498,6 +4717,26 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5167,14 +5406,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5208,7 +5439,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">显示混音器</translation>
+        <translation>显示混音器</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5466,6 +5697,14 @@ p, li { white-space: pre-wrap; }
         <source>All Categories</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5644,14 +5883,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>属性</translation>
-    </message>
-    <message>
         <source>Load Pattern</source>
         <translation>加载样式</translation>
     </message>
@@ -5684,10 +5915,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation>重复</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5756,77 +5983,20 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog</name>
+    <name>SoundLibraryDatabase</name>
     <message>
-        <source>Directory</source>
-        <translation>目录</translation>
-    </message>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">导出(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>invalid drumkit</source>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation type="unfinished">全部</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Component</source>
-        <translation>组件</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>导出</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>路径</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>浏览...</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>版本</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 及之后</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 及之前</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>声音库导入</translation>
@@ -5887,20 +6057,12 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>导入声音库时发生错误。</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>导入鼓组</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>互联网</translation>
     </message>
     <message>
         <source>Update list</source>
@@ -5923,32 +6085,20 @@ Overwrite the existing pattern?</source>
         <translation>文字标签</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>图像许可协议...</translation>
+        <source>Author...</source>
+        <translation>作者...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>鼓组许可协议...</translation>
     </message>
     <message>
-        <source>Author...</source>
-        <translation>作者...</translation>
+        <source>Image License...</source>
+        <translation>图像许可协议...</translation>
     </message>
     <message>
         <source>Download and install</source>
         <translation>下载并安装</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>本地文件</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>浏览...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>安装</translation>
     </message>
     <message>
         <source>Close</source>
@@ -5956,38 +6106,7 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryOpenDialog</name>
-    <message>
-        <source>Open Sound Library</source>
-        <translation>打开声音库</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation>加载</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-</context>
-<context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>加载</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>导出</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>属性</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>删除</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>系统鼓组</translation>
@@ -6023,14 +6142,6 @@ Would you like to keep or discard the remaining instruments and notes?
         <translation>保留</translation>
     </message>
     <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>无法删除当前加载的鼓组：
-  &quot;%1&quot;。
-要删除此鼓组，请先加载另一个鼓组。</translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>警告，&quot;%1&quot; 鼓组将从磁盘上删除。
@@ -6059,56 +6170,11 @@ Are you sure?</source>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>作者</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>信息</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>鼓组许可协议</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>保存 </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>图像</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>浏览</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation>图像许可协议</translation>
-    </message>
-    <message>
-        <source>Mapping</source>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">常规</translation>
     </message>
 </context>
 <context>

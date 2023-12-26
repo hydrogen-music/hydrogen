@@ -32,6 +32,7 @@
 
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -789,7 +790,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
-	QMutexLocker mx( &m_MutexOutputPointer );
+	m_MutexOutputPointer.lock();
 	float *pBuffer_L, *pBuffer_R;
 
 	// clear main out Left and Right
@@ -811,7 +812,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 #endif
 
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 
 #ifdef H2CORE_HAVE_LADSPA
 	if ( getState() == State::Ready ||
@@ -895,7 +896,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	}
 
 	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
+	m_MutexOutputPointer.lock();
 
 	// Some audio drivers require to be already registered in the
 	// AudioEngine while being connected.
@@ -909,7 +910,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 
 	// Unlocking earlier might execute the jack process() callback before we
 	// are fully initialized.
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 	this->unlock();
 	
 	nRes = m_pAudioDriver->connect();
@@ -919,12 +920,12 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 				  .arg( sDriver ).arg( nRes ) );
 
 		this->lock( RIGHT_HERE );
-		mx.relock();
+		m_MutexOutputPointer.lock();
 		
 		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
 		
-		mx.unlock();
+		m_MutexOutputPointer.unlock();
 		this->unlock();
 
 		return nullptr;
@@ -956,10 +957,10 @@ void AudioEngine::startAudioDrivers()
 		return;
 	}
 
-	if ( m_pAudioDriver ) {	// check if audio driver is still alive
+	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
 		ERRORLOG( "The audio driver is still alive" );
 	}
-	if ( m_pMidiDriver ) {	// check if midi driver is still alive
+	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
 		ERRORLOG( "The MIDI driver is still active" );
 	}
 
@@ -984,7 +985,7 @@ void AudioEngine::startAudioDrivers()
 	}
 
 	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
+	m_MutexOutputPointer.lock();
 	
 	if ( pPref->m_sMidiDriver == "ALSA" ) {
 #ifdef H2CORE_HAVE_ALSA
@@ -1020,7 +1021,7 @@ void AudioEngine::startAudioDrivers()
 #endif
 	}
 	
-	mx.unlock();
+	m_MutexOutputPointer.unlock();
 	this->unlock();
 }
 
@@ -1054,10 +1055,10 @@ void AudioEngine::stopAudioDrivers()
 
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
-		QMutexLocker mx( &m_MutexOutputPointer );
+		m_MutexOutputPointer.lock();
 		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
-		mx.unlock();
+		m_MutexOutputPointer.unlock();
 	}
 
 	this->unlock();
@@ -1271,6 +1272,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			if ( ! pNote->get_instrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
+				delete pNote;
 				continue;
 			}
 
@@ -1283,7 +1285,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			m_songNoteQueue.pop();
 			pNote->get_instrument()->dequeue();
 			
-			const int nInstrument = pSong->getInstrumentList()->index( pNote->get_instrument() );
+			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
 			if( pNote->get_note_off() ){
 				delete pNote;
 			}
@@ -1365,13 +1367,23 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		assert( pSong );
+		ERRORLOG( "Invalid song" );
+		return 1;
+	}
 
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		static_cast<JackAudioDriver*>( pHydrogen->getAudioOutput() )->updateTransportPosition();
+		auto pAudioDriver = pHydrogen->getAudioOutput();
+		if ( pAudioDriver == nullptr ) {
+			ERRORLOG( "AudioDriver is not ready!" );
+			assert( pAudioDriver );
+			return 1;
+		}
+		static_cast<JackAudioDriver*>( pAudioDriver )->updateTransportPosition();
 	}
 #endif
 
@@ -1542,7 +1554,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
-	for ( auto component : *pSong->getComponents() ) {
+	for ( auto component : *pSong->getDrumkit()->getComponents() ) {
 		DrumkitComponent *pComponent = component.get();
 		for ( unsigned i = 0; i < nFrames; ++i ) {
 			float compo_val_L = pComponent->get_out_L(i);
@@ -1616,8 +1628,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	this->unlock();
 }
 
-void AudioEngine::removeSong()
-{
+void AudioEngine::prepare() {
 	this->lock( RIGHT_HERE );
 
 	if ( getState() == State::Playing ) {

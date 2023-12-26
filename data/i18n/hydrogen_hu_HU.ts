@@ -5,7 +5,7 @@
     <name>AboutDialog</name>
     <message>
         <source>About</source>
-        <translation type="unfinished">Névjegy</translation>
+        <translation>Névjegy</translation>
     </message>
     <message>
         <source>Website</source>
@@ -79,58 +79,58 @@
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation type="unfinished">Hangeszköz információk</translation>
+        <translation>Hangeszköz információk</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Mintavétel</translation>
+        <translation>Mintavétel</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Bufferméret</translation>
+        <translation>Bufferméret</translation>
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation type="unfinished">Hang meghajtók állapota</translation>
+        <translation>Hang meghajtók állapota</translation>
     </message>
     <message>
         <source>Playing notes</source>
-        <translation type="unfinished">Hangjegyek lejátszása</translation>
+        <translation>Hangjegyek lejátszása</translation>
     </message>
     <message>
         <source>Process time</source>
-        <translation type="unfinished">Feldolgozási idő</translation>
+        <translation>Feldolgozási idő</translation>
     </message>
     <message>
         <source>Song position</source>
-        <translation type="unfinished">Szám pozíciója</translation>
+        <translation>Szám pozíciója</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Motívumok</translation>
+        <translation>Motívumok</translation>
     </message>
     <message>
         <source>Song state</source>
-        <translation type="unfinished">Szám állapota</translation>
+        <translation>Szám állapota</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished">Keretek</translation>
+        <translation>Keretek</translation>
     </message>
     <message>
         <source>Ticks</source>
-        <translation type="unfinished">Leütés</translation>
+        <translation>Leütés</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation type="unfinished">Kiválasztott motívum</translation>
+        <translation>Kiválasztott motívum</translation>
     </message>
     <message>
         <source>Selected instrument</source>
-        <translation type="unfinished">Kiválasztott hangszer</translation>
+        <translation>Kiválasztott hangszer</translation>
     </message>
     <message>
         <source>###</source>
@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Állj</translation>
+        <translation>Állj</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -268,7 +268,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Némít</translation>
+        <translation>Némít</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,7 +378,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Általános</translation>
+        <translation>Általános</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Keverő</translation>
+        <translation>Keverő</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -476,7 +476,7 @@ B</source>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Csatorna</translation>
+        <translation>Csatorna</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Bemenet</translation>
+        <translation>Bemenet</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -801,7 +801,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Mentés</translation>
+        <translation>&amp;Mentés</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -811,7 +811,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Eldobás</translation>
+        <translation>&amp;Eldobás</translation>
     </message>
     <message>
         <source>&amp;Play</source>
@@ -862,24 +862,8 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -935,7 +919,7 @@ Current kit:</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Balansz</translation>
+        <translation>Balansz</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
@@ -975,18 +959,79 @@ Current kit:</source>
     <message>
         <source>License</source>
         <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
-        <translation type="unfinished">Jogok</translation>
+        <translation>Jogok</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Törlés</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Betöltés</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Exportálás</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Tulajdonságok</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Némít</translation>
+        <translation>Némít</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Szóló</translation>
+        <translation>Szóló</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1041,6 +1086,148 @@ Current kit:</source>
     </message>
 </context>
 <context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Összes</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog_UI</name>
+    <message>
+        <source>Export</source>
+        <translation>Exportálás</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégsem</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>Tallóz...</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitPropertiesDialog_UI</name>
+    <message>
+        <source>General</source>
+        <translation>Általános</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Tallóz</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Szerző</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Mégsem</translation>
+    </message>
+</context>
+<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -1064,7 +1251,7 @@ Current kit:</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Exportálás MIDI-be</translation>
+        <translation>Exportálás MIDI-be</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1119,7 +1306,7 @@ Overwrite the existing file?</source>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation type="unfinished">Szám exportálása</translation>
+        <translation>Szám exportálása</translation>
     </message>
     <message>
         <source>The file %1 exists. 
@@ -1331,13 +1518,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
@@ -1365,6 +1545,69 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::DrumkitPropertiesDialog</name>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1411,49 +1654,10 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>H2Core::SoundLibraryPropertiesDialog</name>
-    <message>
-        <source>SoundLibrary Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Számszerkesztő</translation>
+        <translation>Számszerkesztő</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -1461,7 +1665,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Keverő</translation>
+        <translation>Keverő</translation>
     </message>
     <message>
         <source>modified</source>
@@ -1469,7 +1673,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">A számot nem lehet betölteni.</translation>
+        <translation>A számot nem lehet betölteni.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1622,13 +1826,24 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
-    <message>
-        <source>Randomize velocity</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Delete instrument</source>
         <translation type="unfinished"></translation>
@@ -1669,7 +1884,7 @@ Value</source>
     <message>
         <source>Solo</source>
         <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation type="unfinished">Szóló</translation>
+        <translation>Szóló</translation>
     </message>
     <message>
         <source>Rename instrument</source>
@@ -1727,6 +1942,15 @@ Value</source>
         <source>Delete all notes on %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>
@@ -1743,7 +1967,7 @@ Value</source>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished">Effekt paraméterek módosítása</translation>
+        <translation>Effekt paraméterek módosítása</translation>
     </message>
     <message>
         <source>FX bypass</source>
@@ -1762,27 +1986,27 @@ Value</source>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished">Kiválasztás</translation>
+        <translation>Kiválasztás</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished">Bekapcsolás</translation>
+        <translation>Bekapcsolás</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished">[%1] LADSPA Effekt tulajdonságai</translation>
+        <translation>[%1] LADSPA Effekt tulajdonságai</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished">Kikapcsolás</translation>
+        <translation>Kikapcsolás</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation type="unfinished">LADSPA %1 effekt tulajdonságai</translation>
+        <translation>LADSPA %1 effekt tulajdonságai</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation type="unfinished">Nincs plugin</translation>
+        <translation>Nincs plugin</translation>
     </message>
     <message>
         <source>Remove FX</source>
@@ -1801,23 +2025,23 @@ Value</source>
     <name>LadspaFXSelector</name>
     <message>
         <source>Select LADSPA FX</source>
-        <translation type="unfinished">LADSPA effekt kiválasztása</translation>
+        <translation>LADSPA effekt kiválasztása</translation>
     </message>
     <message>
         <source>Groups</source>
-        <translation type="unfinished">Csoportok</translation>
+        <translation>Csoportok</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">Sztereó</translation>
+        <translation>Sztereó</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">Monó</translation>
+        <translation>Monó</translation>
     </message>
     <message>
         <source>Not supported</source>
-        <translation type="unfinished">Nem támogatott</translation>
+        <translation>Nem támogatott</translation>
     </message>
     <message>
         <source>Recently Used</source>
@@ -1949,43 +2173,43 @@ MIDI = %2</source>
     <name>MainForm</name>
     <message>
         <source>Hydrogen Ready.</source>
-        <translation type="unfinished">Hydrogen kész.</translation>
+        <translation>Hydrogen kész.</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished">&amp;Mentés</translation>
+        <translation>&amp;Mentés</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation type="unfinished">Szám mentése</translation>
+        <translation>Szám mentése</translation>
     </message>
     <message>
         <source>Open song</source>
-        <translation type="unfinished">Szám megnyitása</translation>
+        <translation>Szám megnyitása</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
-        <translation type="unfinished">Ismeretlen audió meghajtó</translation>
+        <translation>Ismeretlen audió meghajtó</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Audió meghajtó indítási hiba</translation>
+        <translation>Audió meghajtó indítási hiba</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation type="unfinished">Jack meghajtó: kiszolgáló leállt</translation>
+        <translation>Jack meghajtó: kiszolgáló leállt</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation type="unfinished">Jack meghajtó: kliens nem aktiválható</translation>
+        <translation>Jack meghajtó: kliens nem aktiválható</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation type="unfinished">Jack meghajtó: nem sikerül csatlakozni a kimenethez</translation>
+        <translation>Jack meghajtó: nem sikerül csatlakozni a kimenethez</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation type="unfinished">Jack meghajtó: hiba a port regiszterben</translation>
+        <translation>Jack meghajtó: hiba a port regiszterben</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -2029,10 +2253,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Unknown error %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear all instruments?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2108,18 +2328,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drum&amp;kits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2199,10 +2407,6 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2215,15 +2419,7 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2391,17 +2587,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2425,12 +2610,40 @@ The session needs to be saved before exporting will can be continued.
         <source>Import &amp;Demo Into Session</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Dobszerkó importálása</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;To Session</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
     <message>
         <source>Set master volume [%1]</source>
-        <translation type="unfinished">Master hangerő [%1]</translation>
+        <translation>Master hangerő [%1]</translation>
     </message>
     <message>
         <source>Humanize velocity</source>
@@ -2520,7 +2733,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Keverő</translation>
+        <translation>Keverő</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
@@ -2539,19 +2752,19 @@ The session needs to be saved before exporting will can be continued.
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation type="unfinished">Minta lejátszása</translation>
+        <translation>Minta lejátszása</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Némít</translation>
+        <translation>Némít</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Szóló</translation>
+        <translation>Szóló</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Balansz</translation>
+        <translation>Balansz</translation>
     </message>
     <message>
         <source>FX %1 send</source>
@@ -2789,6 +3002,22 @@ The session needs to be saved before exporting will can be continued.
         <source>Set note probability to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -2801,31 +3030,31 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
-        <translation type="unfinished">Lejátsza az új hangokat</translation>
+        <translation>Lejátsza az új hangokat</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation type="unfinished">Események illesztése a hálóhoz</translation>
+        <translation>Események illesztése a hálóhoz</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation type="unfinished">Motívumok szerkesztése - %1</translation>
+        <translation>Motívumok szerkesztése - %1</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation type="unfinished">Lejátsza az új hangokat = Igen</translation>
+        <translation>Lejátsza az új hangokat = Igen</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation type="unfinished">Lejátsza az új hangokat = Nem</translation>
+        <translation>Lejátsza az új hangokat = Nem</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation type="unfinished">Események illesztése a hálóhoz = Igen</translation>
+        <translation>Események illesztése a hálóhoz = Igen</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation type="unfinished">Események illesztése a hálóhoz = Nem</translation>
+        <translation>Események illesztése a hálóhoz = Nem</translation>
     </message>
     <message>
         <source>Zoom in</source>
@@ -2849,14 +3078,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Balansz</translation>
+        <translation>Balansz</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loaded Soundlibrary</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2923,6 +3148,10 @@ The session needs to be saved before exporting will can be continued.
         <source>Pattern editor - No pattern selected</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
@@ -2935,7 +3164,7 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternFillDialog_UI</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
     <message>
         <source>Form 1</source>
@@ -2974,7 +3203,7 @@ The session needs to be saved before exporting will can be continued.
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation type="unfinished">Motívum tulajdonságai</translation>
+        <translation>Motívum tulajdonságai</translation>
     </message>
 </context>
 <context>
@@ -3030,35 +3259,35 @@ The session needs to be saved before exporting will can be continued.
     <name>PlayerControl</name>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Állj</translation>
+        <translation>Állj</translation>
     </message>
     <message>
         <source>Song Mode</source>
-        <translation type="unfinished">Szám mód</translation>
+        <translation>Szám mód</translation>
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation type="unfinished">Motívum mód</translation>
+        <translation>Motívum mód</translation>
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">Lejátszás.</translation>
+        <translation>Lejátszás.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Megállt.</translation>
+        <translation>Megállt.</translation>
     </message>
     <message>
         <source>Song mode selected.</source>
-        <translation type="unfinished">Szám módot választottad.</translation>
+        <translation>Szám módot választottad.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation type="unfinished">Motívum módot választottad.</translation>
+        <translation>Motívum módot választottad.</translation>
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Keverő</translation>
+        <translation>Keverő</translation>
     </message>
     <message>
         <source>Rewind</source>
@@ -3334,7 +3563,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Állj</translation>
+        <translation>Állj</translation>
     </message>
     <message>
         <source>Fast Forward</source>
@@ -3405,7 +3634,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Beállítások</translation>
+        <translation>Beállítások</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
@@ -3482,7 +3711,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Általános</translation>
+        <translation>Általános</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3602,7 +3831,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Számszerkesztő</translation>
+        <translation>Számszerkesztő</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3710,7 +3939,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Audió meghajtó indítási hiba</translation>
+        <translation>Audió meghajtó indítási hiba</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -3753,56 +3982,56 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <name>PreferencesDialog_UI</name>
     <message>
         <source>Polyphony</source>
-        <translation type="unfinished">Polifónia</translation>
+        <translation>Polifónia</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="unfinished">Eszköz</translation>
+        <translation>Eszköz</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Bufferméret</translation>
+        <translation>Bufferméret</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Mitavétel</translation>
+        <translation>Mitavétel</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Bemenet</translation>
+        <translation>Bemenet</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Csatorna</translation>
+        <translation>Csatorna</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Összes</translation>
+        <translation>Összes</translation>
     </message>
     <message>
         <source>Application font</source>
-        <translation type="unfinished">Alkalmazás betütípusa</translation>
+        <translation>Alkalmazás betütípusa</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Stílus</translation>
+        <translation>Stílus</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Lassú</translation>
+        <translation>Lassú</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normál</translation>
+        <translation>Normál</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Gyors</translation>
+        <translation>Gyors</translation>
     </message>
     <message>
         <source>Meters falloff speed</source>
         <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
-        <translation type="unfinished">Csúcsindikátor esési sebessége</translation>
+        <translation>Csúcsindikátor esési sebessége</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -4369,10 +4598,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change note length</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4386,10 +4611,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4446,6 +4667,26 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5092,14 +5333,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5133,7 +5366,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Keverő</translation>
+        <translation>Keverő</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5391,6 +5624,14 @@ p, li { white-space: pre-wrap; }
         <source>All Categories</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5439,23 +5680,23 @@ p, li { white-space: pre-wrap; }
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Számszerkesztő</translation>
+        <translation>Számszerkesztő</translation>
     </message>
     <message>
         <source>Create new pattern</source>
-        <translation type="unfinished">Új motívum</translation>
+        <translation>Új motívum</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation type="unfinished">Kijelölt lefelé mozgatása</translation>
+        <translation>Kijelölt lefelé mozgatása</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation type="unfinished">Kijelölt felfelé mozgatása</translation>
+        <translation>Kijelölt felfelé mozgatása</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation type="unfinished">Motívum törlése</translation>
+        <translation>Motívum törlése</translation>
     </message>
     <message>
         <source>Select mode</source>
@@ -5539,7 +5780,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -5558,7 +5799,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -5567,14 +5808,6 @@ Are you sure?</source>
 </context>
 <context>
     <name>SongEditorPatternList</name>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="unfinished">Tulajdonságok</translation>
-    </message>
     <message>
         <source>Save Pattern</source>
         <translation type="unfinished"></translation>
@@ -5594,10 +5827,6 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5636,22 +5865,22 @@ Overwrite the existing pattern?</source>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation type="unfinished">Szám tulajdonságai</translation>
+        <translation>Szám tulajdonságai</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Song name</source>
-        <translation type="unfinished">Szám címe</translation>
+        <translation>Szám címe</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Szerző</translation>
+        <translation>Szerző</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation type="unfinished">Hangjegyek</translation>
+        <translation>Hangjegyek</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -5675,81 +5904,24 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished">Jogok</translation>
+        <translation>Jogok</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog</name>
+    <name>SoundLibraryDatabase</name>
     <message>
-        <source>Directory</source>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Export</source>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation type="unfinished">Összes</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Exportálás</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished">Tallóz...</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation type="unfinished"></translation>
@@ -5767,34 +5939,6 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Installed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="unfinished">Új</translation>
-    </message>
-    <message>
-        <source>Author: %1</source>
-        <translation type="unfinished">Szerző: %1</translation>
-    </message>
-    <message>
-        <source>Downloading SoundLibrary...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation type="unfinished">Dobszerkó importálása</translation>
-    </message>
-    <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Drumkits</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5804,7 +5948,19 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Motívumok</translation>
+        <translation>Motívumok</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Új</translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation>Szerző: %1</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
@@ -5814,15 +5970,23 @@ Overwrite the existing pattern?</source>
         <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog_UI</name>
     <message>
-        <source>Dialog</source>
+        <source>Downloading SoundLibrary...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Internet</source>
+        <source>SoundLibrary imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
+    <message>
+        <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5830,27 +5994,7 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished">Tallóz...</translation>
-    </message>
-    <message>
-        <source>Install</source>
+        <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5858,11 +6002,7 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close</source>
+        <source>Sound Library Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5870,43 +6010,28 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Image License...</source>
+        <source>Author...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryOpenDialog</name>
     <message>
-        <source>Open Sound Library</source>
+        <source>Image License...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load</source>
-        <translation type="unfinished">Betöltés</translation>
+        <source>Download and install</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">Betöltés</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Exportálás</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation type="unfinished"></translation>
@@ -5921,21 +6046,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Motívumok</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation type="unfinished">Tulajdonságok</translation>
+        <translation>Motívumok</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5975,56 +6090,11 @@ Would you like to keep or discard the remaining instruments and notes?
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>Name</source>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation type="unfinished">Szerző</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="unfinished">Tallóz</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">Általános</translation>
     </message>
 </context>
 <context>
@@ -6054,7 +6124,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6094,7 +6164,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Mégsem</translation>
+        <translation>Mégsem</translation>
     </message>
 </context>
 <context>

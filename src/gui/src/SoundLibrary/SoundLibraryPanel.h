@@ -48,13 +48,13 @@ public:
 	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
 	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
 	
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent( int nValue ) override;
-	virtual void selectedInstrumentChangedEvent() override;
 	virtual void soundLibraryChangedEvent() override;
 
 public slots:
 	void on_drumkitLoadAction();
+		void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+							std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
+							bool bConditionalLoad );
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
@@ -64,7 +64,6 @@ private slots:
 	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
 	void on_drumkitDeleteAction();
-	void on_drumkitPropertiesAction();
 	void on_drumkitExportAction();
 	void on_songLoadAction();
 	void on_patternLoadAction();
@@ -75,14 +74,14 @@ signals:
 	void item_changed(bool bDrumkitSelected);
 
 private:
+		void editDrumkitProperties( bool bDuplicate );
 	void updateTree();
 	void test_expandedItems();
-	void update_background_color();
-	
+
 	SoundLibraryTree *__sound_library_tree;
-	//FileBrowser *m_pFileBrowser;
 
 	QPoint __start_drag_position;
+
 	QMenu* __drumkit_menu;
 	QMenu* __drumkit_menu_system;
 	QMenu* __song_menu;
@@ -98,8 +97,6 @@ private:
 
 	bool __expand_pattern_list;
 	bool __expand_songs_list;
-	void restore_background_color();
-	void change_background_color();
 
 	/**
 	 * Used to uniquely identify the drumkit corresponding to an item

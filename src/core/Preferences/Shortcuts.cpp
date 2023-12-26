@@ -515,12 +515,12 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::EditDrumkitProperties, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Edit drumkit properties" ) );
-	insertActionInfo( Shortcuts::Action::SaveDrumkit, Category::MainMenu,
+	insertActionInfo( Shortcuts::Action::SaveDrumkitToSoundLibrary, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Save modifications to current drumkit" ) );
-	insertActionInfo( Shortcuts::Action::SaveAsDrumkit, Category::MainMenu,
+										 "Save current drumkit to Sound Library" ) );
+	insertActionInfo( Shortcuts::Action::SaveDrumkitToSession, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Save modifications to new drumkit" ) );
+										 "Save current drumkit to NSM session folder" ) );
 	insertActionInfo( Shortcuts::Action::ExportDrumkit, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export drumkit to disk" ) );

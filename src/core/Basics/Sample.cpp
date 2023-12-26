@@ -130,7 +130,7 @@ void Sample::set_filename( const QString& filename )
 
 QString Sample::get_filepath() const
 {
-	return Filesystem::ensure_session_compatibility( __filepath );
+	return __filepath;
 }
 
 std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
