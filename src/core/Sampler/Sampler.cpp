@@ -981,9 +981,42 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	return true;
 }
 
+
+void copySample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+				 float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
+				 int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
+{
+	for ( int nFrame = 0; nFrame < nFrames; nFrame++) {
+		int nSamplePos = static_cast<int>(fSamplePos);
+		float fVal_L, fVal_R;
+
+		if ( ( nSamplePos - 1 ) >= nSampleFrames ) {
+			//we reach the last audioframe.
+			//set this last frame to zero do nothing wrong.
+			fVal_L = 0.0;
+			fVal_R = 0.0;
+		} else {
+			if ( nSamplePos < nSampleFrames ) {
+				fVal_L = pSample_data_L[ nSamplePos ];
+				fVal_R = pSample_data_R[ nSamplePos ];
+			} else {
+				fVal_L = 0.0;
+				fVal_R = 0.0;
+			}
+		}
+
+		buffer_L[nFrame] = fVal_L;
+		buffer_R[nFrame] = fVal_R;
+
+		fSamplePos += fStep;
+
+	}
+}
+
+
 // Resample with constant interopolation mode
 //
-template < Interpolation::InterpolateMode mode, bool bResample >
+template < Interpolation::InterpolateMode mode >
 void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
@@ -999,53 +1032,42 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			fVal_L = 0.0;
 			fVal_R = 0.0;
 		} else {
-			if ( ! bResample ) {
-				if ( nSamplePos < nSampleFrames ) {
-					fVal_L = pSample_data_L[ nSamplePos ];
-					fVal_R = pSample_data_R[ nSamplePos ];
-				} else {
-					fVal_L = 0.0;
-					fVal_R = 0.0;
-				}
-			}
-			else {
-				// Gather frame samples
-				float l0, l1, l2, l3, r0, r1, r2, r3;
-				// Short-circuit: the common case is that all required frames are within the sample.
-				if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
-					l0=  pSample_data_L[ nSamplePos-1 ];
-					l1 = pSample_data_L[ nSamplePos ];
-					l2 = pSample_data_L[ nSamplePos+1 ];
-					l3 = pSample_data_L[ nSamplePos+2 ];
+			// Gather frame samples
+			float l0, l1, l2, l3, r0, r1, r2, r3;
+			// Short-circuit: the common case is that all required frames are within the sample.
+			if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
+				l0=  pSample_data_L[ nSamplePos-1 ];
+				l1 = pSample_data_L[ nSamplePos ];
+				l2 = pSample_data_L[ nSamplePos+1 ];
+				l3 = pSample_data_L[ nSamplePos+2 ];
+				r0 = pSample_data_R[ nSamplePos-1 ];
+				r1 = pSample_data_R[ nSamplePos ];
+				r2 = pSample_data_R[ nSamplePos+1 ];
+				r3 = pSample_data_R[ nSamplePos+2 ];
+			} else {
+				l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
+				// Some required frames are off the beginning or end of the sample.
+				if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
+					l0 = pSample_data_L[ nSamplePos-1 ];
 					r0 = pSample_data_R[ nSamplePos-1 ];
+				}
+				// Each successive frame may be past the end of the sample so check individually.
+				if ( nSamplePos < nSampleFrames ) {
+					l1 = pSample_data_L[ nSamplePos ];
 					r1 = pSample_data_R[ nSamplePos ];
-					r2 = pSample_data_R[ nSamplePos+1 ];
-					r3 = pSample_data_R[ nSamplePos+2 ];
-				} else {
-					l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
-					// Some required frames are off the beginning or end of the sample.
-					if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
-						l0 = pSample_data_L[ nSamplePos-1 ];
-						r0 = pSample_data_R[ nSamplePos-1 ];
-					}
-					// Each successive frame may be past the end of the sample so check individually.
-					if ( nSamplePos < nSampleFrames ) {
-						l1 = pSample_data_L[ nSamplePos ];
-						r1 = pSample_data_R[ nSamplePos ];
-						if ( nSamplePos+1 < nSampleFrames ) {
-							l2 = pSample_data_L[ nSamplePos+1 ];
-							r2 = pSample_data_R[ nSamplePos+1 ];
-							if ( nSamplePos+2 < nSampleFrames ) {
-								l3 = pSample_data_L[ nSamplePos+2 ];
-								r3 = pSample_data_R[ nSamplePos+2 ];
-							}
+					if ( nSamplePos+1 < nSampleFrames ) {
+						l2 = pSample_data_L[ nSamplePos+1 ];
+						r2 = pSample_data_R[ nSamplePos+1 ];
+						if ( nSamplePos+2 < nSampleFrames ) {
+							l3 = pSample_data_L[ nSamplePos+2 ];
+							r3 = pSample_data_R[ nSamplePos+2 ];
 						}
 					}
 				}
-
-				fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
-				fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
 			}
+			
+			fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
+			fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
 		}
 
 		buffer_L[nFrame] = fVal_L;
@@ -1056,36 +1078,33 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 }
 
 // Resample with runtime-selection of mode
-void resample( Interpolation::InterpolateMode mode, bool bResample,
+void resample( Interpolation::InterpolateMode mode,
 			   float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
-	if ( !bResample )
-		resample< Interpolation::InterpolateMode::Linear, false >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																   nFrames, fSamplePos, fStep, nSampleFrames );
-	else
-		switch (mode) {
-		case Interpolation::InterpolateMode::Linear:
-			resample< Interpolation::InterpolateMode::Linear, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	  nFrames, fSamplePos, fStep, nSampleFrames );
-			break;
-		case Interpolation::InterpolateMode::Cosine:
-			resample< Interpolation::InterpolateMode::Cosine, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	  nFrames, fSamplePos, fStep, nSampleFrames );
-			break;
-		case Interpolation::InterpolateMode::Third:
-			resample< Interpolation::InterpolateMode::Third, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	 nFrames, fSamplePos, fStep, nSampleFrames );
-			break;
-		case Interpolation::InterpolateMode::Cubic:
-			resample< Interpolation::InterpolateMode::Cubic, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	 nFrames, fSamplePos, fStep, nSampleFrames );
-			break;
-		case Interpolation::InterpolateMode::Hermite:
-			resample< Interpolation::InterpolateMode::Hermite, true >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-																	   nFrames, fSamplePos, fStep, nSampleFrames );
-			break;
+
+	switch (mode) {
+	case Interpolation::InterpolateMode::Linear:
+		resample< Interpolation::InterpolateMode::Linear >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+															nFrames, fSamplePos, fStep, nSampleFrames );
+		break;
+	case Interpolation::InterpolateMode::Cosine:
+		resample< Interpolation::InterpolateMode::Cosine >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+															nFrames, fSamplePos, fStep, nSampleFrames );
+		break;
+	case Interpolation::InterpolateMode::Third:
+		resample< Interpolation::InterpolateMode::Third >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+														   nFrames, fSamplePos, fStep, nSampleFrames );
+		break;
+	case Interpolation::InterpolateMode::Cubic:
+		resample< Interpolation::InterpolateMode::Cubic >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+														   nFrames, fSamplePos, fStep, nSampleFrames );
+		break;
+	case Interpolation::InterpolateMode::Hermite:
+		resample< Interpolation::InterpolateMode::Hermite >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
+															 nFrames, fSamplePos, fStep, nSampleFrames );
+		break;
 	}
 }
 
@@ -1250,9 +1269,14 @@ bool Sampler::renderNoteResample(
 	//   - also track the max
 	// - split into fast loops *in* that function
 
-	resample( m_interpolateMode, bResample,
-			  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
-			  nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
+	if ( bResample ) {
+		resample( m_interpolateMode,
+				  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
+				  nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
+	} else {
+		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
+					nFinalBufferPos - nInitialBufferPos, fSamplePos, fStep, nSampleFrames );
+	}
 
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nFinalBufferPos, nNoteEnd,
 						   fStep ) ) {
