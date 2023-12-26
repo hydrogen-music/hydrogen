@@ -1006,58 +1006,78 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
-	for ( int nFrame = 0; nFrame < nFrames; nFrame++) {
-		float fVal_L, fVal_R;
-
-		int nSamplePos = static_cast<int>(fSamplePos);
-		double fDiff = fSamplePos - nSamplePos;
-		if ( ( nSamplePos - 1 ) >= nSampleFrames ) {
-			//we reach the last audioframe.
-			//set this last frame to zero do nothing wrong.
-			fVal_L = 0.0;
-			fVal_R = 0.0;
-		} else {
-			// Gather frame samples
-			float l0, l1, l2, l3, r0, r1, r2, r3;
-			// Short-circuit: the common case is that all required frames are within the sample.
-			if ( nSamplePos >= 1 && nSamplePos + 2 < nSampleFrames ) {
-				l0=  pSample_data_L[ nSamplePos-1 ];
-				l1 = pSample_data_L[ nSamplePos ];
+	auto getSampleFrames = [&](	int nSamplePos,
+								float &l0, float &l1, float &l2, float &l3,
+								float &r0, float &r1, float &r2, float &r3 ) {
+		l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
+		// Some required frames are off the beginning or end of the sample.
+		if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
+			l0 = pSample_data_L[ nSamplePos-1 ];
+			r0 = pSample_data_R[ nSamplePos-1 ];
+		}
+		// Each successive frame may be past the end of the sample so check individually.
+		if ( nSamplePos < nSampleFrames ) {
+			l1 = pSample_data_L[ nSamplePos ];
+			r1 = pSample_data_R[ nSamplePos ];
+			if ( nSamplePos+1 < nSampleFrames ) {
 				l2 = pSample_data_L[ nSamplePos+1 ];
-				l3 = pSample_data_L[ nSamplePos+2 ];
-				r0 = pSample_data_R[ nSamplePos-1 ];
-				r1 = pSample_data_R[ nSamplePos ];
 				r2 = pSample_data_R[ nSamplePos+1 ];
-				r3 = pSample_data_R[ nSamplePos+2 ];
-			} else {
-				l0 = l1 = l2 = l3 = r0 = r1 = r2 = r3 = 0.0;
-				// Some required frames are off the beginning or end of the sample.
-				if ( nSamplePos >= 1 && nSamplePos < nSampleFrames + 1 ) {
-					l0 = pSample_data_L[ nSamplePos-1 ];
-					r0 = pSample_data_R[ nSamplePos-1 ];
-				}
-				// Each successive frame may be past the end of the sample so check individually.
-				if ( nSamplePos < nSampleFrames ) {
-					l1 = pSample_data_L[ nSamplePos ];
-					r1 = pSample_data_R[ nSamplePos ];
-					if ( nSamplePos+1 < nSampleFrames ) {
-						l2 = pSample_data_L[ nSamplePos+1 ];
-						r2 = pSample_data_R[ nSamplePos+1 ];
-						if ( nSamplePos+2 < nSampleFrames ) {
-							l3 = pSample_data_L[ nSamplePos+2 ];
-							r3 = pSample_data_R[ nSamplePos+2 ];
-						}
-					}
+				if ( nSamplePos+2 < nSampleFrames ) {
+					l3 = pSample_data_L[ nSamplePos+2 ];
+					r3 = pSample_data_R[ nSamplePos+2 ];
 				}
 			}
-			
-			fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
-			fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
 		}
+	};
 
+	float fVal_L, fVal_R;
+	int nFrame;
+	float l0, l1, l2, l3, r0, r1, r2, r3;
+	// Initial safe interations to avoid reading off the beginning of the sample
+	for ( nFrame = 0; nFrame < nFrames; nFrame++) {
+		int nSamplePos = static_cast<int>(fSamplePos);
+		if (nSamplePos >= 1)
+			break;
+		double fDiff = fSamplePos - nSamplePos;
+		getSampleFrames( 0, l0, l1, l2, l3, r0, r1, r2, r3);
+
+		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
+		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
 		buffer_L[nFrame] = fVal_L;
 		buffer_R[nFrame] = fVal_R;
+		fSamplePos += fStep;
+	}
 
+	// Fast iterations for main body of sample, with unconditional sample lookup
+	int nFastFrames = std::min( nFrames,
+								static_cast<int>( ( nSampleFrames - 2 - fSamplePos ) /  fStep ) );
+	for ( ; nFrame < nFastFrames; nFrame++) {
+		int nSamplePos = static_cast<int>(fSamplePos);
+		double fDiff = fSamplePos - nSamplePos;
+		// Gather frame samples
+		l0 = pSample_data_L[ nSamplePos-1 ];
+		l1 = pSample_data_L[ nSamplePos ];
+		l2 = pSample_data_L[ nSamplePos+1 ];
+		l3 = pSample_data_L[ nSamplePos+2 ];
+		r0 = pSample_data_R[ nSamplePos-1 ];
+		r1 = pSample_data_R[ nSamplePos ];
+		r2 = pSample_data_R[ nSamplePos+1 ];
+		r3 = pSample_data_R[ nSamplePos+2 ];
+		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
+		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
+		buffer_L[nFrame] = fVal_L;
+		buffer_R[nFrame] = fVal_R;
+		fSamplePos += fStep;
+	}
+
+	for ( ; nFrame < nFrames; nFrame++ ) {
+		int nSamplePos = static_cast<int>(fSamplePos);
+		double fDiff = fSamplePos - nSamplePos;
+		getSampleFrames( nSamplePos, l0, l1, l2, l3, r0, r1, r2, r3);
+		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
+		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
+		buffer_L[nFrame] = fVal_L;
+		buffer_R[nFrame] = fVal_R;
 		fSamplePos += fStep;
 	}
 }
@@ -1245,14 +1265,6 @@ bool Sampler::renderNoteResample(
 
 	float buffer_L[MAX_BUFFER_SIZE];
 	float buffer_R[MAX_BUFFER_SIZE];
-
-	// XXX plan
-	// - pre/main/post loops
-	//   - can we just use a MAX on nSamplePos to avoid checking?
-	//   - but if we can get the count right beforehand, even better I guess
-	// - pull out loops to templated functions that do <mode> and run a fixed count
-	//   - also track the max
-	// - split into fast loops *in* that function
 
 	if ( bResample ) {
 		resample( m_interpolateMode,
