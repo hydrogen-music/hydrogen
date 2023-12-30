@@ -121,13 +121,6 @@ void Sampler::process( uint32_t nFrames )
 	memset( m_pMainOut_L, 0, nFrames * sizeof( float ) );
 	memset( m_pMainOut_R, 0, nFrames * sizeof( float ) );
 
-	// Track output queues are zeroed by
-	// audioEngine_process_clearAudioBuffers()
-
-	for ( auto& pComponent : *pSong->getDrumkit()->getComponents() ) {
-		pComponent->reset_outs(nFrames);
-	}
-
 	// Max notes limit
 	int nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
 	while ( ( int )m_playingNotesQueue.size() > nMaxNotes ) {
@@ -1243,9 +1236,6 @@ bool Sampler::renderNoteResample(
 		nNoteEnd = nFinalBufferPos + 1;
 	}
 
-	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
-
 	auto pADSR = pNote->get_adsr();
 	float fVal_L;
 	float fVal_R;
@@ -1297,6 +1287,7 @@ bool Sampler::renderNoteResample(
 	}
 
 	// Mix rendered sample buffer to track and mixer output
+	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 		  ++nBufferPos ) {
 
@@ -1315,15 +1306,8 @@ bool Sampler::renderNoteResample(
 		fVal_L *= fCost_L;
 		fVal_R *= fCost_R;
 
-		// update instr peak
-		if ( fVal_L > fInstrPeak_L ) {
-			fInstrPeak_L = fVal_L;
-		}
-		if ( fVal_R > fInstrPeak_R ) {
-			fInstrPeak_R = fVal_R;
-		}
-
-		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
+		fSamplePeak_L = std::max( fSamplePeak_L, fVal_L );
+		fSamplePeak_R = std::max( fSamplePeak_R, fVal_R );
 
 		// to main mix
 		m_pMainOut_L[nBufferPos] += fVal_L;
@@ -1331,14 +1315,20 @@ bool Sampler::renderNoteResample(
 
 	}
 
+	// update instr peak
+	pInstrument->set_peak_l( std::max( pInstrument->get_peak_l(), fSamplePeak_L ) );
+	pInstrument->set_peak_r( std::max( pInstrument->get_peak_r(), fSamplePeak_R ) );
+
+	// Component peak
+	pDrumCompo->set_peak_l( std::max( pDrumCompo->get_peak_l(), fSamplePeak_L ) );
+	pDrumCompo->set_peak_r( std::max( pDrumCompo->get_peak_r(), fSamplePeak_R ) );
+
 	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.
 		bRetValue = false;
 	}
 	
 	pSelectedLayerInfo->fSamplePosition += nAvail_bytes * fStep;
-	pInstrument->set_peak_l( fInstrPeak_L );
-	pInstrument->set_peak_r( fInstrPeak_R );
 
 
 #ifdef H2CORE_HAVE_LADSPA

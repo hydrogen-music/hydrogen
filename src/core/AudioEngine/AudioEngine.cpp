@@ -1553,22 +1553,6 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 			m_fMasterPeak_R = val_R;
 		}
 	}
-
-	for ( auto component : *pSong->getDrumkit()->getComponents() ) {
-		DrumkitComponent *pComponent = component.get();
-		for ( unsigned i = 0; i < nFrames; ++i ) {
-			float compo_val_L = pComponent->get_out_L(i);
-			float compo_val_R = pComponent->get_out_R(i);
-
-			if( compo_val_L > pComponent->get_peak_l() ) {
-				pComponent->set_peak_l( compo_val_L );
-			}
-			if( compo_val_R > pComponent->get_peak_r() ) {
-				pComponent->set_peak_r( compo_val_R );
-			}
-		}
-	}
-
 }
 
 void AudioEngine::setState( AudioEngine::State state ) {
