@@ -975,27 +975,53 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 }
 
 
-void copySample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+/// Copy sample data to buffer, filling buffer with trailing silence at end of
+/// sample data.
+void copySample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 				 float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 				 int nFrames, double fSamplePos, float fStep, int nSampleFrames )
 {
 	int nSamplePos = static_cast<int>(fSamplePos);
 	int nFramesFromSample = std::min( nFrames, nSampleFrames - nSamplePos );
 
-	memcpy( buffer_L, &pSample_data_L[ nSamplePos ], nFramesFromSample * sizeof( float ) );
-	memcpy( buffer_R, &pSample_data_R[ nSamplePos ], nFramesFromSample * sizeof( float ) );
+	memcpy( pBuffer_L, &pSample_data_L[ nSamplePos ],
+			nFramesFromSample * sizeof( float ) );
+	memcpy( pBuffer_R, &pSample_data_R[ nSamplePos ],
+			nFramesFromSample * sizeof( float ) );
 
 	if ( nFramesFromSample < nFrames ) {
-		memset( &buffer_L[ nFramesFromSample ], '0', ( nFrames - nFramesFromSample ) * sizeof( float ) );
-		memset( &buffer_R[ nFramesFromSample ], '0', ( nFrames - nFramesFromSample ) * sizeof( float ) );
+		memset( &pBuffer_L[ nFramesFromSample ], '0',
+				( nFrames - nFramesFromSample ) * sizeof( float ) );
+		memset( &pBuffer_R[ nFramesFromSample ], '0',
+				( nFrames - nFramesFromSample ) * sizeof( float ) );
 	}
 }
 
-
-// Resample with constant interopolation mode
-//
+/// Interpolate stereo samples into audio buffer of different frame rate.
+///
+/// Acquiring the frames to interpolate from the input sample data in a safe
+/// manner is surprisingly costly since up to 4 input frames must be fetched
+/// for each output frame, and each must be bounds-checked.
+///
+/// To handle this efficiently, we define a "safe" frame acquisition method
+/// with bounds checking on each frame and providing a silent frame outside
+/// the sample data boundaries, as well as a "fast" path which assumes
+/// it can read all the necessary samples without bounds checking or flow
+/// control.
+///
+/// The output frames are partitioned into three ranges, corresponding to the
+/// beginning, "middle" and end of the input sample data, so that the fast
+/// method can be used for the majority of the sample, and the safe method for
+/// the beginning and ends.
+///
+/// Although not all input frames are needed for each interpolation method
+/// (linear requires only two), the interpolation mode is a constant parameter
+/// and so the compiler wil remove accesses and some unnecessary bounds
+/// checking where it's not needed, without having to hand-write
+/// specialisations for each.
+///
 template < Interpolation::InterpolateMode mode >
-void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+void resample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
@@ -1026,6 +1052,7 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 	float fVal_L, fVal_R;
 	int nFrame;
 	float l0, l1, l2, l3, r0, r1, r2, r3;
+
 	// Initial safe interations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++) {
 		int nSamplePos = static_cast<int>(fSamplePos);
@@ -1036,8 +1063,8 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
 		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
-		buffer_L[nFrame] = fVal_L;
-		buffer_R[nFrame] = fVal_R;
+		pBuffer_L[nFrame] = fVal_L;
+		pBuffer_R[nFrame] = fVal_R;
 		fSamplePos += fStep;
 	}
 
@@ -1058,8 +1085,8 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 		r3 = pSample_data_R[ nSamplePos+2 ];
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
 		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
-		buffer_L[nFrame] = fVal_L;
-		buffer_R[nFrame] = fVal_R;
+		pBuffer_L[nFrame] = fVal_L;
+		pBuffer_R[nFrame] = fVal_R;
 		fSamplePos += fStep;
 	}
 
@@ -1069,39 +1096,44 @@ void resample( float *__restrict__ buffer_L, float *__restrict__ buffer_R,
 		getSampleFrames( nSamplePos, l0, l1, l2, l3, r0, r1, r2, r3);
 		fVal_L = Interpolation::interpolate<mode>( l0, l1, l2, l3, fDiff );
 		fVal_R = Interpolation::interpolate<mode>( r0, r1, r2, r3, fDiff );
-		buffer_L[nFrame] = fVal_L;
-		buffer_R[nFrame] = fVal_R;
+		pBuffer_L[nFrame] = fVal_L;
+		pBuffer_R[nFrame] = fVal_R;
 		fSamplePos += fStep;
 	}
 }
 
-// Resample with runtime-selection of mode
+/// Resample with runtime-selection of interpolation mode
 void resample( Interpolation::InterpolateMode mode,
-			   float *__restrict__ buffer_L, float *__restrict__ buffer_R,
+			   float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 			   float *__restrict__ pSample_data_L, float *__restrict__ pSample_data_R,
 			   int nFrames, double &fSamplePos, float fStep, int nSampleFrames )
 {
 
 	switch (mode) {
 	case Interpolation::InterpolateMode::Linear:
-		resample< Interpolation::InterpolateMode::Linear >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-															nFrames, fSamplePos, fStep, nSampleFrames );
+		resample< Interpolation::InterpolateMode::Linear >
+			( pBuffer_L, pBuffer_R, pSample_data_L, pSample_data_R,
+			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	case Interpolation::InterpolateMode::Cosine:
-		resample< Interpolation::InterpolateMode::Cosine >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-															nFrames, fSamplePos, fStep, nSampleFrames );
+		resample< Interpolation::InterpolateMode::Cosine >
+			( pBuffer_L, pBuffer_R, pSample_data_L, pSample_data_R,
+			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	case Interpolation::InterpolateMode::Third:
-		resample< Interpolation::InterpolateMode::Third >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-														   nFrames, fSamplePos, fStep, nSampleFrames );
+		resample< Interpolation::InterpolateMode::Third >
+			( pBuffer_L, pBuffer_R, pSample_data_L, pSample_data_R,
+			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	case Interpolation::InterpolateMode::Cubic:
-		resample< Interpolation::InterpolateMode::Cubic >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-														   nFrames, fSamplePos, fStep, nSampleFrames );
+		resample< Interpolation::InterpolateMode::Cubic >
+			( pBuffer_L, pBuffer_R, pSample_data_L, pSample_data_R,
+			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	case Interpolation::InterpolateMode::Hermite:
-		resample< Interpolation::InterpolateMode::Hermite >( buffer_L, buffer_R, pSample_data_L, pSample_data_R,
-															 nFrames, fSamplePos, fStep, nSampleFrames );
+		resample< Interpolation::InterpolateMode::Hermite >
+			( pBuffer_L, pBuffer_R, pSample_data_L, pSample_data_R,
+			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	}
 }
@@ -1219,7 +1251,7 @@ bool Sampler::renderNoteResample(
 		if ( nNoteEnd < 0 ) {
 			if ( ! pInstrument->is_filter_active() ) {
 				// In case resonance filtering is active the sampler stops
-				// rendering of the sample at the custom note length but let's
+				// rendering of the sample at the custom note length but lets
 				// the filter itself ring on.
 				ERRORLOG( QString( "Note end located within the previous processing cycle. nNoteEnd: %1, nNoteLength: %2, fSamplePosition: %3, nFinalBufferPos: %4, fStep: %5")
 						  .arg( nNoteEnd ).arg( pSelectedLayerInfo->nNoteLength )
