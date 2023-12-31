@@ -217,7 +217,7 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished">Incapaz de carregar esse arquivo de sample.</translation>
+        <translation>Incapaz de carregar esse arquivo de sample.</translation>
     </message>
     <message>
         <source>Parent Folder</source>
@@ -225,7 +225,7 @@
     </message>
     <message>
         <source>Home</source>
-        <translation type="unfinished">Home</translation>
+        <translation>Home</translation>
     </message>
     <message>
         <source>Play selected</source>
@@ -321,19 +321,19 @@
         <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.
 ----------
 Text displayed on the button indicating that the Beat Counter will start playing after setting the tempo. Its size is designed to hold one character.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>P</translation>
     </message>
     <message>
         <source>S</source>
         <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.
 ----------
 Text displayed on the button indicating that the Beat Counter will only set tempo. Its size is designed to hold one character.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>M</source>
         <extracomment>Text displayed on the button for muting an instrument strip in the mixer. Its size is designed for a single character.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>M</translation>
     </message>
     <message>
         <source>Mute</source>
@@ -343,37 +343,37 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>BYP</source>
         <extracomment>Text displayed on the button for bypassing an element. Its size is designed for a three characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>BYP</translation>
     </message>
     <message>
         <source>Edit</source>
         <extracomment>Text displayed on the button for editing an element. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Edit</translation>
     </message>
     <message>
         <source>Clear</source>
         <extracomment>Text displayed on the button to clear all patterns in the SongEditor. Its size is designed to hold five characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Limpa</translation>
     </message>
     <message>
         <source>T</source>
         <extracomment>Text displayed on the button to show the Timeline. Its size is designed to hold a single character.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Timeline</source>
         <extracomment>Text displayed on the button to activate the Timeline. Its size is designed to hold eight characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>LdT</translation>
     </message>
     <message>
         <source>FX</source>
         <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>FX</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pico</translation>
     </message>
     <message>
         <source>General</source>
@@ -388,7 +388,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Sound Library</source>
         <extracomment>Text displayed on the button to show the Sound Library in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de Sons</translation>
     </message>
     <message>
         <source>Layers</source>
@@ -398,40 +398,43 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Load Layer</source>
         <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Carregar camada</translation>
     </message>
     <message>
         <source>Delete Layer</source>
         <extracomment>Text displayed on the button to delete a layer into an instrument. Its size is designed to hold twelve characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Deletar camada</translation>
     </message>
     <message>
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Editar camada</translation>
     </message>
     <message>
         <source>B
 C</source>
         <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-        <translation type="unfinished"></translation>
+		<translation>B
+C</translation>
     </message>
     <message>
         <source>R
 U
 B</source>
         <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
-        <translation type="unfinished"></translation>
+		<translation>R
+U
+B</translation>
     </message>
     <message>
         <source>J.Trans</source>
         <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>J.Trans</translation>
     </message>
     <message>
         <source>J.Master</source>
         <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>J.Master</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -441,17 +444,17 @@ B</source>
     <message>
         <source>Instrument Rack</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold 15 characters and is flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rack Instrumentos</translation>
     </message>
     <message>
         <source>Pattern</source>
         <extracomment>Text displayed on the button activating Pattern Mode for playback. Its size is designed to hold seven characters and is slightly flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Padrão</translation>
     </message>
     <message>
         <source>Song</source>
         <extracomment>Text displayed on the button activating Song Mode for playback. Its size is designed to hold four characters and is slightly flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Canção</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -481,42 +484,42 @@ B</source>
     <message>
         <source>Note</source>
         <extracomment>Text displayed below the LCD to set the output MIDI note in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nota</translation>
     </message>
     <message>
         <source>MIDI Output</source>
         <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters. Designed to hold eleven characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Saída MIDI</translation>
     </message>
     <message>
         <source>Pitch</source>
         <extracomment>Text displayed in the Instrument Editor in the row of the pitch widget. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pitch</translation>
     </message>
     <message>
         <source>Coarse</source>
         <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch in front of decimal point in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Grosso</translation>
     </message>
     <message>
         <source>Fine</source>
         <extracomment>Text displayed below the rotary to adjust the deterministic part of the instrument pitch after decimal point in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fino</translation>
     </message>
     <message>
         <source>Random</source>
         <extracomment>Text displayed below the rotary to adjust the random part of the instrument pitch in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aleatório</translation>
     </message>
     <message>
         <source>Gain</source>
         <extracomment>Text displayed below the rotary to adjust the instrument gain in the Instrument Editor. Designed to hold four characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ganho</translation>
     </message>
     <message>
         <source>Mute Group</source>
         <extracomment>Text displayed below the LCD to set the mute group in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mutar Grupo</translation>
     </message>
     <message>
         <source>Auto-Stop Note</source>
@@ -526,7 +529,7 @@ B</source>
     <message>
         <source>Apply Velocity</source>
         <extracomment>Text displayed next to the checkbox to activate the apply velocity feature in the Instrument Editor. Designed to hold 14 characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aplica Velocidade</translation>
     </message>
     <message>
         <source>HH Press. Grp</source>
@@ -546,12 +549,12 @@ B</source>
     <message>
         <source>Cutoff</source>
         <extracomment>Text displayed below the rotary to adjust the cutoff frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Corte</translation>
     </message>
     <message>
         <source>Resonance</source>
         <extracomment>Text displayed below the rotary to adjust the resonance frequency of the lowpass filter applied to the instrument in the Instrument Editor. Designed to hold ten characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ressonância</translation>
     </message>
     <message>
         <source>L. Gain</source>
@@ -566,27 +569,27 @@ B</source>
     <message>
         <source>Sample Sel.</source>
         <extracomment>Text displayed left of the sample selection LCD combo in the Instrument Editor. Designed to hold eleven characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sel. Amostra</translation>
     </message>
     <message>
         <source>Size</source>
         <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tamanho</translation>
     </message>
     <message>
         <source>Res</source>
         <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Res</translation>
     </message>
     <message>
         <source>Hear</source>
         <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ouvir</translation>
     </message>
     <message>
         <source>Quant</source>
         <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quant</translation>
     </message>
     <message>
         <source>Input</source>
@@ -596,12 +599,12 @@ B</source>
     <message>
         <source>MIDI-In</source>
         <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>MIDI-In</translation>
     </message>
     <message>
         <source>CPU</source>
         <extracomment>Text displayed in the Player Control to indicate the CPU load. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>CPU</translation>
     </message>
     <message>
         <source>BPM</source>
@@ -613,17 +616,17 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Hrs</source>
         <extracomment>Text displayed in the Player Control to indicate the number of hours passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hrs</translation>
     </message>
     <message>
         <source>Min</source>
         <extracomment>Text displayed in the Player Control to indicate the number of minutes passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Min</translation>
     </message>
     <message>
         <source>Sec</source>
         <extracomment>Text displayed in the Player Control to indicate the number of seconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sec</translation>
     </message>
     <message>
         <source>1/1000</source>
@@ -633,7 +636,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Humanize</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the humanization rotaries. Designed to hold eight characters but not that flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Humanizar</translation>
     </message>
     <message>
         <source>Swing</source>
@@ -643,7 +646,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Timing</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the timing humanization rotary. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Cadência</translation>
     </message>
     <message>
         <source>Velocity</source>
@@ -653,12 +656,12 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Master</source>
         <extracomment>Text displayed as the title of the Master Mixer Strip. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Master</translation>
     </message>
     <message>
         <source>Return</source>
         <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Return</translation>
     </message>
     <message>
         <source>Range</source>
@@ -668,27 +671,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>MIDI</source>
         <extracomment>Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>MIDI</translation>
     </message>
     <message>
         <source>bound to</source>
         <extracomment>Displayed in the tooltip of input widgets. Body of the part associating the Action of the widget with the MIDI event and parameter it is bound to. It&apos;s full context is &quot;ACTION bound to [EVENT : PARAMETER]&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ligado a</translation>
     </message>
     <message>
         <source>not bound</source>
         <extracomment>Displayed in the tooltip of input widgets. Body of the part displaying the Action that is not associate to a MIDI event yet. It&apos;s full context is &quot;ACTION not bound&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>não ligado a</translation>
     </message>
     <message>
         <source>It&apos;s not possible to change the pattern size when playing.</source>
         <extracomment>Displayed on both LCDSpinBoxes used for the pattern size while playback is rolling.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível mudar o tamanho do padrão enquanto toca.</translation>
     </message>
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar editor de drumkit</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -697,42 +700,42 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Unable to start audio driver!</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível iniciar o driver de áudio!</translation>
     </message>
     <message>
         <source>Please use the Preferences to select a different one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor use Preferências pra selecionar outro.</translation>
     </message>
     <message>
         <source>No audio driver set!</source>
-        <translation type="unfinished"></translation>
+        <translation>Driver de áudio não estabelecido!</translation>
     </message>
     <message>
         <source>Register Hydrogen as JACK Timebase master</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrar Hydrogan como master de JACK Timebase</translation>
     </message>
     <message>
         <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen está ouvindo informações de andamento e posição. Pressione para registrar como um master de JACK Timebase.</translation>
     </message>
     <message>
         <source>JACK timebase support is disabled in the Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Suporte a JACK Timebase desativado nas Preferências</translation>
     </message>
     <message>
         <source>Waiting...</source>
         <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aguardando...</translation>
     </message>
     <message>
         <source>Waiting for MIDI input...</source>
         <extracomment>Text displayed when using the MIDI learning capabilities of Hydrogen. Only displayed if the widget has an associated action.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aguardando entrada MIDI...</translation>
     </message>
     <message>
         <source>This element is not MIDI operable.</source>
         <extracomment>Displayed in the popup window when using the MIDI learning capabilities of Hydrogen. Indicating that there is not Action which could be associated to a MIDI event.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Esse elemento não pode operar com MIDI</translation>
     </message>
     <message>
         <source>Unable to load pattern</source>
@@ -745,7 +748,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>on</source>
         <extracomment>Displayed within a status message when activating a widget.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ligado</translation>
     </message>
     <message>
         <source>off</source>
@@ -755,20 +758,20 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>enabled</source>
         <extracomment>Displayed within a status message when enabling a widget.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ativado</translation>
     </message>
     <message>
         <source>disabled</source>
         <extracomment>Displayed within a status message when disabling a widget.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>desativado</translation>
     </message>
     <message>
         <source>Enable the Timeline for custom tempo changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ative a Linha do Tempo para mudanças personalizadas de andamento</translation>
     </message>
     <message>
         <source>The Timeline is only available in Song Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>A Linha do Tempo só está disponível no Modo Canção</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
@@ -934,27 +937,27 @@ Are you sure?</source>
     <message>
         <source>Unable to export song</source>
         <extracomment>Shown in a dialog on export failure.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível exportar a canção</translation>
     </message>
     <message>
         <source>Id</source>
         <extracomment>Shown in table headers when referring to an instrument&apos;s id.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Id</translation>
     </message>
     <message>
         <source>Type</source>
         <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Component</source>
         <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
-        <translation>Component</translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Sample</source>
         <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Amostra</translation>
     </message>
     <message>
         <source>License</source>
@@ -974,7 +977,7 @@ Are you sure?</source>
     <message>
         <source>Rename</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Renomear</translation>
     </message>
     <message>
         <source>Load</source>
@@ -994,33 +997,33 @@ Are you sure?</source>
     <message>
         <source>Duplicate</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Duplicar</translation>
     </message>
     <message>
         <source>Import</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Importar</translation>
     </message>
     <message>
         <source>Online Import</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Importar online</translation>
     </message>
     <message>
         <source>Edit Drumkit Properties of Current Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar propriedades do drumkit da canção atual</translation>
     </message>
     <message>
         <source>This action can not be undone!</source>
-        <translation type="unfinished"></translation>
+        <translation>Essa ação não pode ser desfeita!</translation>
     </message>
     <message>
         <source>File could not be found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo não pode ser encontrado!</translation>
     </message>
     <message>
         <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível exportar o drumkit</translation>
     </message>
 </context>
 <context>
@@ -1039,15 +1042,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume</translation>
     </message>
     <message>
         <source>Peak</source>
-        <translation type="unfinished"></translation>
+        <translation>Pico</translation>
     </message>
     <message>
         <source>Set volume [%1] of component</source>
-        <translation type="unfinished"></translation>
+        <translation>Define volume [%1] do componente</translation>
     </message>
 </context>
 <context>
@@ -1082,7 +1085,7 @@ Are you sure?</source>
     <name>DrumPatternEditor</name>
     <message>
         <source>Cannot paste multi-pattern selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível colar seleção de multi-padrão</translation>
     </message>
 </context>
 <context>
@@ -1090,7 +1093,7 @@ Are you sure?</source>
     <message>
         <source>New Drumkit</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Novo Drumkit</translation>
     </message>
     <message>
         <source>Main</source>
@@ -1100,7 +1103,7 @@ Are you sure?</source>
     <message>
         <source>New Instrument</source>
         <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Novo Instrumento</translation>
     </message>
 </context>
 <context>
@@ -1111,19 +1114,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Export Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Drumkit</translation>
     </message>
     <message>
         <source>invalid drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>drumkit inválido</translation>
     </message>
     <message>
         <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo [%1] existe e será sobrescrito.</translation>
     </message>
     <message>
         <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit exportado para</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -1790,11 +1793,11 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Pitch offset (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação de tom (Grosso)</translation>
     </message>
     <message>
         <source>Pitch offset (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação de tom (Fino)</translation>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
@@ -2478,7 +2481,7 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Linha do Tempo</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
@@ -3430,7 +3433,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor desative a Linha do Tempo primeiro para usar o Contador de Beat</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
