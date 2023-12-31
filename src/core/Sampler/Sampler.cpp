@@ -783,197 +783,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 	return true;
 }
 
-bool Sampler::processPlaybackTrack(int nBufferSize)
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return true;
-	}
-
-	if ( pAudioDriver == nullptr ) {
-		ERRORLOG( "AudioDriver is not ready!" );
-		return true;
-	}
-
-	if ( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
-		 ( pAudioEngine->getState() != AudioEngine::State::Playing ||
-		   pAudioEngine->getState() == AudioEngine::State::Testing ) ||
-		 pHydrogen->getMode() != Song::Mode::Song ) {
-		return true;
-	}
-
-	const auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
-	if ( pCompo == nullptr ) {
-		ERRORLOG( "Invalid component of playback instrument" );
-		return true;
-	}
-
-	auto pSample = pCompo->get_layer(0)->get_sample();
-	if ( pSample == nullptr ) {
-		ERRORLOG( "Unable to process playback track" );
-		EventQueue::get_instance()->push_event( EVENT_ERROR,
-												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
-		// Disable the playback track
-		pHydrogen->loadPlaybackTrack( "" );
-		reinitializePlaybackTrack();
-		return true;
-	}
-
-	float fVal_L;
-	float fVal_R;
-
-	auto pSample_data_L = pSample->get_data_l();
-	auto pSample_data_R = pSample->get_data_r();
-	
-	float fInstrPeak_L = m_pPlaybackTrackInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = m_pPlaybackTrackInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
-
-	int nAvail_bytes = 0;
-	int	nInitialBufferPos = 0;
-
-	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
-	const long long nFrameOffset =
-		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
-
-	if ( pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) {
-		// No resampling
-		m_nPlayBackSamplePosition = nFrame - nFrameOffset;
-	
-		nAvail_bytes = pSample->get_frames() - m_nPlayBackSamplePosition;
-		
-		if ( nAvail_bytes > nBufferSize ) {
-			nAvail_bytes = nBufferSize;
-		}
-
-		int nInitialSamplePos = ( int ) m_nPlayBackSamplePosition;
-		int nSamplePos = nInitialSamplePos;
-	
-		int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
-	
-		if ( m_nPlayBackSamplePosition > pSample->get_frames() ) {
-			//playback track has ended..
-			return true;
-		}
-	
-		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-			fVal_L = pSample_data_L[ nSamplePos ];
-			fVal_R = pSample_data_R[ nSamplePos ];
-	
-			fVal_L = fVal_L * 1.0f * pSong->getPlaybackTrackVolume(); //costr
-			fVal_R = fVal_R * 1.0f * pSong->getPlaybackTrackVolume(); //cost l
-	
-			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
-	
-			// to main mix
-			if ( fVal_L > fInstrPeak_L ) {
-				fInstrPeak_L = fVal_L;
-			}
-			if ( fVal_R > fInstrPeak_R ) {
-				fInstrPeak_R = fVal_R;
-			}
-			
-			m_pMainOut_L[nBufferPos] += fVal_L;
-			m_pMainOut_R[nBufferPos] += fVal_R;
-			
-			++nSamplePos;
-		}
-	} else {
-		//Perform resampling
-		double	fSamplePos = 0;
-		int		nSampleFrames = pSample->get_frames();
-		float	fStep = 1;
-		fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
-		
-		
-		if ( nFrame == 0 ){
-			fSamplePos = 0;
-		} else {
-			fSamplePos = ( nFrame - nFrameOffset ) * fStep;
-		}
-		
-		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
-	
-		if ( nAvail_bytes > nBufferSize ) {
-			nAvail_bytes = nBufferSize;
-		}
-
-		int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
-	
-		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
-			int nSamplePos = ( int ) fSamplePos;
-			double fDiff = fSamplePos - nSamplePos;
-			if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-				//we reach the last audioframe.
-				//set this last frame to zero do nothing wrong.
-				fVal_L = 0.0;
-				fVal_R = 0.0;
-			} else {
-				// some interpolation methods need 4 frames data.
-				float last_l;
-				float last_r;
-				if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-					last_l = 0.0;
-					last_r = 0.0;
-				} else {
-					last_l =  pSample_data_L[nSamplePos + 2];
-					last_r =  pSample_data_R[nSamplePos + 2];
-				}
-
-				switch( m_interpolateMode ){
-	
-				case Interpolation::InterpolateMode::Linear:
-					fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-					fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-					break;
-				case Interpolation::InterpolateMode::Cosine:
-					fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-					fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-					break;
-				case Interpolation::InterpolateMode::Third:
-					fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-					fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-					break;
-				case Interpolation::InterpolateMode::Cubic:
-					fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-					fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-					break;
-				case Interpolation::InterpolateMode::Hermite:
-					fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-					fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-					break;
-				}
-			}
-
-			fVal_L *= pSong->getPlaybackTrackVolume();
-			fVal_R *= pSong->getPlaybackTrackVolume();
-			
-			if ( fVal_L > fInstrPeak_L ) {
-				fInstrPeak_L = fVal_L;
-			}
-			if ( fVal_R > fInstrPeak_R ) {
-				fInstrPeak_R = fVal_R;
-			}
-
-			m_pMainOut_L[nBufferPos] += fVal_L;
-			m_pMainOut_R[nBufferPos] += fVal_R;
-
-
-			fSamplePos += fStep;
-		} //for
-	}
-	
-	m_pPlaybackTrackInstrument->set_peak_l( fInstrPeak_L );
-	m_pPlaybackTrackInstrument->set_peak_r( fInstrPeak_R );
-
-	return true;
-}
-
-
 /// Copy sample data to buffer, filling buffer with trailing silence at end of
 /// sample data.
 void copySample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
@@ -1052,7 +861,7 @@ void resample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 	int nFrame;
 	float l0, l1, l2, l3, r0, r1, r2, r3;
 
-	// Initial safe interations to avoid reading off the beginning of the sample
+	// Initial safe iterations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++) {
 		int nSamplePos = static_cast<int>(fSamplePos);
 		if (nSamplePos >= 1)
@@ -1135,6 +944,98 @@ void resample( Interpolation::InterpolateMode mode,
 			  nFrames, fSamplePos, fStep, nSampleFrames );
 		break;
 	}
+}
+
+bool Sampler::processPlaybackTrack(int nBufferSize)
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return true;
+	}
+
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return true;
+	}
+
+	if ( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
+		 ( pAudioEngine->getState() != AudioEngine::State::Playing ||
+		   pAudioEngine->getState() == AudioEngine::State::Testing ) ||
+		 pHydrogen->getMode() != Song::Mode::Song ) {
+		return true;
+	}
+
+	const auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	if ( pCompo == nullptr ) {
+		ERRORLOG( "Invalid component of playback instrument" );
+		return true;
+	}
+
+	auto pSample = pCompo->get_layer(0)->get_sample();
+	if ( pSample == nullptr ) {
+		ERRORLOG( "Unable to process playback track" );
+		EventQueue::get_instance()->push_event( EVENT_ERROR,
+												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
+		// Disable the playback track
+		pHydrogen->loadPlaybackTrack( "" );
+		reinitializePlaybackTrack();
+		return true;
+	}
+
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
+
+	int nAvail_bytes = 0;
+	int	nInitialBufferPos = 0;
+
+	const long long nFrame = pAudioEngine->getTransportPosition()->getFrame();
+	const long long nFrameOffset =
+		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
+
+	int nSampleFrames = pSample->get_frames();
+	float fStep = ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
+	double fSamplePos = ( nFrame - nFrameOffset ) * fStep;
+
+	nAvail_bytes = std::min( ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep ),
+							 nBufferSize );
+
+	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
+
+	// Output-rate buffer as temporary storage for sample data, resampled to output rate
+	float buffer_L[ nBufferSize ];
+	float buffer_R[ nBufferSize ];
+
+	if ( pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) {
+		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
+					nBufferSize, fSamplePos, fStep, nSampleFrames );
+	} else {
+		resample( m_interpolateMode,
+				  &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
+				  nBufferSize, fSamplePos, fStep, nSampleFrames );
+	}
+
+	// Track peaks and mix in to main output
+	float fInstrPeak_L = m_pPlaybackTrackInstrument->get_peak_l();
+	float fInstrPeak_R = m_pPlaybackTrackInstrument->get_peak_r();
+
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
+		float fVal_L = buffer_L[ nBufferPos ] * pSong->getPlaybackTrackVolume(),
+			fVal_R = buffer_R[ nBufferPos ] * pSong->getPlaybackTrackVolume();
+		fInstrPeak_L = std::max( fInstrPeak_L, fVal_L );
+		fInstrPeak_R = std::max( fInstrPeak_R, fVal_R );
+		m_pMainOut_L[nBufferPos] += fVal_L;
+		m_pMainOut_R[nBufferPos] += fVal_R;
+	}
+
+	m_pPlaybackTrackInstrument->set_peak_l( fInstrPeak_L );
+	m_pPlaybackTrackInstrument->set_peak_r( fInstrPeak_R );
+
+	return true;
 }
 
 bool Sampler::renderNoteResample(
@@ -1284,8 +1185,8 @@ bool Sampler::renderNoteResample(
 	}
 #endif
 
-	float buffer_L[MAX_BUFFER_SIZE];
-	float buffer_R[MAX_BUFFER_SIZE];
+	float buffer_L[ nBufferSize ];
+	float buffer_R[ nBufferSize ];
 
 	if ( bResample ) {
 		resample( m_interpolateMode,
