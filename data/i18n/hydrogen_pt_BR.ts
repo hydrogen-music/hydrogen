@@ -9,39 +9,39 @@
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Website</translation>
     </message>
     <message>
         <source>Project page</source>
-        <translation type="unfinished"></translation>
+        <translation>Página do projeto</translation>
     </message>
     <message>
         <source>Forum</source>
-        <translation type="unfinished"></translation>
+        <translation>Fórum</translation>
     </message>
     <message>
         <source>Development mailing list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de email de desenvolvimento</translation>
     </message>
     <message>
         <source>Main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Programadores principais e mantenedores</translation>
     </message>
     <message>
         <source>Active translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores ativos</translation>
     </message>
     <message>
         <source>Recent contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Contribuidores recentes</translation>
     </message>
     <message>
         <source>A full list of all contributors can be found on</source>
-        <translation type="unfinished"></translation>
+        <translation>Uma lista completa de todos os contribuidores pode ser encontrada em</translation>
     </message>
     <message>
         <source>Former main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Antigos programadores principais e mantenedores</translation>
     </message>
 </context>
 <context>
@@ -170,7 +170,7 @@
     </message>
     <message>
         <source>Latency (estimated)</source>
-        <translation type="unfinished"></translation>
+        <translation>Latência (estimada)</translation>
     </message>
 </context>
 <context>
@@ -217,19 +217,19 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Incapaz de carregar esse arquivo de sample.</translation>
     </message>
     <message>
         <source>Parent Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasta Pai</translation>
     </message>
     <message>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Home</translation>
     </message>
     <message>
         <source>Play selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Play selecionado</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -237,7 +237,7 @@
     </message>
     <message>
         <source>Name: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nome: </translation>
     </message>
 </context>
 <context>
@@ -311,7 +311,7 @@
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha um padrão de cor</translation>
     </message>
 </context>
 <context>
@@ -736,11 +736,11 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Unable to load pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível carregar o padrão</translation>
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível carregar o instrumento</translation>
     </message>
     <message>
         <source>on</source>
@@ -824,7 +824,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unsaved changes left. These changes will be lost. 
+        <source>Unsaved changes left. These changes will be lost.
 Are you sure?</source>
         <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
 &apos; character introduces a linebreak and must not be translated</extracomment>
@@ -1258,7 +1258,7 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The file %1 exists. 
+        <source>The file %1 exists.
 Overwrite the existing file?</source>
         <translation>O arquivo %1 já existe.
 Sobrescrever o arquivo existente?</translation>
@@ -1310,9 +1310,9 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Exportar música</translation>
     </message>
     <message>
-        <source>The file %1 exists. 
+        <source>The file %1 exists.
 Overwrite the existing file?</source>
-        <translation>O arquivo %1 já existe. 
+        <translation>O arquivo %1 já existe.
 Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
@@ -5893,7 +5893,7 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
+        <source>The pattern-file exists.
 Overwrite the existing pattern?</source>
         <translation>O padrão-arquivo existe.
 Sobrescrever o padrão existente?</translation>
@@ -6166,13 +6166,15 @@ Você gostaria de manter ou descartar os instrumentos e anotações restantes?
     </message>
     <message>
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>é um kit de apenas leitura e não pode ser removido.</translation>
     </message>
     <message>
-        <source>It is not possible to delete drumkit: 
+        <source>It is not possible to delete drumkit:
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
+		<translation>Não foi possível deletar o drumkit:
+			[%1]
+	Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
     </message>
 </context>
 <context>
@@ -6220,7 +6222,7 @@ It contains samples used and loaded in the current song kit.</source>
     <name>Startup</name>
     <message>
         <source>No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting...</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum arquivo [hydrogen.conf] encontrado. Hydrogen não foi instalado corretamente. Abortando...</translation>
     </message>
 </context>
 <context>
@@ -6250,12 +6252,12 @@ It contains samples used and loaded in the current song kit.</source>
     <message>
         <source>Other</source>
         <extracomment>Label used for all license not directly supported in Hydrogen&apos;s license combo box.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rótulo usado para todas as licenças não suportadas diretamente no conjunto de licenças do Hydrogen.</translation>
     </message>
     <message>
         <source>Unspecified</source>
         <extracomment>Label used if no license was specified.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rótulo usado se nenhuma licença foi especificada.</translation>
     </message>
 </context>
 </TS>
