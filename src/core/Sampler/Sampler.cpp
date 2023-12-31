@@ -910,8 +910,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		if ( nFrame == 0 ){
 			fSamplePos = 0;
 		} else {
-			fSamplePos = ( nFrame - nFrameOffset ) / nBufferSize *
-				nBufferSize * fStep;
+			fSamplePos = ( nFrame - nFrameOffset ) * fStep;
 		}
 		
 		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );

@@ -37,7 +37,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Fixed grid line colors on very fine resolution.
 		- Fix broken file browser dialogs on Linux when using translations (#1908).
 		- Fix drumkit export on Windows (#1927).
-
+		- Timing drift (and artifacts) in playback track rendering on some hosts is
+			fixed (#1920).
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.2
