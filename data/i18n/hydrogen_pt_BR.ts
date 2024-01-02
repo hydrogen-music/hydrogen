@@ -782,17 +782,17 @@ B</translation>
     <message>
         <source>Not compiled</source>
         <extracomment>Displayed in the Preferences dialog in the info section for a particular driver in case it is not properly supported on the system.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Não compilado</translation>
     </message>
     <message>
         <source>None</source>
         <extracomment>Displayed in the Preferences dialog within a driver combobox in case no driver was selected.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>None</translation>
     </message>
     <message>
         <source>Both buffer size and sample rate can only be altered in the configuration of the JACK server itself.</source>
         <extracomment>Displayed in the Preferences dialog as a tooltip for both the sample rate combobox and buffer size spinbox.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O buffer size e a taxa de amostragem só podem ser alterados nas próprias configurações do servidor JACK.</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -822,23 +822,23 @@ B</translation>
     <message>
         <source>Play &amp;original sample</source>
         <extracomment>Text displayed on a Play button in the SampleEditor which will start playback of the original file. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tocar &amp;amostra original</translation>
     </message>
     <message>
         <source>Unsaved changes left. These changes will be lost.
 Are you sure?</source>
         <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
 &apos; character introduces a linebreak and must not be translated</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation type="unfinished"></translation>
+        <translation>Não mostrar essa mensagem novamente</translation>
     </message>
     <message>
         <source>License String</source>
         <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Texto da Licença</translation>
     </message>
     <message>
         <source>License parsed from License String. You can use this combo box to overwrite the current license with a predefined one</source>
@@ -1284,35 +1284,35 @@ Sobrescrever o arquivo existente?</translation>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
         <source>Please enter a number within the range of </source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor selecione um número no intervalo de</translation>
     </message>
     <message>
         <source>Edit Tempo Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar Marcador de Andamento</translation>
     </message>
     <message>
         <source>Create New Tempo Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Criar Novo Marcador de Andamento</translation>
     </message>
     <message>
         <source>Alter tempo of selected tempo marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Alterar andamento do marcador de andamento selecionado</translation>
     </message>
     <message>
         <source>Set tempo of new tempo marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir andamento do novo marcador de andamento</translation>
     </message>
     <message>
         <source>Move tempo marker to different column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover macardor de andamento para uma coluna diferente</translation>
     </message>
     <message>
         <source>Set column of new tempo marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir coluna do novo marcador de andamento</translation>
     </message>
     <message>
         <source>There is already a tempo marker present at this Column. Please use left-click to edit it instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Já existe um marcador de andamento nesate Coluna. Por favor use o botão esquerdo do mouse para editá-lo.</translation>
     </message>
 </context>
 <context>
@@ -1366,7 +1366,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
+        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
@@ -1374,7 +1374,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>The name of the drumkit must not be left empty</source>
-        <translation type="unfinished"></translation>
+        <translation>O nome do drumkit não pode ser vazio</translation>
     </message>
 </context>
 <context>
@@ -1401,40 +1401,41 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferências salvas.</translation>
     </message>
     <message>
         <source>Preferences loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferências carregadas.</translation>
     </message>
     <message>
         <source>Song is read-only.
 Use &apos;Save as&apos; to enable autosave.</source>
-        <translation type="unfinished"></translation>
+		<translation>Canção é somente leitura.
+Use &apos;Salvar como&apos; para ativar o salvamento automático.</translation>
     </message>
     <message>
         <source>Input Midi Note</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada de Nota MIDI</translation>
     </message>
     <message>
         <source>There are unsaved changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Existem mudanças não salvas</translation>
     </message>
     <message>
         <source>Do you want to recover them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Você deseja recuperá-las?</translation>
     </message>
     <message>
         <source>Drumkit [%1] loaded from [%2]</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit [%1] carregado de [%2]</translation>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Canção salva como:</translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Algumas licenças de amostras diferem da licença escolhida para o drumkit [%1] e serão sobrescritas. Você tem certeza?</translation>
     </message>
 </context>
 <context>
@@ -1513,35 +1514,43 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pare de tocar a nota do instrumento atual antes de iniciar a próxima nota de amostra</translation>
     </message>
     <message>
         <source>Select selection algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar algoritmo de seleção</translation>
     </message>
     <message>
         <source>Length of Attack phase.
 
 Value</source>
-        <translation type="unfinished"></translation>
+		<translation>Tamanho da fase de Ataque.
+
+Valor</translation>
     </message>
     <message>
         <source>Length of Decay phase.
 
 Value</source>
-        <translation type="unfinished"></translation>
+		<translation>Tamanho da fase de Decaímento.
+
+Valor</translation>
     </message>
     <message>
         <source>Sample volume in Sustain phase.
 
 Value</source>
-        <translation type="unfinished"></translation>
+		<translation>Volume da amostra na fase de Sustentação.
+
+Valor</translation>
     </message>
     <message>
         <source>Length of Release phase.
 
 Value</source>
-        <translation type="unfinished"></translation>
+		<translation>Tamanho da fase de Repouso (Release).
+
+Valor</translation>
     </message>
 </context>
 <context>
@@ -1610,31 +1619,31 @@ Value</source>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível carregar algumas amostras para esse instrumento.</translation>
     </message>
     <message>
         <source>Delete notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Deletar notas</translation>
     </message>
     <message>
         <source>Select notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar notas</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar todos os padrões</translation>
     </message>
     <message>
         <source>Cut notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Cortar notas</translation>
     </message>
     <message>
         <source>Copy notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar notas</translation>
     </message>
     <message>
         <source>Paste notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Colar notas</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -1642,11 +1651,11 @@ Value</source>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uma ou mais amostras para esse instrumento não puderam ser carregadas. Isso pode ocorrer porque o arquivo da canção usa um drumkit padrão antigo e pode ser corrigido ao abrir um novo drumkit.</translation>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Deletar todas as notas em %1</translation>
     </message>
 </context>
 <context>
@@ -1711,11 +1720,11 @@ Value</source>
     </message>
     <message>
         <source>Input control param. value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor parâmetro controle entrada</translation>
     </message>
     <message>
         <source>Output control param. value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor parâmetro controle saída</translation>
     </message>
 </context>
 <context>
@@ -2102,54 +2111,54 @@ Deseja descartar as mudanças?
     <message>
         <source>Replace With &amp;New Song</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Substituir por &amp;Nova Canção</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Importar para a Sessão</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Importar Recente para a Sessão</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar da Sessão</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Recente</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar Como...</translation>
     </message>
     <message>
         <source>E&amp;xport Pattern As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Padrão Como...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-        <translation type="unfinished"></translation>
+		<translation>Exportar &amp;Arquivo MIDI</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-        <translation type="unfinished"></translation>
+		<translation>&amp;Exportar Canção</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
+		<translation>Exportar &amp;Arquivo LilyPond</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+		<translation>&amp;Refazer</translation>
     </message>
     <message>
         <source>Undo &amp;History</source>
-        <translation type="unfinished"></translation>
+		<translation>Desfazer &amp;História</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
@@ -2177,7 +2186,7 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar Instrumento</translation>
     </message>
     <message>
         <source>Clea&amp;r All</source>
@@ -2185,155 +2194,159 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>Add &amp;Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar Componente</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Playlist</translation>
     </message>
     <message>
         <source>&amp;Director</source>
-        <translation type="unfinished"></translation>
+		<translation>&amp;Diretor</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Caminho de Automação</translation>
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation>Linha do Tempo</translation>
+        <translation>&amp;Linha do Tempo</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Faixa de Playback</translation>
     </message>
     <message>
         <source>&amp;Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tela cheia</translation>
     </message>
     <message>
         <source>Input &amp;Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo de entrada</translation>
     </message>
     <message>
         <source>&amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Instrumento</translation>
     </message>
     <message>
         <source>&amp;Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Drumkit</translation>
     </message>
     <message>
         <source>Show &amp;Audio Engine Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar &amp;Informação de Engine de Áudio</translation>
     </message>
     <message>
         <source>Show &amp;Filesystem Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar &amp;Informação de Sistema de Arquivos</translation>
     </message>
     <message>
         <source>&amp;Log Level</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Level de Log</translation>
     </message>
     <message>
         <source>&amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;None</translation>
     </message>
     <message>
         <source>&amp;Error</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Erro</translation>
     </message>
     <message>
         <source>&amp;Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aviso</translation>
     </message>
     <message>
         <source>&amp;Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Depuração</translation>
     </message>
     <message>
         <source>&amp;Open Log File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Abrir Arquivo de Log</translation>
     </message>
     <message>
         <source>&amp;Print Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Imprimir Objetos</translation>
     </message>
     <message>
         <source>I&amp;nfo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Info</translation>
     </message>
     <message>
         <source>User &amp;Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Manual &amp;do Usuário</translation>
     </message>
     <message>
         <source>&amp;Report Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reportar Bug</translation>
     </message>
     <message>
         <source>&amp;Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Doar</translation>
     </message>
     <message>
         <source>Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &apos;thank you&apos; to the involved persons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen é um projeto open source que é desenvolvido por múltiplas pessoas em seus tempos livres. Ao fazer uma doação você pode dizer &apos;obrigada(o)&apos; às pessoas envolvidas.</translation>
     </message>
     <message>
         <source>&amp;Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Doe!</translation>
     </message>
     <message>
         <source>Export song from Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar canção da Sessão</translation>
     </message>
     <message>
         <source>Song exported as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Canção exportada como:</translation>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Canção salva como:</translation>
     </message>
     <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
 Are you sure you want to save?</source>
-        <translation type="unfinished"></translation>
+		<translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
+Você tem certeza que quer salvar?</translation>
     </message>
     <message>
         <source>Import song into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar canção para a Sessão</translation>
     </message>
     <message>
         <source>Song drumkit samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Amostras do drumkit da canção</translation>
     </message>
     <message>
         <source>Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Algumas amostras não puderam ser carregadas. Isso pode ter ocorrido porque um drumkit antigo é usado como padrão. Para corrigir, abra um drumkit novo.</translation>
     </message>
     <message>
         <source>Open drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir drumkit</translation>
     </message>
     <message>
         <source>Could not write to temporary directory %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível escrever no diretório temporário %1.</translation>
     </message>
     <message>
         <source>
 The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
-</source>
-        <translation type="unfinished"></translation>
+		</source>
+		<translation>
+A exportação para LilyPond é uma feature experimental.
+Deveria funcionar corretamente dado que você usou o GMRockKit e que você não está usando tercinas.
+		</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack driver: não é possível desconectar o cliente</translation>
     </message>
     <message>
         <source>OSC Server: Cannot connect to given port, using port %1 instead</source>
-        <translation type="unfinished"></translation>
+        <translation>Servidor OSC: Não é possível conectar à porta dada, usando porta %1.</translation>
     </message>
     <message>
         <source>Playing.</source>
@@ -2341,15 +2354,15 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Song Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades da Canção</translation>
     </message>
     <message>
         <source>Replace current song with empty one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Substituir canção atual com uma canção vazia?</translation>
     </message>
     <message>
         <source>You won&apos;t be able to undo this action after saving the new song! Please export the current song from the session first in order to keep it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Você não será capaz de desfazer essa ação após salvar a nova canção! Por favor, exporte a canção atual da sessão primeiro para mantê-la.</translation>
     </message>
     <message>
         <source>
@@ -2364,23 +2377,23 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Song saved into</source>
-        <translation type="unfinished"></translation>
+        <translation>Canção salva em</translation>
     </message>
     <message>
         <source>No pattern selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum padrão selecionado.</translation>
     </message>
     <message>
         <source>Open Demo Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Canção Demo</translation>
     </message>
     <message>
         <source>Import Demo Song into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar Canção Demo na Sessão</translation>
     </message>
     <message>
         <source>Playback track couldn&apos;t be read</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível ler a faixa de playback</translation>
     </message>
 </context>
 <context>
@@ -2403,19 +2416,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Master volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume principal</translation>
     </message>
     <message>
         <source>Peak</source>
-        <translation type="unfinished"></translation>
+        <translation>Pico</translation>
     </message>
     <message>
         <source>16th-note Swing</source>
-        <translation type="unfinished"></translation>
+        <translation>Swing semicolcheia</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir parâmetro humanização de tempo [%1]</translation>
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
@@ -2434,23 +2447,23 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Incoming Event</source>
-        <translation type="unfinished"></translation>
+        <translation>Evento de entrada</translation>
     </message>
     <message>
         <source>Event Para.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parâm. Entrada</translation>
     </message>
     <message>
         <source>Para. 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Parâm. 1</translation>
     </message>
     <message>
         <source>Para. 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Parâm. 2</translation>
     </message>
     <message>
         <source>Para. 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Parâm. 3</translation>
     </message>
 </context>
 <context>
@@ -2481,15 +2494,15 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de Mixer</translation>
     </message>
     <message>
         <source>Set FX %1 level [%2] of instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir nível %1 FX [%2] de instrumento</translation>
     </message>
     <message>
         <source>Set volume [%1] of FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir volume [%1] do FX</translation>
     </message>
 </context>
 <context>
@@ -2512,50 +2525,50 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>FX %1 send</source>
-        <translation type="unfinished"></translation>
+        <translation>FX %1 envio</translation>
     </message>
     <message>
         <source>Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume</translation>
     </message>
     <message>
         <source>Peak</source>
-        <translation type="unfinished"></translation>
+        <translation>Pico</translation>
     </message>
     <message>
         <source>Set volume [%1] of instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir volume [%1] de instrumento</translation>
     </message>
 </context>
 <context>
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de Mixer</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">----- Parâmetro de panorâmico linear -----</translation>
     </message>
     <message>
         <source>Balance Law (0dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lei de Balanço (0dB)</translation>
     </message>
     <message>
         <source>Constant Power (-3dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Potência Constante (-3dB)</translation>
     </message>
     <message>
         <source>Constant Sum (-6dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Soma Constante (-6dB)</translation>
     </message>
     <message>
         <source>Constant k-Norm (Custom dB compensation)</source>
-        <translation type="unfinished"></translation>
+        <translation>k-Norm Constante (Compensação de dB personalizada)</translation>
     </message>
     <message>
         <source>------ Polar pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">----- Parâmetro de panorâmico polar -----</translation>
     </message>
     <message>
         <source>------ Ratio pan parameter ------</source>
@@ -2567,15 +2580,15 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Relationship between the sound&apos;s apparent image position and the pan knob control</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relação entre a posição de imagem auditiva aparente e a posição de controle de panorama</translation>
     </message>
     <message>
         <source>dB Center Compensation rejected</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação Central dB rejeitada</translation>
     </message>
     <message>
         <source>dB Center Compensation must be less than -0.01</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação Central dB precisa ser menos que -0.01</translation>
     </message>
 </context>
 <context>
@@ -2602,121 +2615,121 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
-        <translation type="unfinished"></translation>
+        <translation>dB SPL Compensação Central</translation>
     </message>
 </context>
 <context>
     <name>NotePropertiesRuler</name>
     <message>
         <source>Select &amp;all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar &amp;tudo</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Limpar seleção</translation>
     </message>
     <message>
         <source>B</source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>A#</source>
-        <translation type="unfinished"></translation>
+        <translation>A#</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>G#</source>
-        <translation type="unfinished"></translation>
+        <translation>G#</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>F#</source>
-        <translation type="unfinished"></translation>
+        <translation>F#</translation>
     </message>
     <message>
         <source>F</source>
-        <translation type="unfinished"></translation>
+        <translation>F</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>E</translation>
     </message>
     <message>
         <source>D#</source>
-        <translation type="unfinished"></translation>
+        <translation>D#</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>C#</source>
-        <translation type="unfinished"></translation>
+        <translation>C#</translation>
     </message>
     <message>
         <source>C</source>
-        <translation type="unfinished"></translation>
+        <translation>C</translation>
     </message>
     <message>
         <source>Edit [%1] property of [%2] notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar propriedade [%1] de notas [%2]</translation>
     </message>
 </context>
 <context>
     <name>PatternEditor</name>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cortar</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copiar</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Colar</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Remover</translation>
+        <translation>&amp;Deletar</translation>
     </message>
     <message>
         <source>Select &amp;all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar &amp;tudo</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Limpar seleção</translation>
     </message>
     <message>
         <source>Placing these notes here will overwrite %1 duplicate notes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Posicionar essas notas aqui vai sobrescrever %1 notas duplicadas.</translation>
     </message>
     <message>
         <source>ticks</source>
-        <translation type="unfinished"></translation>
+        <translation>ticks</translation>
     </message>
     <message>
         <source>Set note velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir velocidade da note</translation>
     </message>
     <message>
         <source>Note panned to the right by</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota deslocada para a direita por</translation>
     </message>
     <message>
         <source>Note panned to the left by</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota deslocada para a esquerda por</translation>
     </message>
     <message>
         <source>Note centered</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota centralizada</translation>
     </message>
     <message>
         <source>Leading beat by</source>
@@ -2728,30 +2741,30 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Note on beat</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota no compasso</translation>
     </message>
     <message>
         <source>Set pitch</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir tom (pitch)</translation>
     </message>
     <message>
         <source>key</source>
-        <translation type="unfinished"></translation>
+        <translation>clave</translation>
     </message>
     <message>
         <source>octave</source>
-        <translation type="unfinished"></translation>
+        <translation>oitava</translation>
     </message>
     <message>
         <source>Set note probability to</source>
-        <translation type="unfinished"></translation>
+        <translation>Defina a probabilidade da nota para</translation>
     </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
     <message>
         <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossível adicionar mais instrumentos. Número máximo possível.</translation>
     </message>
 </context>
 <context>
@@ -2834,23 +2847,23 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>quarter</source>
-        <translation type="unfinished"></translation>
+        <translation>semínima</translation>
     </message>
     <message>
         <source>eighth</source>
-        <translation type="unfinished"></translation>
+        <translation>colcheia</translation>
     </message>
     <message>
         <source>sixteenth</source>
-        <translation type="unfinished"></translation>
+        <translation>semi-colcheia</translation>
     </message>
     <message>
         <source>thirty-second</source>
-        <translation type="unfinished"></translation>
+        <translation>fusa</translation>
     </message>
     <message>
         <source>sixty-fourth</source>
-        <translation type="unfinished"></translation>
+        <translation>semi-fusa</translation>
     </message>
     <message>
         <source>quarter triplet</source>
@@ -2874,11 +2887,11 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
-        <translation type="unfinished"></translation>
+		<translation>Você pode usar o &apos;/&apos; dentro dos campos de tamanho do padrão para alternar. </translation>
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de padrões - Nenhum padrão selecionado</translation>
     </message>
 </context>
 <context>
@@ -2973,14 +2986,14 @@ The session needs to be saved before exporting will can be continued.
     <name>PianoRollEditor</name>
     <message>
         <source>Cannot paste multi-pattern selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível colar seleção multi-padrão</translation>
     </message>
 </context>
 <context>
     <name>PlaybackTrackWaveDisplay</name>
     <message>
         <source>No playback track selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhuma faixa de playback selecionada</translation>
     </message>
 </context>
 <context>
@@ -3100,23 +3113,23 @@ The session needs to be saved before exporting will can be continued.
     <message>
         <source>JACK transport on/off</source>
         <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
-        <translation type="unfinished"></translation>
+		<translation>Transporte JACK Lig./Des.</translation>
     </message>
     <message>
         <source>JACK transport will work only with JACK driver.</source>
-        <translation type="unfinished"></translation>
+        <translation>Transporte JACK funcionará somente com o driver JACK.</translation>
     </message>
     <message>
         <source>JACK transport mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo transporte JACK = Ligado</translation>
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo transporte JACK: Desligado</translation>
     </message>
     <message>
         <source>Toggle the BeatCounter Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternar o Painel de BeatCounter</translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
@@ -3124,23 +3137,23 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
+        <translation>Na presença de um JACK Timebase principal externo, o BeatCounter não pode ser usado</translation>
     </message>
     <message>
         <source>Alter the Playback Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Alterar a Velocidade de Playback</translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation type="unfinished"></translation>
+        <translation>Enquanto a Linha do Tempo está ativa, esse widget é somente leitura e apenas mostra o andamento definido usando a posição atual da Linha do Tempo.</translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Na presençã de um JACK Timebase principal externo, esse widget apenas mostra o andamento transmitido pelo JACK</translation>
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
-        <translation type="unfinished"></translation>
+        <translation>JACK-transport funcionará apenas com o driver de JACK.</translation>
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
@@ -4305,7 +4318,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Random velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidade aleatória</translation>
     </message>
     <message>
         <source>Move instrument</source>
