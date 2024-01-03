@@ -289,9 +289,7 @@ bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
 		}
 		if ( create && !QDir( "/" ).mkpath( path ) ) {
-			if( !silent ) {
-				ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
-			}
+			ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
 			return false;
 		}
 	}
