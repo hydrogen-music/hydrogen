@@ -1597,7 +1597,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation>O drumkit atual é apenas leitura. Por favor use &apps;Duplicar&apos; para mover a cópia para o espaço do usuário.</translation>
+        <translation>O drumkit atual é apenas leitura. Por favor use &apos;Duplicar&apos; para mover a cópia para o espaço do usuário.</translation>
     </message>
     <message>
         <source>Save a copy of the current drumkit to the Sound Library</source>
