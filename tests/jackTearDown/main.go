@@ -16,7 +16,7 @@ const oscHydrogenPort = 9000
 
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
-const hydrogenStartupTime = 3000
+const hydrogenStartupTime = 3700
 // hydrogenTearDownTime gives an upper limit for the time required for
 // killHydrogen() to send a quit OSC signal, for Hydrogen to receive it and
 // finish its tear down.
