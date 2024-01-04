@@ -158,7 +158,7 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::Directory );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setDirectory( sPath );
 	fd.setWindowTitle( tr("Directory") );
 

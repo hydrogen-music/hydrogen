@@ -16,16 +16,16 @@ if($32bit)
     $64bit_string = "OFF"
     $msys_repo='mingw32/mingw-w64-i686'
     $msys='C:\msys64\mingw32'
-    $libssl='libssl-1_1.dll'
-    $libcrypto='libcrypto-1_1.dll'
+    $libssl='libssl-3.dll'
+    $libcrypto='libcrypto-3.dll'
 }
 else
 {
     $64bit_string = "ON"
     $msys_repo='mingw64/mingw-w64-x86_64'
     $msys='C:\msys64\mingw64'
-    $libssl='libssl-1_1-x64.dll'
-    $libcrypto='libcrypto-1_1-x64.dll'
+    $libssl='libssl-3-x64.dll'
+    $libcrypto='libcrypto-3-x64.dll'
 }
 
 
