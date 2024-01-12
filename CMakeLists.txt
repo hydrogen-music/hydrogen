@@ -24,11 +24,11 @@ set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 # Consider any tagged commit as a release build
 execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_ON_TAG)
-if(GIT_ON_TAG)
+# if(GIT_ON_TAG)
     set(IS_DEVEL_BUILD "false")
-else()
-    set(IS_DEVEL_BUILD "true")
-endif()
+# else()
+#     set(IS_DEVEL_BUILD "true")
+# endif()
 
 # In order to avoid for things to get out of sync, it is also possible to hand
 # over a version (from e.g. the build pipeline) and bypass the version string
