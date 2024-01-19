@@ -215,6 +215,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool clear_selected_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool clear_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
+		bool loadNextDrumkit( std::shared_ptr<Action>, H2Core::Hydrogen* );
+		bool loadPrevDrumkit( std::shared_ptr<Action>, H2Core::Hydrogen* );
 
 		int m_nLastBpmChangeCCParameter;
 

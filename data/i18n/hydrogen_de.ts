@@ -5721,6 +5721,14 @@ p, li { white-space: pre-wrap; }
         <source>Save current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch to next drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>

@@ -91,6 +91,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_sLastLoadedDrumkitPath( "" )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -128,6 +129,8 @@ Song::~Song()
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
 	m_pDrumkit->setType( Drumkit::Type::Song );
+
+	m_sLastLoadedDrumkitPath = pDrumkit->getPath();
 }
 
 void Song::setBpm( float fBpm ) {
@@ -392,6 +395,9 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pDrumkit = std::make_shared<Drumkit>();
 	}
 	pSong->setDrumkit( pDrumkit );
+	pSong->setLastLoadedDrumkitPath(
+		rootNode.read_string( "lastLoadedDrumkitPath", "", true, true,
+								bSilent ) );
 
 	// Pattern list
 	pSong->setPatternList( PatternList::load_from( rootNode,
@@ -797,6 +803,8 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	} else {
 		Legacy::saveEmbeddedSongDrumkit( rootNode, m_pDrumkit, bSilent );
 	}
+
+	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
 	m_pPatternList->save_to( rootNode, nullptr );
 

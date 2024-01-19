@@ -2836,6 +2836,12 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				H2Core::CoreActionController::toggleLoopMode();
 				break;
 
+			case Shortcuts::Action::LoadNextDrumkit:
+				pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
+				break;
+			case Shortcuts::Action::LoadPrevDrumkit:
+				pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
+				break;
 				//////////////////////////////////////////////////////
 				// GUI Actions
 
