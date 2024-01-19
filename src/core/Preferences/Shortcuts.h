@@ -83,6 +83,9 @@ public:
 		SongModeToggle			 	=  32,
 		LoopModeToggle			 	=  33,
 
+		LoadNextDrumkit			 	=  34,
+		LoadPrevDrumkit			 	=  35,
+
 		LastWith0Args			 	=  99,
 
 		// Command-based shortcuts with 1 arguments

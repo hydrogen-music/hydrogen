@@ -399,6 +399,13 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::LoopModeToggle, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle loop mode" ) );
 
+	insertActionInfo( Shortcuts::Action::LoadNextDrumkit, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Switch to next drumkit of soundlibrary" ) );
+	insertActionInfo( Shortcuts::Action::LoadPrevDrumkit, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Switch to previous drumkit of soundlibrary" ) );
+
 	// commands with 1 argument
 	insertActionInfo( Shortcuts::Action::BPM, Category::Command1Args,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set BPM" ) );

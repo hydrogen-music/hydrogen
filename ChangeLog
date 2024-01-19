@@ -23,6 +23,11 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- `PLAYLIST_ADD_SONG`
 				- `PLAYLIST_ADD_CURRENT_SONG`
 				- `PLAYLIST_REMOVE_SONG`
+				- `LOAD_PREV_DRUMKIT` (cycling through drumkits)
+				- `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
+		- new MIDI actions:
+				- `LOAD_PREV_DRUMKIT` (cycling through drumkits)
+				- `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
 		- `.h2playlist` files are now backed up by and can be restored from autosave
 			files as well.
 	* Changed

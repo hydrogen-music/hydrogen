@@ -291,6 +291,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
+		const QString& getLastLoadedDrumkitPath() const;
+		void setLastLoadedDrumkitPath( const QString& sPath );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -432,22 +435,15 @@ private:
 
 	/** Unique identifier of the drumkit last loaded.
 	 *
-	 * As the instruments and corresponding samples use their own
-	 * drumkits stored within them, this variable only serves for
-	 * references when storing patterns, highlighting in the GUI, and
-	 * other helper purposes.
+	 * This is a convenience variable allowing to cycle through the different
+	 * kits using MIDI and OSC commands (load next/previous kit).
 	 *
-	 * It's only semi-useful to associate the last loaded drumkit with
-	 * a song as the user is free to remove instruments and add an
-	 * arbitrary number of instruments from other drumkits. But the
-	 * most common use case of Hydrogen is probably with a stack or
-	 * custom drumkit loaded and not altering the associated
-	 * instrument list.
+	 * Note: In older versions of Hydrogen (< 1.3.0) this variable was used to
+	 * determine the location of samples of the current song with relative file
+	 * paths. This is not done anymore since a song does now contain a proper
+	 * #H2Core::Drumkit. That's why this member variable was repurposed.
 	 */
 	QString m_sLastLoadedDrumkitPath;
-	/** Convenience variable holding the name of the drumkit last
-	 * loaded. */
-	QString m_sLastLoadedDrumkitName;
 
 };
 
@@ -732,6 +728,12 @@ inline int Song::getPanLawType() const {
 
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
+}
+inline void Song::setLastLoadedDrumkitPath( const QString& sPath ) {
+	m_sLastLoadedDrumkitPath = sPath;
+}
+inline const QString& Song::getLastLoadedDrumkitPath() const {
+	return m_sLastLoadedDrumkitPath;
 }
 };
 

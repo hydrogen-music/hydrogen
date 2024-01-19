@@ -807,6 +807,12 @@ class OscServer : public H2Core::Object<OscServer>
 		 * contain notes, is optional. The default choice will be true.
 		 */
 	static void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
+
+		/** Triggers #H2Core::MidiActionManager::loadNextDrumkit(). */
+		static void LOAD_NEXT_DRUMKIT_Handler( lo_arg **argv, int argc );
+		/** Triggers #H2Core::MidiActionManager::loadPrevDrumkit(). */
+		static void LOAD_PREV_DRUMKIT_Handler( lo_arg **argv, int argc );
+
 		/**
 		 * Triggers CoreActionController::upgradeDrumkit().
 		 *
