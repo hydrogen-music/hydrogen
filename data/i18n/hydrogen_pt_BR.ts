@@ -539,12 +539,12 @@ B</translation>
     <message>
         <source>Max Range</source>
         <extracomment>Text displayed below the LCD to set the maximum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo Max</translation>
     </message>
     <message>
         <source>Min Range</source>
         <extracomment>Text displayed below the LCD to set the minimum range of the hihat pressure group in the Instrument Editor. Designed to hold nine characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo Min</translation>
     </message>
     <message>
         <source>Cutoff</source>
@@ -559,12 +559,12 @@ B</translation>
     <message>
         <source>L. Gain</source>
         <extracomment>Text displayed below the rotary to adjust the layer gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ganho Cam.</translation>
     </message>
     <message>
         <source>C. Gain</source>
         <extracomment>Text displayed below the rotary to adjust the component gain in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ganho Comp.</translation>
     </message>
     <message>
         <source>Sample Sel.</source>
@@ -775,7 +775,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation type="unfinished"></translation>
+        <translation>Na presença de um JACK Timebase principal, o andamento não pode ser alterado pelo Hydrogen</translation>
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
@@ -849,11 +849,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license</source>
-        <translation type="unfinished"></translation>
+        <translation>Texto da Licença escrito em disco. Você pode customizá-lo para por ex. incluir uma atribuição para outros que não o autor. Esteja avisado que isso será sobrescrito uma vez que você escolher uma licença diferente</translation>
     </message>
     <message>
         <source>You used drumkit samples holding a &lt;b&gt;copyleft license&lt;/b&gt;. Be aware that &lt;b&gt;you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+		<translation>Você usou amostras de drumkits que usam uma &lt;b&gt;licença copyleft&lt;b;&gt;; Esteja avisado que você &lt;b&gt;é legalmente obrigado a fazer uma cópia disponível publicamente e não pode impedir sua redistribuição para outros.&lt;b&gt;</translation>
     </message>
     <message>
         <source>All license containing the letters &apos;CC BY&apos; &lt;b&gt;require you to give an attribution&lt;/b&gt; by naming drumkit, author, as well as the license itself.</source>
@@ -1546,11 +1546,11 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Filesystem is not writable!</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível escrever no Sistema de Arquivo!</translation>
     </message>
     <message>
         <source>User data folder is not writable!</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível escrever na Pasta de Dados do Usuário!</translation>
     </message>
 </context>
 <context>
@@ -1581,7 +1581,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
+        <translation>A imagem especificada de Texto de Licença não cumpre com a licença na caixa de combo.</translation>
     </message>
     <message>
         <source>The name of the drumkit must not be left empty</source>
@@ -1723,7 +1723,7 @@ Use &apos;Salvar como&apos; para ativar o salvamento automático.</translation>
     <name>InputCaptureDialog</name>
     <message>
         <source>InputCaptureDialog</source>
-        <translation type="unfinished"></translation>
+        <translation>InputCaptureDialog</translation>
     </message>
 </context>
 <context>
@@ -1802,7 +1802,7 @@ Use &apos;Salvar como&apos; para ativar o salvamento automático.</translation>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
-        <translation type="unfinished">Pare de tocar a nota do instrumento atual antes de iniciar a próxima nota de amostra</translation>
+        <translation>Pare de tocar a nota do instrumento atual antes de iniciar a próxima nota de amostra</translation>
     </message>
     <message>
         <source>Select selection algorithm</source>
@@ -1843,7 +1843,7 @@ Valor</translation>
     <message>
         <source>First in Velocity</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished">Primeiro em Velocidade</translation>
+        <translation>Primeiro em Velocidade</translation>
     </message>
     <message>
         <source>Round Robin</source>
@@ -2729,7 +2729,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir param velocidade da humanização [%1]</translation>
     </message>
 </context>
 <context>
@@ -2845,7 +2845,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
-        <translation type="unfinished">----- Parâmetro de panorâmico linear -----</translation>
+        <translation>----- Parâmetro de panorâmico linear -----</translation>
     </message>
     <message>
         <source>Balance Law (0dB)</source>
@@ -2865,7 +2865,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>------ Polar pan parameter ------</source>
-        <translation type="unfinished">----- Parâmetro de panorâmico polar -----</translation>
+        <translation>----- Parâmetro de panorâmico polar -----</translation>
     </message>
     <message>
         <source>------ Ratio pan parameter ------</source>
@@ -3470,15 +3470,15 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Ela será usada apenas depois que a Linha do Tempo for desativada e voltará do primeiro Marcador de Andamento quando ativada novamnete..</translation>
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
-        <translation type="unfinished"></translation>
+		<translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
     </message>
     <message>
         <source>JACK Timebase mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo JACK Timebase</translation>
     </message>
 </context>
 <context>
