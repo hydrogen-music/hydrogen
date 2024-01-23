@@ -162,6 +162,14 @@ int PortAudioDriver::connect()
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
 	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
 
+	// Reset buffers to avoid noise during startup (e.g. in case the callback
+	// was not able to obtain the audio engine lock, the arbitrary numbers
+	// filling the buffer after creation will be passed to the audio output).
+	for ( int ii = 0; ii < MAX_BUFFER_SIZE; ii++ ) {
+		m_pOut_L[ ii ] = 0;
+		m_pOut_R[ ii ] = 0;
+	}
+
 	int err;
 	if ( ! m_bInitialised ) {
 		err = Pa_Initialize();
