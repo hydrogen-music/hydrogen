@@ -2944,6 +2944,13 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
+    <name>NewTypeDialog</name>
+    <message>
+        <source>Add a new instrument type</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NotePropertiesRuler</name>
     <message>
         <source>Select &amp;all</source>
