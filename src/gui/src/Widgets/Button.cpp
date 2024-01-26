@@ -123,7 +123,10 @@ void Button::updateIcon() {
 			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
 		}
 	}
-	setIconSize( m_iconSize );
+
+	if ( ! m_iconSize.isNull() && ! m_iconSize.isEmpty() ) {
+		setIconSize( m_iconSize );
+	}
 }
 
 void Button::setUseRedBackground( bool bUseRedBackground ) {
