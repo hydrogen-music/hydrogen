@@ -28,6 +28,7 @@
 
 #include <map>
 #include <unistd.h>
+#include <memory>
 
 #include "EventListener.h"
 #include "Widgets/WidgetWithScalableFont.h"
@@ -35,6 +36,7 @@
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/Drumkit.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -235,6 +237,8 @@ public slots:
 		}
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
+		bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
+							bool bCycleForward = true );
 
 	private slots:
 		void onAutoSaveTimer();

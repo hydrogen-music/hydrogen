@@ -62,6 +62,7 @@
 #include "Widgets/InfoBar.h"
 #include "Widgets/FileDialog.h"
 #include "Widgets/InputCaptureDialog.h"
+#include "Widgets/PatchBay.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -2289,6 +2290,75 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	}
 }
 
+bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
+							  bool bCycleForward ) {
+	DEBUGLOG("");
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	const auto pDrumkitDB = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
+
+	std::shared_ptr<H2Core::Drumkit> pTarget = pTargetKit;
+	if ( pTarget == nullptr ) {
+		const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+		const auto search = pDrumkitDB.find( sLastLoadedDrumkitPath );
+
+		if ( bCycleForward ) {
+			if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ||
+				 std::next( pDrumkitDB.find( sLastLoadedDrumkitPath ), 1 ) ==
+				 pDrumkitDB.end() ) {
+				pTarget = pDrumkitDB.begin()->second;
+			}
+			else {
+				pTarget = std::next( search, 1 )->second;
+			}
+		}
+		else {
+			if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ) {
+				pTarget = pDrumkitDB.begin()->second;
+			}
+			else if ( search == pDrumkitDB.begin() ) {
+				pTarget = std::prev( pDrumkitDB.end(), 1 )->second;
+			}
+			else {
+				pTarget = std::prev( search, 1 )->second;
+			}
+		}
+	}
+
+	auto pSource = pSong->getDrumkit();
+	if ( pSource == nullptr || pTarget == nullptr ) {
+		ERRORLOG( "Invalid kits. Unable to switch." );
+		return false;
+	}
+
+	auto pPatchBay = new PatchBay( this, pSource, pTarget,
+								   PatchBay::Type::Instruments );
+	auto nRes = pPatchBay->exec();
+
+	DEBUGLOG( QString( "Patch bay finished: %v" ).arg( nRes ) );
+
+	if ( pTargetKit == nullptr ) {
+		std::shared_ptr<Action> pAction;
+		if ( bCycleForward ) {
+			pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
+		}
+		else {
+			pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
+		}
+
+		MidiActionManager::get_instance()->handleAction( pAction );
+	}
+
+
+	return true;
+}
+
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	
 	auto pPref = Preferences::get_instance();
@@ -2837,9 +2907,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::LoadNextDrumkit:
-				pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
+				switchDrumkit( nullptr, true );
 				break;
 			case Shortcuts::Action::LoadPrevDrumkit:
+				switchDrumkit( nullptr, false );
 				pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
 				break;
 				//////////////////////////////////////////////////////

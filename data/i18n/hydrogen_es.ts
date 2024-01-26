@@ -2961,6 +2961,13 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
+    <name>NewTypeDialog</name>
+    <message>
+        <source>Add a new instrument type</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NotePropertiesRuler</name>
     <message>
         <source>Select &amp;all</source>
