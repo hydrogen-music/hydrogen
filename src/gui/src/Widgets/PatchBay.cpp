@@ -50,28 +50,28 @@ PatchBay::PatchBay( QWidget* pParent,
 	setLayout( pHBoxLayout );
 	setMinimumWidth( 750 );
 
-	m_pLeftColumn = new QWidget();
+	m_pLeftColumn = new QWidget( this );
 	m_pLeftColumnLayout = new QVBoxLayout();
 	m_pLeftColumn->setLayout( m_pLeftColumnLayout );
 	m_pLeftColumn->setStyleSheet( "background-color: #123F; " );
 	pHBoxLayout->addWidget( m_pLeftColumn );
 
-	m_pLeftConnections = new QWidget();
+	m_pLeftConnections = new QWidget( this );
 	m_pLeftConnections->setFixedWidth( 30 );
 	m_pLeftConnections->setStyleSheet( "background-color: #FFFF" );
 	pHBoxLayout->addWidget( m_pLeftConnections );
 
-	m_pMiddleColumn = new QWidget();
+	m_pMiddleColumn = new QWidget( this );
 	m_pMiddleColumnLayout = new QVBoxLayout();
 	m_pMiddleColumn->setLayout( m_pMiddleColumnLayout );
 	pHBoxLayout->addWidget( m_pMiddleColumn );
 
-	m_pRightConnections = new QWidget();
+	m_pRightConnections = new QWidget( this );
 	m_pRightConnections->setFixedWidth( 30 );
 	m_pRightConnections->setStyleSheet( "background-color: #FFFF" );
 	pHBoxLayout->addWidget( m_pRightConnections );
 
-	m_pRightColumn = new QWidget();
+	m_pRightColumn = new QWidget( this );
 	m_pRightColumnLayout = new QVBoxLayout();
 	m_pRightColumn->setLayout( m_pRightColumnLayout );
 	m_pRightColumn->setStyleSheet( "background-color: #123F;" );
@@ -123,8 +123,8 @@ PatchBay::PatchBay( QWidget* pParent,
 
 PatchBay::~PatchBay() {}
 
-LCDDisplay* PatchBay::createElement( const QString& sLabel ) const {
-	auto pDisplay = new LCDDisplay( nullptr, QSize( 0, 0 ), false, false );
+LCDDisplay* PatchBay::createElement( const QString& sLabel ) {
+	auto pDisplay = new LCDDisplay( this, QSize( 0, 0 ), false, false );
 	pDisplay->setText( sLabel );
 	pDisplay->setFixedHeight( m_nFixedRowHeight );
 	pDisplay->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
@@ -155,7 +155,34 @@ void PatchBay::addRight( std::shared_ptr<H2Core::Instrument> pInstrument ) {
 	m_rightColumn[ pInstrument->get_id() ] = pLabel;
 }
 
-void PatchBay::drawConnections( QPainter &p ) {
+void PatchBay::drawConnections( QPainter& p ) {
+	for ( const auto& [ nnId, ssType ] : *m_pSourceDrumkitMap ) {
+		DEBUGLOG( QString( "left id: %1, type: %2" ).arg( nnId ).arg( ssType ) );
+
+		auto ppLabelLeft = m_leftColumn.find( nnId );
+		auto ppLabelType = m_midColumn.find( ssType );
+
+		if ( ppLabelLeft != m_leftColumn.end() &&
+			 ppLabelType != m_midColumn.end() ) {
+			DEBUGLOG( "found");
+			drawConnection( p,  ppLabelLeft->second, ppLabelType->second );
+		}
+	}
+	for ( const auto& [ nnId, ssType ] : *m_pTargetDrumkitMap ) {
+		DEBUGLOG( QString( "right id: %1, type: %2" ).arg( nnId ).arg( ssType ) );
+
+		auto ppLabelRight = m_rightColumn.find( nnId );
+		auto ppLabelType = m_midColumn.find( ssType );
+
+		if ( ppLabelRight != m_rightColumn.end() &&
+			 ppLabelType != m_midColumn.end() ) {
+			DEBUGLOG( "found");
+			drawConnection( p,  ppLabelType->second, ppLabelRight->second );
+		}
+	}
+}
+
+void PatchBay::drawConnection( QPainter& p, LCDDisplay* pLabel1, LCDDisplay* pLabel2 ) {
 	DEBUGLOG("");
 
 	QPen pen( "#0FF" );
@@ -163,10 +190,14 @@ void PatchBay::drawConnections( QPainter &p ) {
 	p.setPen( pen );
 	p.setBrush( Qt::NoBrush );
 
-	p.drawLine( m_pLeftColumn->width() + 10,
-				m_nFixedRowHeight,
-				m_pLeftColumn->width() + m_pLeftConnections->width(),
-				m_nFixedRowHeight * 3 );
+	QPoint start = mapFromGlobal(
+		pLabel1->mapToGlobal( pLabel1->rect().topLeft() +
+		QPoint( pLabel1->width(), pLabel1->height() / 2 ) ) );
+	QPoint end = mapFromGlobal(
+		pLabel2->mapToGlobal( pLabel2->rect().topLeft() +
+		QPoint( 0, pLabel2->height() / 2 ) ) );
+
+	p.drawLine( start, end );
 }
 
 void PatchBay::paintEvent( QPaintEvent* pEv ) {
