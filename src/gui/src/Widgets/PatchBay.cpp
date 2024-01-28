@@ -106,6 +106,7 @@ PatchBay::PatchBay( QWidget* pParent,
 		DEBUGLOG( QString( "adding %1" ).arg( ssType ) );
 		auto pType = createElement( ssType );
 		m_pMiddleColumnLayout->addWidget( pType );
+		m_midColumn[ ssType ] = pType;
 	}
 
 	// m_pNewTypeButton = new QPushButton( nullptr );
@@ -140,12 +141,7 @@ void PatchBay::addLeft( std::shared_ptr<H2Core::Instrument> pInstrument ) {
 
 	auto pLabel = createElement( pInstrument->get_name() );
 	m_pLeftColumnLayout->addWidget( pLabel );
-	for ( const auto& ssType :
-			  m_pSourceDrumkitMap->getTypes( pInstrument->get_id() ) ) {
-		DEBUGLOG( QString( "adding %1" ).arg( ssType ) );
-		auto pType = createElement( ssType );
-		m_pMiddleColumnLayout->addWidget( pType );
-	}
+	m_leftColumn[ pInstrument->get_id() ] = pLabel;
 }
 
 void PatchBay::addRight( std::shared_ptr<H2Core::Instrument> pInstrument ) {
@@ -156,6 +152,7 @@ void PatchBay::addRight( std::shared_ptr<H2Core::Instrument> pInstrument ) {
 
 	auto pLabel = createElement( pInstrument->get_name() );
 	m_pRightColumnLayout->addWidget( pLabel );
+	m_rightColumn[ pInstrument->get_id() ] = pLabel;
 }
 
 void PatchBay::drawConnections( QPainter &p ) {
@@ -195,6 +192,7 @@ void PatchBay::newType() {
 			m_pMiddleColumnLayout->removeWidget( m_pNewTypeButton );
 
 			m_pMiddleColumnLayout->addWidget( pType );
+			m_midColumn[ pNewTypeDialog->getType() ] = pType;
 
 			// Readd the add button to ensure it is placed at the bottom.
 			m_pMiddleColumnLayout->addWidget( m_pNewTypeButton );

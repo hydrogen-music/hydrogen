@@ -25,7 +25,7 @@
 #define PATCH_BAY_H
 
 
-#include <vector>
+#include <map>
 #include <memory>
 
 #include <QtGui>
@@ -76,22 +76,26 @@ private:
 	void addLeft( std::shared_ptr<H2Core::Instrument> pInstrument );
 	void addRight( std::shared_ptr<H2Core::Instrument> pInstrument );
 
-	LCDDisplay* createElement( const QString& sLabel ) const;
+	LCDDisplay* createElement( const QString& sLabel );
 	void drawConnections( QPainter &p );
+	void drawConnection( QPainter &p, LCDDisplay* pLabel1, LCDDisplay* pLabel2 );
 
 	int m_nFixedRowHeight = 20;
 
 	QWidget* m_pLeftColumn;
 	QVBoxLayout* m_pLeftColumnLayout;
-	std::vector<std::shared_ptr<LCDDisplay>> m_leftColumn;
+	/** Maps the ID of an instrument to the widget representing it. */
+	std::map<int, LCDDisplay*> m_leftColumn;
 	QWidget* m_pLeftConnections;
 	QWidget* m_pMiddleColumn;
 	QVBoxLayout* m_pMiddleColumnLayout;
-	std::vector<std::shared_ptr<LCDDisplay>> m_midColumn;
+	/** Maps an instrument type to the widget representing it. */
+	std::map<H2Core::DrumkitMap::Type, LCDDisplay*> m_midColumn;
 	QWidget* m_pRightConnections;
 	QWidget* m_pRightColumn;
 	QVBoxLayout* m_pRightColumnLayout;
-	std::vector<std::shared_ptr<LCDDisplay>> m_rightColumn;
+	/** Maps the ID of an instrument to the widget representing it. */
+	std::map<int, LCDDisplay*> m_rightColumn;
 	Button* m_pNewTypeButton;
 
 	std::shared_ptr<H2Core::Drumkit> m_pSourceDrumkit;
