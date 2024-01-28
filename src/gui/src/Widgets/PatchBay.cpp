@@ -53,12 +53,12 @@ PatchBay::PatchBay( QWidget* pParent,
 	m_pLeftColumn = new QWidget();
 	m_pLeftColumnLayout = new QVBoxLayout();
 	m_pLeftColumn->setLayout( m_pLeftColumnLayout );
-	m_pLeftColumn->setStyleSheet( "background-color: #123; " );
+	m_pLeftColumn->setStyleSheet( "background-color: #123F; " );
 	pHBoxLayout->addWidget( m_pLeftColumn );
 
 	m_pLeftConnections = new QWidget();
 	m_pLeftConnections->setFixedWidth( 30 );
-	m_pLeftConnections->setStyleSheet( "background-color: #FFF" );
+	m_pLeftConnections->setStyleSheet( "background-color: #FFFF" );
 	pHBoxLayout->addWidget( m_pLeftConnections );
 
 	m_pMiddleColumn = new QWidget();
@@ -68,13 +68,13 @@ PatchBay::PatchBay( QWidget* pParent,
 
 	m_pRightConnections = new QWidget();
 	m_pRightConnections->setFixedWidth( 30 );
-	m_pRightConnections->setStyleSheet( "background-color: #FFF" );
+	m_pRightConnections->setStyleSheet( "background-color: #FFFF" );
 	pHBoxLayout->addWidget( m_pRightConnections );
 
 	m_pRightColumn = new QWidget();
 	m_pRightColumnLayout = new QVBoxLayout();
 	m_pRightColumn->setLayout( m_pRightColumnLayout );
-	m_pRightColumn->setStyleSheet( "background-color: #123;" );
+	m_pRightColumn->setStyleSheet( "background-color: #123F;" );
 	pHBoxLayout->addWidget( m_pRightColumn );
 
 	m_types = QStringList();
