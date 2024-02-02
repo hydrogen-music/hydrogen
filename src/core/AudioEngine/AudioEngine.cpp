@@ -71,6 +71,15 @@
 namespace H2Core
 {
 
+#define AE_INFOLOG(x) INFOLOG( QString( "[%1] %2" ) \
+	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+#define AE_WARNINGLOG(x) WARNINGLOG( QString( "[%1] %2" ) \
+	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+#define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
+	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+#define AE_DEBUGLOG(x) DEBUGOG( QString( "[%1] %2" ) \
+	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+
 /** Gets the current time.
  * \return Current time obtained by gettimeofday()*/
 inline timeval currentTime2()
@@ -179,13 +188,13 @@ AudioEngine::~AudioEngine()
 {
 	stopAudioDrivers();
 	if ( getState() != State::Initialized ) {
-		ERRORLOG( "Error the audio engine is not in State::Initialized" );
+		AE_ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
 	}
 	m_pSampler->stopPlayingNotes();
 
 	this->lock( RIGHT_HERE );
-	INFOLOG( "*** Hydrogen audio engine shutdown ***" );
+	AE_INFOLOG( "*** Hydrogen audio engine shutdown ***" );
 
 	clearNoteQueues();
 
@@ -274,7 +283,7 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	bool res = m_EngineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
-		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
+		AE_WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
 					.arg( file ).arg( function ).arg( line )
 					.arg( m_pLocker.file ).arg( m_pLocker.function ).arg( m_pLocker.line ));
 		return false;
@@ -310,10 +319,10 @@ void AudioEngine::unlock()
 
 void AudioEngine::startPlayback()
 {
-	INFOLOG( "" );
+	AE_INFOLOG( "" );
 
 	if ( getState() != State::Ready ) {
-	   ERRORLOG( "Error the audio engine is not in State::Ready" );
+	   AE_ERRORLOG( "Error the audio engine is not in State::Ready" );
 		return;
 	}
 
@@ -324,10 +333,10 @@ void AudioEngine::startPlayback()
 
 void AudioEngine::stopPlayback()
 {
-	INFOLOG( "" );
+	AE_INFOLOG( "" );
 
 	if ( getState() != State::Playing ) {
-		ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
+		AE_ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
 		return;
 	}
@@ -407,7 +416,7 @@ float AudioEngine::getElapsedTime() const {
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 
-	// DEBUGLOG( QString( "fTick: %1" ).arg( fTick ) );
+	// AE_DEBUGLOG( QString( "fTick: %1" ).arg( fTick ) );
 
 #ifdef H2CORE_HAVE_JACK
 	// In case Hydrogen is using the JACK server to sync transport, it
@@ -436,7 +445,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 
 void AudioEngine::locateToFrame( const long long nFrame ) {
 
-	// DEBUGLOG( QString( "nFrame: %1" ).arg( nFrame ) );
+	// AE_DEBUGLOG( QString( "nFrame: %1" ).arg( nFrame ) );
 	
 	resetOffsets();
 
@@ -448,7 +457,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	// a heuristic in order to not experience any glitches upon
 	// relocation.
 	if ( std::fmod( fNewTick, std::floor( fNewTick ) ) >= 0.97 ) {
-		INFOLOG( QString( "Computed tick [%1] will be rounded to [%2] in order to avoid glitches" )
+		AE_INFOLOG( QString( "Computed tick [%1] will be rounded to [%2] in order to avoid glitches" )
 				 .arg( fNewTick, 0, 'E', -1 ).arg( std::round( fNewTick ) ) );
 		fNewTick = std::round( fNewTick );
 	}
@@ -498,7 +507,7 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	const double fNewTick = TransportPosition::computeTickFromFrame( nNewFrame );
 	m_pTransportPosition->m_fTickMismatch = 0;
 
-	// DEBUGLOG( QString( "nFrames: %1, old frame: %2, new frame: %3, old tick: %4, new tick: %5, ticksize: %6" )
+	// AE_DEBUGLOG( QString( "nFrames: %1, old frame: %2, new frame: %3, old tick: %4, new tick: %5, ticksize: %6" )
 	// 		  .arg( nFrames )
 	// 		  .arg( m_pTransportPosition->getFrame() )
 	// 		  .arg( nNewFrame )
@@ -533,7 +542,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 
 	assert( pSong );
 	
-	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
+	// AE_WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( pPos->toQString( "", true ) ) );
@@ -568,7 +577,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 		EventQueue::get_instance()->push_event( EVENT_BBT_CHANGED, 0 );
 	}
 	
-	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
+	// AE_WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( pPos->toQString( "", true ) )
@@ -619,7 +628,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 
 void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
-	// WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
+	// AE_WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
@@ -632,7 +641,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	pPos->setFrame( nFrame );
 
 	if ( fTick < 0 ) {
-		ERRORLOG( QString( "[%1] Provided tick [%2] is negative!" )
+		AE_ERRORLOG( QString( "[%1] Provided tick [%2] is negative!" )
 				  .arg( pPos->getLabel() )
 				  .arg( fTick, 0, 'f' ) );
 		return;
@@ -671,7 +680,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		handleSelectedPattern();
 	}
 
-	// WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4, frame: %5" )
+	// AE_WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4, frame: %5" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
@@ -717,7 +726,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	}
 
 	if ( fNewTickSize == 0 ) {
-		ERRORLOG( QString( "[%1] Something went wrong while calculating the tick size. [oldTS: %2, newTS: %3]" )
+		AE_ERRORLOG( QString( "[%1] Something went wrong while calculating the tick size. [oldTS: %2, newTS: %3]" )
 				  .arg( pPos->getLabel() )
 				  .arg( fOldTickSize, 0, 'f' ).arg( fNewTickSize, 0, 'f' ) );
 		return;
@@ -729,7 +738,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	// arbitrary values.
 	pPos->setLastLeadLagFactor( 0 );
 
-	// DEBUGLOG(QString( "[%1] [%7,%8] sample rate: %2, tick size: %3 -> %4, bpm: %5 -> %6" )
+	// AE_DEBUGLOG(QString( "[%1] [%7,%8] sample rate: %2, tick size: %3 -> %4, bpm: %5 -> %6" )
 	// 		 .arg( pPos->getLabel() )
 	// 		 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
 	// 		 .arg( fOldTickSize, 0, 'f' )
@@ -764,7 +773,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 			nNewFrame + nNewLookahead ) + pPos->getTickMismatch();
 		pPos->setTickOffsetQueuing( fNewTickEnd - m_fLastTickEnd );
 
-		// DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetQueuing(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
+		// AE_DEBUGLOG( QString( "[%1 : [%2] timeline] old frame: %3, new frame: %4, tick: %5, nNewLookahead: %6, pPos->getFrameOffsetTempo(): %7, pPos->getTickOffsetQueuing(): %8, fNewTickEnd: %9, m_fLastTickEnd: %10" )
 		// 		  .arg( pPos->getLabel() )
 		// 		  .arg( Hydrogen::get_instance()->isTimelineEnabled() )
 		// 		  .arg( pPos->getFrame() )
@@ -834,7 +843,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 
 AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 {
-	INFOLOG( QString( "Creating driver [%1]" ).arg( sDriver ) );
+	AE_INFOLOG( QString( "Creating driver [%1]" ).arg( sDriver ) );
 
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -866,7 +875,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 		pAudioDriver = new PulseAudioDriver( m_AudioProcessCallback );
 	}
 	else if ( sDriver == "Fake" ) {
-		WARNINGLOG( "*** Using FAKE audio driver ***" );
+		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
 		pAudioDriver = new FakeDriver( m_AudioProcessCallback );
 	}
 	else if ( sDriver == "DiskWriterDriver" ) {
@@ -876,20 +885,20 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 		pAudioDriver = new NullDriver( m_AudioProcessCallback );
 	}
 	else {
-		ERRORLOG( QString( "Unknown driver [%1]" ).arg( sDriver ) );
+		AE_ERRORLOG( QString( "Unknown driver [%1]" ).arg( sDriver ) );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
 		return nullptr;
 	}
 
 	if ( pAudioDriver == nullptr ) {
-		INFOLOG( QString( "Unable to create driver [%1]" ).arg( sDriver ) );
+		AE_INFOLOG( QString( "Unable to create driver [%1]" ).arg( sDriver ) );
 		return nullptr;
 	}
 
 	// Initialize the audio driver
 	int nRes = pAudioDriver->init( pPref->m_nBufferSize );
 	if ( nRes != 0 ) {
-		ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
+		AE_ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
 				  .arg( sDriver ).arg( nRes ) );
 		delete pAudioDriver;
 		return nullptr;
@@ -916,7 +925,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	nRes = m_pAudioDriver->connect();
 	if ( nRes != 0 ) {
 		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-		ERRORLOG( QString( "Error code [%2] while connecting audio driver [%1]." )
+		AE_ERRORLOG( QString( "Error code [%2] while connecting audio driver [%1]." )
 				  .arg( sDriver ).arg( nRes ) );
 
 		this->lock( RIGHT_HERE );
@@ -948,20 +957,20 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 
 void AudioEngine::startAudioDrivers()
 {
-	INFOLOG("");
+	AE_INFOLOG("");
 	Preferences *pPref = Preferences::get_instance();
 	
 	if ( getState() != State::Initialized ) {
-		ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
+		AE_ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
 		return;
 	}
 
 	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
-		ERRORLOG( "The audio driver is still alive" );
+		AE_ERRORLOG( "The audio driver is still alive" );
 	}
 	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
-		ERRORLOG( "The MIDI driver is still active" );
+		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
 	QString sAudioDriver = pPref->m_sAudioDriver;
@@ -979,7 +988,7 @@ void AudioEngine::startAudioDrivers()
 	}
 
 	if ( m_pAudioDriver == nullptr ) {
-		ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
+		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
 				  .arg( sAudioDriver ) );
 		createAudioDriver( "NullDriver" );
 	}
@@ -1027,7 +1036,7 @@ void AudioEngine::startAudioDrivers()
 
 void AudioEngine::stopAudioDrivers()
 {
-	INFOLOG( "" );
+	AE_INFOLOG( "" );
 
 	this->lock( RIGHT_HERE );
 
@@ -1037,7 +1046,7 @@ void AudioEngine::stopAudioDrivers()
 
 	if ( ( m_state != State::Prepared )
 		 && ( m_state != State::Ready ) ) {
-		ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
+		AE_ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
 				  .arg( static_cast<int>(m_state) ) );
 		this->unlock();
 		return;
@@ -1088,7 +1097,7 @@ void AudioEngine::handleLoopModeChanged() {
 void AudioEngine::handleDriverChange() {
 
 	if ( Hydrogen::get_instance()->getSong() == nullptr ) {
-		WARNINGLOG( "no song set yet" );
+		AE_WARNINGLOG( "no song set yet" );
 		return;
 	}
 	
@@ -1102,7 +1111,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		WARNINGLOG( "no song set yet" );
+		AE_WARNINGLOG( "no song set yet" );
 		return MIN_BPM;
 	}
 
@@ -1116,7 +1125,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		const float fJackMasterBpm = pHydrogen->getMasterBpm();
 		if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
 			fBpm = fJackMasterBpm;
-			// DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+			// AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
 		}
 	}
 	else if ( pSong->getIsTimelineActivated() &&
@@ -1124,7 +1133,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
-			// DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
+			// AE_DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
 			fBpm = fTimelineBpm;
 		}
 	}
@@ -1132,7 +1141,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// Change in speed due to user interaction with the BPM widget
 		// or corresponding MIDI or OSC events.
 		if ( pAudioEngine->getNextBpm() != fBpm ) {
-			// DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
+			// AE_DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
 			// 		  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
 			fBpm = pAudioEngine->getNextBpm();
 		}
@@ -1208,7 +1217,7 @@ void AudioEngine::handleSongModeChanged() {
 
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
-		ERRORLOG( "no song set" );
+		AE_ERRORLOG( "no song set" );
 		return;
 	}
 
@@ -1239,7 +1248,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		Note *pNote = m_songNoteQueue.top();
 		const long long nNoteStartInFrames = pNote->getNoteStart();
 
-		// DEBUGLOG( QString( "m_pTransportPosition->getDoubleTick(): %1, m_pTransportPosition->getFrame(): %2, nframes: %3, " )
+		// AE_DEBUGLOG( QString( "m_pTransportPosition->getDoubleTick(): %1, m_pTransportPosition->getFrame(): %2, nframes: %3, " )
 		// 		  .arg( m_pTransportPosition->getDoubleTick() )
 		// 		  .arg( m_pTransportPosition->getFrame() )
 		// 		  .arg( nframes )
@@ -1330,6 +1339,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 	timeval startTimeval = currentTime2();
+	const auto sDrivers = pAudioEngine->getDriverNames();
 
 	pAudioEngine->clearAudioBuffers( nframes );
 
@@ -1355,7 +1365,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 */
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 							  RIGHT_HERE ) ) {
-		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
+		___ERRORLOG( QString( "[%1] Failed to lock audioEngine in allowed %2 ms, missed buffer" )
+					 .arg( sDrivers ).arg( fSlackTime ) );
 
 		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			// Returning the special return value "2" enables the disk 
@@ -1378,8 +1389,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		assert( pSong );
-		ERRORLOG( "Invalid song" );
-		return 1;
 	}
 
 	// Sync transport with server (in case the current audio driver is
@@ -1388,7 +1397,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		auto pAudioDriver = pHydrogen->getAudioOutput();
 		if ( pAudioDriver == nullptr ) {
-			ERRORLOG( "AudioDriver is not ready!" );
+			___ERRORLOG( QString( "[%1] AudioDriver is not ready!" )
+						 .arg( sDrivers ) );
 			assert( pAudioDriver );
 			return 1;
 		}
@@ -1431,7 +1441,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		if ( pAudioEngine->isEndOfSongReached(
 				 pAudioEngine->m_pTransportPosition ) ) {
 
-			___INFOLOG( "End of song received" );
+			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
 			if ( pHydrogen->getMidiOutput() != nullptr ) {
 				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
@@ -1448,7 +1458,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 			if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) !=
 				 nullptr ) {
-				___INFOLOG( "End of song." );
+				___INFOLOG( QString( "[%1] End of song." ).arg( sDrivers ) );
 
 				// TODO This part of the code might not be reached
 				// anymore.
@@ -1471,9 +1481,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( pAudioEngine->m_fProcessTime > pAudioEngine->m_fMaxProcessTime ) {
 		___WARNINGLOG( "" );
 		___WARNINGLOG( "----XRUN----" );
-		___WARNINGLOG( QString( "XRUN of %1 msec (%2 > %3)" )
+		___WARNINGLOG( QString( "[%1] XRUN of %2 msec (%3 > %4)" )
+					   .arg( sDrivers )
 					   .arg( ( pAudioEngine->m_fProcessTime - pAudioEngine->m_fMaxProcessTime ) )
-					   .arg( pAudioEngine->m_fProcessTime ).arg( pAudioEngine->m_fMaxProcessTime ) );
+					   .arg( pAudioEngine->m_fProcessTime )
+					   .arg( pAudioEngine->m_fMaxProcessTime ) );
 		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
 		___WARNINGLOG( "------------" );
 		___WARNINGLOG( "" );
@@ -1572,12 +1584,12 @@ void AudioEngine::setState( AudioEngine::State state ) {
 void AudioEngine::setNextBpm( float fNextBpm ) {
 	if ( fNextBpm > MAX_BPM ) {
 		m_fNextBpm = MAX_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+		AE_WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
 					.arg( fNextBpm ).arg( MAX_BPM ) );
 	}
 	else if ( fNextBpm < MIN_BPM ) {
 		m_fNextBpm = MIN_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+		AE_WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
 					.arg( fNextBpm ).arg( MIN_BPM ) );
 	}
 	
@@ -1588,12 +1600,12 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
+	AE_INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
 	
 	this->lock( RIGHT_HERE );
 
 	if ( getState() != State::Prepared ) {
-		ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
+		AE_ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
 	}
 
@@ -1630,7 +1642,7 @@ void AudioEngine::prepare() {
 	}
 
 	if ( getState() != State::Ready ) {
-		ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
+		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
 		this->unlock();
 		return;
@@ -1649,7 +1661,7 @@ void AudioEngine::updateSongSize() {
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
+		AE_ERRORLOG( "No song set yet" );
 		return;
 	}
 
@@ -1703,7 +1715,7 @@ void AudioEngine::updateSongSize() {
 	
 	const int nOldColumn = m_pTransportPosition->getColumn();
 
-	// WARNINGLOG( QString( "[Before] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+	// AE_WARNINGLOG( QString( "[Before] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 	// 			.arg( fNewStrippedTick, 0, 'f' )
 	// 			.arg( fRepetitions )
 	// 			.arg( m_fSongSizeInTicks )
@@ -1721,7 +1733,7 @@ void AudioEngine::updateSongSize() {
 		}
 		locate( 0 );
 		
-		// WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+		// AE_WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 		// 			.arg( fNewStrippedTick, 0, 'f' )
 		// 			.arg( fRepetitions )
 		// 			.arg( m_fSongSizeInTicks )
@@ -1756,7 +1768,7 @@ void AudioEngine::updateSongSize() {
 		// enlarged, or shrunk. We need to compensate this in order to
 		// keep the current pattern tick position constant.
 
-		// DEBUGLOG( QString( "[nPatternStartTick mismatch] old: %1, new: %2" )
+		// AE_DEBUGLOG( QString( "[nPatternStartTick mismatch] old: %1, new: %2" )
 		// 		  .arg( m_pTransportPosition->getPatternStartTick() )
 		// 		  .arg( nNewPatternStartTick ) );
 		
@@ -1770,7 +1782,7 @@ void AudioEngine::updateSongSize() {
 		static_cast<long>(std::floor( fNewStrippedTick )) - nNewPatternStartTick;
 	if ( nNewPatternTickPosition != m_pTransportPosition->getPatternTickPosition() &&
 		 ! bEmptySong ) {
-		ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
+		AE_ERRORLOG( QString( "[nPatternTickPosition mismatch] old: %1, new: %2" )
 				  .arg( m_pTransportPosition->getPatternTickPosition() )
 				  .arg( nNewPatternTickPosition ) );
 	}
@@ -1804,7 +1816,7 @@ void AudioEngine::updateSongSize() {
 		nNewFrame - m_pTransportPosition->getFrame() +
 		m_pTransportPosition->getFrameOffsetTempo() );
 		
-	// INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9, fNewStrippedTick: %10, nNewPatternStartTick: %11")
+	// AE_INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9, fNewStrippedTick: %10, nNewPatternStartTick: %11")
 	// 		.arg( nNewFrame )
 	// 		.arg( m_pTransportPosition->getFrame() )
 	// 		.arg( m_pTransportPosition->getFrameOffsetTempo() )
@@ -1853,7 +1865,7 @@ void AudioEngine::updateSongSize() {
 #ifdef H2CORE_HAVE_DEBUG
 	if ( nOldColumn != m_pTransportPosition->getColumn() && ! bEmptySong &&
 		 nOldColumn != -1 && m_pTransportPosition->getColumn() != -1 ) {
-		ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
+		AE_ERRORLOG( QString( "[nColumn mismatch] old: %1, new: %2" )
 				  .arg( nOldColumn )
 				  .arg( m_pTransportPosition->getColumn() ) );
 	}
@@ -1865,7 +1877,7 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
-	// WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+	// AE_WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
 	// 			.arg( m_fSongSizeInTicks )
@@ -1903,7 +1915,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	auto pSong = pHydrogen->getSong();
 	auto pPlayingPatterns = pPos->getPlayingPatterns();
 
-	// DEBUGLOG( QString( "pre: %1" ).arg( pPos->toQString() ) );
+	// AE_DEBUGLOG( QString( "pre: %1" ).arg( pPos->toQString() ) );
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
@@ -1921,7 +1933,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		auto nColumn = std::max( pPos->getColumn(), 0 );
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
-			ERRORLOG( QString( "Provided column [%1] exceeds allowed range [0,%2]. Using 0 as fallback." )
+			AE_ERRORLOG( QString( "Provided column [%1] exceeds allowed range [0,%2]. Using 0 as fallback." )
 					  .arg( nColumn ).arg( pSong->getPatternGroupVector()->size() - 1 ) );
 			nColumn = 0;
 		}
@@ -1996,7 +2008,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		pPos->setPatternSize( MAX_NOTES );
 	}
 	
-	// DEBUGLOG( QString( "post: %1" ).arg( pPos->toQString() ) );
+	// AE_DEBUGLOG( QString( "post: %1" ).arg( pPos->toQString() ) );
 	
 }
 
@@ -2085,7 +2097,7 @@ void AudioEngine::updateVirtualPatterns() {
 
 void AudioEngine::handleTimelineChange() {
 
-	// INFOLOG( QString( "before:\n%1\n%2" )
+	// AE_INFOLOG( QString( "before:\n%1\n%2" )
 	// 		 .arg( m_pTransportPosition->toQString() )
 	// 		 .arg( m_pQueuingPosition->toQString() ) );
 
@@ -2111,7 +2123,7 @@ void AudioEngine::handleTimelineChange() {
 		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
 	
-	// INFOLOG( QString( "after:\n%1\n%2" )
+	// AE_INFOLOG( QString( "after:\n%1\n%2" )
 	// 		 .arg( m_pTransportPosition->toQString() )
 	// 		 .arg( m_pQueuingPosition->toQString() ) );
 }
@@ -2162,7 +2174,7 @@ void AudioEngine::handleSongSizeChange() {
 		if ( notes.size() > 0 ) {
 			for ( auto nnote : notes ) {
 
-				// DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
+				// AE_DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
 				// 		  .arg( nnote->get_instrument()->get_name() )
 				// 		  .arg( nnote->get_position() )
 				// 		  .arg( std::max( nnote->get_position() + nTickOffset,
@@ -2186,7 +2198,7 @@ void AudioEngine::handleSongSizeChange() {
 		if ( notes.size() > 0 ) {
 			for ( auto nnote : notes ) {
 
-				// DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
+				// AE_DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
 				// 		  .arg( nnote->get_instrument()->get_name() )
 				// 		  .arg( nnote->get_position() )
 				// 		  .arg( std::max( nnote->get_position() + nTickOffset,
@@ -2273,7 +2285,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
 		pPos->getTickOffsetQueuing();
 
-	// INFOLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
+	// AE_INFOLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
 	// 		 .arg( nFrameStart )
 	// 		 .arg( nFrameEnd )
 	// 		 .arg( *fTickStart, 0, 'f' )
@@ -2357,7 +2369,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// up.
 	m_fLastTickEnd = fTickEndComp;
 
-	// WARNINGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pTransportPosition: %7, m_pQueuingPosition: %8")
+	// AE_WARNINGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pTransportPosition: %7, m_pQueuingPosition: %8")
 	// 			.arg( nTickStart ).arg( nTickEnd )
 	// 			.arg( fTickStartComp, 0, 'f' ).arg( fTickEndComp, 0, 'f' )
 	// 			.arg( nLeadLagFactor )
@@ -2523,7 +2535,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 									m_pQueuingPosition->getPatternTickPosition() ) );
 						}
 
-						// DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
+						// AE_DEBUGLOG( QString( "m_pQueuingPosition: %1, new note: %2" )
 						// 		  .arg( m_pQueuingPosition->toQString() )
 						// 		  .arg( pCopiedNote->toQString() ) );
 
@@ -2543,7 +2555,7 @@ void AudioEngine::noteOn( Note *note )
 	if ( ! ( getState() == State::Playing ||
 			 getState() == State::Ready ||
 			 getState() == State::Testing ) ) {
-		ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
+		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
 					 .arg( static_cast<int>( getState() ) ) );
 		delete note;
 		return;
@@ -2604,7 +2616,7 @@ long long AudioEngine::getLeadLagInFrames( double fTick ) {
 												 AudioEngine::getLeadLagInTicks(),
 												 &fTmp );
 
-	// WARNINGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
+	// AE_WARNINGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
 	// 			.arg( nFrameStart ).arg( nFrameEnd )
 	// 			.arg( nFrameEnd - nFrameStart ).arg( fTick, 0, 'f' ) );
 
@@ -2634,15 +2646,15 @@ void AudioEngine::checkJackSupport() {
 	// importing the file) or by passing the `-d jack` CLI option.
 	if ( Preferences::get_instance()->m_sAudioDriver != "JACK" ) {
 		if ( ! JackAudioDriver::checkSupport() ) {
-			WARNINGLOG( "JACK support disabled." );
+			AE_WARNINGLOG( "JACK support disabled." );
 			m_bJackSupported = false;
 			return;
 		}
 
-		INFOLOG( "JACK support enabled." );
+		AE_INFOLOG( "JACK support enabled." );
 	}
 	else {
-		INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
+		AE_INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
 	}
   #endif
 
@@ -2650,7 +2662,7 @@ void AudioEngine::checkJackSupport() {
 	return;
 
 #else
-	INFOLOG( "Hydrogen was compiled without JACK support." );
+	AE_INFOLOG( "Hydrogen was compiled without JACK support." );
 	m_bJackSupported = false;
 	return;
 #endif
@@ -2804,6 +2816,84 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	
 	return sOutput;
+}
+
+QString AudioEngine::getDriverNames() const {
+	QString sAudioDriver( "unknown" );
+	QString sMidiInputDriver( "unknown" );
+	QString sMidiOutputDriver( "unknown" );
+
+	if ( m_pAudioDriver == nullptr ) {
+		sAudioDriver = "nullptr";
+	} else if ( dynamic_cast<JackAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "JACK";
+	} else if ( dynamic_cast<PortAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "PortAudio";
+	} else if ( dynamic_cast<CoreAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "CoreAudio";
+	} else if ( dynamic_cast<PulseAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "PulseAudio";
+	} else if ( dynamic_cast<OssDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "OSS";
+	} else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "ALSA";
+	} else if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "Fake";
+	} else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "NULL";
+	} else if ( dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) != nullptr ) {
+		sAudioDriver = "Disk";
+	}
+	
+	if ( m_pMidiDriver == nullptr ) {
+		sMidiInputDriver = "nullptr";
+#ifdef H2CORE_HAVE_ALSA
+	} else if ( dynamic_cast<AlsaMidiDriver*>(m_pMidiDriver) != nullptr ) {
+		sMidiInputDriver = "ALSA";
+#endif
+#ifdef H2CORE_HAVE_PORTMIDI
+	} else if ( dynamic_cast<PortMidiDriver*>(m_pMidiDriver) != nullptr ) {
+		sMidiInputDriver = "PortMidi";
+#endif
+#ifdef H2CORE_HAVE_COREMIDI
+	} else if ( dynamic_cast<CoreMidiDriver*>(m_pMidiDriver) != nullptr ) {
+		sMidiInputDriver = "CoreMidi";
+#endif
+#ifdef H2CORE_HAVE_JACK
+	} else if ( dynamic_cast<JackMidiDriver*>(m_pMidiDriver) != nullptr ) {
+		sMidiInputDriver = "JACK";
+#endif
+	}
+		
+	if ( m_pMidiDriverOut == nullptr ) {
+		sMidiOutputDriver = "nullptr";
+#ifdef H2CORE_HAVE_ALSA
+	} else if ( dynamic_cast<AlsaMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
+		sMidiOutputDriver = "ALSA";
+#endif
+#ifdef H2CORE_HAVE_PORTMIDI
+	} else if ( dynamic_cast<PortMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
+		sMidiOutputDriver = "PortMidi";
+#endif
+#ifdef H2CORE_HAVE_COREMIDI
+	} else if ( dynamic_cast<CoreMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
+		sMidiOutputDriver = "CoreMidi";
+#endif
+#ifdef H2CORE_HAVE_JACK
+	} else if ( dynamic_cast<JackMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
+		sMidiOutputDriver = "JACK";
+#endif
+	}
+	
+	auto res = QString( "%1|" ).arg( sAudioDriver );
+	if ( sMidiInputDriver == sMidiOutputDriver ) {
+		res.append( QString( "%1" ).arg( sMidiInputDriver ) );
+	} else {
+		res.append( QString( "in: %1;out: %2" ).arg( sMidiInputDriver )
+					.arg( sMidiOutputDriver ) );
+	}
+
+	return std::move( res );
 }
 
 void AudioEngineLocking::assertAudioEngineLocked() const 

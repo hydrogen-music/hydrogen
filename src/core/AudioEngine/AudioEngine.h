@@ -594,6 +594,8 @@ private:
 	 */
 	void handleSongModeChanged();
 
+	QString getDriverNames() const;
+
 	Sampler* 			m_pSampler;
 	Synth* 				m_pSynth;
 	AudioOutput *		m_pAudioDriver;
