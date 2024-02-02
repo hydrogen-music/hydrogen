@@ -535,7 +535,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 
 	assert( pSong );
 	
-	// AE_WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
+	// AE_DEBUGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( pPos->toQString( "", true ) ) );
@@ -570,7 +570,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 		EventQueue::get_instance()->push_event( EVENT_BBT_CHANGED, 0 );
 	}
 	
-	// AE_WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
+	// AE_DEBUGLOG( QString( "[After] fTick: %1, nFrame: %2, pos: %3, frame: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( pPos->toQString( "", true ) )
@@ -621,7 +621,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 
 void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
-	// AE_WARNINGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
+	// AE_DEBUGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
@@ -673,7 +673,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		handleSelectedPattern();
 	}
 
-	// AE_WARNINGLOG( QString( "[After] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4, frame: %5" )
+	// AE_DEBUGLOG( QString( "[After] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4, frame: %5" )
 	// 			.arg( fTick, 0, 'f' )
 	// 			.arg( nFrame )
 	// 			.arg( m_fSongSizeInTicks, 0, 'f' )
@@ -1722,7 +1722,7 @@ void AudioEngine::updateSongSize() {
 	
 	const int nOldColumn = m_pTransportPosition->getColumn();
 
-	// AE_WARNINGLOG( QString( "[Before] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+	// AE_DEBUGLOG( QString( "[Before] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 	// 			.arg( fNewStrippedTick, 0, 'f' )
 	// 			.arg( fRepetitions )
 	// 			.arg( m_fSongSizeInTicks )
@@ -1740,7 +1740,7 @@ void AudioEngine::updateSongSize() {
 		}
 		locate( 0 );
 		
-		// AE_WARNINGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+		// AE_DEBUGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 		// 			.arg( fNewStrippedTick, 0, 'f' )
 		// 			.arg( fRepetitions )
 		// 			.arg( m_fSongSizeInTicks )
@@ -1823,7 +1823,7 @@ void AudioEngine::updateSongSize() {
 		nNewFrame - m_pTransportPosition->getFrame() +
 		m_pTransportPosition->getFrameOffsetTempo() );
 		
-	// AE_INFOLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9, fNewStrippedTick: %10, nNewPatternStartTick: %11")
+	// AE_DEBUGLOG(QString( "[update] nNewFrame: %1, m_pTransportPosition->getFrame() (old): %2, m_pTransportPosition->getFrameOffsetTempo(): %3, fNewTick: %4, m_pTransportPosition->getDoubleTick() (old): %5, m_pTransportPosition->getTickOffsetSongSize() : %6, tick offset (without rounding): %7, fNewSongSizeInTicks: %8, fRepetitions: %9, fNewStrippedTick: %10, nNewPatternStartTick: %11")
 	// 		.arg( nNewFrame )
 	// 		.arg( m_pTransportPosition->getFrame() )
 	// 		.arg( m_pTransportPosition->getFrameOffsetTempo() )
@@ -1884,7 +1884,7 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
-	// AE_WARNINGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
+	// AE_DEBUGLOG( QString( "[After] fNewTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
 	// 			.arg( fNewTick, 0, 'g', 30 )
 	// 			.arg( fRepetitions, 0, 'f' )
 	// 			.arg( m_fSongSizeInTicks )
@@ -2104,7 +2104,7 @@ void AudioEngine::updateVirtualPatterns() {
 
 void AudioEngine::handleTimelineChange() {
 
-	// AE_INFOLOG( QString( "before:\n%1\n%2" )
+	// AE_DEBUGLOG( QString( "before:\n%1\n%2" )
 	// 		 .arg( m_pTransportPosition->toQString() )
 	// 		 .arg( m_pQueuingPosition->toQString() ) );
 
@@ -2130,7 +2130,7 @@ void AudioEngine::handleTimelineChange() {
 		calculateTransportOffsetOnBpmChange( m_pTransportPosition );
 	}
 	
-	// AE_INFOLOG( QString( "after:\n%1\n%2" )
+	// AE_DEBUGLOG( QString( "after:\n%1\n%2" )
 	// 		 .arg( m_pTransportPosition->toQString() )
 	// 		 .arg( m_pQueuingPosition->toQString() ) );
 }
@@ -2292,7 +2292,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	*fTickEnd = TransportPosition::computeTickFromFrame( nFrameEnd ) -
 		pPos->getTickOffsetQueuing();
 
-	// AE_INFOLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
+	// AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pTransportPosition->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pTransportPosition: %10, m_pQueuingPosition: %11,_bLookaheadApplied: %12" )
 	// 		 .arg( nFrameStart )
 	// 		 .arg( nFrameEnd )
 	// 		 .arg( *fTickStart, 0, 'f' )
@@ -2376,7 +2376,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// up.
 	m_fLastTickEnd = fTickEndComp;
 
-	// AE_WARNINGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pTransportPosition: %7, m_pQueuingPosition: %8")
+	// AE_DEBUGLOG( QString( "tick interval (floor): [%1,%2], tick interval (computed): [%3,%4], nLeadLagFactor: %5, m_fSongSizeInTicks: %6, m_pTransportPosition: %7, m_pQueuingPosition: %8")
 	// 			.arg( nTickStart ).arg( nTickEnd )
 	// 			.arg( fTickStartComp, 0, 'f' ).arg( fTickEndComp, 0, 'f' )
 	// 			.arg( nLeadLagFactor )
@@ -2623,7 +2623,7 @@ long long AudioEngine::getLeadLagInFrames( double fTick ) {
 												 AudioEngine::getLeadLagInTicks(),
 												 &fTmp );
 
-	// AE_WARNINGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
+	// AE_DEBUGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
 	// 			.arg( nFrameStart ).arg( nFrameEnd )
 	// 			.arg( nFrameEnd - nFrameStart ).arg( fTick, 0, 'f' ) );
 
