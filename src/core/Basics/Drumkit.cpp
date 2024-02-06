@@ -1395,7 +1395,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 }
 
-QString Drumkit::getPath() const {
+const QString& Drumkit::getPath() const {
 	return m_sPath;
 }
 
@@ -1428,7 +1428,7 @@ std::map<int,QString> Drumkit::generateUniqueComponentLabels() const {
 		}
 	}
 
-	return labelMap;
+	return std::move( labelMap );
 }
 
 void Drumkit::recalculateRubberband( float fBpm ) {
@@ -1498,7 +1498,7 @@ Drumkit::Type Drumkit::DetermineType( const QString& sPath ) {
 	}
 }
 
-QString Drumkit::TypeToString( Type type ) {
+QString Drumkit::TypeToString( const Type& type ) {
 	switch( type ) {
 	case Type::System:
 		return "System";

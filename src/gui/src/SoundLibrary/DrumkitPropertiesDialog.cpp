@@ -316,17 +316,17 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
 
-	if ( m_pDrumkit == nullptr || m_pDrumkit->getDrumkitMap() == nullptr ||
+	if ( m_pDrumkit == nullptr ||
 		 m_pDrumkit->getInstruments() == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
 
-	const auto pMap = m_pDrumkit->getDrumkitMap();
+	const auto map = m_pDrumkit->getDrumkitMap();
 	const auto pInstrumentList = m_pDrumkit->getInstruments();
 
 	mappingTable->clearContents();
-	mappingTable->setRowCount( std::max( pMap->size(),
+	mappingTable->setRowCount( std::max( map.size(),
 										 pInstrumentList->size() ) );
 
 	QMenu* pTypesMenu = new QMenu( this );
@@ -373,7 +373,7 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 
 		const std::vector<DrumkitMap::Type> types =
-			pMap->getTypes( ppInstrument->get_id() );
+			map.getTypes( ppInstrument->get_id() );
 
 		if ( types.size() > 0 ) {
 			// Mapping for instrument found

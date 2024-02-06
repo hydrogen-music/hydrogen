@@ -114,9 +114,9 @@ class ADSR : public Object<ADSR>
 			Release,
 			Idle
 		};
-	static QString StateToQString( State state );
+	static QString StateToQString( const State& state );
 
-		State getState() const;
+		const State& getState() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -195,7 +195,7 @@ inline unsigned int ADSR::getRelease()
 {
 	return m_nRelease;
 }
-inline ADSR::State ADSR::getState() const {
+inline const ADSR::State& ADSR::getState() const {
 	return m_state;
 }
 

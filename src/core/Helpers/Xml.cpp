@@ -58,7 +58,8 @@ protected:
 
 
 XMLNode::XMLNode() { }
-XMLNode::XMLNode( QDomNode node ) : QDomNode( node ) { }
+XMLNode::XMLNode( const QDomNode& node ) : QDomNode( node ) { }
+XMLNode::XMLNode( QDomNode&& node ) : QDomNode( node ) { }
 
 XMLNode XMLNode::createNode( const QString& name )
 {

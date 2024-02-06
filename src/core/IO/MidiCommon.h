@@ -78,7 +78,7 @@ public:
 		MmcRecordExit,
 		MmcRecordReady
 	};
-	static QString EventToQString( Event event );
+	static QString EventToQString( const Event& event );
 	static Event QStringToEvent( const QString& sEvent );
 	/** Retrieve the string representation for all available
 	 * #Event. */

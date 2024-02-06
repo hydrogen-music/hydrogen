@@ -263,7 +263,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	return true;
 }
 
-bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLockFor( const std::chrono::microseconds& duration, const char* file, unsigned int line, const char* function )
 {
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -1402,7 +1402,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// Update the state of the audio engine depending on whether it
 	// was started or stopped by the user.
-	if ( pAudioEngine->getNextState() == State::Playing ) {
+	if ( pAudioEngine->m_nextState == State::Playing ) {
 		if ( pAudioEngine->getState() == State::Ready ) {
 			pAudioEngine->startPlayback();
 		}
@@ -1580,7 +1580,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 
 }
 
-void AudioEngine::setState( AudioEngine::State state ) {
+void AudioEngine::setState( const AudioEngine::State& state ) {
 	m_state = state;
 	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(state) );
 }

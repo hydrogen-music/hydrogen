@@ -123,7 +123,7 @@ void DrumkitMap::saveTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void DrumkitMap::addMapping( int nId, DrumkitMap::Type sType ) {
+void DrumkitMap::addMapping( int nId, const DrumkitMap::Type& sType ) {
 	m_mapping.insert( { nId, sType } );
 }
 

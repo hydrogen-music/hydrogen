@@ -467,16 +467,16 @@ bool Filesystem::check_usr_paths() {
 	return bChecksPassed;
 }
 
-QString Filesystem::sys_data_path()
+const QString& Filesystem::sys_data_path()
 {
 	return __sys_data_path;
 }
-QString Filesystem::usr_data_path()
+const QString& Filesystem::usr_data_path()
 {
 	return __usr_data_path;
 }
 
-QStringList Filesystem::ladspa_paths()
+const QStringList& Filesystem::ladspa_paths()
 {
 	return __ladspa_paths;
 }
@@ -486,7 +486,7 @@ QString Filesystem::sys_config_path()
 {
        return __sys_data_path + SYS_CONFIG;
 }
-QString Filesystem::usr_config_path()
+const QString& Filesystem::usr_config_path()
 {
        return __usr_cfg_path;
 }
@@ -555,7 +555,7 @@ QString Filesystem::playlist_xsd_path( )
 {
 	return xsd_dir() + PLAYLIST_XSD;
 }
-QString Filesystem::log_file_path()
+const QString& Filesystem::log_file_path()
 {
 	return __usr_log_path;
 }
@@ -774,7 +774,7 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 {
 	return usr_drumkits_dir() + dk_name;
 }
-QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, bool bSilent )
+QString Filesystem::drumkit_path_search( const QString& dk_name, const Lookup& lookup, bool bSilent )
 {
 	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
 		if ( usr_drumkit_list().contains( dk_name ) ){
@@ -797,7 +797,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, 
 	return QString("");
 }
 	
-QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
+QString Filesystem::drumkit_dir_search( const QString& dk_name, const Lookup& lookup )
 {
 	if ( lookup == Lookup::user || lookup == Lookup::stacked ) {
 		if ( usr_drumkit_list().contains( dk_name ) ) {

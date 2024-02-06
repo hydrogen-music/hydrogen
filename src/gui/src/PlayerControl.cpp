@@ -528,10 +528,10 @@ void PlayerControl::updatePlayerControl()
 		m_pShowInstrumentRackBtn->setChecked( pH2App->getInstrumentRack()->isVisible() );
 	}
 
-	auto state = m_pHydrogen->getAudioEngine()->getState();
 	if ( ! m_pPlayBtn->isDown() && ! m_pStopBtn->isDown() &&
 		 ! m_pFfwdBtn->isDown() && ! m_pRwdBtn->isDown() ) {
-		if ( state == H2Core::AudioEngine::State::Playing ) {
+		if ( m_pHydrogen->getAudioEngine()->getState() ==
+			 H2Core::AudioEngine::State::Playing ) {
 			m_pPlayBtn->setChecked(true);
 		} else {
 			m_pPlayBtn->setChecked(false);

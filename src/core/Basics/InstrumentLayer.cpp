@@ -246,13 +246,13 @@ void InstrumentLayer::save_to( XMLNode* node, bool bSongKit )
 	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
 	layer_node.write_float( "rubberPitch", rubberband.pitch );
 
-	for ( const auto& velocity : *pSample->get_velocity_envelope() ) {
+	for ( const auto& velocity : pSample->get_velocity_envelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );
 		volumeNode.write_int( "volume-position", velocity.frame );
 		volumeNode.write_int( "volume-value", velocity.value );
 	}
 
-	for ( const auto& pan : *pSample->get_pan_envelope() ) {
+	for ( const auto& pan : pSample->get_pan_envelope() ) {
 		XMLNode panNode = layer_node.createNode( "pan" );
 		panNode.write_int( "pan-position", pan.frame );
 		panNode.write_int( "pan-value", pan.value );

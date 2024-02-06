@@ -155,13 +155,13 @@ class XMLNode;
 		 * \param patternName name of a pattern to check
 		 * \param ignore optional pattern in the list to ignore
 		 */
-		bool check_name( QString patternName, Pattern* ignore = NULL );
+		bool check_name( const QString& patternName, Pattern* ignore = nullptr );
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
 		 * \param ignore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( QString sourceName, Pattern* ignore = NULL );
+		QString find_unused_pattern_name( const QString& sourceName, Pattern* ignore = nullptr );
 
 		/**
 		 * Get the length of the longest pattern in the list

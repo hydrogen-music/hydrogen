@@ -566,7 +566,7 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitCompo
 	return nullptr;
 }
 
-QString Instrument::get_drumkit_path() const
+const QString& Instrument::get_drumkit_path() const
 {
 	return __drumkit_path;
 }

@@ -269,7 +269,7 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-bool PatternList::check_name( QString patternName, Pattern* ignore )
+bool PatternList::check_name( const QString& patternName, Pattern* ignore )
 {
 	if (patternName == "") {
 		return false;
@@ -283,22 +283,24 @@ bool PatternList::check_name( QString patternName, Pattern* ignore )
 	return true;
 }
 
-QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* ignore )
+QString PatternList::find_unused_pattern_name( const QString& sSourceName,
+											   Pattern* ignore )
 {
 	QString unusedPatternNameCandidate;
+	QString sSource { sSourceName };
 
-	if( sourceName.isEmpty() ) {
-		sourceName = "Pattern 11";
+	if( sSource.isEmpty() ) {
+		sSource = "Pattern 11";
 	}
 
 	int i = 1;
 	QString suffix = "";
-	unusedPatternNameCandidate = sourceName;
+	unusedPatternNameCandidate = sSource;
 
-	// Check if the sourceName already has a number suffix, and if so, start
+	// Check if the sSource already has a number suffix, and if so, start
 	// searching for an unused name from that number.
 	QRegularExpression numberSuffixRe("(.+) #(\\d+)$");
-	QRegularExpressionMatch match = numberSuffixRe.match(sourceName);
+	QRegularExpressionMatch match = numberSuffixRe.match(sSource);
 	if (match.hasMatch()) {
 		QString numberSuffix = match.captured(2);
 

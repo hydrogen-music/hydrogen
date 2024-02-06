@@ -42,7 +42,8 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		/** basic constructor */
 		XMLNode( );
 		/** to wrap a QDomNode */
-		XMLNode( QDomNode node );
+		XMLNode( const QDomNode& node );
+		XMLNode( QDomNode&& node );
 
 		/**
 		 *  create a new XMLNode that has to be appended into de XMLDoc

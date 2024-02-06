@@ -105,7 +105,7 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	/** Returns all unique types found #m_mapping */
 	std::set<Type> getAllTypes() const;
 
-	void addMapping( int nId, Type sType );
+	void addMapping( int nId, const Type& sType );
 
 	/** Whether there are mappings present in the map */
 	bool isEmpty() const;

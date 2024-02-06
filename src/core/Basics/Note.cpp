@@ -196,7 +196,7 @@ void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 
 QString Note::key_to_string()
 {
-	return QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave );
+	return std::move( QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave ) );
 }
 
 void Note::set_key_octave( const QString& str )

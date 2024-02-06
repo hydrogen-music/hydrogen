@@ -33,7 +33,7 @@
 
 namespace H2Core {
 
-TransportPosition::TransportPosition( const QString sLabel )
+TransportPosition::TransportPosition( const QString& sLabel )
 	: m_sLabel( sLabel )
 {
 	m_pPlayingPatterns = new PatternList();

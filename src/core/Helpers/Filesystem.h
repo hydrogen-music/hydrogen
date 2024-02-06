@@ -86,17 +86,17 @@ namespace H2Core
 		static bool bootstrap( Logger* logger, const QString& sys_path=nullptr );
 
 		/** returns system data path */
-		static QString sys_data_path();
+		static const QString& sys_data_path();
 		/** returns user data path */
-		static QString usr_data_path();
+		static const QString& usr_data_path();
 
 		/** returns user ladspa paths */
-		static QStringList ladspa_paths();
+		static const QStringList& ladspa_paths();
 
 		/** returns system config path */
 		static QString sys_config_path();
 		/** returns user config path */
-		static QString usr_config_path();
+		static const QString& usr_config_path();
 		/** returns system empty sample file path */
 		static QString empty_sample_path();
 		/**
@@ -151,7 +151,7 @@ namespace H2Core
 		/** returns the path to the playlist pattern XSD (xml schema definition) file */
 		static QString playlist_xsd_path( );
 		/** returns the full path (including filename) of the logfile */
-		static QString log_file_path();
+		static const QString& log_file_path();
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -261,14 +261,14 @@ namespace H2Core
 		 * \returns Full path to the folder containing the samples of
 		 *   the H2Core::Drumkit corresponding to \a dk_name.
 		 */
-		static QString drumkit_path_search( const QString& dk_name, Lookup lookup = Lookup::stacked, bool bSilent = false );
+		static QString drumkit_path_search( const QString& dk_name, const Lookup& lookup = Lookup::stacked, bool bSilent = false );
 		/**
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		static QString drumkit_dir_search( const QString& dk_name, Lookup lookup );
+		static QString drumkit_dir_search( const QString& dk_name, const Lookup& lookup );
 		/**
 		 * returns true if the path contains a usable drumkit
 		 * \param dk_path the root drumkit location
