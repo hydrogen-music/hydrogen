@@ -70,7 +70,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
 	m_pPlaylistTree->setFont( font );
 	
@@ -229,7 +229,7 @@ PlaylistDialog::~PlaylistDialog()
 void PlaylistDialog::populateMenuBar() {
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pShortcuts = pPref->getShortcuts();
-	const QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	
 	// menubar
 	m_pMenubar->clear();
@@ -1096,8 +1096,8 @@ void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes 
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
-		QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );

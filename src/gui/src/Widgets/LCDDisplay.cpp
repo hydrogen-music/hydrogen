@@ -52,7 +52,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIs
 	int nStepSize = 2;
 
 	m_fontPointSizes.resize( 3 );
-	switch ( pPref->getFontSize() ) {
+	switch ( pPref->getTheme().m_font.m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
@@ -112,14 +112,14 @@ void LCDDisplay::updateFont() {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	int nIndex = 1;
-	if ( pPref->getFontSize() == H2Core::FontTheme::FontSize::Small ) {
+	if ( pPref->getTheme().m_font.m_fontSize == H2Core::FontTheme::FontSize::Small ) {
 		nIndex = 0;
-	} else if ( pPref->getFontSize() == H2Core::FontTheme::FontSize::Large ) {
+	} else if ( pPref->getTheme().m_font.m_fontSize == H2Core::FontTheme::FontSize::Large ) {
 		nIndex = 2;
 	}
 
 	QFont newFont = font();
-	newFont.setFamily( pPref->getLevel3FontFamily() );
+	newFont.setFamily( pPref->getTheme().m_font.m_sLevel3FontFamily );
 	newFont.setPointSize( m_fontPointSizes[ nIndex ] );
 	setFont( newFont );
 }
@@ -129,15 +129,15 @@ void LCDDisplay::updateStyleSheet() {
 	
 	QColor textColor, textColorActive;
 	if ( m_bUseRedFont ) {
-		textColor = pPref->getColorTheme()->m_buttonRedColor;
-		textColorActive = pPref->getColorTheme()->m_buttonRedColor;
+		textColor = pPref->getTheme().m_color.m_buttonRedColor;
+		textColorActive = pPref->getTheme().m_color.m_buttonRedColor;
 	} else {
-		textColor = pPref->getColorTheme()->m_windowTextColor;
-		textColorActive = pPref->getColorTheme()->m_widgetTextColor;
+		textColor = pPref->getTheme().m_color.m_windowTextColor;
+		textColorActive = pPref->getTheme().m_color.m_widgetTextColor;
 	}
-	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+	QColor backgroundColor = pPref->getTheme().m_color.m_windowColor;
 
-	QColor backgroundColorActive = pPref->getColorTheme()->m_widgetColor;
+	QColor backgroundColorActive = pPref->getTheme().m_color.m_widgetColor;
 
 	QString sStyleSheet = QString( "\
 QLineEdit:enabled { \
@@ -189,9 +189,9 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 		} else {
-			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

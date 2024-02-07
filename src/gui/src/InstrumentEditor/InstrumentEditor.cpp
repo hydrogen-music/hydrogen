@@ -1700,7 +1700,7 @@ void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes change
 	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		setStyleSheet( QString( "QLabel { background: %1 }" )
-					   .arg( pPref->getColorTheme()->m_windowColor.name() ) );
+					   .arg( pPref->getTheme().m_color.m_windowColor.name() ) );
 	}
 }
 

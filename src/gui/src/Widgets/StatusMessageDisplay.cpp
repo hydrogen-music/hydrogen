@@ -73,8 +73,8 @@ void StatusMessageDisplay::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor textColor = pPref->getColorTheme()->m_windowTextColor;
-	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+	QColor textColor = pPref->getTheme().m_color.m_windowTextColor;
+	QColor backgroundColor = pPref->getTheme().m_color.m_windowColor;
 
 	QString sStyleSheet = QString( "\
 QLineEdit { \
@@ -96,7 +96,7 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

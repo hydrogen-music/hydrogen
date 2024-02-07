@@ -344,9 +344,9 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 		} else {
-			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -378,8 +378,8 @@ void LCDSpinBox::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor spinBoxColor = pPref->getColorTheme()->m_spinBoxColor;
-	QColor spinBoxTextColor = pPref->getColorTheme()->m_spinBoxTextColor;
+	QColor spinBoxColor = pPref->getTheme().m_color.m_spinBoxColor;
+	QColor spinBoxTextColor = pPref->getTheme().m_color.m_spinBoxTextColor;
 	QColor selectionColor = spinBoxColor.darker( 120 );
 
 	QColor spinBoxInactiveColor =

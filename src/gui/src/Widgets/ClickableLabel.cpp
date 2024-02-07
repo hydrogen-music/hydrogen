@@ -42,7 +42,7 @@ ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Col
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
+	updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
 	updateStyleSheet();
 
 	setAlignment( Qt::AlignCenter );
@@ -58,9 +58,9 @@ void ClickableLabel::updateStyleSheet() {
 	
 	QColor text;
 	if ( m_color == Color::Bright ) {
-		text = pPref->getColorTheme()->m_windowTextColor;
+		text = pPref->getTheme().m_color.m_windowTextColor;
 	} else {
-		text = pPref->getColorTheme()->m_widgetTextColor;
+		text = pPref->getTheme().m_color.m_widgetTextColor;
 	}
 
 	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
@@ -87,9 +87,9 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( isEnabled() )
-			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 		else {
-			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -192,7 +192,7 @@ void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes 
 	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-		updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
+		updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
 		updateStyleSheet();
 	}
 }
@@ -205,5 +205,5 @@ void ClickableLabel::setText( const QString& sNewText ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	QLabel::setText( sNewText );
-	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
+	updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
 }

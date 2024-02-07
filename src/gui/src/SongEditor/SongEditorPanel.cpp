@@ -484,7 +484,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
-	float fallOff = pPref->getMixerFalloffSpeed();
+	float fallOff = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	
 	// fader
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();

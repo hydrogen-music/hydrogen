@@ -180,10 +180,10 @@ void SoundLibraryPanel::updateTree()
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
-	QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( childFont );
 	
 	m_pTreeSystemDrumkitsItem = nullptr;
@@ -910,8 +910,8 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont font( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

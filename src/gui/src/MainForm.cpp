@@ -143,7 +143,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 		}
 	}
 
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
 	m_pQApp->setFont( font );
 
@@ -1613,7 +1613,7 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 

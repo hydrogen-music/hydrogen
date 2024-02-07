@@ -4043,6 +4043,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Virtual Row</source>
         <translation>Fila Virtual</translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

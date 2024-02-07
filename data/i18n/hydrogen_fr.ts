@@ -4044,6 +4044,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Virtual Row</source>
         <translation>Rangée virtuelle</translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

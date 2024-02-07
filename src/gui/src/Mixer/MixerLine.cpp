@@ -140,7 +140,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -423,7 +423,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -614,7 +614,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -857,7 +857,7 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 
 	QPainter p( this );
 	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );

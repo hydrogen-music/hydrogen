@@ -1130,7 +1130,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 
-					QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+					QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1175,12 +1175,12 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
-	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
-	const QColor alternateRowColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
-	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
-	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	const QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor( pPref->getTheme().m_color.m_windowColor );
+	const QColor alternateRowColor( pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
+	const QColor selectedRowColor( pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
@@ -1318,7 +1318,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
-		QPen p( pPref->getColorTheme()->m_cursorColor );
+		QPen p( pPref->getTheme().m_color.m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
 		painter.setBrush( Qt::NoBrush );
@@ -1336,7 +1336,7 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor color = pPref->getColorTheme()->m_highlightColor;
+	QColor color = pPref->getTheme().m_color.m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to

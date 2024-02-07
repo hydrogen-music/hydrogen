@@ -3977,6 +3977,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Virtual Row</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

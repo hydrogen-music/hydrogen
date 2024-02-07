@@ -423,7 +423,7 @@ void Mixer::updateMixer()
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
-	float fallOff = pPref->getMixerFalloffSpeed();
+	float fallOff = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 
 	int nInstruments = pInstrList->size();
 	int nCompo = pDrumkitComponentList->size();
@@ -892,6 +892,6 @@ void Mixer::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		setFont( QFont( pPref->getApplicationFontFamily(), 10 ) );
+		setFont( QFont( pPref->getTheme().m_font.m_sApplicationFontFamily, 10 ) );
 	}
 }

@@ -66,7 +66,6 @@ void Preferences::create_instance()
 Preferences::Preferences()
 {
 	__instance = this;
-	m_pTheme = std::make_shared<Theme>();
 	m_pShortcuts = std::make_shared<Shortcuts>();
 
 	// switch to enable / disable lash, only on h2 startup
@@ -348,6 +347,10 @@ bool Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
+			auto interfaceTheme = InterfaceTheme();
+			auto fontTheme = FontTheme();
+			auto colorTheme = ColorTheme();
+
 			m_sPreferredLanguage = rootNode.read_string( "preferredLanguage", m_sPreferredLanguage, false, "" );
 			__playselectedinstrument = rootNode.read_bool( "instrumentInputMode", __playselectedinstrument, false, false );
 			m_bShowDevelWarning = rootNode.read_bool( "showDevelWarning", m_bShowDevelWarning, false, false );
@@ -358,12 +361,12 @@ bool Preferences::loadPreferences( bool bGlobal )
 			__useTimelineBpm = rootNode.read_bool( "useTimeLine", __useTimelineBpm, false, false );
 			m_nMaxBars = rootNode.read_int( "maxBars", 400, false, false );
 			m_nMaxLayers = rootNode.read_int( "maxLayers", 16, false, false );
-			setDefaultUILayout( static_cast<InterfaceTheme::Layout>(
+			interfaceTheme.m_layout = static_cast<InterfaceTheme::Layout>(
 				rootNode.read_int( "defaultUILayout",
-								   static_cast<int>(InterfaceTheme::Layout::SinglePane), false, false )) );
-			setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(
+								   static_cast<int>(InterfaceTheme::Layout::SinglePane), false, false ));
+			interfaceTheme.m_uiScalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(
 				rootNode.read_int( "uiScalingPolicy",
-								   static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller), false, false )) );
+								   static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller), false, false ));
 			m_nLastOpenTab = rootNode.read_int( "lastOpenTab", 0, false, false );
 			m_bUseRelativeFilenamesForPlaylists = rootNode.read_bool( "useRelativeFilenamesForPlaylists", false, false, false );
 			m_bHideKeyboardCursor = rootNode.read_bool( "hideKeyboardCursorWhenUnused", false, false, false );
@@ -597,28 +600,25 @@ bool Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "gui node not found" );
 				bRecreate = true;
 			} else {
-				// QT Style
-				setQTStyle( guiNode.read_string( "QTStyle", "Fusion", false, true ) );
+				QString sQTStyle( guiNode.read_string( "QTStyle", "Fusion", false, true ) );
 
-				if ( getQTStyle() == "Plastique" ){
-					setQTStyle( "Fusion" );
+				if ( sQTStyle == "Plastique" ){
+					sQTStyle = "Fusion";
 				}
+				interfaceTheme.m_sQTStyle = sQTStyle;
 
-				// Font fun
-				setApplicationFontFamily( guiNode.read_string( "application_font_family", getApplicationFontFamily(), false, false ) );
-				// The value defaults to m_sApplicationFontFamily on
-				// purpose to provide backward compatibility.
-				setLevel2FontFamily( guiNode.read_string( "level2_font_family", getLevel2FontFamily(), false, false ) );
-				setLevel3FontFamily( guiNode.read_string( "level3_font_family", getLevel3FontFamily(), false, false ) );
-				setFontSize( static_cast<FontTheme::FontSize>(
-					guiNode.read_int( "font_size",
-									  static_cast<int>(FontTheme::FontSize::Medium), false, false ) ) );
+				fontTheme.m_sApplicationFontFamily = guiNode.read_string(
+					"application_font_family", fontTheme.m_sApplicationFontFamily, false, false );
+				fontTheme.m_sLevel2FontFamily = guiNode.read_string(
+					"level2_font_family", fontTheme.m_sLevel2FontFamily, false, false );
+				fontTheme.m_sLevel3FontFamily = guiNode.read_string(
+					"level3_font_family", fontTheme.m_sLevel3FontFamily, false, false );
+				fontTheme.m_fontSize = static_cast<FontTheme::FontSize>( guiNode.read_int(
+					"font_size", static_cast<int>(FontTheme::FontSize::Medium), false, false ) );
 
-				// Mixer falloff speed
-				setMixerFalloffSpeed( guiNode.read_float( "mixer_falloff_speed",
-														 InterfaceTheme::FALLOFF_NORMAL, false, false ) );
+				interfaceTheme.m_fMixerFalloffSpeed = guiNode.read_float(
+					"mixer_falloff_speed", InterfaceTheme::FALLOFF_NORMAL, false, false );
 
-				// pattern editor grid resolution
 				m_nPatternEditorGridResolution = guiNode.read_int( "patternEditorGridResolution", m_nPatternEditorGridResolution, false, false );
 				m_bPatternEditorUsingTriplets = guiNode.read_bool( "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets, false, false );
 				
@@ -721,29 +721,27 @@ bool Preferences::loadPreferences( bool bGlobal )
 				}
 
 				XMLNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
-				if ( !pColorThemeNode.isNull() ) {
-					Theme::readColorTheme( pColorThemeNode, m_pTheme );
-				} else {
+				ColorTheme colorTheme;
+				if ( ! pColorThemeNode.isNull() ) {
+					colorTheme = ColorTheme::loadFrom( pColorThemeNode );
+				}
+				else {
 					WARNINGLOG( "colorTheme node not found" );
 					bRecreate = true;
 				}
 
 				//SongEditor coloring
-				setColoringMethod( static_cast<InterfaceTheme::ColoringMethod>(
+				interfaceTheme.m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
 					guiNode.read_int("SongEditor_ColoringMethod",
-									 static_cast<int>(InterfaceTheme::ColoringMethod::Custom), false, false )) );
-				std::vector<QColor> colors( getMaxPatternColors() );
-				for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
-					colors[ ii ] = guiNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-													   m_pTheme->getColorTheme()->m_accentColor, false, false );
+									 static_cast<int>(InterfaceTheme::ColoringMethod::Custom), false, false ));
+				std::vector<QColor> patternColors( interfaceTheme.m_nMaxPatternColors );
+				for ( int ii = 0; ii < interfaceTheme.m_nMaxPatternColors; ii++ ) {
+					patternColors[ ii ] = guiNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
+													   colorTheme.m_accentColor, false, false );
 				}
-				setPatternColors( colors );
-				setVisiblePatternColors( guiNode.read_int( "SongEditor_visible_pattern_colors", 1, false, false ) );
-				if ( getVisiblePatternColors() > 50 ) {
-					setVisiblePatternColors( 50 );
-				} else if ( getVisiblePatternColors() < 0 ) {
-					setVisiblePatternColors( 0 );
-				}
+				interfaceTheme.m_patternColors = patternColors;
+				interfaceTheme.m_nVisiblePatternColors = std::clamp( guiNode.read_int(
+					"SongEditor_visible_pattern_colors", 1, false, false ), 0, 50 );
 			}
 
 			/////////////// FILES //////////////
@@ -829,8 +827,10 @@ bool Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "midiMap node not found" );
 			}
 
+			m_theme = Theme( colorTheme, interfaceTheme, fontTheme );
+
 			// Shortcuts
-			m_pShortcuts = Shortcuts::loadFrom( &rootNode, false );
+			m_pShortcuts = Shortcuts::loadFrom( rootNode, false );
 			
 		} // rootNode
 		else {
@@ -870,6 +870,9 @@ bool Preferences::savePreferences()
 
 	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
+	const auto interfaceTheme = m_theme.m_interface;
+	const auto fontTheme = m_theme.m_font;
+
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "hydrogen_preferences" );
 
@@ -887,8 +890,10 @@ bool Preferences::savePreferences()
 	rootNode.write_int( "maxBars", m_nMaxBars );
 	rootNode.write_int( "maxLayers", m_nMaxLayers );
 
-	rootNode.write_int( "defaultUILayout", static_cast<int>(getDefaultUILayout()) );
-	rootNode.write_int( "uiScalingPolicy", static_cast<int>(getUIScalingPolicy()) );
+	rootNode.write_int( "defaultUILayout", static_cast<int>(
+							interfaceTheme.m_layout) );
+	rootNode.write_int( "uiScalingPolicy", static_cast<int>(
+							interfaceTheme.m_uiScalingPolicy) );
 	rootNode.write_int( "lastOpenTab", m_nLastOpenTab );
 
 	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
@@ -1070,12 +1075,17 @@ bool Preferences::savePreferences()
 	//---- GUI ----
 	XMLNode guiNode = rootNode.createNode( "gui" );
 	{
-		guiNode.write_string( "QTStyle", getQTStyle() );
-		guiNode.write_string( "application_font_family", getApplicationFontFamily() );
-		guiNode.write_string( "level2_font_family", getLevel2FontFamily() );
-		guiNode.write_string( "level3_font_family", getLevel3FontFamily() );
-		guiNode.write_int( "font_size", static_cast<int>(getFontSize()) );
-		guiNode.write_float( "mixer_falloff_speed", getMixerFalloffSpeed() );
+		guiNode.write_string( "QTStyle", interfaceTheme.m_sQTStyle );
+		guiNode.write_string( "application_font_family",
+							  fontTheme.m_sApplicationFontFamily );
+		guiNode.write_string( "level2_font_family",
+							  fontTheme.m_sLevel2FontFamily );
+		guiNode.write_string( "level3_font_family",
+							  fontTheme.m_sLevel3FontFamily );
+		guiNode.write_int( "font_size",
+						   static_cast<int>(fontTheme.m_fontSize) );
+		guiNode.write_float( "mixer_falloff_speed",
+							 interfaceTheme.m_fMixerFalloffSpeed );
 		guiNode.write_int( "patternEditorGridResolution", m_nPatternEditorGridResolution );
 		guiNode.write_int( "patternEditorGridHeight", m_nPatternEditorGridHeight );
 		guiNode.write_int( "patternEditorGridWidth", m_nPatternEditorGridWidth );
@@ -1163,14 +1173,17 @@ bool Preferences::savePreferences()
 		guiNode.write_bool( "expandPatternItem", __expandPatternItem );
 
 		// User interface style
-		Theme::writeColorTheme( &guiNode, m_pTheme );
+		m_theme.m_color.saveTo( guiNode );
 
 		//SongEditor coloring method
-		guiNode.write_int( "SongEditor_ColoringMethod", static_cast<int>(getColoringMethod()) );
-		for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
-			guiNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ), getPatternColors()[ ii ] );
+		guiNode.write_int( "SongEditor_ColoringMethod",
+						   static_cast<int>(m_theme.m_interface.m_coloringMethod ) );
+		for ( int ii = 0; ii < m_theme.m_interface.m_nMaxPatternColors; ii++ ) {
+			guiNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
+								 m_theme.m_interface.m_patternColors[ ii ] );
 		}
-		guiNode.write_int( "SongEditor_visible_pattern_colors", getVisiblePatternColors() );
+		guiNode.write_int( "SongEditor_visible_pattern_colors",
+						   m_theme.m_interface.m_nVisiblePatternColors );
 	}
 
 	//---- FILES ----
@@ -1246,12 +1259,12 @@ bool Preferences::savePreferences()
 	}
 
 	// Shortcuts
-	m_pShortcuts->saveTo( &rootNode );
+	m_pShortcuts->saveTo( rootNode );
 
 	return doc.write( sPreferencesFilename );
 }
 
-void Preferences::setMostRecentFX( QString FX_name )
+void Preferences::setMostRecentFX( const QString& FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
 
@@ -1263,9 +1276,9 @@ void Preferences::setMostRecentFX( QString FX_name )
 }
 
 /// Read the xml nodes related to window properties
-WindowProperties Preferences::readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp )
+WindowProperties Preferences::readWindowProperties( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp )
 {
-	WindowProperties prop = defaultProp;
+	WindowProperties prop { defaultProp };
 
 	XMLNode windowPropNode  = parent.firstChildElement( windowName );
 	if ( windowPropNode.isNull() ) {
@@ -1287,7 +1300,7 @@ WindowProperties Preferences::readWindowProperties( XMLNode parent, const QStrin
 
 
 /// Write the xml nodes related to window properties
-void Preferences::writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop )
+void Preferences::writeWindowProperties( XMLNode& parent, const QString& windowName, const WindowProperties& prop )
 {
 	XMLNode windowPropNode = parent.createNode( windowName );
 	

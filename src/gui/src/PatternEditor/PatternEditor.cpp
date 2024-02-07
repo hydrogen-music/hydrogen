@@ -155,10 +155,10 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor fullColor = pPref->getColorTheme()->m_patternEditor_noteVelocityFullColor;
-	QColor defaultColor = pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor;
-	QColor halfColor = pPref->getColorTheme()->m_patternEditor_noteVelocityHalfColor;
-	QColor zeroColor = pPref->getColorTheme()->m_patternEditor_noteVelocityZeroColor;
+	QColor fullColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityFullColor;
+	QColor defaultColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor;
+	QColor halfColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityHalfColor;
+	QColor zeroColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityZeroColor;
 
 	// The colors defined in the Preferences correspond to fixed
 	// velocity values. In case the velocity lies between two of those
@@ -208,10 +208,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
-	const QColor noteInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 150 ) );
-	const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteOffColor );
-	const QColor noteoffInactiveColor( pPref->getColorTheme()->m_windowTextColor );
+	const QColor noteColor( pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
+	const QColor noteInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
+	const QColor noteoffColor( pPref->getTheme().m_color.m_patternEditor_noteOffColor );
+	const QColor noteoffInactiveColor( pPref->getTheme().m_color.m_windowTextColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -811,18 +811,18 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	const std::vector<QColor> colorsActive = {
-		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line1Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line2Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line3Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line4Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line5Color ),
 	};
 	const std::vector<QColor> colorsInactive = {
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 190 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 210 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 230 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 250 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 190 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 210 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 230 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -928,10 +928,10 @@ QColor PatternEditor::selectedNoteColor() const {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
-		const QColor selectHighlightColor( pPref->getColorTheme()->m_selectionHighlightColor );
+		const QColor selectHighlightColor( pPref->getTheme().m_color.m_selectionHighlightColor );
 		return selectHighlightColor;
 	} else {
-		const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
+		const QColor selectInactiveColor( pPref->getTheme().m_color.m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

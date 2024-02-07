@@ -62,7 +62,7 @@ public:
 	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
-	void set(int _x, int _y, int _width, int _height, bool _visible, QByteArray geometry = QByteArray() ) {
+	void set(int _x, int _y, int _width, int _height, bool _visible, const QByteArray& geometry = QByteArray() ) {
 		x = _x; y = _y;
 		width = _width; height = _height;
 		visible = _visible;
@@ -412,15 +412,7 @@ public:
 	const QString&	getDataDirectory();
 
 	const QString&	getDefaultEditor();
-	void			setDefaultEditor( QString editor);
-
-	InterfaceTheme::Layout	getDefaultUILayout();
-	void			setDefaultUILayout( InterfaceTheme::Layout layout);
-
-	InterfaceTheme::ScalingPolicy getUIScalingPolicy();
-	void			setUIScalingPolicy( InterfaceTheme::ScalingPolicy policy );
-	InterfaceTheme::IconColor getIconColor();
-	void			setIconColor( InterfaceTheme::IconColor iconColor );
+	void			setDefaultEditor( const QString& editor);
 
 	// General
 	const QString&	getPreferredLanguage();
@@ -465,28 +457,13 @@ public:
 	bool			getQuantizeEvents();
 
 	std::vector<QString> 		getRecentFiles() const;
-	void			setRecentFiles( const std::vector<QString> recentFiles );
+	void			setRecentFiles( const std::vector<QString>& recentFiles );
 
-	QStringList		getRecentFX();
-	void			setMostRecentFX( QString );
+	const QStringList&	getRecentFX();
+	void			setMostRecentFX( const QString& );
 
 
 	// GUI Properties
-	const QString&	getQTStyle();
-	void			setQTStyle( const QString& sStyle );
-
-	const QString&	getApplicationFontFamily() const;
-	void			setApplicationFontFamily( const QString& family );
-	const QString&	getLevel2FontFamily() const;
-	void			setLevel2FontFamily( const QString& family );
-	const QString&	getLevel3FontFamily() const;
-	void			setLevel3FontFamily( const QString& family );
-
-	FontTheme::FontSize		getFontSize() const;
-	void			setFontSize( FontTheme::FontSize fontSize );
-
-	float			getMixerFalloffSpeed();
-	void			setMixerFalloffSpeed( float value );
 	bool			showInstrumentPeaks();
 	void			setInstrumentPeaks( bool value );
 
@@ -514,45 +491,32 @@ public:
 	unsigned		getSongEditorGridWidth();
 	void			setSongEditorGridWidth( unsigned value );
 
-	void			setColoringMethod( InterfaceTheme::ColoringMethod coloringMethod );
-	InterfaceTheme::ColoringMethod	getColoringMethod() const;
-
-	void			setPatternColors( std::vector<QColor> patternColors );
-	std::vector<QColor> getPatternColors() const;
-	void			setMaxPatternColors( int nValue );
-	int				getMaxPatternColors() const;
-	void			setVisiblePatternColors( int nValue );
-	int				getVisiblePatternColors() const;
-
-	WindowProperties	getMainFormProperties();
+	const WindowProperties&	getMainFormProperties();
 	void				setMainFormProperties( const WindowProperties& prop );
 
-	WindowProperties	getMixerProperties();
+	const WindowProperties& getMixerProperties();
 	void				setMixerProperties( const WindowProperties& prop );
 
-	WindowProperties	getPatternEditorProperties();
+	const WindowProperties& getPatternEditorProperties();
 	void				setPatternEditorProperties( const WindowProperties& prop );
 
-	WindowProperties	getSongEditorProperties();
+	const WindowProperties& getSongEditorProperties();
 	void				setSongEditorProperties( const WindowProperties& prop );
 
-	WindowProperties	getInstrumentRackProperties();
+	const WindowProperties& getInstrumentRackProperties();
 	void				setInstrumentRackProperties( const WindowProperties& prop );
 
-	WindowProperties	getAudioEngineInfoProperties();
+	const WindowProperties& getAudioEngineInfoProperties();
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
 
-	WindowProperties	getLadspaProperties( unsigned nFX );
+	const WindowProperties& getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	WindowProperties	getPlaylistDialogProperties();
+	const WindowProperties& getPlaylistDialogProperties();
 	void				setPlaylistDialogProperties( const WindowProperties& prop );
 
-	WindowProperties	getDirectorProperties();
+	const WindowProperties& getDirectorProperties();
 	void				setDirectorProperties( const WindowProperties& prop );
-
-	const std::shared_ptr<ColorTheme>	getColorTheme() const;
-	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
 	bool			useLash();
 	void			setUseLash( bool b );
@@ -575,10 +539,10 @@ public:
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	void			setNsmClientId(const QString& nsmClientId);
-	QString			getNsmClientId(void);
+	const QString&		getNsmClientId(void);
 
 	void			setNsmSongName(const QString& nsmSongName);
-	QString			getNsmSongName(void);
+	const QString& 		getNsmSongName(void);
 #endif
 
 	/** \return #m_bOscServerEnabled*/
@@ -612,40 +576,40 @@ public:
 
 	void			setH2ProcessName(const QString& processName);
 
-	QString			getH2ProcessName();
+	const QString&	getH2ProcessName();
 
-	QString			getLastExportPatternAsDirectory() const;
-	QString			getLastExportSongDirectory() const;
-	QString			getLastSaveSongAsDirectory() const;
-	QString			getLastOpenSongDirectory() const;
-	QString			getLastOpenPatternDirectory() const;
-	QString			getLastExportLilypondDirectory() const;
-	QString			getLastExportMidiDirectory() const;
-	QString			getLastImportDrumkitDirectory() const;
-	QString			getLastExportDrumkitDirectory() const;
-	QString			getLastOpenLayerDirectory() const;
-	QString			getLastOpenPlaybackTrackDirectory() const;
-	QString			getLastAddSongToPlaylistDirectory() const;
-	QString			getLastPlaylistDirectory() const;
-	QString			getLastPlaylistScriptDirectory() const;
-	QString			getLastImportThemeDirectory() const;
-	QString			getLastExportThemeDirectory() const;
-	void			setLastExportPatternAsDirectory( QString sPath );
-	void			setLastExportSongDirectory( QString sPath );
-	void			setLastSaveSongAsDirectory( QString sPath );
-	void			setLastOpenSongDirectory( QString sPath );
-	void			setLastOpenPatternDirectory( QString sPath );
-	void			setLastExportLilypondDirectory( QString sPath );
-	void			setLastExportMidiDirectory( QString sPath );
-	void			setLastImportDrumkitDirectory( QString sPath );
-	void			setLastExportDrumkitDirectory( QString sPath );
-	void			setLastOpenLayerDirectory( QString sPath );
-	void			setLastOpenPlaybackTrackDirectory( QString sPath );
-	void			setLastAddSongToPlaylistDirectory( QString sPath );
-	void			setLastPlaylistDirectory( QString sPath );
-	void			setLastPlaylistScriptDirectory( QString sPath );
-	void			setLastImportThemeDirectory( QString sPath );
-	void			setLastExportThemeDirectory( QString sPath );
+	const QString&	getLastExportPatternAsDirectory() const;
+	const QString&	getLastExportSongDirectory() const;
+	const QString&	getLastSaveSongAsDirectory() const;
+	const QString&	getLastOpenSongDirectory() const;
+	const QString&	getLastOpenPatternDirectory() const;
+	const QString&	getLastExportLilypondDirectory() const;
+	const QString&	getLastExportMidiDirectory() const;
+	const QString&	getLastImportDrumkitDirectory() const;
+	const QString&	getLastExportDrumkitDirectory() const;
+	const QString&	getLastOpenLayerDirectory() const;
+	const QString&	getLastOpenPlaybackTrackDirectory() const;
+	const QString&	getLastAddSongToPlaylistDirectory() const;
+	const QString&	getLastPlaylistDirectory() const;
+	const QString&	getLastPlaylistScriptDirectory() const;
+	const QString&	getLastImportThemeDirectory() const;
+	const QString&	getLastExportThemeDirectory() const;
+	void			setLastExportPatternAsDirectory( const QString& sPath );
+	void			setLastExportSongDirectory( const QString& sPath );
+	void			setLastSaveSongAsDirectory( const QString& sPath );
+	void			setLastOpenSongDirectory( const QString& sPath );
+	void			setLastOpenPatternDirectory( const QString& sPath );
+	void			setLastExportLilypondDirectory( const QString& sPath );
+	void			setLastExportMidiDirectory( const QString& sPath );
+	void			setLastImportDrumkitDirectory( const QString& sPath );
+	void			setLastExportDrumkitDirectory( const QString& sPath );
+	void			setLastOpenLayerDirectory( const QString& sPath );
+	void			setLastOpenPlaybackTrackDirectory( const QString& sPath );
+	void			setLastAddSongToPlaylistDirectory( const QString& sPath );
+	void			setLastPlaylistDirectory( const QString& sPath );
+	void			setLastPlaylistScriptDirectory( const QString& sPath );
+	void			setLastImportThemeDirectory( const QString& sPath );
+	void			setLastExportThemeDirectory( const QString& sPath );
 
 	int				getExportSampleDepthIdx() const;
 	void			setExportSampleDepthIdx( int nExportSampleDepthIdx );
@@ -667,15 +631,9 @@ public:
 	bool			m_bShowExportDrumkitCopyleftWarning;
 	bool			m_bShowExportDrumkitAttributionWarning;
 
-	/** Returns #m_sPreferencesOverwritePath
-	 * \return #m_sPreferencesOverwritePath */
-	QString			getPreferencesOverwritePath();
-	/** Setting #m_sPreferencesOverwritePath.
-	 * \param newPath Path to a local preferences file.*/
-	void			setPreferencesOverwritePath( const QString& newPath );
-
-	const std::shared_ptr<Theme> getTheme() const;
-	void setTheme( const std::shared_ptr<Theme> pTheme );
+	const Theme& getTheme() const;
+	Theme& getThemeWritable();
+	void setTheme( const Theme& pTheme );
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
@@ -690,7 +648,7 @@ private:
 	 */
 	static Preferences *		__instance;
 
-	std::shared_ptr<Theme>		m_pTheme;
+	Theme		m_theme;
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	
 	//___ General properties ___
@@ -828,121 +786,121 @@ private:
 	
 	Preferences();
 
-	WindowProperties readWindowProperties( XMLNode parent, const QString& windowName, WindowProperties defaultProp );
-	void writeWindowProperties( XMLNode parent, const QString& windowName, const WindowProperties& prop );
+	WindowProperties readWindowProperties( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp );
+	void writeWindowProperties( XMLNode& parent, const QString& windowName, const WindowProperties& prop );
 
 	bool m_bLoadingSuccessful;
 };
 
-inline QString			Preferences::getLastExportPatternAsDirectory() const {
+inline const QString&			Preferences::getLastExportPatternAsDirectory() const {
 	return m_sLastExportPatternAsDirectory;
 }
-inline QString			Preferences::getLastExportSongDirectory() const {
+inline const QString&			Preferences::getLastExportSongDirectory() const {
 	return m_sLastExportSongDirectory;
 }
-inline QString			Preferences::getLastSaveSongAsDirectory() const {
+inline const QString&			Preferences::getLastSaveSongAsDirectory() const {
 	return m_sLastSaveSongAsDirectory;
 }
-inline QString			Preferences::getLastOpenSongDirectory() const {
+inline const QString&			Preferences::getLastOpenSongDirectory() const {
 	return m_sLastOpenSongDirectory;
 }
-inline QString			Preferences::getLastOpenPatternDirectory() const {
+inline const QString&			Preferences::getLastOpenPatternDirectory() const {
 	return m_sLastOpenPatternDirectory;
 }
-inline QString			Preferences::getLastExportLilypondDirectory() const {
+inline const QString&			Preferences::getLastExportLilypondDirectory() const {
 	return m_sLastExportLilypondDirectory;
 }
-inline QString			Preferences::getLastExportMidiDirectory() const {
+inline const QString&			Preferences::getLastExportMidiDirectory() const {
 	return m_sLastExportMidiDirectory;
 }
-inline QString			Preferences::getLastImportDrumkitDirectory() const {
+inline const QString&			Preferences::getLastImportDrumkitDirectory() const {
 	return m_sLastImportDrumkitDirectory;
 }
-inline QString			Preferences::getLastExportDrumkitDirectory() const {
+inline const QString&			Preferences::getLastExportDrumkitDirectory() const {
 	return m_sLastExportDrumkitDirectory;
 }
-inline QString			Preferences::getLastOpenLayerDirectory() const {
+inline const QString&			Preferences::getLastOpenLayerDirectory() const {
 	return m_sLastOpenLayerDirectory;
 }
-inline QString			Preferences::getLastOpenPlaybackTrackDirectory() const {
+inline const QString&			Preferences::getLastOpenPlaybackTrackDirectory() const {
 	return m_sLastOpenPlaybackTrackDirectory;
 }
-inline QString			Preferences::getLastAddSongToPlaylistDirectory() const {
+inline const QString&			Preferences::getLastAddSongToPlaylistDirectory() const {
 	return m_sLastAddSongToPlaylistDirectory;
 }
-inline QString			Preferences::getLastPlaylistDirectory() const {
+inline const QString&			Preferences::getLastPlaylistDirectory() const {
 	return m_sLastPlaylistDirectory;
 }
-inline QString			Preferences::getLastPlaylistScriptDirectory() const {
+inline const QString&			Preferences::getLastPlaylistScriptDirectory() const {
 	return m_sLastPlaylistScriptDirectory;
 }
-inline QString			Preferences::getLastImportThemeDirectory() const {
+inline const QString&			Preferences::getLastImportThemeDirectory() const {
 	return m_sLastImportThemeDirectory;
 }
-inline QString			Preferences::getLastExportThemeDirectory() const {
+inline const QString&			Preferences::getLastExportThemeDirectory() const {
 	return m_sLastExportThemeDirectory;
 }
-inline void Preferences::setLastExportPatternAsDirectory( QString sPath )
+inline void Preferences::setLastExportPatternAsDirectory( const QString& sPath )
 {
 	m_sLastExportPatternAsDirectory = sPath;
 }
-inline void Preferences::setLastExportSongDirectory( QString sPath )
+inline void Preferences::setLastExportSongDirectory( const QString& sPath )
 {
 	m_sLastExportSongDirectory = sPath;
 }
-inline void Preferences::setLastSaveSongAsDirectory( QString sPath )
+inline void Preferences::setLastSaveSongAsDirectory( const QString& sPath )
 {
 	m_sLastSaveSongAsDirectory = sPath;
 }
-inline void Preferences::setLastOpenSongDirectory( QString sPath )
+inline void Preferences::setLastOpenSongDirectory( const QString& sPath )
 {
 	m_sLastOpenSongDirectory = sPath;
 }
-inline void Preferences::setLastOpenPatternDirectory( QString sPath )
+inline void Preferences::setLastOpenPatternDirectory( const QString& sPath )
 {
 	m_sLastOpenPatternDirectory = sPath;
 }
-inline void Preferences::setLastExportLilypondDirectory( QString sPath )
+inline void Preferences::setLastExportLilypondDirectory( const QString& sPath )
 {
 	m_sLastExportLilypondDirectory = sPath;
 }
-inline void Preferences::setLastExportMidiDirectory( QString sPath )
+inline void Preferences::setLastExportMidiDirectory( const QString& sPath )
 {
 	m_sLastExportMidiDirectory = sPath;
 }
-inline void Preferences::setLastImportDrumkitDirectory( QString sPath )
+inline void Preferences::setLastImportDrumkitDirectory( const QString& sPath )
 {
 	m_sLastImportDrumkitDirectory = sPath;
 }
-inline void Preferences::setLastExportDrumkitDirectory( QString sPath )
+inline void Preferences::setLastExportDrumkitDirectory( const QString& sPath )
 {
 	m_sLastExportDrumkitDirectory = sPath;
 }
-inline void Preferences::setLastOpenLayerDirectory( QString sPath )
+inline void Preferences::setLastOpenLayerDirectory( const QString& sPath )
 {
 	m_sLastOpenLayerDirectory = sPath;
 }
-inline void Preferences::setLastOpenPlaybackTrackDirectory( QString sPath )
+inline void Preferences::setLastOpenPlaybackTrackDirectory( const QString& sPath )
 {
 	m_sLastOpenPlaybackTrackDirectory = sPath;
 }
-inline void Preferences::setLastAddSongToPlaylistDirectory( QString sPath )
+inline void Preferences::setLastAddSongToPlaylistDirectory( const QString& sPath )
 {
 	m_sLastAddSongToPlaylistDirectory = sPath;
 }
-inline void Preferences::setLastPlaylistDirectory( QString sPath )
+inline void Preferences::setLastPlaylistDirectory( const QString& sPath )
 {
 	m_sLastPlaylistDirectory = sPath;
 }
-inline void Preferences::setLastPlaylistScriptDirectory( QString sPath )
+inline void Preferences::setLastPlaylistScriptDirectory( const QString& sPath )
 {
 	m_sLastPlaylistScriptDirectory = sPath;
 }
-inline void Preferences::setLastImportThemeDirectory( QString sPath )
+inline void Preferences::setLastImportThemeDirectory( const QString& sPath )
 {
 	m_sLastImportThemeDirectory = sPath;
 }
-inline void Preferences::setLastExportThemeDirectory( QString sPath )
+inline void Preferences::setLastExportThemeDirectory( const QString& sPath )
 {
 	m_sLastExportThemeDirectory = sPath;
 }
@@ -1001,32 +959,8 @@ inline const QString& Preferences::getDefaultEditor() {
 	return m_sDefaultEditor;
 }
 
-inline void Preferences::setDefaultEditor( QString editor){
+inline void Preferences::setDefaultEditor( const QString& editor){
 	m_sDefaultEditor = editor;
-}
-
-inline InterfaceTheme::Layout Preferences::getDefaultUILayout(){
-	return m_pTheme->getInterfaceTheme()->m_layout;
-}
-
-inline void Preferences::setDefaultUILayout( InterfaceTheme::Layout layout){
-	m_pTheme->getInterfaceTheme()->m_layout = layout;
-}
-
-inline InterfaceTheme::ScalingPolicy Preferences::getUIScalingPolicy(){
-	return m_pTheme->getInterfaceTheme()->m_scalingPolicy;
-}
-
-inline void Preferences::setUIScalingPolicy( InterfaceTheme::ScalingPolicy scalingPolicy){
-	m_pTheme->getInterfaceTheme()->m_scalingPolicy = scalingPolicy;
-}
-
-inline InterfaceTheme::IconColor Preferences::getIconColor(){
-	return m_pTheme->getInterfaceTheme()->m_iconColor;
-}
-
-inline void Preferences::setIconColor( InterfaceTheme::IconColor iconColor){
-	m_pTheme->getInterfaceTheme()->m_iconColor = iconColor;
 }
 
 // General
@@ -1150,59 +1084,19 @@ inline bool Preferences::getQuantizeEvents() {
 	return quantizeEvents;
 }
 
-inline void Preferences::setRecentFiles( const std::vector<QString> recentFiles ) {
+inline void Preferences::setRecentFiles( const std::vector<QString>& recentFiles ) {
 	m_recentFiles = recentFiles;
 }
 inline std::vector<QString> Preferences::getRecentFiles() const {
 	return m_recentFiles;
 }
 
-inline QStringList Preferences::getRecentFX() {
+inline const QStringList& Preferences::getRecentFX() {
 	return m_recentFX;
 }
 
 
 // GUI Properties
-inline const QString& Preferences::getQTStyle() {
-	return m_pTheme->getInterfaceTheme()->m_sQTStyle;
-}
-inline void Preferences::setQTStyle( const QString& sStyle ) {
-	m_pTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
-}
-inline const QString& Preferences::getApplicationFontFamily() const {
-	return m_pTheme->getFontTheme()->m_sApplicationFontFamily;
-}
-inline void Preferences::setApplicationFontFamily( const QString& family ) {
-	m_pTheme->getFontTheme()->m_sApplicationFontFamily = family;
-}
-
-inline const QString& Preferences::getLevel2FontFamily() const {
-	return m_pTheme->getFontTheme()->m_sLevel2FontFamily;
-}
-inline void Preferences::setLevel2FontFamily( const QString& family ) {
-	m_pTheme->getFontTheme()->m_sLevel2FontFamily = family;
-}
-
-inline const QString& Preferences::getLevel3FontFamily() const {
-	return m_pTheme->getFontTheme()->m_sLevel3FontFamily;
-}
-inline void Preferences::setLevel3FontFamily( const QString& family ) {
-	m_pTheme->getFontTheme()->m_sLevel3FontFamily = family;
-}
-
-inline FontTheme::FontSize Preferences::getFontSize() const {
-	return m_pTheme->getFontTheme()->m_fontSize;
-}
-inline void Preferences::setFontSize( FontTheme::FontSize fontSize ) {
-	m_pTheme->getFontTheme()->m_fontSize = fontSize;
-}
-
-inline float Preferences::getMixerFalloffSpeed() {
-	return m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed;
-}
-inline void Preferences::setMixerFalloffSpeed( float value ) {
-	m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = value;
-}
 inline bool Preferences::showInstrumentPeaks() {
 	return m_bShowInstrumentPeaks;
 }
@@ -1265,55 +1159,28 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 	m_nPatternEditorGridWidth = value;
 }
 
-inline void	Preferences::setPatternColors( std::vector<QColor> patternColors ) {
-	m_pTheme->getInterfaceTheme()->m_patternColors = patternColors;
-}
-inline std::vector<QColor> Preferences::getPatternColors() const {
-	return m_pTheme->getInterfaceTheme()->m_patternColors;
-}
-inline void	Preferences::setVisiblePatternColors( int nValue ) {
-	m_pTheme->getInterfaceTheme()->m_nVisiblePatternColors = nValue;
-}
-inline int Preferences::getVisiblePatternColors() const {
-	return m_pTheme->getInterfaceTheme()->m_nVisiblePatternColors;
-}
-inline void	Preferences::setMaxPatternColors( int nValue ) {
-	m_pTheme->getInterfaceTheme()->m_nMaxPatternColors = nValue;
-}
-inline int Preferences::getMaxPatternColors() const {
-	return m_pTheme->getInterfaceTheme()->m_nMaxPatternColors;
-}
-
-inline void Preferences::setColoringMethod( InterfaceTheme::ColoringMethod coloringMethod ){
-	m_pTheme->getInterfaceTheme()->m_coloringMethod = coloringMethod;
-}
-
-inline InterfaceTheme::ColoringMethod Preferences::getColoringMethod() const {
-	return m_pTheme->getInterfaceTheme()->m_coloringMethod;
-}
-
-inline WindowProperties Preferences::getMainFormProperties() {
+inline const WindowProperties& Preferences::getMainFormProperties() {
 	return mainFormProperties;
 }
 inline void Preferences::setMainFormProperties( const WindowProperties& prop ) {
 	mainFormProperties = prop;
 }
 
-inline WindowProperties Preferences::getMixerProperties() {
+inline const WindowProperties& Preferences::getMixerProperties() {
 	return mixerProperties;
 }
 inline void Preferences::setMixerProperties( const WindowProperties& prop ) {
 	mixerProperties = prop;
 }
 
-inline WindowProperties Preferences::getPatternEditorProperties() {
+inline const WindowProperties& Preferences::getPatternEditorProperties() {
 	return patternEditorProperties;
 }
 inline void Preferences::setPatternEditorProperties( const WindowProperties& prop ) {
 	patternEditorProperties = prop;
 }
 
-inline WindowProperties Preferences::getSongEditorProperties() {
+inline const WindowProperties& Preferences::getSongEditorProperties() {
 	return songEditorProperties;
 }
 inline void Preferences::setSongEditorProperties( const WindowProperties& prop ) {
@@ -1321,46 +1188,39 @@ inline void Preferences::setSongEditorProperties( const WindowProperties& prop )
 }
 
 
-inline WindowProperties Preferences::getInstrumentRackProperties() {
+inline const WindowProperties& Preferences::getInstrumentRackProperties() {
 	return instrumentRackProperties;
 }
 inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
 	instrumentRackProperties = prop;
 }
  
-inline WindowProperties Preferences::getAudioEngineInfoProperties() {
+inline const WindowProperties& Preferences::getAudioEngineInfoProperties() {
 	return audioEngineInfoProperties;
 }
 inline void Preferences::setAudioEngineInfoProperties( const WindowProperties& prop ) {
 	audioEngineInfoProperties = prop;
 }
 
-inline WindowProperties Preferences::getLadspaProperties( unsigned nFX ) {
+inline const WindowProperties& Preferences::getLadspaProperties( unsigned nFX ) {
 	return m_ladspaProperties[nFX];
 }
 inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperties& prop ) {
 	m_ladspaProperties[nFX] = prop;
 }
 
-inline WindowProperties Preferences::getPlaylistDialogProperties() {
+inline const WindowProperties& Preferences::getPlaylistDialogProperties() {
 	return m_playlistDialogProperties;
 }
 inline void Preferences::setPlaylistDialogProperties( const WindowProperties& prop ) {
 	m_playlistDialogProperties = prop;
 }
 
-inline WindowProperties Preferences::getDirectorProperties() {
+inline const WindowProperties& Preferences::getDirectorProperties() {
 	return m_directorProperties;
 }
 inline void Preferences::setDirectorProperties( const WindowProperties& prop ) {
 	m_directorProperties = prop;
-}
-
-inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {
-	return m_pTheme->getColorTheme();
-}
-inline void Preferences::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
-	m_pTheme->setColorTheme( pNewColorTheme );
 }
 
 inline bool Preferences::useLash(){
@@ -1399,7 +1259,7 @@ inline void Preferences::setNsmClientId(const QString& nsmClientId){
 	m_sNsmClientId = nsmClientId;
 }
 
-inline QString Preferences::getNsmClientId(void){
+inline const QString& Preferences::getNsmClientId(void){
 	return m_sNsmClientId;
 }
 
@@ -1407,7 +1267,7 @@ inline void Preferences::setNsmSongName(const QString& nsmSongName){
 	m_sNsmSongName = nsmSongName;
 }
 
-inline QString Preferences::getNsmSongName(void){
+inline const QString& Preferences::getNsmSongName(void){
 	return m_sNsmSongName;
 }
 
@@ -1466,14 +1326,17 @@ inline void Preferences::setH2ProcessName(const QString& processName){
 	m_sH2ProcessName = processName;
 }
 
-inline QString Preferences::getH2ProcessName() {
+inline const QString& Preferences::getH2ProcessName() {
 	return m_sH2ProcessName;
 }
-inline void Preferences::setTheme( const std::shared_ptr<Theme> pTheme ) {
-	m_pTheme->setTheme( pTheme );
+inline void Preferences::setTheme( const Theme& theme ) {
+	m_theme = theme;
 }
-inline const std::shared_ptr<Theme> Preferences::getTheme() const {
-	return m_pTheme;
+inline const Theme& Preferences::getTheme() const {
+	return m_theme;
+}
+inline Theme& Preferences::getThemeWritable() {
+	return m_theme;
 }
 
 inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {

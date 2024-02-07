@@ -178,8 +178,8 @@ QTextEdit { \
     color: %1; \
     background-color: %2; \
 }" )
-								.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-								.arg( pPref->getColorTheme()->m_windowColor.name() ) );
+								.arg( pPref->getTheme().m_color.m_windowTextColor.name() )
+								.arg( pPref->getTheme().m_color.m_windowColor.name() ) );
 										
 	}
 
@@ -283,8 +283,8 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 			// In case of a license mismatch we highlight the row
 			if ( ccontent->m_license != m_pDrumkit->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
-					.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
-					.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+					.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
+					.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
 				pInstrumentItem->setStyleSheet( sHighlight );
 				pComponentItem->setStyleSheet( sHighlight );
 				pSampleItem->setStyleSheet( sHighlight );
@@ -336,8 +336,8 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 
 	// Coloring of highlighted rows
 	const QString sHighlight = QString( "color: %1; background-color: %2" )
-		.arg( pPref->getColorTheme()->m_buttonRedTextColor.name() )
-		.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
+		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
 
 	auto insertRow = [=]( int nInstrumentId,
 						  const QString& sTextName,
@@ -431,13 +431,13 @@ void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
 	//  Styling used in case we assign text not images.
 	drumkitImageLabel->setStyleSheet(
 		QString( "QLabel { color: %1; background-color: %2;}" )
-		.arg( pColorTheme->m_windowTextColor.name() )
-		.arg( pColorTheme->m_windowColor.name() ) );
+		.arg( colorTheme.m_windowTextColor.name() )
+		.arg( colorTheme.m_windowColor.name() ) );
 	drumkitImageLabel->show();
 
 	if ( ! Filesystem::file_exists( sFilePath, false ) ) {

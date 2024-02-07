@@ -490,8 +490,8 @@ public:
 	//! Paint selection-related elements (ie lasso)
 	void paintSelection( QPainter *painter ) {
 		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
-			QPen pen( H2Core::Preferences::get_instance()->getColorTheme()
-					  ->m_selectionHighlightColor );
+			QPen pen( H2Core::Preferences::get_instance()->getTheme().m_color.
+					  m_selectionHighlightColor );
 			pen.setStyle( Qt::DotLine );
 			pen.setWidth(2);
 			painter->setPen( pen );

@@ -65,7 +65,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	int h = pPref->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
-	QFont nameFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
@@ -212,9 +212,9 @@ void InstrumentLine::updateStyleSheet() {
 
 	QColor textColor;
 	if ( m_bIsSelected ) {
-		textColor = pPref->getColorTheme()->m_patternEditor_selectedRowTextColor;
+		textColor = pPref->getTheme().m_color.m_patternEditor_selectedRowTextColor;
 	} else {
-		textColor = pPref->getColorTheme()->m_patternEditor_textColor;
+		textColor = pPref->getTheme().m_color.m_patternEditor_textColor;
 	}
 
 	m_pNameLbl->setStyleSheet( QString( "\
@@ -244,13 +244,13 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 
 	QColor backgroundColor;
 	if ( m_bIsSelected ) {
-		backgroundColor = pPref->getColorTheme()->m_patternEditor_selectedRowColor.darker( 114 );
+		backgroundColor = pPref->getTheme().m_color.m_patternEditor_selectedRowColor.darker( 114 );
 	} else {
 		if ( m_nInstrumentNumber == 0 ||
 			 m_nInstrumentNumber % 2 == 0 ) {
-			backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor.darker( 120 );
+			backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor.darker( 120 );
 		} else {
-			backgroundColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 132 );
+			backgroundColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor.darker( 132 );
 		}
 	}
 
@@ -270,7 +270,7 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 
 		QPen pen;
 
-		pen.setColor( pPref->getColorTheme()->m_cursorColor );
+		pen.setColor( pPref->getTheme().m_color.m_cursorColor );
 
 		pen.setWidth( 2 );
 		painter.setPen( pen );
@@ -659,7 +659,7 @@ void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes 
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) ) );
+		m_pNameLbl->setFont( QFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) ) );
 	}
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {

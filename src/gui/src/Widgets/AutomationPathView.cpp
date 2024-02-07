@@ -207,11 +207,11 @@ void AutomationPathView::createBackground() {
 	updateAutomationPath();
 
 	QColor backgroundColor =
-		pPref->getColorTheme()->m_songEditor_automationBackgroundColor;
+		pPref->getTheme().m_color.m_songEditor_automationBackgroundColor;
 	QColor automationLineColor =
-		pPref->getColorTheme()->m_songEditor_automationLineColor;
-	QColor nodeColor = pPref->getColorTheme()->m_songEditor_automationNodeColor;
-	QColor textColor = pPref->getColorTheme()->m_songEditor_textColor;
+		pPref->getTheme().m_color.m_songEditor_automationLineColor;
+	QColor nodeColor = pPref->getTheme().m_color.m_songEditor_automationNodeColor;
+	QColor textColor = pPref->getTheme().m_color.m_songEditor_textColor;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -274,7 +274,7 @@ void AutomationPathView::createBackground() {
 	QPen circlePen( nodeColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( pPref->getColorTheme()->m_windowColor ));
+	painter.setBrush(QBrush( pPref->getTheme().m_color.m_windowColor ));
 
 	for (auto point : *_path) {
 

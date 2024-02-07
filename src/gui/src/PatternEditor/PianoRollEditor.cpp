@@ -171,7 +171,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = cursorPosition();
 
-		QPen pen( pPref->getColorTheme()->m_cursorColor );
+		QPen pen( pPref->getTheme().m_color.m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
@@ -189,7 +189,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = pPref->getColorTheme()->m_highlightColor;
+	QColor color = pPref->getTheme().m_color.m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -216,15 +216,15 @@ void PianoRollEditor::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor = pPref->getColorTheme()->m_windowColor;
-	const QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
-	const QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
+	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
+	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	const QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	const QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 	// The line corresponding to the default pitch set to new notes
 	// will be highlighted.
 	const QColor baseNoteColor = octaveColor.lighter( 119 );
-	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	unsigned start_x = 0;
 	unsigned end_x = m_nActiveWidth;
@@ -293,9 +293,9 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	p.setFont( font );
-	p.setPen( pPref->getColorTheme()->m_patternEditor_textColor );
+	p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
 
 	int offset = 0;
 	int insertx = 3;
