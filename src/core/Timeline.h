@@ -76,8 +76,8 @@ public:
 	 * TempoMarker specifies a change in speed during the
 	 * Song.
 	 */
-	struct TempoMarker
-	{
+	struct TempoMarker {
+		TempoMarker( int column, float bpm ) : nColumn( column ), fBpm( bpm ) {};
 		int		nColumn;		// beat position in timeline
 		float	fBpm;		// tempo in beats per minute
 
@@ -98,6 +98,7 @@ public:
 	*/
 	struct Tag
 	{
+		Tag( int column, const QString& tag ) : nColumn( column ), sTag( tag ){};
 		int		nColumn;		// beat position in timeline
 		QString sTag;		// tag
 
@@ -166,7 +167,7 @@ public:
 	 *   tag.
 	 * @param sTag New tag in beats per minute.
 	 */
-	void		addTag( int nColumn, QString sTag );
+	void		addTag( int nColumn, const QString& sTag );
 	/**
 	 * @param nColumn Position of the Timeline to delete the tag
 	 * at (if one is present).
@@ -188,7 +189,7 @@ public:
 	 * @return std::vector<std::shared_ptr<const Tag>>
 	 * Provides read-only access to m_tags.
 	 */
-	const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
+	const std::vector<std::shared_ptr<const Tag>>& getAllTags() const;
 	bool hasColumnTag( int nColumn ) const;
 	
 	/** Formatted string version for debugging purposes.
@@ -237,7 +238,7 @@ inline void Timeline::deleteAllTempoMarkers() {
 inline void Timeline::deleteAllTags() {
 	m_tags.clear();
 }
-inline const std::vector<std::shared_ptr<const Timeline::Tag>> Timeline::getAllTags() const {
+inline const std::vector<std::shared_ptr<const Timeline::Tag>>& Timeline::getAllTags() const {
 	return m_tags;
 }
 };

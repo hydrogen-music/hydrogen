@@ -186,7 +186,7 @@ void SoundLibraryOnlineImportDialog::writeCachedData(const QString& fileName, co
 	outFile.close();
 }
 
-void SoundLibraryOnlineImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
+void SoundLibraryOnlineImportDialog::writeCachedImage( const QString& imageFile, const QPixmap& pixmap )
 {
 	QString cacheFile = getCachedImageFilename() ;
 
@@ -423,7 +423,7 @@ void SoundLibraryOnlineImportDialog::soundLibraryChangedEvent() {
 
 
 /// Is the SoundLibrary already installed?
-bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo )
+bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( const H2Core::SoundLibraryInfo& sInfo )
 {
 	// check if the filename matches with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
@@ -453,7 +453,7 @@ bool SoundLibraryOnlineImportDialog::isSoundLibraryItemAlreadyInstalled( H2Core:
 	return false;
 }
 
-void SoundLibraryOnlineImportDialog::loadImage(QString img )
+void SoundLibraryOnlineImportDialog::loadImage( const QString& img )
 {
 	QPixmap pixmap;
 	pixmap.load( img ) ;
@@ -462,28 +462,26 @@ void SoundLibraryOnlineImportDialog::loadImage(QString img )
 	showImage( pixmap );
 }
 
-void SoundLibraryOnlineImportDialog::showImage( QPixmap pixmap )
+void SoundLibraryOnlineImportDialog::showImage( const QPixmap& pixmap )
 {
 	int x = (int) drumkitImageLabel->size().width();
 	int y = drumkitImageLabel->size().height();
 	float labelAspect = (float) x / y;
 	float imageAspect = (float) pixmap.width() / pixmap.height();
 
-	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
-	{
-		if ( labelAspect >= imageAspect )
-		{
+	if ( x < pixmap.width() || y < pixmap.height() ) {
+		if ( labelAspect >= imageAspect ) {
 			// image is taller or the same as label frame
-			pixmap = pixmap.scaledToHeight( y );
+			drumkitImageLabel->setPixmap( pixmap.scaledToHeight( y ) );
 		}
-		else
-		{
+		else {
 			// image is wider than label frame
-			pixmap = pixmap.scaledToWidth( x );
+			drumkitImageLabel->setPixmap( pixmap.scaledToWidth( x ) );
 		}
 	}
-	drumkitImageLabel->setPixmap( pixmap ); // TODO: Check if valid!
-
+	else {
+		drumkitImageLabel->setPixmap( pixmap ); // TODO: Check if valid!
+	}
 }
 
 

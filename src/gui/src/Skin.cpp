@@ -141,8 +141,8 @@ void Skin::setPalette( QApplication *pQApp ) {
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
 }
 
-void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
-							   bool bHovered ) {
+void Skin::drawListBackground( QPainter* p, const QRect& rect,
+							   QColor background, bool bHovered ) {
 
 	if ( bHovered ) {
 		background = background.lighter( 110 );
@@ -164,16 +164,17 @@ void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 				 backgroundDark );
 }
 
-QColor Skin::makeWidgetColorInactive( QColor color ){
+QColor Skin::makeWidgetColorInactive( const QColor& color ){
 	int nHue, nSaturation, nValue;
 	color.getHsv( &nHue, &nSaturation, &nValue );
 	nValue = std::max( 0, nValue - 40 );
-	color.setHsv( nHue, nSaturation, nValue );
 
-	return color;
+	auto newColor = QColor( color );
+	newColor.setHsv( nHue, nSaturation, nValue );
+	return newColor;
 }
 
-QColor Skin::makeTextColorInactive( QColor color ) {
+QColor Skin::makeTextColorInactive( const QColor& color ) {
 	int nHue, nSaturation, nValue;
 	color.getHsv( &nHue, &nSaturation, &nValue );
 	if ( nValue >= 130 ) {
@@ -182,9 +183,10 @@ QColor Skin::makeTextColorInactive( QColor color ) {
 	} else {
 		nValue += 55;
 	}
-	color.setHsv( nHue, nSaturation, nValue );
 
-	return color;
+	auto newColor = QColor( color );
+	newColor.setHsv( nHue, nSaturation, nValue );
+	return newColor;
 }
 
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
@@ -220,7 +222,8 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 	p->setBrush( Qt::NoBrush );
 }
 
-void Skin::drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked ) {
+void Skin::drawStackedIndicator( QPainter* p, int x, int y,
+								 const Skin::Stacked& stacked ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	

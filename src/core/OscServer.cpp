@@ -46,7 +46,7 @@
 OscServer * OscServer::__instance = nullptr;
 
 
-QString OscServer::qPrettyPrint(lo_type type,void * data)
+QString OscServer::qPrettyPrint( const lo_type& type, void* data )
 {
 	QString formattedString;
 
@@ -612,7 +612,8 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	pController->setStripVolume( param1, param2, false );
 }
 
-void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
+void OscServer::STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
+											  const QString& param2 )
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("STRIP_VOLUME_RELATIVE");
@@ -657,7 +658,8 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( pAction );
 }
 
-void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2)
+void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
+													  const QString& param2)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("FILTER_CUTOFF_LEVEL_ABSOLUTE");
@@ -1054,7 +1056,7 @@ void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 // -------------------------------------------------------------------
 // Helper functions
 
-bool IsLoAddressEqual( lo_address first, lo_address second )
+bool IsLoAddressEqual( const lo_address& first, const lo_address& second )
 {
 	bool portEqual = ( strcmp( lo_address_get_port( first ), lo_address_get_port( second ) ) == 0);
 	bool hostEqual = ( strcmp( lo_address_get_hostname( first ), lo_address_get_hostname( second ) ) == 0);
@@ -1063,7 +1065,7 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
-void OscServer::broadcastMessage( const char* msgText, lo_message message ) {
+void OscServer::broadcastMessage( const char* msgText, const lo_message& message ) {
 	for ( const auto& clientAddress: m_pClientRegistry ){
 		
 		INFOLOG( QString( "Outgoing OSC broadcast message %1" ).arg( msgText ));

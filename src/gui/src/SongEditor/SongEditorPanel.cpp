@@ -702,7 +702,7 @@ void SongEditorPanel::clearSequence()
 }
 
 
-void SongEditorPanel::restoreGroupVector( QString filename )
+void SongEditorPanel::restoreGroupVector( const QString& filename )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -798,7 +798,7 @@ void SongEditorPanel::patternEditorLockedEvent() {
 	}
 }
 
-void SongEditorPanel::stateChangedEvent( H2Core::AudioEngine::State ) {
+void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 	// The lock button is highlighted when transport is rolling.
 	patternEditorLockedEvent();
 }

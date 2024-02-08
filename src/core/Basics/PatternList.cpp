@@ -288,7 +288,7 @@ QString PatternList::find_unused_pattern_name( const QString& sSourceName,
 {
 	QString unusedPatternNameCandidate;
 	QString sSource { sSourceName };
-
+	
 	if( sSource.isEmpty() ) {
 		sSource = "Pattern 11";
 	}
@@ -321,13 +321,13 @@ QString PatternList::find_unused_pattern_name( const QString& sSourceName,
 
 int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
-	for ( const auto ppPattern : __patterns ) {
+	for ( const auto& ppPattern : __patterns ) {
 		if ( ppPattern->get_length() > nMax ) {
 			nMax = ppPattern->get_length();
 		}
 
 		if ( bIncludeVirtuals ) {
-			for ( const auto ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
+			for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
 				if ( ppVirtualPattern->get_length() > nMax ) {
 					nMax = ppVirtualPattern->get_length();
 				}
@@ -342,14 +342,14 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
-		for ( auto pp : __patterns ) {
+		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
 		sOutput = QString( "[PatternList] " );
-		for ( auto pp : __patterns ) {
+		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
 			}

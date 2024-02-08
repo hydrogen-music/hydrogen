@@ -1695,7 +1695,7 @@ void InstrumentEditor::hihatMaxRangeChanged( double fValue )
 	 m_pHihatMinRangeLCD->setMaximum( static_cast<int>(fValue) );
 }
 
-void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void InstrumentEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {

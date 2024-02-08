@@ -56,8 +56,8 @@ public:
 	DeviceComboBox( QWidget *pParent );
 
 	/// Set the driver name to use
-	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
-	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
+	void setDriver( const QString& sDriver ) { m_sDriver = sDriver; }
+	void setHostAPI( const QString& sHostAPI ) { m_sHostAPI = sHostAPI; }
 
 	virtual void showPopup();
 };
@@ -70,7 +70,7 @@ class HostAPIComboBox : public LCDCombo {
 
 public:
 	HostAPIComboBox( QWidget *pParent );
-	void setValue( QString sHostAPI );
+	void setValue( const QString& sHostAPI );
 	virtual void showPopup();
 };
 
@@ -81,10 +81,10 @@ public:
 class IndexedTreeItem : public QTreeWidgetItem {
 
 public:
-	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel );
-	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels );
-	IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel );
-	IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, const QString& sLabel );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, const QStringList& labels );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, const QString& sLabel );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, const QStringList& labels );
 	int getId() const;
 	
 private:

@@ -34,7 +34,11 @@
 #include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange, int nBorderRadius )
+Button::Button( QWidget *pParent, const QSize& size, const Type& type,
+				const QString& sIcon, const QString& sText,
+				bool bUseRedBackground, const QSize& iconSize,
+				const QString& sBaseTooltip, bool bColorful,
+				bool bModifyOnChange, int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
@@ -362,7 +366,7 @@ void Button::updateTooltip() {
 	setToolTip( sTip );
 }
 
-void Button::setSize( QSize size ) {
+void Button::setSize( const QSize& size ) {
 	m_size = size;
 	
 	adjustSize();
@@ -374,7 +378,7 @@ void Button::setSize( QSize size ) {
 	updateFont();
 }
 
-void Button::setType( Type type ) {
+void Button::setType( const Type& type ) {
 
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
@@ -466,7 +470,7 @@ void Button::paintEvent( QPaintEvent* ev )
 
 }
 
-void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void Button::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 

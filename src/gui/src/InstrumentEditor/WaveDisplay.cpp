@@ -177,7 +177,7 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	}	
 }
 
-void WaveDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void WaveDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();

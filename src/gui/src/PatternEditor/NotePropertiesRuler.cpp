@@ -1463,7 +1463,7 @@ void NotePropertiesRuler::songModeActivationEvent() {
 	updateEditor();
 }
 
-std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
+std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {
 		return std::move( result );
@@ -1481,11 +1481,12 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	// Account for the notional active area of the slider. We allow a
 	// width of 8 as this is the size of the circle used for the zero
 	// position on the lead/lag editor.
-	r = r.normalized();
-	if ( r.top() == r.bottom() && r.left() == r.right() ) {
-		r += QMargins( 2, 2, 2, 2 );
+	auto rNormalized = r.normalized();
+	if ( rNormalized.top() == rNormalized.bottom() &&
+		 rNormalized.left() == rNormalized.right() ) {
+		rNormalized += QMargins( 2, 2, 2, 2 );
 	}
-	r += QMargins( 4, 4, 4, 4 );
+	rNormalized += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 		if ( it->second->get_instrument() != pSelectedInstrument
@@ -1495,7 +1496,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 		int pos = it->first;
 		uint x_pos = PatternEditor::nMargin + pos * m_fGridWidth;
-		if ( r.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
+		if ( rNormalized.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
 			result.push_back( it->second );
 		}
 	}
@@ -1522,7 +1523,7 @@ void NotePropertiesRuler::selectAll()
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
-void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void NotePropertiesRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

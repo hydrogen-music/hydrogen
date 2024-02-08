@@ -113,7 +113,7 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2max: %3\n" ).arg( sPrefix ).arg( s ).arg( _max ) )
 			.append( QString( "%1%2def: %3\n" ).arg( sPrefix ).arg( s ).arg( _def ) )
 			.append( QString( "%1%2points:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto pp : _points ) {
+		for ( const auto& pp : _points ) {
 			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( pp.first ).arg( pp.second ) );
 		}
 	} else {
@@ -123,7 +123,7 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", max: %1" ).arg( _max ) )
 			.append( QString( ", def: %1" ).arg( _def ) )
 			.append( QString( ", [points: " ) );
-		for ( auto pp : _points ) {
+		for ( const auto& pp : _points ) {
 			sOutput.append( QString( "(%1: %4) " ).arg( pp.first ).arg( pp.second ) );
 		}
 		sOutput.append( "]" );

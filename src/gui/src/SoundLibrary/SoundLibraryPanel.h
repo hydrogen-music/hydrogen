@@ -59,8 +59,8 @@ public slots:
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void on_DrumkitList_itemActivated( QTreeWidgetItem* item, int column );
-	void on_DrumkitList_leftClicked( QPoint pos );
-	void on_DrumkitList_rightClicked( QPoint pos );
+	void on_DrumkitList_leftClicked( const QPoint& pos );
+	void on_DrumkitList_rightClicked( const QPoint& pos );
 	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
 	void on_drumkitDeleteAction();
@@ -68,7 +68,7 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 signals:
 	void item_changed(bool bDrumkitSelected);

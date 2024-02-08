@@ -236,7 +236,7 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
-			for ( auto ii : __entries ) {
+			for ( const auto& ii : __entries ) {
 				sOutput.append( QString( "%1%2Entry:\n" ).arg( sPrefix ).arg( s + s ) )
 					.append( QString( "%1%2filePath: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->filePath ) )
 					.append( QString( "%1%2fileExists: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->fileExists ) )
@@ -252,7 +252,7 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
-			for ( auto ii : __entries ) {
+			for ( const auto& ii : __entries ) {
 				sOutput.append( QString( "[filePath: %1" ).arg( ii->filePath ) )
 					.append( QString( ", fileExists: %1" ).arg( ii->fileExists ) )
 					.append( QString( ", scriptPath: %1" ).arg( ii->scriptPath ) )

@@ -398,7 +398,7 @@ void PlaylistDialog::clearPlaylist()
 	return;
 }
 
-void PlaylistDialog::updatePlayListNode ( QString file )
+void PlaylistDialog::updatePlayListNode( const QString& file )
 {
 	QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 	m_pPlaylistItem->setText ( 0, file );
@@ -1053,7 +1053,7 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 	return false;
 }
 
-bool PlaylistDialog::loadListByFileName( QString filename )
+bool PlaylistDialog::loadListByFileName( const QString& filename )
 {
 	bool bUseRelativeFilenames = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
 	
@@ -1091,7 +1091,7 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	return true;
 }
 
-void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void PlaylistDialog::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {

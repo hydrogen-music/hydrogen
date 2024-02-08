@@ -25,7 +25,8 @@
 #include <QColorDialog>
 #include <core/Globals.h>
 
-ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialColor, int nSize )
+ColorSelectionButton::ColorSelectionButton( QWidget* pParent,
+											const QColor& sInitialColor, int nSize )
  : QPushButton( pParent )
  , m_sColor( sInitialColor )
  , m_bMouseOver( false )

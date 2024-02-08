@@ -574,7 +574,7 @@ void PatternEditorRuler::songModeActivationEvent()
 	updateEditor( true );
 }
 
-void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
+void PatternEditorRuler::stateChangedEvent( const H2Core::AudioEngine::State& )
 {
 	updatePosition();
 }
@@ -593,7 +593,7 @@ void PatternEditorRuler::playingPatternsChangedEvent() {
 	}
 }
 
-void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PatternEditorRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

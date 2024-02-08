@@ -97,7 +97,7 @@ HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
 {
 }
 
-void HostAPIComboBox::setValue( QString sHostAPI ) {
+void HostAPIComboBox::setValue( const QString& sHostAPI ) {
 	// The ComboBox doesn't have any item strings until it's actually opened,
 	// so we must add the item to it temporarily
 	clear();
@@ -118,19 +118,23 @@ void HostAPIComboBox::showPopup()
 }
 
 
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
+								  const QString& sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
+								  const QStringList& labels )
     : QTreeWidgetItem( pParent, labels ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent,
+								  const QString& sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent,
+								  const QStringList& labels )
     : QTreeWidgetItem( pParent, labels ) {
 	m_nId = nId;
 }

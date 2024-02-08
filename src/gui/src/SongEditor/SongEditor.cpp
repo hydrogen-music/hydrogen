@@ -318,12 +318,12 @@ void SongEditor::setGridWidth( uint width )
 	}
 }
 
-QPoint SongEditor::xyToColumnRow( QPoint p )
+QPoint SongEditor::xyToColumnRow( const QPoint& p )
 {
 	return QPoint( (p.x() - SongEditor::nMargin) / (int)m_nGridWidth, p.y() / (int)m_nGridHeight );
 }
 
-QPoint SongEditor::columnRowToXy( QPoint p )
+QPoint SongEditor::columnRowToXy( const QPoint& p )
 {
 	return QPoint( SongEditor::nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
 }
@@ -929,7 +929,9 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 
 //! Modify pattern cells by first deleting some, then adding some.
 //! deleteCells and addCells *may* safely overlap
-void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells, std::vector<QPoint> & selectCells ) {
+void SongEditor::modifyPatternCellsAction( const std::vector<QPoint>& addCells,
+										   const std::vector<QPoint>& deleteCells,
+										   const std::vector<QPoint>& selectCells ) {
 	
 	for ( QPoint cell : deleteCells ) {
 		setPatternActive( cell.x(), cell.y(), false );
@@ -1247,7 +1249,7 @@ void SongEditor::drawSequence()
 	updateGridCells();
 
 	// Draw using GridCells representation
-	for ( auto it : m_gridCells ) {
+	for ( const auto& it : m_gridCells ) {
 		if ( ! m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
 			drawPattern( it.first.x(), it.first.y(),
 						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
@@ -1256,7 +1258,7 @@ void SongEditor::drawSequence()
 	// We draw all selected patterns in a second run to ensure their
 	// border does have the proper color (else the bottom and left one
 	// could be overwritten by an adjecent, unselected pattern).
-	for ( auto it : m_gridCells ) {
+	for ( const auto& it : m_gridCells ) {
 		if ( m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
 			drawPattern( it.first.x(), it.first.y(),
 						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
@@ -1337,7 +1339,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	p.drawRect( x, y, fWidth * m_nGridWidth, m_nGridHeight );
 }
 
-std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( QRect r )
+std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const QRect& r )
 {
 	std::vector<SelectionIndex> elems;
 	for ( auto it : m_gridCells ) {
@@ -1356,7 +1358,7 @@ QRect SongEditor::getKeyboardCursorRect() {
 				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 
-void SongEditor::clearThePatternSequenceVector( QString filename )
+void SongEditor::clearThePatternSequenceVector( const QString& filename )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
@@ -1389,7 +1391,7 @@ void SongEditor::updateEditorandSetTrue()
 	update();
 }
 
-void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) 
+void SongEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 {
 	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
 					 H2Core::Preferences::Changes::Colors |
@@ -2027,7 +2029,10 @@ void SongEditorPatternList::patternPopup_properties()
 }
 
 
-void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr)
+void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const QString& newPatternName,
+																   const QString& newPatternInfo,
+																   const QString& newPatternCategory,
+																   int patternNr )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -2043,7 +2048,10 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 }
 
 
-void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr)
+void SongEditorPatternList::revertPatternPropertiesDialogSettings( const QString& oldPatternName,
+																   const QString& oldPatternInfo,
+																   const QString& oldPatternCategory,
+																   int patternNr)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -2405,7 +2413,7 @@ void SongEditorPatternList::timelineUpdateEvent( int nEvent )
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
-void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void SongEditorPatternList::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
@@ -3294,7 +3302,7 @@ void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
 	update();
 }
 
-void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void SongEditorPositionRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

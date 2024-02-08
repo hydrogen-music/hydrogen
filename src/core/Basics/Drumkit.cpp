@@ -616,7 +616,7 @@ void Drumkit::removeInstrument( int nInstrumentNumber ) {
 
 	// Check whether there are other instruments holding samples in those
 	// components as well. If not, delete the component.
-	for ( const auto nnComponentId : componentsWithSamplesIds ) {
+	for ( const auto& nnComponentId : componentsWithSamplesIds ) {
 		bool bOtherSamplesFound = false;
 		for ( const auto& ppInstrument : *m_pInstruments ) {
 			if ( ppInstrument != nullptr &&
@@ -1190,7 +1190,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 			bSampleFound = false;
 			for( const auto& pInstr : *( getInstruments() ) ){
 				if( pInstr != nullptr ) {
-					for ( auto const& pComponent : *( pInstr->get_components() ) ) {
+					for ( const auto& pComponent : *( pInstr->get_components() ) ) {
 						if ( pComponent != nullptr &&
 							 ( nComponentId == -1 ||
 							   pComponent->get_drumkit_componentID() == nComponentId ) ) {
@@ -1401,7 +1401,7 @@ const QString& Drumkit::getPath() const {
 
 std::shared_ptr<DrumkitComponent> Drumkit::getComponent( int nID ) const
 {
-	for ( auto pComponent : *m_pComponents ) {
+	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent->get_id() == nID ) {
 			return pComponent;
 		}
@@ -1532,7 +1532,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bSamplesLoaded ) )
 			.append( QString( "%1" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto cc : *m_pComponents ) {
+		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1556,7 +1556,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", samples_loaded: %1" ).arg( m_bSamplesLoaded ) )
 			.append( QString( ", [%1]" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", components: [ " ) );
-		for ( auto cc : *m_pComponents ) {
+		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}

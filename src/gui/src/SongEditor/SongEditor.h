@@ -94,10 +94,11 @@ class SongEditor : public QWidget
 		int getCursorColumn() const;
 
 		//! Modify many pattern cells at once, for use in a single efficient undo/redo action
-		void modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells,
-									   std::vector<QPoint> & selectCells );
+		void modifyPatternCellsAction( const std::vector<QPoint>& addCells,
+									   const std::vector<QPoint>& deleteCells,
+									   const std::vector<QPoint>& selectCells );
 
-		void clearThePatternSequenceVector( QString filename );
+		void clearThePatternSequenceVector( const QString& filename );
 		void updateEditorandSetTrue();
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
@@ -112,7 +113,7 @@ class SongEditor : public QWidget
 		void copy();
 		void paste();
 		void cut();
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void scrolled( int );
 
 	private:
@@ -165,8 +166,8 @@ class SongEditor : public QWidget
 
 		//! @name Conversion between sequence grid coordinates and screen (widget) coordinates.
 		//! @{
-		QPoint xyToColumnRow( QPoint p );
-		QPoint columnRowToXy( QPoint p );
+		QPoint xyToColumnRow( const QPoint& p );
+		QPoint columnRowToXy( const QPoint& p );
 		//! @}
 
 		//! Quantise the selection move offset to the sequence grid
@@ -224,7 +225,7 @@ public:
 		//! @name Selection interfaces
 		//! see Selection.h for details.
 		//! @{
-		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
@@ -274,8 +275,14 @@ class SongEditorPatternList :  public QWidget
 		void createBackground();
 		void invalidateBackground();
 		void movePatternLine( int, int );
-		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
-		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
+		void acceptPatternPropertiesDialogSettings( const QString& newPatternName,
+													const QString& newPatternInfo,
+													const QString& newPatternCategory,
+													int patternNr );
+		void revertPatternPropertiesDialogSettings( const QString& oldPatternName,
+													const QString& oldPatternInfo,
+													const QString& oldPatternCategory,
+													int patternNr);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
 	
@@ -303,7 +310,7 @@ class SongEditorPatternList :  public QWidget
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -385,7 +392,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void createBackground();
 		void invalidateBackground();
 

@@ -490,7 +490,7 @@ int LayerPreview::getPointSizeButton() const
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void LayerPreview::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {

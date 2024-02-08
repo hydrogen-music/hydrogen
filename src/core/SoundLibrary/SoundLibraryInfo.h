@@ -58,39 +58,39 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 	 */
 		bool load( const QString& sPath );
 
-		QString getName() const {
+		const QString& getName() const {
 			return m_sName;
 		}
 
-		QString getUrl() const{
+		const QString& getUrl() const{
 			return m_sURL;
 		}
 
-		QString getInfo() const {
+		const QString& getInfo() const {
 			return m_sInfo;
 		}
 
-		QString getAuthor() const {
+		const QString& getAuthor() const {
 			return m_sAuthor;
 		}
 
-		QString getCategory() const {
+		const QString& getCategory() const {
 			return m_sCategory;
 		}
 
-		QString getType() const {
+		const QString& getType() const {
 			return m_sType;
 		}
 
-		H2Core::License getLicense() const {
+		const H2Core::License& getLicense() const {
 			return m_license;
 		}
 
-		QString getImage() const {
+		const QString& getImage() const {
 			return m_sImage;
 		}
 
-		H2Core::License getImageLicense() const {
+		const H2Core::License& getImageLicense() const {
 			return m_imageLicense;
 		}
 
@@ -134,14 +134,14 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 			m_sPath = path;
 		}
 
-		QString getPath(){
+		const QString& getPath(){
 			return m_sPath;
 		}
 	
 		void setDrumkitName( const QString& sDrumkitName ){
 			m_sDrumkitName = sDrumkitName;
 		}
-		QString getDrumkitName(){
+		const QString& getDrumkitName(){
 			return m_sDrumkitName;
 		}
 

@@ -443,7 +443,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 
 
-void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
+void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 {
 	if( __sound_library_tree->currentItem() == nullptr ) {
 		return;
@@ -493,7 +493,7 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 
 
 
-void SoundLibraryPanel::on_DrumkitList_leftClicked( QPoint pos )
+void SoundLibraryPanel::on_DrumkitList_leftClicked( const QPoint& pos )
 {
 	__start_drag_position = pos;
 }
@@ -905,7 +905,7 @@ void SoundLibraryPanel::test_expandedItems()
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
 
-void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {

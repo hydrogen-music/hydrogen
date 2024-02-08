@@ -429,7 +429,7 @@ void Sampler::handleTimelineOrTempoChange() {
 		return;
 	}
 
-	for ( auto ppNote : m_playingNotesQueue ) {
+	for ( auto& ppNote : m_playingNotesQueue ) {
 		ppNote->computeNoteStart();
 
 		// For notes of custom length we have to rescale the amount of the

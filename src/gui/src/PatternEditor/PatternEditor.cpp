@@ -109,7 +109,7 @@ PatternEditor::~PatternEditor()
 	}
 }
 
-void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		
@@ -200,7 +200,9 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 
-void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
+void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
+									H2Core::Note *pNote,
+									bool bIsForeground ) const
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -645,7 +647,7 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
 }
 
-bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
+bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& elements )
 {
 	if ( m_pPattern == nullptr ) {
 		return false;
@@ -703,8 +705,8 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 }
 
 
-void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
-											   std::vector< H2Core::Note *> &overwritten )
+void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+											   const std::vector< H2Core::Note *>& overwritten )
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -739,8 +741,8 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 }
 
 
-void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
-												   std::vector< H2Core::Note *> &overwritten )
+void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+												   const std::vector< H2Core::Note *>& overwritten )
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -807,7 +809,7 @@ QPoint PatternEditor::movingGridOffset( ) const {
 
 
 //! Draw lines for note grid.
-void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
+void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	const std::vector<QColor> colorsActive = {
@@ -1368,7 +1370,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 										  int nLength,
 										  int nSelectedPatternNumber,
 										  int nSelectedInstrumentnumber,
-										  Editor editor)
+										  const Editor& editor)
 {
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1439,8 +1441,8 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 											  int nRow,
 											  int nSelectedPatternNumber,
 											  int nSelectedInstrumentNumber,
-											  Mode mode,
-											  Editor editor,
+											  const Mode& mode,
+											  const Editor& editor,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
@@ -1533,7 +1535,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 }
 
 					
-QString PatternEditor::modeToQString( Mode mode ) {
+QString PatternEditor::modeToQString( const Mode& mode ) {
 	QString s;
 	
 	switch ( mode ) {
@@ -1560,7 +1562,7 @@ QString PatternEditor::modeToQString( Mode mode ) {
 	return s;
 }
 
-void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
+void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 	QString s;
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );

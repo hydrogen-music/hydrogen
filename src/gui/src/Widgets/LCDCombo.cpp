@@ -28,7 +28,7 @@
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
+LCDCombo::LCDCombo( QWidget *pParent, const QSize& size, bool bModifyOnChange )
 	: QComboBox( pParent )
 	, m_size( size )
 	, m_bEntered( false )
@@ -126,7 +126,7 @@ QComboBox QAbstractItemView { \
 				   .arg( widgetInactiveColor.name() ) );
 }
 
-void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDCombo::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
@@ -175,7 +175,7 @@ void LCDCombo::leaveEvent( QEvent* ev ) {
 	m_bEntered = false;
 }
 
-void LCDCombo::setSize( QSize size ) {
+void LCDCombo::setSize( const QSize& size ) {
 	m_size = size;
 	
 	setFixedSize( size );

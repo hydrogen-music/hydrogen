@@ -411,7 +411,7 @@ QAbstractSpinBox:disabled { \
 				   .arg( selectionInactiveColor.name() ) );
 }
 
-void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDSpinBox::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();

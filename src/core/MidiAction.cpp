@@ -68,7 +68,7 @@ using namespace H2Core;
 *
 */
 
-Action::Action( QString sType ) {
+Action::Action( const QString& sType ) {
 	m_sType = sType;
 	m_sParameter1 = "0";
 	m_sParameter2 = "0";
@@ -76,19 +76,19 @@ Action::Action( QString sType ) {
 	m_sValue = "0";
 }
 
-Action::Action( std::shared_ptr<Action> pOther ) {
-	m_sType = pOther->m_sType;
-	m_sParameter1 = pOther->m_sParameter1;
-	m_sParameter2 = pOther->m_sParameter2;
-	m_sParameter3 = pOther->m_sParameter3;
-	m_sValue = pOther->m_sValue;
+Action::Action( const std::shared_ptr<Action> pOther ) {
+       m_sType = pOther->m_sType;
+       m_sParameter1 = pOther->m_sParameter1;
+       m_sParameter2 = pOther->m_sParameter2;
+       m_sParameter3 = pOther->m_sParameter3;
+       m_sValue = pOther->m_sValue;
 }
 
 bool Action::isNull() const {
 	return m_sType == Action::getNullActionType();
 }
 
-bool Action::isEquivalentTo( std::shared_ptr<Action> pOther ) {
+bool Action::isEquivalentTo( const std::shared_ptr<Action> pOther ) const {
 	if ( pOther == nullptr ) {
 		return false;
 	}
@@ -1256,7 +1256,7 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 	return -1;
 }
 
-bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> actions ) {
+bool MidiActionManager::handleActions( const std::vector<std::shared_ptr<Action>>& actions ) {
 
 	bool bResult = false;
 	
@@ -1271,7 +1271,7 @@ bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> acti
 	return bResult;
 }
 
-bool MidiActionManager::handleAction(  std::shared_ptr<Action> pAction ) {
+bool MidiActionManager::handleAction( const std::shared_ptr<Action> pAction ) {
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	/*

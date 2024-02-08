@@ -134,7 +134,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	}
 
 	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
-	for ( auto& pComponent : *other->get_components() ) {
+	for ( const auto& pComponent : *other->get_components() ) {
 		__components->push_back( std::make_shared<InstrumentComponent>( pComponent ) );
 	}
 }
@@ -542,7 +542,7 @@ void Instrument::save_to( XMLNode* node,
 									.arg( i+1 ), __fx_level[i] );
 	}
 	
-	for ( auto& pComponent : *__components ) {
+	for ( const auto& pComponent : *__components ) {
 		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
 			pComponent->save_to( &InstrumentNode, bRecentVersion, bSongKit );
@@ -617,7 +617,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s ).arg( __mute_group ) )
 			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s ).arg( __queued ) ) ;
 		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
-		for ( auto ff : __fx_level ) {
+		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
 		}
 		sOutput.append( QString( "]\n" ) )
@@ -630,7 +630,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
 			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto cc : *__components ) {
+		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -663,7 +663,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", mute_group: %1" ).arg( __mute_group ) )
 			.append( QString( ", queued: %1" ).arg( __queued ) ) ;
 		sOutput.append( QString( ", fx_level: [ " ) );
-		for ( auto ff : __fx_level ) {
+		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
 		}
 		sOutput.append( QString( "]" ) )
@@ -676,7 +676,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", current_instr_for_export: %1" ).arg( __current_instr_for_export ) )
 			.append( QString( ", m_bHasMissingSamples: %1" ).arg( m_bHasMissingSamples ) )
 			.append( QString( ", components: [" ) );
-		for ( auto cc : *__components ) {
+		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( " %1" ).arg( cc->get_drumkit_componentID() ) );
 			}

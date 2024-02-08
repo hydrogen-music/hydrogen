@@ -50,7 +50,7 @@ private slots:
 	void on_browseBtn_clicked();
 	void on_cancelBtn_clicked();
 	void on_versionList_currentIndexChanged( int index );
-	void on_drumkitPathTxt_textChanged( QString str );
+	void on_drumkitPathTxt_textChanged( const QString& str );
 	
 private:
 	void updateComponentList();

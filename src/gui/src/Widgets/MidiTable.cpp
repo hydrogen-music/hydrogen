@@ -122,7 +122,8 @@ void MidiTable::sendChanged() {
 	emit changed();
 }
 
-void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventString, int eventParameter)
+void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
+							 const QString& eventString, int eventParameter)
 {
 	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
 

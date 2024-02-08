@@ -129,7 +129,7 @@ QTextEdit:disabled { \
 	setStyleSheet( sStyleSheet );
 }
 
-void LCDTextEdit::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDTextEdit::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateFont();

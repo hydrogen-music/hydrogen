@@ -51,7 +51,7 @@ public:
 
 	//! Find list of elements which intersect a rectangular area. This may be a selection lasso rectangle, or
 	//! a single point such as a mouse click. This should concern itself only with the geometry.
-	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
+	virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) = 0;
 
 	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
 	virtual bool canDragElements() { return true; }
@@ -67,7 +67,7 @@ public:
 	virtual void updateWidget() = 0;
 
 	//! Inform the client that we're deselecting elements.
-	virtual bool checkDeselectElements( std::vector<SelectionIndex> &elements ) {
+	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {
 		return true;
 	}
 
@@ -332,7 +332,7 @@ public:
 	}
 
 	//! Is an element in the set of currently selected elements? 
-	bool isSelected( Elem e ) const {
+	bool isSelected( const Elem& e ) const {
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
 
@@ -340,14 +340,14 @@ public:
 		return m_pSelectionGroup->m_selectedElements.empty();
 	}
 
-	void removeFromSelection( Elem e, bool bCheck = true ) {
+	void removeFromSelection( Elem& e, bool bCheck = true ) {
 		std::vector<Elem> v { e };
 		if ( !bCheck || m_pWidget->checkDeselectElements( v ) ) {
 			m_pSelectionGroup->m_selectedElements.erase( e );
 		}
 	}
 
-	void addToSelection( Elem e ) {
+	void addToSelection( const Elem& e ) {
 		m_pSelectionGroup->m_selectedElements.insert( e );
 	}
 
@@ -757,7 +757,7 @@ public:
 	//! Update the keyboard cursor.
 	//! Called by the client widget to tell the Selection the current
 	//! location of the keyboard input cursor.
-	void updateKeyboardCursorPosition( QRect cursor ) {
+	void updateKeyboardCursorPosition( const QRect& cursor ) {
 		if ( m_selectionState == KeyboardLasso ) {
 			m_lasso = m_keyboardCursorStart.united( m_pWidget->getKeyboardCursorRect() );
 

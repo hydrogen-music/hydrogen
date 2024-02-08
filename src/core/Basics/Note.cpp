@@ -221,7 +221,7 @@ void Note::set_key_octave( const QString& str )
 bool Note::isPartiallyRendered() const {
 	bool bRes = false;
 
-	for ( auto ll : __layers_selected ) {
+	for ( const auto& ll : __layers_selected ) {
 		if ( ll.second->fSamplePosition > 0 ) {
 			bRes = true;
 			break;
@@ -577,7 +577,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2layers_selected:\n" )
 						.arg( sPrefix ).arg( s ) );
-		for ( auto ll : __layers_selected ) {
+		for ( const auto& ll : __layers_selected ) {
 			if ( ll.second != nullptr ) {
 				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5, note length: %6]\n" )
 								.arg( sPrefix ).arg( s + s )
@@ -633,7 +633,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( ", instrument: nullptr" ) );
 		}
 		sOutput.append( QString( ", layers_selected: " ) );
-		for ( auto ll : __layers_selected ) {
+		for ( const auto& ll : __layers_selected ) {
 			if ( ll.second != nullptr ) {
 				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3, note length: %4] " )
 								.arg( ll.first )

@@ -60,11 +60,13 @@ public:
 	Rotary(const Rotary&) = delete;
 	Rotary& operator=( const Rotary& rhs ) = delete;
 	
-	Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0, bool bModifyOnChange = true );
+	Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
+			bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0,
+			bool bModifyOnChange = true );
 	~Rotary();
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private:
 	Type m_type;

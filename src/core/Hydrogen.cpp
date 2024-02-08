@@ -255,7 +255,7 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( QString sFilename )
+void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 {
 	if ( m_pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -263,18 +263,16 @@ void Hydrogen::loadPlaybackTrack( QString sFilename )
 	}
 
 	if ( ! sFilename.isEmpty() &&
-		 ! Filesystem::file_exists( sFilename, true ) ) {
-		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist." )
+		 ! Filesystem::file_exists( sFilename, true ) || sFilename.isEmpty() ) {
+		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist or is empty." )
 				  .arg( sFilename ) );
-		sFilename = "";
-	}
-
-	if ( sFilename.isEmpty() ) {
-		INFOLOG( "Disable playback track" );
+		m_pSong->setPlaybackTrackFilename( "" );
+		INFOLOG( "Disabling playback track" );
 		m_pSong->setPlaybackTrackEnabled( false );
 	}
-	
-	m_pSong->setPlaybackTrackFilename( sFilename );
+	else {
+		m_pSong->setPlaybackTrackFilename( sFilename );
+	}
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 	
@@ -1238,7 +1236,7 @@ Song::Mode Hydrogen::getMode() const {
 	return Song::Mode::None;
 }
 
-void Hydrogen::setMode( Song::Mode mode ) {
+void Hydrogen::setMode( const Song::Mode& mode ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
@@ -1253,7 +1251,7 @@ Song::ActionMode Hydrogen::getActionMode() const {
 	return Song::ActionMode::None;
 }
 
-void Hydrogen::setActionMode( Song::ActionMode mode ) {
+void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 	if ( m_pSong != nullptr ) {
 		m_pSong->setActionMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
@@ -1268,7 +1266,7 @@ Song::PatternMode Hydrogen::getPatternMode() const {
 	return Song::PatternMode::None;
 }
 
-void Hydrogen::setPatternMode( Song::PatternMode mode )
+void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 {
 	if ( m_pSong != nullptr &&
 		 getPatternMode() != mode ) {
@@ -1568,7 +1566,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nEventCount ) )
 			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatCount ) )
 			.append( QString( "%1%2m_fBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto dd : m_fBeatDiffs ) {
+		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
@@ -1586,7 +1584,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
 		sOutput.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto const& ii : m_instrumentDeathRow ) {
+		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			} else {
@@ -1620,7 +1618,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nEventCount: %1" ).arg( m_nEventCount ) )
 			.append( QString( ", m_nBeatCount: %1" ).arg( m_nBeatCount ) )
 			.append( QString( ", m_fBeatDiffs: [" ) );
-		for ( auto dd : m_fBeatDiffs ) {
+		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
 		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
@@ -1638,7 +1636,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
 		sOutput.append( QString( ", m_instrumentDeathRow: [" ) );
-		for ( auto const& ii : m_instrumentDeathRow ) {
+		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			} else {

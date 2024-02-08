@@ -97,7 +97,7 @@ InstrumentRack::~InstrumentRack()
 	INFOLOG( "DESTROY" );
 }
 
-void InstrumentRack::onPreferencesChanged(  H2Core::Preferences::Changes changes ) {
+void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {

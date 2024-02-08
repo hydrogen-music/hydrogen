@@ -165,7 +165,7 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxLayers ) )
 			.append( QString( "%1%2layers:\n" ).arg( sPrefix ).arg( s ) );
 	
-		for ( auto ll : __layers ) {
+		for ( const auto& ll : __layers ) {
 			if ( ll != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ll->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -177,7 +177,7 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
 			.append( QString( ", [layers:" ) );
 	
-		for ( auto ll : __layers ) {
+		for ( const auto& ll : __layers ) {
 			if ( ll != nullptr ) {
 				sOutput.append( QString( " [%1" ).arg( ll->toQString( sPrefix + s + s, bShort ).replace( "\n", "]" ) ) );
 			}

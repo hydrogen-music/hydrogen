@@ -319,7 +319,7 @@ void Director::paintEvent( QPaintEvent* ev )
 	painter.drawText( m_rectTagNext, Qt::AlignCenter, QString( m_sTagNext ) );
 }
 
-void Director::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void Director::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 

@@ -415,7 +415,7 @@ bool CoreActionController::handleOutgoingControlChanges( std::vector<int> params
 		return false;
 	}
 
-	for ( auto param : params ) {
+	for ( const auto& param : params ) {
 		if ( pMidiDriver != nullptr &&
 			 pPref->m_bEnableMidiFeedback && param >= 0 ){
 			pMidiDriver->handleOutgoingControlChange( param, nValue, m_nDefaultMidiFeedbackChannel );

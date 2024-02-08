@@ -359,7 +359,7 @@ void PianoRollEditor::drawPattern()
 								pixelRatio * rect().height() ) );
 
 	// for each note...
-	for ( Pattern *pPattern : getPatternsToShow() ) {
+	for ( const auto& pPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( pPattern == m_pPattern );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, pPattern ) {
@@ -807,7 +807,7 @@ void PianoRollEditor::deleteSelection()
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
-		for ( Note *pNote : m_selection ) {
+		for ( const auto& pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					int nLine = pitchToLine( pNote->get_notekey_pitch() );
@@ -1195,7 +1195,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 	pUndo->endMacro();
 }
 
-std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) 
+std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )
 {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {
@@ -1210,14 +1210,15 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 		return std::move( result );
 	}
 
-	r = r.normalized();
-	if ( r.top() == r.bottom() && r.left() == r.right() ) {
-		r += QMargins( 2, 2, 2, 2 );
+	auto rNormalized = r.normalized();
+	if ( rNormalized.top() == rNormalized.bottom() &&
+		 rNormalized.left() == rNormalized.right() ) {
+		rNormalized += QMargins( 2, 2, 2, 2 );
 	}
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - w - PatternEditor::nMargin) / m_fGridWidth;
-	int x_max = (r.right() + w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_min = (rNormalized.left() - w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_max = (rNormalized.right() + w - PatternEditor::nMargin) / m_fGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 
@@ -1227,7 +1228,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			uint start_x = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
-			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
+			if ( rNormalized.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );
 			}
 		}
@@ -1246,7 +1247,7 @@ QRect PianoRollEditor::getKeyboardCursorRect()
 				  m_fGridWidth*6, m_nGridHeight+3 );
 }
 
-void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

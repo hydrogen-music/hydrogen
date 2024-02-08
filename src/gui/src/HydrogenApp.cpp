@@ -134,7 +134,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 			 this, &HydrogenApp::onPreferencesChanged );
 }
 
-void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
+void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties& prop, unsigned flags ) {
 	if ( flags & SetVisible ) {
 		if ( prop.visible) {
 			pWindow->show();
@@ -380,18 +380,13 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-bool HydrogenApp::openSong( QString sFilename ) {
+bool HydrogenApp::openSong( const QString& sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	// Check whether there is an autosave file next to it
 	// containing newer content.
 	QFileInfo fileInfo( sFilename );
-
-	// Ensure the path to the file is not relative.
-	if ( fileInfo.isRelative() ) {
-		sFilename = fileInfo.absoluteFilePath();
-	}
 
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
@@ -435,8 +430,10 @@ bool HydrogenApp::openSong( QString sFilename ) {
 			sRecoverFilename = "";
 		}
 	}
-	
-	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
+
+	// Ensure the path to the file is not relative.
+	if ( ! pCoreActionController->openSong( fileInfo.absoluteFilePath(),
+											sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -685,7 +682,8 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer )
+void HydrogenApp::showSampleEditor( const QString& name, int mSelectedComponemt,
+									int mSelectedLayer )
 {
 
 	if ( m_pSampleEditor ){
@@ -1100,7 +1098,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 	}
 }
 
-void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
+void HydrogenApp::changePreferences( const H2Core::Preferences::Changes& changes ) {
 	if ( m_pPreferencesUpdateTimer->isActive() ) {
 		m_pPreferencesUpdateTimer->stop();
 	}
@@ -1240,7 +1238,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	return true;
 }
 
-void HydrogenApp::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		H2Core::Hydrogen::get_instance()->getAudioEngine()->
 			getMetronomeInstrument()->set_volume(

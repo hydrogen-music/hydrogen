@@ -31,7 +31,8 @@
 
 #include <core/Globals.h>
 
-Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
+Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
+				bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
 					   sBaseTooltip,
@@ -298,7 +299,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {	
+void Rotary::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}

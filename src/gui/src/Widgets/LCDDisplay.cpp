@@ -28,7 +28,8 @@
 #include <core/Globals.h>
 #include <core/Preferences/Theme.h>
 
-LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont, bool bIsActive )
+LCDDisplay::LCDDisplay( QWidget * pParent, const QSize& size, bool bFixedFont,
+						bool bIsActive )
  : QLineEdit( pParent )
  , m_size( size )
  , m_bEntered( false )
@@ -168,7 +169,7 @@ QLineEdit { \
 	setStyleSheet( sStyleSheet );
 }
 
-void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateFont();

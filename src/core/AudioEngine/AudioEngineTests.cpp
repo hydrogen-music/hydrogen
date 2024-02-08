@@ -1085,7 +1085,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	notesInSong.clear();
 	for ( int ii = 0; ii <= nLoops; ++ii ) {
 		auto notesVec = pSong->getAllNotes();
-		for ( auto nnote : notesVec ) {
+		for ( auto& nnote : notesVec ) {
 			nnote->set_position( nnote->get_position() +
 								 ii * pAE->m_fSongSizeInTicks );
 		}
@@ -1729,11 +1729,11 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 		QString sMsg = QString( "[checkAudioConsistency] [%1] bad test design. No notes played back." )
 			.arg( sContext );
 		sMsg.append( "\nold notes:" );
-		for ( auto const& nnote : oldNotes ) {
+		for ( const auto& nnote : oldNotes ) {
 			sMsg.append( "\n" + nnote->toQString( "    ", true ) );
 		}
 		sMsg.append( "\nnew notes:" );
-		for ( auto const& nnote : newNotes ) {
+		for ( const auto& nnote : newNotes ) {
 			sMsg.append( "\n" + nnote->toQString( "    ", true ) );
 		}
 		sMsg.append( QString( "\n\npTransportPos->getDoubleTick(): %1, pTransportPos->getFrame(): %2, nPassedFrames: %3, fPassedTicks: %4, pTransportPos->getTickSize(): %5" )
@@ -1743,7 +1743,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 					 .arg( fPassedTicks, 0, 'f' )
 					 .arg( pTransportPos->getTickSize(), 0, 'f' ) );
 		sMsg.append( "\n\n notes in song:" );
-		for ( auto const& nnote : pSong->getAllNotes() ) {
+		for ( const auto& nnote : pSong->getAllNotes() ) {
 			sMsg.append( "\n" + nnote->toQString( "    ", true ) );
 		}
 		AudioEngineTests::throwException( sMsg );
@@ -1759,7 +1759,7 @@ std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 		notes.push_back( std::make_shared<Note>( pAE->m_songNoteQueue.top() ) );
 	}
 
-	for ( auto nnote : rawNotes ) {
+	for ( auto& nnote : rawNotes ) {
 		pAE->m_songNoteQueue.push( nnote );
 	}
 

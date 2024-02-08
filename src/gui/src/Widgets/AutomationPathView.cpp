@@ -59,7 +59,7 @@ AutomationPathView::~AutomationPathView()
 	}
 }
 
-void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void AutomationPathView::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		createBackground();
 		update();
@@ -261,7 +261,7 @@ void AutomationPathView::createBackground() {
 		QPoint lastPoint = translatePoint(0,firstPoint.second);
 		lastPoint.setX(0);
 		
-		for (auto point : *_path) {
+		for ( const auto& point : *_path) {
 			QPoint current = translatePoint(point);
 			painter.drawLine(lastPoint, current);
 			lastPoint = current;
@@ -276,7 +276,7 @@ void AutomationPathView::createBackground() {
 	painter.setPen(circlePen);
 	painter.setBrush(QBrush( pPref->getTheme().m_color.m_windowColor ));
 
-	for (auto point : *_path) {
+	for ( const auto& point : *_path) {
 
 		QPoint center = translatePoint(point);
 		painter.drawEllipse(center, 3, 3);

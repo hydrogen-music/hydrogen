@@ -28,7 +28,9 @@
 
 #include <core/Globals.h>
 
-ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bIsEditable )
+ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
+								const QString& sText, const Color& color,
+								bool bIsEditable )
 	: QLabel( pParent )
 	, m_size( size )
 	, m_color( color )
@@ -86,9 +88,9 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 		QPainter painter(this);
 
 		QColor colorHighlightActive;
-		if ( isEnabled() )
+		if ( isEnabled() ) {
 			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
-		else {
+		} else {
 			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		}
 
@@ -133,7 +135,8 @@ void ClickableLabel::leaveEvent( QEvent* ev ) {
 	}
 }
 
-void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize ) {
+void ClickableLabel::updateFont( const QString& sFontFamily,
+								 const H2Core::FontTheme::FontSize& fontSize ) {
 
 	int nPixelSize = 0;
 	
@@ -187,7 +190,7 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSiz
 	setFont( font );
 }
 
-void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void ClickableLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |

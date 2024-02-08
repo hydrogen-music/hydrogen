@@ -654,7 +654,7 @@ void InstrumentLine::functionRenameInstrument()
 	}
 }
 
-void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void InstrumentLine::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {

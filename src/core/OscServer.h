@@ -145,7 +145,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 *
 		 * \return QString representation of @a data.
 		 */
-		static QString qPrettyPrint(lo_type type,void * data);
+		static QString qPrettyPrint( const lo_type& type, void* data );
 		
 		/**
 		 * Registers all handler functions.
@@ -442,7 +442,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Action.
 		 * \param param2 Sets Action::parameter2 of the newly created
 		 * Action.*/
-		static void STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2);
+		static void STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
+												   const QString& param2);
 		/**
 		 * Calls H2Core::CoreActionController::setStripVolume() with
 		 * both @a param1 and @a param2.
@@ -497,7 +498,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Action.
 		 * \param param2 Sets Action::parameter2 of the newly created
 		 * Action.*/
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2);
+		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
+														  const QString& param2);
 		/**
 		 * Creates an Action of type @b BEATCOUNTER and passes its
 		 * references to MidiActionManager::handleAction().
@@ -850,7 +852,7 @@ class OscServer : public H2Core::Object<OscServer>
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
-		void broadcastMessage( const char* msgText, lo_message message);
+		void broadcastMessage( const char* msgText, const lo_message& message);
 	
 		/** Pointer to the H2Core::Preferences singleton. Although it
 		 * could be accessed internally using

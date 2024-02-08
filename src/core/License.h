@@ -50,8 +50,6 @@ class License : public H2Core::Object<License>
 public:
 
 	License( const QString& sLicenseString = "", const QString& sCopyrightHolder = "" );
-	License( const License* pOther );
-	~License();
 
 	/** A couple of recognized licenses. The ones supplied by Creative
 		Commons are the most desired ones.*/
@@ -74,20 +72,20 @@ public:
 		Unspecified = 10
 	};
 
-	static QString LicenseTypeToQString( LicenseType license );
+	static QString LicenseTypeToQString( const LicenseType& license );
 
 	static QString getGPLLicenseNotice( const QString& sAuthor );
 
 	void parse( const QString& sLicenseString );
-	QString getLicenseString() const;
-	QString getCopyrightHolder() const;
+	const QString& getLicenseString() const;
+	const QString& getCopyrightHolder() const;
 	void setCopyrightHolder( const QString& sCopyrightHolder );
 
 	bool isCopyleft() const;
 	bool hasAttribution() const;
 
-	LicenseType getType() const;
-	void setType( LicenseType license );
+	const LicenseType& getType() const;
+	void setType( const LicenseType& license );
 
 	bool operator==( const License& other ) const {
 		if ( m_license == other.m_license &&
@@ -140,19 +138,19 @@ private:
 	QString m_sCopyrightHolder;
 };
 
-inline License::LicenseType License::getType() const {
+inline const License::LicenseType& License::getType() const {
 	return m_license;
 }
-inline QString License::getLicenseString() const {
+inline const QString& License::getLicenseString() const {
 	return m_sLicenseString;
 }
-inline QString License::getCopyrightHolder() const {
+inline const QString& License::getCopyrightHolder() const {
 	return m_sCopyrightHolder;
 }
 inline void License::setCopyrightHolder( const QString& sCopyrightHolder ) {
 	m_sCopyrightHolder = sCopyrightHolder;
 }
-inline QString License::LicenseTypeToQString( License::LicenseType license ) {
+inline QString License::LicenseTypeToQString( const License::LicenseType& license ) {
 
 	QString sType;
 	

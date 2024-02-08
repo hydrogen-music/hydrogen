@@ -78,7 +78,7 @@ public:
 		Probability = 4,
 		None = 5
 	};
-	static QString modeToQString( Mode mode );
+	static QString modeToQString( const Mode& mode );
 	
 	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
@@ -123,7 +123,7 @@ public:
 	}
 
 	//! Deselecting notes
-	virtual bool checkDeselectElements( std::vector<SelectionIndex> &elements ) override;
+	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
 
 	//! Change the mouse cursor during mouse gestures
 	virtual void startMouseLasso( QMouseEvent *ev ) override {
@@ -143,9 +143,11 @@ public:
 	bool notesMatchExactly( H2Core::Note *pNoteA, H2Core::Note *pNoteB ) const;
 
 	//! Deselect some notes, and "overwrite" some others.
-	void deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
+	void deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+									const std::vector< H2Core::Note *>& overwritten );
 
-	void undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
+	void undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+										const std::vector< H2Core::Note *>& overwritten );
 
 	//! Raw Qt mouse events are passed to the Selection
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
@@ -171,20 +173,20 @@ public:
 							   int nLength,
 							   int nSelectedPatternNumber,
 							   int nSelectedInstrumentnumber,
-							   Editor editor );
+							   const Editor& editor );
 	
 	void editNotePropertiesAction( int nColumn,
 								   int nRealColumn,
 								   int nRow,
 								   int nSelectedPatternNumber,
 								   int nSelectedInstrumentNumber,
-								   Mode mode,
-								   Editor editor,
+								   const Mode& mode,
+								   const Editor& editor,
 								   float fVelocity,
 								   float fPan,
 								   float fLeadLag,
 								   float fProbability );
-	static void triggerStatusMessage( H2Core::Note* pNote, Mode mode );
+	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
 
 	// Pitch / line conversions
 	int lineToPitch( int nLine ) {
@@ -217,7 +219,7 @@ public slots:
 	virtual void randomizeVelocity();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void scrolled( int nValue );
 
 protected:
@@ -267,7 +269,7 @@ protected:
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.
-	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
+	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining selected notes
 	QColor selectedNoteColor() const;
@@ -282,7 +284,8 @@ protected:
 	 *   pattern currently shown in the pattern editor (the one
 	 *   selected in the song editor)
 	 */
-	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground = true ) const;
+	void drawNoteSymbol( QPainter &p, const QPoint& pos, H2Core::Note *pNote,
+						 bool bIsForeground = true ) const;
 
 	//! Get notes to show in pattern editor.
 	//! This may include "background" notes that are in currently-playing patterns

@@ -93,7 +93,7 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
+MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveFilename( "" )
 {
@@ -122,14 +122,11 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	if ( ! pHydrogen->isUnderSessionManagement() ){
 		std::shared_ptr<H2Core::Song>pSong = nullptr;
 
-		if ( sSongFilename.isEmpty() ) {
-			if ( pPref->isRestoreLastSongEnabled() ) {
-				sSongFilename = pPref->getLastSongFilename();
-			}
-		}
-
 		bool bRet = false;
-		if ( !sSongFilename.isEmpty() ) {
+		if ( sSongFilename.isEmpty() && pPref->isRestoreLastSongEnabled() ) {
+			bRet = HydrogenApp::openSong( pPref->getLastSongFilename() );
+		}
+		else if ( !sSongFilename.isEmpty() ) {
 			if ( sSongFilename == H2Core::Filesystem::empty_song_path() ) {
 				bRet = HydrogenApp::recoverEmptySong();
 			} else {
@@ -965,13 +962,13 @@ void MainForm::showUserManual()
 			  << "en"; // English as fallback
 
 	// Find manual in filesystem
-	for ( QString sLang : languages ) {
+	for ( const QString& sLang : languages ) {
 		QStringList sCandidates ( sLang );
 		QStringList s = sLang.split('-');
 		if ( s.size() != 1 ) {
 			sCandidates << s[0];
 		}
-		for ( QString sCandidate : sCandidates ) {
+		for ( const QString& sCandidate : sCandidates ) {
 			QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath ).arg( sCandidate );
 			if ( Filesystem::file_exists( sManualPath ) ) {
 				QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
@@ -1101,7 +1098,7 @@ void MainForm::action_file_openPattern()
 	if ( fd.exec() == QDialog::Accepted ) {
 		Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
-		for ( auto& ssFilename : fd.selectedFiles() ) {
+		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
 			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->getInstruments() );
 			if ( pNewPattern == nullptr ) {
@@ -1608,7 +1605,7 @@ void MainForm::closeAll(){
 }
 
 
-void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {

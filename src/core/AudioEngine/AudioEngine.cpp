@@ -971,7 +971,7 @@ void AudioEngine::startAudioDrivers()
 	}
 	else {
 		AudioOutput* pAudioDriver;
-		for ( QString sDriver : getSupportedAudioDrivers() ) {
+		for ( const auto& sDriver : getSupportedAudioDrivers() ) {
 			if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
 				break;
 			}
@@ -1563,7 +1563,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
-	for ( auto component : *pSong->getDrumkit()->getComponents() ) {
+	for ( auto& component : *pSong->getDrumkit()->getComponents() ) {
 		DrumkitComponent *pComponent = component.get();
 		for ( unsigned i = 0; i < nFrames; ++i ) {
 			float compo_val_L = pComponent->get_out_L(i);
@@ -2706,11 +2706,11 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_pEventQueue: stringification not implemented\n" ).arg( sPrefix ).arg( s ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : m_fFXPeak_L ) {
+		for ( const auto& ii : m_fFXPeak_L ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_fFXPeak_R: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : m_fFXPeak_R ) {
+		for ( const auto& ii : m_fFXPeak_R ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( " ]\n" ) );
@@ -2777,11 +2777,11 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_pEventQueue: ..." ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( ", m_fFXPeak_L: [" ) );
-		for ( auto ii : m_fFXPeak_L ) {
+		for ( const auto& ii : m_fFXPeak_L ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( "], m_fFXPeak_R: [" ) );
-		for ( auto ii : m_fFXPeak_R ) {
+		for ( const auto& ii : m_fFXPeak_R ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( " ]" ) );

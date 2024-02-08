@@ -52,7 +52,8 @@
 using namespace H2Core;
 
 
-SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString sSampleFilename )
+SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
+							 int nSelectedLayer, const QString& sSampleFilename )
 		: QDialog ( pParent )
 		, Object ()
 {
@@ -324,9 +325,9 @@ void SampleEditor::getAllFrameInfos()
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
-	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
-	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
-	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
+	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString& ) ) );
+	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString& ) ) );
+	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString& ) ) );
 	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
 }
 
@@ -889,7 +890,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 
 
-void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
+void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString&  )
 {
 	int new_settings = rubberbandCsettingscomboBox->currentIndex();
 	if (new_settings == __rubberband.c_settings) {
@@ -914,7 +915,7 @@ void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 }
 
 
-void SampleEditor::valueChangedrubberComboBox( const QString  )
+void SampleEditor::valueChangedrubberComboBox( const QString&  )
 {
 
 	if( rubberComboBox->currentText() != "off" ){
@@ -1002,7 +1003,7 @@ void SampleEditor::checkRatioSettings()
 }
 
 
-void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
+void SampleEditor::valueChangedProcessingTypeComboBox( const QString& unused )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
 		case 0 ://

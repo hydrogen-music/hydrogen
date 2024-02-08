@@ -79,7 +79,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		// Selection manager interface
 		//! Selections are indexed by Note pointers.
 
-		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
@@ -93,7 +93,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		void createBackground() override;

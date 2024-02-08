@@ -88,7 +88,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * \param sFilename Absolute or relative path used to load the next #H2Core::Song.
 		 * \return bool true on success
 		 */
-		static bool openSong( QString sFilename );
+		static bool openSong( const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
 	/**
 	 * Specialized version of openSong( QString sFilename ) trying to
@@ -109,7 +109,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showFilesystemInfoForm();
 		void showPlaylistDialog();
 		void showDirector();
-		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
+		void showSampleEditor( const QString& name, int mSelectedComponemt,
+							   int mSelectedLayer );
 
 		bool hideKeyboardCursor();
 		void setHideKeyboardCursor( bool bHidden );
@@ -185,8 +186,8 @@ signals:
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
 	 */
-	void changePreferences( H2Core::Preferences::Changes changes );
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void changePreferences( const H2Core::Preferences::Changes& changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private slots:
 	void propagatePreferences();

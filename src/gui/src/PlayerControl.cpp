@@ -601,34 +601,30 @@ void PlayerControl::updatePlayerControl()
 
 
 	//beatcounter get BC message
-	char bcstatus[4];
-	int beatstocountondisplay = 1;
-	beatstocountondisplay = m_pHydrogen->getBcStatus();
+	QString sBcStatus;
+	int nEventCount = m_pHydrogen->getBcStatus();
 
-	switch (beatstocountondisplay){
+	switch (nEventCount){
 		case 1 :
-			if (bcDisplaystatus == 1){
+			if ( bcDisplaystatus == 1 ){
 				Preferences::get_instance()->m_bbc = Preferences::BC_OFF;
 				bcDisplaystatus = 0;
 			}
-			sprintf(bcstatus, "R");
-			if ( m_pBCDisplayZ->text() != bcstatus ) {
-				m_pBCDisplayZ->setText( QString (bcstatus) );
-			}
+			sBcStatus = "R";
 
 			break;
 		default:
-			if (Preferences::get_instance()->m_bbc == Preferences::BC_OFF){
+			if ( Preferences::get_instance()->m_bbc == Preferences::BC_OFF ){
 				Preferences::get_instance()->m_bbc = Preferences::BC_ON;
 				bcDisplaystatus = 1;
 			}
-			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
-			if ( m_pBCDisplayZ->text() != bcstatus ) {
-				m_pBCDisplayZ->setText( QString (bcstatus) );
-			}
-
+			sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10,
+											 QChar(static_cast<char>(0)) );
 	}
-	
+	if ( m_pBCDisplayZ->text() != sBcStatus ) {
+		m_pBCDisplayZ->setText( sBcStatus );
+	}
+
 	// Rubberband
 	if ( m_pRubberBPMChange->isChecked() != pPref->getRubberBandBatchMode() ) {
 		m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
@@ -843,30 +839,32 @@ void PlayerControl::rubberbandButtonToggle()
 
 void PlayerControl::bcbUpButtonClicked()
 {
-	int tmp = m_pHydrogen->getBeatsToCount();
-	char tmpb[3];
-
-	tmp ++;
-	if (tmp > 16) {
-		tmp = 2;
+	int nBeatsToCount = m_pHydrogen->getBeatsToCount();
+	nBeatsToCount++;
+	if ( nBeatsToCount > 16 ) {
+		nBeatsToCount = 2;
 	}
-	
-	sprintf(tmpb, "%02d", tmp );
-	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setBeatsToCount( tmp );
+
+	m_pHydrogen->setBeatsToCount( nBeatsToCount );
+
+	m_pBCDisplayB->setText(
+		QString( "%1" ).arg( m_pHydrogen->getBeatsToCount(), 2, 10,
+							 QChar(static_cast<char>(0)) ) );
 }
 
 void PlayerControl::bcbDownButtonClicked()
 {
-	int tmp = m_pHydrogen->getBeatsToCount();
-	char tmpb[3];
-	tmp --;
-	if (tmp < 2 ) {
-		tmp = 16;
+	int nBeatsToCount = m_pHydrogen->getBeatsToCount();
+	nBeatsToCount--;
+	if ( nBeatsToCount < 2 ) {
+		nBeatsToCount = 16;
 	}
-	sprintf(tmpb, "%02d", tmp );
-	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setBeatsToCount( tmp );
+	m_pHydrogen->setBeatsToCount( nBeatsToCount );
+
+	m_pBCDisplayB->setText(
+		QString( "%1" ).arg( m_pHydrogen->getBeatsToCount(), 2, 10,
+							 QChar(static_cast<char>(0)) ) );
+
 }
 
 void PlayerControl::bctUpButtonClicked()
@@ -1199,7 +1197,7 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
-void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PlayerControl::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		auto pPref = Preferences::get_instance();

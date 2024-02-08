@@ -1245,7 +1245,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto pp : *m_pPatternGroupSequence ) {
+		for ( const auto& pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1258,7 +1258,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
 			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
 			.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto mm : m_latestRoundRobins ) {
+		for ( const auto& mm : m_latestRoundRobins ) {
 			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1292,7 +1292,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", m_pPatternGroupSequence:" ) );
-		for ( auto pp : *m_pPatternGroupSequence ) {
+		for ( const auto& pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1305,7 +1305,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
 			.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) )
 			.append( QString( ", m_latestRoundRobins" ) );
-		for ( auto mm : m_latestRoundRobins ) {
+		for ( const auto& mm : m_latestRoundRobins ) {
 			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( ", m_mode: %1" )

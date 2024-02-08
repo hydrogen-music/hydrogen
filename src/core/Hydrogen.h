@@ -101,8 +101,8 @@ public:
 	void			sequencerStop();
 
 	///Last received midi message
-	MidiMessage::Event	getLastMidiEvent() const;
-	void				setLastMidiEvent( MidiMessage::Event event );
+	const MidiMessage::Event& getLastMidiEvent() const;
+	void				setLastMidiEvent( const MidiMessage::Event& event );
 	int					getLastMidiEventParameter() const;
 	void				setLastMidiEventParameter( int nParam );
 
@@ -159,19 +159,19 @@ public:
 	/** Wrapper around Song::setMode() which also triggers
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setMode( Song::Mode mode );
+	void setMode( const Song::Mode& mode );
 	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers
 	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setActionMode( Song::ActionMode mode );
+	void setActionMode( const Song::ActionMode& mode );
 
 	Song::PatternMode getPatternMode() const;
 	/** Wrapper around Song::setPatternMode() which also triggers
 	EVENT_STACKED_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setPatternMode( Song::PatternMode mode );
+	void setPatternMode( const Song::PatternMode& mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -346,7 +346,7 @@ public:
 	/**
 	 * Wrapper function for loading the playback track.
 	 */
-	void			loadPlaybackTrack( QString sFilename );
+	void			loadPlaybackTrack( const QString& sFilename );
 	/************************************************************/
 
 	/** Specifies the state of the Qt GUI*/
@@ -360,10 +360,10 @@ public:
 	};
 	
 	/**\return #m_GUIState*/
-	GUIState		getGUIState() const;
+	const GUIState&	getGUIState() const;
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_GUIState.*/
-	void			setGUIState( const GUIState state );
+	void			setGUIState( const GUIState& state );
 	/**
 	 * \return Whether JackAudioDriver is used as current audio
 	 * driver.
@@ -598,11 +598,11 @@ inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
 }
 
-inline Hydrogen::GUIState Hydrogen::getGUIState() const {
+inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {
 	return m_GUIState;
 }
 
-inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
+inline void Hydrogen::setGUIState( const Hydrogen::GUIState& state ) {
 	m_GUIState = state;
 }
 inline int Hydrogen::getSelectedPatternNumber() const
@@ -620,10 +620,10 @@ inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 inline bool Hydrogen::getSessionIsExported() const {
 	return m_bSessionIsExported;
 }
-inline MidiMessage::Event Hydrogen::getLastMidiEvent() const {
+inline const MidiMessage::Event& Hydrogen::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }
-inline void Hydrogen::setLastMidiEvent( MidiMessage::Event event ) {
+inline void Hydrogen::setLastMidiEvent( const MidiMessage::Event& event ) {
 	m_lastMidiEvent = event;
 }
 inline int Hydrogen::getLastMidiEventParameter() const {

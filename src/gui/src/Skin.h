@@ -65,14 +65,15 @@ public:
 	 * \param background Color used.
 	 * \param bHovered Whether the element is currently hovered by mouse.
 	 */
-	static void drawListBackground( QPainter* p, QRect rect, QColor background,
+	static void drawListBackground( QPainter* p, const QRect& rect,
+									QColor background,
 									bool bHovered );
 	/** If a widget is marked inactive the value of its background
 		color are reduced by this factor.*/
-	static QColor makeWidgetColorInactive( QColor color );
+	static QColor makeWidgetColorInactive( const QColor& color );
 		/** If a widget is marked inactive the value of its text color
 		are reduced by this factor.*/
-	static QColor makeTextColorInactive( QColor color );
+	static QColor makeTextColorInactive( const QColor& color );
 
 	static constexpr int nPlayheadWidth = 11;
 	static constexpr int nPlayheadHeight = 8;
@@ -89,7 +90,8 @@ public:
 		OnNext
 	};
 
-	static void drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked );
+	static void drawStackedIndicator( QPainter* p, int x, int y,
+									  const Skin::Stacked& stacked );
 };
 
 

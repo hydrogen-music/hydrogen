@@ -51,7 +51,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	public:
 		QApplication* m_pQApp;
 
-	MainForm( QApplication * pQApplication, QString sSongFilename );
+	MainForm( QApplication * pQApplication, const QString& sSongFilename );
 		~MainForm();
 
 		virtual void errorEvent( int nErrorCode ) override;
@@ -223,7 +223,7 @@ public slots:
 		void setMainWindowSize( int w, int h ) {
 			setFixedSize( w, h );
 		}
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 
 	private slots:

@@ -1255,7 +1255,7 @@ int PatternEditorPanel::moveCursorRight( int n )
 	return m_nCursorPosition;
 }
 
-void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {

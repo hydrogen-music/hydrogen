@@ -27,7 +27,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
-StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
+StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, const QSize& size )
 	: LCDDisplay( pParent, size, false, false )
 	, m_bEntered( false )
 	, m_nShowTimeout( 5500 )
@@ -56,7 +56,7 @@ StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
 StatusMessageDisplay::~StatusMessageDisplay() {
 }
 
-void StatusMessageDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void StatusMessageDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	LCDDisplay::onPreferencesChanged( changes );
 	updateStyleSheet();
 	

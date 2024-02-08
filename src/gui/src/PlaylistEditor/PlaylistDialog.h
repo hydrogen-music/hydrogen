@@ -50,10 +50,10 @@ class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 
 		explicit PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
-		bool loadListByFileName( QString filename);
+		bool loadListByFileName( const QString& filename );
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
 		virtual void closeEvent( QCloseEvent* ev ) override;
@@ -85,7 +85,7 @@ public slots:
 
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
-		void updatePlayListNode( QString file );
+		void updatePlayListNode( const QString& file );
 		void updatePlayListVector();
 		void setFirstItemCurrent();
 		Button *	zoom_in_btn;

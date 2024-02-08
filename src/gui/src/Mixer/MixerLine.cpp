@@ -865,7 +865,7 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	p.drawText( -m_nWidgetHeight + 5, 0, m_nWidgetHeight - 10, m_nWidgetWidth, Qt::AlignVCenter, m_sInstrName );
 }
 
-void InstrumentNameWidget::setText( QString text )
+void InstrumentNameWidget::setText( const QString& text )
 {
 	if (m_sInstrName != text ) {
 		m_sInstrName = text;
@@ -873,7 +873,7 @@ void InstrumentNameWidget::setText( QString text )
 	}
 }
 
-QString InstrumentNameWidget::text()
+const QString& InstrumentNameWidget::text()
 {
 	return m_sInstrName;
 }
@@ -890,7 +890,7 @@ void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 	emit doubleClicked();
 }
 
-void InstrumentNameWidget::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void InstrumentNameWidget::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
@@ -947,7 +947,7 @@ LadspaFXMixerLine::~LadspaFXMixerLine()
 //	infoLog( "DESTROY" );
 }
 
-void LadspaFXMixerLine::setName(QString name)
+void LadspaFXMixerLine::setName( const QString& name )
 {
 	m_pNameLCD->setText( name );
 }

@@ -51,7 +51,7 @@ void AutomationPathSerializer::read_automation_path(const QDomNode &node, Automa
 
 void AutomationPathSerializer::write_automation_path(QDomNode &node, const AutomationPath &path)
 {
-	for (auto point : path) {
+	for ( const auto& point : path ) {
 		auto element = node.ownerDocument().createElement("point");
 		element.setAttribute("x", point.first);
 		element.setAttribute("y", point.second);
