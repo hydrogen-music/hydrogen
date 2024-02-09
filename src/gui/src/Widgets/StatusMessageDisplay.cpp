@@ -126,6 +126,11 @@ void StatusMessageDisplay::leaveEvent( QEvent* ev ) {
 }
 
 void StatusMessageDisplay::mousePressEvent( QMouseEvent* ev ) {
+	if ( m_statusMessages.size() == 0 ) {
+		// No messages to display yet.
+		return;
+	}
+
 	QMenu* messageMenu = new QMenu( this );
 
 	for ( const auto& sMessage : m_statusMessages ) {
