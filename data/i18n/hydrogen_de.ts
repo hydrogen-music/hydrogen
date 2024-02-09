@@ -1655,6 +1655,10 @@ Overwrite the existing file?</source>
         <source>Tag</source>
         <translation>Tag</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>

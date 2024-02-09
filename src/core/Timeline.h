@@ -124,6 +124,9 @@ public:
 	 *   below 30 and above 500 will be cut.
 	 */
 	void		addTempoMarker( int nColumn, float fBpm );
+	/** Variant of #addTempoMarker() to add more than one at a time.*/
+	void		addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& );
+
 	/** Delete all tempo markers except for the first one and
 	 * mark the tempo of the Timeline m_bUnset.
 	 *
@@ -151,7 +154,7 @@ public:
 	 * @return std::vector<std::shared_ptr<const TempoMarker>>
 	 * Provides read-only access to m_tempoMarker.
 	 */
-	const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
+	const std::vector<std::shared_ptr<const TempoMarker>>& getAllTempoMarkers() const;
 
 	/** Whether there is a TempoMarker introduced by the user at the
 		first column. If not, the Timeline pretends that there is one by
@@ -168,6 +171,8 @@ public:
 	 * @param sTag New tag in beats per minute.
 	 */
 	void		addTag( int nColumn, const QString& sTag );
+	/** Variant of #addTag() to add more than one at a time.*/
+	void		addTags( const std::vector<std::shared_ptr<Tag>>& );
 	/**
 	 * @param nColumn Position of the Timeline to delete the tag
 	 * at (if one is present).
@@ -204,7 +209,14 @@ public:
 private:
 	void		sortTempoMarkers();
 	void		sortTags();
+	/** Constructs/updates #m_allTempoMarkers based on #m_tempoMarkers. */
+	void		updateTempoMarkers();
 
+
+	/** Version of #m_tempoMarkers containing the optional special one too.
+	 * Since the later must not be written to disk, this member is kept to
+	 * increase performance. */
+	std::vector<std::shared_ptr<const TempoMarker>> m_allTempoMarkers;
 	std::vector<std::shared_ptr<const TempoMarker>> m_tempoMarkers;
 	std::vector<std::shared_ptr<const Tag>> m_tags;
 
@@ -237,6 +249,9 @@ inline void Timeline::deleteAllTempoMarkers() {
 }
 inline void Timeline::deleteAllTags() {
 	m_tags.clear();
+}
+inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>>& Timeline::getAllTempoMarkers() const {
+	return m_allTempoMarkers;
 }
 inline const std::vector<std::shared_ptr<const Timeline::Tag>>& Timeline::getAllTags() const {
 	return m_tags;

@@ -457,10 +457,19 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	XMLNode bpmTimeLineNode = pRootNode->firstChildElement( "BPMTimeLine" );
 	if ( ! bpmTimeLineNode.isNull() ) {
 		XMLNode newBPMNode = bpmTimeLineNode.firstChildElement( "newBPM" );
+
+		// Use more efficient version to add TempoMarkers that will only
+		// sort and update them once.
+		std::vector<std::shared_ptr<Timeline::TempoMarker>> tempoMarkers;
 		while ( ! newBPMNode.isNull() ) {
-			pTimeline->addTempoMarker( newBPMNode.read_int( "BAR", 0, false, false, bSilent ),
-									   newBPMNode.read_float( "BPM", 120.0, false, false, bSilent ) );
+			tempoMarkers.push_back( std::make_shared<Timeline::TempoMarker>(
+				newBPMNode.read_int( "BAR", 0, false, false, bSilent ),
+				newBPMNode.read_float( "BPM", 120.0, false, false, bSilent ) ) );
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
+		}
+
+		if ( tempoMarkers.size() > 0 ) {
+			pTimeline->addTempoMarkers( tempoMarkers );
 		}
 	} else if ( ! bSilent ) {
 		WARNINGLOG( "'BPMTimeLine' node not found" );
@@ -469,10 +478,19 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	XMLNode timeLineTagNode = pRootNode->firstChildElement( "timeLineTag" );
 	if ( ! timeLineTagNode.isNull() ) {
 		XMLNode newTAGNode = timeLineTagNode.firstChildElement( "newTAG" );
+		// Use more efficient version to add TempoMarkers that will only sort
+		// once.
+		std::vector<std::shared_ptr<Timeline::Tag>> tags;
+
 		while ( ! newTAGNode.isNull() ) {
-			pTimeline->addTag( newTAGNode.read_int( "BAR", 0, false, false, bSilent ),
-							   newTAGNode.read_string( "TAG", "", false, false, bSilent ) );
+			tags.push_back( std::make_shared<Timeline::Tag>(
+				newTAGNode.read_int( "BAR", 0, false, false, bSilent ),
+				newTAGNode.read_string( "TAG", "", false, false, bSilent ) ) );
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
+		}
+
+		if ( tags.size() > 0 ) {
+			pTimeline->addTags( tags );
 		}
 	} else if ( ! bSilent ) {
 		WARNINGLOG( "TagTimeLine node not found" );

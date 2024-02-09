@@ -1654,6 +1654,10 @@ Sobrescrever o arquivo existente?</translation>
         <source>Tag</source>
         <translation>Etiquetar</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
