@@ -1004,8 +1004,12 @@ void PlayerControl::updateBPMSpinbox() {
 	updateBPMSpinboxToolTip();
 }
 
-void PlayerControl::showStatusBarMessage( const QString& sMessage, const QString& sCaller ) {
-	m_pStatusLabel->showMessage( sMessage, sCaller );
+void PlayerControl::showStatusBarMessage( const QString& sMessage,
+										  const QString& sCaller ) {
+	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
+		 H2Core::Hydrogen::GUIState::ready ) {
+		m_pStatusLabel->showMessage( sMessage, sCaller );
+	}
 }
 
 void PlayerControl::updateBPMSpinboxToolTip() {
