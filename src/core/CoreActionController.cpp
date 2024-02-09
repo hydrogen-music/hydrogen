@@ -517,7 +517,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 	pHydrogen->setSong( pSong );
 	
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
 	
@@ -588,7 +588,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
 		
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
 
@@ -625,7 +625,7 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	}
 	
@@ -668,7 +668,7 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 
 bool CoreActionController::savePreferences() {
 	
-	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::headless ) {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_PREFERENCES, 0 );
@@ -679,7 +679,7 @@ bool CoreActionController::savePreferences() {
 }
 bool CoreActionController::quit() {
 
-	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 	} else {
 		// TODO: Close Hydrogen with no GUI present.
@@ -1538,7 +1538,7 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	pHydrogen->setIsModified( true );
 	
 	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 	}
 	return true;
@@ -1723,7 +1723,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	pHydrogen->setIsModified( true );
 	
 	// Update the SongEditor.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_GRID_CELL_TOGGLED, 0 );
 	}
 

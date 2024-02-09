@@ -327,6 +327,10 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+		// Tell the core that we are done initializing the most basic parts.
+		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+
 		std::shared_ptr<Song> pSong = nullptr;
 		Playlist *pPlaylist = nullptr;
 

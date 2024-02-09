@@ -351,12 +351,16 @@ public:
 
 	/** Specifies the state of the Qt GUI*/
 	enum class		GUIState {
-		/**There is a GUI but it is not ready yet (during startup).*/
-		notReady = -1,
-		/**No GUI available.*/
-		unavailable = 0,
-		/**There is a working GUI.*/
-		ready = 1
+		/** Hydrogen is still starting up. Core maybe already somewhat ready but
+		 * GUI is most probably not.*/
+		startup = -1,
+		/** Hydrogen is up and running but there is no GUI available. */
+		headless = 0,
+		/** Hydrogen is up and running and there is a working GUI. */
+		ready = 1,
+		/** Teardown of Hydrogen was initialized and the Event handling system
+		 * might not work anymore. */
+		shutdown
 	};
 	
 	/**\return #m_GUIState*/

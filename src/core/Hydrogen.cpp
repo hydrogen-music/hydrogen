@@ -105,7 +105,7 @@ Hydrogen* Hydrogen::__instance = nullptr;
 Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
-					 , m_GUIState( GUIState::unavailable )
+					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
 					 , m_CurrentTime( {0,0} )

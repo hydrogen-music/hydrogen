@@ -560,9 +560,6 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		
-		// Tell Hydrogen it was started via the QT5 GUI.
-		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::notReady );
-		
 		pHydrogen->startNsmClient();
 
 		// If the NSM_URL variable is present, Hydrogen will not

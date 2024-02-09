@@ -1595,6 +1595,9 @@ void MainForm::savePreferences() {
 }
 
 void MainForm::closeAll(){
+	H2Core::Hydrogen::get_instance()->setGUIState(
+		H2Core::Hydrogen::GUIState::shutdown );
+
 	// Store the last playlist in the Preferences in order to allow to
 	// reopen it at startup.
 	Preferences::get_instance()->setLastPlaylistFilename(
