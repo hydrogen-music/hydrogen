@@ -134,7 +134,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
 			}
 		}
 
-		if ( sSongFilename.isEmpty() || ! bRet ) {
+		if ( sSongFilename.isEmpty() && ! bRet ) {
 			pSong = H2Core::Song::getEmptySong();
 			HydrogenApp::openSong( pSong );
 		}
