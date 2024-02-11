@@ -48,7 +48,7 @@
 namespace H2Core {
 
 std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
-	XMLNode* pNode, const QString& sSongPath, bool bSilent )
+	const XMLNode& node, const QString& sSongPath, bool bSilent )
 {
 
 	// These old kits contain only an instrument list and all instrument
@@ -60,12 +60,12 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pComponents =
 		std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	XMLNode componentListNode = pNode->firstChildElement( "componentList" );
+	XMLNode componentListNode = node.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
 		// Song was written after the introduction of components.
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pComponents->push_back( pDrumkitComponent );
 			}
@@ -81,14 +81,14 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 
 	// Since drumkit parts were stored at root level, we have access to all
 	// other data in here too.
-	auto license = License( pNode->read_string( "license", "", false,
+	auto license = License( node.read_string( "license", "", false,
 												false, true ) );
 
 	// Instrument List
 	//
 	// By supplying no drumkit path the individual drumkit meta infos
 	// stored in the 'instrument' nodes will be used.
-	auto pInstrumentList = InstrumentList::load_from( pNode,
+	auto pInstrumentList = InstrumentList::load_from( node,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
 													  sSongPath,
@@ -100,9 +100,9 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	}
 
 	QString sLastLoadedDrumkitPath =
-		pNode->read_string( "last_loaded_drumkit", "", true, false, true );
+		node.read_string( "last_loaded_drumkit", "", true, false, true );
 	QString sLastLoadedDrumkitName =
-		pNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+		node.read_string( "last_loaded_drumkit_name", "", true, false, true );
 
 	if ( sLastLoadedDrumkitPath.isEmpty() ) {
 		// Prior to version 1.2.0 the last loaded drumkit was read
@@ -178,25 +178,25 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	return pNewDrumkit;
 }
 
-void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
+void Legacy::saveEmbeddedSongDrumkit( XMLNode& rootNode,
 									  std::shared_ptr<Drumkit> pDrumkit,
 									  bool bSilent ) {
 
-	pRootNode->write_string( "last_loaded_drumkit", pDrumkit->getPath() );
-	pRootNode->write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
+	rootNode.write_string( "last_loaded_drumkit", pDrumkit->getPath() );
+	rootNode.write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
 
-	XMLNode componentListNode = pRootNode->createNode( "componentList" );
+	XMLNode componentListNode = rootNode.createNode( "componentList" );
 	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
 		if ( ppComponent != nullptr ) {
-			ppComponent->save_to( &componentListNode );
+			ppComponent->save_to( componentListNode );
 		}
 	}
 
-	pDrumkit->getInstruments()->save_to( pRootNode, -1, true, true );
+	pDrumkit->getInstruments()->save_to( rootNode, -1, true, true );
 }
 
 std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
-	XMLNode* pNode,
+	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
@@ -206,11 +206,11 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
 	}
 
-	if ( pNode->firstChildElement( "filename" ).isNull() ) {
+	if ( node.firstChildElement( "filename" ).isNull() ) {
 		// not that old but no component yet.
 		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 
-		XMLNode layerNode = pNode->firstChildElement( "layer" );
+		XMLNode layerNode = node.firstChildElement( "layer" );
 		int nLayer = 0;
 		while ( ! layerNode.isNull() ) {
 			if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
@@ -221,7 +221,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 			}
 
 			auto pLayer = InstrumentLayer::load_from(
-				&layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
+				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
 				pCompo->set_layer( pLayer, nLayer );
 				nLayer++;
@@ -238,7 +238,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	}
 	else {
 		// back compatibility code ( song version <= 0.9.0 )
-		QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
+		QString sFilename = node.read_string( "filename", "", false, false, bSilent );
 
 		if ( ! Filesystem::file_exists( sFilename ) && ! sDrumkitPath.isEmpty() ) {
 			sFilename = sDrumkitPath + "/" + sFilename;
@@ -446,7 +446,9 @@ Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 	return pPlaylist;
 }
 
-std::vector<PatternList*>* Legacy::loadPatternGroupVector( XMLNode* pNode, PatternList* pPatternList, bool bSilent ) {;
+std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
+														   PatternList* pPatternList,
+														   bool bSilent ) {;
 
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
 
@@ -454,7 +456,7 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( XMLNode* pNode, Patte
 		WARNINGLOG( "Using old pattern group vector code for back compatibility" );
 	}
 	
-	XMLNode pPatternIDNode = pNode->firstChildElement( "patternID" );
+	XMLNode pPatternIDNode = node.firstChildElement( "patternID" );
 	while ( ! pPatternIDNode.isNull() ) {
 	
 		PatternList* pPatternSequence = new PatternList();

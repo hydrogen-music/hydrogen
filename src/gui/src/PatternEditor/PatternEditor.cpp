@@ -421,7 +421,7 @@ void PatternEditor::copy()
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( &note_node );
+		pNote->save_to( note_node );
 	}
 
 	if ( bWroteNote ) {

@@ -61,8 +61,11 @@ class XMLNode;
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static PatternList* load_from( XMLNode* pNode, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent = false );
-	void save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
+	static PatternList* load_from( const XMLNode& pNode,
+								   std::shared_ptr<InstrumentList> pInstrumentList,
+								   bool bSilent = false );
+	void save_to( XMLNode& pNode,
+				  const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
 
 		/** returns the numbers of patterns */
 		int size() const;

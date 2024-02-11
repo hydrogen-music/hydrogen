@@ -68,7 +68,8 @@ XMLNode XMLNode::createNode( const QString& name )
 	return node;
 }
 
-QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok, bool bSilent )
+QString XMLNode::read_child_node( const QString& node, bool inexistent_ok,
+								  bool empty_ok, bool bSilent ) const
 {
 	if( isNull() ) {
 		ERRORLOG( QString( "try to read %1 XML node from an empty parent %2." )
@@ -93,7 +94,8 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
 	return el.text();
 }
 
-QString XMLNode::read_string( const QString& node, const QString& sDefaultValue, bool inexistent_ok, bool empty_ok, bool bSilent )
+QString XMLNode::read_string( const QString& node, const QString& sDefaultValue,
+							  bool inexistent_ok, bool empty_ok, bool bSilent ) const
 {
 	QString sText = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if ( sText.isNull() && ! sDefaultValue.isEmpty() ) {
@@ -105,7 +107,8 @@ QString XMLNode::read_string( const QString& node, const QString& sDefaultValue,
 	}
 	return sText;
 }
-QColor XMLNode::read_color( const QString& node, const QColor& default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+QColor XMLNode::read_color( const QString& node, const QColor& default_value,
+							bool inexistent_ok, bool empty_ok, bool bSilent ) const
 {
 	QString text = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	
@@ -137,7 +140,8 @@ QColor XMLNode::read_color( const QString& node, const QColor& default_value, bo
 	return default_value;
 }
 
-float XMLNode::read_float( const QString& node, float default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+float XMLNode::read_float( const QString& node, float default_value,
+						   bool inexistent_ok, bool empty_ok, bool bSilent ) const
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
@@ -151,7 +155,9 @@ float XMLNode::read_float( const QString& node, float default_value, bool inexis
 	return c_locale.toFloat( ret );
 }
 
-float XMLNode::read_float( const QString& node, float default_value, bool *pFound, bool inexistent_ok, bool empty_ok, bool bSilent )
+float XMLNode::read_float( const QString& node, float default_value,
+						   bool *pFound, bool inexistent_ok, bool empty_ok,
+						   bool bSilent ) const
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
@@ -168,7 +174,8 @@ float XMLNode::read_float( const QString& node, float default_value, bool *pFoun
 	}
 }
 
-int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok,
+					   bool empty_ok, bool bSilent ) const
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
@@ -182,7 +189,8 @@ int XMLNode::read_int( const QString& node, int default_value, bool inexistent_o
 	return c_locale.toInt( ret );
 }
 
-bool XMLNode::read_bool( const QString& node, bool default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+bool XMLNode::read_bool( const QString& node, bool default_value,
+						 bool inexistent_ok, bool empty_ok, bool bSilent ) const
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
@@ -199,7 +207,9 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool inexisten
 	}
 }
 
-bool XMLNode::read_bool( const QString& node, bool default_value, bool* pFound, bool inexistent_ok, bool empty_ok, bool bSilent )
+bool XMLNode::read_bool( const QString& node, bool default_value,
+						 bool* pFound, bool inexistent_ok, bool empty_ok,
+						 bool bSilent ) const
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
@@ -219,7 +229,7 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool* pFound, 
 	}
 }
 
-QString XMLNode::read_text( bool empty_ok, bool bSilent )
+QString XMLNode::read_text( bool empty_ok, bool bSilent ) const
 {
 	QString text = toElement().text();
 	if ( !empty_ok && text.isEmpty() && ! bSilent ) {
@@ -228,7 +238,9 @@ QString XMLNode::read_text( bool empty_ok, bool bSilent )
 	return text;
 }
 
-QString XMLNode::read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok, bool bSilent )
+QString XMLNode::read_attribute( const QString& attribute,
+								 const QString& default_value, bool inexistent_ok,
+								 bool empty_ok, bool bSilent ) const
 {
 	QDomElement el = toElement();
 	if ( !inexistent_ok && !el.hasAttribute( attribute ) ) {
@@ -294,7 +306,8 @@ void XMLNode::write_bool( const QString& name, const bool value )
 
 XMLDoc::XMLDoc( ) { }
 
-bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bSilent )
+bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath,
+				   bool bSilent )
 {
 	
 	QFile file( sFilePath );

@@ -68,7 +68,7 @@ void InstrumentList::unload_samples()
 }
 
 std::shared_ptr<InstrumentList> InstrumentList::load_from(
-	XMLNode* pNode,
+	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
@@ -77,7 +77,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	bool bSilent )
 {
 
-	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
+	XMLNode instrumentListNode = node.firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
 		ERRORLOG( "'instrumentList' node not found. Unable to load instrument list." );
 		return nullptr;
@@ -95,7 +95,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 		}
 
 		auto pInstrument = Instrument::load_from(
-			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
 			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
@@ -116,17 +116,17 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode* node,
+void InstrumentList::save_to( XMLNode& node,
 							  int component_id,
 							  bool bRecentVersion,
-							  bool bSongKit )
+							  bool bSongKit ) const
 {
-	XMLNode instruments_node = node->createNode( "instrumentList" );
+	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
 		assert( pInstrument );
 		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( &instruments_node, component_id, bRecentVersion,
+			pInstrument->save_to( instruments_node, component_id, bRecentVersion,
 								  bSongKit );
 		}
 	}

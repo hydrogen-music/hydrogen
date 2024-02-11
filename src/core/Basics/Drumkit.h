@@ -123,7 +123,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
-		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
+		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sPath,
 												  const QString& sSongPath,
 												  bool bSongKit = false,
@@ -144,7 +144,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void saveTo( XMLNode* pNode,
+		void saveTo( XMLNode& pNode,
 					 int nComponent_id = -1,
 					 bool bRecentVersion = true,
 					 bool bSongKit = false,

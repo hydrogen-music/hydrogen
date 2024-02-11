@@ -79,9 +79,9 @@ class NoteTest : public CppUnit::TestCase {
 
 		Note *in = new Note(snare, 0, 1.0f, 0.5f, 1, 1.0f);
 		in->set_probability(0.67f);
-		in->save_to(&node);
+		in->save_to(node);
 
-		Note *out = Note::load_from(&node, instruments);
+		Note *out = Note::load_from(node, instruments);
 
 		CPPUNIT_ASSERT(in->get_instrument() == out->get_instrument());
 		CPPUNIT_ASSERT_EQUAL(in->get_position(), out->get_position());

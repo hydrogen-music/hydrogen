@@ -407,7 +407,7 @@ public:
 	bool			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
-	bool			savePreferences();
+	bool			savePreferences() const;
 
 	const QString&	getDataDirectory();
 
@@ -786,8 +786,11 @@ private:
 	
 	Preferences();
 
-	WindowProperties readWindowProperties( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp );
-	void writeWindowProperties( XMLNode& parent, const QString& windowName, const WindowProperties& prop );
+	static WindowProperties loadWindowPropertiesFrom( const XMLNode& parent,
+													  const QString& sWindowName,
+													  const WindowProperties& defaultProp );
+	static void saveWindowPropertiesTo( XMLNode& parent, const QString& sWindowName,
+										const WindowProperties& prop );
 
 	bool m_bLoadingSuccessful;
 };

@@ -61,7 +61,9 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		int read_int( const QString& node, int default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+		int read_int( const QString& node, int default_value,
+					  bool inexistent_ok = true, bool empty_ok = true,
+					  bool bSilent = false ) const;
 		/**
 		 * reads a boolean stored into a child node
 		 * \param node the name of the child node to read into
@@ -71,7 +73,9 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		bool read_bool( const QString& node, bool default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+		bool read_bool( const QString& node, bool default_value,
+						bool inexistent_ok = true, bool empty_ok = true,
+						bool bSilent = false ) const;
 		/**
 		 * reads a boolean stored into a child node
 		 * \param node the name of the child node to read into
@@ -82,7 +86,9 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-	bool read_bool( const QString& node, bool default_value, bool* pFound, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+	bool read_bool( const QString& node, bool default_value, bool* pFound,
+					bool inexistent_ok = true, bool empty_ok = true,
+					bool bSilent = false ) const;
 		/**
 		 * reads a float stored into a child node
 		 * \param node the name of the child node to read into
@@ -92,8 +98,12 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		float read_float( const QString& node, float default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
-		float read_float( const QString& node, float default_value, bool *pFound, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+		float read_float( const QString& node, float default_value,
+						  bool inexistent_ok = true, bool empty_ok = true,
+						  bool bSilent = false ) const;
+		float read_float( const QString& node, float default_value, bool *pFound,
+						  bool inexistent_ok = true, bool empty_ok = true,
+						  bool bSilent = false ) const ;
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
@@ -103,8 +113,13 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		QString read_string( const QString& node, const QString& default_value, bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
-	QColor read_color( const QString& node, const QColor& defaultValue = QColor( 97, 167, 251 ), bool inexistent_ok=true, bool empty_ok=true, bool bSilent = false );
+		QString read_string( const QString& node, const QString& default_value,
+							 bool inexistent_ok = true, bool empty_ok = true,
+							 bool bSilent = false ) const;
+		QColor read_color( const QString& node,
+						   const QColor& defaultValue = QColor( 97, 167, 251 ),
+						   bool inexistent_ok = true, bool empty_ok = true,
+						   bool bSilent = false ) const;
 
 		/**
 		 * reads an attribute from the node
@@ -115,7 +130,9 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		QString read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok, bool bSilent = false );
+		QString read_attribute( const QString& attribute,
+								const QString& default_value, bool inexistent_ok,
+								bool empty_ok, bool bSilent = false ) const;
 
 		/**
 		 * reads the text (content) from the node
@@ -123,7 +140,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-		QString read_text( bool empty_ok, bool bSilent = false );
+		QString read_text( bool empty_ok, bool bSilent = false ) const;
 
 		/**
 		 * write an integer into a child node
@@ -166,7 +183,8 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-	QString read_child_node( const QString& node, bool inexistent_ok, bool empty_ok, bool bSilent = false );
+	QString read_child_node( const QString& node, bool inexistent_ok,
+							 bool empty_ok, bool bSilent = false ) const;
 		/**
 		 * write a string into a child node
 		 * \param node the name of the child node to create
@@ -192,7 +210,8 @@ class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 		 * \param bSilent Whether debug and info messages should be logged
 		 * when anomalies are encountered while reading the XML nodes.
 		 */
-	bool read( const QString& filepath, const QString& schemapath=nullptr, bool bSilent = false );
+	bool read( const QString& filepath, const QString& schemapath = nullptr,
+			   bool bSilent = false );
 		/**
 		 * write itself into a file
 		 * \param filepath the path to the file to write to

@@ -262,7 +262,7 @@ public:
 	Shortcuts( const std::shared_ptr<Shortcuts> pOther );
 	~Shortcuts();
 
-	void saveTo( XMLNode& node );
+	void saveTo( XMLNode& node ) const;
 	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, bool bSilent = false );
 
 	/**

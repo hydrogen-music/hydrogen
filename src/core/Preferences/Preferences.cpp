@@ -637,14 +637,22 @@ bool Preferences::loadPreferences( bool bGlobal )
 				m_nSongEditorGridWidth = guiNode.read_int( "songEditorGridWidth", m_nSongEditorGridWidth, false, false );
 
 				// mainForm window properties
-				setMainFormProperties( readWindowProperties( guiNode, "mainForm_properties", mainFormProperties ) );
-				setMixerProperties( readWindowProperties( guiNode, "mixer_properties", mixerProperties ) );
-				setPatternEditorProperties( readWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties ) );
-				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
-				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
-				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
-				setPlaylistDialogProperties( readWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties ) );
-				setDirectorProperties( readWindowProperties( guiNode, "director_properties", m_directorProperties ) );
+				setMainFormProperties( loadWindowPropertiesFrom(
+					guiNode, "mainForm_properties", mainFormProperties ) );
+				setMixerProperties( loadWindowPropertiesFrom(
+					guiNode, "mixer_properties", mixerProperties ) );
+				setPatternEditorProperties( loadWindowPropertiesFrom(
+					guiNode, "patternEditor_properties", patternEditorProperties ) );
+				setSongEditorProperties( loadWindowPropertiesFrom(
+					guiNode, "songEditor_properties", songEditorProperties ) );
+				setInstrumentRackProperties( loadWindowPropertiesFrom(
+					guiNode, "instrumentRack_properties", instrumentRackProperties ) );
+				setAudioEngineInfoProperties( loadWindowPropertiesFrom(
+					guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
+				setPlaylistDialogProperties( loadWindowPropertiesFrom(
+					guiNode, "playlistDialog_properties", m_playlistDialogProperties ) );
+				setDirectorProperties( loadWindowPropertiesFrom(
+					guiNode, "director_properties", m_directorProperties ) );
 
 				// last used file dialog folders
 				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
@@ -717,7 +725,8 @@ bool Preferences::loadPreferences( bool bGlobal )
 
 				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 					QString sNodeName = QString("ladspaFX_properties%1").arg( nFX );
-					setLadspaProperties( nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
+					setLadspaProperties( nFX, loadWindowPropertiesFrom(
+						guiNode, sNodeName, m_ladspaProperties[nFX] ) );
 				}
 
 				XMLNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
@@ -858,7 +867,7 @@ bool Preferences::loadPreferences( bool bGlobal )
 ///
 /// Save the preferences file
 ///
-bool Preferences::savePreferences()
+bool Preferences::savePreferences() const
 {
 	QString sPreferencesFilename;
 	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
@@ -917,10 +926,11 @@ bool Preferences::savePreferences()
 	rootNode.write_bool( "quantizeEvents", quantizeEvents );
 
 	//extern executables
-	if ( !Filesystem::file_executable( m_rubberBandCLIexecutable , true /* silent */) ) {
-		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
+	QString rubberBandCLIexecutable( m_rubberBandCLIexecutable );
+	if ( !Filesystem::file_executable( rubberBandCLIexecutable, true /* silent */) ) {
+		rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
-	rootNode.write_string( "path_to_rubberband", m_rubberBandCLIexecutable );
+	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
 
 	// Recent used songs
 	XMLNode recentUsedSongsNode = rootNode.createNode( "recentUsedSongs" );
@@ -1098,17 +1108,17 @@ bool Preferences::savePreferences()
 		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
 		// MainForm window properties
-		writeWindowProperties( guiNode, "mainForm_properties", mainFormProperties );
-		writeWindowProperties( guiNode, "mixer_properties", mixerProperties );
-		writeWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties );
-		writeWindowProperties( guiNode, "songEditor_properties", songEditorProperties );
-		writeWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties );
-		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
-		writeWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties );
-		writeWindowProperties( guiNode, "director_properties", m_directorProperties );
+		saveWindowPropertiesTo( guiNode, "mainForm_properties", mainFormProperties );
+		saveWindowPropertiesTo( guiNode, "mixer_properties", mixerProperties );
+		saveWindowPropertiesTo( guiNode, "patternEditor_properties", patternEditorProperties );
+		saveWindowPropertiesTo( guiNode, "songEditor_properties", songEditorProperties );
+		saveWindowPropertiesTo( guiNode, "instrumentRack_properties", instrumentRackProperties );
+		saveWindowPropertiesTo( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
+		saveWindowPropertiesTo( guiNode, "playlistDialog_properties", m_playlistDialogProperties );
+		saveWindowPropertiesTo( guiNode, "director_properties", m_directorProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
-			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
+			saveWindowPropertiesTo( guiNode, sNode, m_ladspaProperties[nFX] );
 		}
 		
 		// last used file dialog folders
@@ -1276,7 +1286,7 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 }
 
 /// Read the xml nodes related to window properties
-WindowProperties Preferences::readWindowProperties( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp )
+WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp )
 {
 	WindowProperties prop { defaultProp };
 
@@ -1300,7 +1310,7 @@ WindowProperties Preferences::readWindowProperties( const XMLNode& parent, const
 
 
 /// Write the xml nodes related to window properties
-void Preferences::writeWindowProperties( XMLNode& parent, const QString& windowName, const WindowProperties& prop )
+void Preferences::saveWindowPropertiesTo( XMLNode& parent, const QString& windowName, const WindowProperties& prop )
 {
 	XMLNode windowPropNode = parent.createNode( windowName );
 	

@@ -194,9 +194,9 @@ void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 	}
 }
 
-QString Note::key_to_string()
+QString Note::key_to_string() const
 {
-	return std::move( QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave ) );
+	return QString( "%1%2" ).arg( __key_str[__key] ).arg( __octave );
 }
 
 void Note::set_key_octave( const QString& str )
@@ -485,29 +485,30 @@ void Note::swing() {
 	}
 }
 
-void Note::save_to( XMLNode* node )
+void Note::save_to( XMLNode& node ) const
 {
-	node->write_int( "position", __position );
-	node->write_float( "leadlag", __lead_lag );
-	node->write_float( "velocity", __velocity );
-	node->write_float( "pan", m_fPan );
-	node->write_float( "pitch", __pitch );
-	node->write_string( "key", key_to_string() );
-	node->write_int( "length", __length );
-	node->write_int( "instrument", get_instrument()->get_id() );
-	node->write_bool( "note_off", __note_off );
-	node->write_float( "probability", __probability );
+	node.write_int( "position", __position );
+	node.write_float( "leadlag", __lead_lag );
+	node.write_float( "velocity", __velocity );
+	node.write_float( "pan", m_fPan );
+	node.write_float( "pitch", __pitch );
+	node.write_string( "key", key_to_string() );
+	node.write_int( "length", __length );
+	node.write_int( "instrument", get_instrument()->get_id() );
+	node.write_bool( "note_off", __note_off );
+	node.write_float( "probability", __probability );
 }
 
-Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent )
+Note* Note::load_from( const XMLNode& node,
+					   std::shared_ptr<InstrumentList> instruments, bool bSilent )
 {
 	bool bFound, bFound2;
-	float fPan = node->read_float( "pan", 0.f, &bFound, true, false, true );
+	float fPan = node.read_float( "pan", 0.f, &bFound, true, false, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
-		float fPanL = node->read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
-		float fPanR = node->read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
+		float fPanL = node.read_float( "pan_L", 1.f, &bFound, false, false, bSilent );
+		float fPanR = node.read_float( "pan_R", 1.f, &bFound2, false, false, bSilent );
 		if ( bFound && bFound2 ) {
 			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
 		} else {
@@ -517,18 +518,18 @@ Note* Note::load_from( XMLNode* node, std::shared_ptr<InstrumentList> instrument
 
 	Note* note = new Note(
 		nullptr,
-		node->read_int( "position", 0, false, false, bSilent ),
-		node->read_float( "velocity", 0.8f, false, false, bSilent ),
+		node.read_int( "position", 0, false, false, bSilent ),
+		node.read_float( "velocity", 0.8f, false, false, bSilent ),
 		fPan,
-		node->read_int( "length", -1, true, false, bSilent ),
-		node->read_float( "pitch", 0.0f, false, false, bSilent )
+		node.read_int( "length", -1, true, false, bSilent ),
+		node.read_float( "pitch", 0.0f, false, false, bSilent )
 	);
-	note->set_lead_lag( node->read_float( "leadlag", 0, false, false, bSilent ) );
-	note->set_key_octave( node->read_string( "key", "C0", false, false, bSilent ) );
-	note->set_note_off( node->read_bool( "note_off", false, false, false, bSilent ) );
-	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
+	note->set_lead_lag( node.read_float( "leadlag", 0, false, false, bSilent ) );
+	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
+	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
+	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
 	note->map_instrument( instruments );
-	note->set_probability( node->read_float( "probability", 1.0f, false, false, bSilent ));
+	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
 }

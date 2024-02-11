@@ -923,7 +923,7 @@ void PianoRollEditor::paste()
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
-			Note *pNote = Note::load_from( &n, pInstrList );
+			Note *pNote = Note::load_from( n, pInstrList );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 

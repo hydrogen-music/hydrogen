@@ -240,9 +240,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		AutomationPath*	getVelocityAutomationPath() const;
 
 		void			loadTempPatternList( const QString& sFilename );
-		bool			saveTempPatternList( const QString& sFilename );
+		bool			saveTempPatternList( const QString& sFilename ) const;
 							
-		QString			copyInstrumentLineToString( int selectedInstrument );
+		QString			copyInstrumentLineToString( int selectedInstrument ) const;
 		bool			pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns );
 							
 		int			getLatestRoundRobin( float fStartVelocity );
@@ -300,13 +300,15 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	
 private:
 
-	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
-	void saveTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
+	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
+										   const QString& sFilename,
+										   bool bSilent = false );
+	void saveTo( XMLNode& pNode, bool bLegacy, bool bSilent = false ) const;
 
-	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
-	void loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent = false );
-	void saveVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
-	void savePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
+	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
+	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
+	void saveVirtualPatternsTo( XMLNode& pNode, bool bSilent = false ) const;
+	void savePatternGroupVectorTo( XMLNode& pNode, bool bSilent = false ) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */

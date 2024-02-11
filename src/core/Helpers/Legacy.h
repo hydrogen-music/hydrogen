@@ -57,7 +57,7 @@ class Legacy : public H2Core::Object<Legacy> {
 	 *   drumkit is contained in. It is used to resolve sample paths relative to
 	 *   the .h2song file.
 	 * */
-	static std::shared_ptr<Drumkit> loadEmbeddedSongDrumkit( XMLNode* pRootNode,
+	static std::shared_ptr<Drumkit> loadEmbeddedSongDrumkit( const XMLNode& pRootNode,
 															 const QString& sSongPath = "",
 															 bool bSilent = false );
 
@@ -68,7 +68,7 @@ class Legacy : public H2Core::Object<Legacy> {
 	 * components as well as some meta data. this is already about 90% of make a
 	 * drumkit a drumkit but the pieces missing let to various inconsistencies
 	 * and bugs.*/
-	static	void saveEmbeddedSongDrumkit( XMLNode* pRootNode,
+	static	void saveEmbeddedSongDrumkit( XMLNode& pRootNode,
 								  std::shared_ptr<Drumkit> pDrumkit,
 								  bool bSilent = false );
 
@@ -87,7 +87,7 @@ class Legacy : public H2Core::Object<Legacy> {
 	 * \param bSilent if set to true, all log messages except of
 	 *   errors and warnings are suppressed
 	 */
-	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( XMLNode* pNode,
+	static std::shared_ptr<InstrumentComponent> loadInstrumentComponent( const XMLNode& pNode,
 																		 const QString& sDrumkitPath,
 																		 const QString& sSongPath = "",
 																		 const License& drumkitLicense = License(),
@@ -107,7 +107,9 @@ class Legacy : public H2Core::Object<Legacy> {
 		 */
 		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
 
-	static std::vector<PatternList*>* loadPatternGroupVector( XMLNode* pNode, PatternList* pPatternList, bool bSilent = false );
+	static std::vector<PatternList*>* loadPatternGroupVector( const XMLNode& pNode,
+															  PatternList* pPatternList,
+															  bool bSilent = false );
 
 	/**
 	 *	Check if filename was created with TinyXml or QtXml

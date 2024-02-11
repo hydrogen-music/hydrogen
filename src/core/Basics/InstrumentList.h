@@ -185,8 +185,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true,
-					  bool bSongKit = false );
+		void save_to( XMLNode& node, int component_id, bool bRecentVersion = true,
+					  bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument list from an XMLNode
@@ -210,7 +210,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
+	static std::shared_ptr<InstrumentList> load_from( const XMLNode& node,
 													  const QString& sDrumkitPath,
 													  const QString& sDrumkitName,
 													  const QString& sSongPath = "",

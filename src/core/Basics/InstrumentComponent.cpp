@@ -97,22 +97,22 @@ int InstrumentComponent::getMaxLayers()
 }
 
 std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
-	XMLNode* pNode,
+	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
 	bool bSilent )
 {
-	int nId = pNode->read_int( "component_id", EMPTY_INSTR_ID,
+	int nId = node.read_int( "component_id", EMPTY_INSTR_ID,
 							  false, false, bSilent );
 	if ( nId == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( nId );
-	pInstrumentComponent->set_gain( pNode->read_float( "gain", 1.0f,
+	pInstrumentComponent->set_gain( node.read_float( "gain", 1.0f,
 													  true, false, bSilent ) );
-	XMLNode layer_node = pNode->firstChildElement( "layer" );
+	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
 		if ( nLayer >= m_nMaxLayers ) {
@@ -122,7 +122,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 		}
 
 		auto pLayer = InstrumentLayer::load_from(
-			&layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
+			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->set_layer( pLayer, nLayer );
 			nLayer++;
@@ -133,13 +133,13 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode* pNode,
+void InstrumentComponent::save_to( XMLNode& node,
 								   bool bRecentVersion,
-								   bool bSongKit )
+								   bool bSongKit ) const
 {
 	XMLNode component_node;
 	if ( bRecentVersion ) {
-		component_node = pNode->createNode( "instrumentComponent" );
+		component_node = node.createNode( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
@@ -147,9 +147,9 @@ void InstrumentComponent::save_to( XMLNode* pNode,
 		auto pLayer = get_layer( n );
 		if ( pLayer != nullptr ) {
 			if ( bRecentVersion ) {
-				pLayer->save_to( &component_node, bSongKit );
+				pLayer->save_to( component_node, bSongKit );
 			} else {
-				pLayer->save_to( pNode, bSongKit );
+				pLayer->save_to( node, bSongKit );
 			}
 		}
 	}

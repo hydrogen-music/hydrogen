@@ -140,7 +140,7 @@ class Note : public H2Core::Object<Note>
 		 * save the note within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode& node ) const;
 		/**
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
@@ -149,7 +149,7 @@ class Note : public H2Core::Object<Note>
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static Note* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
+	static Note* load_from( const XMLNode& node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
 
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument
@@ -157,7 +157,7 @@ class Note : public H2Core::Object<Note>
 		 */
 		void map_instrument( std::shared_ptr<InstrumentList> instruments );
 		/** #__instrument accessor */
-		std::shared_ptr<Instrument> get_instrument();
+		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */
 		bool has_instrument() const;
 		/**
@@ -302,7 +302,7 @@ class Note : public H2Core::Object<Note>
 		float get_total_pitch() const;
 
 		/** return a string representation of key-octave */
-		QString key_to_string();
+		QString key_to_string() const;
 		/**
 		 * parse str and set #__key and #__octave
 		 * \param str the string to be parsed
@@ -500,7 +500,7 @@ inline std::shared_ptr<ADSR> Note::get_adsr() const
 	return __adsr;
 }
 
-inline std::shared_ptr<Instrument> Note::get_instrument()
+inline std::shared_ptr<Instrument> Note::get_instrument() const
 {
 	return __instrument;
 }

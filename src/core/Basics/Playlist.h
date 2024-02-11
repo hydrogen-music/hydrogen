@@ -24,6 +24,7 @@
 #define H2C_PLAYLIST_H
 
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
@@ -64,7 +65,7 @@ class Playlist : public H2Core::Object<Playlist>
 		void	activateSong (int SongNumber );
 
 		int		size() const;
-		Entry*	get( int idx );
+		Entry*	get( int idx ) const;
 
 		void	clear();
 		void	add( Entry* entry );
@@ -116,8 +117,9 @@ class Playlist : public H2Core::Object<Playlist>
 
 		void execScript( int index );
 
-		void save_to( XMLNode* node, bool useRelativePaths );
-		static Playlist* load_from( XMLNode* root, QFileInfo& fileInfo, bool useRelativePaths );
+		void save_to( XMLNode& node, bool useRelativePaths ) const;
+		static Playlist* load_from( const XMLNode& root, QFileInfo& fileInfo,
+									bool useRelativePaths );
 };
 
 inline int Playlist::size() const
@@ -125,7 +127,7 @@ inline int Playlist::size() const
 	return __entries.size();
 }
 
-inline Playlist::Entry* Playlist::get( int idx )
+inline Playlist::Entry* Playlist::get( int idx ) const
 {
 	assert( idx >= 0 && idx < size() );
 	return __entries[ idx ];

@@ -82,12 +82,13 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 		return nullptr;
 	}
 	QFileInfo fileInfo = QFileInfo( pl_path );
-	return Playlist::load_from( &root, fileInfo, useRelativePaths );
+	return Playlist::load_from( root, fileInfo, useRelativePaths );
 }
 
-Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelativePaths )
+Playlist* Playlist::load_from( const XMLNode& node, QFileInfo& fileInfo,
+							   bool useRelativePaths )
 {
-	QString filename = node->read_string( "name", "", false, false );
+	QString filename = node.read_string( "name", "", false, false );
 	if ( filename.isEmpty() ) {
 		ERRORLOG( "Playlist has no name, abort" );
 		return nullptr;
@@ -96,7 +97,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	Playlist* pPlaylist = new Playlist();
 	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
-	XMLNode songsNode = node->firstChildElement( "songs" );
+	XMLNode songsNode = node.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
@@ -134,11 +135,11 @@ bool Playlist::save_file( const QString& pl_path, const QString& name, bool over
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 	root.write_string( "name", name);
 	XMLNode songs = root.createNode( "songs" );
-	save_to( &songs, useRelativePaths );
+	save_to( songs, useRelativePaths );
 	return doc.write( pl_path );
 }
 
-void Playlist::save_to( XMLNode* node, bool useRelativePaths )
+void Playlist::save_to( XMLNode& node, bool useRelativePaths ) const
 {
 	for (int i = 0; i < size(); i++ ) {
 		Entry* entry = get( i );
@@ -146,7 +147,7 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 		if ( useRelativePaths ) {
 			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
 		}
-		XMLNode song_node = node->createNode( "song" );
+		XMLNode song_node = node.createNode( "song" );
 		song_node.write_string( "path", path );
 		song_node.write_string( "scriptPath", entry->scriptPath );
 		song_node.write_bool( "scriptEnabled", entry->scriptEnabled);

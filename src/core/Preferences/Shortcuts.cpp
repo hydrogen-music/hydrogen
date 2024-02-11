@@ -43,7 +43,7 @@ Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
 Shortcuts::~Shortcuts() {
 }
 
-void Shortcuts::saveTo( XMLNode& node ) {
+void Shortcuts::saveTo( XMLNode& node ) const {
 	XMLNode shortcutsNode = node.createNode( "shortcuts" );
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {

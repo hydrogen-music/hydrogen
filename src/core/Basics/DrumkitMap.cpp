@@ -60,21 +60,16 @@ std::shared_ptr<DrumkitMap> DrumkitMap::load( const QString& sPath, bool bSilent
 		return std::make_shared<DrumkitMap>();
 	}
 
-	return loadFrom( &rootNode, bSilent );
+	return loadFrom( rootNode, bSilent );
 }
 
-std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( XMLNode* pNode, bool bSilent ) {
+std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSilent ) {
 
 	std::shared_ptr<DrumkitMap> pDrumkitMap = std::make_shared<DrumkitMap>();
 
-	if ( pNode == nullptr ) {
-		ERRORLOG( "Invalid XML node pointer" );
-		return pDrumkitMap;
-	}
-
 	std::multimap<int, Type> map;
 
-	XMLNode mappingNode = pNode->firstChildElement( "mapping" );
+	XMLNode mappingNode = node.firstChildElement( "mapping" );
 
 	while ( !mappingNode.isNull() ) {
 		const QString sType =
@@ -96,7 +91,7 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( XMLNode* pNode, bool bSilent )
 	return pDrumkitMap;
 }
 
-bool DrumkitMap::save( const QString& sPath, bool bSilent ) {
+bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 	if ( ! Filesystem::dir_readable( QFileInfo( sPath ).dir().absolutePath(), false ) ) {
 		ERRORLOG( QString( "Unable to write .h2map to [%1]. Dir not writable." )
@@ -110,14 +105,14 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
 	
-	saveTo( &root, bSilent );
+	saveTo( root, bSilent );
 	return doc.write( sPath );
 }
 
-void DrumkitMap::saveTo( XMLNode* pNode, bool bSilent ) {
+void DrumkitMap::saveTo( XMLNode& node, bool bSilent ) const {
 
 	for ( const auto& [nnId, ssType] : m_mapping ) {
-		XMLNode mappingNode = pNode->createNode( "mapping" );
+		XMLNode mappingNode = node.createNode( "mapping" );
 		mappingNode.write_int( "instrumentID", nnId );
 		mappingNode.write_string( "type", static_cast<QString>( ssType ) );
 	}

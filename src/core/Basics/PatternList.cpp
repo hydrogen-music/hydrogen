@@ -53,8 +53,10 @@ PatternList::~PatternList()
 	}
 }
 
-PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent ) {
-	XMLNode patternsNode = pNode->firstChildElement( "patternList" );
+PatternList* PatternList::load_from( const XMLNode& node,
+									 std::shared_ptr<InstrumentList> pInstrumentList,
+									 bool bSilent ) {
+	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
 		return nullptr;
@@ -66,7 +68,7 @@ PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentL
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern = Pattern::load_from( &patternNode, pInstrumentList, bSilent );
+		Pattern* pPattern = Pattern::load_from( patternNode, pInstrumentList, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -84,12 +86,12 @@ PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentL
 	return pPatternList;
 }
 
-void PatternList::save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
-	XMLNode patternListNode = pNode->createNode( "patternList" );
+void PatternList::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
+	XMLNode patternListNode = node.createNode( "patternList" );
 	
 	for ( const auto& pPattern : __patterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->save_to( &patternListNode, pInstrumentOnly );
+			pPattern->save_to( patternListNode, pInstrumentOnly );
 		}
 	}
 }
