@@ -1505,12 +1505,15 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
-	getSynth()->process( nFrames );
-	out_L = getSynth()->m_pOut_L;
-	out_R = getSynth()->m_pOut_R;
-	for ( unsigned i = 0; i < nFrames; ++i ) {
-		pBuffer_L[ i ] += out_L[ i ];
-		pBuffer_R[ i ] += out_R[ i ];
+	auto synth = getSynth();
+	if (synth->getPlayingNotesNumber() != 0) {
+		synth->process( nFrames );
+		out_L = synth->m_pOut_L;
+		out_R = synth->m_pOut_R;
+		for ( unsigned i = 0; i < nFrames; ++i ) {
+			pBuffer_L[ i ] += out_L[ i ];
+			pBuffer_R[ i ] += out_R[ i ];
+		}
 	}
 
 	timeval ladspaTime_start = currentTime2();
