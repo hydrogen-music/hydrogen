@@ -516,7 +516,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			 SLOT( onIconColorChanged(int)) );
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 
-	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( m_currentTheme.m_interface.m_nMaxPatternColors );
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( InterfaceTheme::nMaxPatternColors );
 	int nButtonSize = fontSizeComboBox->height();
 	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
 	// Using a fixed one size resizing of the widget seems to happen
@@ -525,7 +525,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
-	for ( int ii = 0; ii < m_currentTheme.m_interface.m_nMaxPatternColors; ii++ ) {
+	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		ColorSelectionButton* bbutton =
 			new ColorSelectionButton( this, m_currentTheme.m_interface.m_patternColors[ ii ],
 									  nButtonSize );
@@ -1662,7 +1662,7 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 	Preferences::get_instance()->getThemeWritable().m_interface.m_nVisiblePatternColors =
 		nIndex;
 	m_currentTheme.m_interface.m_nVisiblePatternColors = nIndex;
-	for ( int ii = 0; ii < Preferences::get_instance()->getTheme().m_interface.m_nMaxPatternColors; ii++ ) {
+	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		if ( ii < nIndex ) {
 			m_colorSelectionButtons[ ii ]->pretendToShow();
 		} else {
@@ -1679,7 +1679,7 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 
 void PreferencesDialog::onColorSelectionClicked() {
 	int nMaxPatternColors =
-		Preferences::get_instance()->getTheme().m_interface.m_nMaxPatternColors;
+		InterfaceTheme::nMaxPatternColors;
 	std::vector<QColor> colors( nMaxPatternColors );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
 		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
@@ -1705,7 +1705,7 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 		coloringMethodAuxSpinBox->hide();
 		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
-		for ( int ii = 0; ii < m_currentTheme.m_interface.m_nMaxPatternColors; ii++ ) {
+		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	} else {
@@ -2439,10 +2439,9 @@ void PreferencesDialog::updateAppearanceTab( const H2Core::Theme& theme ) {
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
 
 	// Ensure the number of color buttons match.
-	if ( m_colorSelectionButtons.size() !=
-		 theme.m_interface.m_nMaxPatternColors ) {
-	
-		m_colorSelectionButtons.resize( theme.m_interface.m_nMaxPatternColors );
+	if ( m_colorSelectionButtons.size() != InterfaceTheme::nMaxPatternColors )
+	{
+		m_colorSelectionButtons.resize( InterfaceTheme::nMaxPatternColors );
 		m_colorSelectionButtons.clear();
 		int nButtonSize = fontSizeComboBox->height();
 		// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
@@ -2452,7 +2451,7 @@ void PreferencesDialog::updateAppearanceTab( const H2Core::Theme& theme ) {
 		int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 		colorSelectionGrid->setHorizontalSpacing( 4 );
-		for ( int ii = 0; ii < theme.m_interface.m_nMaxPatternColors; ii++ ) {
+		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			ColorSelectionButton* bbutton =
 				new ColorSelectionButton( this, theme.m_interface.m_patternColors[ ii ],
 										  nButtonSize );

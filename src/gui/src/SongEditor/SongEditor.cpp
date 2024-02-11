@@ -88,9 +88,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	
 	Preferences* pPref = Preferences::get_instance();
 
-	// no need to update this one.
-	m_nMaxPatternColors = pPref->getTheme().m_interface.m_nMaxPatternColors;
-
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SongEditor::onPreferencesChanged );
 	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
 	connect( m_pScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
@@ -1301,7 +1298,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	} else {
 		int nIndex =
 			std::clamp( nNumber % pPref->getTheme().m_interface.m_nVisiblePatternColors,
-						0, m_nMaxPatternColors );
+						0, InterfaceTheme::nMaxPatternColors );
 		patternColor =
 			pPref->getTheme().m_interface.m_patternColors[ nIndex ].toHsv();
 	}

@@ -178,7 +178,7 @@ public:
 	std::vector<QColor> m_patternColors;
 	int	m_nVisiblePatternColors;
 	/** Not read from/written to disk */
-	int	m_nMaxPatternColors;
+	static constexpr int nMaxPatternColors = 50;
 };
 	
 /** \ingroup docCore docConfiguration*/

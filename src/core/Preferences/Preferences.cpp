@@ -734,8 +734,8 @@ bool Preferences::loadPreferences( bool bGlobal )
 				interfaceTheme.m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
 					guiNode.read_int("SongEditor_ColoringMethod",
 									 static_cast<int>(InterfaceTheme::ColoringMethod::Custom), false, false ));
-				std::vector<QColor> patternColors( interfaceTheme.m_nMaxPatternColors );
-				for ( int ii = 0; ii < interfaceTheme.m_nMaxPatternColors; ii++ ) {
+				std::vector<QColor> patternColors( InterfaceTheme::nMaxPatternColors );
+				for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 					patternColors[ ii ] = guiNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 													   colorTheme.m_accentColor, false, false );
 				}
@@ -1178,7 +1178,7 @@ bool Preferences::savePreferences()
 		//SongEditor coloring method
 		guiNode.write_int( "SongEditor_ColoringMethod",
 						   static_cast<int>(m_theme.m_interface.m_coloringMethod ) );
-		for ( int ii = 0; ii < m_theme.m_interface.m_nMaxPatternColors; ii++ ) {
+		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			guiNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 								 m_theme.m_interface.m_patternColors[ ii ] );
 		}

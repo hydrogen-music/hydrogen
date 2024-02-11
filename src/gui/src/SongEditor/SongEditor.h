@@ -131,9 +131,6 @@ class SongEditor : public QWidget
 		bool					m_bIsMoving;
 		bool					m_bCopyNotMove;
 
-		int m_nMaxPatternColors;
-
-
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
 		//! set at the start of the draw gesture.
 		bool 					m_bDrawingActiveCell;

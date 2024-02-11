@@ -404,10 +404,9 @@ InterfaceTheme::InterfaceTheme()
 	, m_uiScalingPolicy( InterfaceTheme::ScalingPolicy::Smaller )
 	, m_iconColor( InterfaceTheme::IconColor::Black )
 	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
-	, m_nVisiblePatternColors( 18 )
-	, m_nMaxPatternColors( 50 ) {
-	m_patternColors.resize( m_nMaxPatternColors );
-	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+	, m_nVisiblePatternColors( 18 ) {
+	m_patternColors.resize( nMaxPatternColors );
+	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		m_patternColors[ ii ] = QColor( 67, 96, 131 );
 	}
 }
@@ -523,8 +522,8 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 			interfaceNode.read_int("SongEditor_ColoringMethod",
 								   static_cast<int>(InterfaceTheme::ColoringMethod::Custom),
 								   false, false ));
-	std::vector<QColor> colors( interfaceTheme.m_nMaxPatternColors );
-	for ( int ii = 0; ii < interfaceTheme.m_nMaxPatternColors; ii++ ) {
+	std::vector<QColor> colors( interfaceTheme.nMaxPatternColors );
+	for ( int ii = 0; ii < interfaceTheme.nMaxPatternColors; ii++ ) {
 		colors[ ii ] = interfaceNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 												 colorTheme.m_accentColor,
 												 false, false );
@@ -588,7 +587,7 @@ bool Theme::exportTo( const QString& sPath ) const {
 							   m_interface.m_fMixerFalloffSpeed );
 	interfaceNode.write_int( "SongEditor_ColoringMethod",
 							 static_cast<int>(m_interface.m_coloringMethod) );
-	for ( int ii = 0; ii < m_interface.m_nMaxPatternColors; ii++ ) {
+	for ( int ii = 0; ii < m_interface.nMaxPatternColors; ii++ ) {
 		interfaceNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 								   m_interface.m_patternColors[ ii ] );
 	}
