@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1102,15 +1102,19 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 				Note *pNote = noteIt->second;
 
 				int nInstrumentID = pNote->get_instrument_id();
-				if ( nInstrumentID >= noteCount.size() ) {
-					noteCount.resize( nInstrumentID+1, 0 );
+				// An ID of -1 corresponds to an empty instrument.
+				if ( nInstrumentID >= 0 ) {
+					if ( nInstrumentID >= noteCount.size() ) {
+						noteCount.resize( nInstrumentID+1, 0 );
+					}
+
+					if ( ++noteCount[ nInstrumentID ] == 1) {
+						instruments.push( pNote->get_instrument() );
+					}
+
+					drawNote( pNote, painter, bIsForeground );
 				}
 
-				if ( ++noteCount[ nInstrumentID ] == 1) {
-					instruments.push( pNote->get_instrument() );
-				}
-
-				drawNote( pNote, painter, bIsForeground );
 				++noteIt;
 			}
 

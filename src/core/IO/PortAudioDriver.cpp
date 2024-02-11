@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -161,6 +161,14 @@ int PortAudioDriver::connect()
 
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
 	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
+
+	// Reset buffers to avoid noise during startup (e.g. in case the callback
+	// was not able to obtain the audio engine lock, the arbitrary numbers
+	// filling the buffer after creation will be passed to the audio output).
+	for ( int ii = 0; ii < MAX_BUFFER_SIZE; ii++ ) {
+		m_pOut_L[ ii ] = 0;
+		m_pOut_R[ ii ] = 0;
+	}
 
 	int err;
 	if ( ! m_bInitialised ) {

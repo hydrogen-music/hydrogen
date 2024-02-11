@@ -42,10 +42,14 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
-		- Timing drift (and artifacts) in playback track rendering on some hosts is
-			fixed (#1920).
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.2.4
+	* Fixed
+		- Fix potential segfault on ill-formated notes in .h2song files.
+		- Fix buzzing sound during startup when using Port Audio (#1932).
+
+2024-01-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3
 	* Fixed
 		- Restore mute button state of master mixer strip on song load.
@@ -80,6 +84,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Fixed grid line rendering on rational pattern size nominator.
 				- Fixed grid line colors on very fine resolution.
 		- Fix broken file browser dialogs on Linux when using translations (#1908).
+		- Fix drumkit export on Windows (#1927).
+		- Timing drift (and artifacts) in playback track rendering on some hosts is
+			fixed (#1920).
 
 
 2023-09-09 the hydrogen team <hydrogen-devel@lists.sourceforge.net>

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -176,7 +176,7 @@ void DrumkitExportDialog::on_browseBtn_clicked()
 
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::Directory );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setDirectory( sPath );
 	fd.setWindowTitle( tr("Directory") );
 

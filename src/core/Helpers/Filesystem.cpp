@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -294,9 +294,7 @@ bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
 		}
 		if ( create && !QDir( "/" ).mkpath( path ) ) {
-			if( !silent ) {
-				ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
-			}
+			ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
 			return false;
 		}
 	}

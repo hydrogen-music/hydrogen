@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -1321,6 +1321,14 @@ void AudioEngine::clearNoteQueues()
 int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	// For the JACK driver it is very important (#1867) to not do anything while
+	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
+	// locking or message logging.
+	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			 pAudioEngine->getState() == AudioEngine::State::Playing ) &&
+		 dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
+		return 0;
+	}
 	timeval startTimeval = currentTime2();
 
 	pAudioEngine->clearAudioBuffers( nframes );
@@ -1359,6 +1367,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
+	// Now that the engine is locked we properly check its state.
 	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
 			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
 		pAudioEngine->unlock();

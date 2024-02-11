@@ -15,14 +15,14 @@ The advanced drum machine for Linux, macOS, and Windows.
 * High quality time-stretching and pitch shifting
 * Automate it using MIDI or OSC API
 
-Hydrogen is both a drum sequencer for pattern-based programming and a drum synth. Its simple yet feature-rich design makes it a versatile companion, be it for quick practice at home, professional usage as fully-fledged drum machine in your studio, or drum looper on steriods for your live performance.
+Hydrogen is both a drum sequencer for pattern-based programming and a drum synth. Its simple yet feature-rich design makes it a versatile companion, be it for quick practice at home, professional usage as fully-fledged drum machine in your studio, or drum looper on steroids for your live performance.
 
 ## Download
 
-* **[Windows (64bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win64.exe)**
-* **[Windows (32bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-win32.exe)**
-* **[macOS (>=10.14)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2.dmg)**
-* **[Linux](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.2/Hydrogen-1.2.2-x86_64.AppImage)** <details>
+* **[Windows (64bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-win64.exe)**
+* **[Windows (32bit) (>=Vista)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-win32.exe)**
+* **[macOS (>=10.14)](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3.dmg)**
+* **[Linux](https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-x86_64.AppImage)** <details>
    <summary>or check you distribution's repo</summary>
   
    [![Packaging status](https://repology.org/badge/vertical-allrepos/hydrogen-drum-machine.svg?header=Hydrogen)](https://repology.org/project/hydrogen-drum-machine/versions)
@@ -43,7 +43,7 @@ If your particular OS is not supported or you want to use the latest developing 
 
 The main entry point for learning how to use Hydrogen is our [manual](http://hydrogen-music.org/documentation/manual/manual_en.html).
 
-Further infos can be found in our [FAQ](http://hydrogen-music.org/faq/) and [Wiki](https://github.com/hydrogen-music/hydrogen/wiki).
+Further info can be found in our [FAQ](http://hydrogen-music.org/faq/) and [Wiki](https://github.com/hydrogen-music/hydrogen/wiki).
 
 ## Contributing
 
