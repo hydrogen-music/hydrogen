@@ -2424,58 +2424,30 @@ void PreferencesDialog::updateAppearanceTab( const H2Core::Theme& theme ) {
 	}
 
 	//SongEditor coloring
-	int nColoringMethod = static_cast<int>(theme.m_interface.m_coloringMethod);
-	if ( nColoringMethod == 0 ) {
-		// "Automatic" selected 
-		coloringMethodAuxSpinBox->hide();
-		colorSelectionLabel->hide();
-	} else {
-		coloringMethodAuxSpinBox->show();
-		colorSelectionLabel->show();
-	}
-
-	coloringMethodCombo->setCurrentIndex( nColoringMethod );
+	const auto coloringMethod = theme.m_interface.m_coloringMethod;
+	coloringMethodCombo->setCurrentIndex( static_cast<int>(coloringMethod) );
 	coloringMethodAuxSpinBox->setValue( theme.m_interface.m_nVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
 
-	// Ensure the number of color buttons match.
-	if ( m_colorSelectionButtons.size() != InterfaceTheme::nMaxPatternColors )
-	{
-		m_colorSelectionButtons.resize( InterfaceTheme::nMaxPatternColors );
-		m_colorSelectionButtons.clear();
-		int nButtonSize = fontSizeComboBox->height();
-		// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
-		// Using a fixed one size resizing of the widget seems to happen
-		// after the constructor is called.
-		float fLineWidth = 308;
-		int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
-
-		colorSelectionGrid->setHorizontalSpacing( 4 );
-		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-			ColorSelectionButton* bbutton =
-				new ColorSelectionButton( this, theme.m_interface.m_patternColors[ ii ],
-										  nButtonSize );
+	if ( coloringMethod == InterfaceTheme::ColoringMethod::Automatic ) {
+		// "Automatic" selected
+		coloringMethodAuxSpinBox->hide();
+		coloringMethodAuxLabel->hide();
+		colorSelectionLabel->hide();
+		for ( const auto& bbutton : m_colorSelectionButtons ) {
 			bbutton->pretendToHide();
-			connect( bbutton, &ColorSelectionButton::colorChanged, this,
-					 &PreferencesDialog::onColorSelectionClicked );
-			colorSelectionGrid->addWidget( bbutton,
-										   std::floor( static_cast<float>( ii ) /
-													   static_cast<float>( nButtonsPerLine ) ),
-										   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
-			m_colorSelectionButtons[ ii ] = bbutton;
 		}
 	}
+	else {
+		coloringMethodAuxSpinBox->show();
+		coloringMethodAuxLabel->show();
+		colorSelectionLabel->show();
 
-	// Update their colors.
-	for ( int ii = 0; ii < m_colorSelectionButtons.size(); ++ii ) {
-		m_colorSelectionButtons[ ii ]->setColor( theme.m_interface.
-												 m_patternColors[ ii ] );
-	}
-
-	// Display only the required number.
-	if ( nColoringMethod != 0 ) {
+		// Display only the required number and update their colors.
 		for ( int ii = 0; ii < theme.m_interface.m_nVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
+			m_colorSelectionButtons[ ii ]->setColor( theme.m_interface.
+													 m_patternColors[ ii ] );
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}
 
