@@ -187,7 +187,7 @@ void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 	__instruments.insert( __instruments.begin() + idx, instrument );
 }
 
-std::shared_ptr<Instrument> InstrumentList::operator[]( int idx )
+std::shared_ptr<Instrument> InstrumentList::operator[]( int idx ) const
 {
 	if ( idx < 0 || idx >= __instruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
@@ -218,34 +218,42 @@ std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 	return __instruments.at( idx );
 }
 
-int InstrumentList::index( std::shared_ptr<Instrument> instr )
+int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]==instr ) return i;
+		if ( __instruments[i]==instr ) {
+			return i;
+		}
 	}
 	return -1;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::find( const int id )
+std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_id()==id ) return __instruments[i];
+		if ( __instruments[i]->get_id()==id ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::find( const QString& name )
+std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_name()==name ) return __instruments[i];
+		if ( __instruments[i]->get_name()==name ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note )
+std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
+		if ( __instruments[i]->get_midi_out_note()==note ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }

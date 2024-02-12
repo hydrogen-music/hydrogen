@@ -153,16 +153,16 @@ void PatternList::insert( int nIdx, Pattern* pPattern )
 	__patterns.insert( __patterns.begin() + nIdx, pPattern );
 }
 
-Pattern* PatternList::get( int idx )
-{
-	assertAudioEngineLocked();
-	if ( idx < 0 || idx >= __patterns.size() ) {
-		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return nullptr;
-	}
-	assert( idx >= 0 && idx < __patterns.size() );
-	return __patterns[idx];
-}
+// Pattern* PatternList::get( int idx )
+// {
+// 	assertAudioEngineLocked();
+// 	if ( idx < 0 || idx >= __patterns.size() ) {
+// 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+// 		return nullptr;
+// 	}
+// 	assert( idx >= 0 && idx < __patterns.size() );
+// 	return __patterns[idx];
+// }
 
 Pattern* PatternList::get( int idx ) const
 {
@@ -236,10 +236,12 @@ void PatternList::set_to_old()
 	}
 }
 
-Pattern*  PatternList::find( const QString& name )
+Pattern*  PatternList::find( const QString& name ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]->get_name()==name ) return __patterns[i];
+		if ( __patterns[i]->get_name()==name ) {
+			return __patterns[i];
+		}
 	}
 	return nullptr;
 }
@@ -271,7 +273,7 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-bool PatternList::check_name( const QString& patternName, Pattern* ignore )
+bool PatternList::check_name( const QString& patternName, Pattern* ignore ) const
 {
 	if (patternName == "") {
 		return false;
@@ -286,7 +288,7 @@ bool PatternList::check_name( const QString& patternName, Pattern* ignore )
 }
 
 QString PatternList::find_unused_pattern_name( const QString& sSourceName,
-											   Pattern* ignore )
+											   Pattern* ignore ) const
 {
 	QString unusedPatternNameCandidate;
 	QString sSource { sSourceName };

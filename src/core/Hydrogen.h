@@ -305,10 +305,10 @@ public:
 
 	// beatconter
 	void			setBeatsToCount( int beatstocount);
-	int			getBeatsToCount();
+	int			getBeatsToCount() const;
 	void			setNoteLength( float notelength);
-	float			getNoteLength();
-	int			getBcStatus();
+	float			getNoteLength() const;
+	int			getBcStatus() const;
 	bool			handleBeatCounter();
 	void			setBcOffsetAdjust();
 

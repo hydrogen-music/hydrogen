@@ -250,8 +250,8 @@ class Note : public H2Core::Object<Note>
 		/*
 		 * selected sample
 		 * */
-	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID );
-	std::map<int, std::shared_ptr<SelectedLayerInfo>> get_layers_selected() const;
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID ) const;
+	const std::map<int, std::shared_ptr<SelectedLayerInfo>>& get_layers_selected() const;
 
 
 		void set_probability( float value );
@@ -279,9 +279,9 @@ class Note : public H2Core::Object<Note>
 		/** Filter output is sustaining note */
 		bool filter_sustain() const;
 		/** #__key accessor */
-		Key get_key();
+		Key get_key() const;
 		/** #__octave accessor */
-		Octave get_octave();
+		Octave get_octave() const;
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
 		int get_midi_key() const;
 		/** midi velocity accessor 
@@ -422,7 +422,7 @@ class Note : public H2Core::Object<Note>
 	 * and will reuse this parameter in every following call while
 	 * disregarding the provided @a nSelectedLayer.
 	 */
-	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 );
+	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 ) const;
 
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
@@ -620,12 +620,12 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID ) const
 {
-	return __layers_selected[ CompoID ];
+	return __layers_selected.at( CompoID );
 }
 
-inline std::map<int, std::shared_ptr<SelectedLayerInfo>> Note::get_layers_selected() const
+inline const std::map<int, std::shared_ptr<SelectedLayerInfo>>& Note::get_layers_selected() const
 {
 	return __layers_selected;
 }
@@ -672,12 +672,12 @@ inline bool Note::filter_sustain() const
 			 fabs( __bpfb_l ) > fLimit || fabs( __bpfb_r ) > fLimit );
 }
 
-inline Note::Key Note::get_key()
+inline Note::Key Note::get_key() const
 {
 	return __key;
 }
 
-inline Note::Octave Note::get_octave()
+inline Note::Octave Note::get_octave() const
 {
 	return __octave;
 }

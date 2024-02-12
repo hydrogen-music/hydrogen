@@ -295,7 +295,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
 	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
 
@@ -514,7 +514,7 @@ inline const bool Drumkit::areSamplesLoaded() const
 	return m_bSamplesLoaded;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents()
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents() const
 {
 	return m_pComponents;
 }

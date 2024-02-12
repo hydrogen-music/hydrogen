@@ -925,7 +925,7 @@ void Hydrogen::setBeatsToCount( int beatstocount)
 	m_nBeatsToCount = beatstocount;
 }
 /** \return #m_nBeatsToCount*/
-int Hydrogen::getBeatsToCount()
+int Hydrogen::getBeatsToCount() const
 {
 	return m_nBeatsToCount;
 }
@@ -935,12 +935,12 @@ void Hydrogen::setNoteLength( float notelength)
 	m_fTaktoMeterCompute = notelength;
 }
 
-float Hydrogen::getNoteLength()
+float Hydrogen::getNoteLength() const
 {
 	return m_fTaktoMeterCompute;
 }
 
-int Hydrogen::getBcStatus()
+int Hydrogen::getBcStatus() const
 {
 	return m_nEventCount;
 }

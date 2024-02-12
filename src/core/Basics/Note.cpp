@@ -259,7 +259,7 @@ void Note::computeNoteStart() {
 	}
 }
 
-std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) {
+std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) const {
 
 	std::shared_ptr<Sample> pSample;
 	

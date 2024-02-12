@@ -437,7 +437,7 @@ private:
 	bool sendStripPanFeedback( int nStrip );
 	bool sendStripPanSymFeedback( int nStrip );
 	
-	bool handleOutgoingControlChanges( std::vector<int> params, int nValue);
+	bool handleOutgoingControlChanges( const std::vector<int>& params, int nValue);
 	std::shared_ptr<Instrument> getStrip( int nStrip ) const;
 	
 	// -----------------------------------------------------------
@@ -462,7 +462,7 @@ private:
 	 *
 	 * \param sFilename New song to be added on top of the list.
 	 */
-	void insertRecentFile( const QString sFilename );
+	void insertRecentFile( const QString& sFilename );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

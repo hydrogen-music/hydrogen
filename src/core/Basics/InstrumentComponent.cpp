@@ -198,7 +198,7 @@ const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_lay
 		}
 	}
 	
-	return std::move( layersUsed );
+	return layersUsed;
 }
 
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {

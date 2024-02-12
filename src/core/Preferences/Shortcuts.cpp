@@ -239,8 +239,7 @@ std::vector<Shortcuts::Action> Shortcuts::getActions( const QKeySequence& keySeq
 		return it->second;
 	}
 	else {
-		std::vector<Action> v;
-		return std::move( v );
+		return std::vector<Action>();
 	}
 }
 

@@ -243,9 +243,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			saveTempPatternList( const QString& sFilename ) const;
 							
 		QString			copyInstrumentLineToString( int selectedInstrument ) const;
-		bool			pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns );
+		bool			pasteInstrumentLineFromString( const QString& sSerialized,
+													   int nSelectedInstrument,
+													   std::list<Pattern *>& patterns ) const;
 							
-		int			getLatestRoundRobin( float fStartVelocity );
+		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFilename */
 		const QString&		getPlaybackTrackFilename() const;
@@ -660,12 +662,12 @@ inline AutomationPath* Song::getVelocityAutomationPath() const
 	return m_pVelocityAutomationPath;
 }
 
-inline int Song::getLatestRoundRobin( float fStartVelocity )
+inline int Song::getLatestRoundRobin( float fStartVelocity ) const
 {
 	if ( m_latestRoundRobins.find( fStartVelocity ) == m_latestRoundRobins.end() ) {
 		return 0;
 	} else {
-		return m_latestRoundRobins[ fStartVelocity ];
+		return m_latestRoundRobins.at( fStartVelocity );
 	}
 }
 

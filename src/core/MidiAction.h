@@ -251,7 +251,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 */
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
-		const QStringList& getActionList(){
+		const QStringList& getActionList() const {
 			return m_actionList;
 		}
 	/**

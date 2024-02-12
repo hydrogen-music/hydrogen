@@ -555,7 +555,7 @@ void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 	__adsr = adsr;
 }
 
-std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID )
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID ) const
 {
 	for ( const auto& pComponent : *get_components() ) {
 		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {

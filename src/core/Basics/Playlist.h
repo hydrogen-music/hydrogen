@@ -71,22 +71,23 @@ class Playlist : public H2Core::Object<Playlist>
 		void	add( Entry* entry );
 
 		void	setNextSongByNumber( int SongNumber );
-		int		getSelectedSongNr();
+		int		getSelectedSongNr() const;
 		void	setSelectedSongNr( int songNumber );
 
-		int		getActiveSongNumber();
+		int		getActiveSongNumber() const;
 		void	setActiveSongNumber( int ActiveSongNumber );
 		
-		bool	getSongFilenameByNumber( int songNumber, QString& fileName);
+		bool	getSongFilenameByNumber( int songNumber, QString& fileName) const;
 
-		const QString& getFilename();
+		const QString& getFilename() const;
 		void setFilename( const QString& filename );
-		bool getIsModified();
+		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
 		static Playlist* load( const QString& filename, bool useRelativePaths );
 		static Playlist* load_file( const QString& pl_path, bool useRelativePaths );
-		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths );
+		bool save_file( const QString& pl_path, const QString& name,
+						bool overwrite, bool useRelativePaths );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -115,7 +116,7 @@ class Playlist : public H2Core::Object<Playlist>
 
 		Playlist();
 
-		void execScript( int index );
+		void execScript( int index ) const;
 
 		void save_to( XMLNode& node, bool useRelativePaths ) const;
 		static Playlist* load_from( const XMLNode& root, QFileInfo& fileInfo,
@@ -138,7 +139,7 @@ inline void Playlist::add( Entry* entry )
 	__entries.push_back( entry );
 }
 
-inline int Playlist::getSelectedSongNr()
+inline int Playlist::getSelectedSongNr() const
 {
 	return m_nSelectedSongNumber;
 }
@@ -148,7 +149,7 @@ inline void Playlist::setSelectedSongNr( int songNumber )
 	m_nSelectedSongNumber = songNumber;
 }
 
-inline int Playlist::getActiveSongNumber()
+inline int Playlist::getActiveSongNumber() const
 {
 	return m_nActiveSongNumber;
 }
@@ -158,7 +159,7 @@ inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
 	m_nActiveSongNumber = ActiveSongNumber ;
 }
 
-inline const QString& Playlist::getFilename()
+inline const QString& Playlist::getFilename() const
 {
 	return __filename;
 }
@@ -168,7 +169,7 @@ inline void Playlist::setFilename( const QString& filename )
 	__filename = filename;
 }
 
-inline bool Playlist::getIsModified()
+inline bool Playlist::getIsModified() const
 {
 	return m_bIsModified;
 }

@@ -83,12 +83,12 @@ void DrumkitComponent::reset_outs( uint32_t nFrames )
 	memset( __out_R, 0, nFrames * sizeof( float ) );
 }
 
-float DrumkitComponent::get_out_L( int nBufferPos )
+float DrumkitComponent::get_out_L( int nBufferPos ) const
 {
 	return __out_L[nBufferPos];
 }
 
-float DrumkitComponent::get_out_R( int nBufferPos )
+float DrumkitComponent::get_out_R( int nBufferPos ) const
 {
 	return __out_R[nBufferPos];
 }

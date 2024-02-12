@@ -287,8 +287,8 @@ class Instrument : public H2Core::Object<Instrument>
 		void set_is_metronome_instrument(bool isMetronome);
 		bool is_metronome_instrument() const;
 
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components();
-		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID );
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
+		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID ) const;
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -699,7 +699,7 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 	__is_metronome_instrument = isMetronome;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components() const
 {
 	return __components;
 }

@@ -404,7 +404,8 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 	return false;
 }
 
-bool CoreActionController::handleOutgoingControlChanges( std::vector<int> params, int nValue)
+bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>& params,
+														 int nValue)
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -1745,7 +1746,7 @@ void CoreActionController::updatePreferences() {
 	}
 }
 
-void CoreActionController::insertRecentFile( const QString sFilename ){
+void CoreActionController::insertRecentFile( const QString& sFilename ){
 
 	auto pPref = Preferences::get_instance();
 

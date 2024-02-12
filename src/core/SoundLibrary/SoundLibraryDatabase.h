@@ -79,7 +79,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 		/** Retrieves an unique label for the kit associated with @a
 		 * sDrumkitPath. This may serve as a more accessible alternative to the
 		 * absolute path of the kit in the GUI. */
-		QString getUniqueLabel( const QString& sDrumkitPath );
+		QString getUniqueLabel( const QString& sDrumkitPath ) const;
 
 		/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
 		 * during an updateDrumkits()

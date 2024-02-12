@@ -254,7 +254,7 @@ void Pattern::remove_note( Note* note )
 	}
 }
 
-bool Pattern::references( std::shared_ptr<Instrument> instr )
+bool Pattern::references( std::shared_ptr<Instrument> instr ) const
 {
 	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
 		Note* note = it->second;

@@ -72,8 +72,8 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 
 		void						reset_outs( uint32_t nFrames );
 		void						set_outs( int nBufferPos, float valL, float valR );
-		float						get_out_L( int nBufferPos );
-		float						get_out_R( int nBufferPos );
+		float						get_out_L( int nBufferPos ) const;
+		float						get_out_R( int nBufferPos ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

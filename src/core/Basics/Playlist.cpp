@@ -121,7 +121,8 @@ Playlist* Playlist::load_from( const XMLNode& node, QFileInfo& fileInfo,
 	return pPlaylist;
 }
 
-bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths )
+bool Playlist::save_file( const QString& pl_path, const QString& name,
+						  bool overwrite, bool useRelativePaths )
 {
 	INFOLOG( QString( "Saving palylist to %1" ).arg( pl_path ) );
 	if( !overwrite && Filesystem::file_exists( pl_path, true ) ) {
@@ -179,7 +180,7 @@ void Playlist::activateSong( int songNumber )
 	execScript( songNumber );
 }
 
-bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename)
+bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename) const
 {
 	bool Success = true;
 	
@@ -205,7 +206,7 @@ void Playlist::setNextSongByNumber( int songNumber )
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber );
 }
 
-void Playlist::execScript( int nIndex )
+void Playlist::execScript( int nIndex ) const
 {
 	QString sFile = get( nIndex )->scriptPath;
 

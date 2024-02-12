@@ -2611,7 +2611,7 @@ double AudioEngine::getLeadLagInTicks() {
 	return 5;
 }
 
-long long AudioEngine::getLeadLagInFrames( double fTick ) {
+long long AudioEngine::getLeadLagInFrames( double fTick ) const {
 	double fTmp;
 	const long long nFrameStart =
 		TransportPosition::computeFrameFromTick( fTick, &fTmp );

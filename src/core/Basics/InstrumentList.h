@@ -87,7 +87,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
-		std::shared_ptr<Instrument> operator[]( int idx );
+		std::shared_ptr<Instrument> operator[]( int idx ) const;
 	/**
 	 * Superficial comparison check. If it succeeds, both objects are
 	 * identical. If it fails, however, they are not guarantued to be
@@ -135,25 +135,25 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param instrument a pointer to the instrument to find
 		 * \return -1 if not found
 		 */
-		int index( std::shared_ptr<Instrument> instrument );
+		int index( std::shared_ptr<Instrument> instrument ) const;
 		/**
 		 * find an instrument within the instruments
 		 * \param i the id of the instrument to find
 		 * \return 0 if not found
 		 */
-		std::shared_ptr<Instrument> find( const int i );
+		std::shared_ptr<Instrument> find( const int i ) const;
 		/**
 		 * find an instrument within the instruments
 		 * \param name the name of the instrument to find
 		 * \return 0 if not found
 		 */
-		std::shared_ptr<Instrument> find( const QString& name );
+		std::shared_ptr<Instrument> find( const QString& name ) const;
 		/**
 		 * find an instrument which play the given midi note
 		 * \param note the Midi note of the instrument to find
 		 * \return 0 if not found
 		 */
-		std::shared_ptr<Instrument> findMidiNote( const int note );
+		std::shared_ptr<Instrument> findMidiNote( const int note ) const;
 		/**
 		 * move an instrument from a position to another
 		 * \param idx_a the start index

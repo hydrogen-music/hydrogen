@@ -55,13 +55,13 @@ class ADSR : public Object<ADSR>
 		~ADSR();
 
 		void setAttack( unsigned int value );
-		unsigned int getAttack();
+		unsigned int getAttack() const;
 		void setDecay( unsigned int value );
-		unsigned int getDecay();
+		unsigned int getDecay() const;
 		void setSustain( float value );
-		float getSustain();
+		float getSustain() const;
 		void setRelease( unsigned int value );
-		unsigned int getRelease();
+		unsigned int getRelease() const;
 
 
 		/**
@@ -161,7 +161,7 @@ inline void ADSR::setAttack( unsigned int value )
 	m_nAttack = value;
 }
 
-inline unsigned int ADSR::getAttack()
+inline unsigned int ADSR::getAttack() const
 {
 	return m_nAttack;
 }
@@ -171,7 +171,7 @@ inline void ADSR::setDecay( unsigned int value )
 	m_nDecay = value;
 }
 
-inline unsigned int ADSR::getDecay()
+inline unsigned int ADSR::getDecay() const
 {
 	return m_nDecay;
 }
@@ -181,7 +181,7 @@ inline void ADSR::setSustain( float value )
 	m_fSustain = value;
 }
 
-inline float ADSR::getSustain()
+inline float ADSR::getSustain() const
 {
 	return m_fSustain;
 }
@@ -191,7 +191,7 @@ inline void ADSR::setRelease( unsigned int value )
 	m_nRelease = value;
 }
 
-inline unsigned int ADSR::getRelease()
+inline unsigned int ADSR::getRelease() const
 {
 	return m_nRelease;
 }

@@ -71,7 +71,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		void				set_layer( std::shared_ptr<InstrumentLayer> layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
-		int					get_drumkit_componentID();
+		int					get_drumkit_componentID() const;
 
 		void				set_gain( float gain );
 		float				get_gain() const;
@@ -122,7 +122,7 @@ inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_co
 }
 /** Returns the component ID of the drumkit.
  * \return #__related_drumkit_componentID */
-inline int InstrumentComponent::get_drumkit_componentID()
+inline int InstrumentComponent::get_drumkit_componentID() const
 {
 	return __related_drumkit_componentID;
 }

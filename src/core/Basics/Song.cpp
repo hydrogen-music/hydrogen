@@ -1060,7 +1060,9 @@ QString Song::copyInstrumentLineToString( int nSelectedInstrument ) const
 	return doc.toString();
 }
 
-bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns )
+bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
+										  int nSelectedInstrument,
+										  std::list<Pattern *>& patterns ) const
 {
 	XMLDoc doc;
 	if ( ! doc.setContent( sSerialized ) ) {

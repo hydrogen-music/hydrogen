@@ -674,7 +674,7 @@ Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& sMode )
 	return Loops::FORWARD;
 }
 
-bool Sample::write( const QString& path, int format )
+bool Sample::write( const QString& path, int format ) const
 {
 	float* obuf = new float[ SAMPLE_CHANNELS * __frames ];
 	for ( int i = 0; i < __frames; ++i ) {

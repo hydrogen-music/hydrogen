@@ -326,7 +326,8 @@ QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersi
 	return sExportName;
 }
 
-bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentVersion, bool bSilent )
+bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
+					bool bRecentVersion, bool bSilent )
 {
 	QString sDrumkitFolder( sDrumkitPath );
 	if ( sDrumkitPath.isEmpty() ) {

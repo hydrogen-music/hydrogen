@@ -47,7 +47,7 @@ class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 		int value;  ///< value
 		/** to be able to sort velocity points vectors */
 		struct Comparator {
-			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b )
+			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
 			{
 				return a.frame < b.frame;
 			}
@@ -150,7 +150,8 @@ class Sample : public H2Core::Object<Sample>
 		 * \param path the path to write the sample to
 		 * \param format the format of the output
 		 */
-		bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
+		bool write( const QString& path,
+					int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) ) const;
 	
 		/**
 		 * Load a sample from a file.
@@ -208,7 +209,7 @@ class Sample : public H2Core::Object<Sample>
 		bool isLoaded() const;
 		const QString& get_filepath() const;
 		/** \return Filename part of #__filepath */
-		const QString get_filename() const;
+		QString get_filename() const;
 		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
 		/** \param filename sets #__filepath*/
@@ -245,9 +246,9 @@ class Sample : public H2Core::Object<Sample>
 		/** \return #__is_modified */
 		bool get_is_modified() const;
 		/** \return #__pan_envelope */
-		const PanEnvelope& get_pan_envelope();
+		const PanEnvelope& get_pan_envelope() const;
 		/** \return #__velocity_envelope */
-		const VelocityEnvelope& get_velocity_envelope();
+		const VelocityEnvelope& get_velocity_envelope() const;
 		/** \return #__loops parameters */
 		const Loops& get_loops() const;
 		/** \return #__rubberband parameters */
@@ -356,9 +357,9 @@ inline void Sample::set_filepath( const QString& sFilepath )
 	__filepath = sFilepath;
 }
 
-inline const QString Sample::get_filename() const
+inline QString Sample::get_filename() const
 {
-	return std::move( __filepath.section( "/", -1 ) );
+	return __filepath.section( "/", -1 );
 }
 
 inline void Sample::set_frames( int frames )
@@ -416,12 +417,12 @@ inline QString Sample::get_loop_mode_string() const
 	return std::move( __loop_modes.at(__loops.mode) );
 }
 
-inline const Sample::PanEnvelope& Sample::get_pan_envelope()
+inline const Sample::PanEnvelope& Sample::get_pan_envelope() const
 {
 	return __pan_envelope;
 }
 
-inline const Sample::VelocityEnvelope& Sample::get_velocity_envelope()
+inline const Sample::VelocityEnvelope& Sample::get_velocity_envelope() const
 {
 	return __velocity_envelope;
 }

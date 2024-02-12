@@ -1411,7 +1411,7 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
-bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )
+bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument ) const
 {
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {

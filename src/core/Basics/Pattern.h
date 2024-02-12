@@ -168,7 +168,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * check if this pattern contains a note referencing the given instrument
 		 * \param instr the instrument
 		*/
-		bool references( std::shared_ptr<Instrument> instr );
+		bool references( std::shared_ptr<Instrument> instr ) const;
 		/**
 		 * delete the notes referencing the given instrument
 		 * The function is thread safe (it locks the audio data while deleting notes)

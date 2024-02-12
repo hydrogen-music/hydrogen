@@ -79,7 +79,7 @@ class XMLNode;
 		 * get a pattern from  the list
 		 * \param idx the index to get the pattern from
 		 */
-		Pattern* operator[]( int idx );
+		Pattern* operator[]( int idx ) const;
 		/**
 		 * add a pattern to the list
 		 * \param pattern a pointer to the pattern to add
@@ -97,7 +97,6 @@ class XMLNode;
 		 * get a pattern from  the list
 		 * \param idx the index to get the pattern from
 		 */
-		Pattern* get( int idx );
 		Pattern* get( int idx ) const;
 		/**
 		 * remove the pattern at a given index, does not delete it
@@ -137,7 +136,7 @@ class XMLNode;
 		 * \param name the name of the pattern to find
 		 * \return 0 if not found
 		 */
-		Pattern* find( const QString& name );
+		Pattern* find( const QString& name ) const;
 		/**
 		 * move a pattern from a position to another
 		 * \param idx_a the start index
@@ -158,13 +157,13 @@ class XMLNode;
 		 * \param patternName name of a pattern to check
 		 * \param ignore optional pattern in the list to ignore
 		 */
-		bool check_name( const QString& patternName, Pattern* ignore = nullptr );
+		bool check_name( const QString& patternName, Pattern* ignore = nullptr ) const;
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
 		 * \param ignore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( const QString& sourceName, Pattern* ignore = nullptr );
+		QString find_unused_pattern_name( const QString& sourceName, Pattern* ignore = nullptr ) const;
 
 		/**
 		 * Get the length of the longest pattern in the list
@@ -212,7 +211,7 @@ inline void PatternList::operator<<( Pattern* pattern )
 	add( pattern );
 }
 
-inline Pattern *PatternList::operator[]( int idx ) {
+inline Pattern *PatternList::operator[]( int idx ) const {
 	return get( idx );
 }
 

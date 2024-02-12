@@ -134,14 +134,14 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 			m_sPath = path;
 		}
 
-		const QString& getPath(){
+		const QString& getPath() const{
 			return m_sPath;
 		}
 	
 		void setDrumkitName( const QString& sDrumkitName ){
 			m_sDrumkitName = sDrumkitName;
 		}
-		const QString& getDrumkitName(){
+		const QString& getDrumkitName() const {
 			return m_sDrumkitName;
 		}
 
