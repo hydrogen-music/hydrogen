@@ -1555,19 +1555,13 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	m_fLadspaTime = 0.0;
 #endif
 
-	float val_L, val_R;
+	float fPeak_L = m_fMasterPeak_L, fPeak_R = m_fMasterPeak_R;
 	for ( unsigned i = 0; i < nFrames; ++i ) {
-		val_L = pBuffer_L[i];
-		val_R = pBuffer_R[i];
-
-		if ( val_L > m_fMasterPeak_L ) {
-			m_fMasterPeak_L = val_L;
-		}
-
-		if ( val_R > m_fMasterPeak_R ) {
-			m_fMasterPeak_R = val_R;
-		}
+		fPeak_L = std::max( fPeak_L, pBuffer_L[i] );
+		fPeak_R = std::max( fPeak_R, pBuffer_R[i] );
 	}
+	m_fMasterPeak_L = fPeak_L;
+	m_fMasterPeak_R = fPeak_R;
 }
 
 void AudioEngine::setState( AudioEngine::State state ) {
