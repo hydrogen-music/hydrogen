@@ -1516,9 +1516,9 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
+#ifdef H2CORE_HAVE_LADSPA
 	timeval ladspaTime_start = currentTime2();
 
-#ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
@@ -1546,11 +1546,14 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 			}
 		}
 	}
-#endif
+
 	timeval ladspaTime_end = currentTime2();
 	m_fLadspaTime =
 			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
 			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
+#else
+	m_fLadspaTime = 0.0;
+#endif
 
 	float val_L, val_R;
 	for ( unsigned i = 0; i < nFrames; ++i ) {
