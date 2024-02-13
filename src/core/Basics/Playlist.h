@@ -26,6 +26,8 @@
 #include <core/Object.h>
 #include <core/Helpers/Xml.h>
 
+#include <memory>
+
 namespace H2Core
 {
 
@@ -66,10 +68,10 @@ class Playlist : public H2Core::Object<Playlist>
 		void	activateSong (int SongNumber );
 
 		int		size() const;
-		Entry*	get( int idx ) const;
+		std::shared_ptr<Entry>	get( int idx ) const;
 
 		void	clear();
-		void	add( Entry* entry );
+		void	add( std::shared_ptr<Entry> entry );
 
 		void	setNextSongByNumber( int SongNumber );
 		int		getSelectedSongNr() const;
@@ -108,7 +110,7 @@ class Playlist : public H2Core::Object<Playlist>
 		static Playlist* __instance;
 		QString __filename;
 
-		std::vector<Entry*> __entries;
+		std::vector<std::shared_ptr<Entry>> __entries;
 
 		int m_nSelectedSongNumber;
 		int m_nActiveSongNumber;
@@ -127,13 +129,13 @@ inline int Playlist::size() const
 	return __entries.size();
 }
 
-inline Playlist::Entry* Playlist::get( int idx ) const
+inline std::shared_ptr<Playlist::Entry> Playlist::get( int idx ) const
 {
 	assert( idx >= 0 && idx < size() );
 	return __entries[ idx ];
 }
 
-inline void Playlist::add( Entry* entry )
+inline void Playlist::add( std::shared_ptr<Entry> entry )
 {
 	__entries.push_back( entry );
 }

@@ -900,12 +900,12 @@ void PlaylistDialog::updatePlayListVector()
 	for (int i = 0 ;i < length; i++){
 		QTreeWidgetItem * pPlaylistItem = m_pPlaylistTree->topLevelItem ( i );
 
-		Playlist::Entry* entry = new Playlist::Entry();
-		entry->filePath = pPlaylistItem->text( 0 );
-		entry->scriptPath = pPlaylistItem->text( 1 );
-		entry->scriptEnabled = pPlaylistItem->checkState( 2 );
+		auto pEntry = std::make_shared<Playlist::Entry>();
+		pEntry->filePath = pPlaylistItem->text( 0 );
+		pEntry->scriptPath = pPlaylistItem->text( 1 );
+		pEntry->scriptEnabled = pPlaylistItem->checkState( 2 );
 
-		Playlist::get_instance()->add( entry );
+		Playlist::get_instance()->add( pEntry );
 		Playlist::get_instance()->setIsModified(true);
 	}
 	m_pTimer->start( 1000 );

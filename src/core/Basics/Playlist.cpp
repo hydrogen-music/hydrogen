@@ -43,7 +43,6 @@ Playlist::Playlist()
 
 Playlist::~Playlist()
 {
-	clear();
 	__instance = nullptr;
 }
 
@@ -56,9 +55,6 @@ void Playlist::create_instance()
 
 void Playlist::clear()
 {
-	for ( int i = 0; i < __entries.size(); i++ ) {
-		delete __entries[i];
-	}
 	__entries.clear();
 }
 
@@ -104,7 +100,7 @@ Playlist* Playlist::load_from( const XMLNode& node, QFileInfo& fileInfo,
 
 			QString songPath = nextNode.read_string( "path", "", false, false );
 			if ( !songPath.isEmpty() ) {
-				Playlist::Entry* pEntry = new Playlist::Entry();
+				auto pEntry = std::make_shared<Playlist::Entry>();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
 				pEntry->filePath = songPathInfo.absoluteFilePath();
 				pEntry->fileExists = songPathInfo.isReadable();
@@ -156,16 +152,15 @@ void Playlist::saveTo( XMLNode& node ) const
 {
 	XMLNode songs = node.createNode( "songs" );
 
-	for ( int ii = 0; ii < size(); ii++ ) {
-		Entry* entry = get( ii );
-		QString sPath = entry->filePath;
+	for ( const auto& pEntry : __entries ) {
+		QString sPath = pEntry->filePath;
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
 			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
 		}
 		XMLNode song_node = songs.createNode( "song" );
 		song_node.write_string( "path", sPath );
-		song_node.write_string( "scriptPath", entry->scriptPath );
-		song_node.write_bool( "scriptEnabled", entry->scriptEnabled);
+		song_node.write_string( "scriptPath", pEntry->scriptPath );
+		song_node.write_bool( "scriptEnabled", pEntry->scriptEnabled);
 	}
 }
 
