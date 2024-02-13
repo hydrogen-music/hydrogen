@@ -1025,6 +1025,10 @@ Are you sure?</source>
         <source>Unable to export drumkit</source>
         <translation>Schlagzeug konnte nicht exportiert werden</translation>
     </message>
+    <message>
+        <source>Unable to save playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>

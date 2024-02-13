@@ -86,8 +86,8 @@ class Playlist : public H2Core::Object<Playlist>
 
 		static Playlist* load( const QString& filename, bool useRelativePaths );
 		static Playlist* load_file( const QString& pl_path, bool useRelativePaths );
-		bool save_file( const QString& pl_path, const QString& name,
-						bool overwrite, bool useRelativePaths );
+		bool saveAs( const QString& sTargetPath, bool bSilent = false );
+		bool save( bool bSilent = false ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -118,7 +118,7 @@ class Playlist : public H2Core::Object<Playlist>
 
 		void execScript( int index ) const;
 
-		void save_to( XMLNode& node, bool useRelativePaths ) const;
+		void saveTo( XMLNode& node ) const;
 		static Playlist* load_from( const XMLNode& root, QFileInfo& fileInfo,
 									bool useRelativePaths );
 };

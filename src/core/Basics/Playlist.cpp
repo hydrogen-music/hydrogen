@@ -73,7 +73,7 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 			return nullptr;
 		}
 		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
-		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
+		pl->saveAs( pl_path, true );
 		return pl;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
@@ -121,35 +121,49 @@ Playlist* Playlist::load_from( const XMLNode& node, QFileInfo& fileInfo,
 	return pPlaylist;
 }
 
-bool Playlist::save_file( const QString& pl_path, const QString& name,
-						  bool overwrite, bool useRelativePaths )
-{
-	INFOLOG( QString( "Saving palylist to %1" ).arg( pl_path ) );
-	if( !overwrite && Filesystem::file_exists( pl_path, true ) ) {
-		ERRORLOG( QString( "palylist %1 already exists" ).arg( pl_path ) );
+bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
+	if ( ! bSilent  ) {
+		INFOLOG( QString( "Saving playlist [%1] as [%2]" )
+				 .arg( __filename ).arg( sTargetPath ) );
+	}
+
+	setFilename( sTargetPath );
+
+	return save( true );
+}
+
+bool Playlist::save( bool bSilent ) const {
+	if ( __filename.isEmpty() ) {
+		ERRORLOG( "No filepath provided!" );
 		return false;
 	}
 
-	setFilename( pl_path );
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Saving playlist to [%1]" ).arg( __filename ) );
+	}
 
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "playlist", "playlist" );
-	root.write_string( "name", name);
-	XMLNode songs = root.createNode( "songs" );
-	save_to( songs, useRelativePaths );
-	return doc.write( pl_path );
+
+	QFileInfo info( __filename );
+	root.write_string( "name", info.fileName() );
+
+	saveTo( root );
+	return doc.write( __filename );
 }
 
-void Playlist::save_to( XMLNode& node, bool useRelativePaths ) const
+void Playlist::saveTo( XMLNode& node ) const
 {
-	for (int i = 0; i < size(); i++ ) {
-		Entry* entry = get( i );
-		QString path = entry->filePath;
-		if ( useRelativePaths ) {
-			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
+	XMLNode songs = node.createNode( "songs" );
+
+	for ( int ii = 0; ii < size(); ii++ ) {
+		Entry* entry = get( ii );
+		QString sPath = entry->filePath;
+		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
+			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
 		}
-		XMLNode song_node = node.createNode( "song" );
-		song_node.write_string( "path", path );
+		XMLNode song_node = songs.createNode( "song" );
+		song_node.write_string( "path", sPath );
 		song_node.write_string( "scriptPath", entry->scriptPath );
 		song_node.write_bool( "scriptEnabled", entry->scriptEnabled);
 	}

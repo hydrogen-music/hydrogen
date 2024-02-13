@@ -465,6 +465,7 @@ CommonStrings::CommonStrings(){
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
+	m_sPlaylistSaveFailure = tr( "Unable to save playlist" );
 
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );

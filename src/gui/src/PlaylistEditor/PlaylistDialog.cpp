@@ -545,6 +545,8 @@ void PlaylistDialog::newScript()
 
 void PlaylistDialog::saveListAs()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::playlists_dir();
@@ -566,8 +568,9 @@ void PlaylistDialog::saveListAs()
 	QString filename = fd.selectedFiles().first();
 
 	Playlist* pPlaylist = Playlist::get_instance();
-	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
-	if ( Files::savePlaylistPath( filename, pPlaylist, relativePaths ) == nullptr ) {
+	if ( ! pPlaylist->saveAs( filename ) ) {
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getPlaylistSaveFailure() );
 		return;
 	}
 
@@ -579,13 +582,16 @@ void PlaylistDialog::saveListAs()
 
 void PlaylistDialog::saveList()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	Playlist* pPlaylist = Playlist::get_instance();
 	if ( pPlaylist->getFilename().isEmpty() ) {
 		return saveListAs();
 	}
 
-	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
-	if ( Files::savePlaylistPath( pPlaylist->getFilename(), pPlaylist, relativePaths ) == nullptr ) {
+	if ( ! pPlaylist->save() ) {
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getPlaylistSaveFailure() );
 		return;
 	}
 
