@@ -397,7 +397,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 	return pPattern;
 }
 
-Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
+Playlist* Legacy::load_playlist( const QString& pl_path )
 {
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
@@ -420,6 +420,7 @@ Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 		return nullptr;
 	}
 
+	auto pPlaylist = new Playlist();
 	pPlaylist->setFilename( pl_path );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );

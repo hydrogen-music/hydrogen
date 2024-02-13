@@ -60,6 +60,7 @@ class Playlist : public H2Core::Object<Playlist>
 		 */
 		static Playlist* get_instance() { assert(__instance); return __instance; }
 
+		Playlist();
 		~Playlist();
 
 		void	activateSong (int SongNumber );
@@ -113,8 +114,6 @@ class Playlist : public H2Core::Object<Playlist>
 		int m_nActiveSongNumber;
 
 		bool m_bIsModified;
-
-		Playlist();
 
 		void execScript( int index ) const;
 

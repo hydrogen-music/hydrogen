@@ -66,15 +66,15 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 {
 	XMLDoc doc;
 	if ( !doc.read( pl_path, Filesystem::playlist_xsd_path() ) ) {
-		Playlist* pl = new Playlist();
-		Playlist* ret = Legacy::load_playlist( pl, pl_path );
-		if ( ret == nullptr ) {
-			delete pl;	// __instance = 0;
+		auto pPlaylist = Legacy::load_playlist( pl_path );
+		if ( pPlaylist == nullptr ) {
+			ERRORLOG( QString( "Unable to load playlist [%1]" )
+					  .arg( pl_path ) );
 			return nullptr;
 		}
 		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
-		pl->saveAs( pl_path, true );
-		return pl;
+		pPlaylist->saveAs( pl_path, true );
+		return pPlaylist;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
 	if ( root.isNull() ) {

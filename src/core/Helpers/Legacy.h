@@ -101,11 +101,10 @@ class Legacy : public H2Core::Object<Legacy> {
 		static Pattern* load_drumkit_pattern( const QString& pattern_path, std::shared_ptr<InstrumentList> instrList );
 		/**
 		 * load playlist from a file
-		 * \param pl the playlist to feed
 		 * \param pl_path is a path to an xml file
 		 * \return a Playlist on success, 0 otherwise
 		 */
-		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
+		static Playlist* load_playlist( const QString& pl_path );
 
 	static std::vector<PatternList*>* loadPatternGroupVector( const XMLNode& pNode,
 															  PatternList* pPatternList,
