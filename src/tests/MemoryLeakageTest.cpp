@@ -377,7 +377,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pPlaylist = H2Core::Playlist::load_file( H2TEST_FILE( "playlist/test.h2playlist" ), true );
+		auto pPlaylist = H2Core::Playlist::load( H2TEST_FILE( "playlist/test.h2playlist" ) );
 		CPPUNIT_ASSERT( pPlaylist != nullptr );
 		delete pPlaylist;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

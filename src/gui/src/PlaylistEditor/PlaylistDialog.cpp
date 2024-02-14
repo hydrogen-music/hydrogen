@@ -431,8 +431,7 @@ void PlaylistDialog::loadList()
 	QString filename = fd.selectedFiles().first();
 	Preferences::get_instance()->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
-	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
-	Playlist* pPlaylist = Playlist::load( filename, relativePaths);
+	Playlist* pPlaylist = Playlist::load( filename );
 	if ( ! pPlaylist ) {
 		_ERRORLOG( "Error loading the playlist" );
 		/* FIXME: get current instance (?) */
@@ -1061,9 +1060,7 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 
 bool PlaylistDialog::loadListByFileName( const QString& filename )
 {
-	bool bUseRelativeFilenames = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
-	
-	Playlist* pPlaylist = Playlist::load ( filename, bUseRelativeFilenames );
+	Playlist* pPlaylist = Playlist::load( filename );
 	if ( !pPlaylist ) {
 		_ERRORLOG( "Error loading the playlist" );
 		return false;

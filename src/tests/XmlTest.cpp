@@ -449,11 +449,14 @@ void XmlTest::testPlaylist()
 
 	CPPUNIT_ASSERT( pPlaylistCurrent->saveAs( sPath ) );
 	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
-	pPlaylistLoaded = H2Core::Playlist::load_file( sPath, false );
+	pPlaylistLoaded = H2Core::Playlist::load( sPath );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 
-	delete pPlaylistLoaded;
-	delete pPlaylistCurrent;
+	if ( pPlaylistLoaded != nullptr ) {
+		delete pPlaylistLoaded;
+	} else {
+		delete pPlaylistCurrent;
+	}
 	___INFOLOG( "passed" );
 }
 
