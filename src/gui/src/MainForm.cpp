@@ -2289,7 +2289,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	HydrogenApp* pApp = HydrogenApp::get_instance();
+	HydrogenApp* pHydrogenApp = HydrogenApp::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -2304,7 +2304,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		}
 
 		const int nCursorColumn =
-			pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+			pHydrogenApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
 
 		// Within the core locating to a position beyond the length of
 		// the song with loop mode enabled is a valid
@@ -2335,7 +2335,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		const int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
+		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorPosition();
 		
 		if ( ! pCoreActionController->locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
@@ -2358,7 +2358,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pSong = pHydrogen->getSong();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pActionManager = MidiActionManager::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -3056,6 +3057,42 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::ShowDonate:
 				action_donate();
 				break;
+
+			// Playlist dialog related actions
+			case Shortcuts::Action::PlaylistAddSong:
+				pHydrogenApp->getPlayListDialog()->addSong();
+				break;
+			case Shortcuts::Action::PlaylistAddCurrentSong:
+				pHydrogenApp->getPlayListDialog()->addCurrentSong();
+				break;
+			case Shortcuts::Action::PlaylistRemoveSong:
+				pHydrogenApp->getPlayListDialog()->removeSong();
+				break;
+			case Shortcuts::Action::NewPlaylist:
+				pHydrogenApp->getPlayListDialog()->newPlaylist();
+				break;
+			case Shortcuts::Action::OpenPlaylist:
+				pHydrogenApp->getPlayListDialog()->openPlaylist();
+				break;
+			case Shortcuts::Action::SavePlaylist:
+				pHydrogenApp->getPlayListDialog()->savePlaylist();
+				break;
+			case Shortcuts::Action::SaveAsPlaylist:
+				pHydrogenApp->getPlayListDialog()->savePlaylistAs();
+				break;
+			case Shortcuts::Action::PlaylistAddScript:
+				pHydrogenApp->getPlayListDialog()->loadScript();
+				break;
+			case Shortcuts::Action::PlaylistEditScript:
+				pHydrogenApp->getPlayListDialog()->editScript();
+				break;
+			case Shortcuts::Action::PlaylistRemoveScript:
+				pHydrogenApp->getPlayListDialog()->removeScript();
+				break;
+			case Shortcuts::Action::PlaylistCreateScript:
+				pHydrogenApp->getPlayListDialog()->newScript();
+				break;
+
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
 							.arg( static_cast<int>(action) ) );

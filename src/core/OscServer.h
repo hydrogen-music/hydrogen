@@ -804,6 +804,12 @@ class OscServer : public H2Core::Object<OscServer>
 		 * in the user's drumkit data folder.
 		 */
 	static void EXTRACT_DRUMKIT_Handler( lo_arg **argv, int argc );
+
+		static void NEW_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void OPEN_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void SAVE_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc);
+
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

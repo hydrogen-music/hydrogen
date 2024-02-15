@@ -61,26 +61,26 @@ class PlaylistDialog :  public QDialog,
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+		void addSong();
+		void addCurrentSong();
+		void removeSong();
+		void removeScript();
+		void newPlaylist();
+		void openPlaylist();
+		void savePlaylistAs();
+		void savePlaylist();
+		void loadScript();
+		void editScript();
+		void newScript();
 
 	private slots:
 		virtual void closeEvent( QCloseEvent* ev ) override;
 		virtual bool eventFilter ( QObject *o, QEvent *e ) override;
-	
-		void addSong();
-		void addCurrentSong();
-		void removeFromList();
-		void removeScript();
-		void clearPlaylist();
-		void loadList();
-		void saveListAs();
-		void saveList();
-		void loadScript();
+
 		void ffWDBtnClicked();
 		void nodePlayBTN();
 		void nodeStopBTN();
 		void rewindBtnClicked();
-		void editScript();
-		void newScript();
 		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
 		void o_upBClicked();
 		void o_downBClicked();

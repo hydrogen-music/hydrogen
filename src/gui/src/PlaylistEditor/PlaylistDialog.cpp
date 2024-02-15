@@ -246,19 +246,19 @@ void PlaylistDialog::populateMenuBar() {
 								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this,
-								SLOT( removeFromList() ),
+								SLOT( removeSong() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
 	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
-								SLOT( clearPlaylist() ),
+								SLOT( newPlaylist() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
 	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ),
+	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( openPlaylist() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
 	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ),
+	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( savePlaylist() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
 	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this,
-								SLOT( saveListAs() ),
+								SLOT( savePlaylistAs() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
 	m_pPlaylistMenu->setFont( font );
 
@@ -329,7 +329,7 @@ void PlaylistDialog::addCurrentSong()
 	updatePlayListNode( filename );
 }
 
-void PlaylistDialog::removeFromList()
+void PlaylistDialog::removeSong()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 
@@ -366,7 +366,7 @@ void PlaylistDialog::removeFromList()
 	}
 }
 
-void PlaylistDialog::clearPlaylist()
+void PlaylistDialog::newPlaylist()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	bool DiscardChanges = false;
@@ -394,13 +394,7 @@ void PlaylistDialog::clearPlaylist()
 
 	if ( !bIsModified || ( bIsModified && DiscardChanges ) ) {
 		m_pPlaylistTree->clear();
-		pPlaylist->clear();
-		pPlaylist->setSelectedSongNr( -1 );
-		pPlaylist->setActiveSongNumber( -1 );
-		pPlaylist->setFilename( "" );
-		setWindowTitle( tr( "Playlist Browser" ) );
-
-		pPlaylist->setIsModified(false);
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->newPlaylist();
 	}
 	return;
 }
@@ -417,14 +411,13 @@ void PlaylistDialog::updatePlayListNode( const QString& file )
 	m_pPlaylistTree->setCurrentItem( m_pPlaylistItem );
 }
 
-void PlaylistDialog::loadList()
-{
+void PlaylistDialog::openPlaylist() {
 	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::playlists_dir();
 	}
 
-	FileDialog fd(this);
+	FileDialog fd( nullptr );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setWindowTitle( tr( "Load Playlist" ) );
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -437,9 +430,14 @@ void PlaylistDialog::loadList()
 
 	QString sFilePath = fd.selectedFiles().first();
 
+	// Ensure the path to the file is not relative.
 	if ( HydrogenApp::openPlaylist( sFilePath ) ) {
-		Preferences::get_instance()->setLastPlaylistDirectory( fd.directory().absolutePath() );
+		Preferences::get_instance()->setLastPlaylistDirectory(
+			fd.directory().absolutePath() );
 	}
+
+	return;
+}
 
 	// if( playlist->size() > 0 ) {
 	// 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -468,7 +466,6 @@ void PlaylistDialog::loadList()
 	// 	pPlaylist->setSelectedSongNr( 0 );
 	// 	setWindowTitle( tr( "Playlist Browser" ) + QString(" - ") + pPlaylist->getFilename() );
 	// }
-}
 
 void PlaylistDialog::newScript()
 {
@@ -551,8 +548,7 @@ void PlaylistDialog::newScript()
 	return;
 }
 
-void PlaylistDialog::saveListAs()
-{
+void PlaylistDialog::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
@@ -562,7 +558,7 @@ void PlaylistDialog::saveListAs()
 		sPath = Filesystem::playlists_dir();
 	}
 	
-	FileDialog fd(this);
+	FileDialog fd( nullptr );
 	fd.setWindowTitle( tr( "Save Playlist" ) );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::playlists_filter_name );
@@ -578,7 +574,7 @@ void PlaylistDialog::saveListAs()
 	QString filename = fd.selectedFiles().first();
 
 	if ( ! pHydrogen->getCoreActionController()->savePlaylistAs( filename ) ) {
-		QMessageBox::critical( this, "Hydrogen",
+		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return;
 	}
@@ -587,17 +583,18 @@ void PlaylistDialog::saveListAs()
 	Preferences::get_instance()->setLastPlaylistDirectory(
 		fd.directory().absolutePath() );
 
-	setWindowTitle( tr( "Playlist Browser" ) + QString(" - %1").arg( filename ) );
+	return;
+
 }
 
-void PlaylistDialog::saveList()
+void PlaylistDialog::savePlaylist()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
 
 	if ( pPlaylist->getFilename().isEmpty() ) {
-		return saveListAs();
+		return savePlaylistAs();
 	}
 
 	if ( ! pHydrogen->getCoreActionController()->savePlaylist() ) {
@@ -1026,27 +1023,27 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 			break;
 			
 		case Shortcuts::Action::PlaylistRemoveSong:
-			removeFromList();
+			removeSong();
 			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::NewPlaylist:
-			clearPlaylist();
+			newPlaylist();
 			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::OpenPlaylist:
-			loadList();
+			openPlaylist();
 			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::SavePlaylist:
-			saveList();
+			savePlaylist();
 			bHandled = true;
 			break;
 			
 		case Shortcuts::Action::SaveAsPlaylist:
-			saveListAs();
+			savePlaylistAs();
 			bHandled = true;
 			break;
 

@@ -1053,6 +1053,34 @@ void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	pController->extractDrumkit( QString::fromUtf8( &argv[0]->s ), sTargetDir );
 }
 
+void OscServer::NEW_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
+	pController->newPlaylist( QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::OPEN_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
+	pController->openPlaylist( QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::SAVE_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
+	pController->savePlaylist();
+}
+
+void OscServer::SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
+	pController->savePlaylistAs( QString::fromUtf8( &argv[0]->s ) );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -1346,6 +1374,12 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "sf", VALIDATE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/NEW_PLAYLIST", "s", NEW_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/OPEN_PLAYLIST", "s", OPEN_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "", SAVE_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "f", SAVE_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST_AS", "s", SAVE_PLAYLIST_AS_Handler);
 
 	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 

@@ -558,6 +558,7 @@ bool HydrogenApp::openPlaylist( const QString& sFilename ) {
 	return true;
 }
 
+
 void HydrogenApp::showMixer(bool show)
 {
 	/*

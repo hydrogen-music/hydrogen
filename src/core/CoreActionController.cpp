@@ -1805,8 +1805,13 @@ void CoreActionController::setBpm( float fBpm ) {
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
-bool CoreActionController::newPlaylist() {
-	Hydrogen::get_instance()->setPlaylist( std::make_shared<Playlist>() );
+bool CoreActionController::newPlaylist( const QString& sPath ) {
+	auto pPlaylist = std::make_shared<Playlist>();
+	pPlaylist->setFilename( sPath );
+	Hydrogen::get_instance()->setPlaylist( pPlaylist );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+
 	return true;
 }
 
@@ -1834,7 +1839,13 @@ bool CoreActionController::savePlaylist() const {
 }
 
 bool CoreActionController::savePlaylistAs( const QString& sPath ) {
-	return Hydrogen::get_instance()->getPlaylist()->saveAs( sPath );
+	if ( ! Hydrogen::get_instance()->getPlaylist()->saveAs( sPath ) ) {
+		ERRORLOG( QString( "Unable to save playlist to [%1]" ).arg( sPath ) );
+		return false;
+	}
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+	return true;
 }
 
 }
