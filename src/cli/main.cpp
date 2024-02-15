@@ -101,7 +101,7 @@ void signal_handler ( int signum )
 void show_playlist (uint active )
 {
 	/* Display playlist members */
-	Playlist* pPlaylist = Playlist::get_instance();
+	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
 			std::cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
@@ -332,12 +332,12 @@ int main(int argc, char *argv[])
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
 
 		std::shared_ptr<Song> pSong = nullptr;
-		Playlist *pPlaylist = nullptr;
+		std::shared_ptr<Playlist> pPlaylist = nullptr;
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
 			pPlaylist = Playlist::load( playlistFilename );
-			if ( ! pPlaylist ) {
+			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;
 			}
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
 			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
 			pSong = Song::load( FirstSongFilename );
 			
-			if( pSong ){
+			if ( pSong != nullptr ){
 				pHydrogen->setSong( pSong );
 				preferences->setLastSongFilename( songFilename );
 				
@@ -512,12 +512,12 @@ int main(int argc, char *argv[])
 					}
 					break;
 				case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
-					if( pPlaylist ){
+					if ( pPlaylist != nullptr ){
 						QString FirstSongFilename;
 						pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
 						pSong = Song::load( FirstSongFilename );
 					
-						if( pSong ) {
+						if ( pSong != nullptr ) {
 							pHydrogen->setSong( pSong );
 							preferences->setLastSongFilename( songFilename );
 						
@@ -545,7 +545,6 @@ int main(int argc, char *argv[])
 		}
 
 		pSong = nullptr;
-		delete Playlist::get_instance();
 
 		preferences->savePreferences();
 		delete pHydrogen;

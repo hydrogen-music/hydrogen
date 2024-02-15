@@ -534,6 +534,30 @@ bool HydrogenApp::recoverEmptySong() {
 	return true;
 }
 
+bool HydrogenApp::openPlaylist( const QString& sFilename ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	// Check whether there is an autosave file next to it
+	// containing newer content.
+	QFileInfo fileInfo( sFilename );
+
+	// Ensure the path to the file is not relative.
+	if ( ! pCoreActionController->openPlaylist( fileInfo.absoluteFilePath() ) ) {
+		QMessageBox msgBox;
+		// Not commonized in CommmonStrings as it is required before
+		// HydrogenApp was instantiated.
+		msgBox.setText( tr( "Error loading playlist." ) );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.exec();
+
+		return false;
+	}
+
+	return true;
+}
+
 void HydrogenApp::showMixer(bool show)
 {
 	/*
@@ -889,6 +913,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_MIDI_MAP_CHANGED:
 				pListener->midiMapChangedEvent();
+				break;
+
+			case EVENT_PLAYLIST_CHANGED:
+				pListener->playlistChangedEvent();
 				break;
 
 			default:

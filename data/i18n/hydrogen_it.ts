@@ -1723,6 +1723,10 @@ Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</transl
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -3620,10 +3624,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>&amp;New Playlist</source>
         <translation>&amp;Nuova Playlist</translation>
-    </message>
-    <message>
-        <source>File not found: </source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No valid song selected!</source>

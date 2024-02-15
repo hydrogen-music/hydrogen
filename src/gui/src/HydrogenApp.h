@@ -90,6 +90,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 */
 		static bool openSong( const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
+		static bool openPlaylist( const QString& sFilename );
 	/**
 	 * Specialized version of openSong( QString sFilename ) trying to
 	 * open the autosave file corresponding to current empty song.

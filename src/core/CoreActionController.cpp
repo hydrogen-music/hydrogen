@@ -30,6 +30,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/Playlist.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -1803,4 +1804,37 @@ void CoreActionController::setBpm( float fBpm ) {
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
+
+bool CoreActionController::newPlaylist() {
+	Hydrogen::get_instance()->setPlaylist( std::make_shared<Playlist>() );
+	return true;
+}
+
+bool CoreActionController::openPlaylist( const QString& sPath ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	auto pPlaylist = Playlist::load( sPath );
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( QString( "Unable to open playlist [%1]" ).arg( sPath ) );
+		return false;
+	}
+	pPlaylist->setNextSongByNumber( 0 );
+
+	pHydrogen->setPlaylist( pPlaylist );
+
+	Preferences::get_instance()->setLastPlaylistFilename( sPath );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::savePlaylist() const {
+	return Hydrogen::get_instance()->getPlaylist()->save();
+}
+
+bool CoreActionController::savePlaylistAs( const QString& sPath ) {
+	return Hydrogen::get_instance()->getPlaylist()->saveAs( sPath );
+}
+
 }

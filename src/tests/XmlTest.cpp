@@ -442,21 +442,14 @@ void XmlTest::testPlaylist()
 	___INFOLOG( "" );
 	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
 
-	H2Core::Playlist::create_instance();
-	H2Core::Playlist* pPlaylistCurrent = H2Core::Playlist::get_instance();
-	H2Core::Playlist* pPlaylistLoaded = nullptr;
+	auto pPlaylist = std::make_shared<H2Core::Playlist>();
 	H2Core::XMLDoc doc;
 
-	CPPUNIT_ASSERT( pPlaylistCurrent->saveAs( sPath ) );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sPath ) );
 	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
-	pPlaylistLoaded = H2Core::Playlist::load( sPath );
+	auto pPlaylistLoaded = H2Core::Playlist::load( sPath );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 
-	if ( pPlaylistLoaded != nullptr ) {
-		delete pPlaylistLoaded;
-	} else {
-		delete pPlaylistCurrent;
-	}
 	___INFOLOG( "passed" );
 }
 

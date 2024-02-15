@@ -93,7 +93,8 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
+MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
+					const QString& sPlaylistFilename )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveFilename( "" )
 {
@@ -115,12 +116,14 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
 
 	m_pQApp->processEvents();
 
+	/////////// Load song
+	//
 	// When using the Non Session Management system, the new Song
 	// will be loaded by the NSM client singleton itself and not
 	// by the MainForm. The latter will just access the already
 	// loaded Song.
 	if ( ! pHydrogen->isUnderSessionManagement() ){
-		std::shared_ptr<H2Core::Song>pSong = nullptr;
+		std::shared_ptr<H2Core::Song> pSong = nullptr;
 
 		bool bRet = false;
 		if ( sSongFilename.isEmpty() && pPref->isRestoreLastSongEnabled() ) {
@@ -138,6 +141,23 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
 			pSong = H2Core::Song::getEmptySong();
 			HydrogenApp::openSong( pSong );
 		}
+	}
+
+	////////////// Load playlist
+	//
+	if ( ! sPlaylistFilename.isEmpty() ) {
+		HydrogenApp::openPlaylist( sPlaylistFilename );
+	}
+	else if ( pPref->isRestoreLastPlaylistEnabled() &&
+		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
+		HydrogenApp::openPlaylist( pPref->getLastPlaylistFilename() );
+	}
+
+	if ( pPref->getPlaylistDialogProperties().visible ){
+		// If there was a playlist used during the last
+		// session and it was still visible/shown when closing
+		// Hydrogen, bring it up again.
+		action_window_showPlaylistDialog();
 	}
 
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -200,24 +220,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename )
 	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
-	//restore last playlist
-	if ( pPref->isRestoreLastPlaylistEnabled() &&
-		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
-		bool bLoadSuccessful = h2app->getPlayListDialog()->loadListByFileName(
-			pPref->getLastPlaylistFilename() );
-		if ( bLoadSuccessful ) {
-			if ( pPref->getPlaylistDialogProperties().visible ){
-				// If there was a playlist used during the last
-				// session and it was still visible/shown when closing
-				// Hydrogen, bring it up again.
-				action_window_showPlaylistDialog();
-			}
-		}
-		else {
-			_ERRORLOG( QString( "Unable to load last playlist [%1]" )
-					   .arg( pPref->getLastPlaylistFilename() ) );
-		}
-	}
 
 	// Must be done _after_ the creation of the HydrogenApp instance.
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -255,7 +257,6 @@ MainForm::~MainForm()
 	delete m_pUndoView;
 
 	if (h2app != nullptr) {
-		delete Playlist::get_instance();
 		delete h2app;
 		h2app = nullptr;
 	}
@@ -1595,13 +1596,14 @@ void MainForm::savePreferences() {
 }
 
 void MainForm::closeAll(){
-	H2Core::Hydrogen::get_instance()->setGUIState(
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	pHydrogen->setGUIState(
 		H2Core::Hydrogen::GUIState::shutdown );
 
 	// Store the last playlist in the Preferences in order to allow to
 	// reopen it at startup.
 	Preferences::get_instance()->setLastPlaylistFilename(
-		Playlist::get_instance()->getFilename() );
+		pHydrogen->getPlaylist()->getFilename() );
 
 	savePreferences();
 	m_pQApp->quit();
@@ -1759,9 +1761,9 @@ void MainForm::onFixMissingSamples()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( e->type() == QEvent::FileOpen ) {
 		// Mac OS always opens files (including via double click in Finder) via a FileOpenEvent.
@@ -1778,10 +1780,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			H2Core::Drumkit::install( sFileName );
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sFileName );
-			if ( loadlist ) {
-				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
-			}
+			HydrogenApp::openPlaylist( sFileName );
 		}
 		return true;
 
@@ -1918,7 +1917,7 @@ void MainForm::errorEvent( int nErrorCode )
 
 void MainForm::playlistLoadSongEvent (int nIndex)
 {
-	Playlist* pPlaylist = Playlist::get_instance();
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
 
 	QString songFilename;
 	if( !pPlaylist->getSongFilenameByNumber( nIndex, songFilename ) ) {
@@ -2076,22 +2075,30 @@ void MainForm::onAutoSaveTimer()
 
 void MainForm::onPlaylistDisplayTimer()
 {
-	if( Playlist::get_instance()->size() == 0) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPlaylist = pHydrogen->getPlaylist();
+	auto pSong = pHydrogen->getSong();
+	if( pPlaylist->size() == 0) {
+		return;
+	}
+	if ( pSong == nullptr ) {
 		return;
 	}
 	
-	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	int songnumber = pPlaylist->getActiveSongNumber();
 	QString songname;
 	if ( songnumber == -1 ) {
 		return;
 	}
 
-	if ( Hydrogen::get_instance()->getSong()->getName() == "Untitled Song" ){
-		songname = Hydrogen::get_instance()->getSong()->getFilename();
+	if ( pSong->getName() == "Untitled Song" ){
+		songname = pSong->getFilename();
 	} else {
-		songname = Hydrogen::get_instance()->getSong()->getName();
+		songname = pSong->getName();
 	}
-	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->getAuthor();
+	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) +
+		QString("  ---  Songname: ") + songname + QString("  ---  Author: ") +
+		pSong->getAuthor();
 	HydrogenApp::get_instance()->showStatusBarMessage( message );
 }
 
@@ -2099,22 +2106,28 @@ void MainForm::onPlaylistDisplayTimer()
 // Returns false if not (i.e. Cancel)
 bool MainForm::handleUnsavedChanges()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	bool done = false;
 	bool rv = true;
-	while ( !done && Hydrogen::get_instance()->getSong()->getIsModified() ) {
+	while ( !done && pSong->getIsModified() ) {
 		switch(
-				 QMessageBox::information( this, "Hydrogen",
-										 tr("\nThe document contains unsaved changes.\n"
-												"Do you want to save the changes?\n"),
-										   pCommonStrings->getButtonSave(),
-										   pCommonStrings->getButtonDiscard(),
-										   pCommonStrings->getButtonCancel(),
-										   0,      // Enter == button 0
-										   2 ) ) { // Escape == button 2
+			QMessageBox::information( this, "Hydrogen",
+									  tr("\nThe document contains unsaved changes.\n"
+										 "Do you want to save the changes?\n"),
+									  pCommonStrings->getButtonSave(),
+									  pCommonStrings->getButtonDiscard(),
+									  pCommonStrings->getButtonCancel(),
+									  0,      // Enter == button 0
+									  2 ) ) { // Escape == button 2
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
-			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
+			if ( ! pSong->getFilename().isEmpty() ) {
 				action_file_save();
 			} else {
 				// never been saved
@@ -2135,8 +2148,7 @@ bool MainForm::handleUnsavedChanges()
 	}
 
 	if( rv != false ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		while ( !done && Playlist::get_instance()->getIsModified() ) {
+		while ( !done && pHydrogen->getPlaylist()->getIsModified() ) {
 			switch(
 					QMessageBox::information(
 								this, 
@@ -2438,7 +2450,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sAction = "PLAYLIST_SONG";
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
-				fMax = static_cast<float>(Playlist::get_instance()->size()) - 1;
+				fMax = static_cast<float>(pHydrogen->getPlaylist()->size()) - 1;
 				break;
 
 			case Shortcuts::Action::TimelineDeleteMarker:

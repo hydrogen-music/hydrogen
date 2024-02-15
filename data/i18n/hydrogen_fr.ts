@@ -1728,6 +1728,10 @@ Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</t
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation>Certaines licences d&apos;échantillons diffèrent de celle attribuée au kit de batterie global [%1] et seront écrasées. Êtes-vous sûr ?</translation>
     </message>
+    <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -3665,10 +3669,6 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     <message>
         <source>&amp;New Playlist</source>
         <translation>Nouvelle liste de lecture</translation>
-    </message>
-    <message>
-        <source>File not found: </source>
-        <translation>Fichier non-trouvé : </translation>
     </message>
     <message>
         <source>No valid song selected!</source>

@@ -427,6 +427,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	void setBpm( float fBpm );
 
+		/** Replaces the current #Playlist with an empty one. */
+		bool newPlaylist();
+		/** Replaces the current #Playlist with the one loaded from @a sPath. */
+		bool openPlaylist( const QString& sPath );
+		/** Saves changes of the current #Playlist to disk. */
+		bool savePlaylist() const;
+		/** Saves the current #Playlist to @a sPath.*/
+		bool savePlaylistAs( const QString& sPath );
+
 private:
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );

@@ -576,21 +576,12 @@ int main(int argc, char *argv[])
 			QApplication::restoreOverrideCursor();
 		}
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		MainForm *pMainForm =
+			new MainForm( pQApp, sSongFilename, sPlaylistFilename );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );
-
-		if( ! sPlaylistFilename.isEmpty() ){
-			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
-			if ( loadlist ){
-				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
-			} else {
-				___ERRORLOG ( "Error loading the playlist" );
-			}
-		}
-
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
 			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );

@@ -32,6 +32,7 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "../EventListener.h"
 
 class Button;
 class PixmapWidget;
@@ -40,7 +41,11 @@ class PixmapWidget;
 /// This dialog is used to use the H2PlayList
 ///
 /** \ingroup docGUI*/
-class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI,  public H2Core::Object<PlaylistDialog>
+class PlaylistDialog :  public QDialog,
+						public EventListener,
+						protected WidgetWithScalableFont<8, 10, 12>,
+						public Ui_PlaylistDialog_UI,
+						public H2Core::Object<PlaylistDialog>
 
 {
 		H2_OBJECT(PlaylistDialog)
@@ -51,6 +56,8 @@ class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 
 		~PlaylistDialog();
 
 		bool loadListByFileName( const QString& filename );
+
+		void playlistChangedEvent() override;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -83,6 +90,7 @@ public slots:
 
 	private:
 
+		void updatePlaylistTree();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
 		void updatePlayListNode( const QString& file );

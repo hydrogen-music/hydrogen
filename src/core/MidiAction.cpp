@@ -1121,23 +1121,23 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 }
 
 bool MidiActionManager::setSong( int nSongNumber, Hydrogen* pHydrogen ) {
-	int nActiveSongNumber = Playlist::get_instance()->getActiveSongNumber();
-	if( nSongNumber >= 0 && nSongNumber <= Playlist::get_instance()->size() - 1 ) {
+	int nActiveSongNumber = pHydrogen->getPlaylist()->getActiveSongNumber();
+	if( nSongNumber >= 0 && nSongNumber <= pHydrogen->getPlaylist()->size() - 1 ) {
 		if ( nActiveSongNumber != nSongNumber ) {
-			Playlist::get_instance()->setNextSongByNumber( nSongNumber );
+			pHydrogen->getPlaylist()->setNextSongByNumber( nSongNumber );
 		}
 	} else {
 		// Preventive measure to avoid bad things.
 		if ( pHydrogen->getSong() == nullptr ) {
 			___ERRORLOG( "No song set yet" );
 		}
-		else if ( Playlist::get_instance()->size() == 0 ) {
+		else if ( pHydrogen->getPlaylist()->size() == 0 ) {
 			___ERRORLOG( QString( "No songs added to the current playlist yet" ) );
 		}
 		else {
 			___ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2]" )
 						 .arg( nSongNumber )
-						 .arg( Playlist::get_instance()->size() - 1 ) );
+						 .arg( pHydrogen->getPlaylist()->size() - 1 ) );
 		}
 		return false;
 	}
@@ -1151,12 +1151,12 @@ bool MidiActionManager::playlist_song( std::shared_ptr<Action> pAction, Hydrogen
 }
 
 bool MidiActionManager::playlist_next_song( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSong( ++songnumber, pHydrogen );
 }
 
 bool MidiActionManager::playlist_previous_song( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	int songnumber = Playlist::get_instance()->getActiveSongNumber();
+	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSong( --songnumber, pHydrogen );
 }
 

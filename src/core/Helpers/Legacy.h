@@ -104,7 +104,7 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \param pl_path is a path to an xml file
 		 * \return a Playlist on success, 0 otherwise
 		 */
-		static Playlist* load_playlist( const QString& pl_path );
+		static std::shared_ptr<Playlist> load_playlist( const QString& pl_path );
 
 	static std::vector<PatternList*>* loadPatternGroupVector( const XMLNode& pNode,
 															  PatternList* pPatternList,

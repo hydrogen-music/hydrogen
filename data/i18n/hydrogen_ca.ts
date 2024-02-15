@@ -1721,6 +1721,10 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -3613,10 +3617,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>no Script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File not found: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>

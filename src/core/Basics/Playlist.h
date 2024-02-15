@@ -27,6 +27,7 @@
 #include <core/Helpers/Xml.h>
 
 #include <memory>
+#include <vector>
 
 namespace H2Core
 {
@@ -49,26 +50,19 @@ class Playlist : public H2Core::Object<Playlist>
 			bool scriptEnabled;
 		};
 		
-		/**
-		 * If #__instance equals 0, a new Playlist singleton
-		 * will be created and stored in it.
-		 *
-		 * It is called in Hydrogen::audioEngine_init().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current Playlist singleton
-		 * stored in #__instance.
-		 */
-		static Playlist* get_instance() { assert(__instance); return __instance; }
-
 		Playlist();
-		~Playlist();
 
 		void	activateSong (int SongNumber );
 
 		int		size() const;
 		std::shared_ptr<Entry>	get( int idx ) const;
+
+		std::vector<std::shared_ptr<Entry>>::iterator begin() {
+			return __entries.begin();
+		}
+		std::vector<std::shared_ptr<Entry>>::iterator end() {
+			return __entries.end();
+		}
 
 		void	clear();
 		void	add( std::shared_ptr<Entry> entry );
@@ -87,7 +81,7 @@ class Playlist : public H2Core::Object<Playlist>
 		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
-		static Playlist* load( const QString& sPath );
+		static std::shared_ptr<Playlist> load( const QString& sPath );
 		bool saveAs( const QString& sTargetPath, bool bSilent = false );
 		bool save( bool bSilent = false ) const;
 		/** Formatted string version for debugging purposes.
@@ -101,12 +95,6 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		/**
-		 * Object holding the current Playlist singleton. It is
-		 * initialized with NULL, set with create_instance(), and
-		 * accessed with get_instance().
-		 */
-		static Playlist* __instance;
 		QString __filename;
 
 		std::vector<std::shared_ptr<Entry>> __entries;
@@ -119,7 +107,7 @@ class Playlist : public H2Core::Object<Playlist>
 		void execScript( int index ) const;
 
 		void saveTo( XMLNode& node ) const;
-		static Playlist* load_from( const XMLNode& root, const QString& sPath );
+		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
 };
 
 inline int Playlist::size() const

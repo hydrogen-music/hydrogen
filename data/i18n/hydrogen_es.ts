@@ -1727,6 +1727,10 @@ Utiliza &apos;Guardar como&apos; para activar autoguardado.</translation>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation>Algunas licencias de samples difieren de la asignada al drumkit en su conjunto [%1] y serán sobreescritas. ¿Seguir?</translation>
     </message>
+    <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -3664,10 +3668,6 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
     <message>
         <source>&amp;New Playlist</source>
         <translation>&amp;Nuevo playlist</translation>
-    </message>
-    <message>
-        <source>File not found: </source>
-        <translation>Archivo no encontrado: </translation>
     </message>
     <message>
         <source>No valid song selected!</source>

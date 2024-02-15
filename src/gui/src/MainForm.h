@@ -51,7 +51,8 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	public:
 		QApplication* m_pQApp;
 
-	MainForm( QApplication * pQApplication, const QString& sSongFilename );
+	MainForm( QApplication * pQApplication, const QString& sSongFilename,
+			  const QString& sPlaylistFilename = "" );
 		~MainForm();
 
 		virtual void errorEvent( int nErrorCode ) override;

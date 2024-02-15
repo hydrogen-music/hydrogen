@@ -130,7 +130,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	initBeatcounter();
 
 	m_pAudioEngine = new AudioEngine();
-	Playlist::create_instance();
+	m_pPlaylist = std::make_shared<Playlist>();
 
 	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(AudioEngine::State::Initialized) );
 
@@ -193,11 +193,6 @@ void Hydrogen::create_instance()
 	if ( __instance == nullptr ) {
 		__instance = new Hydrogen;
 	}
-
-	// See audioEngine_init() for:
-	// AudioEngine::create_instance();
-	// Effects::create_instance();
-	// Playlist::create_instance();
 }
 
 void Hydrogen::initBeatcounter()

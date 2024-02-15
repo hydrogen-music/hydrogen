@@ -43,6 +43,7 @@ namespace H2Core
 	class CoreActionController;
 	class AudioEngine;
 	class SoundLibraryDatabase;
+	class Playlist;
 
 ///
 /// Hydrogen Audio Engine.
@@ -92,6 +93,8 @@ public:
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
+	std::shared_ptr<Playlist> getPlaylist() const;
+	void setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -549,6 +552,8 @@ private:
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
+	std::shared_ptr<Playlist> m_pPlaylist;
+
 	/** 
 	 * Constructor, entry point, and initialization of the
 	 * Hydrogen application.
@@ -635,6 +640,12 @@ inline int Hydrogen::getLastMidiEventParameter() const {
 }
 inline void	Hydrogen::setLastMidiEventParameter( int nParam ) {
 	m_nLastMidiEventParameter = nParam;
+}
+inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
+	return m_pPlaylist;
+}
+inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
+	m_pPlaylist = pPlaylist;
 }
 };
 

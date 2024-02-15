@@ -31,8 +31,6 @@
 namespace H2Core
 {
 
-Playlist* Playlist::__instance = nullptr;
-
 Playlist::Playlist()
 {
 	__filename = "";
@@ -41,31 +39,17 @@ Playlist::Playlist()
 	m_bIsModified = false;
 }
 
-Playlist::~Playlist()
-{
-	__instance = nullptr;
-}
-
-void Playlist::create_instance()
-{
-	if ( __instance == nullptr ) {
-		__instance = new Playlist();
-	}
-}
-
 void Playlist::clear()
 {
 	__entries.clear();
 }
 
-Playlist* Playlist::load( const QString& sPath )
+std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 {
-	Playlist* prev = __instance;
-
-	Playlist* pPlaylist;
+	std::shared_ptr<Playlist> pPlaylist;
 	XMLDoc doc;
 	if ( !doc.read( sPath, Filesystem::playlist_xsd_path() ) ) {
-		auto pPlaylist = Legacy::load_playlist( sPath );
+		pPlaylist = Legacy::load_playlist( sPath );
 		if ( pPlaylist == nullptr ) {
 			ERRORLOG( QString( "Unable to load playlist [%1]" )
 					  .arg( sPath ) );
@@ -89,24 +73,15 @@ Playlist* Playlist::load( const QString& sPath )
 
 	}
 
-	if ( pPlaylist != nullptr ) {
-		delete prev;
-		__instance = pPlaylist;
-	}
-	else {
-		ERRORLOG( QString( "Unable to load Playlist [%1]" ).arg( sPath ) );
-		__instance = prev;
-	}
-
 	return pPlaylist;
-
 }
 
-Playlist* Playlist::load_from( const XMLNode& node, const QString& sPath )
+std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
+											   const QString& sPath )
 {
 	QFileInfo fileInfo( sPath );
 
-	Playlist* pPlaylist = new Playlist();
+	auto pPlaylist = std::make_shared<Playlist>();
 	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
 	XMLNode songsNode = node.firstChildElement( "songs" );
@@ -189,30 +164,32 @@ void Playlist::activateSong( int songNumber )
 	execScript( songNumber );
 }
 
-bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename) const
+bool Playlist::getSongFilenameByNumber( int nSongNumber, QString& sFilePath) const
 {
 	bool Success = true;
 	
-	if ( size() == 0 || songNumber >= size() ) {
-		Success = false;
+	if ( size() == 0 || nSongNumber >= size() || nSongNumber < 0 ) {
+		ERRORLOG( QString( "Unable to select song [%1/%2] " )
+				  .arg( nSongNumber ).arg( size() ) );
+		return false;
 	}
 	
-	if( Success)  {
-		filename = get( songNumber )->filePath;
-	}
+	sFilePath = get( nSongNumber )->filePath;
 
-	return Success;
+	return true;
 }
 
 /* This method is called by MIDI thread */
-void Playlist::setNextSongByNumber( int songNumber )
+void Playlist::setNextSongByNumber( int nSongNumber )
 {
-	if ( size() == 0 || songNumber >= size() ) {
+	if ( size() == 0 || nSongNumber >= size() || nSongNumber < 0 ) {
+		ERRORLOG( QString( "Unable to select song [%1/%2] " )
+				  .arg( nSongNumber ).arg( size() ) );
 		return;
 	}
 
 	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber );
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, nSongNumber );
 }
 
 void Playlist::execScript( int nIndex ) const
