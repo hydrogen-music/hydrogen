@@ -34,7 +34,6 @@ namespace H2Core
 Playlist::Playlist()
 {
 	__filename = "";
-	m_nSelectedSongNumber = -1;
 	m_nActiveSongNumber = -1;
 	m_bIsModified = false;
 }
@@ -177,7 +176,6 @@ bool Playlist::remove( int nIndex ) {
 /* This method is called by Event dispatcher thread ( GUI ) */
 void Playlist::activateSong( int songNumber )
 {
-	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
 	execScript( songNumber );
@@ -239,7 +237,6 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
 			.append( QString( "%1%2filename: %3\n" ).arg( sPrefix ).arg( s ).arg( __filename ) )
-			.append( QString( "%1%2m_nSelectedSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedSongNumber ) )
 			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
@@ -259,7 +256,6 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		sOutput = QString( "[Playlist]" )
 			.append( QString( " filename: %1" ).arg( __filename ) )
-			.append( QString( ", m_nSelectedSongNumber: %1" ).arg( m_nSelectedSongNumber ) )
 			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {

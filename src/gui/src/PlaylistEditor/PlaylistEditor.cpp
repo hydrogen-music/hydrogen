@@ -647,10 +647,6 @@ void PlaylistEditor::o_upBClicked()
 	pPlaylistTree->insertTopLevelItem( index -1, tmpPlaylistItem );
 	pPlaylistTree->setCurrentItem( tmpPlaylistItem );
 
-	if ( pPlaylist->getSelectedSongNr() >= 0 ){
-		pPlaylist->setSelectedSongNr( pPlaylist->getSelectedSongNr() -1 );
-	}
-
 	if ( pPlaylist->getActiveSongNumber() == index ){
 		pPlaylist->setActiveSongNumber( pPlaylist->getActiveSongNumber() -1 );
 	}
@@ -680,10 +676,6 @@ void PlaylistEditor::o_downBClicked()
 
 	m_pPlaylist->insertTopLevelItem( index +1, pTmpPlaylistItem );
 	m_pPlaylist->setCurrentItem( pTmpPlaylistItem );
-
-	if ( pPlaylist->getSelectedSongNr() >= 0 ) {
-		pPlaylist->setSelectedSongNr( pPlaylist->getSelectedSongNr() +1 );
-	}
 
 	if (pPlaylist ->getActiveSongNumber() == index ){
 		pPlaylist->setActiveSongNumber( pPlaylist->getActiveSongNumber() +1 );
@@ -784,7 +776,6 @@ void PlaylistEditor::on_m_pPlaylistTree_itemDoubleClicked()
 	sFilename = pPlaylistItem->text( 0 );
 
 	int index = m_pPlaylistTree->indexOfTopLevelItem( pPlaylistItem );
-	pPlaylist->setSelectedSongNr( index );
 	pPlaylist->setActiveSongNumber( index );
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
@@ -1026,18 +1017,11 @@ void PlaylistEditor::updatePlaylistTree()
 
 		//restore the selected item
 		const int nActiveSongNumber = pPlaylist->getActiveSongNumber();
-		const int nSelectedSongNumber = pPlaylist->getSelectedSongNr();
 
-		if ( nActiveSongNumber != -1 || nSelectedSongNumber != -1 ) {
-			int nSelected = 0;
-			if ( nActiveSongNumber == -1 ) {
-				nSelected = nSelectedSongNumber;
-			} else {
-				nSelected = nActiveSongNumber ;
-			}
+		if ( nActiveSongNumber != -1 ) {
 
 			QTreeWidgetItem* m_pPlaylistItem =
-				m_pPlaylistTree->topLevelItem( nSelected );
+				m_pPlaylistTree->topLevelItem( nActiveSongNumber );
 			m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50 ) );
 			m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50 ) );
 			m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50 ) );

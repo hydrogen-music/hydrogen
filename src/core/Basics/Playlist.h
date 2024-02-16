@@ -65,8 +65,6 @@ class Playlist : public H2Core::Object<Playlist>
 		bool	remove( int nIndex );
 
 		void	setNextSongByNumber( int SongNumber );
-		int		getSelectedSongNr() const;
-		void	setSelectedSongNr( int songNumber );
 
 		int		getActiveSongNumber() const;
 		void	setActiveSongNumber( int ActiveSongNumber );
@@ -96,7 +94,6 @@ class Playlist : public H2Core::Object<Playlist>
 
 		std::vector<std::shared_ptr<PlaylistEntry>> __entries;
 
-		int m_nSelectedSongNumber;
 		int m_nActiveSongNumber;
 
 		bool m_bIsModified;
@@ -121,16 +118,6 @@ inline std::shared_ptr<PlaylistEntry> Playlist::get( int idx ) const
 inline void Playlist::add( std::shared_ptr<PlaylistEntry> entry )
 {
 	__entries.push_back( entry );
-}
-
-inline int Playlist::getSelectedSongNr() const
-{
-	return m_nSelectedSongNumber;
-}
-
-inline void Playlist::setSelectedSongNr( int songNumber )
-{
-	m_nSelectedSongNumber = songNumber;
 }
 
 inline int Playlist::getActiveSongNumber() const
