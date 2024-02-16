@@ -3481,10 +3481,42 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Playlist Browser</source>
         <translation>Πλοηγός Κατάστιχου Αναπαραγωγής</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Μετακίνηση προς την αρχή</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>Παίξιμο, Παύση, Φόρτωμα του επιλεγμένου τραγουδιού</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Σταμάτημα</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Γρήγορα Μπροστά</translation>
+    </message>
+    <message>
+        <source>Song list</source>
+        <translation>Κατάστιχο τραγουδιών</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Σενάριο</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>εκτέλεση Σενάριου</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation>ταξινόμηση</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3539,38 +3571,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>&amp;Δημιουργία ενός νέου Σενάριου</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Μετακίνηση προς την αρχή</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>Παίξιμο, Παύση, Φόρτωμα του επιλεγμένου τραγουδιού</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Σταμάτημα</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Γρήγορα Μπροστά</translation>
-    </message>
-    <message>
-        <source>Song list</source>
-        <translation>Κατάστιχο τραγουδιών</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Σενάριο</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>εκτέλεση Σενάριου</translation>
-    </message>
-    <message>
-        <source>sort</source>
-        <translation>ταξινόμηση</translation>
-    </message>
-    <message>
         <source>Add Song to PlayList</source>
         <translation>Προσθήκη τραγουδιού στο Κατάστιχο Αναπαραγωγής</translation>
     </message>
@@ -3581,6 +3581,16 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No Song selected!</source>
         <translation>Δε επιλέχτηκε κανένα Τραγούδι!</translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation>Το παρών κατάστιχο αναπαραγωγής περιέχει μη αποθηκευμένες αλλαγές.
+
+Θέλεις να απορρίψεις τις αλλαγές;
+</translation>
     </message>
     <message>
         <source>no Script</source>
@@ -3597,7 +3607,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
-The path to the script and the scriptname must without whitespaces.</source>
+The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Το όνομα του σενάριου ή η διαδρομή προς το σενάριο περιέχουν κενά διαστήματα.
 ΣΗΜΑΝΤΙΚΟ
 Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
@@ -3636,6 +3646,14 @@ Sorry, but this will not work for the moment.</source>
         <translation>Προσθήκη Σενάριου στο επιλεγμένο Τραγούδι</translation>
     </message>
     <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation>Το όνομα του σενάριου ή η διαδρομή προς το σενάριο περιέχουν κενά διαστήματα.
+ΣΗΜΑΝΤΙΚΟ
+Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
+    </message>
+    <message>
         <source>No Script in use!</source>
         <translation>Δεν χρησιμοποιείται κανένα Σενάριο!</translation>
     </message>
@@ -3648,6 +3666,10 @@ Sorry, but this will not work for the moment.</source>
         <translation>Κανένα Σενάριο!</translation>
     </message>
     <message>
+        <source>No valid song selected!</source>
+        <translation>Δε επιλέχτηκε κανένα έγκυρο τραγούδι!</translation>
+    </message>
+    <message>
         <source>Pause.</source>
         <translation>Σε παύση.</translation>
     </message>
@@ -3655,31 +3677,9 @@ Sorry, but this will not work for the moment.</source>
         <source>Playlist: set song no. %1</source>
         <translation>Κατάστιχο αναπαραγωγής. Όρισε το τραγούδι αρ. %1</translation>
     </message>
-    <message>
-        <source>No valid song selected!</source>
-        <translation>Δε επιλέχτηκε κανένα έγκυρο τραγούδι!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>Το παρών κατάστιχο αναπαραγωγής περιέχει μη αποθηκευμένες αλλαγές.
-
-Θέλεις να απορρίψεις τις αλλαγές;
-</translation>
-    </message>
-    <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must be without whitespaces.</source>
-        <translation>Το όνομα του σενάριου ή η διαδρομή προς το σενάριο περιέχουν κενά διαστήματα.
-ΣΗΜΑΝΤΙΚΟ
-Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
-    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Πλοηγός Λιστών Αναπαραγωγής</translation>

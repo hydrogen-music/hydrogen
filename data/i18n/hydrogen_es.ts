@@ -1866,7 +1866,7 @@ Valor</translation>
     <message>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished">Azar</translation>
+        <translation>Azar</translation>
     </message>
 </context>
 <context>
@@ -3496,7 +3496,7 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Song list</source>
         <translation>Lista de canciones</translation>
@@ -3693,7 +3693,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Navegador Playlist</translation>

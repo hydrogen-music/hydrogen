@@ -65,7 +65,7 @@ class LadspaFXProperties;
 class LadspaFXInfo;
 class LadspaFXGroup;
 class InstrumentRack;
-class PlaylistDialog;
+class PlaylistEditor;
 class SampleEditor;
 class Director;
 class InfoBar;
@@ -108,7 +108,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showInstrumentPanel(bool);
 		void showAudioEngineInfoForm();
 		void showFilesystemInfoForm();
-		void showPlaylistDialog();
+		void showPlaylistEditor();
 		void showDirector();
 		void showSampleEditor( const QString& name, int mSelectedComponemt,
 							   int mSelectedLayer );
@@ -120,7 +120,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
 		AudioEngineInfoForm*		getAudioEngineInfoForm();
-		PlaylistDialog*			getPlayListDialog();
+		PlaylistEditor*			getPlayListEditor();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
 		PatternEditorPanel*		getPatternEditorPanel();
@@ -208,7 +208,7 @@ private slots:
 		SongEditorPanel *			m_pSongEditorPanel;
 		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
-		PlaylistDialog *			m_pPlaylistDialog;
+		PlaylistEditor *			m_pPlaylistEditor;
 		SampleEditor *				m_pSampleEditor;
 		Director *					m_pDirector;
 		QTimer *					m_pEventQueueTimer;
@@ -289,9 +289,9 @@ inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
 	return m_pAudioEngineInfoForm;
 }
 
-inline PlaylistDialog* HydrogenApp::getPlayListDialog()
+inline PlaylistEditor* HydrogenApp::getPlayListEditor()
 {
-	return m_pPlaylistDialog;
+	return m_pPlaylistEditor;
 }
 
 inline Director* HydrogenApp::getDirector()

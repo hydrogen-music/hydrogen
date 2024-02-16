@@ -3452,7 +3452,27 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
+    <message>
+        <source>Playlist Browser</source>
+        <translation>Browser della Playlist</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Indietro</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>Play/ Pausa / Carica canzone</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Ferma</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Avanti</translation>
+    </message>
     <message>
         <source>Song list</source>
         <translation>Lista canzoni</translation>
@@ -3466,72 +3486,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Esegui script</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Aggiungi canzone alla Playlist</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Nessuna canzone selezionata!</translation>
-    </message>
-    <message>
-        <source>Load Playlist</source>
-        <translation>Apri Playlist</translation>
-    </message>
-    <message>
-        <source>Save Playlist</source>
-        <translation>Salva Playlist</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Nessuna canzone nella lista o nessuna canzone selezionata!</translation>
-    </message>
-    <message>
-        <source>Hydrogen Playlist (*.sh)</source>
-        <translation>Shell script (*.sh)</translation>
-    </message>
-    <message>
-        <source>Add Script to selected Song</source>
-        <translation>Aggiungi script alla canzone selezionata</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>Nessuno script in uso!</translation>
-    </message>
-    <message>
-        <source>No Default Editor Set. Please set your Default Editor
-Do not use a console based Editor
-Sorry, but this will not work for the moment.</source>
-        <translation>Non è impostato alcun editor di testo predefinito. Per favore selezionarne uno
-Non utilizzare editor di testo da console
-Purtroppo al momento non sono supportati.</translation>
-    </message>
-    <message>
-        <source>Set your Default Editor</source>
-        <translation>Seleziona un editor di testo predefinito</translation>
-    </message>
-    <message>
-        <source>No Script selected!</source>
-        <translation>Nessuno script selezionato!</translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation>ordina</translation>
-    </message>
-    <message>
-        <source>New Script</source>
-        <translation>Nuovo script</translation>
-    </message>
-    <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must without whitespaces.</source>
-        <translation>Il nome dello script o il suo percorso contiene spazi.
-IMPORTANTE
-Il percorso dello script o il suo nome non devono contenere spazi.</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Nessuno script!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3548,6 +3504,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
         <translation>&amp;Rimuovi la canzone dalla Playlist</translation>
+    </message>
+    <message>
+        <source>&amp;New Playlist</source>
+        <translation>&amp;Nuova Playlist</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
@@ -3582,52 +3542,16 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>&amp;Crea nuovo Script</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Indietro</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>Play/ Pausa / Carica canzone</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Ferma</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avanti</translation>
+        <source>Add Song to PlayList</source>
+        <translation>Aggiungi canzone alla Playlist</translation>
     </message>
     <message>
         <source>Please save your song first</source>
         <translation>Prima salva la canzone</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>ATTENZIONE, il nuovo file è eseguibile dal possessore del file!</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pausa.</translation>
-    </message>
-    <message>
-        <source>Playlist Browser</source>
-        <translation>Browser della Playlist</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Playlist: imposta canzone n. %1</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>no Script</translation>
-    </message>
-    <message>
-        <source>&amp;New Playlist</source>
-        <translation>&amp;Nuova Playlist</translation>
-    </message>
-    <message>
-        <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
+        <source>No Song selected!</source>
+        <translation>Nessuna canzone selezionata!</translation>
     </message>
     <message>
         <source>
@@ -3637,14 +3561,90 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>no Script</source>
+        <translation>no Script</translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation>Apri Playlist</translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation>Nuovo script</translation>
+    </message>
+    <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation>ATTENZIONE, il nuovo file è eseguibile dal possessore del file!</translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation>Non è impostato alcun editor di testo predefinito. Per favore selezionarne uno
+Non utilizzare editor di testo da console
+Purtroppo al momento non sono supportati.</translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation>Seleziona un editor di testo predefinito</translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation>Salva Playlist</translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation>Nessuna canzone nella lista o nessuna canzone selezionata!</translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation>Shell script (*.sh)</translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation>Aggiungi script alla canzone selezionata</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation>Il nome dello script o il suo percorso contiene spazi.
+IMPORTANTE
+Il percorso dello script o il suo nome non devono contenere spazi.</translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation>Nessuno script in uso!</translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation>Nessuno script selezionato!</translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation>Nessuno script!</translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pausa.</translation>
+    </message>
+    <message>
+        <source>Playlist: set song no. %1</source>
+        <translation>Playlist: imposta canzone n. %1</translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Browser Playlist</translation>

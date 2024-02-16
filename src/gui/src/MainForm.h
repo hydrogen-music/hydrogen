@@ -167,7 +167,7 @@ public slots:
 
 		
 		void action_window_showMixer();
-		void action_window_showPlaylistDialog();
+		void action_window_showPlaylistEditor();
 		void action_window_show_DirectorWidget();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();

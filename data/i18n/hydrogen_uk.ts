@@ -3479,7 +3479,27 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
+    <message>
+        <source>Playlist Browser</source>
+        <translation>Оглядач списку відтворення</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>Відтворити/ Зупинити/ Завантажити вибрану композицію</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Зупинити</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Вперед</translation>
+    </message>
     <message>
         <source>Song list</source>
         <translation>Список композицій</translation>
@@ -3493,72 +3513,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Виконати сценарій</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Додати композицію в список</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Не вибрано жодної композиції!</translation>
-    </message>
-    <message>
-        <source>Load Playlist</source>
-        <translation>Завантажити список</translation>
-    </message>
-    <message>
-        <source>Save Playlist</source>
-        <translation>Зберегти список</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Немає вибраних композицій!</translation>
-    </message>
-    <message>
-        <source>Hydrogen Playlist (*.sh)</source>
-        <translation>Список відтворення Hydrogen (*.sh)</translation>
-    </message>
-    <message>
-        <source>Add Script to selected Song</source>
-        <translation>Додати сценарій у вибрану композицію</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>Немає використовуваного сценарію!</translation>
-    </message>
-    <message>
-        <source>No Default Editor Set. Please set your Default Editor
-Do not use a console based Editor
-Sorry, but this will not work for the moment.</source>
-        <translation>Не задано типового редактора. Задайте типовий редактор.
-Не використовуйте редактор на базі консолі.
-На жаль, наразі це не працює.</translation>
-    </message>
-    <message>
-        <source>Set your Default Editor</source>
-        <translation>Задайте типовий редактор</translation>
-    </message>
-    <message>
-        <source>No Script selected!</source>
-        <translation>Не вибрано жодного сценарію!</translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation>упорядкувати</translation>
-    </message>
-    <message>
-        <source>New Script</source>
-        <translation>Створити сценарій</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Немає сценарію!</translation>
-    </message>
-    <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must without whitespaces.</source>
-        <translation>Назва сценарію або шлях до нього містить пропуски.
-ВАЖЛИВО
-Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3575,6 +3531,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
         <translation>&amp;Вилучити поточну композицію зі списку</translation>
+    </message>
+    <message>
+        <source>&amp;New Playlist</source>
+        <translation>&amp;Створити список</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
@@ -3609,62 +3569,38 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;Створити новий сценарій</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Назад</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>Відтворити/ Зупинити/ Завантажити вибрану композицію</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Зупинити</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Вперед</translation>
+        <source>Add Song to PlayList</source>
+        <translation>Додати композицію в список</translation>
     </message>
     <message>
         <source>Please save your song first</source>
         <translation>Спочатку збережіть композицію</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>УВАГА, новий файл містить біт виконання його власником!</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Призупинено.</translation>
-    </message>
-    <message>
-        <source>Playlist Browser</source>
-        <translation>Оглядач списку відтворення</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Список відтворення: Задати номер композиції %1</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>немає сценарію</translation>
-    </message>
-    <message>
-        <source>&amp;New Playlist</source>
-        <translation>&amp;Створити список</translation>
-    </message>
-    <message>
-        <source>No valid song selected!</source>
-        <translation>Не вибрано коректної композиції!</translation>
+        <source>No Song selected!</source>
+        <translation>Не вибрано жодної композиції!</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation>
+        <translation type="unfinished">
 Поточний список відтворення містить не збережені зміни.
 Бажаєте відмовитись від змін?
 </translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>немає сценарію</translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation>Завантажити список</translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation>Створити сценарій</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
@@ -3674,9 +3610,73 @@ The path to the script and the scriptname must be without whitespaces.</source>
 ВАЖЛИВО
 Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
+    <message>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation>УВАГА, новий файл містить біт виконання його власником!</translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation>Не задано типового редактора. Задайте типовий редактор.
+Не використовуйте редактор на базі консолі.
+На жаль, наразі це не працює.</translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation>Задайте типовий редактор</translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation>Зберегти список</translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation>Немає вибраних композицій!</translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation>Список відтворення Hydrogen (*.sh)</translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation>Додати сценарій у вибрану композицію</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation>Назва сценарію або шлях до нього містить пропуски.
+ВАЖЛИВО
+Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation>Немає використовуваного сценарію!</translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation>Не вибрано жодного сценарію!</translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation>Немає сценарію!</translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation>Не вибрано коректної композиції!</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Призупинено.</translation>
+    </message>
+    <message>
+        <source>Playlist: set song no. %1</source>
+        <translation>Список відтворення: Задати номер композиції %1</translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Оглядач списку відтворення</translation>

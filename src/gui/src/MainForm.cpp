@@ -71,7 +71,7 @@
 #include "SoundLibrary/DrumkitOpenDialog.h"
 #include "SoundLibrary/DrumkitExportDialog.h"
 #include "SoundLibrary/DrumkitPropertiesDialog.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -153,11 +153,11 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 		HydrogenApp::openPlaylist( pPref->getLastPlaylistFilename() );
 	}
 
-	if ( pPref->getPlaylistDialogProperties().visible ){
+	if ( pPref->getPlaylistEditorProperties().visible ){
 		// If there was a playlist used during the last
 		// session and it was still visible/shown when closing
 		// Hydrogen, bring it up again.
-		action_window_showPlaylistDialog();
+		action_window_showPlaylistEditor();
 	}
 
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -439,7 +439,7 @@ void MainForm::createMenuBar()
 
 	m_pViewPlaylistEditorAction =
 		m_pViewMenu->addAction( tr("Play&list Editor"), this,
-								SLOT( action_window_showPlaylistDialog() ),
+								SLOT( action_window_showPlaylistEditor() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
 	m_pViewDirectorAction =
@@ -1179,15 +1179,15 @@ void MainForm::showPreferencesDialog()
 	h2app->showPreferencesDialog();
 }
 
-void MainForm::action_window_showPlaylistDialog()
+void MainForm::action_window_showPlaylistEditor()
 {
-	h2app->showPlaylistDialog();
+	h2app->showPlaylistEditor();
 }
 
 // function to update director status in menu bar
 void MainForm::update_playlist_checkbox()
 {
-	bool isVisible = HydrogenApp::get_instance()->getPlayListDialog()->isVisible();
+	bool isVisible = HydrogenApp::get_instance()->getPlayListEditor()->isVisible();
 	m_pViewPlaylistEditorAction->setChecked( isVisible );
 }
 
@@ -1582,8 +1582,8 @@ void MainForm::savePreferences() {
 	// save audio engine info properties
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
-	pPreferences->setPlaylistDialogProperties(
-		h2app->getWindowProperties( h2app->getPlayListDialog() ) );
+	pPreferences->setPlaylistEditorProperties(
+		h2app->getWindowProperties( h2app->getPlayListEditor() ) );
 	pPreferences->setDirectorProperties(
 		h2app->getWindowProperties( h2app->getDirector() ) );
 
@@ -2983,7 +2983,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:
-				action_window_showPlaylistDialog();
+				action_window_showPlaylistEditor();
 				break;
 			case Shortcuts::Action::ShowDirector:
 				action_window_show_DirectorWidget();
@@ -3060,37 +3060,37 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Playlist dialog related actions
 			case Shortcuts::Action::PlaylistAddSong:
-				pHydrogenApp->getPlayListDialog()->addSong();
+				pHydrogenApp->getPlayListEditor()->addSong();
 				break;
 			case Shortcuts::Action::PlaylistAddCurrentSong:
-				pHydrogenApp->getPlayListDialog()->addCurrentSong();
+				pHydrogenApp->getPlayListEditor()->addCurrentSong();
 				break;
 			case Shortcuts::Action::PlaylistRemoveSong:
-				pHydrogenApp->getPlayListDialog()->removeSong();
+				pHydrogenApp->getPlayListEditor()->removeSong();
 				break;
 			case Shortcuts::Action::NewPlaylist:
-				pHydrogenApp->getPlayListDialog()->newPlaylist();
+				pHydrogenApp->getPlayListEditor()->newPlaylist();
 				break;
 			case Shortcuts::Action::OpenPlaylist:
-				pHydrogenApp->getPlayListDialog()->openPlaylist();
+				pHydrogenApp->getPlayListEditor()->openPlaylist();
 				break;
 			case Shortcuts::Action::SavePlaylist:
-				pHydrogenApp->getPlayListDialog()->savePlaylist();
+				pHydrogenApp->getPlayListEditor()->savePlaylist();
 				break;
 			case Shortcuts::Action::SaveAsPlaylist:
-				pHydrogenApp->getPlayListDialog()->savePlaylistAs();
+				pHydrogenApp->getPlayListEditor()->savePlaylistAs();
 				break;
 			case Shortcuts::Action::PlaylistAddScript:
-				pHydrogenApp->getPlayListDialog()->loadScript();
+				pHydrogenApp->getPlayListEditor()->loadScript();
 				break;
 			case Shortcuts::Action::PlaylistEditScript:
-				pHydrogenApp->getPlayListDialog()->editScript();
+				pHydrogenApp->getPlayListEditor()->editScript();
 				break;
 			case Shortcuts::Action::PlaylistRemoveScript:
-				pHydrogenApp->getPlayListDialog()->removeScript();
+				pHydrogenApp->getPlayListEditor()->removeScript();
 				break;
 			case Shortcuts::Action::PlaylistCreateScript:
-				pHydrogenApp->getPlayListDialog()->newScript();
+				pHydrogenApp->getPlayListEditor()->newScript();
 				break;
 
 			default:

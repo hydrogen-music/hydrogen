@@ -35,7 +35,7 @@
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 #include "Skin.h"
 #include "Reporter.h"
 

@@ -512,8 +512,8 @@ public:
 	const WindowProperties& getLadspaProperties( unsigned nFX ) const;
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	const WindowProperties& getPlaylistDialogProperties() const;
-	void				setPlaylistDialogProperties( const WindowProperties& prop );
+	const WindowProperties& getPlaylistEditorProperties() const;
+	void				setPlaylistEditorProperties( const WindowProperties& prop );
 
 	const WindowProperties& getDirectorProperties() const;
 	void				setDirectorProperties( const WindowProperties& prop );
@@ -734,7 +734,7 @@ private:
 	WindowProperties		instrumentRackProperties;
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
-	WindowProperties		m_playlistDialogProperties;
+	WindowProperties		m_playlistEditorProperties;
 	WindowProperties		m_directorProperties;
 
 	QString					m_sPreferredLanguage;
@@ -1212,11 +1212,11 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 	m_ladspaProperties[nFX] = prop;
 }
 
-inline const WindowProperties& Preferences::getPlaylistDialogProperties() const {
-	return m_playlistDialogProperties;
+inline const WindowProperties& Preferences::getPlaylistEditorProperties() const {
+	return m_playlistEditorProperties;
 }
-inline void Preferences::setPlaylistDialogProperties( const WindowProperties& prop ) {
-	m_playlistDialogProperties = prop;
+inline void Preferences::setPlaylistEditorProperties( const WindowProperties& prop ) {
+	m_playlistEditorProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getDirectorProperties() const {

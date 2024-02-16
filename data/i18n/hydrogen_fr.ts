@@ -1867,7 +1867,7 @@ Valeur</translation>
     <message>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished">Hasard</translation>
+        <translation>Hasard</translation>
     </message>
 </context>
 <context>
@@ -3497,7 +3497,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Song list</source>
         <translation>Liste de morceau</translation>
@@ -3694,7 +3694,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Navigateur de liste de lecture</translation>

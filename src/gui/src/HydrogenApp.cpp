@@ -47,7 +47,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -75,7 +75,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pAudioEngineInfoForm( nullptr )
  , m_pSongEditorPanel( nullptr )
  , m_pPlayerControl( nullptr )
- , m_pPlaylistDialog( nullptr )
+ , m_pPlaylistEditor( nullptr )
  , m_pSampleEditor( nullptr )
  , m_pDirector( nullptr )
  , m_nPreferencesUpdateTimeout( 100 )
@@ -112,9 +112,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
-	m_pPlaylistDialog = new PlaylistDialog( nullptr );
-	WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
-	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
+	m_pPlaylistEditor = new PlaylistEditor( nullptr );
+	WindowProperties playlistEditorProp = pPref->getPlaylistEditorProperties();
+	setWindowProperties( m_pPlaylistEditor, playlistEditorProp, SetAll );
 
 	m_pDirector = new Director( nullptr );
 	WindowProperties directorProp = pPref->getDirectorProperties();
@@ -208,7 +208,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
-	delete m_pPlaylistDialog;
+	delete m_pPlaylistEditor;
 	delete m_pDirector;
 	delete m_pSampleEditor;
 
@@ -685,12 +685,12 @@ void HydrogenApp::showFilesystemInfoForm()
 	m_pFilesystemInfoForm->show();
 }
 
-void HydrogenApp::showPlaylistDialog()
+void HydrogenApp::showPlaylistEditor()
 {
-	if ( m_pPlaylistDialog->isVisible() ) {
-		m_pPlaylistDialog->hide();
+	if ( m_pPlaylistEditor->isVisible() ) {
+		m_pPlaylistEditor->hide();
 	} else {
-		m_pPlaylistDialog->show();
+		m_pPlaylistEditor->show();
 	}
 	m_pMainForm->update_playlist_checkbox();
 }
@@ -1066,8 +1066,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		m_pMixer->updateMixer();
 
-		WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
-		setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
+		WindowProperties playlistEditorProp = pPref->getPlaylistEditorProperties();
+		setWindowProperties( m_pPlaylistEditor, playlistEditorProp, SetAll );
 
 		WindowProperties directorProp = pPref->getDirectorProperties();
 		setWindowProperties( m_pDirector, directorProp, SetAll );

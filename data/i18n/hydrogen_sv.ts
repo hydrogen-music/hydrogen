@@ -3440,7 +3440,27 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
+    <message>
+        <source>Playlist Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Tillbakaspolning</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Snabbt Fram</translation>
+    </message>
     <message>
         <source>Song list</source>
         <translation type="unfinished"></translation>
@@ -3454,67 +3474,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load Playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen Playlist (*.sh)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Script to selected Song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Default Editor Set. Please set your Default Editor
-Do not use a console based Editor
-Sorry, but this will not work for the moment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set your Default Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Script selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>sort</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must without whitespaces.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Script!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3531,6 +3491,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3566,51 +3530,15 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Tillbakaspolning</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
+        <source>Add Song to PlayList</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Snabbt Fram</translation>
     </message>
     <message>
         <source>Please save your song first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;New Playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No valid song selected!</source>
+        <source>No Song selected!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3621,14 +3549,86 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>no Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>WARNING, the new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Song in List or no Song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script in use!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Script!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: set song no. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation type="unfinished"></translation>

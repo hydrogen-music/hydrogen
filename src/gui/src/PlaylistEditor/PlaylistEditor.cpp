@@ -21,7 +21,7 @@
  */
 
 
-#include "PlaylistDialog.h"
+#include "PlaylistEditor.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../CommonStrings.h"
@@ -58,7 +58,7 @@
 using namespace H2Core;
 
 
-PlaylistDialog::PlaylistDialog( QWidget* pParent )
+PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		: QDialog( pParent )
 		, Object()
 {
@@ -219,15 +219,15 @@ PlaylistDialog::PlaylistDialog( QWidget* pParent )
 	m_pTimer->start( 1000 );	// update player control at 1 fps
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &PlaylistDialog::onPreferencesChanged );
+			 this, &PlaylistEditor::onPreferencesChanged );
 }
 
-PlaylistDialog::~PlaylistDialog()
+PlaylistEditor::~PlaylistEditor()
 {
 	INFOLOG ( "DESTROY" );
 }
 
-void PlaylistDialog::populateMenuBar() {
+void PlaylistEditor::populateMenuBar() {
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pShortcuts = pPref->getShortcuts();
 	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -284,12 +284,12 @@ void PlaylistDialog::populateMenuBar() {
 #endif
 }
 
-void PlaylistDialog::closeEvent( QCloseEvent* ev )
+void PlaylistEditor::closeEvent( QCloseEvent* ev )
 {
-	HydrogenApp::get_instance()->showPlaylistDialog();
+	HydrogenApp::get_instance()->showPlaylistEditor();
 }
 
-void PlaylistDialog::addSong()
+void PlaylistEditor::addSong()
 {
 	QString sPath = Preferences::get_instance()->getLastAddSongToPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -315,7 +315,7 @@ void PlaylistDialog::addSong()
 	}
 }
 
-void PlaylistDialog::addCurrentSong()
+void PlaylistEditor::addCurrentSong()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	QString filename = pSong->getFilename();
@@ -329,7 +329,7 @@ void PlaylistDialog::addCurrentSong()
 	updatePlayListNode( filename );
 }
 
-void PlaylistDialog::removeSong()
+void PlaylistEditor::removeSong()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 
@@ -366,7 +366,7 @@ void PlaylistDialog::removeSong()
 	}
 }
 
-void PlaylistDialog::newPlaylist()
+void PlaylistEditor::newPlaylist()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	bool DiscardChanges = false;
@@ -399,7 +399,7 @@ void PlaylistDialog::newPlaylist()
 	return;
 }
 
-void PlaylistDialog::updatePlayListNode( const QString& file )
+void PlaylistEditor::updatePlayListNode( const QString& file )
 {
 	QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
 	m_pPlaylistItem->setText( 0, file );
@@ -411,7 +411,7 @@ void PlaylistDialog::updatePlayListNode( const QString& file )
 	m_pPlaylistTree->setCurrentItem( m_pPlaylistItem );
 }
 
-void PlaylistDialog::openPlaylist() {
+void PlaylistEditor::openPlaylist() {
 	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::playlists_dir();
@@ -467,7 +467,7 @@ void PlaylistDialog::openPlaylist() {
 	// 	setWindowTitle( tr( "Playlist Browser" ) + QString(" - ") + pPlaylist->getFilename() );
 	// }
 
-void PlaylistDialog::newScript()
+void PlaylistEditor::newScript()
 {
 	Preferences *pPref = Preferences::get_instance();
 
@@ -548,7 +548,7 @@ void PlaylistDialog::newScript()
 	return;
 }
 
-void PlaylistDialog::savePlaylistAs() {
+void PlaylistEditor::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
@@ -587,7 +587,7 @@ void PlaylistDialog::savePlaylistAs() {
 
 }
 
-void PlaylistDialog::savePlaylist()
+void PlaylistEditor::savePlaylist()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -606,7 +606,7 @@ void PlaylistDialog::savePlaylist()
 	pPlaylist->setIsModified( false );
 }
 
-void PlaylistDialog::loadScript()
+void PlaylistEditor::loadScript()
 {
 
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->currentItem();
@@ -645,7 +645,7 @@ void PlaylistDialog::loadScript()
 	}
 }
 
-void PlaylistDialog::removeScript()
+void PlaylistEditor::removeScript()
 {
 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 
@@ -671,7 +671,7 @@ void PlaylistDialog::removeScript()
 
 }
 
-void PlaylistDialog::editScript()
+void PlaylistEditor::editScript()
 {
 	Preferences *pPref = Preferences::get_instance();
 	if( pPref->getDefaultEditor().isEmpty() ){
@@ -716,7 +716,7 @@ void PlaylistDialog::editScript()
 	return;
 }
 
-void PlaylistDialog::o_upBClicked()
+void PlaylistEditor::o_upBClicked()
 {
 	m_pTimer->stop();
 
@@ -750,7 +750,7 @@ void PlaylistDialog::o_upBClicked()
 	updatePlayListVector();
 }
 
-void PlaylistDialog::o_downBClicked()
+void PlaylistEditor::o_downBClicked()
 {
 	m_pTimer->stop();
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
@@ -784,7 +784,7 @@ void PlaylistDialog::o_downBClicked()
 
 }
 
-void PlaylistDialog::on_m_pPlaylistTree_itemClicked( QTreeWidgetItem * item,
+void PlaylistEditor::on_m_pPlaylistTree_itemClicked( QTreeWidgetItem * item,
 													 int column )
 {
 	if ( column == 2 ){
@@ -801,7 +801,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemClicked( QTreeWidgetItem * item,
 	return;
 }
 
-void PlaylistDialog::nodePlayBTN()
+void PlaylistEditor::nodePlayBTN()
 {
 	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
@@ -838,28 +838,28 @@ void PlaylistDialog::nodePlayBTN()
 	}
 }
 
-void PlaylistDialog::nodeStopBTN()
+void PlaylistEditor::nodeStopBTN()
 {
 	m_pPlayBtn->setChecked(false);
 	Hydrogen::get_instance()->sequencerStop();
 	Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 }
 
-void PlaylistDialog::ffWDBtnClicked()
+void PlaylistEditor::ffWDBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getCoreActionController()->locateToColumn(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 }
 
-void PlaylistDialog::rewindBtnClicked()
+void PlaylistEditor::rewindBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getCoreActionController()->locateToColumn(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
-void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked()
+void PlaylistEditor::on_m_pPlaylistTree_itemDoubleClicked()
 {
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->currentItem();
 	if ( pPlaylistItem == nullptr ){
@@ -912,7 +912,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked()
 }
 
 
-void PlaylistDialog::updatePlayListVector()
+void PlaylistEditor::updatePlayListVector()
 {
 	int length = m_pPlaylistTree->topLevelItemCount();
 
@@ -933,7 +933,7 @@ void PlaylistDialog::updatePlayListVector()
 }
 
 
-void PlaylistDialog::updateActiveSongNumber()
+void PlaylistEditor::updateActiveSongNumber()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 
@@ -961,7 +961,7 @@ void PlaylistDialog::updateActiveSongNumber()
 }
 
 
-bool PlaylistDialog::eventFilter( QObject *o, QEvent *e )
+bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )
 {
 	UNUSED( o );
 	if ( e->type() == QEvent::KeyPress ) {
@@ -977,7 +977,7 @@ bool PlaylistDialog::eventFilter( QObject *o, QEvent *e )
 	return false;
 }
 
-bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
+bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = Preferences::get_instance()->getShortcuts();
 	auto pActionManager = MidiActionManager::get_instance();
 	
@@ -985,7 +985,7 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 
 	if ( nKey == Qt::Key_Escape ) {
 		// Close window when hitting ESC.
-		HydrogenApp::get_instance()->showPlaylistDialog();
+		HydrogenApp::get_instance()->showPlaylistEditor();
 		return true;
 	}
 	
@@ -1082,11 +1082,11 @@ bool PlaylistDialog::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 	return false;
 }
 
-void PlaylistDialog::playlistChangedEvent() {
+void PlaylistEditor::playlistChangedEvent() {
 	updatePlaylistTree();
 }
 
-void PlaylistDialog::updatePlaylistTree()
+void PlaylistEditor::updatePlaylistTree()
 {
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	if ( pPlaylist == nullptr ) {
@@ -1118,7 +1118,7 @@ void PlaylistDialog::updatePlaylistTree()
 					pPlaylist->getFilename() );
 }
 
-void PlaylistDialog::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
+void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {

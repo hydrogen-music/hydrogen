@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PlaylistDialog_UI</class>
- <widget class="QDialog" name="PlaylistDialog_UI">
+ <class>PlaylistEditor_UI</class>
+ <widget class="QDialog" name="PlaylistEditor_UI">
   <property name="geometry">
    <rect>
     <x>0</x>

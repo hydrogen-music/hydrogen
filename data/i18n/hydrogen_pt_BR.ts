@@ -3478,7 +3478,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Song list</source>
         <translation>Lista de músicas</translation>
@@ -3675,7 +3675,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Buscador da Lista de Reprodução</translation>

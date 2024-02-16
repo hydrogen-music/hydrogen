@@ -1862,7 +1862,7 @@ Wert</translation>
     <message>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished">Zufall</translation>
+        <translation>Zufall</translation>
     </message>
 </context>
 <context>
@@ -3487,7 +3487,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Song list</source>
         <translation>Liste der Lieder</translation>
@@ -3678,7 +3678,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Wiedergabelisten-Browser</translation>

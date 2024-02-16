@@ -20,13 +20,13 @@
  *
  */
 
-#ifndef PLAYLIST_DIALOG_H
-#define PLAYLIST_DIALOG_H
+#ifndef PLAYLIST_EDITOR_H
+#define PLAYLIST_EDITOR_H
 
 
 #include <QMenuBar>
 #include <QDialog>
-#include "ui_PlaylistDialog_UI.h"
+#include "ui_PlaylistEditor_UI.h"
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
@@ -41,19 +41,19 @@ class PixmapWidget;
 /// This dialog is used to use the H2PlayList
 ///
 /** \ingroup docGUI*/
-class PlaylistDialog :  public QDialog,
+class PlaylistEditor :  public QDialog,
 						public EventListener,
 						protected WidgetWithScalableFont<8, 10, 12>,
-						public Ui_PlaylistDialog_UI,
-						public H2Core::Object<PlaylistDialog>
+						public Ui_PlaylistEditor_UI,
+						public H2Core::Object<PlaylistEditor>
 
 {
-		H2_OBJECT(PlaylistDialog)
+		H2_OBJECT(PlaylistEditor)
 	Q_OBJECT
 	public:
 
-		explicit PlaylistDialog( QWidget* pParent );
-		~PlaylistDialog();
+		explicit PlaylistEditor( QWidget* pParent );
+		~PlaylistEditor();
 
 		bool loadListByFileName( const QString& filename );
 

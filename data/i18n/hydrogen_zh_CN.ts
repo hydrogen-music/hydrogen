@@ -3480,10 +3480,42 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Playlist Browser</source>
         <translation>浏览播放列表</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>倒回</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>播放/暂停/加载所选乐曲</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>快进</translation>
+    </message>
+    <message>
+        <source>Song list</source>
+        <translation>乐曲列表</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>脚本</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>执行脚本</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation>排序</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3538,38 +3570,6 @@ LilyPond 导出是一项实验性功能。
         <translation>创建(&amp;C) 新脚本</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>倒回</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>播放/暂停/加载所选乐曲</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>快进</translation>
-    </message>
-    <message>
-        <source>Song list</source>
-        <translation>乐曲列表</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>脚本</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>执行脚本</translation>
-    </message>
-    <message>
-        <source>sort</source>
-        <translation>排序</translation>
-    </message>
-    <message>
         <source>Add Song to PlayList</source>
         <translation>将乐曲添加到播放列表</translation>
     </message>
@@ -3586,7 +3586,7 @@ LilyPond 导出是一项实验性功能。
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation>
+        <translation type="unfinished">
 当前播放列表包含未保存的更改。
 您要放弃更改吗？
 </translation>
@@ -3677,7 +3677,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>播放列表浏览器</translation>
