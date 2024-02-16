@@ -153,13 +153,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 		HydrogenApp::openPlaylist( pPref->getLastPlaylistFilename() );
 	}
 
-	if ( pPref->getPlaylistEditorProperties().visible ){
-		// If there was a playlist used during the last
-		// session and it was still visible/shown when closing
-		// Hydrogen, bring it up again.
-		action_window_showPlaylistEditor();
-	}
-
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
 	m_pQApp->setFont( font );
@@ -171,6 +164,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	checkMidiSetup();
 	checkMissingSamples();
 	checkNecessaryDirectories();
+
+	if ( pPref->getPlaylistEditorProperties().visible ){
+		// If there was a playlist used during the last
+		// session and it was still visible/shown when closing
+		// Hydrogen, bring it up again.
+		action_window_showPlaylistEditor();
+	}
 
 	h2app->showStatusBarMessage( tr("Hydrogen Ready.") );
 

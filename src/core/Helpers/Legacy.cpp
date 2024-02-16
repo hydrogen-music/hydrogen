@@ -430,12 +430,12 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 
 			QString songPath = nextNode.read_string( "song", "", false, false );
 			if ( !songPath.isEmpty() ) {
-				auto pEntry = std::make_shared<Playlist::Entry>();
+				auto pEntry = std::make_shared<PlaylistEntry>();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
-				pEntry->filePath = songPathInfo.absoluteFilePath();
-				pEntry->fileExists = songPathInfo.isReadable();
-				pEntry->scriptPath = nextNode.read_string( "script", "" );
-				pEntry->scriptEnabled = nextNode.read_bool( "enabled", false );
+				pEntry->sFilePath = songPathInfo.absoluteFilePath();
+				pEntry->bFileExists = songPathInfo.isReadable();
+				pEntry->sScriptPath = nextNode.read_string( "script", "" );
+				pEntry->bScriptEnabled = nextNode.read_bool( "enabled", false );
 				pPlaylist->add( pEntry );
 			}
 

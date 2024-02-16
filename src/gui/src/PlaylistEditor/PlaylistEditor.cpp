@@ -127,10 +127,6 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	headers << tr( "Song list" );
 	QTreeWidgetItem* header = new QTreeWidgetItem( headers );
 	m_pPlaylistTree->setHeaderItem( header );
-	m_pPlaylistTree->setAlternatingRowColors( true );
-	for ( int ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
-		m_pPlaylistTree->headerItem()->setFont( ii, font );
-	}
 
 		/*addSongBTN->setEnabled( true );
 	loadListBTN->setEnabled( true );
@@ -159,11 +155,12 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	m_pPlaylistTree->header()->setSectionResizeMode( 1, QHeaderView::Stretch );
 	m_pPlaylistTree->header()->setSectionResizeMode( 2, QHeaderView::Fixed );
 
+#endif
+
 	m_pPlaylistTree->setAlternatingRowColors( true );
 	for ( int ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
 		m_pPlaylistTree->headerItem()->setFont( ii, font );
 	}
-#endif
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
@@ -179,40 +176,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	connect(pDownBtn, SIGNAL( clicked() ), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
 
-	//restore the playlist
-	if( pPlaylist->size() > 0 ){
-		for ( uint i = 0; i < pPlaylist->size(); ++i ){
-			QTreeWidgetItem* pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
-			
-			pPlaylistItem->setText( 0, pPlaylist->get( i )->filePath );
-			pPlaylistItem->setText( 1, pPlaylist->get( i )->scriptPath );
-			
-			if ( pPlaylist->get( i )->scriptEnabled ) {
-				pPlaylistItem->setCheckState( 2, Qt::Checked );
-			} else {
-				pPlaylistItem->setCheckState( 2, Qt::Unchecked );
-			}
-		}
-
-		//restore the selected item
-		int activeSongNumber = pPlaylist->getActiveSongNumber();
-		int selectedSongNumber = pPlaylist->getSelectedSongNr();
-		
-		if(! (activeSongNumber == -1 && selectedSongNumber == -1) )
-		{
-			int aselected = 0;
-			if( activeSongNumber == -1 ){
-				aselected = selectedSongNumber;
-			} else {
-				aselected = activeSongNumber ;
-			}
-	
-			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem( aselected );
-			m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50) );
-			m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50) );
-			m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50) );
-		}
-	}
+	updatePlaylistTree();
 
 	m_pTimer = new QTimer( this );
 	connect(m_pTimer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
@@ -331,39 +295,14 @@ void PlaylistEditor::addCurrentSong()
 
 void PlaylistEditor::removeSong()
 {
-	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
-
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->currentItem();
-	int index = m_pPlaylistTree->indexOfTopLevelItem( pPlaylistItem );
-	QTreeWidgetItem * pTmpItem = m_pPlaylistTree->topLevelItem( 1 );
-
 	if ( pPlaylistItem == nullptr ){
 		QMessageBox::information( this, "Hydrogen", tr( "No Song selected!" ));
+		return;
 	}
-	else {
-		if ( pTmpItem == nullptr ){
-			m_pPlaylistTree->clear();
-			pPlaylist->clear();
-			pPlaylist->setSelectedSongNr( -1 );
-			pPlaylist->setActiveSongNumber( -1 );
-			pPlaylist->setFilename( "" );
-			setWindowTitle( tr( "Playlist Browser" ) );
-		}
-		else {
-			///avoid segfault if the last item will be removed!!
-			/// 
-			delete pPlaylistItem;
-			
-			updatePlayListVector();
-			if ( pPlaylist->getActiveSongNumber() == index ){
-				pPlaylist->setActiveSongNumber( -1 );
-			}
-			else if ( pPlaylist->getActiveSongNumber() > index  ){
-				pPlaylist->setActiveSongNumber(
-					pPlaylist->getActiveSongNumber() - 1 );
-			}
-		}
-	}
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->
+		removeFromPlaylist( m_pPlaylistTree->indexOfTopLevelItem( pPlaylistItem ) );
 }
 
 void PlaylistEditor::newPlaylist()
@@ -438,34 +377,6 @@ void PlaylistEditor::openPlaylist() {
 
 	return;
 }
-
-	// if( playlist->size() > 0 ) {
-	// 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
-	// 	m_pPlaylist->clear();
-
-	// 	for ( uint i = 0; i < playlist->size(); ++i ){
-	// 		QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
-
-	// 		if( playlist->get( i )->fileExists ){
-	// 			m_pPlaylistItem->setText( 0, playlist->get( i )->filePath );
-	// 		} else {
-	// 			m_pPlaylistItem->setText( 0, tr("File not found: ") + playlist->get( i )->filePath );
-	// 		}
-
-	// 		m_pPlaylistItem->setText( 1, playlist->get( i )->scriptPath );
-
-	// 		if ( playlist->get( i )->scriptEnabled ) {
-	// 			m_pPlaylistItem->setCheckState( 2, Qt::Checked );
-	// 		} else {
-	// 			m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
-	// 		}
-	// 	}
-
-	// 	QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem( 0 );
-	// 	m_pPlaylist->setCurrentItem( m_pPlaylistItem );
-	// 	pPlaylist->setSelectedSongNr( 0 );
-	// 	setWindowTitle( tr( "Playlist Browser" ) + QString(" - ") + pPlaylist->getFilename() );
-	// }
 
 void PlaylistEditor::newScript()
 {
@@ -921,10 +832,10 @@ void PlaylistEditor::updatePlayListVector()
 	for (int i = 0 ;i < length; i++){
 		QTreeWidgetItem * pPlaylistItem = m_pPlaylistTree->topLevelItem( i );
 
-		auto pEntry = std::make_shared<Playlist::Entry>();
-		pEntry->filePath = pPlaylistItem->text( 0 );
-		pEntry->scriptPath = pPlaylistItem->text( 1 );
-		pEntry->scriptEnabled = pPlaylistItem->checkState( 2 );
+		auto pEntry = std::make_shared<PlaylistEntry>();
+		pEntry->sFilePath = pPlaylistItem->text( 0 );
+		pEntry->sScriptPath = pPlaylistItem->text( 1 );
+		pEntry->bScriptEnabled = pPlaylistItem->checkState( 2 );
 
 		pPlaylist->add( pEntry );
 		pPlaylist->setIsModified(true);
@@ -1094,23 +1005,47 @@ void PlaylistEditor::updatePlaylistTree()
 		return;
 	}
 
+	DEBUGLOG(pPlaylist->toQString());
+
 	m_pPlaylistTree->clear();
 
 	if ( pPlaylist->size() > 0 ) {
 		for ( const auto& ppEntry : *pPlaylist ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
-			m_pPlaylistItem->setText( 0, ppEntry->filePath );
-			m_pPlaylistItem->setText( 1, ppEntry->scriptPath );
+			m_pPlaylistItem->setText( 0, ppEntry->sFilePath );
+#ifndef WIN32
+			m_pPlaylistItem->setText( 1, ppEntry->sScriptPath );
 
-			if ( ppEntry->scriptEnabled ) {
+			if ( ppEntry->bScriptEnabled ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
 			}
+#endif
 		}
 
-		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem( 0 );
-		m_pPlaylistTree->setCurrentItem( m_pPlaylistItem );
+		//restore the selected item
+		const int nActiveSongNumber = pPlaylist->getActiveSongNumber();
+		const int nSelectedSongNumber = pPlaylist->getSelectedSongNr();
+
+		if ( nActiveSongNumber != -1 || nSelectedSongNumber != -1 ) {
+			int nSelected = 0;
+			if ( nActiveSongNumber == -1 ) {
+				nSelected = nSelectedSongNumber;
+			} else {
+				nSelected = nActiveSongNumber ;
+			}
+
+			QTreeWidgetItem* m_pPlaylistItem =
+				m_pPlaylistTree->topLevelItem( nSelected );
+			m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50 ) );
+			m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50 ) );
+			m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50 ) );
+		}
+		else {
+			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem( 0 );
+			m_pPlaylistTree->setCurrentItem( m_pPlaylistItem );
+		}
 
 	}
 

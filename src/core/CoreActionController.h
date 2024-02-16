@@ -34,6 +34,9 @@ namespace H2Core
 	class Drumkit;
 	class Instrument;
 
+	struct PlaylistEntry;
+
+
 /** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT(CoreActionController)
@@ -435,6 +438,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool savePlaylist() const;
 		/** Saves the current #Playlist to @a sPath.*/
 		bool savePlaylistAs( const QString& sPath );
+		/** Adds a new song/ entry to the current playlist. */
+		bool addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry );
+		/** Removes a song specified by its position in the entry vector from
+		 * the current playlist. */
+		bool removeFromPlaylist( int nIndex );
+		/** Removes all entries from the current playlist. */
+		bool clearPlaylist();
+
 
 private:
 	bool sendMasterVolumeFeedback();

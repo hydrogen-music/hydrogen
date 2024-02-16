@@ -1848,4 +1848,28 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 	return true;
 }
 
+bool CoreActionController::addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry ) {
+	Hydrogen::get_instance()->getPlaylist()->add( pEntry );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+	return true;
+
+}
+bool CoreActionController::removeFromPlaylist( int nIndex ) {
+	if ( ! Hydrogen::get_instance()->getPlaylist()->remove( nIndex ) ) {
+		return false;
+	}
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+	return true;
+
+}
+bool CoreActionController::clearPlaylist() {
+	Hydrogen::get_instance()->getPlaylist()->clear();
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+	return true;
+
+}
+
 }

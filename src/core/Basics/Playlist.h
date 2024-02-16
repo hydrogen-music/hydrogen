@@ -31,10 +31,13 @@
 
 namespace H2Core
 {
+struct PlaylistEntry {
+	QString sFilePath;
+	bool bFileExists;
+	QString sScriptPath;
+	bool bScriptEnabled;
+};
 
-/**
- * Drumkit info
-*/
 /** \ingroup docCore docDataStructure */
 class Playlist : public H2Core::Object<Playlist>
 
@@ -42,30 +45,24 @@ class Playlist : public H2Core::Object<Playlist>
 		H2_OBJECT(Playlist)
 
 	public:
-		struct Entry
-		{
-			QString filePath;
-			bool fileExists;
-			QString scriptPath;
-			bool scriptEnabled;
-		};
 		
 		Playlist();
 
 		void	activateSong (int SongNumber );
 
 		int		size() const;
-		std::shared_ptr<Entry>	get( int idx ) const;
+		std::shared_ptr<PlaylistEntry>	get( int idx ) const;
 
-		std::vector<std::shared_ptr<Entry>>::iterator begin() {
+		std::vector<std::shared_ptr<PlaylistEntry>>::iterator begin() {
 			return __entries.begin();
 		}
-		std::vector<std::shared_ptr<Entry>>::iterator end() {
+		std::vector<std::shared_ptr<PlaylistEntry>>::iterator end() {
 			return __entries.end();
 		}
 
 		void	clear();
-		void	add( std::shared_ptr<Entry> entry );
+		void	add( std::shared_ptr<PlaylistEntry> entry );
+		bool	remove( int nIndex );
 
 		void	setNextSongByNumber( int SongNumber );
 		int		getSelectedSongNr() const;
@@ -97,7 +94,7 @@ class Playlist : public H2Core::Object<Playlist>
 	private:
 		QString __filename;
 
-		std::vector<std::shared_ptr<Entry>> __entries;
+		std::vector<std::shared_ptr<PlaylistEntry>> __entries;
 
 		int m_nSelectedSongNumber;
 		int m_nActiveSongNumber;
@@ -115,13 +112,13 @@ inline int Playlist::size() const
 	return __entries.size();
 }
 
-inline std::shared_ptr<Playlist::Entry> Playlist::get( int idx ) const
+inline std::shared_ptr<PlaylistEntry> Playlist::get( int idx ) const
 {
 	assert( idx >= 0 && idx < size() );
 	return __entries[ idx ];
 }
 
-inline void Playlist::add( std::shared_ptr<Entry> entry )
+inline void Playlist::add( std::shared_ptr<PlaylistEntry> entry )
 {
 	__entries.push_back( entry );
 }
