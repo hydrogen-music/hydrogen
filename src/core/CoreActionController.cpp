@@ -1805,29 +1805,15 @@ void CoreActionController::setBpm( float fBpm ) {
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
-bool CoreActionController::newPlaylist( const QString& sPath ) {
-	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFilename( sPath );
-	Hydrogen::get_instance()->setPlaylist( pPlaylist );
-
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
-
-	return true;
-}
-
-bool CoreActionController::openPlaylist( const QString& sPath ) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	auto pPlaylist = Playlist::load( sPath );
+bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	if ( pPlaylist == nullptr ) {
-		ERRORLOG( QString( "Unable to open playlist [%1]" ).arg( sPath ) );
 		return false;
 	}
-	pPlaylist->setNextSongByNumber( 0 );
+	DEBUGLOG(pPlaylist->toQString());
+	Hydrogen::get_instance()->setPlaylist( pPlaylist );
 
-	pHydrogen->setPlaylist( pPlaylist );
-
-	Preferences::get_instance()->setLastPlaylistFilename( sPath );
+	Preferences::get_instance()->setLastPlaylistFilename(
+		pPlaylist->getFilename() );
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 
@@ -1835,10 +1821,12 @@ bool CoreActionController::openPlaylist( const QString& sPath ) {
 }
 
 bool CoreActionController::savePlaylist() const {
+	DEBUGLOG("");
 	return Hydrogen::get_instance()->getPlaylist()->save();
 }
 
 bool CoreActionController::savePlaylistAs( const QString& sPath ) {
+	DEBUGLOG("");
 	if ( ! Hydrogen::get_instance()->getPlaylist()->saveAs( sPath ) ) {
 		ERRORLOG( QString( "Unable to save playlist to [%1]" ).arg( sPath ) );
 		return false;
@@ -1848,15 +1836,29 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 	return true;
 }
 
-bool CoreActionController::addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry ) {
-	Hydrogen::get_instance()->getPlaylist()->add( pEntry );
+bool CoreActionController::addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+										  int nIndex ) {
+	if ( pEntry == nullptr ) {
+		return false;
+	}
+	DEBUGLOG(pEntry->toQString());
+
+	if ( ! Hydrogen::get_instance()->getPlaylist()->add( pEntry, nIndex ) ) {
+		return false;
+	}
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 
 }
-bool CoreActionController::removeFromPlaylist( int nIndex ) {
-	if ( ! Hydrogen::get_instance()->getPlaylist()->remove( nIndex ) ) {
+bool CoreActionController::removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+											   int nIndex ) {
+	if ( pEntry == nullptr ) {
+		return false;
+	}
+	DEBUGLOG(pEntry->toQString());
+
+	if ( ! Hydrogen::get_instance()->getPlaylist()->remove( pEntry, nIndex ) ) {
 		return false;
 	}
 
@@ -1865,6 +1867,7 @@ bool CoreActionController::removeFromPlaylist( int nIndex ) {
 
 }
 bool CoreActionController::clearPlaylist() {
+	DEBUGLOG("");
 	Hydrogen::get_instance()->getPlaylist()->clear();
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );

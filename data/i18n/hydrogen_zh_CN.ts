@@ -3570,10 +3570,6 @@ LilyPond 导出是一项实验性功能。
         <translation>创建(&amp;C) 新脚本</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>将乐曲添加到播放列表</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>请先保存您的乐曲</translation>
     </message>
@@ -3592,10 +3588,6 @@ Do you want to discard the changes?
 </translation>
     </message>
     <message>
-        <source>no Script</source>
-        <translation>没有脚本</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>加载播放列表</translation>
     </message>
@@ -3610,10 +3602,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>脚本名称或脚本路径包含空格。
 注意！
 脚本路径和脚本名称不能包含空格。</translation>
-    </message>
-    <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>警告，新文件仅能由文件所有者执行！</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3652,16 +3640,8 @@ The path to the script and the scriptname must without whitespaces.</source>
 脚本路径和脚本名称不能包含空格。</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>没有使用脚本！</translation>
-    </message>
-    <message>
         <source>No Script selected!</source>
         <translation>未选择脚本！</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>没有脚本</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3674,6 +3654,34 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>播放列表：设置乐曲编号 %1</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>没有脚本</translation>
     </message>
 </context>
 <context>
@@ -4751,6 +4759,18 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>将乐曲添加到播放列表</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5635,7 +5655,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>将乐曲添加到播放列表</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

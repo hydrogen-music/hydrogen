@@ -154,19 +154,82 @@ void Playlist::saveTo( XMLNode& node ) const
 	}
 }
 
-bool Playlist::remove( int nIndex ) {
-	if ( size() == 0 || nIndex < 0 || nIndex >= size() ) {
-		ERRORLOG( QString( "Unable to remove entry [%1/%2]" ).arg( nIndex )
-				  .arg( size() ) );
+bool Playlist::add( std::shared_ptr<PlaylistEntry> entry, int nIndex ) {
+	if ( nIndex == -1 ) {
+		// Append at the end
+		__entries.push_back( entry );
+	}
+	else {
+		if ( nIndex < 0 || nIndex >= size() ) {
+			ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
+					  .arg( nIndex ).arg( size() ) );
+			return false;
+		}
+
+		std::vector<std::shared_ptr<PlaylistEntry>> newEntries;
+		newEntries.resize( size() + 1 );
+		int count = 0;
+		for ( int ii = 0; ii <= size(); ii++ ) {
+			if ( ii == nIndex ) {
+				newEntries[ ii ] = entry;
+			}
+			else {
+				newEntries[ ii ] = __entries[ count ];
+				count++;
+			}
+		}
+		__entries = newEntries;
+
+		if ( nIndex <= m_nActiveSongNumber ) {
+			m_nActiveSongNumber++;
+		}
+	}
+
+	return true;
+}
+
+bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+
+	int nFound = -1;
+
+	if ( nIndex == -1 ) {
+		// Remove the first occurrance
+		for ( int ii = 0; ii < size(); ii++ ) {
+			if ( __entries[ ii ] == pEntry ) {
+				__entries.erase( __entries.begin() + ii );
+				nFound = ii;
+				break;
+			}
+		}
+	}
+	else {
+		if ( nIndex < 0 || nIndex >= size() ) {
+			ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
+					  .arg( nIndex ).arg( size() ) );
+			return false;
+		}
+
+		if ( __entries[ nIndex ] == pEntry ) {
+			__entries.erase( __entries.begin() + nIndex );
+			nFound = nIndex;
+		}
+	}
+
+	if ( nFound == -1 ) {
+		if ( nIndex == -1 ) {
+			ERRORLOG( QString( "Unable to find entry [%1] in playlist [%2]" )
+					  .arg( pEntry->toQString() ).arg( toQString() ) );
+		} else {
+			ERRORLOG( QString( "Unable to find entry [%1] at index [%2] in playlist [%3]" )
+					  .arg( pEntry->toQString() ).arg( nIndex ).arg( toQString() ) );
+		}
 		return false;
 	}
 
-	__entries.erase( __entries.begin() + nIndex );
-
-	if ( m_nActiveSongNumber == nIndex ) {
+	if ( m_nActiveSongNumber == nFound ) {
 		m_nActiveSongNumber = -1;
 	}
-	if ( m_nActiveSongNumber > nIndex ) {
+	if ( m_nActiveSongNumber > nFound ) {
 		m_nActiveSongNumber--;
 	}
 
@@ -240,16 +303,9 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
-			for ( const auto& ii : __entries ) {
-				sOutput.append( QString( "%1%2Entry:\n" ).arg( sPrefix ).arg( s + s ) )
-					.append( QString( "%1%2sFilePath: %3\n" ).arg( sPrefix )
-							 .arg( s + s + s ).arg( ii->sFilePath ) )
-					.append( QString( "%1%2bFileExists: %3\n" ).arg( sPrefix )
-							 .arg( s + s + s ).arg( ii->bFileExists ) )
-					.append( QString( "%1%2sScriptPath: %3\n" ).arg( sPrefix )
-							 .arg( s + s + s ).arg( ii->sScriptPath ) )
-					.append( QString( "%1%2bScriptEnabled: %3\n" ).arg( sPrefix )
-							 .arg( s + s + s ).arg( ii->bScriptEnabled ) );
+			for ( const auto& pEntry : __entries ) {
+				sOutput.append( QString( "%1\n" )
+								.arg( pEntry->toQString( s + s, bShort ) ) );
 			}
 		}
 		sOutput.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
@@ -259,16 +315,37 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
-			for ( const auto& ii : __entries ) {
-				sOutput.append( QString( "[sFilePath: %1" ).arg( ii->sFilePath ) )
-					.append( QString( ", bFileExists: %1" ).arg( ii->bFileExists ) )
-					.append( QString( ", sScriptPath: %1" ).arg( ii->sScriptPath ) )
-					.append( QString( ", bScriptEnabled: %1] " ).arg( ii->bScriptEnabled ) );
-										
-										
+			for ( const auto& pEntry : __entries ) {
+				sOutput.append( QString( "%1, " )
+								.arg( pEntry->toQString( "", bShort ) ) );
 			}
 		}
 		sOutput.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
+	}
+
+	return sOutput;
+}
+
+QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PlaylistEntry]\n" ).arg( sPrefix )
+			.append( QString( "%1%2sFilePath: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( sFilePath ) )
+			.append( QString( "%1%2bFileExists: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bFileExists ) )
+			.append( QString( "%1%2sScriptPath: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( sScriptPath ) )
+			.append( QString( "%1%2bScriptEnabled: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bScriptEnabled ) );
+	}
+	else {
+		sOutput = QString( "[PlaylistEntry] " )
+				.append( QString( "sFilePath: %1" ).arg( sFilePath ) )
+			.append( QString( ", bFileExists: %1" ).arg( bFileExists ) )
+			.append( QString( ", sScriptPath: %1" ).arg( sScriptPath ) )
+			.append( QString( ", bScriptEnabled: %1" ).arg( bScriptEnabled ) );
 	}
 	
 	return sOutput;

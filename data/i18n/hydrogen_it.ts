@@ -3542,10 +3542,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>&amp;Crea nuovo Script</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Aggiungi canzone alla Playlist</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>Prima salva la canzone</translation>
     </message>
@@ -3561,10 +3557,6 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>no Script</source>
-        <translation>no Script</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Apri Playlist</translation>
     </message>
@@ -3577,10 +3569,6 @@ Do you want to discard the changes?
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>ATTENZIONE, il nuovo file è eseguibile dal possessore del file!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3619,16 +3607,8 @@ IMPORTANTE
 Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>Nessuno script in uso!</translation>
-    </message>
-    <message>
         <source>No Script selected!</source>
         <translation>Nessuno script selezionato!</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Nessuno script!</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3641,6 +3621,34 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Playlist: imposta canzone n. %1</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>no Script</translation>
     </message>
 </context>
 <context>
@@ -4718,6 +4726,18 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Aggiungi canzone alla Playlist</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5579,7 +5599,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi canzone alla Playlist</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

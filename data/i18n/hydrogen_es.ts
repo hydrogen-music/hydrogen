@@ -3510,10 +3510,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Ejecutar Script</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Añadir canción al Playlist</translation>
-    </message>
-    <message>
         <source>No Song selected!</source>
         <translation>¡Ninguna canción seleccionada!</translation>
     </message>
@@ -3536,10 +3532,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Add Script to selected Song</source>
         <translation>Añadir Script a la Canción seleccionada</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>¡No hay Script en uso!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3572,10 +3564,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>El nombre o la ruta del script contiene espacios en blanco.
 IMPORTANTE
 La ruta al script y el nombre no pueden contener espacios en blanco.</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>¡No hay Script!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3646,10 +3634,6 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
         <translation>Por favor guarde primero la canción</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>¡ATENCIÓN, el nuevo archivo es ejecutable por el dueño del archivo!</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>Pausa.</translation>
     </message>
@@ -3660,10 +3644,6 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Playlist: fijar canción nº %1</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>no Script</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
@@ -3690,6 +3670,34 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>El nombre o la ruta del script contiene espacios en blanco.
 IMPORTANTE
 La ruta al script y al nombre del script no pueden contener espacios en blanco.</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>No hay Script</translation>
     </message>
 </context>
 <context>
@@ -4767,6 +4775,18 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Añadir canción al Playlist</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5651,7 +5671,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir canción al Playlist</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

@@ -38,6 +38,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  beginning and end of a song if loop mode is enabled. In pattern
 		  mode they move transport to be beginning and next is updating
 		  pending stacked patterns.
+		- PlaylistEditor:
+				- All actions can now be undone and redone.
 		- NSM:
 				- Drumkits are no longer linked into the session folder
 				- All drumkits in the session folder (proper drumkit folders containing

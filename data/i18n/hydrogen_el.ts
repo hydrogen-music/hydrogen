@@ -3571,10 +3571,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>&amp;Δημιουργία ενός νέου Σενάριου</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Προσθήκη τραγουδιού στο Κατάστιχο Αναπαραγωγής</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>Παρακαλώ, αποθήκευσε πρώτα το τραγούδι σου</translation>
     </message>
@@ -3593,10 +3589,6 @@ Do you want to discard the changes?
 </translation>
     </message>
     <message>
-        <source>no Script</source>
-        <translation>κανένα Σενάριο</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Φόρτωμα Κατάστιχου Αναπαραγωγής</translation>
     </message>
@@ -3611,10 +3603,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Το όνομα του σενάριου ή η διαδρομή προς το σενάριο περιέχουν κενά διαστήματα.
 ΣΗΜΑΝΤΙΚΟ
 Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
-    </message>
-    <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>ΠΡΟΕΙΔΟΠΟΙΗΣΗ: το νέο αρχείο είναι εκτελέσιμο από τον ιδιοκτήτη του!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3654,16 +3642,8 @@ The path to the script and the scriptname must without whitespaces.</source>
 Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>Δεν χρησιμοποιείται κανένα Σενάριο!</translation>
-    </message>
-    <message>
         <source>No Script selected!</source>
         <translation>Δεν επιλέχτηκε κανένα Σενάριο!</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Κανένα Σενάριο!</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3676,6 +3656,34 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Κατάστιχο αναπαραγωγής. Όρισε το τραγούδι αρ. %1</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>κανένα Σενάριο</translation>
     </message>
 </context>
 <context>
@@ -4756,6 +4764,18 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Προσθήκη τραγουδιού στο Κατάστιχο Αναπαραγωγής</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5640,7 +5660,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Προσθήκη τραγουδιού στο Κατάστιχο Αναπαραγωγής</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

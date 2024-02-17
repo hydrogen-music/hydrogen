@@ -55,8 +55,6 @@ class PlaylistEditor :  public QDialog,
 		explicit PlaylistEditor( QWidget* pParent );
 		~PlaylistEditor();
 
-		bool loadListByFileName( const QString& filename );
-
 		void playlistChangedEvent() override;
 
 public slots:
@@ -75,17 +73,16 @@ public slots:
 
 	private slots:
 		virtual void closeEvent( QCloseEvent* ev ) override;
-		virtual bool eventFilter ( QObject *o, QEvent *e ) override;
+		virtual bool eventFilter( QObject *o, QEvent *e ) override;
 
 		void ffWDBtnClicked();
 		void nodePlayBTN();
 		void nodeStopBTN();
 		void rewindBtnClicked();
-		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
+		void on_m_pPlaylistTree_itemClicked( QTreeWidgetItem * item, int column );
 		void o_upBClicked();
 		void o_downBClicked();
-		void on_m_pPlaylistTree_itemDoubleClicked ();
-		void updateActiveSongNumber();
+		void on_m_pPlaylistTree_itemDoubleClicked();
 
 
 	private:
@@ -93,11 +90,7 @@ public slots:
 		void updatePlaylistTree();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
-		void updatePlayListNode( const QString& file );
-		void updatePlayListVector();
-		void setFirstItemCurrent();
 		Button *	zoom_in_btn;
-		QTimer *	m_pTimer;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;
 #ifndef WIN32

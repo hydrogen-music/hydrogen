@@ -31,11 +31,16 @@
 
 namespace H2Core
 {
-struct PlaylistEntry {
+
+struct PlaylistEntry : public H2Core::Object<PlaylistEntry> {
+	H2_OBJECT(PlaylistEntry)
+
 	QString sFilePath;
 	bool bFileExists;
 	QString sScriptPath;
 	bool bScriptEnabled;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 };
 
 /** \ingroup docCore docDataStructure */
@@ -61,8 +66,16 @@ class Playlist : public H2Core::Object<Playlist>
 		}
 
 		void	clear();
-		void	add( std::shared_ptr<PlaylistEntry> entry );
-		bool	remove( int nIndex );
+		/** Adds a new song/ entry to the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, @a pEntry will be appended at
+		 * the end of the playlist. */
+		bool	add( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
+		/** Removes a song from the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, the first occurrance of @a
+		 * pEntry will be deleted. */
+		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
 		void	setNextSongByNumber( int SongNumber );
 
@@ -113,11 +126,6 @@ inline std::shared_ptr<PlaylistEntry> Playlist::get( int idx ) const
 {
 	assert( idx >= 0 && idx < size() );
 	return __entries[ idx ];
-}
-
-inline void Playlist::add( std::shared_ptr<PlaylistEntry> entry )
-{
-	__entries.push_back( entry );
 }
 
 inline int Playlist::getActiveSongNumber() const

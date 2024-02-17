@@ -3487,10 +3487,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>スクリプトの実行</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>ソングをプレイリストに追加</translation>
-    </message>
-    <message>
         <source>No Song selected!</source>
         <translation>ソングが選択されていません!</translation>
     </message>
@@ -3513,10 +3509,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Add Script to selected Song</source>
         <translation>選択したソングにスクリプトを追加</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>スクリプトが使われていません!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3549,10 +3541,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>スクリプト名あるいはスクリプトのパスが空白文字を含んでいます。
 重要
 スクリプト名あるいはスクリプトのパスが空白文字を含んではいけません。</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>スクリプトなし!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3623,10 +3611,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>まずソングを保存して下さい</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>警告, 新しいファイルは所有者が実行を許されている必要があります!</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>一時停止。</translation>
     </message>
@@ -3637,10 +3621,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>プレイリスト: ソング No. %1 に設定</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>スクリプトなし</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
@@ -3662,6 +3642,34 @@ Do you want to discard the changes?
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>スクリプトなし</translation>
     </message>
 </context>
 <context>
@@ -4739,6 +4747,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>ソングをプレイリストに追加</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5610,7 +5630,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>ソングをプレイリストに追加</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

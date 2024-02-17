@@ -35,6 +35,7 @@
 
 #include <core/Basics/Drumkit.h>
 #include "core/Basics/InstrumentList.h"
+#include "core/Basics/Playlist.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"
 #include "core/EventQueue.h"
@@ -1057,14 +1058,22 @@ void OscServer::NEW_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
-	pController->newPlaylist( QString::fromUtf8( &argv[0]->s ) );
+	auto pPlaylist = std::make_shared<H2Core::Playlist>();
+	pController->setPlaylist( pPlaylist );
 }
 
 void OscServer::OPEN_PLAYLIST_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
-	pController->openPlaylist( QString::fromUtf8( &argv[0]->s ) );
+	auto pPlaylist = H2Core::Playlist::load( QString::fromUtf8( &argv[0]->s ) );
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( QString( "Unable to load Playlist [%1]" )
+				  .arg( QString::fromUtf8( &argv[0]->s ) ) );
+		return;
+	}
+
+	pController->setPlaylist( pPlaylist );
 }
 
 void OscServer::SAVE_PLAYLIST_Handler(lo_arg **argv, int argc) {

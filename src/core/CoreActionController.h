@@ -33,7 +33,7 @@ namespace H2Core
 {
 	class Drumkit;
 	class Instrument;
-
+	class Playlist;
 	struct PlaylistEntry;
 
 
@@ -430,19 +430,24 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	void setBpm( float fBpm );
 
-		/** Replaces the current #Playlist with an empty one. */
-		bool newPlaylist( const QString& sPath = "" );
-		/** Replaces the current #Playlist with the one loaded from @a sPath. */
-		bool openPlaylist( const QString& sPath );
+		/** Replaces the current #Playlist with @a Playlist. */
+		bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 		/** Saves changes of the current #Playlist to disk. */
 		bool savePlaylist() const;
 		/** Saves the current #Playlist to @a sPath.*/
 		bool savePlaylistAs( const QString& sPath );
-		/** Adds a new song/ entry to the current playlist. */
-		bool addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry );
-		/** Removes a song specified by its position in the entry vector from
-		 * the current playlist. */
-		bool removeFromPlaylist( int nIndex );
+		/** Adds a new song/ entry to the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, @a pEntry will be appended at
+		 * the end of the playlist. */
+		bool addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+							int nIndex = -1 );
+		/** Removes a song from the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, the first occurrance of @a
+		 * pEntry will be deleted. */
+		bool removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+								 int nIndex = -1 );
 		/** Removes all entries from the current playlist. */
 		bool clearPlaylist();
 

@@ -3454,10 +3454,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No Song selected!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3479,10 +3475,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Add Script to selected Song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3511,10 +3503,6 @@ Sorry, but this will not work for the moment.</source>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Script!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3586,10 +3574,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3599,10 +3583,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3624,6 +3604,34 @@ Do you want to discard the changes?
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4699,6 +4707,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

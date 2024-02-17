@@ -3569,10 +3569,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>&amp;Створити новий сценарій</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Додати композицію в список</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>Спочатку збережіть композицію</translation>
     </message>
@@ -3591,10 +3587,6 @@ Do you want to discard the changes?
 </translation>
     </message>
     <message>
-        <source>no Script</source>
-        <translation>немає сценарію</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Завантажити список</translation>
     </message>
@@ -3609,10 +3601,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Назва сценарію або шлях до нього містить пропуски.
 ВАЖЛИВО
 Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
-    </message>
-    <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>УВАГА, новий файл містить біт виконання його власником!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3651,16 +3639,8 @@ The path to the script and the scriptname must without whitespaces.</source>
 Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>Немає використовуваного сценарію!</translation>
-    </message>
-    <message>
         <source>No Script selected!</source>
         <translation>Не вибрано жодного сценарію!</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Немає сценарію!</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3673,6 +3653,34 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Список відтворення: Задати номер композиції %1</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>немає сценарію</translation>
     </message>
 </context>
 <context>
@@ -4750,6 +4758,18 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Додати композицію в список</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5634,7 +5654,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати композицію в список</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

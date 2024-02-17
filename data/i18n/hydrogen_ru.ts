@@ -3489,10 +3489,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Выполнение</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Добавить композицию в список</translation>
-    </message>
-    <message>
         <source>No Song selected!</source>
         <translation>Ни одна композиция не выбрана!</translation>
     </message>
@@ -3517,10 +3513,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Добавить сценарий в выбранную композицию</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>Нет используемого сценария!</translation>
-    </message>
-    <message>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
@@ -3541,10 +3533,6 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>New Script</source>
         <translation>Создать сценарий</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Нет сценария!</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
@@ -3622,10 +3610,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Сначала сохраните композицию</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>ВНИМАНИЕ, новый файл содержит бит исполнения, доступный его владельцу</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>Пауза.</translation>
     </message>
@@ -3635,10 +3619,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3661,6 +3641,34 @@ Do you want to discard the changes?
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Нет сценария</translation>
     </message>
 </context>
 <context>
@@ -4738,6 +4746,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Добавить композицию в список</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Reporter</name>
@@ -5604,7 +5624,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить композицию в список</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

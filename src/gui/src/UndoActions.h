@@ -1581,4 +1581,77 @@ private:
 	float __ty;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Playlist related actions.
+class SE_addEntryToPlaylistAction : public QUndoCommand {
+public:
+	SE_addEntryToPlaylistAction( std::shared_ptr<H2Core::PlaylistEntry> pEntry,
+								 int nIndex = -1 )
+		: m_pEntry( pEntry )
+		, m_nIndex( nIndex ){
+		setText( QObject::tr( "Add song to playlist" ) );
+	}
+
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->addToPlaylist( m_pEntry, m_nIndex );
+	}
+
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->removeFromPlaylist( m_pEntry, m_nIndex );
+	}
+private:
+	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
+	int m_nIndex;
+};
+
+class SE_removeEntryFromPlaylistAction : public QUndoCommand {
+public:
+	SE_removeEntryFromPlaylistAction( std::shared_ptr<H2Core::PlaylistEntry> pEntry,
+									  int nIndex = -1 )
+		: m_pEntry( pEntry )
+		, m_nIndex( nIndex ) {
+		setText( QObject::tr( "Remove song to playlist" ) );
+	}
+
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->removeFromPlaylist( m_pEntry, m_nIndex );
+	}
+
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->addToPlaylist( m_pEntry, m_nIndex );
+	}
+private:
+	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
+	int m_nIndex;
+};
+
+class SE_replacePlaylistAction : public QUndoCommand {
+public:
+	SE_replacePlaylistAction( std::shared_ptr<H2Core::Playlist> pPlaylist )
+		: m_pNewPlaylist( pPlaylist ) {
+		setText( QObject::tr( "Replace playlist" ) );
+
+		m_pOldPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	}
+
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->setPlaylist( m_pNewPlaylist );
+	}
+
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->setPlaylist( m_pOldPlaylist );
+	}
+private:
+	std::shared_ptr<H2Core::Playlist> m_pNewPlaylist;
+	std::shared_ptr<H2Core::Playlist> m_pOldPlaylist;
+};
+
+
+
 #endif // UNDOACTIONS_H

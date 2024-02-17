@@ -3511,10 +3511,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Exécuter le script</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Ajouter un morceau à la liste</translation>
-    </message>
-    <message>
         <source>No Song selected!</source>
         <translation>Aucun morceau n&apos;est sélectionné !</translation>
     </message>
@@ -3537,10 +3533,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Add Script to selected Song</source>
         <translation>Ajouter un script au morceau sélectionné</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>Aucun script utilisé!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3573,10 +3565,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Le nom ou le chemin du script contient des espaces. 
 IMPORTANT
 Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&apos;espaces.</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Aucun script!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3647,10 +3635,6 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
         <translation>Veuillez sauvegarder votre morceau d&apos;abord</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>ATTENTION, le nouveau fichier est exécutable par le propriétaire du fichier!</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>Pause.</translation>
     </message>
@@ -3661,10 +3645,6 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Liste : choisir le morceau #%1 </translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>Aucun script</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
@@ -3691,6 +3671,34 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Le nom du script ou le chemin vers le script contient des espaces.
 IMPORTANT
 Le chemin vers le script et le nom du script doivent être sans espaces.</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Aucun script</translation>
     </message>
 </context>
 <context>
@@ -4766,6 +4774,18 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Ajouter un morceau à la liste</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

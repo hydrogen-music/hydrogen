@@ -538,20 +538,28 @@ bool HydrogenApp::openPlaylist( const QString& sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	// Check whether there is an autosave file next to it
-	// containing newer content.
-	QFileInfo fileInfo( sFilename );
-
-	// Ensure the path to the file is not relative.
-	if ( ! pCoreActionController->openPlaylist( fileInfo.absoluteFilePath() ) ) {
+	auto loadingFailed = [=](){
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading playlist." ) );
+		msgBox.setText( QString( "%1: [%2]" )
+						.arg( tr( "Error loading playlist." ) )
+						.arg( sFilename ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
+	};
 
+	QFileInfo fileInfo( sFilename );
+	auto pPlaylist = Playlist::load( fileInfo.absoluteFilePath() );
+	if ( pPlaylist == nullptr ) {
+		loadingFailed();
+		return false;
+	}
+
+	// Ensure the path to the file is not relative.
+	if ( ! pCoreActionController->setPlaylist( pPlaylist ) ) {
+		loadingFailed();
 		return false;
 	}
 

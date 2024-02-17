@@ -84,12 +84,19 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		virtual ~HydrogenApp();
 
-		/** 
-		 * \param sFilename Absolute or relative path used to load the next #H2Core::Song.
+		/**
+		 * Specfial routine for song loading with failure dialog, which is save to
+		 * call even in case the GUI is not fully initialized.
+		 *
+		 * \param sFilename Absolute or relative path used to load the next
+		 *   #H2Core::Song.
 		 * \return bool true on success
 		 */
 		static bool openSong( const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
+		/**
+		 * Specfial routine for playlist  loading with failure dialog, which is
+		 * save to call even in case the GUI is not fully initialized. */
 		static bool openPlaylist( const QString& sFilename );
 	/**
 	 * Specialized version of openSong( QString sFilename ) trying to
