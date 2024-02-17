@@ -165,13 +165,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	checkMissingSamples();
 	checkNecessaryDirectories();
 
-	if ( pPref->getPlaylistEditorProperties().visible ){
-		// If there was a playlist used during the last
-		// session and it was still visible/shown when closing
-		// Hydrogen, bring it up again.
-		action_window_showPlaylistEditor();
-	}
-
 	h2app->showStatusBarMessage( tr("Hydrogen Ready.") );
 
 	// we need to do all this to support the keyboard playing

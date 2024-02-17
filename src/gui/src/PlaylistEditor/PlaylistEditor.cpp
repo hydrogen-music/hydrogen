@@ -364,7 +364,8 @@ void PlaylistEditor::newPlaylist()
 }
 
 void PlaylistEditor::openPlaylist() {
-	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
+	auto pPref = Preferences::get_instance();
+	QString sPath = pPref->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::playlists_dir();
 	}
@@ -399,8 +400,8 @@ void PlaylistEditor::openPlaylist() {
 	auto pAction = new SE_replacePlaylistAction( pPlaylist );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
-	Preferences::get_instance()->setLastPlaylistDirectory(
-		fd.directory().absolutePath() );
+	pPref->setLastPlaylistFilename( sFilePath );
+	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
 	return;
 }
