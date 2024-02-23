@@ -433,7 +433,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Replaces the current #Playlist with @a Playlist. */
 		bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 		/** Saves changes of the current #Playlist to disk. */
-		bool savePlaylist() const;
+		bool savePlaylist();
 		/** Saves the current #Playlist to @a sPath.*/
 		bool savePlaylistAs( const QString& sPath );
 		/** Adds a new song/ entry to the current playlist.

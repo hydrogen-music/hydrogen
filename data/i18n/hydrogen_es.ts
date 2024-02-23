@@ -1030,6 +1030,11 @@ Are you sure?</source>
         <source>Unable to save playlist</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>modified</source>
+        <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
+        <translation>modificado</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1680,10 +1685,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Mixer</source>
         <translation>Mezclador</translation>
-    </message>
-    <message>
-        <source>modified</source>
-        <translation>modificado</translation>
     </message>
     <message>
         <source>Error loading song.</source>

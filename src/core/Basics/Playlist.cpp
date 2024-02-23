@@ -154,13 +154,16 @@ void Playlist::saveTo( XMLNode& node ) const
 	}
 }
 
-bool Playlist::add( std::shared_ptr<PlaylistEntry> entry, int nIndex ) {
+bool Playlist::add( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	DEBUGLOG( QString( "%1 - %2" ).arg( pEntry->toQString() ).arg( nIndex ) );
 	if ( nIndex == -1 ) {
 		// Append at the end
-		__entries.push_back( entry );
+		__entries.push_back( pEntry );
 	}
 	else {
-		if ( nIndex < 0 || nIndex >= size() ) {
+		// Index is allowed to be one more than the size of __entries. This
+		// represents appending an item.
+		if ( nIndex < 0 || nIndex > size() ) {
 			ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
 					  .arg( nIndex ).arg( size() ) );
 			return false;
@@ -171,7 +174,7 @@ bool Playlist::add( std::shared_ptr<PlaylistEntry> entry, int nIndex ) {
 		int count = 0;
 		for ( int ii = 0; ii <= size(); ii++ ) {
 			if ( ii == nIndex ) {
-				newEntries[ ii ] = entry;
+				newEntries[ ii ] = pEntry;
 			}
 			else {
 				newEntries[ ii ] = __entries[ count ];
@@ -189,6 +192,7 @@ bool Playlist::add( std::shared_ptr<PlaylistEntry> entry, int nIndex ) {
 }
 
 bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	DEBUGLOG( QString( "%1 - %2" ).arg( pEntry->toQString() ).arg( nIndex ) );
 
 	int nFound = -1;
 

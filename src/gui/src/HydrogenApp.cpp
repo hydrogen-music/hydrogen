@@ -673,7 +673,7 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	if( pSong->getIsModified() ){
-		sTitle.append( " (" + tr( "modified" ) + ")" );
+		sTitle.append( " (" + m_pCommonStrings->getIsModified() + ")" );
 	}
 
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) +

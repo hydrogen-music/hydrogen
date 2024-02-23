@@ -93,6 +93,12 @@ public slots:
 		Button *	zoom_in_btn;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;
+		std::shared_ptr<H2Core::PlaylistEntry> m_pLastSelectedEntry;
+
+		/** Using the up and down buttons a song of the playlist can be moved to
+		 * the next or previous position. This variable helps to accompany them
+		 * with a nice UX by moving the selection focus along with the item. */
+		bool m_bOmitNextSelection;
 #ifndef WIN32
 	//no scripts under windows
 		QMenu *		m_pScriptMenu;

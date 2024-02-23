@@ -1820,18 +1820,26 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	return true;
 }
 
-bool CoreActionController::savePlaylist() const {
+bool CoreActionController::savePlaylist() {
 	DEBUGLOG("");
-	return Hydrogen::get_instance()->getPlaylist()->save();
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
+	if ( ! pPlaylist->save() ) {
+		return false;
+	}
+
+	pPlaylist->setIsModified( false );
+	return true;
 }
 
 bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 	DEBUGLOG("");
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
 	if ( ! Hydrogen::get_instance()->getPlaylist()->saveAs( sPath ) ) {
 		ERRORLOG( QString( "Unable to save playlist to [%1]" ).arg( sPath ) );
 		return false;
 	}
 
+	pPlaylist->setIsModified( false );
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 }
@@ -1842,11 +1850,13 @@ bool CoreActionController::addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
 		return false;
 	}
 	DEBUGLOG(pEntry->toQString());
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
 
-	if ( ! Hydrogen::get_instance()->getPlaylist()->add( pEntry, nIndex ) ) {
+	if ( ! pPlaylist->add( pEntry, nIndex ) ) {
 		return false;
 	}
 
+	pPlaylist->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 
@@ -1857,19 +1867,23 @@ bool CoreActionController::removeFromPlaylist( std::shared_ptr<PlaylistEntry> pE
 		return false;
 	}
 	DEBUGLOG(pEntry->toQString());
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
 
-	if ( ! Hydrogen::get_instance()->getPlaylist()->remove( pEntry, nIndex ) ) {
+	if ( ! pPlaylist->remove( pEntry, nIndex ) ) {
 		return false;
 	}
 
+	pPlaylist->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 
 }
 bool CoreActionController::clearPlaylist() {
 	DEBUGLOG("");
-	Hydrogen::get_instance()->getPlaylist()->clear();
+	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
+	pPlaylist->clear();
 
+	pPlaylist->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 

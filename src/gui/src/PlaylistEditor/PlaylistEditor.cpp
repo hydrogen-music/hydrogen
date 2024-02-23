@@ -62,6 +62,8 @@ using namespace H2Core;
 PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		: QDialog( pParent )
 		, Object()
+		, m_pLastSelectedEntry( nullptr )
+		, m_bOmitNextSelection( false )
 {
 
 	setupUi( this );
@@ -71,7 +73,8 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
 	m_pPlaylistTree->setFont( font );
 
@@ -183,6 +186,21 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PlaylistEditor::onPreferencesChanged );
+
+	// Remember the playlist entry corresponding to the last selected row (in
+	// order to restore it when redrawing the whole tree).
+	connect( m_pPlaylistTree, &QTreeWidget::itemSelectionChanged,
+			 [=]() {
+				 if ( ! m_bOmitNextSelection ) {
+					 const int nIndex = m_pPlaylistTree->indexOfTopLevelItem(
+						 m_pPlaylistTree->currentItem() );
+					 DEBUGLOG( nIndex );
+					 m_pLastSelectedEntry = H2Core::Hydrogen::get_instance()->
+						 getPlaylist()->get( nIndex );
+				 } else {
+					 m_bOmitNextSelection = false;
+				 }
+			 });
 }
 
 PlaylistEditor::~PlaylistEditor()
@@ -229,6 +247,9 @@ void PlaylistEditor::populateMenuBar() {
 	// Script menu
 	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
+	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this,
+							  SLOT( newScript() ),
+							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
 	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this,
 							  SLOT( loadScript() ),
 							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
@@ -239,10 +260,6 @@ void PlaylistEditor::populateMenuBar() {
 	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this,
 							  SLOT( removeScript() ),
 							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
-	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this,
-							  SLOT( newScript() ),
-							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
 	m_pScriptMenu->setFont( font );
 #endif
 }
@@ -486,6 +503,31 @@ void PlaylistEditor::newScript()
 	QString openfile = pPref->getDefaultEditor() + " " + sFilePath + "&";
 	std::system( openfile.toLatin1() );
 
+	auto pPlaylistItem = m_pPlaylistTree->currentItem();
+	if ( pPlaylistItem == nullptr ) {
+		// Script does not need to be added.
+		return;
+	}
+
+	const int nIndex = m_pPlaylistTree->indexOfTopLevelItem( pPlaylistItem );
+	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
+
+	auto pNewEntry = std::make_shared<PlaylistEntry>();
+	pNewEntry->sFilePath = pOldEntry->sFilePath;
+	pNewEntry->bFileExists = pOldEntry->bFileExists;
+	pNewEntry->bScriptEnabled = pOldEntry->bScriptEnabled;
+	pNewEntry->sScriptPath = sFilePath;
+
+	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
+
+	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
+	pUndoStack->push( pAction1 );
+	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
+	pUndoStack->push( pAction2 );
+
+	pUndoStack->endMacro();
+
 	return;
 }
 
@@ -597,9 +639,9 @@ void PlaylistEditor::loadScript()
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
-	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry );
+	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
 	pUndoStack->push( pAction1 );
-	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry );
+	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
 	pUndoStack->push( pAction2 );
 
 	pUndoStack->endMacro();
@@ -629,9 +671,9 @@ void PlaylistEditor::removeScript()
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
-	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry );
+	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
 	pUndoStack->push( pAction1 );
-	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry );
+	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
 	pUndoStack->push( pAction2 );
 
 	pUndoStack->endMacro();
@@ -689,7 +731,7 @@ void PlaylistEditor::o_upBClicked()
 		m_pPlaylistTree->currentItem() );
 
 	if ( nIndex == 0 ) {
-		// Already at the bottom.
+		// Already on top.
 		return;
 	}
 
@@ -698,6 +740,8 @@ void PlaylistEditor::o_upBClicked()
 		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nIndex ));
 		return;
 	}
+
+	m_bOmitNextSelection = true;
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist" ) );
@@ -716,8 +760,8 @@ void PlaylistEditor::o_downBClicked()
 	const int nIndex = m_pPlaylistTree->indexOfTopLevelItem(
 		m_pPlaylistTree->currentItem() );
 
-	if ( nIndex == m_pPlaylistTree->topLevelItemCount() ) {
-		// Already on top.
+	if ( nIndex == m_pPlaylistTree->topLevelItemCount() - 1 ) {
+		// Already at the bottom.
 		return;
 	}
 
@@ -727,12 +771,14 @@ void PlaylistEditor::o_downBClicked()
 		return;
 	}
 
+	m_bOmitNextSelection = true;
+
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist" ) );
 
 	auto pAction1 = new SE_removeEntryFromPlaylistAction( pEntry, nIndex );
 	pUndoStack->push( pAction1 );
-	auto pAction2 = new SE_addEntryToPlaylistAction( pEntry, nIndex - 1);
+	auto pAction2 = new SE_addEntryToPlaylistAction( pEntry, nIndex + 1);
 	pUndoStack->push( pAction2 );
 
 	pUndoStack->endMacro();
@@ -769,9 +815,9 @@ void PlaylistEditor::on_m_pPlaylistTree_itemClicked( QTreeWidgetItem* pItem,
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
-	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry );
+	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
 	pUndoStack->push( pAction1 );
-	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry );
+	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
 	pUndoStack->push( pAction2 );
 
 	pUndoStack->endMacro();
@@ -1022,44 +1068,58 @@ void PlaylistEditor::updatePlaylistTree()
 	m_pPlaylistTree->clear();
 
 	if ( pPlaylist->size() > 0 ) {
+
+		QTreeWidgetItem* pSelectedItem = nullptr;
+
 		for ( const auto& ppEntry : *pPlaylist ){
-			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
-			m_pPlaylistItem->setText( 0, ppEntry->sFilePath );
+			QTreeWidgetItem* pPlaylistItem = new QTreeWidgetItem( m_pPlaylistTree );
+			pPlaylistItem->setText( 0, ppEntry->sFilePath );
+
+			if ( m_pLastSelectedEntry == ppEntry ) {
+				pSelectedItem = pPlaylistItem;
+			}
 #ifndef WIN32
 			// In order to not break existing UX, we display a fallback string
 			// instead of an empty cell.
-			m_pPlaylistItem->setText(
+			pPlaylistItem->setText(
 				1, ppEntry->sScriptPath.isEmpty() ?
 				tr( "no Script" ) : ppEntry->sScriptPath );
 
 			if ( ppEntry->bScriptEnabled ) {
-				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
+				pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
-				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
+				pPlaylistItem->setCheckState( 2, Qt::Unchecked );
 			}
 #endif
 		}
 
-		//restore the selected item
-		const int nActiveSongNumber = pPlaylist->getActiveSongNumber();
-
-		if ( nActiveSongNumber != -1 ) {
-
-			QTreeWidgetItem* m_pPlaylistItem =
-				m_pPlaylistTree->topLevelItem( nActiveSongNumber );
-			m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50 ) );
-			m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50 ) );
-			m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50 ) );
+		// restore the selected item
+		if ( pSelectedItem != nullptr ) {
+			m_pPlaylistTree->setCurrentItem( pSelectedItem );
+		} else {
+			m_pPlaylistTree->setCurrentItem( m_pPlaylistTree->topLevelItem( 0 ) );
 		}
-		else {
-			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem( 0 );
-			m_pPlaylistTree->setCurrentItem( m_pPlaylistItem );
+
+		// highlight the song currently loaded.
+		const int nActiveSongNumber = pPlaylist->getActiveSongNumber();
+		if ( nActiveSongNumber != -1 ) {
+			QTreeWidgetItem* pPlaylistItem =
+				m_pPlaylistTree->topLevelItem( nActiveSongNumber );
+			pPlaylistItem->setBackground( 0, QColor( 50, 50, 50 ) );
+			pPlaylistItem->setBackground( 1, QColor( 50, 50, 50 ) );
+			pPlaylistItem->setBackground( 2, QColor( 50, 50, 50 ) );
 		}
 
 	}
 
-	setWindowTitle( tr( "Playlist Browser" ) + QString(" - ") +
-					pPlaylist->getFilename() );
+	QString sWindowTitle = tr( "Playlist Browser" ) + QString(" - ") +
+					pPlaylist->getFilename();
+	if ( Hydrogen::get_instance()->getPlaylist()->getIsModified() ) {
+		sWindowTitle.append( QString( " (%1)" ).arg(
+			HydrogenApp::get_instance()->getCommonStrings()->getIsModified() ) );
+	}
+
+	setWindowTitle( sWindowTitle );
 }
 
 void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
