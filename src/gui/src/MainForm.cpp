@@ -97,7 +97,7 @@ int MainForm::sigusr1Fd[2];
 MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 					const QString& sPlaylistFilename )
 	: QMainWindow( nullptr )
-	, m_sPreviousAutoSaveFilename( "" )
+	, m_sPreviousAutoSaveSongName( "" )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -761,6 +761,10 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->openSong( pSong );
+
+	// Ensure we are not removing an autosave file belonging to the previous
+	// song.
+	m_sPreviousAutoSaveSongName = "";
 }
 
 
@@ -1171,6 +1175,10 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 			pHydrogen->getSong()->setFilename( "" );
 		}
 	}
+
+	// Ensure we are not removing an autosave file belonging to the previous
+	// song.
+	m_sPreviousAutoSaveSongName = "";
 }
 
 void MainForm::showPreferencesDialog()
@@ -1689,6 +1697,8 @@ void MainForm::action_file_open_recent(QAction *pAction)
 	}
 	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
+
+	m_sPreviousAutoSaveSongName = "";
 }
 
 void MainForm::checkMissingSamples()

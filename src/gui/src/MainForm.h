@@ -313,7 +313,7 @@ public slots:
 	/** Since the filename of the current song does change whenever
 		the users uses "Save As" multiple autosave files would be
 		written unless we take care of them.*/
-	QString m_sPreviousAutoSaveFilename;
+	QString m_sPreviousAutoSaveSongName;
 
 	/**
 	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
