@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>μετατράπηκε</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Θέλεις να αποθηκεύσεις τις αλλαγές;</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2349,32 +2353,12 @@ MIDI = %2</source>
         <translation>Κατάστιχο αναπαραγωγής. Τραγούδι Νο. %1</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>Αυτό το έγγραφο περιέχει μη αποθηκευμένες αλλαγές.
-
-Θέλεις να αποθηκεύσεις τις αλλαγές;
-</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>LilyPond αρχείο (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
         <translation>Εξαγωγή αρχείου ΛίλυΠονντ</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>Το παρών κατάστιχο αναπαραγωγής περιέχει μη αποθηκευμένες αλλαγές.
-
-Θέλεις να απορρίψεις τις αλλαγές;
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3578,16 +3562,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No Song selected!</source>
         <translation>Δε επιλέχτηκε κανένα Τραγούδι!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>Το παρών κατάστιχο αναπαραγωγής περιέχει μη αποθηκευμένες αλλαγές.
-
-Θέλεις να απορρίψεις τις αλλαγές;
-</translation>
     </message>
     <message>
         <source>Load Playlist</source>

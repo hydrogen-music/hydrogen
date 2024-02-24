@@ -1032,6 +1032,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>已修改</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>您要保存更改吗？</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2406,26 +2410,6 @@ Are you sure you want to save?</source>
         <translation>播放列表：乐曲编号 %1</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-该文档包含未保存的更改。
-您要保存更改吗？
-</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-当前播放列表包含未保存的更改。
-您要放弃更改吗？
-</translation>
-    </message>
-    <message>
         <source>Replace With &amp;New Song</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation>替换为新乐曲(&amp;N)</translation>
@@ -3577,16 +3561,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>No Song selected!</source>
         <translation>未选择乐曲！</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation type="unfinished">
-当前播放列表包含未保存的更改。
-您要放弃更改吗？
-</translation>
     </message>
     <message>
         <source>Load Playlist</source>

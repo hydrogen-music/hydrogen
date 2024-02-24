@@ -1035,6 +1035,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>modificado</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>¿Quiere guardar los cambios?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2356,16 +2360,6 @@ MIDI = %2</translation>
         <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-El documento contiene cambios sin guardar.
-¿Quiere guardar los cambios?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Deshacer historial</translation>
     </message>
@@ -2380,16 +2374,6 @@ El documento contiene cambios sin guardar.
     <message>
         <source>Export LilyPond file</source>
         <translation>Exportar archivo LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-El playlist actual contiene cambios sin guardar.
-¿Quiere descartar los cambios?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3653,16 +3637,6 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
     <message>
         <source>No valid song selected!</source>
         <translation>No se ha seleccionado una canción válida!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-El playlist actual contiene cambios sin guardar.
-¿Quiere descartar los cambios?
-</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

@@ -1034,6 +1034,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>geändert</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Willst Du die Änderungen speichern?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2352,14 +2356,6 @@ MIDI = %2</translation>
         <translation>Pattern konnte nicht exportiert werden.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>Das Dokument enthält ungespeicherte Änderungen.
-Willst Du die Änderungen speichern?</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Historie rückgängig machen</translation>
     </message>
@@ -2374,16 +2370,6 @@ Willst Du die Änderungen speichern?</translation>
     <message>
         <source>Export LilyPond file</source>
         <translation>Exportiere LilyPond Datei</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Die aktuelle Wiedergabeliste enthält ungesicherte Änderungen.
-Möchtest Du diese verwerfen?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3641,15 +3627,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>No valid song selected!</source>
         <translation>Kein gültiges Lied ausgewählt!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-	  Die aktuelle Wiedergabeliste enthält nicht-gespeicherte Änderungen.
-	  Möchtest Du diese verwerfen?</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

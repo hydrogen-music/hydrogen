@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2231,13 +2235,6 @@ MIDI = %2</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unknown audio driver</source>
         <translation>Nepoznati audio driver</translation>
     </message>
@@ -2336,13 +2333,6 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3602,13 +3592,6 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

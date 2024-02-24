@@ -127,7 +127,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
 		AudioEngineInfoForm*		getAudioEngineInfoForm();
-		PlaylistEditor*			getPlayListEditor();
+		PlaylistEditor*			getPlaylistEditor();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
 		PatternEditorPanel*		getPatternEditorPanel();
@@ -296,7 +296,7 @@ inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
 	return m_pAudioEngineInfoForm;
 }
 
-inline PlaylistEditor* HydrogenApp::getPlayListEditor()
+inline PlaylistEditor* HydrogenApp::getPlaylistEditor()
 {
 	return m_pPlaylistEditor;
 }

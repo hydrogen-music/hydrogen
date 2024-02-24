@@ -1032,6 +1032,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Vols desar les modificacions?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2318,16 +2322,6 @@ MIDI = %2</source>
         <translation>No ha estat possible exportar el patró.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-El document ha estat modificat i no s&apos;ha desat
-Vols desar les modificacions?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2365,13 +2359,6 @@ Vols desar les modificacions?
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3548,13 +3535,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No Song selected!</source>
         <translation>No hi ha cap cançó seleccionada!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Load Playlist</source>

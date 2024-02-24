@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2317,13 +2321,6 @@ Info|Over</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2337,13 +2334,6 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3599,13 +3589,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

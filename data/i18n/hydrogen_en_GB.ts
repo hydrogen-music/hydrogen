@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2370,20 +2374,6 @@ Are you sure you want to save?</source>
         <translation></translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Replace With &amp;New Song</source>
         <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation></translation>
@@ -3531,13 +3521,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -65,8 +65,8 @@ public slots:
 		void removeScript();
 		void newPlaylist();
 		void openPlaylist();
-		void savePlaylistAs();
-		void savePlaylist();
+		bool savePlaylistAs();
+		bool savePlaylist();
 		void loadScript();
 		void editScript();
 		void newScript();

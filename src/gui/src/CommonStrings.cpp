@@ -394,6 +394,7 @@ CommonStrings::CommonStrings(){
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
+	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
 	

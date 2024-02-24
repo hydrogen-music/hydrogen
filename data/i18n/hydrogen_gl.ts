@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Quere gardar os cambios?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2334,16 +2338,6 @@ MIDI = %2</translation>
         <translation>Non foi posíbel exportar o patrón.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-O documento conten cambios sen gardar.
-Quere gardar os cambios?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Desfacer o historial</translation>
     </message>
@@ -2367,13 +2361,6 @@ Quere gardar os cambios?
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3634,13 +3621,6 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Lista de reprodución: estabelecer a canción num. %1</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

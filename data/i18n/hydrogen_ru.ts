@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>изменено</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Вы хотите сохранить их перед выходом?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2337,16 +2341,6 @@ MIDI = %2</source>
         <translation>Не удалось экспортировать паттерн.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Некоторые изменения в композиции не были сохранены.
-Вы хотите сохранить их перед выходом?
-</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
@@ -2366,13 +2360,6 @@ Do you want to save the changes?
     <message>
         <source>Export LilyPond file</source>
         <translation>Экспортировать файл LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3628,13 +3615,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

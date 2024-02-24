@@ -355,22 +355,9 @@ void PlaylistEditor::removeSong()
 
 void PlaylistEditor::newPlaylist()
 {
-	if ( Hydrogen::get_instance()->getPlaylist()->getIsModified() ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		switch(QMessageBox::information( this, "Hydrogen",
-										 tr("\nThe current playlist contains unsaved changes.\n"
-												"Do you want to discard the changes?\n"),
-										 pCommonStrings->getButtonDiscard(),
-										 pCommonStrings->getButtonCancel(),
-										 nullptr,      // Enter == button 0
-										 2 ) ) { // Escape == button 1
-		case 0: // Discard clicked or Alt+D pressed
-			break;
-
-		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
-			return;
-
-		}
+	if ( ! HydrogenApp::get_instance()->getMainForm()->
+		 handleUnsavedChanges( false, true ) ) {
+		return;
 	}
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
@@ -381,6 +368,11 @@ void PlaylistEditor::newPlaylist()
 }
 
 void PlaylistEditor::openPlaylist() {
+	if ( ! HydrogenApp::get_instance()->getMainForm()->
+		 handleUnsavedChanges( false, true ) ) {
+		return;
+	}
+
 	auto pPref = Preferences::get_instance();
 	QString sPath = pPref->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -531,7 +523,7 @@ void PlaylistEditor::newScript()
 	return;
 }
 
-void PlaylistEditor::savePlaylistAs() {
+bool PlaylistEditor::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
@@ -551,7 +543,7 @@ void PlaylistEditor::savePlaylistAs() {
 	fd.setDefaultSuffix( Filesystem::playlist_ext );
 
 	if ( fd.exec() != QDialog::Accepted ) {
-		return;
+		return false;
 	}
 
 	QString filename = fd.selectedFiles().first();
@@ -559,18 +551,18 @@ void PlaylistEditor::savePlaylistAs() {
 	if ( ! pHydrogen->getCoreActionController()->savePlaylistAs( filename ) ) {
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
-		return;
+		return false;
 	}
 
 	pPlaylist->setIsModified( false );
 	Preferences::get_instance()->setLastPlaylistDirectory(
 		fd.directory().absolutePath() );
 
-	return;
+	return true;
 
 }
 
-void PlaylistEditor::savePlaylist()
+bool PlaylistEditor::savePlaylist()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -583,10 +575,12 @@ void PlaylistEditor::savePlaylist()
 	if ( ! pHydrogen->getCoreActionController()->savePlaylist() ) {
 		QMessageBox::critical( this, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
-		return;
+		return false;
 	}
 
 	pPlaylist->setIsModified( false );
+
+	return true;
 }
 
 void PlaylistEditor::loadScript()

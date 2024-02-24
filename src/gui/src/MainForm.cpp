@@ -54,6 +54,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
@@ -700,10 +701,10 @@ void MainForm::action_donate()
 /// return true if the app needs to be closed.
 bool MainForm::action_file_exit()
 {
-	bool proceed = handleUnsavedChanges();
-	if(!proceed) {
+	if ( ! handleUnsavedChanges( true, true ) ) {
 		return false;
 	}
+
 	closeAll();
 	return true;
 }
@@ -719,8 +720,7 @@ void MainForm::action_file_new()
 		pHydrogen->sequencerStop();
 	}
 
-	bool proceed = handleUnsavedChanges();
-	if(!proceed) {
+	if ( ! handleUnsavedChanges( true, false ) ) {
 		return;
 	}
 	
@@ -765,13 +765,13 @@ void MainForm::action_file_new()
 
 
 
-void MainForm::action_file_save_as()
+bool MainForm::action_file_save_as()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		return;
+		return false;
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
@@ -828,7 +828,9 @@ void MainForm::action_file_save_as()
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
 			// if required.
-			action_file_save( sNewFilename );
+			if ( ! action_file_save( sNewFilename ) ) {
+				return false;
+			}
 		}
 
 #ifdef H2CORE_HAVE_OSC
@@ -850,21 +852,23 @@ void MainForm::action_file_save_as()
 		
 		h2app->updateWindowTitle();
 	}
+
+	return true;
 }
 
 
 
-void MainForm::action_file_save()
+bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-void MainForm::action_file_save( const QString& sNewFilename )
+bool MainForm::action_file_save( const QString& sNewFilename )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		return;
+		return false;
 	}
 	
 	auto pCoreActionController = pHydrogen->getCoreActionController();
@@ -888,7 +892,7 @@ void MainForm::action_file_save( const QString& sNewFilename )
 		                               QMessageBox::Save | QMessageBox::Cancel,
 		                               QMessageBox::Save )
 		     == QMessageBox::Cancel ) {
-			return;
+			return false;
 		}
 		pSong->clearMissingSamples();
 	}
@@ -909,6 +913,8 @@ void MainForm::action_file_save( const QString& sNewFilename )
 		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
 									 sFilename );
 	}
+
+	return bSaved;
 }
 
 
@@ -1132,7 +1138,7 @@ bool MainForm::prepareSongOpening() {
 		pHydrogen->sequencerStop();
 	}
 
-	return handleUnsavedChanges();
+	return handleUnsavedChanges( true, false );
 }
 
 void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
@@ -1180,7 +1186,7 @@ void MainForm::action_window_showPlaylistEditor()
 // function to update director status in menu bar
 void MainForm::update_playlist_checkbox()
 {
-	bool isVisible = HydrogenApp::get_instance()->getPlayListEditor()->isVisible();
+	bool isVisible = HydrogenApp::get_instance()->getPlaylistEditor()->isVisible();
 	m_pViewPlaylistEditorAction->setChecked( isVisible );
 }
 
@@ -1576,7 +1582,7 @@ void MainForm::savePreferences() {
 	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
 	pPreferences->setPlaylistEditorProperties(
-		h2app->getWindowProperties( h2app->getPlayListEditor() ) );
+		h2app->getWindowProperties( h2app->getPlaylistEditor() ) );
 	pPreferences->setDirectorProperties(
 		h2app->getWindowProperties( h2app->getDirector() ) );
 
@@ -1765,7 +1771,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		QString sFileName = fe->file();
 
 		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
-			if ( handleUnsavedChanges() ) {
+			if ( handleUnsavedChanges( true, false ) ) {
 				pHydrogenApp->openSong( sFileName );
 			}
 
@@ -1773,7 +1779,9 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			H2Core::Drumkit::install( sFileName );
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-			HydrogenApp::openPlaylist( sFileName );
+			if ( handleUnsavedChanges( false, true ) ) {
+				HydrogenApp::openPlaylist( sFileName );
+			}
 		}
 		return true;
 
@@ -2097,7 +2105,7 @@ void MainForm::onPlaylistDisplayTimer()
 
 // Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
 // Returns false if not (i.e. Cancel)
-bool MainForm::handleUnsavedChanges()
+bool MainForm::handleUnsavedChanges( bool bHandleSong, bool bHandlePlaylist )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -2106,67 +2114,86 @@ bool MainForm::handleUnsavedChanges()
 	}
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	bool done = false;
-	bool rv = true;
-	while ( !done && pSong->getIsModified() ) {
-		switch(
-			QMessageBox::information( this, "Hydrogen",
-									  tr("\nThe document contains unsaved changes.\n"
-										 "Do you want to save the changes?\n"),
-									  pCommonStrings->getButtonSave(),
-									  pCommonStrings->getButtonDiscard(),
-									  pCommonStrings->getButtonCancel(),
-									  0,      // Enter == button 0
-									  2 ) ) { // Escape == button 2
-		case 0: // Save clicked or Alt+S pressed or Enter pressed.
-			// If the save fails, the __is_modified flag will still be true
+	auto newDialog = [=]( const QString& sText ) {
+		QMessageBox msgBox;
+		// Not commonized in CommmonStrings as it is required before
+		// HydrogenApp was instantiated.
+		msgBox.setText( sText );
+		msgBox.setInformativeText( pCommonStrings->getSavingChanges() );
+		msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::No |
+									QMessageBox::Cancel );
+		msgBox.setDefaultButton( QMessageBox::Save );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Question );
+		return msgBox.exec();
+	};
+
+	if ( bHandleSong && pSong->getIsModified() ) {
+		const int nRet = newDialog( "The current <b>Song</b> contains unsaved changes." );
+
+		switch( nRet ) {
+		case QMessageBox::Save:
+			bool bOk;
 			if ( ! pSong->getFilename().isEmpty() ) {
-				action_file_save();
+				bOk = action_file_save();
 			} else {
 				// never been saved
-				action_file_save_as();
+				bOk = action_file_save_as();
 			}
-			// save
+
+			if ( ! bOk ) {
+				ERRORLOG( "Unable to save current song" );
+				return false;
+			}
 			break;
-		case 1: // Discard clicked or Alt+D pressed
-			// don't save but exit
-			done = true;
+
+		case QMessageBox::No:
 			break;
-		case 2: // Cancel clicked or Alt+C pressed or Escape pressed
-			// don't exit
-			done = true;
-			rv = false;
-			break;
+			
+		case QMessageBox::Cancel:
+			INFOLOG( "Writing unsave changes to playlist canceled." );
+			return false;
+
+		default:
+			ERRORLOG( QString( "Unhandled return code for song [%1]" ).arg( nRet ) );
 		}
 	}
 
-	if( rv != false ) {
-		while ( !done && pHydrogen->getPlaylist()->getIsModified() ) {
-			switch(
-					QMessageBox::information(
-								this, 
-								"Hydrogen",
-								tr("\nThe current playlist contains unsaved changes.\n"
-								"Do you want to discard the changes?\n"),
-								pCommonStrings->getButtonDiscard(),
-								pCommonStrings->getButtonCancel(),
-								nullptr,      // Enter == button 0
-								2 ) ) { // Escape == button 1
-			case 0: // Discard clicked or Alt+D pressed
-				// don't save but exit
-				done = true;
-				break;
-			case 1: // Cancel clicked or Alt+C pressed or Escape pressed
-				// don't exit
-				done = true;
-				rv = false;
-				break;
+	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( bHandlePlaylist && pPlaylist->getIsModified() ) {
+		const int nRet = newDialog( "The current <b>Playlist</b> contains unsaved changes." );
+
+		switch( nRet ) {
+		case QMessageBox::Save:
+			bool bOk;
+			if ( ! pPlaylist->getFilename().isEmpty() ) {
+				bOk = HydrogenApp::get_instance()->getPlaylistEditor()
+					->savePlaylist();
+			} else {
+				// never been saved
+				bOk = HydrogenApp::get_instance()->getPlaylistEditor()
+					->savePlaylistAs();
 			}
+
+			if ( ! bOk ) {
+				ERRORLOG( "Unable to save current playlist" );
+				return false;
+			}
+			break;
+
+		case QMessageBox::No:
+			break;
+			
+		case QMessageBox::Cancel:
+			INFOLOG( "Writing unsave changes to playlist canceled." );
+			return false;
+
+		default:
+			ERRORLOG( QString( "Unhandled return code for playlist [%1]" ).arg( nRet ) );
 		}
 	}
 
-
-	return rv;
+	return true;
 }
 
 
@@ -3053,37 +3080,37 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			// Playlist dialog related actions
 			case Shortcuts::Action::PlaylistAddSong:
-				pHydrogenApp->getPlayListEditor()->addSong();
+				pHydrogenApp->getPlaylistEditor()->addSong();
 				break;
 			case Shortcuts::Action::PlaylistAddCurrentSong:
-				pHydrogenApp->getPlayListEditor()->addCurrentSong();
+				pHydrogenApp->getPlaylistEditor()->addCurrentSong();
 				break;
 			case Shortcuts::Action::PlaylistRemoveSong:
-				pHydrogenApp->getPlayListEditor()->removeSong();
+				pHydrogenApp->getPlaylistEditor()->removeSong();
 				break;
 			case Shortcuts::Action::NewPlaylist:
-				pHydrogenApp->getPlayListEditor()->newPlaylist();
+				pHydrogenApp->getPlaylistEditor()->newPlaylist();
 				break;
 			case Shortcuts::Action::OpenPlaylist:
-				pHydrogenApp->getPlayListEditor()->openPlaylist();
+				pHydrogenApp->getPlaylistEditor()->openPlaylist();
 				break;
 			case Shortcuts::Action::SavePlaylist:
-				pHydrogenApp->getPlayListEditor()->savePlaylist();
+				pHydrogenApp->getPlaylistEditor()->savePlaylist();
 				break;
 			case Shortcuts::Action::SaveAsPlaylist:
-				pHydrogenApp->getPlayListEditor()->savePlaylistAs();
+				pHydrogenApp->getPlaylistEditor()->savePlaylistAs();
 				break;
 			case Shortcuts::Action::PlaylistAddScript:
-				pHydrogenApp->getPlayListEditor()->loadScript();
+				pHydrogenApp->getPlaylistEditor()->loadScript();
 				break;
 			case Shortcuts::Action::PlaylistEditScript:
-				pHydrogenApp->getPlayListEditor()->editScript();
+				pHydrogenApp->getPlaylistEditor()->editScript();
 				break;
 			case Shortcuts::Action::PlaylistRemoveScript:
-				pHydrogenApp->getPlayListEditor()->removeScript();
+				pHydrogenApp->getPlaylistEditor()->removeScript();
 				break;
 			case Shortcuts::Action::PlaylistCreateScript:
-				pHydrogenApp->getPlayListEditor()->newScript();
+				pHydrogenApp->getPlaylistEditor()->newScript();
 				break;
 
 			default:

@@ -1034,6 +1034,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>modifié</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Voulez-vous sauvegarder les changements?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2349,16 +2353,6 @@ MIDI = %2</translation>
         <translation>Ne peut pas exporter le motif.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Le document contient des changements non sauvegardés.
-Voulez-vous sauvegarder les changements?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Historique d&apos;annulation</translation>
     </message>
@@ -2373,16 +2367,6 @@ Voulez-vous sauvegarder les changements?
     <message>
         <source>Export LilyPond file</source>
         <translation>Exporter un fichier LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-La liste de lecture courante contient des modifications non-sauvegardées.
-Voulez-vous abandonner ces changements ?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3654,16 +3638,6 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     <message>
         <source>No valid song selected!</source>
         <translation>Pas de morceau valide sélectionné !</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-La liste de lecture actuelle contient des modifications non-sauvegardées.
-Voulez-vous abandonner ces changements ?
-</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

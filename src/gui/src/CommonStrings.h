@@ -162,6 +162,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonPlay() const { return m_sButtonPlay; }
 	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
 	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
+	const QString& getSavingChanges() const { return m_sSavingChanges; }
 
 	const QString& getMutableDialog() const { return m_sMutableDialog; }
 
@@ -335,6 +336,7 @@ private:
 	QString m_sButtonPlay;
 	QString m_sButtonPlayOriginalSample;
 	QString m_sUnsavedChanges;
+	QString m_sSavingChanges;
 	
 	QString m_sMutableDialog;
 	

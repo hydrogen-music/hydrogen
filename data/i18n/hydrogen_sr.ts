@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>измењено</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Да ли желите да их сачувам пре изласка?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2334,16 +2338,6 @@ MIDI = %2</source>
         <translation>Не могох извести мустру.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Има несачуваних делова документа.
-Да ли желите да их сачувам пре изласка?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Историјат опозивања</translation>
     </message>
@@ -2362,16 +2356,6 @@ Do you want to save the changes?
     <message>
         <source>Export LilyPond file</source>
         <translation>Извези у лилипонд-датотеку</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Текућа листа песама садржи неке несачуване податке.
-Желите ли да одбаците ове измене?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3631,16 +3615,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Playlist: set song no. %1</source>
         <translation>Листа: Постави песму бр. %1</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Текућа листа песама садржи неке несачуване податке.
-Желите ли да одбаците ове измене?
-</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>modificado</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Deseja salvar as mudanças?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2342,16 +2346,6 @@ MIDI = %2</translation>
         <translation>Não foi possível exportar padrão.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Este documento contém mudanças não salvas.
-Deseja salvar as mudanças?
-</translation>
-    </message>
-    <message>
         <source>Undo history</source>
         <translation>Desfazer histórico</translation>
     </message>
@@ -2366,16 +2360,6 @@ Deseja salvar as mudanças?
     <message>
         <source>Export LilyPond file</source>
         <translation>Exportar arquivo LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-A lista de reprodução atual contém mudanças não salvas.
-Deseja descartar as mudanças?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3635,16 +3619,6 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     <message>
         <source>No valid song selected!</source>
         <translation>Nenhuma música válida selecionada!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-A presente Lista de Reprodução contém mudanças não salvas.
-Deseja descartar as mudanças?
-</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

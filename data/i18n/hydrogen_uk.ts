@@ -1031,6 +1031,10 @@ Are you sure?</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
         <translation>змінено</translation>
     </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Бажаєте зберегти їх перед виходом?</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2338,16 +2342,6 @@ MIDI = %2</translation>
         <translation>Не вдалось експортувати патерн.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Деякі зміни в композиції не були збережені.
-Бажаєте зберегти їх перед виходом?
-</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
@@ -2367,16 +2361,6 @@ Do you want to save the changes?
     <message>
         <source>Export LilyPond file</source>
         <translation>Експорт у файл LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Поточний список відтворення містить не збережені зміни.
-Бажаєте відмовитись від змін?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -3576,16 +3560,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No Song selected!</source>
         <translation>Не вибрано жодної композиції!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation type="unfinished">
-Поточний список відтворення містить не збережені зміни.
-Бажаєте відмовитись від змін?
-</translation>
     </message>
     <message>
         <source>Load Playlist</source>
