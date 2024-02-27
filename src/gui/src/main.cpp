@@ -607,7 +607,8 @@ int main(int argc, char *argv[])
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
 		if ( pHydrogen->getSong()->getFilename() !=
-			 H2Core::Filesystem::empty_song_path() ) {
+			 H2Core::Filesystem::empty_path(
+				 H2Core::Filesystem::FileType::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 			// Mark empty song created in a new NSM session modified
 			// in order to emphasis that an initial song save is

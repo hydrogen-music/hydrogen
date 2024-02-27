@@ -33,14 +33,14 @@ namespace H2Core
 
 Playlist::Playlist()
 {
-	__filename = "";
+	m_sFilename = "";
 	m_nActiveSongNumber = -1;
 	m_bIsModified = false;
 }
 
 void Playlist::clear()
 {
-	__entries.clear();
+	m_entries.clear();
 }
 
 std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
@@ -110,7 +110,7 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
 bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
 	if ( ! bSilent  ) {
 		INFOLOG( QString( "Saving playlist [%1] as [%2]" )
-				 .arg( __filename ).arg( sTargetPath ) );
+				 .arg( m_sFilename ).arg( sTargetPath ) );
 	}
 
 	setFilename( sTargetPath );
@@ -119,30 +119,30 @@ bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
 }
 
 bool Playlist::save( bool bSilent ) const {
-	if ( __filename.isEmpty() ) {
+	if ( m_sFilename.isEmpty() ) {
 		ERRORLOG( "No filepath provided!" );
 		return false;
 	}
 
 	if ( ! bSilent ) {
-		INFOLOG( QString( "Saving playlist to [%1]" ).arg( __filename ) );
+		INFOLOG( QString( "Saving playlist to [%1]" ).arg( m_sFilename ) );
 	}
 
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 
-	QFileInfo info( __filename );
+	QFileInfo info( m_sFilename );
 	root.write_string( "name", info.fileName() );
 
 	saveTo( root );
-	return doc.write( __filename );
+	return doc.write( m_sFilename );
 }
 
 void Playlist::saveTo( XMLNode& node ) const
 {
 	XMLNode songs = node.createNode( "songs" );
 
-	for ( const auto& pEntry : __entries ) {
+	for ( const auto& pEntry : m_entries ) {
 		QString sPath = pEntry->sFilePath;
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
 			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
@@ -158,10 +158,10 @@ bool Playlist::add( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 	DEBUGLOG( QString( "%1 - %2" ).arg( pEntry->toQString() ).arg( nIndex ) );
 	if ( nIndex == -1 ) {
 		// Append at the end
-		__entries.push_back( pEntry );
+		m_entries.push_back( pEntry );
 	}
 	else {
-		// Index is allowed to be one more than the size of __entries. This
+		// Index is allowed to be one more than the size of m_entries. This
 		// represents appending an item.
 		if ( nIndex < 0 || nIndex > size() ) {
 			ERRORLOG( QString( "Index [%1] out of bound [0,%2]" )
@@ -177,11 +177,11 @@ bool Playlist::add( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 				newEntries[ ii ] = pEntry;
 			}
 			else {
-				newEntries[ ii ] = __entries[ count ];
+				newEntries[ ii ] = m_entries[ count ];
 				count++;
 			}
 		}
-		__entries = newEntries;
+		m_entries = newEntries;
 
 		if ( nIndex <= m_nActiveSongNumber ) {
 			m_nActiveSongNumber++;
@@ -199,8 +199,8 @@ bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 	if ( nIndex == -1 ) {
 		// Remove the first occurrance
 		for ( int ii = 0; ii < size(); ii++ ) {
-			if ( __entries[ ii ] == pEntry ) {
-				__entries.erase( __entries.begin() + ii );
+			if ( m_entries[ ii ] == pEntry ) {
+				m_entries.erase( m_entries.begin() + ii );
 				nFound = ii;
 				break;
 			}
@@ -213,8 +213,8 @@ bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 			return false;
 		}
 
-		if ( __entries[ nIndex ] == pEntry ) {
-			__entries.erase( __entries.begin() + nIndex );
+		if ( m_entries[ nIndex ] == pEntry ) {
+			m_entries.erase( m_entries.begin() + nIndex );
 			nFound = nIndex;
 		}
 	}
@@ -303,11 +303,11 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
-			.append( QString( "%1%2filename: %3\n" ).arg( sPrefix ).arg( s ).arg( __filename ) )
+			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
 			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
-			for ( const auto& pEntry : __entries ) {
+			for ( const auto& pEntry : m_entries ) {
 				sOutput.append( QString( "%1\n" )
 								.arg( pEntry->toQString( s + s, bShort ) ) );
 			}
@@ -315,11 +315,11 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
-			.append( QString( " filename: %1" ).arg( __filename ) )
+			.append( QString( " m_sFilename: %1" ).arg( m_sFilename ) )
 			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
-			for ( const auto& pEntry : __entries ) {
+			for ( const auto& pEntry : m_entries ) {
 				sOutput.append( QString( "%1, " )
 								.arg( pEntry->toQString( "", bShort ) ) );
 			}

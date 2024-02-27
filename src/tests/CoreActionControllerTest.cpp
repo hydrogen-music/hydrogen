@@ -130,17 +130,27 @@ void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "passed" );
 }
 
-void CoreActionControllerTest::testIsSongPathValid() {
+void CoreActionControllerTest::testIsPathValid() {
 	___INFOLOG( "" );
 	
 	// Is not absolute.
-	CPPUNIT_ASSERT( !Filesystem::isSongPathValid( "test.h2song" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::FileType::Song, "test.h2song" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::FileType::Playlist, "test.h2playlist" ) );
 
 	// Improper suffix.
-	CPPUNIT_ASSERT( !Filesystem::isSongPathValid( "test.test" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::FileType::Song, "test.test" ) );
+	CPPUNIT_ASSERT( !Filesystem::isPathValid(
+						Filesystem::FileType::Playlist, "test.test" ) );
 	
-	QString sValidPath = QString( "%1/test.h2song" ).arg( QDir::tempPath() );
-	CPPUNIT_ASSERT( Filesystem::isSongPathValid( sValidPath ) );
+	QString sValidSongPath = QString( "%1/test.h2song" ).arg( QDir::tempPath() );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+						Filesystem::FileType::Song, sValidSongPath ) );
+	QString sValidPlaylistPath = QString( "%1/test.h2playlist" ).arg( QDir::tempPath() );
+	CPPUNIT_ASSERT( Filesystem::isPathValid(
+						Filesystem::FileType::Playlist, sValidPlaylistPath ) );
 	
 	___INFOLOG( "passed" );
 }

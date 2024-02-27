@@ -152,7 +152,7 @@ enum EventType {
 	/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
 		(1) was activated */
 	EVENT_STACKED_MODE_ACTIVATION,
-	/** Toggles the button indicating the usage loop mode.*/
+/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
@@ -182,6 +182,13 @@ enum EventType {
 	EVENT_SOUND_LIBRARY_CHANGED,
 	EVENT_NEXT_SHOT,
 	EVENT_MIDI_MAP_CHANGED,
+	/**
+	 * Event triggered whenever part of or the whole current #H2Core::Playlist
+	 * changed.
+	 *
+	 * If the value of the event is
+	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
+	 */
 	EVENT_PLAYLIST_CHANGED
 };
 

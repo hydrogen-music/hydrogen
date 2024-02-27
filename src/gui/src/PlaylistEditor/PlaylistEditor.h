@@ -55,7 +55,7 @@ class PlaylistEditor :  public QDialog,
 		explicit PlaylistEditor( QWidget* pParent );
 		~PlaylistEditor();
 
-		void playlistChangedEvent() override;
+		void playlistChangedEvent( int nValue ) override;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );

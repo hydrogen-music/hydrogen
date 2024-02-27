@@ -1038,6 +1038,10 @@ Are you sure?</source>
         <source>Do you want to save the changes?</source>
         <translation>Willst Du die Änderungen speichern?</translation>
     </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>Benutze &quot;Speichern unter&quot; um Autosafe zu aktivieren.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1700,11 +1704,6 @@ Overwrite the existing file?</source>
         <translation>Einstellungen geladen.</translation>
     </message>
     <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>Der aktuelle Song ist nur lesend geöffnet. Benutze &quot;Speichern unter&quot; um Autosafe zu aktivieren.</translation>
-    </message>
-    <message>
         <source>Input Midi Note</source>
         <translation>Eingehende MIDI Note</translation>
     </message>
@@ -1725,12 +1724,20 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>Song gespeichert unter: </translation>
     </message>
     <message>
-        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
-        <translation>Einige Sample Lizenzen weichen von der Schlagzeug Lizenz [%1] ab und werden überschrieben. Sind Sie sich sicher?</translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation>Der aktuelle Song ist nur lesend geöffnet.</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation>Einige Sample Lizenzen weichen von der Schlagzeug Lizenz [%1] ab und werden überschrieben. Sind Sie sich sicher?</translation>
     </message>
 </context>
 <context>

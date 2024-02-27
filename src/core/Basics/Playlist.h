@@ -59,10 +59,10 @@ class Playlist : public H2Core::Object<Playlist>
 		std::shared_ptr<PlaylistEntry>	get( int idx ) const;
 
 		std::vector<std::shared_ptr<PlaylistEntry>>::iterator begin() {
-			return __entries.begin();
+			return m_entries.begin();
 		}
 		std::vector<std::shared_ptr<PlaylistEntry>>::iterator end() {
-			return __entries.end();
+			return m_entries.end();
 		}
 
 		void	clear();
@@ -103,9 +103,9 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		QString __filename;
+		QString m_sFilename;
 
-		std::vector<std::shared_ptr<PlaylistEntry>> __entries;
+		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
 
 		int m_nActiveSongNumber;
 
@@ -119,13 +119,13 @@ class Playlist : public H2Core::Object<Playlist>
 
 inline int Playlist::size() const
 {
-	return __entries.size();
+	return m_entries.size();
 }
 
 inline std::shared_ptr<PlaylistEntry> Playlist::get( int idx ) const
 {
 	assert( idx >= 0 && idx < size() );
-	return __entries[ idx ];
+	return m_entries[ idx ];
 }
 
 inline int Playlist::getActiveSongNumber() const
@@ -140,12 +140,12 @@ inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
 
 inline const QString& Playlist::getFilename() const
 {
-	return __filename;
+	return m_sFilename;
 }
 
 inline void Playlist::setFilename( const QString& filename )
 {
-	__filename = filename;
+	m_sFilename = filename;
 }
 
 inline bool Playlist::getIsModified() const

@@ -107,7 +107,9 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 	 * was terminated untimely, this function allows to restore all
 	 * changes that would have been lost otherwise.
 	 */
-	static bool recoverEmptySong();
+	static bool recoverEmpty( const H2Core::Filesystem::FileType& type );
+		static QString findAutoSaveFile( const H2Core::Filesystem::FileType& type,
+										 const QString& sBaseFile );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
@@ -267,6 +269,7 @@ private slots:
 		 */
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void drumkitLoadedEvent() override;
+		void playlistChangedEvent( int nValue ) override;
 	
 };
 

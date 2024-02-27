@@ -1039,6 +1039,10 @@ Are you sure?</source>
         <source>Do you want to save the changes?</source>
         <translation>¿Quiere guardar los cambios?</translation>
     </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>Utiliza &apos;Guardar como&apos; para activar autoguardado.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1703,12 +1707,6 @@ Overwrite the existing file?</source>
         <translation>Preferencias cargadas.</translation>
     </message>
     <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>La canción es de solo lectura.
-Utiliza &apos;Guardar como&apos; para activar autoguardado.</translation>
-    </message>
-    <message>
         <source>Input Midi Note</source>
         <translation>Nota Midi de Entrada</translation>
     </message>
@@ -1729,12 +1727,20 @@ Utiliza &apos;Guardar como&apos; para activar autoguardado.</translation>
         <translation>Canción guardada como: </translation>
     </message>
     <message>
-        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
-        <translation>Algunas licencias de samples difieren de la asignada al drumkit en su conjunto [%1] y serán sobreescritas. ¿Seguir?</translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation>La canción es de solo lectura.</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation>Algunas licencias de samples difieren de la asignada al drumkit en su conjunto [%1] y serán sobreescritas. ¿Seguir?</translation>
     </message>
 </context>
 <context>

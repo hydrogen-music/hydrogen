@@ -505,8 +505,9 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	auto pSong = Song::getEmptySong();
 	
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
-		// Filesystem::isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isPathValid(
+			 Filesystem::FileType::Song, sSongPath ) ) {
+		// Filesystem::isPathValid takes care of the error log message.
 
 		return false;
 	}
@@ -521,17 +522,27 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+
+		// In case the song is read-only, we have to notify GUI which will
+		// display a warning dialog (since autosave won't work).
+		if ( ! Filesystem::file_writable( sSongPath ) ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%2]. It will be opened as read-only (no autosave)." )
+						.arg( sSongPath ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		}
 	}
 	
 	return true;
 }
 
-bool CoreActionController::openSong( const QString& sSongPath, const QString& sRecoverSongPath ) {
+bool CoreActionController::openSong( const QString& sSongPath,
+									 const QString& sRecoverSongPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
  
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
-		// Filesystem::isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isPathValid(
+			 Filesystem::FileType::Song, sSongPath, true ) ) {
+		// Filesystem::isPathValid takes care of the error log message.
 		return false;
 	}
 
@@ -580,7 +591,9 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
-	} else if ( pSong->getFilename() != Filesystem::empty_song_path() ) {
+	}
+	else if ( pSong->getFilename() !=
+				Filesystem::empty_path( Filesystem::FileType::Song ) ) {
 		// Add the new loaded song in the "last used song" vector.
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed. In addition,
@@ -592,6 +605,14 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+
+		// In case the song is read-only, we have to notify GUI which will
+		// display a warning dialog (since autosave won't work).
+		if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%2]. It will be opened as read-only (no autosave)." )
+						.arg( pSong->getFilename() ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		}
 	}
 
 	// As we just set a fresh song, we can mark it not modified
@@ -645,8 +666,14 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	}
 	
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isSongPathValid( sNewFilename ) ) {
-		// Filesystem::isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isPathValid(
+			 Filesystem::FileType::Song, sNewFilename ) ) {
+		// Filesystem::isPathValid takes care of the error log message.
+		return false;
+	}
+	if ( ! Filesystem::file_writable( sNewFilename ) ) {
+		ERRORLOG( QString( "Song can not be written to read-only location [%1]" )
+				  .arg( sNewFilename ) );
 		return false;
 	}
 
@@ -1803,6 +1830,37 @@ void CoreActionController::setBpm( float fBpm ) {
 	pHydrogen->setIsModified( true );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+}
+
+bool CoreActionController::openPlaylist( const QString& sPath,
+										 const QString& sRecoverPath ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// Check whether the provided path is valid.
+	if ( !Filesystem::isPathValid(
+			 Filesystem::FileType::Playlist, sPath, true ) ) {
+		// Filesystem::isPathValid takes care of the error log message.
+		return false;
+	}
+
+	std::shared_ptr<Playlist> pPlaylist;
+	if ( ! sRecoverPath.isEmpty() ) {
+		// Use an autosave file to load the song
+		pPlaylist = Playlist::load( sRecoverPath );
+		if ( pPlaylist != nullptr ) {
+			pPlaylist->setFilename( sPath );
+		}
+	} else {
+		pPlaylist = Playlist::load( sPath );
+	}
+
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( QString( "Unable to open playlist [%1]." )
+				  .arg( sPath ) );
+		return false;
+	}
+
+	return setPlaylist( pPlaylist );
 }
 
 bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {

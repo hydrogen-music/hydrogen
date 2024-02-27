@@ -196,6 +196,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
 	const QString& getPlaylistSaveFailure() const { return m_sPlaylistSaveFailure; }
 	const QString& getIsModified() const { return m_sIsModified; }
+	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
 
 	const QString& getInstrumentId() const { return m_sInstrumentId; }
 	const QString& getInstrumentType() const { return m_sInstrumentType; }
@@ -373,6 +374,7 @@ private:
 	QString m_sExportDrumkitFailure;
 	QString m_sPlaylistSaveFailure;
 	QString m_sIsModified;
+	QString m_sReadOnlyAdvice;
 
 	QString m_sInstrumentId;
 	QString m_sInstrumentType;

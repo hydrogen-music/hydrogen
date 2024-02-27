@@ -430,6 +430,23 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	void setBpm( float fBpm );
 
+		/**
+		 * Opens the #H2Core::Playlist specified in @a sPath.
+		 *
+		 * This will be done immediately and without saving
+		 * the current #H2Core::Playlist. All unsaved changes will be lost!
+		 *
+		 * \param sPath Absolute path to the .h2playlist file to be
+		 *    opened.
+		 * \param sRecoverPath If set to a value other than "",
+		 *    the corresponding path will be used to load the playlist and
+		 *    the latter is assigned @a sPath as Playlist::m_sFilename
+		 *    afterwards. Using this mechanism the GUI can use an
+		 *    autosave backup file to load a playlist without the core
+		 *    having to do some string magic to retrieve the original name.
+		 * \return true on success
+		 */
+		bool openPlaylist( const QString& sPath, const QString& sRecoverPath = "" );
 		/** Replaces the current #Playlist with @a Playlist. */
 		bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 		/** Saves changes of the current #Playlist to disk. */

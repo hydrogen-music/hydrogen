@@ -380,13 +380,28 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-bool HydrogenApp::openSong( const QString& sFilename ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
+QString HydrogenApp::findAutoSaveFile( const Filesystem::FileType& type,
+									   const QString& sBaseFile ) {
+	QString sExtension;
+	switch ( type ) {
+	case Filesystem::FileType::Song:
+		sExtension = Filesystem::songs_ext;
+		break;
+
+	case Filesystem::FileType::Playlist:
+		sExtension = Filesystem::playlist_ext;
+		break;
+
+	case Filesystem::FileType::All:
+	default:
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( static_cast<int>( type ) ) );
+		return "";
+	}
 
 	// Check whether there is an autosave file next to it
 	// containing newer content.
-	QFileInfo fileInfo( sFilename );
+	QFileInfo fileInfo( sBaseFile );
 
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
@@ -394,15 +409,15 @@ bool HydrogenApp::openSong( const QString& sFilename ) {
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
-	
+
 	// Hidden autosave file (recent version)
-	QFileInfo autoSaveFileRecent( QString( "%1/.%2.autosave.h2song" )
+	QFileInfo autoSaveFileRecent( QString( "%1/.%2.autosave%3" )
 								  .arg( fileInfo.absoluteDir().absolutePath() )
-								  .arg( sBaseName ) );
+								  .arg( sBaseName ).arg( sExtension ) );
 	// Visible autosave file (older version)
-	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave.h2song" )
+	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave%3" )
 							   .arg( fileInfo.absoluteDir().absolutePath() )
-							   .arg( sBaseName ) );
+							   .arg( sBaseName ).arg( sExtension ) );
 	QString sRecoverFilename = "";
 	if ( autoSaveFileRecent.exists() &&
 		 autoSaveFileRecent.lastModified() >
@@ -414,26 +429,39 @@ bool HydrogenApp::openSong( const QString& sFilename ) {
 		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
 	}
 
-	if ( ! sRecoverFilename.isEmpty() ) {
-		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "There are unsaved changes." ) );
-		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-		msgBox.setDefaultButton( QMessageBox::Discard );
-		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Question );
-		int nRet = msgBox.exec();
-
-		if ( nRet == QMessageBox::Discard ) {
-			sRecoverFilename = "";
-		}
+	if ( sRecoverFilename.isEmpty() ) {
+		return "";
 	}
 
+	QMessageBox msgBox;
+	// Not commonized in CommmonStrings as it is required before
+	// HydrogenApp was instantiated.
+	msgBox.setText( tr( "There are unsaved changes." ) );
+	msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
+	msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
+	msgBox.setDefaultButton( QMessageBox::Discard );
+	msgBox.setWindowTitle( "Hydrogen" );
+	msgBox.setIcon( QMessageBox::Question );
+	int nRet = msgBox.exec();
+
+	if ( nRet == QMessageBox::Ok ) {
+		return sRecoverFilename;
+	}
+	else {
+		return "";
+	}
+}
+
+bool HydrogenApp::openSong( const QString& sFilename ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	auto sRecoverFilename = findAutoSaveFile( Filesystem::FileType::Song,
+											  sFilename );
+
 	// Ensure the path to the file is not relative.
-	if ( ! pCoreActionController->openSong( fileInfo.absoluteFilePath(),
-											sRecoverFilename ) ) {
+	if ( ! pCoreActionController->openSong(
+			 Filesystem::absolute_path( sFilename ), sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -464,72 +492,55 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 	return true;
 }
 
-bool HydrogenApp::recoverEmptySong() {
+bool HydrogenApp::recoverEmpty( const Filesystem::FileType& type ) {
+	if ( type != Filesystem::FileType::Song ||
+		 type != Filesystem::FileType::Playlist ) {
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( static_cast<int>( type ) ) );
+		return false;
+	}
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	// Check whether there is an autosave file next to it
-	// containing newer content.
-	QString sFilename( H2Core::Filesystem::empty_song_path() );
-	QFileInfo fileInfo( sFilename );
-
-	// In case the user did open a hidden file, the baseName()
-	// will be an empty string.
-	QString sBaseName( fileInfo.completeBaseName() );
-	if ( sBaseName.startsWith( "." ) ) {
-		sBaseName.remove( 0, 1 );
-	}
-	
-	QFileInfo autoSaveFile( QString( "%1/.%2.autosave.h2song" )
-								  .arg( fileInfo.absoluteDir().absolutePath() )
-								  .arg( sBaseName ) );
-	QString sRecoverFilename = "";
-
-	// Since there is no original file we can not check whether these
-	// changes have been done "recently". It's up to the calling
-	// function to ensure the corresponding empty song was indeed the
-	// last one opened by the user.
-	if ( autoSaveFile.exists() ) {
-		sRecoverFilename = autoSaveFile.absoluteFilePath();
-	}
-
-	if ( ! sRecoverFilename.isEmpty() ) {
-		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "There are unsaved changes." ) );
-		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-		msgBox.setDefaultButton( QMessageBox::Discard );
-		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Question );
-		int nRet = msgBox.exec();
-
-		if ( nRet == QMessageBox::Discard ) {
-			sRecoverFilename = "";
-		}
-	}
+	const auto sFilename = H2Core::Filesystem::empty_path( type );
+	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
 
 	if ( sRecoverFilename.isEmpty() ) {
 		return false;
 	}
-	
-	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
+
+	auto failure = []( const QString& sText ) {
 		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setText( sText );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
-		return false;
-	}
+	};
 
-	// The song has not been properly saved yet. Also this prevents
-	// the autosave file we just loaded from being removed in case the
-	// user decides to quit and reopen Hydrogen right after this call
-	// without introducing any changes.
-	pHydrogen->setIsModified( true );
+	if ( type == Filesystem::FileType::Song ) {
+		if ( ! pCoreActionController->openSong( sFilename,
+												sRecoverFilename ) ) {
+			// Not commonized in CommmonStrings as it is required before
+			// HydrogenApp was instantiated.
+			failure( tr( "Error loading song." ) );
+			return false;
+		}
+
+		// The song has not been properly saved yet. Also this prevents
+		// the autosave file we just loaded from being removed in case the
+		// user decides to quit and reopen Hydrogen right after this call
+		// without introducing any changes.
+		pHydrogen->setIsModified( true );
+	}
+	else {
+		if ( ! pCoreActionController->openPlaylist( sFilename,
+													sRecoverFilename ) ) {
+			// Not commonized in CommmonStrings as it is required before
+			// HydrogenApp was instantiated.
+			failure( tr( "Error loading playlist." ) );
+		}
+	}
 
 	return true;
 }
@@ -538,34 +549,24 @@ bool HydrogenApp::openPlaylist( const QString& sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	auto loadingFailed = [=](){
+	auto sRecoverFilename = findAutoSaveFile( Filesystem::FileType::Playlist,
+											  sFilename );
+
+	// Ensure the path to the file is not relative.
+	if ( ! pCoreActionController->openPlaylist(
+			 Filesystem::absolute_path( sFilename ), sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( QString( "%1: [%2]" )
-						.arg( tr( "Error loading playlist." ) )
-						.arg( sFilename ) );
+		msgBox.setText( tr( "Error loading playlist." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
-	};
-
-	QFileInfo fileInfo( sFilename );
-	auto pPlaylist = Playlist::load( fileInfo.absoluteFilePath() );
-	if ( pPlaylist == nullptr ) {
-		loadingFailed();
-		return false;
-	}
-
-	// Ensure the path to the file is not relative.
-	if ( ! pCoreActionController->setPlaylist( pPlaylist ) ) {
-		loadingFailed();
 		return false;
 	}
 
 	return true;
 }
-
 
 void HydrogenApp::showMixer(bool show)
 {
@@ -645,7 +646,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFilename() );
 
-	if ( sFilePath == Filesystem::empty_song_path() ||
+	if ( sFilePath == Filesystem::empty_path( Filesystem::FileType::Song ) ||
 		 sFilePath.isEmpty() ) {
 		// An empty song is _not_ associated with a file. Therefore,
 		// we mustn't show the file name.
@@ -925,7 +926,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PLAYLIST_CHANGED:
-				pListener->playlistChangedEvent();
+				pListener->playlistChangedEvent( event.value );
 				break;
 
 			default:
@@ -1125,13 +1126,21 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
-	} else if ( nValue == 2 ) {
+	}
+	else if ( nValue == 2 ) {
+		QMessageBox::information(
+			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+			.arg( tr("Song is read-only." ) )
+			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+	}
+}
 
-		// The event was triggered before the Song was fully loaded by
-		// the core. It's most likely to be present by now, but it's
-		// probably better to avoid displaying its path just to be
-		// sure.
-		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
+void HydrogenApp::playlistChangedEvent( int nValue ) {
+	if ( nValue == 2 ) {
+		QMessageBox::information(
+			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+			.arg( tr("Playlist is read-only." ) )
+			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
 	}
 }
 

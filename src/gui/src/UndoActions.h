@@ -38,6 +38,7 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
+#include "MainForm.h"
 #include "InstrumentRack.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
@@ -1641,11 +1642,15 @@ public:
 	virtual void redo() {
 		H2Core::Hydrogen::get_instance()->getCoreActionController()
 			->setPlaylist( m_pNewPlaylist );
+		HydrogenApp::get_instance()->getMainForm()->
+			setPreviousAutoSavePlaylistFile( "" );
 	}
 
 	virtual void undo() {
 		H2Core::Hydrogen::get_instance()->getCoreActionController()
 			->setPlaylist( m_pOldPlaylist );
+		HydrogenApp::get_instance()->getMainForm()->
+			setPreviousAutoSavePlaylistFile( "" );
 	}
 private:
 	std::shared_ptr<H2Core::Playlist> m_pNewPlaylist;

@@ -24,7 +24,6 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
-#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -64,7 +63,9 @@
 #define CLICK_SAMPLE    "click.wav"
 #define EMPTY_SAMPLE    "emptySample.wav"
 #define DEFAULT_SONG    "DefaultSong"
+#define DEFAULT_PLAYLIST "DefaultPlaylist"
 #define EMPTY_SONG_BASE "emptySong"
+#define EMPTY_PLAYLIST_BASE "emptyPlaylist"
 #define USR_CONFIG		"hydrogen.conf"
 #define SYS_CONFIG		"hydrogen.default.conf"
 #define LOG_FILE		"hydrogen.log"
@@ -499,19 +500,39 @@ QString Filesystem::default_song_name() {
 	return DEFAULT_SONG;
 }
 
-QString Filesystem::empty_song_path() {
-	QString sPathBase( __usr_data_path + EMPTY_SONG_BASE );
-	QString sPath( sPathBase + Filesystem::songs_ext );
+QString Filesystem::empty_path( const FileType& type ) {
+	QString sPathBase, sExtension, sDefaultName;
+
+	switch ( type ) {
+	case FileType::Song:
+		sPathBase = __usr_data_path + EMPTY_SONG_BASE;
+		sExtension = Filesystem::songs_ext;
+		sDefaultName = default_song_name();
+		break;
+
+	case FileType::Playlist:
+		sPathBase = __usr_data_path + EMPTY_PLAYLIST_BASE;
+		sExtension = Filesystem::playlist_ext;
+		sDefaultName = DEFAULT_PLAYLIST;
+		break;
+
+	case FileType::All:
+	default:
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( static_cast<int>( type ) ) );
+		return "";
+	}
+
+	QString sPath( sPathBase + sExtension );
 
 	int nIterations = 0;
 	while ( file_exists( sPath, true ) ) {
-		sPath = sPathBase + QString::number( nIterations ) + Filesystem::songs_ext;
+		sPath = sPathBase + QString::number( nIterations ) + sExtension;
 		++nIterations;
 
 		if ( nIterations > 1000 ) {
 			ERRORLOG( "That's a bit much. Something is wrong in here." );
-			return __usr_data_path + SONGS + default_song_name() +
-				Filesystem::songs_ext;
+			return __usr_data_path + SONGS + sDefaultName + sExtension;
 		}
 	}
 
@@ -870,35 +891,52 @@ bool Filesystem::song_exists( const QString& sg_name )
 	return QDir( songs_dir() ).exists( sg_name );
 }
 
-bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance ) {
-	
-	QFileInfo songFileInfo = QFileInfo( sSongPath );
+bool Filesystem::isPathValid( const FileType& type, const QString& sPath,
+							  bool bCheckExistance ) {
+	QString sExtension, sType;
+	switch ( type ) {
+	case FileType::Song:
+		sExtension = Filesystem::songs_ext;
+		sType = "song";
+		break;
 
-	if ( !songFileInfo.isAbsolute() ) {
+	case FileType::Playlist:
+		sExtension = Filesystem::playlist_ext;
+		sType = "playlist";
+		break;
+
+	case FileType::All:
+	default:
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( static_cast<int>( type ) ) );
+		return "";
+	}
+	QString suffix( sExtension );
+	suffix.remove( 0, 1 );
+	
+	QFileInfo fileInfo = QFileInfo( sPath );
+
+	if ( !fileInfo.isAbsolute() ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
+						.arg( sPath.toLocal8Bit().data() ));
 		return false;
 	}
 	
-	if ( songFileInfo.exists() ) {
-		if ( !songFileInfo.isReadable() ) {
+	if ( fileInfo.exists() ) {
+		if ( !fileInfo.isReadable() ) {
 			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
+						.arg( sPath.toLocal8Bit().data() ));
 			return false;
 		}
-		if ( !songFileInfo.isWritable() ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
-		}
 	} else if ( bCheckExistance ) {
-		ERRORLOG( QString( "Provided song [%1] does not exist" ).arg( sSongPath ) );
+		ERRORLOG( QString( "Provided %1 [%1] does not exist" )
+				  .arg( sType ).arg( sPath ) );
 		return false;
 	}
 	
-	if ( songFileInfo.suffix() != "h2song" ) {
-		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( sSongPath.toLocal8Bit().data() ));
+	if ( fileInfo.suffix() != suffix ) {
+		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '%2'!" )
+					.arg( sPath.toLocal8Bit().data() ).arg( sExtension ));
 		return false;
 	}
 	
@@ -932,7 +970,10 @@ void Filesystem::info()
 	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
 	// SYS
 	INFOLOG( QString( "Click file                 : %1" ).arg( click_file_path() ) );
-	INFOLOG( QString( "Empty song                 : %1" ).arg( empty_song_path() ) );
+	INFOLOG( QString( "Empty song                 : %1" )
+			 .arg( empty_path( FileType::Song ) ) );
+	INFOLOG( QString( "Empty playlist             : %1" )
+			 .arg( empty_path( FileType::Playlist ) ) );
 	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
 	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );					// FIXME must be created even if no doc deployed
 	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
@@ -1173,6 +1214,58 @@ QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
 	}
 }
 
+QString Filesystem::getAutoSaveFilename( const FileType& type, const QString& sBaseName ) {
+	QString sDefaultDir, sExtension, sType;
+	switch ( type ) {
+	case FileType::Song:
+		sDefaultDir = songs_dir();
+		sExtension = Filesystem::songs_ext;
+		sType = "song";
+		break;
+
+	case FileType::Playlist:
+		sDefaultDir = playlists_dir();
+		sExtension = Filesystem::playlist_ext;
+		sType = "playlist";
+		break;
+
+	case FileType::All:
+	default:
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( static_cast<int>( type ) ) );
+		return "";
+	}
+
+
+	if ( ! sBaseName.isEmpty() ) {
+		QFileInfo fileInfo( sBaseName );
+
+		// In case the user did open a hidden file, the baseName()
+		// will be an empty string.
+		QString sBaseName( fileInfo.completeBaseName() );
+		if ( sBaseName.startsWith( "." ) ) {
+			sBaseName.remove( 0, 1 );
+		}
+
+		QString sAbsoluteDir( fileInfo.absoluteDir().absolutePath() );
+		if ( ! Filesystem::file_writable( sBaseName, true ) ) {
+			QString sNewName = QString( "%1.%2.autosave%3" )
+				.arg( sDefaultDir ).arg( sBaseName ).arg( sExtension );
+
+			WARNINGLOG( QString( "Path of current %1 [%2] is not writable. Autosave will store it as [%3] instead." )
+						.arg( sType ).arg( sBaseName ).arg( sNewName ) );
+			return sNewName;
+		}
+		else {
+			return QString( "%1/.%2.autosave%3" )
+				.arg( sAbsoluteDir ).arg( sBaseName ).arg( sExtension );
+		}
+	}
+
+	// Store the default autosave file in the user's song data
+	// folder to not clutter their working directory.
+	return QString( "%1.autosave%2" ).arg( sDefaultDir ).arg( sExtension );
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

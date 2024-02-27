@@ -81,11 +81,17 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
+		void setPreviousAutoSavePlaylistFile( const QString& sFile );
+
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
-		// Returns true if handled, false if aborted.
-		bool handleUnsavedChanges( bool bHandleSong = true,
-								   bool bHandlePlaylist = true );
+		/** Checks whether there are unsaved changes in the current song (for
+		* H2Core::Filesystem::FileType::Song), current playlist (for
+		* H2Core::Filesystem::FileType::Playlist) or both (for
+		* H2Core::Filesystem::FileType::All).
+		*
+		* @return `true` if handled, `false` if aborted. */
+		bool handleUnsavedChanges( const H2Core::Filesystem::FileType& type );
 
 
 public slots:
@@ -313,7 +319,8 @@ public slots:
 	/** Since the filename of the current song does change whenever
 		the users uses "Save As" multiple autosave files would be
 		written unless we take care of them.*/
-	QString m_sPreviousAutoSaveSongName;
+	QString m_sPreviousAutoSaveSongFile;
+	QString m_sPreviousAutoSavePlaylistFile;
 
 	/**
 	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
@@ -325,5 +332,7 @@ public slots:
 
 	bool nullDriverCheck();
 };
-
+inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
+	m_sPreviousAutoSavePlaylistFile = sFile;
+}
 #endif

@@ -1038,6 +1038,10 @@ Are you sure?</source>
         <source>Do you want to save the changes?</source>
         <translation>Voulez-vous sauvegarder les changements?</translation>
     </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1704,12 +1708,6 @@ Overwrite the existing file?</source>
         <translation>Préférences chargées.</translation>
     </message>
     <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>Le morceau est en lecture seule.
-Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</translation>
-    </message>
-    <message>
         <source>Input Midi Note</source>
         <translation>Note MIDI d&apos;entrée</translation>
     </message>
@@ -1730,12 +1728,20 @@ Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</t
         <translation>Morceau sauvegardé sous : </translation>
     </message>
     <message>
-        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
-        <translation>Certaines licences d&apos;échantillons diffèrent de celle attribuée au kit de batterie global [%1] et seront écrasées. Êtes-vous sûr ?</translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation>Le morceau est en lecture seule.</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation>Certaines licences d&apos;échantillons diffèrent de celle attribuée au kit de batterie global [%1] et seront écrasées. Êtes-vous sûr?</translation>
     </message>
 </context>
 <context>

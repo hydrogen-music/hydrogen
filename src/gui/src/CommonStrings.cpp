@@ -470,6 +470,7 @@ CommonStrings::CommonStrings(){
 	/*: Shown e.g. as suffix in a window title in case an underlying file was
 	 *  modified */
 	m_sIsModified = tr( "modified" );
+	m_sReadOnlyAdvice = tr( "Use 'Save as' to enable autosave." );
 
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );

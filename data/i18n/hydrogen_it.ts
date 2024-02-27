@@ -1035,6 +1035,10 @@ Are you sure?</source>
         <source>Do you want to save the changes?</source>
         <translation>Vuoi salvare i cambiamenti?</translation>
     </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1699,12 +1703,6 @@ Sovrascrivere il file esistente?</translation>
         <translation>Preferenze caricate.</translation>
     </message>
     <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>Canzone in sola-lettura.
-Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</translation>
-    </message>
-    <message>
         <source>Input Midi Note</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1725,11 +1723,19 @@ Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</transl
         <translation>Canzone salvata con nome: </translation>
     </message>
     <message>
-        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error loading playlist.</source>
+        <source>Song is read-only.</source>
+        <translation>Canzone in sola-lettura.</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

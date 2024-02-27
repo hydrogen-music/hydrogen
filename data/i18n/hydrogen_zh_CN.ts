@@ -1036,6 +1036,10 @@ Are you sure?</source>
         <source>Do you want to save the changes?</source>
         <translation>您要保存更改吗？</translation>
     </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>使用“另存为”作为自动保存选项。</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1700,12 +1704,6 @@ Overwrite the existing file?</source>
         <translation>首选项已加载。</translation>
     </message>
     <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>只读乐曲。
-使用“另存为”作为自动保存选项。</translation>
-    </message>
-    <message>
         <source>There are unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1726,11 +1724,19 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>乐曲另存为： </translation>
     </message>
     <message>
-        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error loading playlist.</source>
+        <source>Song is read-only.</source>
+        <translation>只读乐曲。</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
