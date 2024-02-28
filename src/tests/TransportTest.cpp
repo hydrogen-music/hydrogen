@@ -61,7 +61,7 @@ void TransportTest::testFrameToTickConversion() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
 	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	pHydrogen->getCoreActionController()->openSong( pSongDemo );
+	pHydrogen->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 12 };
 	for ( const int ii : indices ) {
@@ -78,7 +78,7 @@ void TransportTest::testTransportProcessing() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
 	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	pHydrogen->getCoreActionController()->openSong( pSongDemo );
+	pHydrogen->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 1, 9, 14 };
 	for ( const int ii : indices ) {
@@ -96,7 +96,7 @@ void TransportTest::testTransportProcessingTimeline() {
 		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongTransportProcessingTimeline != nullptr );
 	pHydrogen->getCoreActionController()->
-		openSong( pSongTransportProcessingTimeline );
+		setSong( pSongTransportProcessingTimeline );
 
 	const std::vector<int> indices{ 2, 9, 10 };
 	for ( const int ii : indices ) {
@@ -114,7 +114,7 @@ void TransportTest::testTransportRelocation() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
 	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	pCoreActionController->openSong( pSongDemo );
+	pCoreActionController->setSong( pSongDemo );
 	
 	pCoreActionController->activateTimeline( true );
 	pCoreActionController->addTempoMarker( 0, 120 );
@@ -148,7 +148,7 @@ void TransportTest::testLoopMode() {
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	pCoreActionController->openSong( pSong );
+	pCoreActionController->setSong( pSong );
 	
 	const std::vector<int> indices{ 0, 1, 12 };
 	for ( const int ii : indices ) {
@@ -166,7 +166,7 @@ void TransportTest::testSongSizeChange() {
 	auto pSongSizeChanged =
 		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongSizeChanged != nullptr );
-	pCoreActionController->openSong( pSongSizeChanged );
+	pCoreActionController->setSong( pSongSizeChanged );
 
 	// Depending on buffer size and sample rate transport might be
 	// loop when toggling a pattern at the end of the song. If there
@@ -199,7 +199,7 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
 	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	pHydrogen->getCoreActionController()->openSong( pSongDemo );
+	pHydrogen->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 13 };
 	for ( const int ii : indices ) {
@@ -256,7 +256,7 @@ void TransportTest::testNoteEnqueuing() {
 	auto pSongNoteEnqueuing =
 		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongNoteEnqueuing != nullptr );
-	pHydrogen->getCoreActionController()->openSong( pSongNoteEnqueuing );
+	pHydrogen->getCoreActionController()->setSong( pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 9, 12 };
@@ -274,7 +274,7 @@ void TransportTest::testNoteEnqueuingTimeline() {
 
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	pHydrogen->getCoreActionController()->openSong( pSong );
+	pHydrogen->getCoreActionController()->setSong( pSong );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 0, 5, 7 };
@@ -293,7 +293,7 @@ void TransportTest::testHumanization() {
 	auto pSongHumanization =
 		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
 	CPPUNIT_ASSERT( pSongHumanization != nullptr );
-	pHydrogen->getCoreActionController()->openSong( pSongHumanization );
+	pHydrogen->getCoreActionController()->setSong( pSongHumanization );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 10 };

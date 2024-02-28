@@ -588,8 +588,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void REDO_ACTION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::newSong().
-		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
 		 * same name, it will be overwritten.
@@ -599,8 +597,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void NEW_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::openSong().
-		 *
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2song file.
 		 *
@@ -713,8 +709,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void RELOCATE_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::newSong().
-		 *
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2pattern file. If another file already exists with the
 		 * same name, it will be overwritten.

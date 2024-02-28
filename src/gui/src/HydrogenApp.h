@@ -85,31 +85,34 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		virtual ~HydrogenApp();
 
 		/**
-		 * Specfial routine for song loading with failure dialog, which is save to
-		 * call even in case the GUI is not fully initialized.
+		 * Specfial routine for song or playlist loading with failure dialog,
+		 * which is save to call even in case the GUI is not fully initialized.
 		 *
 		 * \param sFilename Absolute or relative path used to load the next
-		 *   #H2Core::Song.
+		 *   #H2Core::Song or #H2Core::Playlist.
 		 * \return bool true on success
 		 */
-		static bool openSong( const QString& sFilename );
+		static bool openFile( const H2Core::Filesystem::Type& type,
+							  const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
-		/**
-		 * Specfial routine for playlist  loading with failure dialog, which is
-		 * save to call even in case the GUI is not fully initialized. */
-		static bool openPlaylist( const QString& sFilename );
 	/**
-	 * Specialized version of openSong( QString sFilename ) trying to
-	 * open the autosave file corresponding to current empty song.
+	 * Trying to open the autosave file corresponding to current empty song.
 	 *
 	 * This will be used if the last set in Hydrogen was an empty one.
 	 * If the user either decided to discard the changes or Hydrogen
 	 * was terminated untimely, this function allows to restore all
 	 * changes that would have been lost otherwise.
 	 */
-	static bool recoverEmpty( const H2Core::Filesystem::FileType& type );
-		static QString findAutoSaveFile( const H2Core::Filesystem::FileType& type,
+	static bool recoverEmpty( const H2Core::Filesystem::Type& type );
+		static QString findAutoSaveFile( const H2Core::Filesystem::Type& type,
 										 const QString& sBaseFile );
+
+		/** Checks whether there are unsaved changes in the current song (for
+		* H2Core::Filesystem::FileType::Song) or playlist (for
+		* H2Core::Filesystem::FileType::Playlist).
+		*
+		* @return `true` if handled, `false` if aborted. */
+		static bool handleUnsavedChanges( const H2Core::Filesystem::Type& type );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();

@@ -1739,6 +1739,14 @@ Overwrite the existing file?</source>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation>Einige Sample Lizenzen weichen von der Schlagzeug Lizenz [%1] ab und werden überschrieben. Sind Sie sich sicher?</translation>
     </message>
+    <message>
+        <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>

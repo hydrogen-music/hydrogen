@@ -380,22 +380,21 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-QString HydrogenApp::findAutoSaveFile( const Filesystem::FileType& type,
+QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 									   const QString& sBaseFile ) {
 	QString sExtension;
 	switch ( type ) {
-	case Filesystem::FileType::Song:
+	case Filesystem::Type::Song:
 		sExtension = Filesystem::songs_ext;
 		break;
 
-	case Filesystem::FileType::Playlist:
+	case Filesystem::Type::Playlist:
 		sExtension = Filesystem::playlist_ext;
 		break;
 
-	case Filesystem::FileType::All:
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( static_cast<int>( type ) ) );
+				  .arg( Filesystem::TypeToQString( type ) ) );
 		return "";
 	}
 
@@ -452,20 +451,45 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::FileType& type,
 	}
 }
 
-bool HydrogenApp::openSong( const QString& sFilename ) {
+bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	auto sRecoverFilename = findAutoSaveFile( Filesystem::FileType::Song,
-											  sFilename );
+	QString sText;
+	switch( type ) {
+	case Filesystem::Type::Song:
+		sText = tr( "Error loading song." );
+		break;
 
+	case Filesystem::Type::Playlist:
+		sText = tr( "Error loading playlist." );
+		break;
+
+	default:
+		ERRORLOG( QString( "Unsupported type [%1]" )
+				  .arg( Filesystem::TypeToQString( type ) ) );
+		return false;
+	}
+
+	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
+
+	bool bRet;
 	// Ensure the path to the file is not relative.
-	if ( ! pCoreActionController->openSong(
-			 Filesystem::absolute_path( sFilename ), sRecoverFilename ) ) {
+	if ( type == Filesystem::Type::Song ) {
+		auto pSong = pCoreActionController->loadSong(
+			Filesystem::absolute_path( sFilename ), sRecoverFilename );
+		bRet = pCoreActionController->setSong( pSong );
+	} else {
+		auto pPlaylist = pCoreActionController->loadPlaylist(
+			Filesystem::absolute_path( sFilename ), sRecoverFilename );
+		bRet = pCoreActionController->setPlaylist( pPlaylist );
+	}
+
+	if ( ! bRet ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setText( sText );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
@@ -478,7 +502,7 @@ bool HydrogenApp::openSong( const QString& sFilename ) {
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->openSong( pSong ) ) {
+	if ( ! pCoreActionController->setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -492,9 +516,9 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 	return true;
 }
 
-bool HydrogenApp::recoverEmpty( const Filesystem::FileType& type ) {
-	if ( type != Filesystem::FileType::Song ||
-		 type != Filesystem::FileType::Playlist ) {
+bool HydrogenApp::recoverEmpty( const Filesystem::Type& type ) {
+	if ( type != Filesystem::Type::Song ||
+		 type != Filesystem::Type::Playlist ) {
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
 				  .arg( static_cast<int>( type ) ) );
 		return false;
@@ -518,9 +542,10 @@ bool HydrogenApp::recoverEmpty( const Filesystem::FileType& type ) {
 		msgBox.exec();
 	};
 
-	if ( type == Filesystem::FileType::Song ) {
-		if ( ! pCoreActionController->openSong( sFilename,
-												sRecoverFilename ) ) {
+	if ( type == Filesystem::Type::Song ) {
+		auto pSong = pCoreActionController->loadSong(
+			sFilename, sRecoverFilename );
+		if ( ! pCoreActionController->setSong( pSong ) ) {
 			// Not commonized in CommmonStrings as it is required before
 			// HydrogenApp was instantiated.
 			failure( tr( "Error loading song." ) );
@@ -534,8 +559,9 @@ bool HydrogenApp::recoverEmpty( const Filesystem::FileType& type ) {
 		pHydrogen->setIsModified( true );
 	}
 	else {
-		if ( ! pCoreActionController->openPlaylist( sFilename,
-													sRecoverFilename ) ) {
+		auto pPlaylist = pCoreActionController->loadPlaylist(
+			sFilename, sRecoverFilename );
+		if ( ! pCoreActionController->setPlaylist( pPlaylist ) ) {
 			// Not commonized in CommmonStrings as it is required before
 			// HydrogenApp was instantiated.
 			failure( tr( "Error loading playlist." ) );
@@ -545,24 +571,97 @@ bool HydrogenApp::recoverEmpty( const Filesystem::FileType& type ) {
 	return true;
 }
 
-bool HydrogenApp::openPlaylist( const QString& sFilename ) {
+// Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
+// Returns false if not (i.e. Cancel)
+bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pSong = pHydrogen->getSong();
+	auto pPlaylist = pHydrogen->getPlaylist();
 
-	auto sRecoverFilename = findAutoSaveFile( Filesystem::FileType::Playlist,
-											  sFilename );
+	bool bIsModified = false;
+	QString sText;
 
-	// Ensure the path to the file is not relative.
-	if ( ! pCoreActionController->openPlaylist(
-			 Filesystem::absolute_path( sFilename ), sRecoverFilename ) ) {
+	switch( type ) {
+	case Filesystem::Type::Song:
+		if ( pSong != nullptr ) {
+			bIsModified = pSong->getIsModified();
+		}
+		sText = tr( "The current <b>Song</b> contains unsaved changes." );
+		break;
+
+	case Filesystem::Type::Playlist:
+		if ( pPlaylist != nullptr ) {
+			bIsModified = pPlaylist->getIsModified();
+		}
+		sText = tr( "The current <b>Playlist</b> contains unsaved changes." );
+		break;
+
+	default:
+		ERRORLOG( QString( "Unsupported type [%1]" )
+				  .arg( Filesystem::TypeToQString( type ) ) );
+		return false;
+	}
+
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	auto newDialog = [=]( const QString& sText ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading playlist." ) );
+		msgBox.setText( sText );
+		msgBox.setInformativeText( pCommonStrings->getSavingChanges() );
+		msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::No |
+									QMessageBox::Cancel );
+		msgBox.setDefaultButton( QMessageBox::Save );
 		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Warning );
-		msgBox.exec();
-		return false;
+		msgBox.setIcon( QMessageBox::Question );
+		return msgBox.exec();
+	};
+
+	if ( bIsModified ) {
+		const int nRet = newDialog( sText );
+
+		switch( nRet ) {
+		case QMessageBox::Save:
+			bool bOk;
+
+			if ( type == Filesystem::Type::Song ) {
+				if ( ! pSong->getFilename().isEmpty() ) {
+					bOk = pHydrogenApp->getMainForm()->action_file_save();
+				} else {
+					// never been saved
+					bOk = pHydrogenApp->getMainForm()->action_file_save_as();
+				}
+			}
+			else {
+				if ( ! pPlaylist->getFilename().isEmpty() ) {
+					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylist();
+				} else {
+					// never been saved
+					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylistAs();
+				}
+			}
+
+			if ( ! bOk ) {
+				ERRORLOG( QString( "Unable to save current %1" )
+						  .arg( Filesystem::TypeToQString( type ) ) );
+				return false;
+			}
+			break;
+
+		case QMessageBox::No:
+			break;
+
+		case QMessageBox::Cancel:
+			INFOLOG( QString( "Writing unsave changes to %1 canceled." )
+						  .arg( Filesystem::TypeToQString( type ) ) );
+			return false;
+
+		default:
+			ERRORLOG( QString( "Unhandled return code for %1 [%2]" )
+						  .arg( Filesystem::TypeToQString( type ) ).arg( nRet ) );
+		}
 	}
 
 	return true;
@@ -646,7 +745,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFilename() );
 
-	if ( sFilePath == Filesystem::empty_path( Filesystem::FileType::Song ) ||
+	if ( sFilePath == Filesystem::empty_path( Filesystem::Type::Song ) ||
 		 sFilePath.isEmpty() ) {
 		// An empty song is _not_ associated with a file. Therefore,
 		// we mustn't show the file name.

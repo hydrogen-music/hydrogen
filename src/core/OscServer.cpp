@@ -773,14 +773,27 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
-	pController->newSong( QString::fromUtf8( &argv[0]->s ) );
+	const auto sPath = QString::fromUtf8( &argv[0]->s );
+	if ( ! H2Core::Filesystem::isPathValid(
+			 H2Core::Filesystem::Type::Song, sPath ) ||
+		 ! H2Core::Filesystem::file_writable( sPath ) ) {
+		ERRORLOG( QString( "Unable to create new song for invalid path [%1]" )
+				  .arg( sPath ) );
+		return;
+	}
+
+	auto pSong = H2Core::Song::getEmptySong();
+	pSong->setFilename( sPath );
+	pController->setSong( pSong );
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
-	pController->openSong( QString::fromUtf8( &argv[0]->s ) );
+
+	auto pSong = pController->loadSong( QString::fromUtf8( &argv[0]->s ) );
+	pController->setSong( pSong );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {

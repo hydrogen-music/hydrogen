@@ -80,26 +80,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	
 		// -----------------------------------------------------------
 		// Actions required for session management.
-		
-		/**
-		 * Create an empty #H2Core::Song, which will be stored in @a songPath.
-		 *
-		 * This will be done immediately and without saving
-		 * the current #H2Core::Song. All unsaved changes will be lost! In
-		 * addition, the new song won't be saved by this function. You
-		 * can do so using saveSong().
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in Preferences::m_lastSongFilename and
-		 * Hydrogen won't resume with the corresponding song on
-		 * restarting.
-		 *
-		 * \param songPath Absolute path to the .h2song file to be
-		 *    opened.
-		 * \return true on success
-		 */
-		bool newSong( const QString& songPath );
+
 		/**
 		 * Opens the #H2Core::Song specified in @a songPath.
 		 *
@@ -114,19 +95,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *    afterwards. Using this mechanism the GUI can use an
 		 *    autosave backup file to load a song without the core
 		 *    having to do some string magic to retrieve the original name.
-		 * \return true on success
+		 * \return nullptr on failure
 		 */
-	bool openSong( const QString& songPath, const QString& sRecoverSongPath = "" );
+	std::shared_ptr<Song> loadSong( const QString& sSongPath,
+									const QString& sRecoverSongPath = "" );
 		/**
-		 * Opens the #H2Core::Song specified in @a songPath.
+		 * Sets a #H2Core::Song to be used by Hydrogen.
 		 *
-		 * This will be done immediately and without saving
-		 * the current #H2Core::Song. All unsaved changes will be lost!
+		 * This will be done immediately and without saving the
+		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
-		 * \param pSong New Song.
+		 * \param pSong Pointer to the #H2Core::Song to set.
 		 * \return true on success
 		 */
-		bool openSong( std::shared_ptr<Song> pSong );
+		bool setSong( std::shared_ptr<Song> pSong );
 		/**
 		 * Saves the current #H2Core::Song.
 		 *
@@ -444,9 +426,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *    afterwards. Using this mechanism the GUI can use an
 		 *    autosave backup file to load a playlist without the core
 		 *    having to do some string magic to retrieve the original name.
-		 * \return true on success
+		 * \return nullptr on failure
 		 */
-		bool openPlaylist( const QString& sPath, const QString& sRecoverPath = "" );
+		std::shared_ptr<Playlist> loadPlaylist( const QString& sPath,
+												const QString& sRecoverPath = "" );
 		/** Replaces the current #Playlist with @a Playlist. */
 		bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 		/** Saves changes of the current #Playlist to disk. */
@@ -465,9 +448,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * pEntry will be deleted. */
 		bool removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
 								 int nIndex = -1 );
-		/** Removes all entries from the current playlist. */
-		bool clearPlaylist();
-
 
 private:
 	bool sendMasterVolumeFeedback();
@@ -485,15 +465,6 @@ private:
 	// -----------------------------------------------------------
 	// Actions required for session management.
 		
-		/**
-		 * Sets a #H2Core::Song to be used by Hydrogen.
-		 *
-		 * This will be done immediately and without saving the
-		 * current #H2Core::Song. All unsaved changes will be lost!
-		 *
-		 * \param pSong Pointer to the #H2Core::Song to set.
-		 */
-		bool setSong( std::shared_ptr<Song> pSong );
 
 	/**
 	 * Add @a sFilename to the list of recent songs in

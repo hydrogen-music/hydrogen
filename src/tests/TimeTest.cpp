@@ -42,7 +42,9 @@ void TimeTest::setUp(){
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	pCoreActionController->openSong( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
+	auto pSong = pCoreActionController->loadSong(
+		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
+	pCoreActionController->setSong( pSong );
 	pCoreActionController->saveSongAs( m_sValidPath );
 	
 	pCoreActionController->activateTimeline( true );

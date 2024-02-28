@@ -152,7 +152,7 @@ int NsmClient::OpenCallback( const char *name,
 		NsmClient::get_instance()->setIsNewSession( true );
 	}
 
-	if ( ! pController->openSong( pSong ) ) {
+	if ( ! pController->setSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}

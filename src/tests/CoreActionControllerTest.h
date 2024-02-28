@@ -48,8 +48,8 @@ public:
 	// files.
 	void tearDown();
 	
-	// Tests the CoreActionController::newSong(),
-	// CoreActionController::openSong(),
+	// Tests the CoreActionController::loadSong(),
+	// CoreActionController::setSong(),
 	// CoreActionController::saveSong()
 	// CoreActionController::saveSongAs() methods.
 	void testSessionManagement();

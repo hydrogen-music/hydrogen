@@ -917,7 +917,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFilename( Filesystem::empty_path( Filesystem::FileType::Song ) );
+	pSong->setFilename( Filesystem::empty_path( Filesystem::Type::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 

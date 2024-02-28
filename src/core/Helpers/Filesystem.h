@@ -67,11 +67,11 @@ namespace H2Core
 
 	/** Indicates what type of file, like .h2song, .h2playlist, a function as to
 	 * handle. */
-	enum class FileType {
+	enum class Type {
 		Song,
-		Playlist,
-		All
+		Playlist
 	};
+		static QString TypeToQString( const Type& type );
 
 		static const QString songs_ext;
 		static const QString scripts_ext;
@@ -131,7 +131,7 @@ namespace H2Core
 		 * path to a non-existing file and allow for the behavior
 		 * described above.
 		 */
-		static QString empty_path( const FileType& type );
+		static QString empty_path( const Type& type );
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
 		static QString default_song_name();
@@ -344,7 +344,7 @@ namespace H2Core
 		 *   a new song/playlist)
 		 * \return true - if valid.
 		 */
-		static bool isPathValid( const FileType& type,
+		static bool isPathValid( const Type& type,
 								 const QString& sPath,
 								 bool bCheckExistance = false );
 
@@ -507,7 +507,7 @@ namespace H2Core
 			 * original base name of the file.*/
 			static QString removeUniquePrefix( const QString& sUniqueFilePath );
 
-			static QString getAutoSaveFilename( const FileType& type, const QString& sBaseName );
+			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger

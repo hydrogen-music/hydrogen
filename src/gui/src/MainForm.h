@@ -85,15 +85,6 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
-		/** Checks whether there are unsaved changes in the current song (for
-		* H2Core::Filesystem::FileType::Song), current playlist (for
-		* H2Core::Filesystem::FileType::Playlist) or both (for
-		* H2Core::Filesystem::FileType::All).
-		*
-		* @return `true` if handled, `false` if aborted. */
-		bool handleUnsavedChanges( const H2Core::Filesystem::FileType& type );
-
-
 public slots:
 		void showPreferencesDialog();
 		void showUserManual();

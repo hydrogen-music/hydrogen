@@ -120,8 +120,8 @@ public:
 		 */ 	
 		std::shared_ptr<Song>			getSong() const{ return m_pSong; }
 		/**
-		 * Sets the current song #m_pSong to @a newSong.
-		 * \param newSong Pointer to the new Song object.
+		 * Sets the current song #m_pSong to @a pNewSong.
+		 * \param pNewSong Pointer to the new Song object.
 		 */
 		void			setSong( std::shared_ptr<Song> pNewSong );
 

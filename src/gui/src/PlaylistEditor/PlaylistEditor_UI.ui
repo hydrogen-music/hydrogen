@@ -72,16 +72,22 @@
           <bool>true</bool>
          </property>
          <property name="showDropIndicator" stdset="0">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="dragEnabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="dragDropOverwriteMode">
           <bool>false</bool>
          </property>
          <property name="dragDropMode">
-          <enum>QAbstractItemView::NoDragDrop</enum>
+          <enum>QAbstractItemView::InternalMove</enum>
+         </property>
+         <property name="defaultDropAction">
+          <enum>Qt::CopyAction</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
          </property>
          <property name="rootIsDecorated">
           <bool>true</bool>

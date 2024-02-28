@@ -355,14 +355,13 @@ void PlaylistEditor::removeSong()
 
 void PlaylistEditor::newPlaylist()
 {
-	if ( ! HydrogenApp::get_instance()->getMainForm()->
-		 handleUnsavedChanges( Filesystem::FileType::Playlist ) ) {
+	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
 		return;
 	}
 
 	auto pNewPlaylist = std::make_shared<Playlist>();
 	pNewPlaylist->setFilename(
-		Filesystem::empty_path( Filesystem::FileType::Playlist ) );
+		Filesystem::empty_path( Filesystem::Type::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
@@ -370,7 +369,7 @@ void PlaylistEditor::newPlaylist()
 	// attempt to recover the autosave file generated while last working on an
 	// empty playlist but, instead, remove the corresponding autosave file in
 	// order to start fresh.
-	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::FileType::Playlist ) );
+	QFileInfo fileInfo( Filesystem::empty_path( Filesystem::Type::Playlist ) );
 	QString sBaseName( fileInfo.completeBaseName() );
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
@@ -387,8 +386,7 @@ void PlaylistEditor::newPlaylist()
 }
 
 void PlaylistEditor::openPlaylist() {
-	if ( ! HydrogenApp::get_instance()->getMainForm()->
-		 handleUnsavedChanges( Filesystem::FileType::Playlist ) ) {
+	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
 		return;
 	}
 
@@ -411,7 +409,11 @@ void PlaylistEditor::openPlaylist() {
 
 	const QString sFilePath = fd.selectedFiles().first();
 
-	auto pPlaylist = Playlist::load( sFilePath );
+	const auto sRecoverFilename = HydrogenApp::findAutoSaveFile(
+		Filesystem::Type::Playlist, sFilePath );
+
+	auto pPlaylist = Hydrogen::get_instance()->getCoreActionController()->
+		loadPlaylist( sFilePath, sRecoverFilename );
 	if ( pPlaylist == nullptr ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
@@ -430,8 +432,6 @@ void PlaylistEditor::openPlaylist() {
 
 	pPref->setLastPlaylistFilename( sFilePath );
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
-
-	return;
 }
 
 void PlaylistEditor::newScript()
@@ -589,7 +589,7 @@ bool PlaylistEditor::savePlaylist()
 
 	if ( pPlaylist->getFilename().isEmpty() ||
 		 pPlaylist->getFilename() ==
-		 Filesystem::empty_path( Filesystem::FileType::Playlist ) ) {
+		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		return savePlaylistAs();
 	}
 
@@ -866,7 +866,7 @@ void PlaylistEditor::nodePlayBTN()
 	if ( pEntry->sFilePath != pHydrogen->getSong()->getFilename() ) {
 		pHydrogen->getPlaylist()->setActiveSongNumber( nIndex );
 
-		if ( ! pH2App->openSong( pEntry->sFilePath ) ) {
+		if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
 			ERRORLOG( QString( "Unable to load song [%1]" )
 					  .arg( pEntry->sFilePath ) );
 			m_pPlayBtn->setChecked(false);
@@ -920,7 +920,7 @@ void PlaylistEditor::on_m_pPlaylistTree_itemDoubleClicked()
 	}
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	if ( ! pH2App->openSong( pEntry->sFilePath ) ) {
+	if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
 		return;
 	}
 
@@ -1130,7 +1130,7 @@ void PlaylistEditor::updatePlaylistTree()
 	QString sWindowTitle = tr( "Playlist Browser" );
 	if ( ! pPlaylist->getFilename().isEmpty() &&
 		 pPlaylist->getFilename() !=
-		 Filesystem::empty_path( Filesystem::FileType::Playlist ) ) {
+		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		sWindowTitle.append( QString(" - %1").arg( pPlaylist->getFilename() ) );
 	}
 

@@ -500,26 +500,25 @@ QString Filesystem::default_song_name() {
 	return DEFAULT_SONG;
 }
 
-QString Filesystem::empty_path( const FileType& type ) {
+QString Filesystem::empty_path( const Type& type ) {
 	QString sPathBase, sExtension, sDefaultName;
 
 	switch ( type ) {
-	case FileType::Song:
+	case Type::Song:
 		sPathBase = __usr_data_path + EMPTY_SONG_BASE;
 		sExtension = Filesystem::songs_ext;
 		sDefaultName = default_song_name();
 		break;
 
-	case FileType::Playlist:
+	case Type::Playlist:
 		sPathBase = __usr_data_path + EMPTY_PLAYLIST_BASE;
 		sExtension = Filesystem::playlist_ext;
 		sDefaultName = DEFAULT_PLAYLIST;
 		break;
 
-	case FileType::All:
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( static_cast<int>( type ) ) );
+				  .arg( TypeToQString( type ) ) );
 		return "";
 	}
 
@@ -891,24 +890,23 @@ bool Filesystem::song_exists( const QString& sg_name )
 	return QDir( songs_dir() ).exists( sg_name );
 }
 
-bool Filesystem::isPathValid( const FileType& type, const QString& sPath,
+bool Filesystem::isPathValid( const Type& type, const QString& sPath,
 							  bool bCheckExistance ) {
 	QString sExtension, sType;
 	switch ( type ) {
-	case FileType::Song:
+	case Type::Song:
 		sExtension = Filesystem::songs_ext;
 		sType = "song";
 		break;
 
-	case FileType::Playlist:
+	case Type::Playlist:
 		sExtension = Filesystem::playlist_ext;
 		sType = "playlist";
 		break;
 
-	case FileType::All:
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( static_cast<int>( type ) ) );
+				  .arg( TypeToQString( type ) ) );
 		return "";
 	}
 	QString suffix( sExtension );
@@ -971,9 +969,9 @@ void Filesystem::info()
 	// SYS
 	INFOLOG( QString( "Click file                 : %1" ).arg( click_file_path() ) );
 	INFOLOG( QString( "Empty song                 : %1" )
-			 .arg( empty_path( FileType::Song ) ) );
+			 .arg( empty_path( Type::Song ) ) );
 	INFOLOG( QString( "Empty playlist             : %1" )
-			 .arg( empty_path( FileType::Playlist ) ) );
+			 .arg( empty_path( Type::Playlist ) ) );
 	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
 	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );					// FIXME must be created even if no doc deployed
 	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
@@ -1214,25 +1212,24 @@ QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
 	}
 }
 
-QString Filesystem::getAutoSaveFilename( const FileType& type, const QString& sBaseName ) {
+QString Filesystem::getAutoSaveFilename( const Type& type, const QString& sBaseName ) {
 	QString sDefaultDir, sExtension, sType;
 	switch ( type ) {
-	case FileType::Song:
+	case Type::Song:
 		sDefaultDir = songs_dir();
 		sExtension = Filesystem::songs_ext;
 		sType = "song";
 		break;
 
-	case FileType::Playlist:
+	case Type::Playlist:
 		sDefaultDir = playlists_dir();
 		sExtension = Filesystem::playlist_ext;
 		sType = "playlist";
 		break;
 
-	case FileType::All:
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( static_cast<int>( type ) ) );
+				  .arg( TypeToQString( type ) ) );
 		return "";
 	}
 
@@ -1265,6 +1262,19 @@ QString Filesystem::getAutoSaveFilename( const FileType& type, const QString& sB
 	// Store the default autosave file in the user's song data
 	// folder to not clutter their working directory.
 	return QString( "%1.autosave%2" ).arg( sDefaultDir ).arg( sExtension );
+}
+
+QString Filesystem::TypeToQString( const Type& type ) {
+	switch( type ) {
+	case Type::Song:
+		return "Song";
+
+	case Type::Playlist:
+		return "Playlist";
+
+	default:
+		return "Unknown";
+	}
 }
 };
 

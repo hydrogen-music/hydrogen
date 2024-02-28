@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
 		// the previous session.
 		if ( pHydrogen->getSong()->getFilename() !=
 			 H2Core::Filesystem::empty_path(
-				 H2Core::Filesystem::FileType::Song ) ) {
+				 H2Core::Filesystem::Type::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 			// Mark empty song created in a new NSM session modified
 			// in order to emphasis that an initial song save is
