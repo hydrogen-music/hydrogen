@@ -419,12 +419,10 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 							   .arg( sBaseName ).arg( sExtension ) );
 	QString sRecoverFilename = "";
 	if ( autoSaveFileRecent.exists() &&
-		 autoSaveFileRecent.lastModified() >
-		 fileInfo.lastModified() ) {
+		 autoSaveFileRecent.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
 	} else if ( autoSaveFileOld.exists() &&
-				autoSaveFileOld.lastModified() >
-				fileInfo.lastModified()  ) {
+				autoSaveFileOld.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
 	}
 

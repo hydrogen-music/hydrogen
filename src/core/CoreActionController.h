@@ -476,8 +476,6 @@ private:
 	 * \param sFilename New song to be added on top of the list.
 	 */
 	void insertRecentFile( const QString& sFilename );
-		
-		const int m_nDefaultMidiFeedbackChannel;
 };
 
 }

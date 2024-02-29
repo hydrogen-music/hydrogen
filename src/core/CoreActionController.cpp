@@ -49,8 +49,7 @@ namespace H2Core
 {
 
 
-CoreActionController::CoreActionController() : m_nDefaultMidiFeedbackChannel(0)
-{
+CoreActionController::CoreActionController() {
 	//nothing
 }
 
@@ -420,7 +419,8 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	for ( const auto& param : params ) {
 		if ( pMidiDriver != nullptr &&
 			 pPref->m_bEnableMidiFeedback && param >= 0 ){
-			pMidiDriver->handleOutgoingControlChange( param, nValue, m_nDefaultMidiFeedbackChannel );
+			// For now the MIDI feedback channel is always 0.
+			pMidiDriver->handleOutgoingControlChange( param, nValue, 0 );
 		}
 	}
 
