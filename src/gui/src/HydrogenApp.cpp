@@ -583,6 +583,9 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 		if ( pSong != nullptr ) {
 			bIsModified = pSong->getIsModified();
 		}
+		/*: The symbols `<b>` and `</b>` correspond to HTML code
+		  printing the enclosed `Song` in bold letters. Please do not alter them
+		  but translate the enclosed `Song` instead.*/
 		sText = tr( "The current <b>Song</b> contains unsaved changes." );
 		break;
 
@@ -590,6 +593,9 @@ bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
 		if ( pPlaylist != nullptr ) {
 			bIsModified = pPlaylist->getIsModified();
 		}
+		/*: The symbols `<b>` and `</b>` correspond to HTML code
+		  printing the enclosed `Playlist` in bold letters. Please do not alter
+		  them but translate the enclosed `Playlist` instead.*/
 		sText = tr( "The current <b>Playlist</b> contains unsaved changes." );
 		break;
 

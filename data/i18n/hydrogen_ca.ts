@@ -1739,10 +1739,12 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
