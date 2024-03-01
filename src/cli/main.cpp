@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			pHydrogen->getCoreActionController()->setDrumkit( drumkitToLoad, true );
+			CoreActionController::setDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -424,11 +424,9 @@ int main(int argc, char *argv[])
 			ExportMode = true;
 		}
 
-		auto pCoreActionController = pHydrogen->getCoreActionController();
-
 		if ( bValidateDrumkit ) {
-			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate,
-					 bValidateLegacyKits ) ) {
+			if ( ! H2Core::CoreActionController::validateDrumkit(
+					 sDrumkitToValidate, bValidateLegacyKits ) ) {
 				nReturnCode = 1;
 
 				std::cout << "Provided drumkit [" <<
@@ -440,8 +438,8 @@ int main(int argc, char *argv[])
 			}
 
 		} else if ( bExtractDrumkit ) {
-			if ( ! pCoreActionController->extractDrumkit( sDrumkitToExtract,
-														  sTarget ) ) {
+			if ( ! H2Core::CoreActionController::extractDrumkit(
+					 sDrumkitToExtract, sTarget ) ) {
 				nReturnCode = 1;
 
 				if ( sTarget.isEmpty() ) {
@@ -467,8 +465,8 @@ int main(int argc, char *argv[])
 			}
 
 		} else if ( bUpgradeDrumkit ) {
-			if ( ! pCoreActionController->upgradeDrumkit( sDrumkitToUpgrade,
-														  sTarget ) ) {
+			if ( ! H2Core::CoreActionController::upgradeDrumkit(
+					 sDrumkitToUpgrade, sTarget ) ) {
 				nReturnCode = 1;
 
 				std::cout << "Unable to upgrade provided drumkit [" <<

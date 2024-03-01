@@ -24,15 +24,16 @@
 #include <algorithm>
 #include <memory>
 
-#include <core/Basics/Song.h>
-#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
+#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
-#include <core/Basics/Instrument.h>
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 using namespace H2Core;
@@ -2803,8 +2804,7 @@ void SongEditorPositionRuler::showBpmWidget( int nColumn )
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
-		
+
 	int nColumn = std::max( xToColumn( ev->x() ), 0 );
 	
 	if (ev->button() == Qt::LeftButton ) {
@@ -2817,11 +2817,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			}
 
 			if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-				pCoreActionController->activateSongMode( true );
+				CoreActionController::activateSongMode( true );
 				m_pHydrogen->setIsModified( true );
 			}
 
-			m_pHydrogen->getCoreActionController()->locateToColumn( nColumn );
+			CoreActionController::locateToColumn( nColumn );
 			update();
 		}
 		else if ( ev->y() > 22 - 1 - m_nTagHeight ) {

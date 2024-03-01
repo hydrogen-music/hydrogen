@@ -876,7 +876,6 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 		return false;
 	}
 	
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 	QString sFilename = pSong->getFilename();
 
 	if ( sNewFilename.isEmpty() &&
@@ -907,9 +906,9 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 
 	bool bSaved;
 	if ( sNewFilename.isEmpty() ) {
-		bSaved = pCoreActionController->saveSong();
+		bSaved = H2Core::CoreActionController::saveSong();
 	} else {
-		bSaved = pCoreActionController->saveSongAs( sNewFilename );
+		bSaved = H2Core::CoreActionController::saveSongAs( sNewFilename );
 	}
 	
 	if( ! bSaved ) {
@@ -2205,7 +2204,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	HydrogenApp* pHydrogenApp = HydrogenApp::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	if ( pSong == nullptr ) {
@@ -2215,7 +2213,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
 		if ( pHydrogen->getMode() != Song::Mode::Song ) {
-			pCoreActionController->activateSongMode( true );
+			H2Core::CoreActionController::activateSongMode( true );
 		}
 
 		const int nCursorColumn =
@@ -2234,7 +2232,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			return;
 		}
 		
-		if ( ! pCoreActionController->locateToColumn( nCursorColumn ) ) {
+		if ( ! H2Core::CoreActionController::locateToColumn( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2244,7 +2242,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// NotePropertiesRuler.
 			
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			pCoreActionController->activateSongMode( false );
+			H2Core::CoreActionController::activateSongMode( false );
 		}
 
 		// To provide a similar behaviour as when pressing
@@ -2252,7 +2250,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// the song.
 		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorPosition();
 		
-		if ( ! pCoreActionController->locateToTick( nCursorColumn ) ) {
+		if ( ! H2Core::CoreActionController::locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
 			return;
 		}
@@ -2271,7 +2269,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = pPref->getShortcuts();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pActionManager = MidiActionManager::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -2409,10 +2406,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			switch ( action ) {
 			case Shortcuts::Action::BPM:
-				pCoreActionController->setBpm( sArg.toFloat() );
+				H2Core::CoreActionController::setBpm( sArg.toFloat() );
 				break;
 			case Shortcuts::Action::JumpToBar:
-				pCoreActionController->locateToColumn( sArg.toInt() );
+				H2Core::CoreActionController::locateToColumn( sArg.toInt() );
 				break;
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
@@ -2442,10 +2439,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineDeleteMarker:
-				pCoreActionController->deleteTempoMarker( sArg.toInt() );
+				H2Core::CoreActionController::deleteTempoMarker( sArg.toInt() );
 				break;
 			case Shortcuts::Action::TimelineDeleteTag:
-				pCoreActionController->deleteTag( sArg.toInt() );
+				H2Core::CoreActionController::deleteTag( sArg.toInt() );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
@@ -2544,13 +2541,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			case Shortcuts::Action::TimelineAddMarker:
-				pCoreActionController->addTempoMarker( sArg1.toInt(), sArg2.toFloat() );
+				H2Core::CoreActionController::addTempoMarker(
+					sArg1.toInt(), sArg2.toFloat() );
 				break;
 			case Shortcuts::Action::TimelineAddTag:
-				pCoreActionController->addTag( sArg1.toInt(), sArg2 );
+				H2Core::CoreActionController::addTag( sArg1.toInt(), sArg2 );
 				break;
 			case Shortcuts::Action::ToggleGridCell:
-				pCoreActionController->toggleGridCell( sArg1.toInt(), sArg2.toInt() );
+				H2Core::CoreActionController::toggleGridCell(
+					sArg1.toInt(), sArg2.toInt() );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )
@@ -2754,7 +2753,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::JumpToStart:
-				pCoreActionController->locateToColumn( 0 );
+				H2Core::CoreActionController::locateToColumn( 0 );
 				break;
 			case Shortcuts::Action::JumpBarForward:
 				pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
@@ -2796,22 +2795,22 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::TimelineToggle:
-				pCoreActionController->toggleTimeline();
+				H2Core::CoreActionController::toggleTimeline();
 				break;
 			case Shortcuts::Action::MetronomeToggle:
 				pAction = std::make_shared<Action>( "TOGGLE_METRONOME" );
 				break;
 			case Shortcuts::Action::JackTransportToggle:
-				pCoreActionController->toggleJackTransport();
+				H2Core::CoreActionController::toggleJackTransport();
 				break;
 			case Shortcuts::Action::JackTimebaseToggle:
-				pCoreActionController->toggleJackTimebaseMaster();
+				H2Core::CoreActionController::toggleJackTimebaseMaster();
 				break;
 			case Shortcuts::Action::SongModeToggle:
-				pCoreActionController->toggleSongMode();
+				H2Core::CoreActionController::toggleSongMode();
 				break;
 			case Shortcuts::Action::LoopModeToggle:
-				pCoreActionController->toggleLoopMode();
+				H2Core::CoreActionController::toggleLoopMode();
 				break;
 
 				//////////////////////////////////////////////////////

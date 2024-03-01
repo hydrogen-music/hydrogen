@@ -41,22 +41,21 @@ void TimeTest::setUp(){
 
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	auto pSong = pCoreActionController->loadSong(
+	auto pSong = H2Core::CoreActionController::loadSong(
 		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
-	pCoreActionController->setSong( pSong );
-	pCoreActionController->saveSongAs( m_sValidPath );
+	H2Core::CoreActionController::setSong( pSong );
+	H2Core::CoreActionController::saveSongAs( m_sValidPath );
 	
-	pCoreActionController->activateTimeline( true );
-	pCoreActionController->addTempoMarker( 0, 120 );
-	pCoreActionController->addTempoMarker( 3, 100 );
-	pCoreActionController->addTempoMarker( 5, 40 );
-	pCoreActionController->addTempoMarker( 7, 200 );
+	H2Core::CoreActionController::activateTimeline( true );
+	H2Core::CoreActionController::addTempoMarker( 0, 120 );
+	H2Core::CoreActionController::addTempoMarker( 3, 100 );
+	H2Core::CoreActionController::addTempoMarker( 5, 40 );
+	H2Core::CoreActionController::addTempoMarker( 7, 200 );
 }
 
 void TimeTest::tearDown(){
 
-	Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
+	H2Core::CoreActionController::activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
@@ -65,12 +64,8 @@ void TimeTest::tearDown(){
 }
 
 float TimeTest::locateAndLookupTime( int nPatternPos ){
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
-
-	pCoreActionController->locateToColumn( nPatternPos );
-	return pAudioEngine->getElapsedTime();
+	H2Core::CoreActionController::locateToColumn( nPatternPos );
+	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
 }
 
 void TimeTest::testElapsedTime(){

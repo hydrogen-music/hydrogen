@@ -40,6 +40,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Note.h>
+#include <core/CoreActionController.h>
 #include <core/FX/Effects.h>
 using namespace H2Core;
 
@@ -220,10 +221,9 @@ void Mixer::muteClicked(MixerLine* ref)
 	bool isMuteClicked = ref->isMuteClicked();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	pController->setStripIsMuted( nLine, isMuteClicked );
+	CoreActionController::setStripIsMuted( nLine, isMuteClicked );
 }
 
 void Mixer::muteClicked(ComponentMixerLine* ref)
@@ -262,14 +262,13 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 void Mixer::soloClicked(MixerLine* ref)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);
 
-	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
+	CoreActionController::setStripIsSoloed( nLine, ref->isSoloClicked() );
 
 	for ( int i = 0; i < nInstruments; ++i ) {
 			if ( m_pMixerLine[i] != nullptr ){
@@ -386,22 +385,14 @@ uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 }
 
 
-void Mixer::volumeChanged(MixerLine* ref)
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
-
+void Mixer::volumeChanged(MixerLine* ref) {
 	int nLine = findMixerLineByRef(ref);
-	pController->setStripVolume( nLine, ref->getVolume(), true );
+	CoreActionController::setStripVolume( nLine, ref->getVolume(), true );
 }
 
-void Mixer::masterVolumeChanged(MasterMixerLine* ref)
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
-
+void Mixer::masterVolumeChanged(MasterMixerLine* ref) {
 	float Volume = ref->getVolume();
-	pController->setMasterVolume( Volume );
+	CoreActionController::setMasterVolume( Volume );
 }
 
 
@@ -719,11 +710,7 @@ void Mixer::nameSelected(MixerLine* ref)
 void Mixer::panChanged(MixerLine* ref) {
 	float	fPan = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
-
-	pController->setStripPanSym( nLine, fPan, true );
+	CoreActionController::setStripPanSym( nLine, fPan, true );
 }
 
 

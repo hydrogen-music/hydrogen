@@ -20,6 +20,7 @@
  *
  */
 
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -197,7 +198,6 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 	if ( ev->button() == Qt::LeftButton &&
 		 ev->x() < m_nWidthActive ) {
 		auto pHydrogen = Hydrogen::get_instance();
-		auto pCoreActionController = pHydrogen->getCoreActionController();
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		DrumPatternEditor* pDrumPatternEditor;
 		if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
@@ -230,11 +230,11 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 									( fTripletFactor * fResolution ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			pCoreActionController->activateSongMode( false );
+			H2Core::CoreActionController::activateSongMode( false );
 			pHydrogen->setIsModified( true );
 		}
 
-		pCoreActionController->locateToTick( nNewTick );
+		H2Core::CoreActionController::locateToTick( nNewTick );
 	}
 }
 

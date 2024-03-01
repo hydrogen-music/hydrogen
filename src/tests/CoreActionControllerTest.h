@@ -24,7 +24,6 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
-#include <core/CoreActionController.h>
 
 class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
@@ -34,8 +33,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	
 private:
 	H2Core::Hydrogen* m_pHydrogen;
-	H2Core::CoreActionController* m_pController;
-	
+
 	QString m_sFileNameImproper;
 	QString m_sFileName;
 	QString m_sFileName2;

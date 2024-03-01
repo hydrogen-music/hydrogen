@@ -31,9 +31,8 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <core/Helpers/Files.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Hydrogen.h>
@@ -412,8 +411,8 @@ void PlaylistEditor::openPlaylist() {
 	const auto sRecoverFilename = HydrogenApp::findAutoSaveFile(
 		Filesystem::Type::Playlist, sFilePath );
 
-	auto pPlaylist = Hydrogen::get_instance()->getCoreActionController()->
-		loadPlaylist( sFilePath, sRecoverFilename );
+	auto pPlaylist = CoreActionController::loadPlaylist(
+		sFilePath, sRecoverFilename );
 	if ( pPlaylist == nullptr ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
@@ -567,7 +566,7 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	QString filename = fd.selectedFiles().first();
 
-	if ( ! pHydrogen->getCoreActionController()->savePlaylistAs( filename ) ) {
+	if ( ! CoreActionController::savePlaylistAs( filename ) ) {
 		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -593,7 +592,7 @@ bool PlaylistEditor::savePlaylist()
 		return savePlaylistAs();
 	}
 
-	if ( ! pHydrogen->getCoreActionController()->savePlaylist() ) {
+	if ( ! CoreActionController::savePlaylist() ) {
 		QMessageBox::critical( this, "Hydrogen",
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
@@ -887,20 +886,20 @@ void PlaylistEditor::nodeStopBTN()
 {
 	m_pPlayBtn->setChecked(false);
 	Hydrogen::get_instance()->sequencerStop();
-	Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
+	CoreActionController::locateToColumn( 0 );
 }
 
 void PlaylistEditor::ffWDBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn(
+	CoreActionController::locateToColumn(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 }
 
 void PlaylistEditor::rewindBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn(
+	CoreActionController::locateToColumn(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 

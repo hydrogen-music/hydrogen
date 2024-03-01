@@ -31,7 +31,6 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/CoreActionController.h>
 #include <core/Timehelper.h>
 
 #include <stdint.h> // for uint32_t et al
@@ -40,7 +39,6 @@
 
 namespace H2Core
 {
-	class CoreActionController;
 	class AudioEngine;
 	class SoundLibraryDatabase;
 	class Playlist;
@@ -334,8 +332,6 @@ public:
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
 	
-	CoreActionController* 	getCoreActionController() const;
-
 	/************************************************************/
 	/********************** Playback track **********************/
 	/**
@@ -508,11 +504,7 @@ private:
 	 * Local instance of the Timeline object.
 	 */
 	std::shared_ptr<Timeline>	m_pTimeline;
-	/**
-	 * Local instance of the CoreActionController object.
-	 */ 
-	CoreActionController* 	m_pCoreActionController;
-	
+
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
 	
@@ -591,11 +583,6 @@ inline std::shared_ptr<Timeline> Hydrogen::getTimeline() const
 inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
 {
 	m_pTimeline = pTimeline;
-}
-
-inline CoreActionController* Hydrogen::getCoreActionController() const
-{
-	return m_pCoreActionController;
 }
 
 inline bool Hydrogen::getIsExportSessionActive() const

@@ -34,6 +34,7 @@
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 
 #include "CommonStrings.h"
@@ -64,10 +65,10 @@ public:
 		m_nRow = nRow;
 	}
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell( m_nColumn, m_nRow );
+		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
 	}
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell( m_nColumn, m_nRow );
+		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
 	}
 private:
 	int m_nColumn;
@@ -140,13 +141,13 @@ public:
 	}
 	virtual void undo() {
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( m_sPatternFilename,
+		H2Core::CoreActionController::openPattern( m_sPatternFilename,
 																		  m_nPatternPosition );
 		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFilename );
 	}
 
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
+		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
 private:
 	QString m_sPatternFilename;
@@ -209,11 +210,11 @@ public:
 		m_nPatternPosition = patternPosition;
 	}
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
+		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
 
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( m_sPatternFilename, m_nPatternPosition );
+		H2Core::CoreActionController::openPattern( m_sPatternFilename, m_nPatternPosition );
 	}
 private:
 	QString m_sPatternFilename;
@@ -235,10 +236,10 @@ public:
 		delete m_pNewPattern;
 	}
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
+		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern( new H2Core::Pattern( m_pNewPattern ),
+		H2Core::CoreActionController::setPattern( new H2Core::Pattern( m_pNewPattern ),
 																				 m_nPatternPosition );
 	}
 private:
@@ -263,23 +264,21 @@ public:
 		m_bDragFromList = bDragFromList;
 	}
 	virtual void undo() {
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-		HydrogenApp* h2app = HydrogenApp::get_instance();
 		if( m_bDragFromList ){
-			pCoreActionController->removePattern( m_nPatternPosition );
+			H2Core::CoreActionController::removePattern( m_nPatternPosition );
 		} else {
-			pCoreActionController->removePattern( m_nPatternPosition );
-			pCoreActionController->openPattern( m_sOldPatternName, m_nPatternPosition );
+			H2Core::CoreActionController::removePattern( m_nPatternPosition );
+			H2Core::CoreActionController::openPattern( m_sOldPatternName, m_nPatternPosition );
 		}
-		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFilename );
+		HydrogenApp::get_instance()->getSongEditorPanel()
+			->restoreGroupVector( m_sSequenceFilename );
 	}
 
 	virtual void redo() {
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if( ! m_bDragFromList ){
-			pCoreActionController->removePattern( m_nPatternPosition );
+			H2Core::CoreActionController::removePattern( m_nPatternPosition );
 		}
-		pCoreActionController->openPattern( m_sPatternName, m_nPatternPosition );
+		H2Core::CoreActionController::openPattern( m_sPatternName, m_nPatternPosition );
 	}
 private:
 	QString m_sPatternName;
@@ -384,22 +383,20 @@ public:
 		m_bTempoMarkerPresent = bTempoMarkerPresent;
 	}
 	virtual void undo() {
-		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if( m_bTempoMarkerPresent ){
-			pCoreActionController->addTempoMarker( m_nOldColumn, m_fOldBpm );
+			H2Core::CoreActionController::addTempoMarker( m_nOldColumn, m_fOldBpm );
 		} else {
-			pCoreActionController->deleteTempoMarker( m_nNewColumn );
+			H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
 		}
-		pSongEditorPositionRuler->createBackground();
+		HydrogenApp::get_instance()->getSongEditorPanel()->
+			getSongEditorPositionRuler()->createBackground();
 	}
 
 	virtual void redo() {
-		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-		pCoreActionController->deleteTempoMarker( m_nOldColumn );
-		pCoreActionController->addTempoMarker( m_nNewColumn, m_fNewBpm );
-		pSongEditorPositionRuler->createBackground();
+		H2Core::CoreActionController::deleteTempoMarker( m_nOldColumn );
+		H2Core::CoreActionController::addTempoMarker( m_nNewColumn, m_fNewBpm );
+		HydrogenApp::get_instance()->getSongEditorPanel()->
+			getSongEditorPositionRuler()->createBackground();
 	}
 private:
 	int m_nOldColumn;
@@ -419,17 +416,15 @@ public:
 		m_fBpm = fBpm;
 	}
 	virtual void undo() {
-		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-		pCoreActionController->addTempoMarker( m_nColumn, m_fBpm );
-		pSongEditorPositionRuler->createBackground();
+		H2Core::CoreActionController::addTempoMarker( m_nColumn, m_fBpm );
+		HydrogenApp::get_instance()->getSongEditorPanel()->
+			getSongEditorPositionRuler()->createBackground();
 	}
 
 	virtual void redo() {
-		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-		pCoreActionController->deleteTempoMarker( m_nColumn );
-		pSongEditorPositionRuler->createBackground();
+		H2Core::CoreActionController::deleteTempoMarker( m_nColumn );
+		HydrogenApp::get_instance()->getSongEditorPanel()->
+			getSongEditorPositionRuler()->createBackground();
 	}
 private:
 	int m_nColumn;
@@ -448,20 +443,18 @@ public:
 
 	}
 	virtual void undo() {
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if ( ! m_sOldText.isEmpty() ){
-			pCoreActionController->addTag( m_nPosition, m_sOldText );
+			H2Core::CoreActionController::addTag( m_nPosition, m_sOldText );
 		} else {
-			pCoreActionController->deleteTag( m_nPosition );
+			H2Core::CoreActionController::deleteTag( m_nPosition );
 		}
 	}
 
 	virtual void redo() {
-		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if ( ! m_sText.isEmpty() ){
-			pCoreActionController->addTag( m_nPosition, m_sText );
+			H2Core::CoreActionController::addTag( m_nPosition, m_sText );
 		} else {
-			pCoreActionController->deleteTag( m_nPosition );
+			H2Core::CoreActionController::deleteTag( m_nPosition );
 		}
 	}
 private:
@@ -1594,13 +1587,11 @@ public:
 	}
 
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->addToPlaylist( m_pEntry, m_nIndex );
+		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->removeFromPlaylist( m_pEntry, m_nIndex );
+		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 private:
 	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
@@ -1617,13 +1608,11 @@ public:
 	}
 
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->removeFromPlaylist( m_pEntry, m_nIndex );
+		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->addToPlaylist( m_pEntry, m_nIndex );
+		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
 	}
 private:
 	std::shared_ptr<H2Core::PlaylistEntry> m_pEntry;
@@ -1640,15 +1629,13 @@ public:
 	}
 
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->setPlaylist( m_pNewPlaylist );
+		H2Core::CoreActionController::setPlaylist( m_pNewPlaylist );
 		HydrogenApp::get_instance()->getMainForm()->
 			setPreviousAutoSavePlaylistFile( "" );
 	}
 
 	virtual void undo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()
-			->setPlaylist( m_pOldPlaylist );
+		H2Core::CoreActionController::setPlaylist( m_pOldPlaylist );
 		HydrogenApp::get_instance()->getMainForm()->
 			setPreviousAutoSavePlaylistFile( "" );
 	}

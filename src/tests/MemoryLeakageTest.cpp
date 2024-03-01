@@ -37,6 +37,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/License.h>
 
 #include <core/Sampler/Sampler.h>
@@ -275,7 +276,6 @@ void MemoryLeakageTest::testLoading() {
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 	
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	QString sDrumkitPath =
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
@@ -446,12 +446,12 @@ void MemoryLeakageTest::testLoading() {
 													 true ) );
 		pDrumkit2->loadSamples();
 	
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
-		pCoreActionController->setDrumkit( pDrumkit2 );
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit2 );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 	___INFOLOG( "passed" );

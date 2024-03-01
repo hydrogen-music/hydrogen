@@ -133,7 +133,7 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+				H2Core::CoreActionController::locateToColumn( 0 );
 				break;
 
 			case 'f':

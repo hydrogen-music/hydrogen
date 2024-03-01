@@ -57,6 +57,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -125,7 +126,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
 
 	m_pTimeline = std::make_shared<Timeline>();
-	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
 
@@ -169,7 +169,6 @@ Hydrogen::~Hydrogen()
 	
 	killInstruments();
 
-	delete m_pCoreActionController;
 	delete m_pAudioEngine;
 
 	__instance = nullptr;
@@ -324,7 +323,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
-	m_pCoreActionController->initExternalControlInterfaces();
+	CoreActionController::initExternalControlInterfaces();
 }
 
 void Hydrogen::midiNoteOn( Note *note )
@@ -664,7 +663,7 @@ void Hydrogen::startExportSong( const QString& filename)
 {
 	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	getCoreActionController()->locateToTick( 0 );
+	CoreActionController::locateToTick( 0 );
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
@@ -680,7 +679,7 @@ void Hydrogen::stopExportSong()
 	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	getCoreActionController()->locateToTick( 0 );
+	CoreActionController::locateToTick( 0 );
 	DEBUGLOG( "done" );
 }
 
@@ -817,7 +816,7 @@ void Hydrogen::onTapTempoAccelEvent()
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
-	m_pCoreActionController->setBpm( fBPM );
+	CoreActionController::setBpm( fBPM );
 #endif
 }
 
@@ -1005,7 +1004,7 @@ bool Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
-			m_pCoreActionController->setBpm( fBeatCountBpm );
+			CoreActionController::setBpm( fBeatCountBpm );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {

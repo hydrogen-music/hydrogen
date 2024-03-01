@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
 		pSplash->finish( pMainForm );
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );
+			H2Core::CoreActionController::setDrumkit( sDrumkitToLoad );
 		}
 
 		// Write the changes in the Preferences to disk to make them

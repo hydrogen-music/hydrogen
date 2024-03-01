@@ -36,6 +36,7 @@
 #include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiAction.h>
@@ -665,14 +666,12 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pVelocityLbl->move( 62, 190 );
 }
 
-MasterMixerLine::~MasterMixerLine()
-{
+MasterMixerLine::~MasterMixerLine() {
 	m_fMaxPeak = 0.0;
 }
 
-void MasterMixerLine::muteClicked()
-{
-	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
+void MasterMixerLine::muteClicked() {
+	CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
 }
 
 void MasterMixerLine::faderChanged( WidgetWithInput *pRef )

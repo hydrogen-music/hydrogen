@@ -23,6 +23,7 @@
 #include "PatternEditorInstrumentList.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
@@ -339,8 +340,8 @@ void InstrumentLine::muteClicked()
 	
 	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
-	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
-	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
+	H2Core::CoreActionController::setStripIsMuted(
+		m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
 
@@ -364,8 +365,8 @@ void InstrumentLine::soloClicked()
 	
 	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
-	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
-	pCoreActionController->setStripIsSoloed( m_nInstrumentNumber, !pInstr->is_soloed() );
+	H2Core::CoreActionController::setStripIsSoloed(
+		m_nInstrumentNumber, !pInstr->is_soloed() );
 }
 
 void InstrumentLine::sampleWarningClicked()

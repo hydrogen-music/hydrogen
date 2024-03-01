@@ -45,6 +45,7 @@ https://www.gnu.org/licenses
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/IO/JackAudioDriver.h>
@@ -163,8 +164,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pSongLoopBtn->setObjectName( "PlayerControlLoopButton" );
 	m_pSongLoopBtn->move( 308, 15);
 	connect( m_pSongLoopBtn, &QPushButton::clicked,
-			 [=]( bool bChecked ) { Hydrogen::get_instance()->getCoreActionController()->
-					 activateLoopMode( bChecked );
+			 [=]( bool bChecked ) {
+				 CoreActionController::activateLoopMode( bChecked );
 			 });
 	if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 		m_pSongLoopBtn->setChecked( true );
@@ -692,7 +693,7 @@ void PlayerControl::stopBtnClicked()
 		m_pPlayBtn->setChecked(false);
 	}
 	m_pHydrogen->sequencerStop();
-	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
+	CoreActionController::locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
 }
 
@@ -752,14 +753,13 @@ void PlayerControl::songModeActivationEvent()
 }
 
 void PlayerControl::activateSongMode( bool bActivate ) {
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( bActivate ) {
-		pCoreActionController->activateSongMode( true );
+		CoreActionController::activateSongMode( true );
 		m_pSongModeBtn->setChecked( true );
 		m_pPatternModeBtn->setChecked( false );
 	}
 	else {
-		pCoreActionController->activateSongMode( false );
+		CoreActionController::activateSongMode( false );
 		m_pSongModeBtn->setChecked( false );
 		m_pPatternModeBtn->setChecked( true );
 	}
@@ -768,8 +768,7 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
 	if ( m_pLCDBPMSpinbox->getIsActive() &&
 		 m_bLCDBPMSpinboxIsArmed ) {
-		m_pHydrogen->getCoreActionController()->
-			setBpm( static_cast<float>( fNewBpmValue ) );
+		CoreActionController::setBpm( static_cast<float>( fNewBpmValue ) );
 	}
 }
 
@@ -903,13 +902,11 @@ void PlayerControl::jackTransportBtnClicked()
 	}
 
 	auto pPref = Preferences::get_instance();
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	
 	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		pCoreActionController->activateJackTransport( false );
+		CoreActionController::activateJackTransport( false );
 	}
 	else {
-		pCoreActionController->activateJackTransport( true );
+		CoreActionController::activateJackTransport( true );
 	}
 }
 
@@ -924,30 +921,28 @@ void PlayerControl::jackMasterBtnClicked()
 	}
 
 	auto pPref = Preferences::get_instance();
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	
 	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		pCoreActionController->activateJackTimebaseMaster( false );
+		CoreActionController::activateJackTimebaseMaster( false );
 	}
 	else {
-		pCoreActionController->activateJackTimebaseMaster( true );
+		CoreActionController::activateJackTimebaseMaster( true );
 	}
 #endif
 }
 // ~ jack time master
 
-void PlayerControl::fastForwardBtnClicked()
-{
+void PlayerControl::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+	CoreActionController::locateToColumn(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 }
 
 
 
-void PlayerControl::rewindBtnClicked()
-{
+void PlayerControl::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+	CoreActionController::locateToColumn(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
 void PlayerControl::loopModeActivationEvent() {
@@ -968,12 +963,8 @@ void PlayerControl::loopModeActivationEvent() {
 	}
 }
 
-void PlayerControl::metronomeButtonClicked()
-{
-	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
-	
-	pController->setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
+void PlayerControl::metronomeButtonClicked() {
+	CoreActionController::setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
 }
 
 void PlayerControl::showMixerButtonClicked()

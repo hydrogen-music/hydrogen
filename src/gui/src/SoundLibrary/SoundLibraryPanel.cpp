@@ -57,6 +57,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -694,8 +695,7 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->getCoreActionController()
-		->setDrumkit( pNewDrumkit, bConditionalLoad );
+	H2Core::CoreActionController::setDrumkit( pNewDrumkit, bConditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }
@@ -854,9 +854,8 @@ void SoundLibraryPanel::on_patternLoadAction() {
 
 	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
 	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip( 0 );
-	Hydrogen::get_instance()->getCoreActionController()
-		->openPattern( Filesystem::pattern_path( sDrumkitName,
-												 sPatternName ) );
+	H2Core::CoreActionController::openPattern(
+		Filesystem::pattern_path( sDrumkitName, sPatternName ) );
 }
 
 

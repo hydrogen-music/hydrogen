@@ -260,7 +260,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 	// trigger a relocation to sync the transport position of the
 	// editors in the panel.
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
+	H2Core::CoreActionController::locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -451,7 +451,6 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 
 bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilename ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	QString sText;
 	switch( type ) {
@@ -474,13 +473,13 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 	bool bRet;
 	// Ensure the path to the file is not relative.
 	if ( type == Filesystem::Type::Song ) {
-		auto pSong = pCoreActionController->loadSong(
+		auto pSong = CoreActionController::loadSong(
 			Filesystem::absolute_path( sFilename ), sRecoverFilename );
-		bRet = pCoreActionController->setSong( pSong );
+		bRet = CoreActionController::setSong( pSong );
 	} else {
-		auto pPlaylist = pCoreActionController->loadPlaylist(
+		auto pPlaylist = CoreActionController::loadPlaylist(
 			Filesystem::absolute_path( sFilename ), sRecoverFilename );
-		bRet = pCoreActionController->setPlaylist( pPlaylist );
+		bRet = CoreActionController::setPlaylist( pPlaylist );
 	}
 
 	if ( ! bRet ) {
@@ -499,8 +498,7 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->setSong( pSong ) ) {
+	if ( ! CoreActionController::setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -523,7 +521,6 @@ bool HydrogenApp::recoverEmpty( const Filesystem::Type& type ) {
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	const auto sFilename = H2Core::Filesystem::empty_path( type );
 	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
@@ -541,9 +538,9 @@ bool HydrogenApp::recoverEmpty( const Filesystem::Type& type ) {
 	};
 
 	if ( type == Filesystem::Type::Song ) {
-		auto pSong = pCoreActionController->loadSong(
+		auto pSong = CoreActionController::loadSong(
 			sFilename, sRecoverFilename );
-		if ( ! pCoreActionController->setSong( pSong ) ) {
+		if ( ! CoreActionController::setSong( pSong ) ) {
 			// Not commonized in CommmonStrings as it is required before
 			// HydrogenApp was instantiated.
 			failure( tr( "Error loading song." ) );
@@ -557,9 +554,9 @@ bool HydrogenApp::recoverEmpty( const Filesystem::Type& type ) {
 		pHydrogen->setIsModified( true );
 	}
 	else {
-		auto pPlaylist = pCoreActionController->loadPlaylist(
+		auto pPlaylist = CoreActionController::loadPlaylist(
 			sFilename, sRecoverFilename );
-		if ( ! pCoreActionController->setPlaylist( pPlaylist ) ) {
+		if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
 			// Not commonized in CommmonStrings as it is required before
 			// HydrogenApp was instantiated.
 			failure( tr( "Error loading playlist." ) );
