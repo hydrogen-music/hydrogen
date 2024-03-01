@@ -1744,6 +1744,10 @@ Overwrite the existing file?</source>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Playlist: Pjesma br. %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2320,10 +2324,6 @@ MIDI = %2</source>
     <message>
         <source>Open Pattern</source>
         <translation>Otvori uzorak</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Playlist: Pjesma br. %1</translation>
     </message>
     <message>
         <source></source>
@@ -3595,10 +3595,6 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

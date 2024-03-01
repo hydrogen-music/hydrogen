@@ -248,36 +248,22 @@ void Playlist::activateSong( int songNumber )
 	execScript( songNumber );
 }
 
-bool Playlist::getSongFilenameByNumber( int nSongNumber, QString& sFilePath) const
+QString Playlist::getSongFilenameByNumber( int nSongNumber ) const
 {
 	bool Success = true;
 	
 	if ( size() == 0 || nSongNumber >= size() || nSongNumber < 0 ) {
 		ERRORLOG( QString( "Unable to select song [%1/%2] " )
 				  .arg( nSongNumber ).arg( size() ) );
-		return false;
+		return "";
 	}
 	
-	sFilePath = get( nSongNumber )->sFilePath;
-
-	return true;
-}
-
-/* This method is called by MIDI thread */
-void Playlist::setNextSongByNumber( int nSongNumber )
-{
-	if ( size() == 0 || nSongNumber >= size() || nSongNumber < 0 ) {
-		ERRORLOG( QString( "Unable to select song [%1/%2] " )
-				  .arg( nSongNumber ).arg( size() ) );
-		return;
-	}
-
-	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, nSongNumber );
+	return get( nSongNumber )->sFilePath;
 }
 
 void Playlist::execScript( int nIndex ) const
 {
+#ifndef WIN32
 	QString sFile = get( nIndex )->sScriptPath;
 
 	if ( !get( nIndex )->bScriptEnabled ) {
@@ -294,6 +280,7 @@ void Playlist::execScript( int nIndex ) const
 		WARNINGLOG( QString( "Script [%1] for playlist [%2] exited with status code [%3]" )
 					.arg( sFile ).arg( nIndex ).arg( nRes ) );
 	}
+#endif
 
 	return;
 }

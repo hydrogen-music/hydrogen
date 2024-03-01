@@ -843,6 +843,12 @@ void HydrogenApp::songModifiedEvent()
 	updateWindowTitle();
 }
 
+void HydrogenApp::playlistLoadSongEvent() {
+	showStatusBarMessage(
+		tr( "Playlist: Set song No. %1" )
+		.arg( Hydrogen::get_instance()->getPlaylist()->getActiveSongNumber() + 1 ) );
+}
+
 void HydrogenApp::onEventQueueTimer()
 {
 	// use the timer to do schedule instrument slaughter;
@@ -920,7 +926,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PLAYLIST_LOADSONG:
-				pListener->playlistLoadSongEvent( event.value );
+				pListener->playlistLoadSongEvent();
 				break;
 
 			case EVENT_UNDO_REDO:

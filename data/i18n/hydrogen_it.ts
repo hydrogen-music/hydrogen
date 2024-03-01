@@ -1746,6 +1746,10 @@ Sovrascrivere il file esistente?</translation>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Playlist: imposta canzone n. %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2319,10 +2323,6 @@ MIDI = %2</translation>
     <message>
         <source>Open Pattern</source>
         <translation>Apri pattern</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Playlist: imposta canzone n. %1</translation>
     </message>
     <message>
         <source></source>
@@ -3613,10 +3613,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Pause.</source>
         <translation>Pausa.</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Playlist: imposta canzone n. %1</translation>
     </message>
     <message>
         <source>Add Songs to PlayList</source>

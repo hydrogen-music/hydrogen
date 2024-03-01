@@ -1927,23 +1927,6 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
-void MainForm::playlistLoadSongEvent (int nIndex)
-{
-	auto pPlaylist = Hydrogen::get_instance()->getPlaylist();
-
-	QString songFilename;
-	if( !pPlaylist->getSongFilenameByNumber( nIndex, songFilename ) ) {
-		return;
-	}
-	
-	HydrogenApp::get_instance()->openFile( Filesystem::Type::Song, songFilename );
-	
-	pPlaylist->activateSong( nIndex );
-
-	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Playlist: Set song No. %1" )
-													   .arg( nIndex +1 ) );
-}
-
 void MainForm::jacksessionEvent( int nEvent )
 {
 	switch (nEvent){

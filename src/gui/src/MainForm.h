@@ -57,7 +57,6 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void jacksessionEvent( int nValue) override;
-		virtual void playlistLoadSongEvent(int nIndex) override;
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 

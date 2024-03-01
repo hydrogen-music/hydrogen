@@ -77,12 +77,10 @@ class Playlist : public H2Core::Object<Playlist>
 		 * pEntry will be deleted. */
 		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
-		void	setNextSongByNumber( int SongNumber );
-
 		int		getActiveSongNumber() const;
 		void	setActiveSongNumber( int ActiveSongNumber );
 		
-		bool	getSongFilenameByNumber( int songNumber, QString& fileName) const;
+		QString	getSongFilenameByNumber( int nSongNumber ) const;
 
 		const QString& getFilename() const;
 		void setFilename( const QString& filename );

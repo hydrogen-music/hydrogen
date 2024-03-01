@@ -1746,6 +1746,10 @@ Sobrescrever o arquivo existente?</translation>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Lista de Reprodução: Definir música Nº %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2342,10 +2346,6 @@ MIDI = %2</translation>
     <message>
         <source>Open Pattern</source>
         <translation>Abrir Padrão</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Lista de reprodução: Definir música Nº %1</translation>
     </message>
     <message>
         <source></source>
@@ -3622,10 +3622,6 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     <message>
         <source>Playlist Browser</source>
         <translation>Buscador da Lista de Reprodução</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Lista de Reprodução: definir música nº %1</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>

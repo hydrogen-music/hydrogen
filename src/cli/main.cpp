@@ -344,18 +344,14 @@ int main(int argc, char *argv[])
 
 			/* Load first song */
 			preferences->setLastPlaylistFilename( playlistFilename );
-			
-			QString FirstSongFilename;
-			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
-			pSong = Song::load( FirstSongFilename );
-			
-			if ( pSong != nullptr ){
-				pHydrogen->setSong( pSong );
-				preferences->setLastSongFilename( songFilename );
-				
+			auto sSongPath = pPlaylist->getSongFilenameByNumber( 0 );
+			pSong = CoreActionController::loadSong( sSongPath );
+
+			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
+				preferences->setLastSongFilename( sSongPath );
 				pPlaylist->activateSong( 0 );
 			}
-			
+
 			show_playlist( pPlaylist->getActiveSongNumber() );
 		}
 
@@ -507,20 +503,6 @@ int main(int argc, char *argv[])
 						pHydrogen->stopExportSession();
 						std::cout << "\rExport Progress ... DONE" << std::endl;
 						quit = true;
-					}
-					break;
-				case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
-					if ( pPlaylist != nullptr ){
-						QString FirstSongFilename;
-						pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
-						pSong = Song::load( FirstSongFilename );
-					
-						if ( pSong != nullptr ) {
-							pHydrogen->setSong( pSong );
-							preferences->setLastSongFilename( songFilename );
-						
-							pPlaylist->activateSong( event.value );
-						}
 					}
 					break;
 				case EVENT_NONE: /* Sleep if there is no more events */

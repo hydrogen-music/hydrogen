@@ -1747,6 +1747,10 @@ Overwrite the existing file?</source>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>播放列表：设置乐曲编号 %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2410,10 +2414,6 @@ Are you sure you want to save?</source>
     <message>
         <source>Unknown error %1</source>
         <translation>未知错误 %1</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>播放列表：设置乐曲编号 %1</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
@@ -3639,10 +3639,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Pause.</source>
         <translation>暂停。</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>播放列表：设置乐曲编号 %1</translation>
     </message>
     <message>
         <source>Add Songs to PlayList</source>

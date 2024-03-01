@@ -1746,6 +1746,10 @@ Sobrescribir o ficheiro existente?</translation>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Lista de reprodución: estabelecer canción num. %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2339,10 +2343,6 @@ MIDI = %2</translation>
     <message>
         <source>Open Pattern</source>
         <translation>Abrir un patrón</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Lista de reprodución: estabelecer canción num. %1</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
@@ -3632,10 +3632,6 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
     <message>
         <source>No valid song selected!</source>
         <translation>A canción seleccionada non é correcta!</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Lista de reprodución: estabelecer a canción num. %1</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.

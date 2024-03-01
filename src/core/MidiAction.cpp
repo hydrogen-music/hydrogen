@@ -1120,18 +1120,31 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 	return true;
 }
 
-bool MidiActionManager::setSong( int nSongNumber, Hydrogen* pHydrogen ) {
-	int nActiveSongNumber = pHydrogen->getPlaylist()->getActiveSongNumber();
-	if( nSongNumber >= 0 && nSongNumber <= pHydrogen->getPlaylist()->size() - 1 ) {
-		if ( nActiveSongNumber != nSongNumber ) {
-			pHydrogen->getPlaylist()->setNextSongByNumber( nSongNumber );
+bool MidiActionManager::setSongFromPlaylist( int nSongNumber, Hydrogen* pHydrogen ) {
+	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist != nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
+
+	if ( nSongNumber >= 0 && nSongNumber <= pPlaylist->size() - 1 ) {
+		if ( pPlaylist->getActiveSongNumber() != nSongNumber ) {
+			auto pSong = CoreActionController::loadSong(
+				pPlaylist->getSongFilenameByNumber( nSongNumber ) );
+
+			if ( pSong == nullptr ||
+				 ! CoreActionController::setSong( pSong ) ) {
+				ERRORLOG( QString( "Unable to set song [%1] of playlist" )
+						  .arg( nSongNumber ) );
+				return false;
+			}
+			pPlaylist->activateSong( nSongNumber );
+			EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
+													nSongNumber );
 		}
 	} else {
 		// Preventive measure to avoid bad things.
-		if ( pHydrogen->getSong() == nullptr ) {
-			___ERRORLOG( "No song set yet" );
-		}
-		else if ( pHydrogen->getPlaylist()->size() == 0 ) {
+		if ( pHydrogen->getPlaylist()->size() == 0 ) {
 			___ERRORLOG( QString( "No songs added to the current playlist yet" ) );
 		}
 		else {
@@ -1147,17 +1160,17 @@ bool MidiActionManager::setSong( int nSongNumber, Hydrogen* pHydrogen ) {
 bool MidiActionManager::playlist_song( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
 	bool ok;
 	int songnumber = pAction->getParameter1().toInt(&ok,10);
-	return setSong( songnumber, pHydrogen );
+	return setSongFromPlaylist( songnumber, pHydrogen );
 }
 
 bool MidiActionManager::playlist_next_song( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
-	return setSong( ++songnumber, pHydrogen );
+	return setSongFromPlaylist( ++songnumber, pHydrogen );
 }
 
 bool MidiActionManager::playlist_previous_song( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
-	return setSong( --songnumber, pHydrogen );
+	return setSongFromPlaylist( --songnumber, pHydrogen );
 }
 
 bool MidiActionManager::record_ready( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {

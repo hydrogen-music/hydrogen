@@ -603,8 +603,7 @@ bool PlaylistEditor::savePlaylist()
 	return true;
 }
 
-void PlaylistEditor::loadScript()
-{
+void PlaylistEditor::loadScript() {
 
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->currentItem();
 	if ( pPlaylistItem == nullptr ){
@@ -863,7 +862,6 @@ void PlaylistEditor::nodePlayBTN()
 	}
 
 	if ( pEntry->sFilePath != pHydrogen->getSong()->getFilename() ) {
-		pHydrogen->getPlaylist()->setActiveSongNumber( nIndex );
 
 		if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
 			ERRORLOG( QString( "Unable to load song [%1]" )
@@ -871,6 +869,13 @@ void PlaylistEditor::nodePlayBTN()
 			m_pPlayBtn->setChecked(false);
 			return;
 		}
+		pHydrogen->getPlaylist()->activateSong( nIndex );
+		// We don't want to overload HydrogenApp::openFile too much with
+		// optional functionality. Therefore, we trigger the event in here
+		// directly (to tell the remainder of H2 that the loaded song is
+		// associated to a playlist).
+		EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
+												nIndex );
 	}
 
 	if ( m_pPlayBtn->isChecked() ) {
@@ -922,25 +927,15 @@ void PlaylistEditor::on_m_pPlaylistTree_itemDoubleClicked()
 	if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
 		return;
 	}
-
-	pH2App->showStatusBarMessage( tr( "Playlist: set song no. %1" )
-								  .arg( nIndex +1 ) );
+	// We don't want to overload HydrogenApp::openFile too much with
+	// optional functionality. Therefore, we trigger the event in here
+	// directly (to tell the remainder of H2 that the loaded song is
+	// associated to a playlist).
+	pPlaylist->activateSong( nIndex );
+	EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
+											nIndex );
 
 	m_pPlayBtn->setChecked( false );
-
-///exec script
-///this is very very simple and only an experiment
-#ifdef WIN32
-	//I know nothing about windows scripts -wolke-
-	return;
-#else
-	if ( pEntry->bScriptEnabled ) {
-		std::system( pEntry->sScriptPath.toLatin1() );
-	}
-	
-	return;
-#endif
-
 }
 
 bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )

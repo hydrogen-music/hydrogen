@@ -1750,6 +1750,10 @@ Overwrite the existing file?</source>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Playlist: fijar canción nº %1</translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2355,10 +2359,6 @@ MIDI = %2</translation>
     <message>
         <source>Open Pattern</source>
         <translation>Abrir Patrón</translation>
-    </message>
-    <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Playlist: Set song No. %1</translation>
     </message>
     <message>
         <source></source>
@@ -3639,10 +3639,6 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
     <message>
         <source>Playlist Browser</source>
         <translation>Navegador playlist</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Playlist: fijar canción nº %1</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>

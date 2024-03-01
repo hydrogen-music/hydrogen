@@ -215,7 +215,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		int m_nLastBpmChangeCCParameter;
 
-	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+	bool setSongFromPlaylist( int nSongNumber, H2Core::Hydrogen* pHydrogen );
 	bool nextPatternSelection( int nPatternNumber );
 	bool onlyNextPatternSelection( int nPatternNumber );
 

@@ -273,6 +273,7 @@ private slots:
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void drumkitLoadedEvent() override;
 		void playlistChangedEvent( int nValue ) override;
+		void playlistLoadSongEvent() override;
 	
 };
 
