@@ -88,6 +88,7 @@ public slots:
 	private:
 
 		void updatePlaylistTree();
+		void loadCurrentItem();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
 		Button *	zoom_in_btn;

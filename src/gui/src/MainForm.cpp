@@ -144,9 +144,12 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 		 ! openFile( Filesystem::Type::Song, sSongFilename,
 					 pPref->getLastSongFilename(),
 					 pPref->isRestoreLastSongEnabled() ) ) {
+		// Fall back to an empty song.
 		HydrogenApp::openSong( H2Core::Song::getEmptySong() );
 	}
 
+	// We need no fallback for the playlist as a new one corresponds to an empty
+	// one.
 	openFile( Filesystem::Type::Playlist, sPlaylistFilename,
 			  pPref->getLastPlaylistFilename(),
 			  pPref->isRestoreLastPlaylistEnabled() );

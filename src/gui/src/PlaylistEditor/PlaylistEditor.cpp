@@ -910,6 +910,10 @@ void PlaylistEditor::rewindBtnClicked()
 
 void PlaylistEditor::on_m_pPlaylistTree_itemDoubleClicked()
 {
+	loadCurrentItem();
+}
+
+void PlaylistEditor::loadCurrentItem() {
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->currentItem();
 	if ( pPlaylistItem == nullptr ){
 		return;
@@ -964,6 +968,13 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 		// Close window when hitting ESC.
 		HydrogenApp::get_instance()->showPlaylistEditor();
 		return true;
+	}
+	else if ( nKey == Qt::Key_Enter || nKey == Qt::Key_Return ) {
+		// Loading a song by seleting it via keyboard and pressing Enter.
+		if ( m_pPlaylistTree->hasFocus() ) {
+			loadCurrentItem();
+			return true;
+		}
 	}
 	
 	const Qt::KeyboardModifiers modifiers = pKeyEvent->modifiers();
