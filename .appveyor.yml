@@ -58,11 +58,13 @@ for:
       only:
         - job_group: 'Linux'
 
-    cache: $HOME/cache_dir
-
+    cache:
+      - $HOME/cache_dir
+      - $HOME/cache_dir_appimage
 
     build_script: |-
       rm -rf $HOME/cache_dir/*
+      rm -rf $HOME/cache_dir_appimage
       true
 
 
