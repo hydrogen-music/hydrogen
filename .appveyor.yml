@@ -595,8 +595,8 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
-          c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
           ccache -M 256M
           ccache -s
