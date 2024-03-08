@@ -48,6 +48,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Fixed
 		- Fix potential segfault on ill-formated notes in .h2song files.
 		- Fix buzzing sound during startup when using Port Audio (#1932).
+		- Fix build failure without precompiled headers (e.g. on Gentoo) (#1944)
 
 2024-01-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3

@@ -23,6 +23,7 @@
 #define FILEDIALOG_H
 
 #include <QDialog>
+#include <QFileDialog>
 #include <core/Object.h>
 
 /** Custom file dialog checking whether the user has write access to
