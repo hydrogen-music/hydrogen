@@ -3482,32 +3482,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>Список композиций</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Сценарий</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Выполнение</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Ни одна композиция не выбрана!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Загрузить список</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>Сохранить список</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Нет выбранных композиций!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3656,14 +3636,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>Нет сценария</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3671,9 +3643,28 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>PlayList Browser</source>
         <translation>Просмотр списка воспроизведения</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Список композиций</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Сценарий</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Выполнение</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Нет сценария</translation>
     </message>
 </context>
 <context>

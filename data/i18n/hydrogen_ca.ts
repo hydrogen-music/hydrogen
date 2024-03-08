@@ -3478,18 +3478,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Avançar</translation>
     </message>
     <message>
-        <source>Song list</source>
-        <translation>Llista de cançons</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Script</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Executar Script</translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation>ordena</translation>
     </message>
@@ -3550,10 +3538,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation>No hi ha cap cançó seleccionada!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Carregar una llista de reproducció</translation>
     </message>
@@ -3582,10 +3566,6 @@ Ho sentim, però no funcionarà en aquests moments.</translation>
     <message>
         <source>Save Playlist</source>
         <translation>Desar Llista de reproducció</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>No hi ha cançons a la llista de reproducció o no s&apos;ha seleccionat cap cançó!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3635,14 +3615,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>No hi ha cap Script</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3650,9 +3622,28 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <source>PlayList Browser</source>
         <translation>Navegador de llistes de reproducció</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Llista de cançons</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Script</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Executar Script</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>No hi ha cap Script</translation>
     </message>
 </context>
 <context>

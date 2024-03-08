@@ -3500,32 +3500,12 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>Liste de morceau</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Script</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Exécuter le script</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Aucun morceau n&apos;est sélectionné !</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Charger la liste</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>Sauvegarder la liste</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné !</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3679,14 +3659,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>Aucun script</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3694,9 +3666,28 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>PlayList Browser</source>
         <translation>Navigateur de liste de lecture</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
-        <translation>Liste de morceaux</translation>
+        <translation>Liste de morceau</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Script</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Exécuter le script</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Aucun script</translation>
     </message>
 </context>
 <context>

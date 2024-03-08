@@ -43,6 +43,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- PlaylistEditor:
 				- All actions can now be undone and redone.
 				- Songs can be loaded by keyboard selection and pressing Enter key.
+				- Playlist can be rearranged using drag and drop.
 		- NSM:
 				- Drumkits are no longer linked into the session folder
 				- All drumkits in the session folder (proper drumkit folders containing

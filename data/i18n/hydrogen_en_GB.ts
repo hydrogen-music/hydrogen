@@ -3465,18 +3465,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Song list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3537,10 +3525,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3566,10 +3550,6 @@ Sorry, but this will not work for the moment.</source>
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3618,14 +3598,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3633,8 +3605,27 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>PlayList Browser</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

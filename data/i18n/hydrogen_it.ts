@@ -3479,18 +3479,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Avanti</translation>
     </message>
     <message>
-        <source>Song list</source>
-        <translation>Lista canzoni</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Script</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Esegui script</translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation>ordina</translation>
     </message>
@@ -3551,10 +3539,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Prima salva la canzone</translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation>Nessuna canzone selezionata!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Apri Playlist</translation>
     </message>
@@ -3583,10 +3567,6 @@ Purtroppo al momento non sono supportati.</translation>
     <message>
         <source>Save Playlist</source>
         <translation>Salva Playlist</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Nessuna canzone nella lista o nessuna canzone selezionata!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3636,14 +3616,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>no Script</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3651,9 +3623,28 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>PlayList Browser</source>
         <translation>Browser Playlist</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Lista canzoni</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Script</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Esegui script</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>no Script</translation>
     </message>
 </context>
 <context>

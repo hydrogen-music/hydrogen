@@ -31,6 +31,8 @@
 namespace H2Core
 {
 
+const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
+
 Playlist::Playlist()
 {
 	m_sFilename = "";
@@ -315,6 +317,28 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 
 	return sOutput;
+}
+
+std::shared_ptr<PlaylistEntry> PlaylistEntry::fromMimeText( const QString& sText ) {
+	auto pEntry = std::make_shared<PlaylistEntry>();
+
+	auto mimeContents = sText.split( "::" );
+	if ( mimeContents.size() >= 2 ) {
+		pEntry->sFilePath = mimeContents[ 1 ];
+	}
+	if ( mimeContents.size() >= 3 ) {
+		pEntry->sScriptPath = mimeContents[ 2 ];
+	}
+	if ( mimeContents.size() >= 4 ) {
+		pEntry->bScriptEnabled = mimeContents[ 3 ] == "1" ? true : false;
+	}
+
+	return pEntry;
+}
+
+QString PlaylistEntry::toMimeText() const {
+	return QString( "PlaylistEntry::%1::%2::%3" ).arg( sFilePath )
+		.arg( sScriptPath ).arg( QString::number( bScriptEnabled ) );
 }
 
 QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {

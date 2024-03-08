@@ -3482,32 +3482,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>ソングリスト</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>スクリプト</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>スクリプトの実行</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>ソングが選択されていません!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>プレイリストの読み込み</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>プレイリストの保存</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>リストにソングがないか、ソングが選択されていません!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3659,14 +3639,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>スクリプトなし</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3674,9 +3646,28 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>PlayList Browser</source>
         <translation>プレイリストブラウザー</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>ソングリスト</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>スクリプト</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>スクリプトの実行</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>スクリプトなし</translation>
     </message>
 </context>
 <context>

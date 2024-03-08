@@ -3494,32 +3494,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Пауза.</translation>
     </message>
     <message>
-        <source>Song list</source>
-        <translation>Песме</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Скрипта</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Покрени скрипту</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Нисте одабрали песму!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Учитај листу</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>Сачувај листу</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Нисте одабрали песму или листу!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3657,6 +3637,28 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>PlaylistEditor_UI</name>
+    <message>
+        <source>PlayList Browser</source>
+        <translation>Прегледник листе песама</translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
+    <message>
+        <source>Song list</source>
+        <translation>Песме</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Скрипта</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Покрени скрипту</translation>
+    </message>
     <message>
         <source>Edit playlist</source>
         <translation type="unfinished"></translation>
@@ -3664,17 +3666,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>no Script</source>
         <translation>Нема скрипте</translation>
-    </message>
-</context>
-<context>
-    <name>PlaylistEditor_UI</name>
-    <message>
-        <source>Song list</source>
-        <translation>Песме</translation>
-    </message>
-    <message>
-        <source>PlayList Browser</source>
-        <translation>Прегледник листе песама</translation>
     </message>
 </context>
 <context>

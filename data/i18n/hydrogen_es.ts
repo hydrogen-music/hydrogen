@@ -3499,32 +3499,12 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>Lista de canciones</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Script</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Ejecutar Script</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>¡Ninguna canción seleccionada!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Cargar Playlist</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>Guardar Playlist</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>¡No hay Canciones en lista o no se seleccionó ninguna Canción!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3678,14 +3658,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>No hay Script</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3693,9 +3665,28 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>PlayList Browser</source>
         <translation>Navegador Playlist</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Lista de canciones</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Script</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Ejecutar Script</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>No hay Script</translation>
     </message>
 </context>
 <context>

@@ -40,6 +40,11 @@ struct PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	QString sScriptPath;
 	bool bScriptEnabled;
 
+	static const QString sLegacyEmptyScriptPath;
+
+	static std::shared_ptr<PlaylistEntry> fromMimeText( const QString& sText );
+	QString toMimeText() const;
+
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 };
 

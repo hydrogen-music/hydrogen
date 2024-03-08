@@ -3456,32 +3456,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>Seznam skladeb</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Skript</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Spustit skript</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Není vybrána žádná skladba!</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>Nahrát playlist</translation>
     </message>
     <message>
         <source>Save Playlist</source>
         <translation>Uložit playlist</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Seznam neobsahuje skladby nebo není žádná skladba vybrána!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3633,14 +3613,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>Žádný skript</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3648,9 +3620,28 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>PlayList Browser</source>
         <translation>Správce playlistů</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Seznam skladeb</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Skript</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Spustit skript</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Žádný skript</translation>
     </message>
 </context>
 <context>

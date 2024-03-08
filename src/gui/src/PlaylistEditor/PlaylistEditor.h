@@ -26,7 +26,7 @@
 
 #include <QMenuBar>
 #include <QDialog>
-#include "ui_PlaylistEditor_UI.h"
+#include <QTableWidget>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
@@ -36,6 +36,29 @@
 
 class Button;
 class PixmapWidget;
+
+class PlaylistTableWidget : public QTableWidget,
+							public H2Core::Object<PlaylistTableWidget> {
+	H2_OBJECT(PlaylistTableWidget)
+	Q_OBJECT
+	public:
+		explicit PlaylistTableWidget( QWidget* pParent );
+		void update();
+		void moveRow( int nFrom, int nTo );
+		void loadCurrentRow();
+
+	private:
+		virtual void dragEnterEvent( QDragEnterEvent* pEvent ) override;
+		virtual void dropEvent( QDropEvent* pEvent ) override;
+		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
+		virtual void mouseMoveEvent( QMouseEvent* pEvent ) override;
+		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+
+		QPoint m_dragStartPosition;
+		std::shared_ptr<H2Core::PlaylistEntry> m_pLastSelectedEntry;
+};
+
+#include "ui_PlaylistEditor_UI.h"
 
 ///
 /// This dialog is used to use the H2PlayList
@@ -79,27 +102,18 @@ public slots:
 		void nodePlayBTN();
 		void nodeStopBTN();
 		void rewindBtnClicked();
-		void on_m_pPlaylistTree_itemClicked( QTreeWidgetItem * item, int column );
+		void on_m_pPlaylistTable_itemClicked( QTableWidgetItem* item );
 		void o_upBClicked();
 		void o_downBClicked();
-		void on_m_pPlaylistTree_itemDoubleClicked();
-
 
 	private:
 
-		void updatePlaylistTree();
-		void loadCurrentItem();
+		void update();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
 		Button *	zoom_in_btn;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;
-		std::shared_ptr<H2Core::PlaylistEntry> m_pLastSelectedEntry;
-
-		/** Using the up and down buttons a song of the playlist can be moved to
-		 * the next or previous position. This variable helps to accompany them
-		 * with a nice UX by moving the selection focus along with the item. */
-		bool m_bOmitNextSelection;
 #ifndef WIN32
 	//no scripts under windows
 		QMenu *		m_pScriptMenu;
@@ -110,6 +124,5 @@ public slots:
 		Button *	m_pStopBtn;
 		Button *	m_pFfwdBtn;
 };
-
 
 #endif

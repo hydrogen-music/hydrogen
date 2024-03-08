@@ -3503,18 +3503,6 @@ LilyPond 导出是一项实验性功能。
         <translation>快进</translation>
     </message>
     <message>
-        <source>Song list</source>
-        <translation>乐曲列表</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>脚本</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>执行脚本</translation>
-    </message>
-    <message>
         <source>sort</source>
         <translation>排序</translation>
     </message>
@@ -3575,10 +3563,6 @@ LilyPond 导出是一项实验性功能。
         <translation>请先保存您的乐曲</translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation>未选择乐曲！</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>加载播放列表</translation>
     </message>
@@ -3609,10 +3593,6 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>Save Playlist</source>
         <translation>保存播放列表</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>列表中没有乐曲或没有选择乐曲！</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -3662,14 +3642,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>没有脚本</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3677,9 +3649,28 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>PlayList Browser</source>
         <translation>播放列表浏览器</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>乐曲列表</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>脚本</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>执行脚本</translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>没有脚本</translation>
     </message>
 </context>
 <context>
