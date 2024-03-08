@@ -1505,17 +1505,20 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
-	getSynth()->process( nFrames );
-	out_L = getSynth()->m_pOut_L;
-	out_R = getSynth()->m_pOut_R;
-	for ( unsigned i = 0; i < nFrames; ++i ) {
-		pBuffer_L[ i ] += out_L[ i ];
-		pBuffer_R[ i ] += out_R[ i ];
+	auto synth = getSynth();
+	if (synth->getPlayingNotesNumber() != 0) {
+		synth->process( nFrames );
+		out_L = synth->m_pOut_L;
+		out_R = synth->m_pOut_R;
+		for ( unsigned i = 0; i < nFrames; ++i ) {
+			pBuffer_L[ i ] += out_L[ i ];
+			pBuffer_R[ i ] += out_R[ i ];
+		}
 	}
 
+#ifdef H2CORE_HAVE_LADSPA
 	timeval ladspaTime_start = currentTime2();
 
-#ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
@@ -1543,41 +1546,22 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 			}
 		}
 	}
-#endif
+
 	timeval ladspaTime_end = currentTime2();
 	m_fLadspaTime =
 			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
 			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
+#else
+	m_fLadspaTime = 0.0;
+#endif
 
-	float val_L, val_R;
+	float fPeak_L = m_fMasterPeak_L, fPeak_R = m_fMasterPeak_R;
 	for ( unsigned i = 0; i < nFrames; ++i ) {
-		val_L = pBuffer_L[i];
-		val_R = pBuffer_R[i];
-
-		if ( val_L > m_fMasterPeak_L ) {
-			m_fMasterPeak_L = val_L;
-		}
-
-		if ( val_R > m_fMasterPeak_R ) {
-			m_fMasterPeak_R = val_R;
-		}
+		fPeak_L = std::max( fPeak_L, pBuffer_L[i] );
+		fPeak_R = std::max( fPeak_R, pBuffer_R[i] );
 	}
-
-	for ( auto component : *pSong->getDrumkit()->getComponents() ) {
-		DrumkitComponent *pComponent = component.get();
-		for ( unsigned i = 0; i < nFrames; ++i ) {
-			float compo_val_L = pComponent->get_out_L(i);
-			float compo_val_R = pComponent->get_out_R(i);
-
-			if( compo_val_L > pComponent->get_peak_l() ) {
-				pComponent->set_peak_l( compo_val_L );
-			}
-			if( compo_val_R > pComponent->get_peak_r() ) {
-				pComponent->set_peak_r( compo_val_R );
-			}
-		}
-	}
-
+	m_fMasterPeak_L = fPeak_L;
+	m_fMasterPeak_R = fPeak_R;
 }
 
 void AudioEngine::setState( AudioEngine::State state ) {

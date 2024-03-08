@@ -70,10 +70,6 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 		void						set_peak_r( float val );
 		float						get_peak_r() const;
 
-		void						reset_outs( uint32_t nFrames );
-		void						set_outs( int nBufferPos, float valL, float valR );
-		float						get_out_L( int nBufferPos );
-		float						get_out_R( int nBufferPos );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -95,8 +91,6 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 		float		__peak_l;
 		float		__peak_r;
 
-		float *		__out_L;
-		float *		__out_R;
 };
 
 // DEFINITIONS
@@ -171,12 +165,6 @@ inline void DrumkitComponent::set_peak_r( float val )
 inline float DrumkitComponent::get_peak_r() const
 {
 	return __peak_r;
-}
-
-inline void DrumkitComponent::set_outs( int nBufferPos, float valL, float valR )
-{
-	__out_L[nBufferPos] += valL;
-	__out_R[nBufferPos] += valR;
 }
 
 };
