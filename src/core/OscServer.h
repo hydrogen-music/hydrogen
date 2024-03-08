@@ -803,6 +803,9 @@ class OscServer : public H2Core::Object<OscServer>
 		static void OPEN_PLAYLIST_Handler(lo_arg **argv, int argc);
 		static void SAVE_PLAYLIST_Handler(lo_arg **argv, int argc);
 		static void SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc);
 
 		/** 
 		 * Catches any incoming messages and display them. 

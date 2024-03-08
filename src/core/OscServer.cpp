@@ -929,6 +929,45 @@ void OscServer::SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc) {
 	H2Core::CoreActionController::savePlaylistAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
+void OscServer::PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
+	pEntry->sFilePath = QString::fromUtf8( &argv[0]->s );
+	// Append at the end
+	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+}
+
+void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set" );
+		return;
+	}
+	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
+	pEntry->sFilePath = pSong->getFilename();
+	// Append at the end
+	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+}
+
+void OscServer::PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "invalid playlist" );
+		return;
+	}
+
+	const int nIndex = argv[0]->f;
+	if ( nIndex < 0 || nIndex >= pPlaylist->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIndex ).arg( pPlaylist->size() ) );
+		return;
+	}
+	auto pEntry = pPlaylist->get( nIndex );
+	H2Core::CoreActionController::removeFromPlaylist( pEntry, nIndex );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -1227,6 +1266,14 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "", SAVE_PLAYLIST_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "f", SAVE_PLAYLIST_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST_AS", "s", SAVE_PLAYLIST_AS_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_SONG", "s",
+								PLAYLIST_ADD_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "",
+								PLAYLIST_ADD_CURRENT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "f",
+								PLAYLIST_ADD_CURRENT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_REMOVE_SONG", "f",
+								PLAYLIST_REMOVE_SONG_Handler);
 
 	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 

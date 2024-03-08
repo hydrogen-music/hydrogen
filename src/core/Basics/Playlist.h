@@ -35,6 +35,8 @@ namespace H2Core
 struct PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	H2_OBJECT(PlaylistEntry)
 
+	PlaylistEntry();
+
 	QString sFilePath;
 	bool bFileExists;
 	QString sScriptPath;

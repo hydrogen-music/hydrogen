@@ -319,6 +319,12 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+PlaylistEntry::PlaylistEntry() : sFilePath( "" ),
+								 sScriptPath( "" ),
+								 bScriptEnabled( false ),
+								 bFileExists( false ) {
+}
+
 std::shared_ptr<PlaylistEntry> PlaylistEntry::fromMimeText( const QString& sText ) {
 	auto pEntry = std::make_shared<PlaylistEntry>();
 
