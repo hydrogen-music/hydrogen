@@ -1152,7 +1152,8 @@ void PlaylistTableWidget::update() {
 			auto pSongItem = new QTableWidgetItem();
 			if ( ppEntry->getSongExists() ) {
 				pSongItem->setText( ppEntry->getSongPath() );
-			} else {
+			}
+			else {
 				pSongItem->setText( QString( "%1: %2" )
 					.arg( pCommonStrings->getErrorNotFoundShort() )
 					.arg( ppEntry->getSongPath() ) );
@@ -1168,13 +1169,21 @@ void PlaylistTableWidget::update() {
 #ifndef WIN32
 			// In order to not break existing UX, we display a fallback string
 			// instead of an empty cell.
+			auto pScriptItem = new QTableWidgetItem();
 			QString sScriptText( ppEntry->getScriptPath() );
 			if ( sScriptText.isEmpty() ||
 				 sScriptText == PlaylistEntry::sLegacyEmptyScriptPath ) {
-				sScriptText = tr( "no Script" );
+				pScriptItem->setText( tr( "no Script" ) );
 			}
-
-			auto pScriptItem = new QTableWidgetItem( sScriptText );
+			else if ( ppEntry->getScriptExists() ) {
+				pScriptItem->setText( ppEntry->getScriptPath() );
+			}
+			else {
+				pScriptItem->setText( QString( "%1: %2" )
+					.arg( pCommonStrings->getErrorNotFoundShort() )
+					.arg( ppEntry->getScriptPath() ) );
+				colorNonExisting( pScriptItem );
+			}
 			pScriptItem->setFlags( Qt::ItemIsDragEnabled | Qt::ItemIsSelectable |
 								 Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
 				setItem( nnRowCount, 1, pScriptItem );

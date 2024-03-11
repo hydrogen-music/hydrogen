@@ -320,15 +320,16 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 
 PlaylistEntry::PlaylistEntry( const QString& sSongPath, const QString& sScriptPath,
 							  bool bScriptEnabled ) :
-	m_sScriptPath( sScriptPath ),
 	m_bScriptEnabled( bScriptEnabled ) {
 	setSongPath( sSongPath );
+	setScriptPath( sScriptPath );
 }
 
 PlaylistEntry::PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther ) :
 	m_sSongPath( pOther->m_sSongPath ),
 	m_sScriptPath( pOther->m_sScriptPath ),
 	m_bSongExists( pOther->m_bSongExists ),
+	m_bScriptExists( pOther->m_bScriptExists ),
 	m_bScriptEnabled( pOther->m_bScriptEnabled ) {
 }
 
@@ -356,8 +357,21 @@ QString PlaylistEntry::toMimeText() const {
 
 void PlaylistEntry::setSongPath( const QString& sSongPath ) {
 	m_sSongPath = sSongPath;
-	QFileInfo songInfo( sSongPath );
-	m_bSongExists = songInfo.isReadable();
+	if ( ! sSongPath.isEmpty() ) {
+		m_bSongExists = Filesystem::file_readable( sSongPath );
+	} else {
+		m_bSongExists = false;
+	}
+}
+
+void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
+	m_sScriptPath = sScriptPath;
+	if ( ! sScriptPath.isEmpty() &&
+		 sScriptPath != sLegacyEmptyScriptPath ) {
+		m_bSongExists = Filesystem::file_readable( sScriptPath );
+	} else {
+		m_bScriptExists = false;
+	}
 }
 
 QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
@@ -371,6 +385,8 @@ QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bSongExists ) )
 			.append( QString( "%1%2sScriptPath: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sScriptPath ) )
+			.append( QString( "%1%2bScriptExists: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bScriptExists ) )
 			.append( QString( "%1%2bScriptEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bScriptEnabled ) );
 	}
@@ -379,6 +395,7 @@ QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
 				.append( QString( "sSongPath: %1" ).arg( m_sSongPath ) )
 			.append( QString( ", bSongExists: %1" ).arg( m_bSongExists ) )
 			.append( QString( ", sScriptPath: %1" ).arg( m_sScriptPath ) )
+			.append( QString( ", bScriptExists: %1" ).arg( m_bScriptExists ) )
 			.append( QString( ", bScriptEnabled: %1" ).arg( m_bScriptEnabled ) );
 	}
 	

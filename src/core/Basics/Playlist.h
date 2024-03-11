@@ -48,6 +48,7 @@ class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 		bool getScriptEnabled() const;
 		void setScriptEnabled( bool bEnabled );
 		bool getSongExists() const;
+		bool getScriptExists() const;
 
 	static std::shared_ptr<PlaylistEntry> fromMimeText( const QString& sText );
 	QString toMimeText() const;
@@ -57,10 +58,15 @@ class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 private:
 
 	QString m_sSongPath;
-	bool m_bSongExists;
 	QString m_sScriptPath;
 	bool m_bScriptEnabled;
 
+	/** Runtime member variable. Not written to disk and set whenever
+	 * #m_sSongPath is updated. */
+	bool m_bSongExists;
+	/** Runtime member variable. Not written to disk and set whenever
+	 * #m_sScriptPath is updated. */
+	bool m_bScriptExists;
 };
 
 /** \ingroup docCore docDataStructure */
@@ -141,9 +147,6 @@ inline const QString& PlaylistEntry::getSongPath() const {
 inline const QString& PlaylistEntry::getScriptPath() const {
 	return m_sScriptPath;
 }
-inline void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
-	m_sScriptPath = sScriptPath;
-}
 inline bool PlaylistEntry::getScriptEnabled() const {
 	return m_bScriptEnabled;
 }
@@ -152,6 +155,9 @@ inline void PlaylistEntry::setScriptEnabled( bool bEnabled ) {
 }
 inline bool PlaylistEntry::getSongExists() const {
 	return m_bSongExists;
+}
+inline bool PlaylistEntry::getScriptExists() const {
+	return m_bScriptExists;
 }
 
 inline int Playlist::size() const
