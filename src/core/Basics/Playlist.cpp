@@ -92,12 +92,11 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
 
 			QString songPath = nextNode.read_string( "path", "", false, false );
 			if ( !songPath.isEmpty() ) {
-				auto pEntry = std::make_shared<PlaylistEntry>();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
-				pEntry->sFilePath = songPathInfo.absoluteFilePath();
-				pEntry->bFileExists = songPathInfo.isReadable();
-				pEntry->sScriptPath = nextNode.read_string( "scriptPath", "" );
-				pEntry->bScriptEnabled = nextNode.read_bool( "scriptEnabled", false );
+				auto pEntry = std::make_shared<PlaylistEntry>(
+					songPathInfo.absoluteFilePath(),
+					nextNode.read_string( "scriptPath", "" ),
+					nextNode.read_bool( "scriptEnabled", false ) );
 				pPlaylist->add( pEntry );
 			}
 
@@ -145,14 +144,14 @@ void Playlist::saveTo( XMLNode& node ) const
 	XMLNode songs = node.createNode( "songs" );
 
 	for ( const auto& pEntry : m_entries ) {
-		QString sPath = pEntry->sFilePath;
+		QString sPath = pEntry->getSongPath();
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
 			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
 		}
 		XMLNode song_node = songs.createNode( "song" );
 		song_node.write_string( "path", sPath );
-		song_node.write_string( "scriptPath", pEntry->sScriptPath );
-		song_node.write_bool( "scriptEnabled", pEntry->bScriptEnabled);
+		song_node.write_string( "scriptPath", pEntry->getScriptPath() );
+		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
 	}
 }
 
@@ -260,15 +259,15 @@ QString Playlist::getSongFilenameByNumber( int nSongNumber ) const
 		return "";
 	}
 	
-	return get( nSongNumber )->sFilePath;
+	return get( nSongNumber )->getSongPath();
 }
 
 void Playlist::execScript( int nIndex ) const
 {
 #ifndef WIN32
-	QString sFile = get( nIndex )->sScriptPath;
+	QString sFile = get( nIndex )->getScriptPath();
 
-	if ( !get( nIndex )->bScriptEnabled ) {
+	if ( !get( nIndex )->getScriptEnabled() ) {
 		return;
 	}
 	if ( !QFile( sFile ).exists() ) {
@@ -319,19 +318,18 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-PlaylistEntry::PlaylistEntry( const QString& sFilePath, const QString& sScriptPath,
-							  bool bFileExists, bool bScriptEnabled ) :
-	sFilePath( sFilePath ),
-	sScriptPath( sScriptPath ),
-	bScriptEnabled( bScriptEnabled ),
-	bFileExists( bFileExists ) {
+PlaylistEntry::PlaylistEntry( const QString& sSongPath, const QString& sScriptPath,
+							  bool bScriptEnabled ) :
+	m_sScriptPath( sScriptPath ),
+	m_bScriptEnabled( bScriptEnabled ) {
+	setSongPath( sSongPath );
 }
 
 PlaylistEntry::PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther ) :
-	sFilePath( pOther->sFilePath ),
-	sScriptPath( pOther->sScriptPath ),
-	bFileExists( pOther->bFileExists ),
-	bScriptEnabled( pOther->bScriptEnabled ) {
+	m_sSongPath( pOther->m_sSongPath ),
+	m_sScriptPath( pOther->m_sScriptPath ),
+	m_bSongExists( pOther->m_bSongExists ),
+	m_bScriptEnabled( pOther->m_bScriptEnabled ) {
 }
 
 std::shared_ptr<PlaylistEntry> PlaylistEntry::fromMimeText( const QString& sText ) {
@@ -339,21 +337,27 @@ std::shared_ptr<PlaylistEntry> PlaylistEntry::fromMimeText( const QString& sText
 
 	auto mimeContents = sText.split( "::" );
 	if ( mimeContents.size() >= 2 ) {
-		pEntry->sFilePath = mimeContents[ 1 ];
+		pEntry->m_sSongPath = mimeContents[ 1 ];
 	}
 	if ( mimeContents.size() >= 3 ) {
-		pEntry->sScriptPath = mimeContents[ 2 ];
+		pEntry->m_sScriptPath = mimeContents[ 2 ];
 	}
 	if ( mimeContents.size() >= 4 ) {
-		pEntry->bScriptEnabled = mimeContents[ 3 ] == "1" ? true : false;
+		pEntry->m_bScriptEnabled = mimeContents[ 3 ] == "1" ? true : false;
 	}
 
 	return pEntry;
 }
 
 QString PlaylistEntry::toMimeText() const {
-	return QString( "PlaylistEntry::%1::%2::%3" ).arg( sFilePath )
-		.arg( sScriptPath ).arg( QString::number( bScriptEnabled ) );
+	return QString( "PlaylistEntry::%1::%2::%3" ).arg( m_sSongPath )
+		.arg( m_sScriptPath ).arg( QString::number( m_bScriptEnabled ) );
+}
+
+void PlaylistEntry::setSongPath( const QString& sSongPath ) {
+	m_sSongPath = sSongPath;
+	QFileInfo songInfo( sSongPath );
+	m_bSongExists = songInfo.isReadable();
 }
 
 QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
@@ -361,21 +365,21 @@ QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PlaylistEntry]\n" ).arg( sPrefix )
-			.append( QString( "%1%2sFilePath: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( sFilePath ) )
-			.append( QString( "%1%2bFileExists: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bFileExists ) )
+			.append( QString( "%1%2sSongPath: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sSongPath ) )
+			.append( QString( "%1%2bSongExists: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bSongExists ) )
 			.append( QString( "%1%2sScriptPath: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( sScriptPath ) )
+					 .arg( s ).arg( m_sScriptPath ) )
 			.append( QString( "%1%2bScriptEnabled: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bScriptEnabled ) );
+					 .arg( s ).arg( m_bScriptEnabled ) );
 	}
 	else {
 		sOutput = QString( "[PlaylistEntry] " )
-				.append( QString( "sFilePath: %1" ).arg( sFilePath ) )
-			.append( QString( ", bFileExists: %1" ).arg( bFileExists ) )
-			.append( QString( ", sScriptPath: %1" ).arg( sScriptPath ) )
-			.append( QString( ", bScriptEnabled: %1" ).arg( bScriptEnabled ) );
+				.append( QString( "sSongPath: %1" ).arg( m_sSongPath ) )
+			.append( QString( ", bSongExists: %1" ).arg( m_bSongExists ) )
+			.append( QString( ", sScriptPath: %1" ).arg( m_sScriptPath ) )
+			.append( QString( ", bScriptEnabled: %1" ).arg( m_bScriptEnabled ) );
 	}
 	
 	return sOutput;

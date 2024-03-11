@@ -444,7 +444,7 @@ void PlaylistEditor::newScript()
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
-	pNewEntry->sScriptPath = sFilePath;
+	pNewEntry->setScriptPath( sFilePath );
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
@@ -554,7 +554,7 @@ void PlaylistEditor::loadScript() {
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
-	pNewEntry->sScriptPath = sScriptPath;
+	pNewEntry->setScriptPath( sScriptPath );
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
@@ -570,13 +570,13 @@ void PlaylistEditor::loadScript() {
 void PlaylistEditor::removeScript() {
 	const int nIndex = m_pPlaylistTable->currentRow();
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
-	if ( pOldEntry->sScriptPath == "" ) {
+	if ( pOldEntry->getScriptPath().isEmpty() ) {
 		// Nothing to do
 		return;
 	}
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
-	pNewEntry->sScriptPath = "";
+	pNewEntry->setScriptPath( "" );
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
@@ -617,9 +617,9 @@ void PlaylistEditor::editScript()
 	auto pEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	QString sCommand = pPref->getDefaultEditor() + " " +
-		pEntry->sScriptPath + " &";
+		pEntry->getScriptPath() + " &";
 
-	if( !QFile( pEntry->sFilePath ).exists() ){
+	if( !QFile( pEntry->getSongPath() ).exists() ){
 		QMessageBox::information( this, "Hydrogen", tr( "No Script selected!" ));
 		return;
 	}
@@ -663,15 +663,15 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 		return;
 	}
 
-	if ( pOldEntry->sScriptPath.isEmpty() ||
-		 pOldEntry->sScriptPath == PlaylistEntry::sLegacyEmptyScriptPath ) {
+	if ( pOldEntry->getScriptPath().isEmpty() ||
+		 pOldEntry->getScriptPath() == PlaylistEntry::sLegacyEmptyScriptPath ) {
 		WARNINGLOG( QString( "No script set in entry [%1]" ).arg( nIndex ) );
 		pItem->setCheckState( Qt::Unchecked );
 		return;
 	}
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
-	pNewEntry->bScriptEnabled = ! pOldEntry->bScriptEnabled;
+	pNewEntry->setScriptEnabled( ! pOldEntry->getScriptEnabled() );
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
@@ -702,11 +702,12 @@ void PlaylistEditor::nodePlayBTN()
 		return;
 	}
 
-	if ( pEntry->sFilePath != pHydrogen->getSong()->getFilename() ) {
+	if ( pEntry->getSongPath() != pHydrogen->getSong()->getFilename() ) {
 
-		if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
+		if ( ! HydrogenApp::openFile( Filesystem::Type::Song,
+									  pEntry->getSongPath() ) ) {
 			ERRORLOG( QString( "Unable to load song [%1]" )
-					  .arg( pEntry->sFilePath ) );
+					  .arg( pEntry->getSongPath() ) );
 			m_pPlayBtn->setChecked(false);
 			return;
 		}
@@ -1109,7 +1110,8 @@ void PlaylistTableWidget::loadCurrentRow() {
 	}
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	if ( ! HydrogenApp::openFile( Filesystem::Type::Song, pEntry->sFilePath ) ) {
+	if ( ! HydrogenApp::openFile( Filesystem::Type::Song,
+								  pEntry->getSongPath() ) ) {
 		return;
 	}
 	// We don't want to overload HydrogenApp::openFile too much with
@@ -1128,16 +1130,34 @@ void PlaylistTableWidget::update() {
 		ERRORLOG( "No playlist" );
 		return;
 	}
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	clearContents();
 	setRowCount( pPlaylist->size() );
+
+	// Highlight cells corresponding to non-existing song files to indicate to
+	// the user that something is wrong.
+	auto colorNonExisting = [=]( QTableWidgetItem* pItem ) {
+		const auto colorTheme =
+			H2Core::Preferences::get_instance()->getTheme().m_color;
+		pItem->setBackground( QBrush( colorTheme.m_buttonRedColor ) );
+		pItem->setForeground( QBrush( colorTheme.m_buttonRedTextColor ) );
+	};
 
 	if ( pPlaylist->size() > 0 ) {
 
 		int nSelectedRow = -1;
 		int nnRowCount = 0;
 		for ( const auto& ppEntry : *pPlaylist ){
-			auto pSongItem = new QTableWidgetItem( ppEntry->sFilePath );
+			auto pSongItem = new QTableWidgetItem();
+			if ( ppEntry->getSongExists() ) {
+				pSongItem->setText( ppEntry->getSongPath() );
+			} else {
+				pSongItem->setText( QString( "%1: %2" )
+					.arg( pCommonStrings->getErrorNotFoundShort() )
+					.arg( ppEntry->getSongPath() ) );
+				colorNonExisting( pSongItem );
+			}
 			pSongItem->setFlags( Qt::ItemIsDragEnabled | Qt::ItemIsSelectable |
 								 Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
 			setItem( nnRowCount, 0, pSongItem );
@@ -1148,7 +1168,7 @@ void PlaylistTableWidget::update() {
 #ifndef WIN32
 			// In order to not break existing UX, we display a fallback string
 			// instead of an empty cell.
-			QString sScriptText( ppEntry->sScriptPath );
+			QString sScriptText( ppEntry->getScriptPath() );
 			if ( sScriptText.isEmpty() ||
 				 sScriptText == PlaylistEntry::sLegacyEmptyScriptPath ) {
 				sScriptText = tr( "no Script" );
@@ -1162,7 +1182,7 @@ void PlaylistTableWidget::update() {
 			auto pCheckboxItem = new QTableWidgetItem();
 			pCheckboxItem->setFlags( Qt::ItemIsDragEnabled | Qt::ItemIsSelectable |
 								 Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
-			if ( ppEntry->bScriptEnabled ) {
+			if ( ppEntry->getScriptEnabled() ) {
 				pCheckboxItem->setCheckState( Qt::Checked );
 			} else {
 				pCheckboxItem->setCheckState( Qt::Unchecked );

@@ -32,24 +32,35 @@
 namespace H2Core
 {
 
-struct PlaylistEntry : public H2Core::Object<PlaylistEntry> {
+class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	H2_OBJECT(PlaylistEntry)
 
 	PlaylistEntry( const QString& sFilePath = "", const QString& sScriptPath = "",
-				   bool bFileExists = false, bool bScriptEnabled = false );
+				   bool bScriptEnabled = false );
 	PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther );
 
-	QString sFilePath;
-	bool bFileExists;
-	QString sScriptPath;
-	bool bScriptEnabled;
-
 	static const QString sLegacyEmptyScriptPath;
+
+		const QString& getSongPath() const;
+		void setSongPath( const QString& sSongPath );
+		const QString& getScriptPath() const;
+		void setScriptPath( const QString& sScriptPath );
+		bool getScriptEnabled() const;
+		void setScriptEnabled( bool bEnabled );
+		bool getSongExists() const;
 
 	static std::shared_ptr<PlaylistEntry> fromMimeText( const QString& sText );
 	QString toMimeText() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+private:
+
+	QString m_sSongPath;
+	bool m_bSongExists;
+	QString m_sScriptPath;
+	bool m_bScriptEnabled;
+
 };
 
 /** \ingroup docCore docDataStructure */
@@ -123,6 +134,25 @@ class Playlist : public H2Core::Object<Playlist>
 		void saveTo( XMLNode& node ) const;
 		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
 };
+
+inline const QString& PlaylistEntry::getSongPath() const {
+	return m_sSongPath;
+}
+inline const QString& PlaylistEntry::getScriptPath() const {
+	return m_sScriptPath;
+}
+inline void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
+	m_sScriptPath = sScriptPath;
+}
+inline bool PlaylistEntry::getScriptEnabled() const {
+	return m_bScriptEnabled;
+}
+inline void PlaylistEntry::setScriptEnabled( bool bEnabled ) {
+	m_bScriptEnabled = bEnabled;
+}
+inline bool PlaylistEntry::getSongExists() const {
+	return m_bSongExists;
+}
 
 inline int Playlist::size() const
 {

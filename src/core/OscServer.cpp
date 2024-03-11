@@ -932,7 +932,7 @@ void OscServer::SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc) {
 void OscServer::PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
-	pEntry->sFilePath = QString::fromUtf8( &argv[0]->s );
+	pEntry->setSongPath( QString::fromUtf8( &argv[0]->s ) );
 	// Append at the end
 	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
 }
@@ -945,7 +945,7 @@ void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
 		return;
 	}
 	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
-	pEntry->sFilePath = pSong->getFilename();
+	pEntry->setSongPath( pSong->getFilename() );
 	// Append at the end
 	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
 }

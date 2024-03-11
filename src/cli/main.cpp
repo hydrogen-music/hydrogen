@@ -104,7 +104,8 @@ void show_playlist (uint active )
 	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
-			std::cout << ( i + 1 ) << "." << pPlaylist->get( i )->sFilePath.toLocal8Bit().constData();
+			std::cout << ( i + 1 ) << "." <<
+				pPlaylist->get( i )->getSongPath().toLocal8Bit().constData();
 			if ( i == active ) {
 				std::cout << " *";
 			}

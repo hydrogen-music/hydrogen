@@ -507,6 +507,9 @@ CommonStrings::CommonStrings(){
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
+	/*: Shorter version of missing file warning. E.g. used as a prefix for the
+	 *  song path in the Playlist editor.*/
+	m_sErrorNotFoundShort = tr( "File not found" );
 }
 
 CommonStrings::~CommonStrings(){}

@@ -1042,6 +1042,11 @@ Are you sure?</source>
         <source>Use &apos;Save as&apos; to enable autosave.</source>
         <translation>Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</translation>
     </message>
+    <message>
+        <source>File not found</source>
+        <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
+        <translation>Fichier non-trouvé</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>

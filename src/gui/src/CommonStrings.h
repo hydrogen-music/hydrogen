@@ -218,6 +218,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -396,5 +397,6 @@ private:
 		QString m_sActionIrreversible;
 
 		QString m_sErrorNotFound;
+		QString m_sErrorNotFoundShort;
 };
 #endif
