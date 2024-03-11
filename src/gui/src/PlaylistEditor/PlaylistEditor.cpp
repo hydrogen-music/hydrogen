@@ -240,11 +240,7 @@ void PlaylistEditor::addSong()
 
 	pUndoStack->beginMacro( sTitle );
 	for ( const auto& sPath : fd.selectedFiles() ) {
-		auto pNewEntry = std::make_shared<PlaylistEntry>();
-		pNewEntry->sFilePath = sPath;
-		pNewEntry->sScriptPath = "";
-		pNewEntry->bScriptEnabled = false;
-
+		auto pNewEntry = std::make_shared<PlaylistEntry>( sPath );
 		auto pAction = new SE_addEntryToPlaylistAction( pNewEntry );
 		pUndoStack->push( pAction );
 	}
@@ -263,11 +259,7 @@ void PlaylistEditor::addCurrentSong()
 		return;
 	}
 
-	auto pNewEntry = std::make_shared<PlaylistEntry>();
-	pNewEntry->sFilePath = sPath;
-	pNewEntry->sScriptPath = "";
-	pNewEntry->bScriptEnabled = false;
-
+	auto pNewEntry = std::make_shared<PlaylistEntry>( sPath );
 	auto pAction = new SE_addEntryToPlaylistAction( pNewEntry );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
@@ -451,10 +443,7 @@ void PlaylistEditor::newScript()
 	const int nIndex = m_pPlaylistTable->currentRow();
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
-	auto pNewEntry = std::make_shared<PlaylistEntry>();
-	pNewEntry->sFilePath = pOldEntry->sFilePath;
-	pNewEntry->bFileExists = pOldEntry->bFileExists;
-	pNewEntry->bScriptEnabled = pOldEntry->bScriptEnabled;
+	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->sScriptPath = sFilePath;
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -564,10 +553,7 @@ void PlaylistEditor::loadScript() {
 	const int nIndex = m_pPlaylistTable->currentRow();
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
-	auto pNewEntry = std::make_shared<PlaylistEntry>();
-	pNewEntry->sFilePath = pOldEntry->sFilePath;
-	pNewEntry->bFileExists = pOldEntry->bFileExists;
-	pNewEntry->bScriptEnabled = pOldEntry->bScriptEnabled;
+	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->sScriptPath = sScriptPath;
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -589,10 +575,7 @@ void PlaylistEditor::removeScript() {
 		return;
 	}
 
-	auto pNewEntry = std::make_shared<PlaylistEntry>();
-	pNewEntry->sFilePath = pOldEntry->sFilePath;
-	pNewEntry->bFileExists = pOldEntry->bFileExists;
-	pNewEntry->bScriptEnabled = pOldEntry->bScriptEnabled;
+	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->sScriptPath = "";
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -687,11 +670,8 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 		return;
 	}
 
-	auto pNewEntry = std::make_shared<PlaylistEntry>();
-	pNewEntry->sFilePath = pOldEntry->sFilePath;
-	pNewEntry->bFileExists = pOldEntry->bFileExists;
+	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->bScriptEnabled = ! pOldEntry->bScriptEnabled;
-	pNewEntry->sScriptPath = pOldEntry->sScriptPath;
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );

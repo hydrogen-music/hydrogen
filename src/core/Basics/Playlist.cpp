@@ -319,10 +319,19 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-PlaylistEntry::PlaylistEntry() : sFilePath( "" ),
-								 sScriptPath( "" ),
-								 bScriptEnabled( false ),
-								 bFileExists( false ) {
+PlaylistEntry::PlaylistEntry( const QString& sFilePath, const QString& sScriptPath,
+							  bool bFileExists, bool bScriptEnabled ) :
+	sFilePath( sFilePath ),
+	sScriptPath( sScriptPath ),
+	bScriptEnabled( bScriptEnabled ),
+	bFileExists( bFileExists ) {
+}
+
+PlaylistEntry::PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther ) :
+	sFilePath( pOther->sFilePath ),
+	sScriptPath( pOther->sScriptPath ),
+	bFileExists( pOther->bFileExists ),
+	bScriptEnabled( pOther->bScriptEnabled ) {
 }
 
 std::shared_ptr<PlaylistEntry> PlaylistEntry::fromMimeText( const QString& sText ) {

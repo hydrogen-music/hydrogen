@@ -35,7 +35,9 @@ namespace H2Core
 struct PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	H2_OBJECT(PlaylistEntry)
 
-	PlaylistEntry();
+	PlaylistEntry( const QString& sFilePath = "", const QString& sScriptPath = "",
+				   bool bFileExists = false, bool bScriptEnabled = false );
+	PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther );
 
 	QString sFilePath;
 	bool bFileExists;
