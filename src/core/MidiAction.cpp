@@ -31,6 +31,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/PatternList.h>
@@ -191,6 +192,10 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("SELECT_INSTRUMENT", std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
 	m_actionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair( &MidiActionManager::undo_action, 0 ) ));
 	m_actionMap.insert(std::make_pair("REDO_ACTION", std::make_pair( &MidiActionManager::redo_action, 0 ) ));
+	m_actionMap.insert(std::make_pair("CLEAR_INSTRUMENT", std::make_pair(
+										  &MidiActionManager::clear_instrument, 0 ) ));
+	m_actionMap.insert(std::make_pair("CLEAR_PATTERN", std::make_pair(
+										  &MidiActionManager::clear_pattern, 0 ) ));
 	/*
 	  the m_actionList holds all Action identifiers which hydrogen is able to interpret.
 	*/
@@ -1237,6 +1242,54 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 	}
 		
 	return -1;
+}
+
+bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
+										  Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	bool ok;
+	int nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
+
+	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
+		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
+	} else if ( nInstrumentNumber < 0 ) {
+		nInstrumentNumber = 0;
+	}
+
+	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
+
+	return pHydrogen->getCoreActionController()->
+		clearInstrumentInPattern( nInstrumentNumber );
+}
+
+bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,
+										   Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	int nPattern = pHydrogen->getSelectedPatternNumber();
+
+	auto pPattern = pSong->getPatternList()->get( nPattern );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Couldn't find pattern [%1]" ).arg( nPattern ) );
+		return false;
+	}
+
+	pPattern->clear( true );
+
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
+	}
+
+	return true;
 }
 
 bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> actions ) {

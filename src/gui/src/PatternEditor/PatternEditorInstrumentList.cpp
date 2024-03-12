@@ -425,7 +425,7 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 void InstrumentLine::functionClearNotes()
 {
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
+	int nSelectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
@@ -433,7 +433,7 @@ void InstrumentLine::functionClearNotes()
 		return;
 	}
 
-	if ( selectedPatternNr == -1 ) {
+	if ( nSelectedPatternNr == -1 ) {
 		// No pattern selected. Nothing to be clear.
 		return;
 	}
@@ -448,7 +448,10 @@ void InstrumentLine::functionClearNotes()
 		}
 	}
 	if( noteList.size() > 0 ){
-		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
+		SE_clearNotesPatternEditorAction *action =
+			new SE_clearNotesPatternEditorAction( noteList,
+												  m_nInstrumentNumber,
+												  nSelectedPatternNr );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }

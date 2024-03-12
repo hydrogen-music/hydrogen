@@ -1587,6 +1587,44 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	return true;
 }
 
+bool CoreActionController::clearInstrumentInPattern( int nInstrument,
+													 int nPatternNumber ) {
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	int nPattern;
+	if ( nPatternNumber != -1 ) {
+		nPattern = nPatternNumber;
+	} else {
+		nPattern = pHydrogen->getSelectedPatternNumber();
+	}
+
+	auto pPattern = pSong->getPatternList()->get( nPattern );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Couldn't find pattern [%1]" ).arg( nPattern ) );
+		return false;
+	}
+
+	auto pInstrument = pSong->getInstrumentList()->get( nInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nInstrument ) );
+		return false;
+	}
+
+	pPattern->purge_instrument( pInstrument, true );
+
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
+	}
+
+	return true;
+}
+
 bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	auto pHydrogen = Hydrogen::get_instance();
 

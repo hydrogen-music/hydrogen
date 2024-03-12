@@ -855,11 +855,10 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "clear note sequence Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()
+			->clearInstrumentInPattern( __nSelectedInstrument,
+										__selectedPatternNumber );
 	}
 private:
 	std::list< H2Core::Note* > __noteList;

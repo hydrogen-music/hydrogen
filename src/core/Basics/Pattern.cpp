@@ -291,6 +291,29 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequire
 	}
 }
 
+void Pattern::clear( bool bRequiresLock )
+{
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	if ( bRequiresLock ){
+		pAudioEngine->lock( RIGHT_HERE );
+	}
+	std::list< Note* > slate;
+	for ( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
+		Note* note = it->second;
+		assert( note );
+		slate.push_back( note );
+		__notes.erase( it++ );
+	}
+	if ( bRequiresLock ) {
+		pAudioEngine->unlock();
+	}
+
+	while ( slate.size() ) {
+		delete slate.front();
+		slate.pop_front();
+	}
+}
+
 void Pattern::set_to_old()
 {
 	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {

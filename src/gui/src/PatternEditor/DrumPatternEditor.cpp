@@ -1459,30 +1459,6 @@ void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes chang
 ///==========================================================
 ///undo / redo actions from pattern editor instrument list
 
-void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, int nPatternNumber )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	PatternList* pPatternList = pSong->getPatternList();
-	Pattern* pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Couldn't find pattern [%1]" )
-				  .arg( nPatternNumber ) );
-		return;
-	}
-
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return;
-	}
-
-	pPattern->purge_instrument( pSelectedInstrument );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-}
-
-
 void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
