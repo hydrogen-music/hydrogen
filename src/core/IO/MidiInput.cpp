@@ -235,8 +235,6 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-	static const float fPan = 0.f;
-
 	int nInstrument = nNote - 36;
 	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
 	std::shared_ptr<Instrument> pInstr = nullptr;
@@ -287,7 +285,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		}
 	}
 
-	pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, false, nNote );
+	pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
 }
 
 /*
@@ -339,7 +337,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		return;
 	}
 
-	Hydrogen::get_instance()->addRealtimeNote( nInstrument, 0.0, 0.0, true, nNote );
+	Hydrogen::get_instance()->addRealtimeNote( nInstrument, 0.0, true, nNote );
 }
 
 void MidiInput::handleSysexMessage( const MidiMessage& msg )
