@@ -991,6 +991,21 @@ void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
 	pController->removePattern( static_cast<int>(std::round( argv[0]->f )) );
 }
 
+void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
+{
+	INFOLOG( "processing message" );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()
+		->clearInstrumentInPattern( static_cast<int>(std::round( argv[0]->f )) );
+}
+
+void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
+{
+	INFOLOG( "processing message" );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>( "CLEAR_PATTERN" );
+	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -1347,6 +1362,9 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/NEW_PATTERN", "s", NEW_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_INSTRUMENT", "f", CLEAR_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
