@@ -1256,8 +1256,14 @@ bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
 	int nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
 
 	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
+		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to maximum allowed value [%2]" )
+					.arg( nInstrumentNumber )
+					.arg( pSong->getInstrumentList()->size() - 1 ) );
 		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
-	} else if ( nInstrumentNumber < 0 ) {
+	}
+	else if ( nInstrumentNumber < 0 ) {
+		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to minimum allowed value [%2]" )
+					.arg( nInstrumentNumber ).arg( 0 ) );
 		nInstrumentNumber = 0;
 	}
 
