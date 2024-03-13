@@ -25,7 +25,10 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
+
+#include <core/IO/MidiCommon.h>
 
 #include <QFileInfo>
 
@@ -40,6 +43,7 @@ using namespace H2Core;
 
 class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiNoteTest );
+	CPPUNIT_TEST( testDefaultValues );
 	CPPUNIT_TEST( testLoadLegacySong );
 	CPPUNIT_TEST( testLoadNewSong );
 	CPPUNIT_TEST_SUITE_END();
@@ -49,6 +53,13 @@ class MidiNoteTest : public CppUnit::TestCase {
 	void setUp() override
 	{
 		Hydrogen::create_instance();
+	}
+
+	void testDefaultValues() {
+		___INFOLOG( "" );
+		CPPUNIT_ASSERT( ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE ==
+						MidiMessage::instrumentOffset );
+		___INFOLOG( "passed" );
 	}
 
 	void testLoadLegacySong()

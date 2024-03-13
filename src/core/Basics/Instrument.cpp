@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/IO/MidiCommon.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -56,7 +57,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __filter_resonance( 0.0 )
 	, __pitch_offset( 0.0 )
 	, __random_pitch_factor( 0.0 )
-	, __midi_out_note( 36 + id )
+	, __midi_out_note( MidiMessage::instrumentOffset + id )
 	, __midi_out_channel( -1 )
 	, __stop_notes( false )
 	, __sample_selection_alg( VELOCITY )

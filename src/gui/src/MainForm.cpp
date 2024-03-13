@@ -35,6 +35,7 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
+#include <core/IO/MidiCommon.h>
 #include <core/NsmClient.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -1958,7 +1959,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 				float velocity = 0.8;
 
-				pHydrogen->addRealtimeNote( row, velocity, false, row + 36 );
+				pHydrogen->addRealtimeNote( row, velocity, false,
+											row + MidiMessage::instrumentOffset );
 
 				return true; // eat event
 			}
