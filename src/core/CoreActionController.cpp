@@ -1703,6 +1703,80 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
+bool CoreActionController::handleNote( int nNote, float fVelocity ) {
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	int nInstrument = nNote - MidiMessage::instrumentOffset;
+	auto pInstrumentList = pSong->getInstrumentList();
+	std::shared_ptr<Instrument> pInstrument = nullptr;
+
+	if ( pPref->__playselectedinstrument ){
+		nInstrument = pHydrogen->getSelectedInstrumentNumber();
+		pInstrument = pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
+		if ( pInstrument == nullptr ) {
+			WARNINGLOG( "No instrument selected!" );
+			return false;
+		}
+	}
+	else if ( pPref->m_bMidiFixedMapping ){
+		pInstrument = pInstrumentList->findMidiNote( nNote );
+		if ( pInstrument == nullptr ) {
+			WARNINGLOG( QString( "Unable to map note [%1] to instrument" )
+						.arg( nNote ) );
+			return false;
+		}
+		nInstrument = pInstrumentList->index( pInstrument );
+	}
+	else {
+		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
+			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
+						.arg( nInstrument ).arg( nNote )
+						.arg( 0 ).arg( pInstrumentList->size() ) );
+			return false;
+		}
+		pInstrument = pInstrumentList->get( nInstrument );
+		if ( pInstrument == nullptr ) {
+			WARNINGLOG( QString( "Unable to retrieve instrument [%1]" )
+						.arg( nInstrument ) );
+			return false;
+		}
+	}
+
+	auto pMidiInput = pHydrogen->getMidiInput();
+	int nHihatOpenness = 127;
+	if ( pMidiInput != nullptr ) {
+		nHihatOpenness = pMidiInput->getHihatOpenness();
+	}
+
+	// Only look to change instrument if the current note is actually of hihat
+	// and hihat openness is outside the instrument selected
+	if ( pInstrument != nullptr &&
+		 pInstrument->get_hihat_grp() >= 0 &&
+		 ( nHihatOpenness < pInstrument->get_lower_cc() ||
+		   nHihatOpenness > pInstrument->get_higher_cc() ) ) {
+
+		for ( int i = 0; i <= pInstrumentList->size(); i++ ) {
+			auto ppInstr = pInstrumentList->get( i );
+			if ( ppInstr != nullptr &&
+				pInstrument->get_hihat_grp() == ppInstr->get_hihat_grp() &&
+				nHihatOpenness >= ppInstr->get_lower_cc() &&
+				nHihatOpenness <= ppInstr->get_higher_cc() ) {
+
+				nInstrument = i;
+				break;
+			}
+		}
+	}
+
+	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
+}
+
 void CoreActionController::updatePreferences() {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();

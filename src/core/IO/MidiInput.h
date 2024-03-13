@@ -55,6 +55,10 @@ public:
 	void handleProgramChangeMessage( const MidiMessage& msg );
 	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
 
+		int getHihatOpenness() const {
+			return m_nHihatOpenness;
+		};
+
 protected:
 	bool m_bActive;
 
@@ -63,7 +67,7 @@ protected:
 
 
 private:
-	int __hihat_cc_openess;
+	int m_nHihatOpenness;
 };
 
 };
