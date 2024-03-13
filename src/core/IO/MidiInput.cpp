@@ -37,7 +37,7 @@ namespace H2Core
 
 MidiInput::MidiInput()
 		: m_bActive( false )
-		, __hihat_cc_openess ( 127 )
+		, m_nHihatOpenness ( 127 )
 {
 	//
 
@@ -174,8 +174,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 		}
 	}
 
-	if(msg.m_nData1 == 04){
-		__hihat_cc_openess = msg.m_nData2;
+	if ( msg.m_nData1 == 04 ) {
+		m_nHihatOpenness = msg.m_nData2;
 	}
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );
@@ -235,57 +235,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-	int nInstrument = nNote - MidiMessage::instrumentOffset;
-	auto pInstrList = pHydrogen->getSong()->getInstrumentList();
-	std::shared_ptr<Instrument> pInstr = nullptr;
-		
-	if ( pPref->__playselectedinstrument ){
-		nInstrument = pHydrogen->getSelectedInstrumentNumber();
-		pInstr= pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
-	}
-	else if ( pPref->m_bMidiFixedMapping ){
-		pInstr = pInstrList->findMidiNote( nNote );
-		nInstrument = pInstrList->index( pInstr );
-	}
-	else {
-		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
-						.arg( nInstrument ).arg( nNote )
-						.arg( 0 ).arg( pInstrList->size() ) );
-			return;
-		}
-		pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
-	}
-
-	if( pInstr == nullptr ) {
-		WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-		return;
-	}
-
-	/*
-	  Only look to change instrument if the
-	  current note is actually of hihat and
-	  hihat openness is outside the instrument selected
-	*/
-	if ( pInstr != nullptr &&
-		 pInstr->get_hihat_grp() >= 0 &&
-		 ( __hihat_cc_openess < pInstr->get_lower_cc() ||
-		   __hihat_cc_openess > pInstr->get_higher_cc() ) ) {
-		
-		for ( int i = 0; i <= pInstrList->size(); i++ ) {
-			auto instr_contestant = pInstrList->get( i );
-			if ( instr_contestant != nullptr &&
-				pInstr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
-				__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
-				__hihat_cc_openess <= instr_contestant->get_higher_cc() ) {
-				
-				nInstrument = i;
-				break;
-			}
-		}
-	}
-
-	pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
+	pHydrogen->getCoreActionController()->handleNote( nNote, fVelocity );
 }
 
 /*
