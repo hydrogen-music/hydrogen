@@ -852,8 +852,8 @@ void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
 void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	H2Core::Hydrogen::get_instance()->getCoreActionController()
-		->clearInstrumentInPattern( static_cast<int>(std::round( argv[0]->f )) );
+	H2Core::CoreActionController::clearInstrumentInPattern(
+		static_cast<int>(std::round( argv[0]->f )) );
 }
 
 void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )

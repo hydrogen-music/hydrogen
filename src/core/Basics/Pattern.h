@@ -175,6 +175,8 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param instr the instrument
 		*/
 	void purge_instrument( std::shared_ptr<Instrument> instr, bool bRequiredLock = true );
+		/** Erase all notes. */
+		void clear( bool bRequiredLock = true );
 		/**
 		 * mark all notes as old
 		 */

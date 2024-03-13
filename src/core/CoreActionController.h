@@ -356,13 +356,24 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		static bool setPattern( Pattern* pPattern, int nPatternNumber );
-	    /** Removes a pattern from the pattern list.
+		/** Removes a pattern from the pattern list.
 		 *
 		 * @param nPatternNumber Specifies the position/row of the pattern.
 		 *
 		 * @return bool true on success
 		 */
     	static bool removePattern( int nPatternNumber );
+		/** Deletes all notes for instrument @a pInstrument in a specified
+		 * pattern.
+		 *
+		 * @param nInstrumentNumber target instrument
+		 * @param nPatternNumber index of the target pattern in
+		 *   Song::m_pPatternList in the current song. If set to -1, the
+		 *   currently selected pattern will be used instead.
+		 *
+		 * @return bool true on success. */
+		static bool clearInstrumentInPattern( int nInstrumentNumber,
+											  int nPatternNumber = -1 );
 	    /** Fills or clears a specific grid cell in the SongEditor.
 		 *
 		 * @param nColumn column of the pattern.

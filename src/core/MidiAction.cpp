@@ -31,6 +31,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/PatternList.h>
@@ -1278,11 +1279,11 @@ bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
 	bool ok;
 	int nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
 
-	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
+	const int nInstruments = pSong->getDrumkit()->getInstruments()->size();
+	if ( nInstruments < nInstrumentNumber ) {
 		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to maximum allowed value [%2]" )
-					.arg( nInstrumentNumber )
-					.arg( pSong->getInstrumentList()->size() - 1 ) );
-		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
+					.arg( nInstrumentNumber ).arg( nInstruments - 1 ) );
+		nInstrumentNumber = nInstruments - 1;
 	}
 	else if ( nInstrumentNumber < 0 ) {
 		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to minimum allowed value [%2]" )
@@ -1292,8 +1293,7 @@ bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
 
 	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
 
-	return pHydrogen->getCoreActionController()->
-		clearInstrumentInPattern( nInstrumentNumber );
+	return CoreActionController::clearInstrumentInPattern( nInstrumentNumber );
 }
 
 bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,
@@ -1314,9 +1314,7 @@ bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,
 
 	pPattern->clear( true );
 
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
-	}
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 
 	return true;
 }

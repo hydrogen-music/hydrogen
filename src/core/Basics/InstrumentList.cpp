@@ -29,6 +29,7 @@
 #include <core/Basics/Sample.h>
 
 #include <core/Helpers/Xml.h>
+#include <core/IO/MidiCommon.h>
 #include <core/License.h>
 
 #include <set>
@@ -351,7 +352,7 @@ bool InstrumentList::has_all_midi_notes_same() const
 void InstrumentList::set_default_midi_out_notes()
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->set_midi_out_note( i + MIDI_DEFAULT_OFFSET );
+		__instruments[i]->set_midi_out_note( i + MidiMessage::instrumentOffset );
 	}
 }
 

@@ -37,6 +37,7 @@
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Playlist.h>
+#include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
@@ -2308,7 +2309,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				static_cast<int>(action) - 400, // instrument
 				0.8,							// velocity
 				false,							// note off
-				static_cast<int>(action) - 400 + MIDI_DEFAULT_OFFSET );
+				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset );
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&

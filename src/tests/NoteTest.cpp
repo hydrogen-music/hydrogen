@@ -24,6 +24,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/IO/MidiCommon.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
 #include <QDomDocument>
@@ -40,7 +41,7 @@ class NoteTest : public CppUnit::TestCase {
 
 	void testMidiDefaultOffset() {
 		___INFOLOG( "" );
-		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, KEYS_PER_OCTAVE *
+		CPPUNIT_ASSERT_EQUAL( MidiMessage::instrumentOffset, KEYS_PER_OCTAVE *
 							  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
 		___INFOLOG( "passed" );
 	}
@@ -50,7 +51,7 @@ class NoteTest : public CppUnit::TestCase {
 	void testVirtualKeyboard() {
 		___INFOLOG( "" );
 		CPPUNIT_ASSERT_EQUAL( static_cast<int>(Shortcuts::Action::VK_36_C2), 400 );
-		CPPUNIT_ASSERT_EQUAL( MIDI_DEFAULT_OFFSET, 36 ); // MIDI note C2
+		CPPUNIT_ASSERT_EQUAL( MidiMessage::instrumentOffset, 36 ); // MIDI note C2
 		___INFOLOG( "passed" );
 	}
 
