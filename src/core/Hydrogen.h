@@ -182,7 +182,7 @@ public:
 
 	void updateSongSize();
 
-		void			addRealtimeNote ( int instrument,
+		bool			addRealtimeNote ( int instrument,
 							  float velocity,
 							  bool noteoff=false,
 							  int msg1=0 );

@@ -383,6 +383,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
     	static bool toggleGridCell( int nColumn, int nRow );
 
+		/** Handle an incoming note event, e.g. a MIDI or OSC NOTE_ON or
+		 * NOTE_OFF as well as virtual keyboard stroke.
+		 *
+		 * @param nNote determines which note will be triggered and is defined
+		 *   between [36,127] inspired by the General MIDI standard.
+		 * @param fVelocity how "hard" the note was triggered.
+		 *
+		 * @return bool true on success */
+		static bool handleNote( int nNote, float fVelocity );
+
 	/**
 	 * In case a different preferences file was loaded with Hydrogen
 	 * already fully set up this function refreshes all corresponding

@@ -331,7 +331,7 @@ void Hydrogen::midiNoteOn( Note *note )
 	m_pAudioEngine->noteOn( note );
 }
 
-void Hydrogen::addRealtimeNote(	int		nInstrument,
+bool Hydrogen::addRealtimeNote(	int		nInstrument,
 								float	fVelocity,
 								bool	bNoteOff,
 								int		nNote )
@@ -351,7 +351,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
-		return;
+		return false;
 	}
 
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -362,7 +362,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
 					  .arg( nInstrument ) );
 			pAudioEngine->unlock();
-			return;
+			return false;
 		}
 	}
 
@@ -385,7 +385,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
 					  .arg( nColumn ).arg( 0 )
 					  .arg( pColumns->size() ) );
-			return;
+			return false;
 		}
 		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
@@ -419,7 +419,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		if ( ! pCurrentPattern ) {
 			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
-			return;
+			return false;
 		}
 
 		// Locate nTickInPattern -- may need to wrap around end of pattern
@@ -451,7 +451,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 				  .arg( nInstrumentNumber )
 				  .arg( bPlaySelectedInstrument ) );
 		pAudioEngine->unlock();
-		return;
+		return false;
 	}
 
 	// Record note
@@ -534,7 +534,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Play back the note.
 	if ( ! pInstr->hasSamples() ) {
 		pAudioEngine->unlock();
-		return;
+		return true;
 	}
 	
 	if ( bPlaySelectedInstrument ) {
@@ -569,6 +569,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	m_pAudioEngine->unlock(); // unlock the audio engine
+	return true;
 }
 
 
