@@ -1748,14 +1748,10 @@ bool CoreActionController::handleNote( int nNote, float fVelocity ) {
 		}
 	}
 
-	auto pMidiInput = pHydrogen->getMidiInput();
-	int nHihatOpenness = 127;
-	if ( pMidiInput != nullptr ) {
-		nHihatOpenness = pMidiInput->getHihatOpenness();
-	}
 
 	// Only look to change instrument if the current note is actually of hihat
 	// and hihat openness is outside the instrument selected
+	const int nHihatOpenness = pHydrogen->getHihatOpenness();
 	if ( pInstrument != nullptr &&
 		 pInstrument->get_hihat_grp() >= 0 &&
 		 ( nHihatOpenness < pInstrument->get_lower_cc() ||
