@@ -1267,6 +1267,60 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 	return -1;
 }
 
+bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
+										  Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	bool ok;
+	int nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
+
+	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
+		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to maximum allowed value [%2]" )
+					.arg( nInstrumentNumber )
+					.arg( pSong->getInstrumentList()->size() - 1 ) );
+		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
+	}
+	else if ( nInstrumentNumber < 0 ) {
+		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to minimum allowed value [%2]" )
+					.arg( nInstrumentNumber ).arg( 0 ) );
+		nInstrumentNumber = 0;
+	}
+
+	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
+
+	return pHydrogen->getCoreActionController()->
+		clearInstrumentInPattern( nInstrumentNumber );
+}
+
+bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,
+										   Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	int nPattern = pHydrogen->getSelectedPatternNumber();
+
+	auto pPattern = pSong->getPatternList()->get( nPattern );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Couldn't find pattern [%1]" ).arg( nPattern ) );
+		return false;
+	}
+
+	pPattern->clear( true );
+
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
+	}
+
+	return true;
+}
+
 bool MidiActionManager::handleActions( const std::vector<std::shared_ptr<Action>>& actions ) {
 
 	bool bResult = false;
