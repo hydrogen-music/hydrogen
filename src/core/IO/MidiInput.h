@@ -55,19 +55,11 @@ public:
 	void handleProgramChangeMessage( const MidiMessage& msg );
 	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
 
-		int getHihatOpenness() const {
-			return m_nHihatOpenness;
-		};
-
 protected:
 	bool m_bActive;
 
 	void handleNoteOnMessage( const MidiMessage& msg );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
-
-
-private:
-	int m_nHihatOpenness;
 };
 
 };
