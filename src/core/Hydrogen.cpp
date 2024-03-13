@@ -114,6 +114,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bSessionIsExported( false )
+					 , m_nHihatOpenness( 127 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -1597,9 +1598,12 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
+			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nHihatOpenness ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
-	} else {
+	}
+	else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
 			.append( QString( ", m_pSong: " ) );
@@ -1648,7 +1652,9 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", lastMidiEvent: %1" )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
+			.append( QString( ", lastMidiEventParameter: %1" )
+					 .arg( m_nLastMidiEventParameter ) )
+			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}

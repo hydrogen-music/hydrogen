@@ -38,7 +38,6 @@ namespace H2Core
 
 MidiInput::MidiInput()
 		: m_bActive( false )
-		, m_nHihatOpenness ( 127 )
 {
 	//
 
@@ -176,7 +175,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	}
 
 	if ( msg.m_nData1 == 04 ) {
-		m_nHihatOpenness = msg.m_nData2;
+		pHydrogen->setHihatOpenness( msg.m_nData2 );
 	}
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );

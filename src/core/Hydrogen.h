@@ -187,6 +187,9 @@ public:
 							  bool noteoff=false,
 							  int msg1=0 );
 
+		int getHihatOpenness() const;
+		void setHihatOpenness( int nValue );
+
 		void			restartDrivers();
 
 		AudioOutput*		getAudioOutput() const;
@@ -545,6 +548,9 @@ private:
 
 	std::shared_ptr<Playlist> m_pPlaylist;
 
+		/** Controls the instrument selection within a hihat group. */
+		int m_nHihatOpenness;
+
 	/** 
 	 * Constructor, entry point, and initialization of the
 	 * Hydrogen application.
@@ -632,6 +638,12 @@ inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
 }
 inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
 	m_pPlaylist = pPlaylist;
+}
+inline int Hydrogen::getHihatOpenness() const {
+	return m_nHihatOpenness;
+}
+inline void Hydrogen::setHihatOpenness( int nValue ) {
+	m_nHihatOpenness = std::clamp( nValue, 0, 127 );
 }
 };
 
