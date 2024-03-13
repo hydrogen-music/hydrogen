@@ -2307,7 +2307,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pHydrogen->addRealtimeNote(
 				static_cast<int>(action) - 400, // instrument
 				0.8,							// velocity
-				0.f,							// pan
 				false,							// note off
 				static_cast<int>(action) - 400 + MIDI_DEFAULT_OFFSET );
 		}
