@@ -194,7 +194,6 @@ public:
 
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
-							  float fPan = 0.0f,
 							  bool noteoff=false,
 							  int msg1=0 );
 

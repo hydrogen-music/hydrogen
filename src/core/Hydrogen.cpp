@@ -356,7 +356,6 @@ void Hydrogen::midi_noteOn( Note *note )
 
 void Hydrogen::addRealtimeNote(	int		nInstrument,
 								float	fVelocity,
-								float	fPan,
 								bool	bNoteOff,
 								int		nNote )
 {
@@ -393,6 +392,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Get current pattern and column
 	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
+	const float fPan = 0;
 
 	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&

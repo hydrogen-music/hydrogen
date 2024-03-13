@@ -1958,7 +1958,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 				float velocity = 0.8;
 
-				pHydrogen->addRealtimeNote( row, velocity, 0.f, false, row + 36 );
+				pHydrogen->addRealtimeNote( row, velocity, false, row + 36 );
 
 				return true; // eat event
 			}
