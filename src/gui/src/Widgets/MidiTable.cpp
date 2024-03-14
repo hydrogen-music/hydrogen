@@ -65,20 +65,27 @@ MidiTable::~MidiTable()
 	}
 }
 
-void MidiTable::midiSensePressed( int row ){
+void MidiTable::midiSensePressed( int nRow ){
 
-	m_nCurrentMidiAutosenseRow = row;
+	m_nCurrentMidiAutosenseRow = nRow;
 	MidiSenseWidget midiSenseWidget( this );
 	midiSenseWidget.exec();
 
-	LCDCombo * eventCombo =  dynamic_cast <LCDCombo *> ( cellWidget( row, 1 ) );
-	LCDSpinBox * eventSpinner = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 2 ) );
+	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	LCDSpinBox* pEventSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	if ( pEventCombo == nullptr ) {
+		ERRORLOG( QString( "No event combobox in row [%1]" ).arg( nRow ) );
+		return;
+	}
+	if ( pEventSpinner == nullptr ) {
+		ERRORLOG( QString( "No event spinner in row [%1]" ).arg( nRow ) );
+		return;
+	}
 
-
-	eventCombo->setCurrentIndex( eventCombo->findText(
+	pEventCombo->setCurrentIndex( pEventCombo->findText(
 									 H2Core::MidiMessage::EventToQString(
 										 midiSenseWidget.getLastMidiEvent() ) ) );
-	eventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
+	pEventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
 
 	m_pUpdateTimer->start( 100 );
 
