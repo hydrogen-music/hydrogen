@@ -84,6 +84,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix persistent of hihat pressure group settings while changing/restarting
 			MIDI drivers.
 		- Fix mapping of `NOTE_OFF` MIDI messages in hihat pressure groups.
+		- Fix segfault when using MIDI sense button in table of Preferences > MIDI
+			after removing rows above it from the table.
 
 2024-01-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3
