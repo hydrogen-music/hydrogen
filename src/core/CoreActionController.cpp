@@ -1703,7 +1703,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, float fVelocity ) {
+bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1712,9 +1712,11 @@ bool CoreActionController::handleNote( int nNote, float fVelocity ) {
 		return false;
 	}
 
-	int nInstrument = nNote - MidiMessage::instrumentOffset;
-	auto pInstrumentList = pSong->getInstrumentList();
 	std::shared_ptr<Instrument> pInstrument = nullptr;
+	int nInstrument = 0;
+	QString sMode;
+
+	auto pInstrumentList = pSong->getInstrumentList();
 
 	if ( pPref->__playselectedinstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
@@ -1723,6 +1725,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity ) {
 			WARNINGLOG( "No instrument selected!" );
 			return false;
 		}
+		sMode = "Play Selected Instrument";
 	}
 	else if ( pPref->m_bMidiFixedMapping ){
 		pInstrument = pInstrumentList->findMidiNote( nNote );
@@ -1732,20 +1735,24 @@ bool CoreActionController::handleNote( int nNote, float fVelocity ) {
 			return false;
 		}
 		nInstrument = pInstrumentList->index( pInstrument );
+		sMode = "Map to Output MIDI note";
 	}
 	else {
+		nInstrument = nNote - MidiMessage::instrumentOffset;
 		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
 			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
 						.arg( nInstrument ).arg( nNote )
 						.arg( 0 ).arg( pInstrumentList->size() ) );
 			return false;
 		}
+
 		pInstrument = pInstrumentList->get( nInstrument );
 		if ( pInstrument == nullptr ) {
 			WARNINGLOG( QString( "Unable to retrieve instrument [%1]" )
 						.arg( nInstrument ) );
 			return false;
 		}
+		sMode = "Map to instrument list position";
 	}
 
 
@@ -1765,10 +1772,14 @@ bool CoreActionController::handleNote( int nNote, float fVelocity ) {
 				nHihatOpenness <= ppInstr->get_higher_cc() ) {
 
 				nInstrument = i;
+				sMode = "Hihat Pressure Group";
 				break;
 			}
 		}
 	}
+
+	INFOLOG( QString( "[%1] mapped note [%2] to instrument [%3]" )
+			 .arg( sMode ).arg( nNote ).arg( nInstrument ) );
 
 	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
 }

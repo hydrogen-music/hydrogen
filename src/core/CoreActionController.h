@@ -407,9 +407,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @param nNote determines which note will be triggered and is defined
 		 *   between [36,127] inspired by the General MIDI standard.
 		 * @param fVelocity how "hard" the note was triggered.
+		 * @param bNoteOff whether note should trigger or stop sound.
 		 *
 		 * @return bool true on success */
-		bool handleNote( int nNote, float fVelocity );
+		bool handleNote( int nNote, float fVelocity, bool bNoteOff = false );
 
 	/**
 	 * In case a different preferences file was loaded with Hydrogen
