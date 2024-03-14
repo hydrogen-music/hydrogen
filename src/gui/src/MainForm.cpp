@@ -2304,12 +2304,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
 			// Virtual keyboard
-			
-			pHydrogen->addRealtimeNote(
-				static_cast<int>(action) - 400, // instrument
-				0.8,							// velocity
-				false,							// note off
-				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset );
+
+			CoreActionController::handleNote(
+				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset,
+				0.8, false );
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&
