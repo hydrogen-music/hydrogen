@@ -235,8 +235,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		return;
 	}
 
-
-	CoreActionController::handleNote( nNote, fVelocity );
+	CoreActionController::handleNote( nNote, fVelocity, false );
 }
 
 /*
@@ -258,37 +257,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		return;
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrList = pHydrogen->getSong()->getDrumkit()->getInstruments();
-
-	int nNote = msg.m_nData1;
-	int nInstrument = nNote - MidiMessage::instrumentOffset;
-	std::shared_ptr<Instrument> pInstr = nullptr;
-
-	if ( Preferences::get_instance()->__playselectedinstrument ){
-		nInstrument = pHydrogen->getSelectedInstrumentNumber();
-		pInstr = pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
-	}
-	else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
-		pInstr = pInstrList->findMidiNote( nNote );
-		nInstrument = pInstrList->index( pInstr );
-	}
-	else {
-		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
-						.arg( nInstrument ).arg( nNote )
-						.arg( 0 ).arg( pInstrList->size() ) );
-			return;
-		}
-		pInstr = pInstrList->get( nInstrument );
-	}
-
-	if( pInstr == nullptr ) {
-		WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-		return;
-	}
-
-	Hydrogen::get_instance()->addRealtimeNote( nInstrument, 0.0, true, nNote );
+	CoreActionController::handleNote( msg.m_nData1, 0.0, true );
 }
 
 void MidiInput::handleSysexMessage( const MidiMessage& msg )
