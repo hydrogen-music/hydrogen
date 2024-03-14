@@ -70,6 +70,10 @@ void MidiTable::midiSensePressed( int nRow ){
 	m_nCurrentMidiAutosenseRow = nRow;
 	MidiSenseWidget midiSenseWidget( this );
 	midiSenseWidget.exec();
+	if ( midiSenseWidget.getLastMidiEvent() == H2Core::MidiMessage::Event::Null ) {
+		// Rejected
+		return;
+	}
 
 	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
 	LCDSpinBox* pEventSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
