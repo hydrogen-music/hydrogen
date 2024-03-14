@@ -147,14 +147,17 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
 
-	QSignalMapper *signalMapper = new QSignalMapper(this);
-
-	connect(midiSenseButton, SIGNAL( clicked()), signalMapper, SLOT( map() ));
-	signalMapper->setMapping( midiSenseButton, oldRowCount );
-	connect( signalMapper, SIGNAL(mapped( int ) ), this, SLOT( midiSensePressed(int) ) );
+	connect( midiSenseButton, &QPushButton::clicked, [=](){
+		for ( int ii = 0; ii < rowCount(); ii++ ) {
+			if ( cellWidget( ii, 0 ) == midiSenseButton ) {
+				midiSensePressed( ii );
+				return;
+			}
+		}
+		ERRORLOG( QString( "Unable to midiSenseButton of initial row [%1] in MidiTable!" )
+				  .arg( oldRowCount ) );
+	});
 	setCellWidget( oldRowCount, 0, midiSenseButton );
-
-
 
 	LCDCombo *eventBox = new LCDCombo(this);
 	eventBox->setSize( QSize( m_nColumn1Width, m_nRowHeight ) );
