@@ -1707,7 +1707,10 @@ void MainForm::initKeyInstMap()
 {
 
 	QString loc = QLocale::system().name();
-	int instr = 0;
+
+	// Mimics a MIDI NOTE_ON event which has pitch values between
+	// MidiMessage::instrumentOffset and 127.
+	int nNote = MidiMessage::instrumentOffset;
 
 	///POSIX Locale
 	//locale for keyboardlayout QWERTZ
@@ -1720,85 +1723,85 @@ void MainForm::initKeyInstMap()
 	// en_GB, en_US, en_ZA, usw.
 
 	if ( loc.contains( "de" ) || loc.contains( "DE" )){ ///QWERTZ
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
+		keycodeInstrumentMap[Qt::Key_Y] = nNote++;
+		keycodeInstrumentMap[Qt::Key_S] = nNote++;
+		keycodeInstrumentMap[Qt::Key_X] = nNote++;
+		keycodeInstrumentMap[Qt::Key_D] = nNote++;
+		keycodeInstrumentMap[Qt::Key_C] = nNote++;
+		keycodeInstrumentMap[Qt::Key_V] = nNote++;
+		keycodeInstrumentMap[Qt::Key_G] = nNote++;
+		keycodeInstrumentMap[Qt::Key_B] = nNote++;
+		keycodeInstrumentMap[Qt::Key_H] = nNote++;
+		keycodeInstrumentMap[Qt::Key_N] = nNote++;
+		keycodeInstrumentMap[Qt::Key_J] = nNote++;
+		keycodeInstrumentMap[Qt::Key_M] = nNote++;
 
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
+		keycodeInstrumentMap[Qt::Key_Q] = nNote++;
+		keycodeInstrumentMap[Qt::Key_2] = nNote++;
+		keycodeInstrumentMap[Qt::Key_W] = nNote++;
+		keycodeInstrumentMap[Qt::Key_3] = nNote++;
+		keycodeInstrumentMap[Qt::Key_E] = nNote++;
+		keycodeInstrumentMap[Qt::Key_R] = nNote++;
+		keycodeInstrumentMap[Qt::Key_5] = nNote++;
+		keycodeInstrumentMap[Qt::Key_T] = nNote++;
+		keycodeInstrumentMap[Qt::Key_6] = nNote++;
+		keycodeInstrumentMap[Qt::Key_Z] = nNote++;
+		keycodeInstrumentMap[Qt::Key_7] = nNote++;
+		keycodeInstrumentMap[Qt::Key_U] = nNote++;
 	}
 	else if ( loc.contains( "fr" ) || loc.contains( "FR" )){ ///AZERTY
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_Question] = instr++;
+		keycodeInstrumentMap[Qt::Key_W] = nNote++;
+		keycodeInstrumentMap[Qt::Key_S] = nNote++;
+		keycodeInstrumentMap[Qt::Key_X] = nNote++;
+		keycodeInstrumentMap[Qt::Key_D] = nNote++;
+		keycodeInstrumentMap[Qt::Key_C] = nNote++;
+		keycodeInstrumentMap[Qt::Key_V] = nNote++;
+		keycodeInstrumentMap[Qt::Key_G] = nNote++;
+		keycodeInstrumentMap[Qt::Key_B] = nNote++;
+		keycodeInstrumentMap[Qt::Key_H] = nNote++;
+		keycodeInstrumentMap[Qt::Key_N] = nNote++;
+		keycodeInstrumentMap[Qt::Key_J] = nNote++;
+		keycodeInstrumentMap[Qt::Key_Question] = nNote++;
 
-		keycodeInstrumentMap[Qt::Key_A] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
+		keycodeInstrumentMap[Qt::Key_A] = nNote++;
+		keycodeInstrumentMap[Qt::Key_2] = nNote++;
+		keycodeInstrumentMap[Qt::Key_Z] = nNote++;
+		keycodeInstrumentMap[Qt::Key_3] = nNote++;
+		keycodeInstrumentMap[Qt::Key_E] = nNote++;
+		keycodeInstrumentMap[Qt::Key_R] = nNote++;
+		keycodeInstrumentMap[Qt::Key_5] = nNote++;
+		keycodeInstrumentMap[Qt::Key_T] = nNote++;
+		keycodeInstrumentMap[Qt::Key_6] = nNote++;
+		keycodeInstrumentMap[Qt::Key_Y] = nNote++;
+		keycodeInstrumentMap[Qt::Key_7] = nNote++;
+		keycodeInstrumentMap[Qt::Key_U] = nNote++;
 	}else
 	{ /// default QWERTY
-		keycodeInstrumentMap[Qt::Key_Z] = instr++;
-		keycodeInstrumentMap[Qt::Key_S] = instr++;
-		keycodeInstrumentMap[Qt::Key_X] = instr++;
-		keycodeInstrumentMap[Qt::Key_D] = instr++;
-		keycodeInstrumentMap[Qt::Key_C] = instr++;
-		keycodeInstrumentMap[Qt::Key_V] = instr++;
-		keycodeInstrumentMap[Qt::Key_G] = instr++;
-		keycodeInstrumentMap[Qt::Key_B] = instr++;
-		keycodeInstrumentMap[Qt::Key_H] = instr++;
-		keycodeInstrumentMap[Qt::Key_N] = instr++;
-		keycodeInstrumentMap[Qt::Key_J] = instr++;
-		keycodeInstrumentMap[Qt::Key_M] = instr++;
+		keycodeInstrumentMap[Qt::Key_Z] = nNote++;
+		keycodeInstrumentMap[Qt::Key_S] = nNote++;
+		keycodeInstrumentMap[Qt::Key_X] = nNote++;
+		keycodeInstrumentMap[Qt::Key_D] = nNote++;
+		keycodeInstrumentMap[Qt::Key_C] = nNote++;
+		keycodeInstrumentMap[Qt::Key_V] = nNote++;
+		keycodeInstrumentMap[Qt::Key_G] = nNote++;
+		keycodeInstrumentMap[Qt::Key_B] = nNote++;
+		keycodeInstrumentMap[Qt::Key_H] = nNote++;
+		keycodeInstrumentMap[Qt::Key_N] = nNote++;
+		keycodeInstrumentMap[Qt::Key_J] = nNote++;
+		keycodeInstrumentMap[Qt::Key_M] = nNote++;
 
-		keycodeInstrumentMap[Qt::Key_Q] = instr++;
-		keycodeInstrumentMap[Qt::Key_2] = instr++;
-		keycodeInstrumentMap[Qt::Key_W] = instr++;
-		keycodeInstrumentMap[Qt::Key_3] = instr++;
-		keycodeInstrumentMap[Qt::Key_E] = instr++;
-		keycodeInstrumentMap[Qt::Key_R] = instr++;
-		keycodeInstrumentMap[Qt::Key_5] = instr++;
-		keycodeInstrumentMap[Qt::Key_T] = instr++;
-		keycodeInstrumentMap[Qt::Key_6] = instr++;
-		keycodeInstrumentMap[Qt::Key_Y] = instr++;
-		keycodeInstrumentMap[Qt::Key_7] = instr++;
-		keycodeInstrumentMap[Qt::Key_U] = instr++;
+		keycodeInstrumentMap[Qt::Key_Q] = nNote++;
+		keycodeInstrumentMap[Qt::Key_2] = nNote++;
+		keycodeInstrumentMap[Qt::Key_W] = nNote++;
+		keycodeInstrumentMap[Qt::Key_3] = nNote++;
+		keycodeInstrumentMap[Qt::Key_E] = nNote++;
+		keycodeInstrumentMap[Qt::Key_R] = nNote++;
+		keycodeInstrumentMap[Qt::Key_5] = nNote++;
+		keycodeInstrumentMap[Qt::Key_T] = nNote++;
+		keycodeInstrumentMap[Qt::Key_6] = nNote++;
+		keycodeInstrumentMap[Qt::Key_Y] = nNote++;
+		keycodeInstrumentMap[Qt::Key_7] = nNote++;
+		keycodeInstrumentMap[Qt::Key_U] = nNote++;
 	}
 }
 
@@ -1951,16 +1954,14 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		// virtual keyboard handling
 		if  ( k->modifiers() == Qt::NoModifier ) {
 			std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-			if (found != keycodeInstrumentMap.end()) {
-				//			INFOLOG( "[eventFilter] virtual keyboard event" );
-				// insert note at the current column in time
-				// if event recording enabled
-				int row = (*found).second;
+			if ( found != keycodeInstrumentMap.end() ) {
+				const int nNote = (*found).second;
 
-				float velocity = 0.8;
+				INFOLOG( QString( "[Virtual Keyboard] triggering note [%1]" )
+						 .arg( nNote ) );
 
-				pHydrogen->addRealtimeNote( row, velocity, false,
-											row + MidiMessage::instrumentOffset );
+				pHydrogen->getCoreActionController()->handleNote(
+					nNote, 0.8, false );
 
 				return true; // eat event
 			}
