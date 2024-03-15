@@ -79,7 +79,7 @@ class Playlist : public H2Core::Object<Playlist>
 		
 		Playlist();
 
-		void	activateSong (int SongNumber );
+		bool	activateSong (int SongNumber );
 
 		int		size() const;
 		std::shared_ptr<PlaylistEntry>	get( int idx ) const;
@@ -104,8 +104,7 @@ class Playlist : public H2Core::Object<Playlist>
 		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
 		int		getActiveSongNumber() const;
-		void	setActiveSongNumber( int ActiveSongNumber );
-		
+
 		QString	getSongFilenameByNumber( int nSongNumber ) const;
 
 		const QString& getFilename() const;
@@ -127,18 +126,20 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		QString m_sFilename;
 
-		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
-
-		int m_nActiveSongNumber;
-
-		bool m_bIsModified;
+		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
+		void saveTo( XMLNode& node ) const;
 
 		void execScript( int index ) const;
 
-		void saveTo( XMLNode& node ) const;
-		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
+		void setActiveSongNumber( int ActiveSongNumber );
+
+		QString m_sFilename;
+		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
+		int m_nActiveSongNumber;
+		bool m_bIsModified;
+
+
 };
 
 inline const QString& PlaylistEntry::getSongPath() const {

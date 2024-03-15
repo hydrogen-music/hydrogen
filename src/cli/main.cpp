@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
 
 			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
 				preferences->setLastSongFilename( sSongPath );
-				pPlaylist->activateSong( 0 );
+				CoreActionController::activatePlaylistSong( 0 );
 			}
 
 			show_playlist( pPlaylist->getActiveSongNumber() );

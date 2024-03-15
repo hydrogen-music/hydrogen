@@ -33,11 +33,9 @@ namespace H2Core
 
 const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
 
-Playlist::Playlist()
-{
-	m_sFilename = "";
-	m_nActiveSongNumber = -1;
-	m_bIsModified = false;
+Playlist::Playlist() : m_sFilename( "" ),
+					   m_nActiveSongNumber( -1 ),
+					   m_bIsModified( false ) {
 }
 
 void Playlist::clear()
@@ -241,12 +239,23 @@ bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 	return true;
 }
 
-/* This method is called by Event dispatcher thread ( GUI ) */
-void Playlist::activateSong( int songNumber )
+bool Playlist::activateSong( int nSongNumber )
 {
-	setActiveSongNumber( songNumber );
+	if ( size() == 0 ) {
+		ERRORLOG( "Playlist is empty" );
+		return false;
+	}
 
-	execScript( songNumber );
+	if ( nSongNumber < 0 || nSongNumber >= size() ) {
+		ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2]" )
+				  .arg( nSongNumber ).arg( size() - 1 ) );
+		return false;
+	}
+
+	setActiveSongNumber( nSongNumber );
+
+	execScript( nSongNumber );
+	return true;
 }
 
 QString Playlist::getSongFilenameByNumber( int nSongNumber ) const
@@ -368,7 +377,7 @@ void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
 	m_sScriptPath = sScriptPath;
 	if ( ! sScriptPath.isEmpty() &&
 		 sScriptPath != sLegacyEmptyScriptPath ) {
-		m_bSongExists = Filesystem::file_readable( sScriptPath );
+		m_bScriptExists = Filesystem::file_readable( sScriptPath );
 	} else {
 		m_bScriptExists = false;
 	}

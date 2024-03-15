@@ -447,6 +447,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * pEntry will be deleted. */
 		static bool removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
 								 int nIndex = -1 );
+		/** Does not load the corresponding song! Only marks it active in the
+		 * playlist.
+		 *
+		 * Song loading was split off to allow the GUI to show error dialogs in
+		 * case something went wrong. */
+		static bool activatePlaylistSong( int nSongNumber );
 
 private:
 	static bool sendMasterVolumeFeedback();

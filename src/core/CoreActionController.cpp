@@ -1914,6 +1914,7 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid playlist" );
 		return false;
 	}
 	pHydrogen->setPlaylist( pPlaylist );
@@ -1930,6 +1931,10 @@ bool CoreActionController::savePlaylist() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
 	if ( ! pPlaylist->save() ) {
 		return false;
 	}
@@ -1942,6 +1947,10 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
 	if ( ! pHydrogen->getPlaylist()->saveAs( sPath ) ) {
 		ERRORLOG( QString( "Unable to save playlist to [%1]" ).arg( sPath ) );
 		return false;
@@ -1960,6 +1969,10 @@ bool CoreActionController::addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
 		return false;
 	}
 	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
 
 	if ( ! pPlaylist->add( pEntry, nIndex ) ) {
 		return false;
@@ -1978,6 +1991,10 @@ bool CoreActionController::removeFromPlaylist( std::shared_ptr<PlaylistEntry> pE
 		return false;
 	}
 	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
 
 	if ( ! pPlaylist->remove( pEntry, nIndex ) ) {
 		return false;
@@ -1987,5 +2004,24 @@ bool CoreActionController::removeFromPlaylist( std::shared_ptr<PlaylistEntry> pE
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 	return true;
 
+}
+bool CoreActionController::activatePlaylistSong( int nSongNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "Invalid current playlist" );
+		return false;
+	}
+
+	if ( ! pPlaylist->activateSong( nSongNumber ) ) {
+		ERRORLOG( QString( "Unable to set playlist song [%1]" )
+				  .arg( nSongNumber ) );
+		return false;
+	}
+	EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
+											nSongNumber );
+
+	return true;
 }
 }

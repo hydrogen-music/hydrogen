@@ -1122,7 +1122,7 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 
 bool MidiActionManager::setSongFromPlaylist( int nSongNumber, Hydrogen* pHydrogen ) {
 	auto pPlaylist = pHydrogen->getPlaylist();
-	if ( pPlaylist != nullptr ) {
+	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "Invalid current playlist" );
 		return false;
 	}
@@ -1138,9 +1138,7 @@ bool MidiActionManager::setSongFromPlaylist( int nSongNumber, Hydrogen* pHydroge
 						  .arg( nSongNumber ) );
 				return false;
 			}
-			pPlaylist->activateSong( nSongNumber );
-			EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
-													nSongNumber );
+			CoreActionController::activatePlaylistSong( nSongNumber );
 		}
 	} else {
 		// Preventive measure to avoid bad things.

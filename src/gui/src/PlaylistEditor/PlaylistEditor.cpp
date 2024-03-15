@@ -711,13 +711,7 @@ void PlaylistEditor::nodePlayBTN()
 			m_pPlayBtn->setChecked(false);
 			return;
 		}
-		pHydrogen->getPlaylist()->activateSong( nIndex );
-		// We don't want to overload HydrogenApp::openFile too much with
-		// optional functionality. Therefore, we trigger the event in here
-		// directly (to tell the remainder of H2 that the loaded song is
-		// associated to a playlist).
-		EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
-												nIndex );
+		CoreActionController::activatePlaylistSong( nIndex );
 	}
 
 	if ( m_pPlayBtn->isChecked() ) {
@@ -880,6 +874,10 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 
 void PlaylistEditor::playlistChangedEvent( int nValue ) {
 	update();
+}
+
+void PlaylistEditor::playlistLoadSongEvent() {
+	m_pPlaylistTable->update();
 }
 
 void PlaylistEditor::update()
@@ -1118,9 +1116,7 @@ void PlaylistTableWidget::loadCurrentRow() {
 	// optional functionality. Therefore, we trigger the event in here
 	// directly (to tell the remainder of H2 that the loaded song is
 	// associated to a playlist).
-	pPlaylist->activateSong( nIndex );
-	EventQueue::get_instance()->push_event( H2Core::EVENT_PLAYLIST_LOADSONG,
-											nIndex );
+	CoreActionController::activatePlaylistSong( nIndex );
 }
 
 
@@ -1143,6 +1139,20 @@ void PlaylistTableWidget::update() {
 		pItem->setBackground( QBrush( colorTheme.m_buttonRedColor ) );
 		pItem->setForeground( QBrush( colorTheme.m_buttonRedTextColor ) );
 	};
+	auto colorDefault = [=]( QTableWidgetItem* pItem ) {
+		pItem->setBackground( QBrush( ) );
+		pItem->setForeground( QBrush( ) );
+	};
+	auto colorActive = [=]( QTableWidgetItem* pItem ) {
+		const auto colorTheme =
+			H2Core::Preferences::get_instance()->getTheme().m_color;
+
+		// Highlighting of non-existing file has higher priority.
+		if ( pItem->background().color() != colorTheme.m_buttonRedColor ) {
+			pItem->setBackground( QBrush( colorTheme.m_accentColor ) );
+			pItem->setForeground( QBrush( colorTheme.m_accentTextColor ) );
+		}
+	};
 
 	if ( pPlaylist->size() > 0 ) {
 
@@ -1152,6 +1162,7 @@ void PlaylistTableWidget::update() {
 			auto pSongItem = new QTableWidgetItem();
 			if ( ppEntry->getSongExists() ) {
 				pSongItem->setText( ppEntry->getSongPath() );
+				colorDefault( pSongItem );
 			}
 			else {
 				pSongItem->setText( QString( "%1: %2" )
@@ -1174,9 +1185,11 @@ void PlaylistTableWidget::update() {
 			if ( sScriptText.isEmpty() ||
 				 sScriptText == PlaylistEntry::sLegacyEmptyScriptPath ) {
 				pScriptItem->setText( tr( "no Script" ) );
+				colorDefault( pScriptItem );
 			}
 			else if ( ppEntry->getScriptExists() ) {
 				pScriptItem->setText( ppEntry->getScriptPath() );
+				colorDefault( pScriptItem );
 			}
 			else {
 				pScriptItem->setText( QString( "%1: %2" )
@@ -1196,6 +1209,7 @@ void PlaylistTableWidget::update() {
 			} else {
 				pCheckboxItem->setCheckState( Qt::Unchecked );
 			}
+			colorDefault( pCheckboxItem );
 			setItem( nnRowCount, 2, pCheckboxItem );
 #endif
 			nnRowCount++;
@@ -1208,14 +1222,15 @@ void PlaylistTableWidget::update() {
 			setCurrentCell( 0, 0 );
 		}
 
-		// highlight the song currently loaded.
 		const int nActiveSongNumber = pPlaylist->getActiveSongNumber();
-		DEBUGLOG( QString( "active song %1").arg( nActiveSongNumber ) );
 		if ( nActiveSongNumber != -1 ) {
-			for ( int ii = 0; ii < columnCount(); ii++ ) {
-				DEBUGLOG( QString( "color: %1, %2" ).arg( nActiveSongNumber ).arg( ii ) );
-				itemAt( nActiveSongNumber, ii )
-					->setBackground( QColor( 50, 50, 50 ) );
+			for ( int nnColumn = 0; nnColumn < columnCount(); nnColumn++ ) {
+				auto pItem = item( nActiveSongNumber, nnColumn );
+				if ( pItem == nullptr ) {
+					continue;
+				}
+
+				colorActive( pItem );
 			}
 		}
 	}

@@ -79,6 +79,7 @@ class PlaylistEditor :  public QDialog,
 		~PlaylistEditor();
 
 		void playlistChangedEvent( int nValue ) override;
+		void playlistLoadSongEvent() override;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
