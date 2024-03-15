@@ -993,10 +993,12 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 	// Select the row the user just clicked.
 	const auto pItem = itemAt( pEvent->pos() );
+
+	// In case no item was found the selection is cleared.
+	setCurrentItem( pItem );
 	if ( pItem == nullptr ) {
 		return;
 	}
-	setCurrentItem( pItem );
 
     if ( pEvent->button() == Qt::LeftButton ) {
 		if ( pItem == nullptr ) {
