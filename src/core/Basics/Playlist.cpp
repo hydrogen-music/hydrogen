@@ -154,7 +154,6 @@ void Playlist::saveTo( XMLNode& node ) const
 }
 
 bool Playlist::add( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
-	DEBUGLOG( QString( "%1 - %2" ).arg( pEntry->toQString() ).arg( nIndex ) );
 	if ( nIndex == -1 ) {
 		// Append at the end
 		m_entries.push_back( pEntry );
@@ -191,7 +190,6 @@ bool Playlist::add( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 }
 
 bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
-	DEBUGLOG( QString( "%1 - %2" ).arg( pEntry->toQString() ).arg( nIndex ) );
 
 	int nFound = -1;
 
@@ -239,6 +237,17 @@ bool Playlist::remove( std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
 	return true;
 }
 
+std::shared_ptr<PlaylistEntry> Playlist::get( int nSongNumber ) const
+{
+	if ( nSongNumber < 0 || nSongNumber >= size() ) {
+		ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2)" )
+				  .arg( nSongNumber ).arg( size() ) );
+		return nullptr;
+	}
+
+	return m_entries[ nSongNumber ];
+}
+
 bool Playlist::activateSong( int nSongNumber )
 {
 	if ( size() == 0 ) {
@@ -247,8 +256,8 @@ bool Playlist::activateSong( int nSongNumber )
 	}
 
 	if ( nSongNumber < 0 || nSongNumber >= size() ) {
-		ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2]" )
-				  .arg( nSongNumber ).arg( size() - 1 ) );
+		ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2)" )
+				  .arg( nSongNumber ).arg( size() ) );
 		return false;
 	}
 

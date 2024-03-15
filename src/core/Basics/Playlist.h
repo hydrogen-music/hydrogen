@@ -166,12 +166,6 @@ inline int Playlist::size() const
 	return m_entries.size();
 }
 
-inline std::shared_ptr<PlaylistEntry> Playlist::get( int idx ) const
-{
-	assert( idx >= 0 && idx < size() );
-	return m_entries[ idx ];
-}
-
 inline int Playlist::getActiveSongNumber() const
 {
 	return m_nActiveSongNumber;
