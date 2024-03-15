@@ -266,6 +266,10 @@ void PlaylistEditor::addCurrentSong()
 
 void PlaylistEditor::removeSong() {
 	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	const auto pEntry = pPlaylist->get( nIndex );
 
@@ -364,10 +368,18 @@ void PlaylistEditor::newScript()
 {
 	Preferences *pPref = Preferences::get_instance();
 
+	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
+
 	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::scripts_dir();
 	}
+
+
 
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
@@ -440,8 +452,7 @@ void PlaylistEditor::newScript()
 	QString openfile = pPref->getDefaultEditor() + " " + sFilePath + "&";
 	std::system( openfile.toLatin1() );
 
-	const int nIndex = m_pPlaylistTable->currentRow();
-	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
+auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sFilePath );
@@ -523,6 +534,13 @@ bool PlaylistEditor::savePlaylist()
 
 void PlaylistEditor::loadScript() {
 	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
+
+	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
+
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::scripts_dir();
 	}
@@ -550,7 +568,6 @@ void PlaylistEditor::loadScript() {
 	Preferences::get_instance()->setLastPlaylistScriptDirectory(
 		fd.directory().absolutePath() );
 
-	const int nIndex = m_pPlaylistTable->currentRow();
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
@@ -569,6 +586,11 @@ void PlaylistEditor::loadScript() {
 
 void PlaylistEditor::removeScript() {
 	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
+
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 	if ( pOldEntry->getScriptPath().isEmpty() ) {
 		// Nothing to do
@@ -592,7 +614,13 @@ void PlaylistEditor::removeScript() {
 void PlaylistEditor::editScript()
 {
 	Preferences *pPref = Preferences::get_instance();
-	if( pPref->getDefaultEditor().isEmpty() ){
+	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
+
+	if ( pPref->getDefaultEditor().isEmpty() ) {
 		QMessageBox::information( this, "Hydrogen",
 			tr( "No Default Editor Set. Please set your Default Editor\nDo not use a console based Editor\nSorry, but this will not work for the moment." ) );
 
@@ -613,7 +641,6 @@ void PlaylistEditor::editScript()
 		}
 	}
 
-	const int nIndex = m_pPlaylistTable->currentRow();
 	auto pEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	QString sCommand = pPref->getDefaultEditor() + " " +
@@ -631,8 +658,8 @@ void PlaylistEditor::editScript()
 
 void PlaylistEditor::o_upBClicked() {
 	const int nIndex = m_pPlaylistTable->currentRow();
-	if ( nIndex == 0 ) {
-		// Already on top.
+	if ( nIndex == -1 || nIndex == 0 ) {
+		// No selection or already on top.
 		return;
 	}
 
@@ -641,8 +668,8 @@ void PlaylistEditor::o_upBClicked() {
 
 void PlaylistEditor::o_downBClicked() {
 	const int nIndex = m_pPlaylistTable->currentRow();
-	if ( nIndex == m_pPlaylistTable->rowCount() - 1 ) {
-		// Already at the bottom.
+	if ( nIndex == -1 || nIndex == m_pPlaylistTable->rowCount() - 1 ) {
+		// No selection or already at the bottom.
 		return;
 	}
 
@@ -656,6 +683,10 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 	}
 
 	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		WARNINGLOG( "No selection while clicking an item? Something is off..." );
+		return;
+	}
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 	if ( pOldEntry == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nIndex ));
@@ -695,6 +726,11 @@ void PlaylistEditor::nodePlayBTN()
 	};
 
 	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		ERRORLOG( "No selection" );
+		onFailure();
+		return;
+	}
 	const auto pEntry = pHydrogen->getPlaylist()->get( nIndex );
 	if ( pEntry == nullptr ) {
 		ERRORLOG( QString( "Could not retrieve song [%1]" ).arg( nIndex ) );
@@ -985,8 +1021,13 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	// Remember the playlist entry corresponding to the last selected row (in
 	// order to restore it when redrawing the whole tree).
 	connect( this, &QTableWidget::itemSelectionChanged,
-			 [=]() { m_pLastSelectedEntry = H2Core::Hydrogen::get_instance()->
-					 getPlaylist()->get( currentRow() );
+			 [=]() { const int nRow = currentRow();
+				 if ( nRow == -1 ) {
+					 m_pLastSelectedEntry = nullptr;
+				 } else {
+					 m_pLastSelectedEntry = H2Core::Hydrogen::get_instance()->
+						 getPlaylist()->get( currentRow() );
+				 }
 			 });
 }
 
@@ -1103,6 +1144,10 @@ void PlaylistTableWidget::moveRow( int nFrom, int nTo ) {
 void PlaylistTableWidget::loadCurrentRow() {
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	const int nIndex = currentRow();
+	if ( nIndex == -1 ) {
+		// No selection
+		return;
+	}
 	const auto pEntry = pPlaylist->get( nIndex );
 	if ( pEntry == nullptr ) {
 		ERRORLOG( QString( "Unable to obtain song [%1]" ).arg( nIndex ) );
