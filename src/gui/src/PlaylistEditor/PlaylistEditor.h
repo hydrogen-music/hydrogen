@@ -23,7 +23,7 @@
 #ifndef PLAYLIST_EDITOR_H
 #define PLAYLIST_EDITOR_H
 
-
+#include <QAction>
 #include <QMenuBar>
 #include <QDialog>
 #include <QTableWidget>
@@ -106,12 +106,22 @@ public slots:
 		void on_m_pPlaylistTable_itemClicked( QTableWidgetItem* item );
 		void o_upBClicked();
 		void o_downBClicked();
+		void updateMenuActivation();
 
 	private:
 
 		void update();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
+
+		/** Holds all actions which only have meaning when acting on a selected
+		 * row. They are disabled in case none is selected. */
+		std::vector<QAction*> m_actionsSelected;
+
+		/** Holds all actions which only have meaning when acting on a
+		 * selected row containing a script.*/
+		std::vector<QAction*> m_actionsSelectedScript;
+
 		Button *	zoom_in_btn;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;

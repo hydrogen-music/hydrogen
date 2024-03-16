@@ -143,6 +143,9 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	connect( m_pPlaylistTable, SIGNAL( itemSelectionChanged() ),
+			 this, SLOT( updateMenuActivation() ) );
+
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PlaylistEditor::onPreferencesChanged );
 }
@@ -159,6 +162,8 @@ void PlaylistEditor::populateMenuBar() {
 	
 	// menubar
 	m_pMenubar->clear();
+	m_actionsSelected.clear();
+	m_actionsSelectedScript.clear();
 
 	// Playlist menu
 	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
@@ -170,9 +175,11 @@ void PlaylistEditor::populateMenuBar() {
 								SLOT( addCurrentSong() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
 	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this,
-								SLOT( removeSong() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
+	m_actionsSelected.push_back(
+		m_pPlaylistMenu->addAction(
+			tr( "&Remove selected song from Playlist" ), this,
+			SLOT( removeSong() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
 	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
 								SLOT( newPlaylist() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
@@ -191,21 +198,63 @@ void PlaylistEditor::populateMenuBar() {
 	// Script menu
 	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
-	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this,
-							  SLOT( newScript() ),
-							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
-	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this,
-							  SLOT( loadScript() ),
-							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
-	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this,
-							  SLOT( editScript() ),
-							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
+	m_actionsSelected.push_back(
+		m_pScriptMenu->addAction(
+			tr( "&Create a new Script" ), this, SLOT( newScript() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) ) );
+	m_actionsSelected.push_back(
+		m_pScriptMenu->addAction(
+			tr( "&Add Script to selected song" ), this, SLOT( loadScript() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) ) );
+	auto pScriptEditAction = m_pScriptMenu->addAction(
+		tr( "&Edit selected Script" ), this, SLOT( editScript() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
+	m_actionsSelected.push_back( pScriptEditAction );
+	m_actionsSelectedScript.push_back( pScriptEditAction );
+
 	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this,
-							  SLOT( removeScript() ),
-							  pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
+
+	auto pScriptRemoveAction = m_pScriptMenu->addAction(
+		tr( "&Remove selected Script" ), this, SLOT( removeScript() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
+	m_actionsSelected.push_back( pScriptRemoveAction );
+	m_actionsSelectedScript.push_back( pScriptRemoveAction );
+
 	m_pScriptMenu->setFont( font );
 #endif
+}
+
+void PlaylistEditor::updateMenuActivation() {
+	const int nIndex = m_pPlaylistTable->currentRow();
+	if ( nIndex == -1 ) {
+		// No selection.
+		for ( auto& ppAction : m_actionsSelected ) {
+			ppAction->setEnabled( false );
+		}
+	}
+	else {
+		const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+		if ( pPlaylist == nullptr ) {
+			return;
+		}
+
+		for ( auto& ppAction : m_actionsSelected ) {
+			ppAction->setEnabled( true );
+		}
+
+		const auto pEntry = pPlaylist->get( nIndex );
+		if ( pEntry == nullptr ) {
+			ERRORLOG( QString( "Unable to obtain song [%1]" ).arg( nIndex ) );
+			return;
+		}
+
+		const bool bActivateScriptActions =
+			! pEntry->getScriptPath().isEmpty() &&
+			pEntry->getScriptPath() != PlaylistEntry::sLegacyEmptyScriptPath;
+		for ( auto& ppAction : m_actionsSelectedScript ) {
+			ppAction->setEnabled( bActivateScriptActions );
+		}
+	}
 }
 
 void PlaylistEditor::closeEvent( QCloseEvent* ev )
