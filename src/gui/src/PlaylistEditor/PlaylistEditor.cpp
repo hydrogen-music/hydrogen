@@ -1045,14 +1045,21 @@ void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 		if ( pItem == nullptr ) {
 			return;
 		}
-        m_dragStartPosition = pEvent->pos();;
+
+		if ( currentRow() != -1 ) {
+			m_dragStartPosition = pEvent->pos();;
+		} else {
+			// No row selected
+			m_dragStartPosition = QPoint( 0, 0 );
+		}
 	}
 
 	QTableWidget::mousePressEvent( pEvent );
 }
 
 void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
-    if ( ! ( pEvent->buttons() & Qt::LeftButton ) ) {
+    if ( ! ( pEvent->buttons() & Qt::LeftButton ) ||
+		 m_dragStartPosition.isNull() ) {
 		return;
 	}
 
