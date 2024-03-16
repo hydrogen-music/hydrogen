@@ -168,6 +168,18 @@ void PlaylistEditor::populateMenuBar() {
 	// Playlist menu
 	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
 
+	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
+								SLOT( newPlaylist() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
+	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( openPlaylist() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
+	m_pPlaylistMenu->addSeparator();
+	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( savePlaylist() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
+	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this,
+								SLOT( savePlaylistAs() ),
+								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
+	m_pPlaylistMenu->addSeparator();				// -----
 	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this,
 								SLOT( addSong() ),
 								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
@@ -180,18 +192,6 @@ void PlaylistEditor::populateMenuBar() {
 			tr( "&Remove selected song from Playlist" ), this,
 			SLOT( removeSong() ),
 			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
-	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
-								SLOT( newPlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( openPlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( savePlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
-	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this,
-								SLOT( savePlaylistAs() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
 	m_pPlaylistMenu->setFont( font );
 
 #ifndef WIN32
