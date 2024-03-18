@@ -192,8 +192,8 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("SELECT_INSTRUMENT", std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
 	m_actionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair( &MidiActionManager::undo_action, 0 ) ));
 	m_actionMap.insert(std::make_pair("REDO_ACTION", std::make_pair( &MidiActionManager::redo_action, 0 ) ));
-	m_actionMap.insert(std::make_pair("CLEAR_INSTRUMENT", std::make_pair(
-										  &MidiActionManager::clear_instrument, 0 ) ));
+	m_actionMap.insert(std::make_pair("CLEAR_SELECTED_INSTRUMENT", std::make_pair(
+										  &MidiActionManager::clear_selected_instrument, 0 ) ));
 	m_actionMap.insert(std::make_pair("CLEAR_PATTERN", std::make_pair(
 										  &MidiActionManager::clear_pattern, 0 ) ));
 	/*
@@ -1244,33 +1244,21 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 	return -1;
 }
 
-bool MidiActionManager::clear_instrument( std::shared_ptr<Action> pAction,
-										  Hydrogen* pHydrogen ) {
+bool MidiActionManager::clear_selected_instrument( std::shared_ptr<Action> pAction,
+												   Hydrogen* pHydrogen ) {
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
-	bool ok;
-	int nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
-
-	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
-		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to maximum allowed value [%2]" )
-					.arg( nInstrumentNumber )
-					.arg( pSong->getInstrumentList()->size() - 1 ) );
-		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
-	}
-	else if ( nInstrumentNumber < 0 ) {
-		WARNINGLOG( QString( "Provided instrument number [%1] out of bound. Set to minimum allowed value [%2]" )
-					.arg( nInstrumentNumber ).arg( 0 ) );
-		nInstrumentNumber = 0;
+	const int nInstr = pHydrogen->getSelectedInstrumentNumber();
+	if ( nInstr == -1 ) {
+		WARNINGLOG( "No instrument selected" );
+		return false;
 	}
 
-	pHydrogen->setSelectedInstrumentNumber( nInstrumentNumber );
-
-	return pHydrogen->getCoreActionController()->
-		clearInstrumentInPattern( nInstrumentNumber );
+	return pHydrogen->getCoreActionController()->clearInstrumentInPattern( nInstr );
 }
 
 bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,

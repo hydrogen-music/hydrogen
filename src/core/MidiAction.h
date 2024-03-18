@@ -212,7 +212,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool redo_action(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool gain_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool clear_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
+		bool clear_selected_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool clear_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 
 		int m_nLastBpmChangeCCParameter;
