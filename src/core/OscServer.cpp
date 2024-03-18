@@ -850,6 +850,19 @@ void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
 		static_cast<int>(std::round( argv[0]->f )) );
 }
 
+void OscServer::CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv,int i)
+{
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	const int nInstr = pHydrogen->getSelectedInstrumentNumber();
+	if ( nInstr == -1 ) {
+		WARNINGLOG( "No instrument selected" );
+		return;
+	}
+
+	pHydrogen->getCoreActionController()->clearInstrumentInPattern( nInstr );
+}
+
 void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
@@ -1310,6 +1323,10 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_INSTRUMENT", "f", CLEAR_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "",
+								CLEAR_SELECTED_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "f",
+								CLEAR_SELECTED_INSTRUMENT_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
 

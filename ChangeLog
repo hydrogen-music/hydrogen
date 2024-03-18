@@ -65,12 +65,14 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
 	* Added
 		- MIDI and OSC commands
-				- `CLEAR_INSTRUMENT` - to remove all notes of the selected pattern
-				  associated with the provided instrument number.
+				- `CLEAR_SELECTED_INSTRUMENT` - to remove all notes of the selected
+				  pattern associated with the currently selected instrument.
 				- `CLEAR_PATTERN` - to remove all notes of the selected pattern.
 		- OSC commands
 				- `NOTE_ON` and `NOTE_OFF` which are handled like incoming MIDI events
 				  without triggering their associated actions.
+				- `CLEAR_INSTRUMENT` - to remove all notes of the selected pattern
+ 				  associated with the provided instrument number.
 	* Changed
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.

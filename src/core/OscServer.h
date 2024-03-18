@@ -739,6 +739,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
 		static void REMOVE_PATTERN_Handler(lo_arg **argv, int argc);
+		static void CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide the number of the instrument
 		 * for which all notes should be removed from the currently selected
