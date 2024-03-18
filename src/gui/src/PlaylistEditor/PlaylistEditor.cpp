@@ -234,7 +234,7 @@ void PlaylistEditor::updateMenuActivation() {
 	}
 	else {
 		const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
-		if ( pPlaylist == nullptr ) {
+		if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
 			return;
 		}
 
@@ -501,7 +501,7 @@ void PlaylistEditor::newScript()
 	QString openfile = pPref->getDefaultEditor() + " " + sFilePath + "&";
 	std::system( openfile.toLatin1() );
 
-auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
+	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sFilePath );
@@ -768,6 +768,10 @@ void PlaylistEditor::nodePlayBTN()
 {
 	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
+	const auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
+		return;
+	}
 
 	auto onFailure = [=](){
 		QMessageBox::warning( this, "Hydrogen", tr( "No valid song selected!" ) );
@@ -1071,11 +1075,14 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	// order to restore it when redrawing the whole tree).
 	connect( this, &QTableWidget::itemSelectionChanged,
 			 [=]() { const int nRow = currentRow();
-				 if ( nRow == -1 ) {
+				 const auto pPlaylist =
+					 H2Core::Hydrogen::get_instance()->getPlaylist();
+				 if ( nRow == -1 || pPlaylist == nullptr ||
+					  pPlaylist->size() == 0 ) {
 					 m_pLastSelectedEntry = nullptr;
-				 } else {
-					 m_pLastSelectedEntry = H2Core::Hydrogen::get_instance()->
-						 getPlaylist()->get( currentRow() );
+				 }
+				 else {
+					 m_pLastSelectedEntry = pPlaylist->get( nRow );
 				 }
 			 });
 }
@@ -1118,6 +1125,9 @@ void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
 	}
 
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
+		return;
+	}
 	const auto pItem = itemAt( m_dragStartPosition );
 	if ( pItem == nullptr ) {
 		return;
@@ -1138,7 +1148,6 @@ void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
-	DEBUGLOG("");
 	loadCurrentRow();
 }
 
@@ -1199,6 +1208,9 @@ void PlaylistTableWidget::moveRow( int nFrom, int nTo ) {
 
 void PlaylistTableWidget::loadCurrentRow() {
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	if ( pPlaylist == nullptr || pPlaylist->size() == 0 ) {
+		return;
+	}
 	const int nIndex = currentRow();
 	if ( nIndex == -1 ) {
 		// No selection
