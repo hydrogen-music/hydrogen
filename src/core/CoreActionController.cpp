@@ -1919,8 +1919,11 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 	pHydrogen->setPlaylist( pPlaylist );
 
-	Preferences::get_instance()->setLastPlaylistFilename(
-		pPlaylist->getFilename() );
+	if ( pPlaylist->getFilename() !=
+		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		Preferences::get_instance()->setLastPlaylistFilename(
+			pPlaylist->getFilename() );
+	}
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 
