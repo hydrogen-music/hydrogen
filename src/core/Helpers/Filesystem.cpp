@@ -1233,7 +1233,6 @@ QString Filesystem::getAutoSaveFilename( const Type& type, const QString& sBaseN
 		return "";
 	}
 
-
 	if ( ! sBaseName.isEmpty() ) {
 		QFileInfo fileInfo( sBaseName );
 
@@ -1244,18 +1243,20 @@ QString Filesystem::getAutoSaveFilename( const Type& type, const QString& sBaseN
 			sBaseName.remove( 0, 1 );
 		}
 
-		QString sAbsoluteDir( fileInfo.absoluteDir().absolutePath() );
-		if ( ! Filesystem::file_writable( sBaseName, true ) ) {
+		const QString sAbsolutePath = QString( "%1/.%2.autosave%3" )
+			.arg( fileInfo.absoluteDir().absolutePath() )
+			.arg( sBaseName ).arg( sExtension );
+
+		if ( ! Filesystem::file_writable( sAbsolutePath, true ) ) {
 			QString sNewName = QString( "%1.%2.autosave%3" )
 				.arg( sDefaultDir ).arg( sBaseName ).arg( sExtension );
 
 			WARNINGLOG( QString( "Path of current %1 [%2] is not writable. Autosave will store it as [%3] instead." )
-						.arg( sType ).arg( sBaseName ).arg( sNewName ) );
+						.arg( sType ).arg( sAbsolutePath ).arg( sNewName ) );
 			return sNewName;
 		}
 		else {
-			return QString( "%1/.%2.autosave%3" )
-				.arg( sAbsoluteDir ).arg( sBaseName ).arg( sExtension );
+			return sAbsolutePath;
 		}
 	}
 
