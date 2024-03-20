@@ -1607,13 +1607,7 @@ void MainForm::savePreferences() {
 
 void MainForm::closeAll(){
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	pHydrogen->setGUIState(
-		H2Core::Hydrogen::GUIState::shutdown );
-
-	// Store the last playlist in the Preferences in order to allow to
-	// reopen it at startup.
-	Preferences::get_instance()->setLastPlaylistFilename(
-		pHydrogen->getPlaylist()->getFilename() );
+	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
 	savePreferences();
 	m_pQApp->quit();

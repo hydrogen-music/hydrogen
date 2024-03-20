@@ -340,11 +340,16 @@ int main(int argc, char *argv[])
 			pPlaylist = Playlist::load( playlistFilename );
 			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
-				return 0;
+				return 1;
+			}
+
+			if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
+				___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
+							 .arg( playlistFilename ) );
+				return 1;
 			}
 
 			/* Load first song */
-			preferences->setLastPlaylistFilename( playlistFilename );
 			auto sSongPath = pPlaylist->getSongFilenameByNumber( 0 );
 			pSong = CoreActionController::loadSong( sSongPath );
 

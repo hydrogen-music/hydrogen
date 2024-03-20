@@ -409,7 +409,6 @@ void PlaylistEditor::openPlaylist() {
 	auto pAction = new SE_replacePlaylistAction( pPlaylist );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
-	pPref->setLastPlaylistFilename( sFilePath );
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 }
 

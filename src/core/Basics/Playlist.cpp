@@ -33,9 +33,9 @@ namespace H2Core
 
 const QString PlaylistEntry::sLegacyEmptyScriptPath = "no Script";
 
-Playlist::Playlist() : m_sFilename( "" ),
-					   m_nActiveSongNumber( -1 ),
+Playlist::Playlist() : m_nActiveSongNumber( -1 ),
 					   m_bIsModified( false ) {
+	m_sFilename = Filesystem::empty_path( Filesystem::Type::Playlist );
 }
 
 void Playlist::clear()
