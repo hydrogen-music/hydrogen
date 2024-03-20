@@ -2024,7 +2024,7 @@ void MainForm::onAutoSaveTimer()
 		const QString sOldFilename = pPlaylist->getFilename();
 
 		const QString sAutoSaveFilename = Filesystem::getAutoSaveFilename(
-			Filesystem::Type::Song, pSong->getFilename() );
+			Filesystem::Type::Playlist, pPlaylist->getFilename() );
 		if ( sAutoSaveFilename != m_sPreviousAutoSavePlaylistFile ) {
 			if ( ! m_sPreviousAutoSavePlaylistFile.isEmpty() ) {
 				QFile file( m_sPreviousAutoSavePlaylistFile );
