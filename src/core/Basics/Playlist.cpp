@@ -392,6 +392,32 @@ void PlaylistEntry::setScriptPath( const QString& sScriptPath ) {
 	}
 }
 
+bool operator==( std::shared_ptr<PlaylistEntry> pLeft,
+								std::shared_ptr<PlaylistEntry> pRight ) {
+	if ( ( pLeft == nullptr && pRight == nullptr ) ||
+		 ( pLeft != nullptr && pRight != nullptr &&
+		   pLeft->m_sSongPath == pRight->m_sSongPath &&
+		   pLeft->m_sScriptPath == pRight->m_sScriptPath &&
+		   pLeft->m_bScriptEnabled == pRight->m_bScriptEnabled ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+bool operator!=( std::shared_ptr<PlaylistEntry> pLeft,
+								std::shared_ptr<PlaylistEntry> pRight ) {
+	if ( ( pLeft == nullptr && pRight == nullptr ) ||
+		 ( pLeft != nullptr && pRight != nullptr &&
+		   pLeft->m_sSongPath == pRight->m_sSongPath &&
+		   pLeft->m_sScriptPath == pRight->m_sScriptPath &&
+		   pLeft->m_bScriptEnabled == pRight->m_bScriptEnabled ) ) {
+		return false;
+	}
+
+	return true;
+}
+
 QString PlaylistEntry::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

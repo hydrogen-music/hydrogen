@@ -53,6 +53,11 @@ class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	static std::shared_ptr<PlaylistEntry> fromMimeText( const QString& sText );
 	QString toMimeText() const;
 
+	friend bool operator==( std::shared_ptr<PlaylistEntry> pLeft,
+							std::shared_ptr<PlaylistEntry> pRight );
+	friend bool operator!=( std::shared_ptr<PlaylistEntry> pLeft,
+							std::shared_ptr<PlaylistEntry> pRight );
+
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
