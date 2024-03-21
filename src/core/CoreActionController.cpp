@@ -1943,6 +1943,7 @@ bool CoreActionController::savePlaylist() {
 	}
 
 	pPlaylist->setIsModified( false );
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 1 );
 	return true;
 }
 

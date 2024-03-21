@@ -549,7 +549,6 @@ bool PlaylistEditor::savePlaylistAs() {
 		return false;
 	}
 
-	pPlaylist->setIsModified( false );
 	Preferences::get_instance()->setLastPlaylistDirectory(
 		fd.directory().absolutePath() );
 
@@ -574,8 +573,6 @@ bool PlaylistEditor::savePlaylist()
 							   pCommonStrings->getPlaylistSaveFailure() );
 		return false;
 	}
-
-	pPlaylist->setIsModified( false );
 
 	return true;
 }
@@ -961,22 +958,32 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 }
 
 void PlaylistEditor::playlistChangedEvent( int nValue ) {
-	update();
+	if ( nValue == 0 ) {
+		update();
+	}
+	else if ( nValue == 1 ) {
+		updateWindowTitle();
+	}
+	// case 2 is handled by HydrogenApp.
 }
 
 void PlaylistEditor::playlistLoadSongEvent() {
 	m_pPlaylistTable->update();
 }
 
-void PlaylistEditor::update()
-{
+void PlaylistEditor::update() {
+	m_pPlaylistTable->update();
+	updateWindowTitle();
+}
+
+void PlaylistEditor::updateWindowTitle() {
+
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	if ( pPlaylist == nullptr ) {
 		ERRORLOG( "No playlist" );
 		return;
 	}
 
-	m_pPlaylistTable->update();
 
 	QString sWindowTitle = tr( "Playlist Browser" );
 	if ( ! pPlaylist->getFilename().isEmpty() &&

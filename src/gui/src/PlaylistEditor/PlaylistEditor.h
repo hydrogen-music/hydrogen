@@ -111,6 +111,7 @@ public slots:
 	private:
 
 		void update();
+		void updateWindowTitle();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
 

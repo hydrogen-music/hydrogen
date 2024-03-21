@@ -187,6 +187,9 @@ enum EventType {
 	 * changed.
 	 *
 	 * If the value of the event is
+	 * - 0 - update the GUI to represent the Playlist loaded by the core.
+	 * - 1 - triggered whenever the Playlist was saved via the core part
+	 *       (updated the title and status bar).
 	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
 	 */
 	EVENT_PLAYLIST_CHANGED
