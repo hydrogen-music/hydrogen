@@ -1059,17 +1059,14 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	QStringList headers;
 	headers << tr( "Song list" ) << tr( "Script" ) << tr( "exec Script" );
 	setHorizontalHeaderLabels( headers );
-	setColumnWidth( 0, 405 );
-	setColumnWidth( 1, 405 );
-	setColumnWidth( 2, 105 );
 
 	horizontalHeader()->setStretchLastSection( false );
 	horizontalHeader()->setSectionResizeMode(
 		0, QHeaderView::Stretch );
 	horizontalHeader()->setSectionResizeMode(
-		1, QHeaderView::Stretch );
+		1, QHeaderView::ResizeToContents );
 	horizontalHeader()->setSectionResizeMode(
-		2, QHeaderView::Fixed );
+		2, QHeaderView::ResizeToContents );
 
 #endif
 	setSelectionBehavior( QAbstractItemView::SelectRows );
