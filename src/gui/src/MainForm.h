@@ -263,7 +263,7 @@ public slots:
 		QAction *	m_pRecentFileAction3;
 		QAction *	m_pRecentFileAction4;
 
-		QUndoView *	m_pUndoView;///debug only
+		QUndoView *	m_pUndoView;
 
 	void startAutosaveTimer();
 		QTimer		m_AutosaveTimer;

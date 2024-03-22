@@ -374,12 +374,29 @@ void MainForm::createMenuBar()
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
-	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuUndo(), this,
-							SLOT( action_undo() ),
-							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuRedo(), this,
-							SLOT( action_redo() ),
-							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	auto pUndoAction =
+		m_pUndoMenu->addAction(
+			pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	pUndoAction->setEnabled( false );
+	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
+			 [=]( bool bCanUndo ) {
+				 if ( pUndoAction != nullptr ) {
+					 pUndoAction->setEnabled( bCanUndo );
+				 }
+			 } );
+	auto pRedoAction =
+		m_pUndoMenu->addAction(
+			pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	pRedoAction->setEnabled( false );
+	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
+			 [=]( bool bCanRedo ) {
+				 if ( pRedoAction != nullptr ) {
+					 pRedoAction->setEnabled( bCanRedo );
+				 }
+			 } );
+
 	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
 							SLOT( openUndoStack() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );

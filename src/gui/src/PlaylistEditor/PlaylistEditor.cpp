@@ -163,6 +163,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 PlaylistEditor::~PlaylistEditor()
 {
 	INFOLOG ( "DESTROY" );
+	delete m_pUndoStack;
 }
 
 void PlaylistEditor::populateMenuBar() {
@@ -207,12 +208,28 @@ void PlaylistEditor::populateMenuBar() {
 
 	// Undo menu
 	m_pUndoMenu = m_pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
-	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuUndo(), this,
-							SLOT( undo() ),
-							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuRedo(), this,
-							SLOT( redo() ),
-							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	auto pUndoAction =
+		m_pUndoMenu->addAction(
+			pCommonStrings->getUndoMenuUndo(), this, SLOT( undo() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	pUndoAction->setEnabled( false );
+	connect( m_pUndoStack, &QUndoStack::canUndoChanged,
+			 [=]( bool bCanUndo ) {
+				 if ( pUndoAction != nullptr ) {
+					 pUndoAction->setEnabled( bCanUndo );
+				 }
+			 } );
+	auto pRedoAction =
+		m_pUndoMenu->addAction(
+			pCommonStrings->getUndoMenuRedo(), this, SLOT( redo() ),
+			pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	pRedoAction->setEnabled( false );
+	connect( m_pUndoStack, &QUndoStack::canRedoChanged,
+			 [=]( bool bCanRedo ) {
+				 if ( pRedoAction != nullptr ) {
+					 pRedoAction->setEnabled( bCanRedo );
+				 }
+			 } );
 	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
 							SLOT( showUndoHistory() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
