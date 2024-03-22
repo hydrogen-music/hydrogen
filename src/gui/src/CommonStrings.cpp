@@ -503,6 +503,28 @@ CommonStrings::CommonStrings(){
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionOnlineImport = tr( "Online Import" );
 
+	/*: Used both as name for the undo menu in the main and playlist menu bar as
+	 *  well as for the undo action itself. Mind the & symbol. The character
+	 *  right after it will be used as default shortcut (Alt + character) for
+	 *  this action. You can place it somewhere else or even just drop it. But
+	 *  please mind possible conflicts (double assignments) with other
+	 *  shortcuts.*/
+	m_sUndoMenuUndo = tr( "&Undo" );
+	/*: Used name for the redo action in undo menus. Mind the & symbol. The
+	 *  character right after it will be used as default shortcut (Alt +
+	 *  character) for this action. You can place it somewhere else or even just
+	 *  drop it. But please mind possible conflicts (double assignments) with
+	 *  other shortcuts.*/
+	m_sUndoMenuRedo = tr( "&Redo" );
+	/*: Used name for the action in undo menus opening a context menu showing
+	 *  the particular undo history. Mind the & symbol. The character right
+	 *  after it will be used as default shortcut (Alt + character) for this
+	 *  action. You can place it somewhere else or even just drop it. But please
+	 *  mind possible conflicts (double assignments) with other shortcuts.*/
+	m_sUndoMenuHistory = tr( "Undo &History" );
+	/*: Window title of the dialog showing the undo history. */
+	m_sUndoHistoryTitle = tr( "Undo history" );
+
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 

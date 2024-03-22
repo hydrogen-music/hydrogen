@@ -214,6 +214,11 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
 	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
 
+	const QString& getUndoMenuUndo() const { return m_sUndoMenuUndo; }
+	const QString& getUndoMenuRedo() const { return m_sUndoMenuRedo; }
+	const QString& getUndoMenuHistory() const { return m_sUndoMenuHistory; }
+	const QString& getUndoHistoryTitle() const { return m_sUndoHistoryTitle; }
+
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
@@ -392,6 +397,11 @@ private:
 	QString m_sMenuActionDuplicate;
 	QString m_sMenuActionImport;
 	QString m_sMenuActionOnlineImport;
+
+		QString m_sUndoMenuUndo;
+		QString m_sUndoMenuRedo;
+		QString m_sUndoMenuHistory;
+		QString m_sUndoHistoryTitle;
 
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;

@@ -1044,6 +1044,26 @@ Are you sure?</source>
         <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
         <translation>Δεν βρέθηκε το αρχείο</translation>
     </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>Α&amp;ναίρεση</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>Ιστορικό αναιρέσεων</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2255,10 +2275,6 @@ MIDI = %2</source>
         <translation>Το Υδρογόνο είναι έτοιμο.</translation>
     </message>
     <message>
-        <source>Undo history</source>
-        <translation>Ιστορικό αναιρέσεων</translation>
-    </message>
-    <message>
         <source>&amp;New</source>
         <translation>&amp;Νέο</translation>
     </message>
@@ -2281,10 +2297,6 @@ MIDI = %2</source>
     <message>
         <source>&amp;Quit</source>
         <translation>&amp;Τερματισμός</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>Α&amp;ναίρεση</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
@@ -2460,14 +2472,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3650,6 +3654,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3671,10 +3679,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>exec Script</source>
         <translation>εκτέλεση Σενάριου</translation>
-    </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>no Script</source>

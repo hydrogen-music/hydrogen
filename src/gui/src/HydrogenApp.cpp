@@ -112,6 +112,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
+	// This must be done _after_ the creation of m_pCommonStrings.
 	m_pPlaylistEditor = new PlaylistEditor( nullptr );
 	WindowProperties playlistEditorProp = pPref->getPlaylistEditorProperties();
 	setWindowProperties( m_pPlaylistEditor, playlistEditorProp, SetAll );

@@ -1048,6 +1048,26 @@ Are you sure?</source>
         <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
         <translation>Archivo no encontrado</translation>
     </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>&amp;Deshacer</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation>&amp;Rehacer</translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation>Deshacer &amp;Historial</translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>Deshacer historial</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2381,14 +2401,6 @@ MIDI = %2</translation>
         <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
-        <source>Undo history</source>
-        <translation>Deshacer historial</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>&amp;Deshacer</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>Archivo LilyPond (*.ly)</translation>
     </message>
@@ -2471,14 +2483,6 @@ MIDI = %2</translation>
     <message>
         <source>Export &amp;LilyPond File</source>
         <translation>Exportar Archivo &amp;LilyPond</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation>&amp;Rehacer</translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
-        <translation>Deshacer &amp;Historial</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
@@ -3663,6 +3667,10 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3684,10 +3692,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>exec Script</source>
         <translation>Ejecutar Script</translation>
-    </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>no Script</source>

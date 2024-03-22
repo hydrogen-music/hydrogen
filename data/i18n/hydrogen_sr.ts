@@ -1044,6 +1044,26 @@ Are you sure?</source>
         <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
         <translation>Нисам пронашао датотеку</translation>
     </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>&amp;Опозови</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>Историјат опозивања</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2360,14 +2380,6 @@ MIDI = %2</source>
         <translation>Не могох извести мустру.</translation>
     </message>
     <message>
-        <source>Undo history</source>
-        <translation>Историјат опозивања</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>&amp;Опозови</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>Користите развојно издање програма, па Вас молимо да пошаљете извештаје о грешкама и предлоге на дописну листу програма.&lt;br&gt;&lt;br&gt;Хвала Вам!</translation>
     </message>
@@ -2453,14 +2465,6 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3642,6 +3646,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Edit playlist scripts</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistEditor_UI</name>
@@ -3663,10 +3671,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>exec Script</source>
         <translation>Покрени скрипту</translation>
-    </message>
-    <message>
-        <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>no Script</source>

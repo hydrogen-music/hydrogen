@@ -27,6 +27,8 @@
 #include <QMenuBar>
 #include <QDialog>
 #include <QTableWidget>
+#include <QUndoStack>
+#include <QUndoView>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
@@ -44,7 +46,6 @@ class PlaylistTableWidget : public QTableWidget,
 	public:
 		explicit PlaylistTableWidget( QWidget* pParent );
 		void update();
-		void moveRow( int nFrom, int nTo );
 		void loadCurrentRow();
 
 	private:
@@ -80,6 +81,7 @@ class PlaylistEditor :  public QDialog,
 
 		void playlistChangedEvent( int nValue ) override;
 		void playlistLoadSongEvent() override;
+		void moveRow( int nFrom, int nTo );
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -108,6 +110,11 @@ public slots:
 		void o_downBClicked();
 		void updateMenuActivation();
 
+		void undo();
+		void redo();
+		void showUndoHistory();
+
+
 	private:
 
 		void update();
@@ -126,6 +133,7 @@ public slots:
 		Button *	zoom_in_btn;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;
+		QMenu* m_pUndoMenu;
 #ifndef WIN32
 	//no scripts under windows
 		QMenu *		m_pScriptMenu;
@@ -135,6 +143,9 @@ public slots:
 		Button *	m_pPlayBtn;
 		Button *	m_pStopBtn;
 		Button *	m_pFfwdBtn;
+
+		QUndoStack* m_pUndoStack;
+		QUndoView* m_pUndoView;
 };
 
 #endif

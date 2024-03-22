@@ -211,13 +211,12 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	//beatcouter
 	pHydrogen->setBcOffsetAdjust();
 
-	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
-	m_pUndoView->setWindowTitle(tr("Undo history"));
+	auto pCommonStrings = h2app->getCommonStrings();
 
+	m_pUndoView = new QUndoView( h2app->m_pUndoStack );
+	m_pUndoView->setWindowTitle( QString( "Hydrogen - %1" )
+								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
-	// Must be done _after_ the creation of the HydrogenApp instance.
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
 	// Check whether the audio driver could be loaded based on the
 	// content of the config file
 	if ( pHydrogen->getAudioOutput() == nullptr ||
@@ -267,6 +266,7 @@ void MainForm::createMenuBar()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pShortcuts = pPref->getShortcuts();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	// menubar
 	QMenuBar *pMenubar = new QMenuBar( this );
 	pMenubar->setObjectName( "MainMenu" );
@@ -373,12 +373,15 @@ void MainForm::createMenuBar()
 	// ~ FILE menu
 
 	// Undo menu
-	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
-	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ),
+	m_pUndoMenu = pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuUndo(), this,
+							SLOT( action_undo() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ),
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuRedo(), this,
+							SLOT( action_redo() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
-	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ),
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
+							SLOT( openUndoStack() ),
 							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 	// DRUMKITS MENU

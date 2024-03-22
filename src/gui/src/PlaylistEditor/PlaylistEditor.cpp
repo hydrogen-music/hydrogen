@@ -67,6 +67,16 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// not working within table widgets, which spans most parts).
 	setFocusPolicy( Qt::StrongFocus );
 
+	const QString sWindowTitleBase = tr( "Playlist Browser" );
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	m_pUndoStack = new QUndoStack( this );
+	m_pUndoView = new QUndoView( m_pUndoStack );
+	m_pUndoView->setWindowTitle( QString( "%1 - %2" )
+								 .arg( sWindowTitleBase )
+								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
+
 	const auto pPref = H2Core::Preferences::get_instance();
 	
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
@@ -78,7 +88,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	}
 
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
-	setWindowTitle( tr( "Playlist Browser" ) + QString(" - ") +
+	setWindowTitle( sWindowTitleBase + QString(" - ") +
 					 pPlaylist->getFilename() );
 
 	installEventFilter( this );
@@ -156,6 +166,7 @@ PlaylistEditor::~PlaylistEditor()
 }
 
 void PlaylistEditor::populateMenuBar() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = H2Core::Preferences::get_instance();
 	const auto pShortcuts = pPref->getShortcuts();
 	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -193,6 +204,18 @@ void PlaylistEditor::populateMenuBar() {
 			SLOT( removeSong() ),
 			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
 	m_pPlaylistMenu->setFont( font );
+
+	// Undo menu
+	m_pUndoMenu = m_pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuUndo(), this,
+							SLOT( undo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuRedo(), this,
+							SLOT( redo() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
+							SLOT( showUndoHistory() ),
+							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 #ifndef WIN32
 	// Script menu
@@ -262,6 +285,19 @@ void PlaylistEditor::closeEvent( QCloseEvent* ev )
 	HydrogenApp::get_instance()->showPlaylistEditor();
 }
 
+void PlaylistEditor::undo() {
+	m_pUndoStack->undo();
+}
+
+void PlaylistEditor::redo() {
+	m_pUndoStack->redo();
+}
+
+void PlaylistEditor::showUndoHistory() {
+	m_pUndoView->show();
+	m_pUndoView->setAttribute( Qt::WA_QuitOnClose, false );
+}
+
 void PlaylistEditor::addSong()
 {
 	QString sPath = Preferences::get_instance()->getLastAddSongToPlaylistDirectory();
@@ -285,15 +321,13 @@ void PlaylistEditor::addSong()
 	Preferences::get_instance()->setLastAddSongToPlaylistDirectory(
 		fd.directory().absolutePath() );
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-
-	pUndoStack->beginMacro( sTitle );
+	m_pUndoStack->beginMacro( sTitle );
 	for ( const auto& sPath : fd.selectedFiles() ) {
 		auto pNewEntry = std::make_shared<PlaylistEntry>( sPath );
 		auto pAction = new SE_addEntryToPlaylistAction( pNewEntry );
-		pUndoStack->push( pAction );
+		m_pUndoStack->push( pAction );
 	}
-	pUndoStack->endMacro();
+	m_pUndoStack->endMacro();
 }
 
 void PlaylistEditor::addCurrentSong()
@@ -310,7 +344,7 @@ void PlaylistEditor::addCurrentSong()
 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( sPath );
 	auto pAction = new SE_addEntryToPlaylistAction( pNewEntry );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	m_pUndoStack->push( pAction );
 }
 
 void PlaylistEditor::removeSong() {
@@ -329,7 +363,7 @@ void PlaylistEditor::removeSong() {
 	}
 
 	auto pAction = new SE_removeEntryFromPlaylistAction( pEntry, nIndex );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	m_pUndoStack->push( pAction );
 }
 
 void PlaylistEditor::newPlaylist()
@@ -342,7 +376,7 @@ void PlaylistEditor::newPlaylist()
 	pNewPlaylist->setFilename(
 		Filesystem::empty_path( Filesystem::Type::Playlist ) );
 	auto pAction = new SE_replacePlaylistAction( pNewPlaylist );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	m_pUndoStack->push( pAction );
 
 	// Since the user explicitly chooses to open an empty playlist, we do not
 	// attempt to recover the autosave file generated while last working on an
@@ -407,7 +441,7 @@ void PlaylistEditor::openPlaylist() {
 	}
 
 	auto pAction = new SE_replacePlaylistAction( pPlaylist );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	m_pUndoStack->push( pAction );
 
 	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 }
@@ -505,15 +539,14 @@ void PlaylistEditor::newScript()
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sFilePath );
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
+	m_pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
 	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
-	pUndoStack->push( pAction1 );
+	m_pUndoStack->push( pAction1 );
 	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
-	pUndoStack->push( pAction2 );
+	m_pUndoStack->push( pAction2 );
 
-	pUndoStack->endMacro();
+	m_pUndoStack->endMacro();
 
 	return;
 }
@@ -618,15 +651,14 @@ void PlaylistEditor::loadScript() {
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( sScriptPath );
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
+	m_pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
 	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
-	pUndoStack->push( pAction1 );
+	m_pUndoStack->push( pAction1 );
 	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
-	pUndoStack->push( pAction2 );
+	m_pUndoStack->push( pAction2 );
 
-	pUndoStack->endMacro();
+	m_pUndoStack->endMacro();
 }
 
 void PlaylistEditor::removeScript() {
@@ -645,15 +677,14 @@ void PlaylistEditor::removeScript() {
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptPath( "" );
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
+	m_pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
 	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
-	pUndoStack->push( pAction1 );
+	m_pUndoStack->push( pAction1 );
 	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
-	pUndoStack->push( pAction2 );
+	m_pUndoStack->push( pAction2 );
 
-	pUndoStack->endMacro();
+	m_pUndoStack->endMacro();
 }
 
 void PlaylistEditor::editScript()
@@ -708,7 +739,7 @@ void PlaylistEditor::o_upBClicked() {
 		return;
 	}
 
-	m_pPlaylistTable->moveRow( nIndex, nIndex - 1 );
+	moveRow( nIndex, nIndex - 1 );
 }
 
 void PlaylistEditor::o_downBClicked() {
@@ -718,7 +749,37 @@ void PlaylistEditor::o_downBClicked() {
 		return;
 	}
 
-	m_pPlaylistTable->moveRow( nIndex, nIndex + 1 );
+	moveRow( nIndex, nIndex + 1 );
+}
+
+void PlaylistEditor::moveRow( int nFrom, int nTo ) {
+	if ( nFrom < 0 || nFrom >= m_pPlaylistTable->rowCount() ||
+		 nTo < 0 || nTo > m_pPlaylistTable->rowCount() ) {
+		ERRORLOG( QString( "Provided rows [%1 -> %2] out of bound [0, %3]" )
+				  .arg( nFrom ).arg( nTo )
+				  .arg( m_pPlaylistTable->rowCount() ) );
+		return;
+	}
+	if ( nFrom == nTo ) {
+		return;
+	}
+
+	const auto pEntry = Hydrogen::get_instance()->getPlaylist()->get( nFrom );
+	if ( pEntry == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nFrom ));
+		return;
+	}
+
+	m_pPlaylistTable->setCurrentCell( nTo, 0 );
+
+	m_pUndoStack->beginMacro( tr( "Edit playlist" ) );
+
+	auto pAction1 = new SE_removeEntryFromPlaylistAction( pEntry, nFrom );
+	m_pUndoStack->push( pAction1 );
+	auto pAction2 = new SE_addEntryToPlaylistAction( pEntry, nTo );
+	m_pUndoStack->push( pAction2 );
+
+	m_pUndoStack->endMacro();
 }
 
 void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) {
@@ -749,15 +810,14 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 	auto pNewEntry = std::make_shared<PlaylistEntry>( pOldEntry );
 	pNewEntry->setScriptEnabled( ! pOldEntry->getScriptEnabled() );
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
+	m_pUndoStack->beginMacro( tr( "Edit playlist scripts" ) );
 
 	auto pAction1 = new SE_removeEntryFromPlaylistAction( pOldEntry, nIndex );
-	pUndoStack->push( pAction1 );
+	m_pUndoStack->push( pAction1 );
 	auto pAction2 = new SE_addEntryToPlaylistAction( pNewEntry, nIndex );
-	pUndoStack->push( pAction2 );
+	m_pUndoStack->push( pAction2 );
 
-	pUndoStack->endMacro();
+	m_pUndoStack->endMacro();
 }
 
 void PlaylistEditor::nodePlayBTN()
@@ -922,6 +982,21 @@ bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 			bHandled = true;
 			break;
 
+		case Shortcuts::Action::Undo:
+			undo();
+			bHandled = true;
+			break;
+
+		case Shortcuts::Action::Redo:
+			redo();
+			bHandled = true;
+			break;
+
+		case Shortcuts::Action::ShowUndoHistory:
+			showUndoHistory();
+			bHandled = true;
+			break;
+
 #ifndef WIN32
 		case Shortcuts::Action::PlaylistAddScript:
 			loadScript();
@@ -1012,6 +1087,7 @@ void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& c
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
+		m_pUndoMenu->setFont( font );
 #ifndef WIN32
 		m_pScriptMenu->setFont( font );
 #endif
@@ -1177,36 +1253,7 @@ void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
 		nTo = row( pToItem );
 	}
 
-	moveRow( nFrom, nTo );
-}
-
-void PlaylistTableWidget::moveRow( int nFrom, int nTo ) {
-	if ( nFrom < 0 || nFrom >= rowCount() || nTo < 0 || nTo > rowCount() ) {
-		ERRORLOG( QString( "Provided rows [%1 -> %2] out of bound [0, %3]" )
-				  .arg( nFrom ).arg( nTo ).arg( rowCount() ) );
-		return;
-	}
-	if ( nFrom == nTo ) {
-		return;
-	}
-
-	const auto pEntry = Hydrogen::get_instance()->getPlaylist()->get( nFrom );
-	if ( pEntry == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve entry [%1]" ).arg( nFrom ));
-		return;
-	}
-
-	setCurrentCell( nTo, 0 );
-
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Edit playlist" ) );
-
-	auto pAction1 = new SE_removeEntryFromPlaylistAction( pEntry, nFrom );
-	pUndoStack->push( pAction1 );
-	auto pAction2 = new SE_addEntryToPlaylistAction( pEntry, nTo );
-	pUndoStack->push( pAction2 );
-
-	pUndoStack->endMacro();
+	HydrogenApp::get_instance()->getPlaylistEditor()->moveRow( nFrom, nTo );
 }
 
 void PlaylistTableWidget::loadCurrentRow() {
