@@ -146,10 +146,6 @@
         <translation>サンプラー</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>シンセサイザー</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>シーケンサー</translation>
     </message>

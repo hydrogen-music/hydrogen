@@ -145,10 +145,6 @@
         <translation>Mostreador</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Sintetizador</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Secuenciador</translation>
     </message>

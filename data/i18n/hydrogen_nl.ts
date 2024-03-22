@@ -145,10 +145,6 @@
         <translation>Sampler</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Synth</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Sequencer</translation>
     </message>

@@ -145,10 +145,6 @@
         <translation>Семплер</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Синтезатор</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Секвенсер</translation>
     </message>

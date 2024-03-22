@@ -141,10 +141,6 @@
         <translation>Conectado a</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Sintetizador</translation>
-    </message>
-    <message>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>

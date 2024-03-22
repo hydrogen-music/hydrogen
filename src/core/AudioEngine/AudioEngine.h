@@ -29,7 +29,6 @@
 #include <core/Object.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
-#include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
 
@@ -270,7 +269,6 @@ public:
 	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
 	Sampler*		getSampler() const;
-	Synth*			getSynth() const;
 
 	/** \return Time passed since the beginning of the song*/
 	float			getElapsedTime() const;	
@@ -586,7 +584,6 @@ private:
 	void handleSongModeChanged();
 
 	Sampler* 			m_pSampler;
-	Synth* 				m_pSynth;
 	AudioOutput *		m_pAudioDriver;
 	MidiInput *			m_pMidiDriver;
 	MidiOutput *		m_pMidiDriverOut;

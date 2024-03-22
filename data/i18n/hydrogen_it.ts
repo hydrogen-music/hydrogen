@@ -145,10 +145,6 @@
         <translation>Campionatore</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Sintetizzatore</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Sequencer</translation>
     </message>

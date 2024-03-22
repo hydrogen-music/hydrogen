@@ -145,10 +145,6 @@
         <translation>Δειγματιστής</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Συνθέτης</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Συχνοτιστής</translation>
     </message>

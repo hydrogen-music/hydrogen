@@ -141,10 +141,6 @@
         <translation>Verbunden mit</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Synthesizer</translation>
-    </message>
-    <message>
         <source>Sampler</source>
         <translation>Sampler</translation>
     </message>

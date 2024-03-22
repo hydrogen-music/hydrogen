@@ -145,10 +145,6 @@
         <translation>Échantillonneur</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Synthétiseur</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Séquenceur</translation>
     </message>

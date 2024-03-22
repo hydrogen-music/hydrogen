@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Synth</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>###</source>
         <translation></translation>
     </message>

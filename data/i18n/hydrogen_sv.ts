@@ -145,10 +145,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation type="unfinished"></translation>
     </message>

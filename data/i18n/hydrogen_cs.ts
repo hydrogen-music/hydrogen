@@ -145,10 +145,6 @@
         <translation>Sampler</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Syntezátor</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Sekvencer</translation>
     </message>
