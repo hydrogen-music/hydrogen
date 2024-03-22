@@ -595,7 +595,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// In case the song is read-only, we have to notify GUI which will
 		// display a warning dialog (since autosave won't work).
 		if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%2]. It will be opened as read-only (no autosave)." )
+			WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
 						.arg( pSong->getFilename() ));
 			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		}
@@ -1926,6 +1926,14 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+
+	// In case the song is read-only, we have to notify GUI which will display a
+	// warning dialog (since autosave won't work).
+	if ( ! Filesystem::file_writable( pPlaylist->getFilename() ) ) {
+		WARNINGLOG( QString( "You don't have permissions to write to the playlist found in path [%1]. It will be opened as read-only (no autosave)." )
+					.arg( pPlaylist->getFilename() ));
+		EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 2 );
+	}
 
 	return true;
 }
