@@ -1772,6 +1772,16 @@ Overwrite the existing file?</source>
         <source>Playlist: Set song No. %1</source>
         <translation>Lista de Reproducció: Fixar nº cançó %1</translation>
     </message>
+    <message>
+        <source>New Song</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Playlist</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>

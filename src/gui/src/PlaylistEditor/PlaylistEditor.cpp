@@ -572,6 +572,7 @@ bool PlaylistEditor::savePlaylistAs() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
+	const auto sLastFilename = pPlaylist->getFilename();
 
 	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -601,6 +602,18 @@ bool PlaylistEditor::savePlaylistAs() {
 
 	Preferences::get_instance()->setLastPlaylistDirectory(
 		fd.directory().absolutePath() );
+
+	if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		// In case we stored the playlist for the first time, we remove the
+		// autosave file corresponding to the empty one. Else, it might be
+		// loaded later when clicking "New Playlist" while not generating a new
+		// autosave file.
+		const QString sAutoSaveFile = Filesystem::getAutoSaveFilename(
+			Filesystem::Type::Playlist, sLastFilename );
+		if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
+			Filesystem::rm( sAutoSaveFile );
+		}
+	}
 
 	return true;
 

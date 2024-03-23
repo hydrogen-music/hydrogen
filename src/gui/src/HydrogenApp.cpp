@@ -383,14 +383,18 @@ void HydrogenApp::closeFXProperties()
 
 QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 									   const QString& sBaseFile ) {
-	QString sExtension;
+	QString sExtension, sEmpty;
 	switch ( type ) {
 	case Filesystem::Type::Song:
 		sExtension = Filesystem::songs_ext;
+		/*: Object containing unsaved changes.*/
+		sEmpty = tr( "New Song" );
 		break;
 
 	case Filesystem::Type::Playlist:
 		sExtension = Filesystem::playlist_ext;
+		/*: Object containing unsaved changes.*/
+		sEmpty = tr( "New Playlist" );
 		break;
 
 	default:
@@ -422,20 +426,32 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 	if ( autoSaveFileRecent.exists() &&
 		 autoSaveFileRecent.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
-	} else if ( autoSaveFileOld.exists() &&
+	}
+	else if ( autoSaveFileOld.exists() &&
 				autoSaveFileOld.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
+	}
+	else if ( sBaseFile == Filesystem::empty_path( type ) &&
+			  autoSaveFileRecent.exists() ) {
+		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
 	}
 
 	if ( sRecoverFilename.isEmpty() ) {
 		return "";
 	}
 
+	QString sFile;
+	if ( sBaseFile == Filesystem::empty_path( type ) ) {
+		sFile = sEmpty;
+	} else {
+		sFile = sBaseFile;
+	}
+
 	QMessageBox msgBox;
 	// Not commonized in CommmonStrings as it is required before
 	// HydrogenApp was instantiated.
-	msgBox.setText( QString( "%1\n%2" )
-					.arg( tr( "There are unsaved changes." ) ).arg( sBaseFile ) );
+	msgBox.setText( QString( "%1\n[%2]" )
+					.arg( tr( "There are unsaved changes." ) ).arg( sFile ) );
 	msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
 	msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::No );
 	msgBox.setDefaultButton( QMessageBox::No );
@@ -452,7 +468,6 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 }
 
 bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilename ) {
-	auto pHydrogen = Hydrogen::get_instance();
 
 	QString sText;
 	switch( type ) {
@@ -477,7 +492,7 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 	else {
 		sPath = H2Core::Filesystem::absolute_path( sFilename );
 	}
-	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
+	const auto sRecoverFilename = findAutoSaveFile( type, sPath );
 
 	bool bRet;
 	// Ensure the path to the file is not relative.

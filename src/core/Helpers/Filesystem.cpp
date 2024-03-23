@@ -916,25 +916,25 @@ bool Filesystem::isPathValid( const Type& type, const QString& sPath,
 
 	if ( !fileInfo.isAbsolute() ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sPath.toLocal8Bit().data() ));
+						.arg( sPath ));
 		return false;
 	}
 	
 	if ( fileInfo.exists() ) {
 		if ( !fileInfo.isReadable() ) {
 			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sPath.toLocal8Bit().data() ));
+						.arg( sPath ));
 			return false;
 		}
 	} else if ( bCheckExistance ) {
-		ERRORLOG( QString( "Provided %1 [%1] does not exist" )
+		ERRORLOG( QString( "Provided %1 [%2] does not exist" )
 				  .arg( sType ).arg( sPath ) );
 		return false;
 	}
 	
 	if ( fileInfo.suffix() != suffix ) {
 		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '%2'!" )
-					.arg( sPath.toLocal8Bit().data() ).arg( sExtension ));
+					.arg( sPath ).arg( sExtension ));
 		return false;
 	}
 	

@@ -533,14 +533,14 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
 	}
 
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isPathValid(
-			 Filesystem::Type::Song, sPath, true ) ) {
+	if ( sPath != Filesystem::empty_path( Filesystem::Type::Song ) &&
+		 ! Filesystem::isPathValid( Filesystem::Type::Song, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Song> pSong;
-	if ( ! Filesystem::isPathValid(
+	if ( ! sRecoverPath.isEmpty() && Filesystem::isPathValid(
 			 Filesystem::Type::Song, sRecoverPath, true ) ) {
 		// Use an autosave file to load the playlist
 		pSong = Song::load( sRecoverPath );
@@ -1896,14 +1896,15 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 	}
 
 	// Check whether the provided path is valid.
-	if ( ! Filesystem::isPathValid(
+	if ( sPath != Filesystem::empty_path( Filesystem::Type::Playlist ) &&
+		 ! Filesystem::isPathValid(
 			 Filesystem::Type::Playlist, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Playlist> pPlaylist;
-	if ( ! Filesystem::isPathValid(
+	if ( ! sRecoverPath.isEmpty() && Filesystem::isPathValid(
 			 Filesystem::Type::Playlist, sRecoverPath, true ) ) {
 		// Use an autosave file to load the playlist
 		pPlaylist = Playlist::load( sRecoverPath );
@@ -1992,7 +1993,11 @@ bool CoreActionController::savePlaylistAs( const QString& sPath ) {
 	}
 
 	pPlaylist->setIsModified( false );
+
+	Preferences::get_instance()->setLastPlaylistFilename( sPath );
+
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
+
 	return true;
 }
 

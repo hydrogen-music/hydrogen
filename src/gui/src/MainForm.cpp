@@ -121,14 +121,10 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	auto openFile = [=]( const Filesystem::Type& type, const QString& sPath,
 						 const QString& sLastPath, bool bRestore ) {
 		bool bRet = false;
-		if ( sPath.isEmpty() && ! sLastPath.isEmpty() && bRestore ) {
-			DEBUGLOG( QString( "%1 restore %2" )
-					  .arg( Filesystem::TypeToQString( type ).arg( sLastPath )) );
+		if ( sPath.isEmpty() && bRestore ) {
 			bRet = HydrogenApp::openFile( type, sLastPath );
 		}
 		else if ( ! sPath.isEmpty() ) {
-			DEBUGLOG( QString( "%1 open %2" )
-					  .arg( Filesystem::TypeToQString( type ).arg( sPath )) );
 			bRet = HydrogenApp::openFile( type, sPath );
 		}
 		return bRet;
@@ -233,19 +229,9 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 MainForm::~MainForm()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-
-	if ( pSong != nullptr ) {
-		// Remove the autosave file in case all modifications already have been
-		// written to disk.
-		if ( ! pSong->getIsModified() ) {
-			Filesystem::rm( Filesystem::getAutoSaveFilename(
-				Filesystem::Type::Song, pSong->getFilename() ) );
-		}
-	}
-
-	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
-		Hydrogen::get_instance()->sequencerStop();
+	if ( pHydrogen->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
+		pHydrogen->sequencerStop();
 	}
 	
 	hide();
@@ -828,13 +814,15 @@ bool MainForm::action_file_save_as()
 
 	// Cache a couple of things we have to restore when under session
 	// management.
-	QString sLastFilename = pSong->getFilename();
+	const QString sLastFilename = pSong->getFilename();
 
 	if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
 		sDefaultFilename = Filesystem::default_song_name();
-	} else if ( sLastFilename.isEmpty() ) {
-		sDefaultFilename = pHydrogen->getSong()->getName();
-	} else {
+	}
+	else if ( sLastFilename.isEmpty() ) {
+		sDefaultFilename = pSong->getName();
+	}
+	else {
 		QFileInfo fileInfo( sLastFilename );
 		sDefaultFilename = fileInfo.completeBaseName();
 	}
@@ -879,6 +867,18 @@ bool MainForm::action_file_save_as()
 #endif
 		
 		h2app->updateWindowTitle();
+
+		if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
+			// In case we stored the song for the first time, we remove the
+			// autosave file corresponding to the empty one. Else, it might be
+			// loaded later when clicking "New Song" while not generating a new
+			// autosave file.
+			const QString sAutoSaveFile = Filesystem::getAutoSaveFilename(
+				Filesystem::Type::Song, sLastFilename );
+			if ( Filesystem::file_exists( sAutoSaveFile, true ) ) {
+				Filesystem::rm( sAutoSaveFile );
+			}
+		}
 	}
 
 	return true;
