@@ -434,10 +434,11 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
 	QMessageBox msgBox;
 	// Not commonized in CommmonStrings as it is required before
 	// HydrogenApp was instantiated.
-	msgBox.setText( tr( "There are unsaved changes." ) );
+	msgBox.setText( QString( "%1\n%2" )
+					.arg( tr( "There are unsaved changes." ) ).arg( sBaseFile ) );
 	msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-	msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-	msgBox.setDefaultButton( QMessageBox::Discard );
+	msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::No );
+	msgBox.setDefaultButton( QMessageBox::No );
 	msgBox.setWindowTitle( "Hydrogen" );
 	msgBox.setIcon( QMessageBox::Question );
 	int nRet = msgBox.exec();
