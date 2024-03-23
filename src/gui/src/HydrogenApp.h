@@ -95,15 +95,6 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		static bool openFile( const H2Core::Filesystem::Type& type,
 							  const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
-	/**
-	 * Trying to open the autosave file corresponding to current empty song.
-	 *
-	 * This will be used if the last set in Hydrogen was an empty one.
-	 * If the user either decided to discard the changes or Hydrogen
-	 * was terminated untimely, this function allows to restore all
-	 * changes that would have been lost otherwise.
-	 */
-	static bool recoverEmpty( const H2Core::Filesystem::Type& type );
 		static QString findAutoSaveFile( const H2Core::Filesystem::Type& type,
 										 const QString& sBaseFile );
 

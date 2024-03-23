@@ -121,15 +121,15 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	auto openFile = [=]( const Filesystem::Type& type, const QString& sPath,
 						 const QString& sLastPath, bool bRestore ) {
 		bool bRet = false;
-		if ( sPath.isEmpty() && bRestore ) {
+		if ( sPath.isEmpty() && ! sLastPath.isEmpty() && bRestore ) {
+			DEBUGLOG( QString( "%1 restore %2" )
+					  .arg( Filesystem::TypeToQString( type ).arg( sLastPath )) );
 			bRet = HydrogenApp::openFile( type, sLastPath );
 		}
 		else if ( ! sPath.isEmpty() ) {
-			if ( sPath == H2Core::Filesystem::empty_path( type ) ) {
-				bRet = HydrogenApp::recoverEmpty( type );
-			} else {
-				bRet = HydrogenApp::openFile( type, sPath );
-			}
+			DEBUGLOG( QString( "%1 open %2" )
+					  .arg( Filesystem::TypeToQString( type ).arg( sPath )) );
+			bRet = HydrogenApp::openFile( type, sPath );
 		}
 		return bRet;
 	};
@@ -139,13 +139,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	// will be loaded by the NSM client singleton itself and not
 	// by the MainForm. The latter will just access the already
 	// loaded Song.
-	if ( ! pHydrogen->isUnderSessionManagement() &&
-		 sSongFilename.isEmpty() &&
-		 ! openFile( Filesystem::Type::Song, sSongFilename,
-					 pPref->getLastSongFilename(),
-					 pPref->isRestoreLastSongEnabled() ) ) {
-		// Fall back to an empty song.
-		HydrogenApp::openSong( H2Core::Song::getEmptySong() );
+	if ( ! pHydrogen->isUnderSessionManagement() ) {
+		if ( ! openFile( Filesystem::Type::Song, sSongFilename,
+						 pPref->getLastSongFilename(),
+						 pPref->isRestoreLastSongEnabled() ) ) {
+			// Fall back to an empty song.
+			HydrogenApp::openSong( H2Core::Song::getEmptySong() );
+		}
 	}
 
 	// We need no fallback for the playlist as a new one corresponds to an empty

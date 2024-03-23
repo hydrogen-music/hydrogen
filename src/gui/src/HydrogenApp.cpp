@@ -469,17 +469,35 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 		return false;
 	}
 
+	QString sPath;
+	if ( sFilename.isEmpty() ) {
+		sPath = H2Core::Filesystem::empty_path( type );
+	}
+	else {
+		sPath = H2Core::Filesystem::absolute_path( sFilename );
+	}
 	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
 
 	bool bRet;
 	// Ensure the path to the file is not relative.
 	if ( type == Filesystem::Type::Song ) {
-		auto pSong = CoreActionController::loadSong(
-			Filesystem::absolute_path( sFilename ), sRecoverFilename );
+		std::shared_ptr<Song> pSong;
+		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+			pSong = Song::getEmptySong();
+		} else {
+			pSong = CoreActionController::loadSong( sPath, sRecoverFilename );
+		}
+
 		bRet = CoreActionController::setSong( pSong );
-	} else {
-		auto pPlaylist = CoreActionController::loadPlaylist(
-			Filesystem::absolute_path( sFilename ), sRecoverFilename );
+	}
+	else {
+		std::shared_ptr<Playlist> pPlaylist;
+		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+			pPlaylist = std::make_shared<Playlist>();
+		} else {
+			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFilename );
+		}
+
 		bRet = CoreActionController::setPlaylist( pPlaylist );
 	}
 
@@ -487,7 +505,7 @@ bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilena
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( sText );
+		msgBox.setText( QString( "%1\n[%2]" ).arg( sText ).arg( sPath ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
@@ -508,60 +526,6 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
 		return false;
-	}
-
-	return true;
-}
-
-bool HydrogenApp::recoverEmpty( const Filesystem::Type& type ) {
-	if ( type != Filesystem::Type::Song ||
-		 type != Filesystem::Type::Playlist ) {
-		ERRORLOG( QString( "Unsupported file type: [%1]" )
-				  .arg( static_cast<int>( type ) ) );
-		return false;
-	}
-
-	auto pHydrogen = Hydrogen::get_instance();
-
-	const auto sFilename = H2Core::Filesystem::empty_path( type );
-	const auto sRecoverFilename = findAutoSaveFile( type, sFilename );
-
-	if ( sRecoverFilename.isEmpty() ) {
-		return false;
-	}
-
-	auto failure = []( const QString& sText ) {
-		QMessageBox msgBox;
-		msgBox.setText( sText );
-		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Warning );
-		msgBox.exec();
-	};
-
-	if ( type == Filesystem::Type::Song ) {
-		auto pSong = CoreActionController::loadSong(
-			sFilename, sRecoverFilename );
-		if ( ! CoreActionController::setSong( pSong ) ) {
-			// Not commonized in CommmonStrings as it is required before
-			// HydrogenApp was instantiated.
-			failure( tr( "Error loading song." ) );
-			return false;
-		}
-
-		// The song has not been properly saved yet. Also this prevents
-		// the autosave file we just loaded from being removed in case the
-		// user decides to quit and reopen Hydrogen right after this call
-		// without introducing any changes.
-		pHydrogen->setIsModified( true );
-	}
-	else {
-		auto pPlaylist = CoreActionController::loadPlaylist(
-			sFilename, sRecoverFilename );
-		if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
-			// Not commonized in CommmonStrings as it is required before
-			// HydrogenApp was instantiated.
-			failure( tr( "Error loading playlist." ) );
-		}
 	}
 
 	return true;
