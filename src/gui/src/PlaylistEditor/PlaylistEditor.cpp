@@ -265,7 +265,7 @@ void PlaylistEditor::populateMenuBar() {
 }
 
 void PlaylistEditor::updateMenuActivation() {
-	const int nIndex = m_pPlaylistTable->currentRow();
+	int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
 		// No selection.
 		for ( auto& ppAction : m_actionsSelected ) {
@@ -281,6 +281,10 @@ void PlaylistEditor::updateMenuActivation() {
 		for ( auto& ppAction : m_actionsSelected ) {
 			ppAction->setEnabled( true );
 		}
+
+		// When deleting the last row, the current row can point temporarly
+		// beyond the playlist.
+		nIndex = std::clamp( nIndex, 0, pPlaylist->size() - 1 );
 
 		const auto pEntry = pPlaylist->get( nIndex );
 		if ( pEntry == nullptr ) {
@@ -1183,7 +1187,7 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	// Remember the playlist entry corresponding to the last selected row (in
 	// order to restore it when redrawing the whole tree).
 	connect( this, &QTableWidget::itemSelectionChanged,
-			 [=]() { const int nRow = currentRow();
+			 [=]() { int nRow = currentRow();
 				 const auto pPlaylist =
 					 H2Core::Hydrogen::get_instance()->getPlaylist();
 				 if ( nRow == -1 || pPlaylist == nullptr ||
@@ -1191,6 +1195,9 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 					 m_pLastSelectedEntry = nullptr;
 				 }
 				 else {
+					 // When deleting the last row, the current row can point
+					 // temporarly beyond the playlist.
+					 nRow = std::clamp( nRow, 0, pPlaylist->size() - 1 );
 					 m_pLastSelectedEntry = pPlaylist->get( nRow );
 				 }
 			 });
