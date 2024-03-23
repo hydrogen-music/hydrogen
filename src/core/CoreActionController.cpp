@@ -584,27 +584,33 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
 	}
-	else if ( pSong->getFilename() !=
-				Filesystem::empty_path( Filesystem::Type::Song ) ) {
+	else {
 		// Add the new loaded song in the "last used song" vector.
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed. In addition,
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
-		insertRecentFile( pSong->getFilename() );
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+
+		if ( pSong->getFilename() ==
+			 Filesystem::empty_path( Filesystem::Type::Song ) ) {
+			// To indicate that the user closed the previous song in favor of a
+			// new one, we store an empty string. This way the changes from the
+			// empty song can be recovered.
+			Preferences::get_instance()->setLastSongFilename( "" );
+		}
+		else {
+			insertRecentFile( pSong->getFilename() );
+			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+		}
 	}
 		
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+	EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 
-		// In case the song is read-only, we have to notify GUI which will
-		// display a warning dialog (since autosave won't work).
-		if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( pSong->getFilename() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
-		}
+	// In case the song is read-only, autosave won't work.
+	if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
+		WARNINGLOG( QString( "You don't have permissions to write to the song found in path [%1]. It will be opened as read-only (no autosave)." )
+					.arg( pSong->getFilename() ));
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 	}
 
 	// As we just set a fresh song, we can mark it not modified
@@ -1931,16 +1937,21 @@ bool CoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
 	}
 	pHydrogen->setPlaylist( pPlaylist );
 
-	if ( pPlaylist->getFilename() !=
+	if ( pPlaylist->getFilename() ==
 		 Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
+		// To indicate that the user closed the previous playlsit in favor
+		// of a new one, we store an empty string. This way the changes from
+		// the empty playlist can be recovered.
+		Preferences::get_instance()->setLastPlaylistFilename( "" );
+	}
+	else {
 		Preferences::get_instance()->setLastPlaylistFilename(
 			pPlaylist->getFilename() );
 	}
 
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_CHANGED, 0 );
 
-	// In case the song is read-only, we have to notify GUI which will display a
-	// warning dialog (since autosave won't work).
+	// In case the playlist is read-only, autosave won't work.
 	if ( ! Filesystem::file_writable( pPlaylist->getFilename() ) ) {
 		WARNINGLOG( QString( "You don't have permissions to write to the playlist found in path [%1]. It will be opened as read-only (no autosave)." )
 					.arg( pPlaylist->getFilename() ));
