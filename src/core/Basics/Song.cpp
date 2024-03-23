@@ -272,7 +272,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	QString sPlaybackTrack( rootNode.read_string( "playbackTrackFilename", "",
 													false, true, bSilent ) );
 	QFileInfo playbackTrackInfo( sPlaybackTrack );
-	if ( playbackTrackInfo.isRelative() ) {
+	if ( ! sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
 		// Playback track has been made portable by manually
 		// converting the absolute path stored by Hydrogen into a
 		// relative one.
