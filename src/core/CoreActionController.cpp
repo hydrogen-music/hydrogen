@@ -523,8 +523,8 @@ bool CoreActionController::initExternalControlInterfaces()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Song> CoreActionController::loadSong( const QString& sSongPath,
-													  const QString& sRecoverSongPath ) {
+std::shared_ptr<Song> CoreActionController::loadSong( const QString& sPath,
+													  const QString& sRecoverPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	assert( pHydrogen );
 	if ( pHydrogen == nullptr ) {
@@ -534,24 +534,30 @@ std::shared_ptr<Song> CoreActionController::loadSong( const QString& sSongPath,
 
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isPathValid(
-			 Filesystem::Type::Song, sSongPath, true ) ) {
+			 Filesystem::Type::Song, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Song> pSong;
-	if ( ! sRecoverSongPath.isEmpty() ) {
-		// Use an autosave file to load the song
-		pSong = Song::load( sRecoverSongPath );
+	if ( ! Filesystem::isPathValid(
+			 Filesystem::Type::Song, sRecoverPath, true ) ) {
+		// Use an autosave file to load the playlist
+		pSong = Song::load( sRecoverPath );
 		if ( pSong != nullptr ) {
-			pSong->setFilename( sSongPath );
+			pSong->setFilename( sPath );
+		} else {
+			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
+					  .arg( sRecoverPath ).arg( sPath ) );
 		}
-	} else {
-		pSong = Song::load( sSongPath );
 	}
 
 	if ( pSong == nullptr ) {
-		ERRORLOG( QString( "Unable to open song [%1]." ).arg( sSongPath ) );
+		pSong = Song::load( sPath );
+	}
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( QString( "Unable to open song [%1]." ).arg( sPath ) );
 		return nullptr;
 	}
 	
@@ -1884,20 +1890,26 @@ std::shared_ptr<Playlist> CoreActionController::loadPlaylist( const QString& sPa
 	}
 
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isPathValid(
+	if ( ! Filesystem::isPathValid(
 			 Filesystem::Type::Playlist, sPath, true ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Playlist> pPlaylist;
-	if ( ! sRecoverPath.isEmpty() ) {
-		// Use an autosave file to load the song
+	if ( ! Filesystem::isPathValid(
+			 Filesystem::Type::Playlist, sRecoverPath, true ) ) {
+		// Use an autosave file to load the playlist
 		pPlaylist = Playlist::load( sRecoverPath );
 		if ( pPlaylist != nullptr ) {
 			pPlaylist->setFilename( sPath );
+		} else {
+			ERRORLOG( QString( "Unable to recover changes from [%1]. Loading [%2] instead." )
+					  .arg( sRecoverPath ).arg( sPath ) );
 		}
-	} else {
+	}
+
+	if ( pPlaylist == nullptr ) {
 		pPlaylist = Playlist::load( sPath );
 	}
 
