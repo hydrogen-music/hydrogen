@@ -155,31 +155,56 @@ $ make && sudo make install
 
 #### Running Hydrogen
 
-After installation, Hydrogen's binaries can be found in `CMAKE_INSTALL_PREFIX/bin`.
-If this path is not in your `PATH` environment variable, consider adding it to it.
+Some common problems encountered by user building from source:
 
-If Hydrogen doesn't start, and you have the above message :
+##### Command not found / wrong version
 
-```
-… error while loading shared libraries: libhydrogen-core-1.1.0.so …
-```
+In case you get the error
 
-it's because Hydrogen's shared library is not found.
-You can verify this with the following command
+> ... command not found: hydrogen
+
+or the wrong version of Hydrogen is starting up, your shell is not able to find
+the one you just installed (you can check using `which hydrogen`).
+
+After installation, Hydrogen's binaries can be found in `/usr/local/bin`.
+If this path is not in your `PATH` environment variable (you can check using
+`echo $PATH`), you should add
 
 ```bash
-ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'
+export PATH=/usr/local/bin:$PATH
 ```
 
-To fix it, you can use `LD_PRELOAD` or `LD_LIBRARY_PATH` environment variables,
-or configure `ldconfig` (see man ldconfig, man ld.so).
+to your `$HOME/.profile` file (or .bashrc, .zshrc, or .xprofile in case you
+prefer those) and run `source ~/.profile`.
 
-Another option is to set the `cmake` option
-`-DCMAKE_INSTALL_PREFIX=/usr`, recompile, and reinstall Hydrogen.
-But be aware that you will certainly overwrite Hydrogen files that you might have
-installed with your distribution's package manager.
+##### Error loading shared libraries
 
-see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677)
+If Hydrogen doesn't start, and you get a message similar to:
+
+> … error while loading shared libraries: libhydrogen-core-1.X.X.so …
+
+your OS could not find the shared library you just compiled and installed along
+with the program itself.
+
+Seems like your Linux distribution is more user than developer focused. This is
+not a big problem. It just added `/usr/local/bin` to `$PATH` but not `/usr/local/lib`
+to `$LD_LIBRARY_PATH`.
+
+Installing your local build to `/usr/local` is more or less standard. `/usr` should be
+used by your package manager. This allows you to manually compile and install custom
+Hydrogen versions without messing with the system's one. We just have to tell the system
+where to find all required pieces.
+
+You could use the `/usr` installation prefix when building Hydrogen. But I would strongly
+discourage that. Instead, you could do one of these:
+
+- run `sudo ldconfig` and check whether this already fixes your issue
+- open Hydrogen via the command line using `LD_LIBRARY_PATH=/usr/local/lib hydrogen`
+- add `export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}` to your `$HOME/.profile`
+- set a symlink as you mentioned from `/usr/local/lib/libhydrogen-core.1.X.X.so` to
+  `/usr/lib/`
+
+see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677) for further insights.
 
 #### Build Script
 
