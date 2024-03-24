@@ -1162,6 +1162,7 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 	QStringList headers;
 	headers << tr( "Song list" );
 	setHorizontalHeaderLabels( headers );
+	horizontalHeader()->setSectionResizeMode( 0, QHeaderView::Stretch );
 
 #else
 	setColumnCount( 3 );
