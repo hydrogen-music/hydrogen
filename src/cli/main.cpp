@@ -354,7 +354,6 @@ int main(int argc, char *argv[])
 			pSong = CoreActionController::loadSong( sSongPath );
 
 			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
-				preferences->setLastSongFilename( sSongPath );
 				CoreActionController::activatePlaylistSong( 0 );
 			}
 
@@ -362,27 +361,29 @@ int main(int argc, char *argv[])
 		}
 
 		// Load song - if wasn't already loaded with playlist
-		if ( ! pSong ) {
+		if ( pSong == nullptr ) {
 			if ( !songFilename.isEmpty() ) {
-				pSong = Song::load( songFilename );
-			} else {
+				pSong = CoreActionController::loadSong( songFilename, "" );
+			}
+			else {
 				/* Try load last song */
-				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
-				QString filename = preferences->getLastSongFilename();
-				if ( restoreLastSong && ( !filename.isEmpty() )) {
-					pSong = Song::load( filename );
+				const QString sSongPath = preferences->getLastSongFilename();
+				if ( preferences->isRestoreLastSongEnabled() &&
+					 ! sSongPath.isEmpty() ) {
+					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}
 			}
 
 			/* Still not loaded */
-			if (! pSong) {
-				___INFOLOG("Starting with empty song");
+			if ( pSong == nullptr ) {
+				___INFOLOG( "Starting with empty song" );
 				pSong = Song::getEmptySong();
-			} else {
-				preferences->setLastSongFilename( songFilename );
+				// We avoid setting LastSongFilename in the Preferences
+				pHydrogen->setSong( pSong );
 			}
-
-			pHydrogen->setSong( pSong );
+			else {
+				CoreActionController::setSong( pSong );
+			}
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
