@@ -137,6 +137,26 @@ namespace Interpolation
 			return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 	};
 
+	template < InterpolateMode mode >
+	inline static float interpolate( float y0, float y1, float y2, float y3, double mu )
+	{
+		switch ( mode ) {
+		case InterpolateMode::Linear:
+			return linear_Interpolate( y1, y2, mu );
+		case InterpolateMode::Cosine:
+			return cosine_Interpolate( y1, y2, mu );
+		case InterpolateMode::Third:
+			return third_Interpolate( y0, y1, y2, y3, mu );
+		case InterpolateMode::Cubic:
+			return cubic_Interpolate( y0, y1, y2, y3, mu );
+		case InterpolateMode::Hermite:
+			return hermite_Interpolate( y0, y1, y2, y3, mu );
+		default:
+			assert( false && "Unknown interpolation mode" );
+		}
+
+	}
+
 };
 
 }

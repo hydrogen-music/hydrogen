@@ -1166,7 +1166,7 @@ void SongEditor::createBackground()
 	}
 
 	p.setPen( QPen( pPref->getTheme().m_color.m_songEditor_lineColor, 1,
-					Qt::SolidLine ) );
+					Qt::DotLine ) );
 
 	// vertical lines
 	for ( float ii = 0; ii <= nMaxPatternSequence + 1; ii++) {
