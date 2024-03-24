@@ -1508,6 +1508,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
+#ifdef H2CORE_HAVE_LADSPA
 	timeval ladspaTime_start = currentTime2();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
