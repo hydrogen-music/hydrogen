@@ -530,7 +530,7 @@ for:
       only:
         - job_group: 'Windows'
 
-    cache: '%USERPROFILE%\AppData\Roaming\ccache'
+    cache: '%USERPROFILE%\AppData\Roaming\ccache2'
     before_build:
       cmd: |-
           REM *** In case we are not at a tag, we append some additional information to a)
