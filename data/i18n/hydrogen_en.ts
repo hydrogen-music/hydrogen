@@ -3980,10 +3980,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
         <translation></translation>
     </message>
@@ -4266,14 +4262,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation></translation>
     </message>
     <message>

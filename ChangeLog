@@ -42,6 +42,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
+	* Removed
+		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
+			dropped. Instead, both will always be restored automatically. In order to
+			start with a blank song/playlist, load a new one before quitting.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
