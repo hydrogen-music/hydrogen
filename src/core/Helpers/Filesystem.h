@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -65,30 +65,12 @@ namespace H2Core
 		system = 2
 	};
 
-		/** Determines were to find a kit and whether it is writable
-		 *	by the current user.*/
-		enum class DrumkitType {
-			/** Kit was installed with Hydrogen, is automatically
-			 * loaded, and most probably readonly.*/
-			System = 0,
-			/** Kit was installed by the user, is automatically
-			 * loaded, and most probably writable.*/
-			User = 1,
-			/** Kit was loaded via a NSM session, OSC command, or CLI
-			 * option, only persist for the current Hydrogen session,
-			 * and is readonly.*/
-			SessionReadOnly = 2,
-			/** Kit was loaded via a NSM session, OSC command, or CLI
-			 * option, only persist for the current Hydrogen session,
-			 * and is writable.*/
-			SessionReadWrite = 3
-		};
-
 		static const QString songs_ext;
 		static const QString scripts_ext;
 		static const QString patterns_ext;
 		static const QString playlist_ext;
 		static const QString drumkit_ext;
+		static const QString drumkit_map_ext;
 		static const QString themes_ext;
 		static const QString songs_filter_name;
 		static const QString themes_filter_name;
@@ -160,6 +142,7 @@ namespace H2Core
 		static QString drumkit_xsd( );
 		/** returns the path to the drumkit XSD (xml schema definition) file */
 		static QString drumkit_xsd_path( );
+		static QString drumkit_map_xsd_path( );
 		/** @return List of absolute paths to all formerly used
 			drumkit.xsd files.*/
 		static QStringList drumkit_xsd_legacy_paths( );
@@ -194,6 +177,8 @@ namespace H2Core
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */
 		static QString usr_drumkits_dir();
+		static QString sys_drumkit_maps_dir();
+		static QString usr_drumkit_maps_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
 		/** returns user playlist path, add file extension */
@@ -221,16 +206,18 @@ namespace H2Core
 		static QString tmp_file_path( const QString& base );
 
 		/* DRUMKIT */
-		/** Returns the basename if the given path is under an existing user or system drumkit path, otherwise the given fname */
-		static QString prepare_sample_path( const QString& fname );
-		/** Checks if the given filepath is under an existing user or system drumkit path, not the existence of the file */
-		static bool file_is_under_drumkit( const QString& fname);
-		/** Returns the index of the basename if the given path is under an existing user or system drumkit path, otherwise -1 */
-		static int get_basename_idx_under_drumkit( const QString& fname);
+		/** Returns the basename if the given path is under an existing user or
+		 * system drumkit path, otherwise the given @a sSamplePath */
+		static QString prepare_sample_path( const QString& sSamplePath );
 		/** returns list of usable system drumkits ( see Filesystem::drumkit_list ) */
 		static QStringList sys_drumkit_list( );
 		/** returns list of usable user drumkits ( see Filesystem::drumkit_list ) */
 		static QStringList usr_drumkit_list( );
+		/**
+		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
+		 * \param path the path to search in for drumkits
+		 */
+		static QStringList drumkit_list( const QString& path );
 		/**
 		 * returns true if the drumkit exists within usable system or user drumkits
 		 * \param dk_name the drumkit name
@@ -279,7 +266,7 @@ namespace H2Core
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
 		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit. 
+		 * for the drumkit.
 		 */
 		static QString drumkit_dir_search( const QString& dk_name, Lookup lookup );
 		/**
@@ -330,7 +317,7 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
-		
+
 		/**
 		 * Checks the path pointing to a .h2song.
 		 *
@@ -420,12 +407,6 @@ namespace H2Core
 		 * Convert a direct to an absolute path.
 		 */
 		static QString absolute_path( const QString& sFilename, bool bSilent = false );
-		/** 
-		 * If Hydrogen is under session management, we support for paths
-		 * relative to the session folder. This is required to allow for
-		 * sessions being renamed or duplicated.
-		 */
-		static QString ensure_session_compatibility( const QString& sPath );
 		/**
 		 * writes to a file
 		 * \param dst the destination path
@@ -460,11 +441,30 @@ namespace H2Core
 		/** \param sPath Sets m_sPreferencesOverwritePath*/
 		static void setPreferencesOverwritePath( const QString& sPath );
 
-		/**
-		 * @param sPath Absolute path to the drumkit folder containing
-		 *   a drumkit.xml file.
+		/** Retrieves the #H2Core::DrumkitMap file for a drumkit folder @a
+		 * sDrumkitPath.
+		 *
+		 * @param sDrumkitPath Absolute path to the drumkit directory
+		 *   (containing a drumkit.xml) file as unique identifier.
+		 *
+		 * @return an empty string in case no file was found.
 		 */
-		static DrumkitType determineDrumkitType( const QString& sPath );
+		static QString getDrumkitMapFromKit( const QString& sDrumkitPath );
+		/** Retrieves a #h2Core::DrumkitMap file for a kit names @a sDrumkitPath
+		 * from either the system or the user data folder.
+		 *
+		 * It checks either #Filesystem::usr_drumkit_maps_dir() and
+		 * #Filesystem::sys_drumkit_maps_dir() (depending on @a bUser) for a @a
+		 * sDrumkitPath.h2map file. E.g. /data/drumkits/GMRockKit/ is associated
+		 * with data/drumkit_maps/GMRockKit.h2map but
+		 * data/drumkit_maps/gmrockkit.h2map is not.
+		 *
+		 * @param sDrumkitName Name of a drumkit
+		 * @param bUser Whether to search the user or system data folder.
+		 *
+		 * @return an empty string in case no file was found.
+		 **/
+		static QString getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser );
 
 		/**
 		 * Reroutes stored drumkit paths pointing to a temporary
@@ -484,6 +484,18 @@ namespace H2Core
 		 */
 		static QString rerouteDrumkitPath( const QString& sDrumkitPath );
 
+			/** In order to store stuff in e.g. our cache folder without neither
+			 * loosing their original file names nor risking to overwrite
+			 * existing files, this function addes a template prefix to a
+			 * path.
+			 *
+			 * Companion function of deleteUniquePrefix() */
+			static QString addUniquePrefix( const QString& sBaseFilePath );
+			/** If @a sUniqueFilePath contains a prefix introduced by
+			 * addUniquePrefix(), this function removes it and restores the
+			 * original base name of the file.*/
+			static QString removeUniquePrefix( const QString& sUniqueFilePath );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
@@ -494,11 +506,6 @@ namespace H2Core
 		 * If this variable is non-empty, its content will be used as
 		 * an alternative to store and load the preferences.*/
 		static QString m_sPreferencesOverwritePath;
-		/**
-		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
-		 * \param path the path to search in for drumkits
-		 */
-		static QStringList drumkit_list( const QString& path );
 		/**
 		 * \return true if all the asked permissions are ok
 		 * \param path the path to the file to check

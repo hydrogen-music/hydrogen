@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -74,31 +74,6 @@ class Instrument : public H2Core::Object<Instrument>
 		~Instrument();
 
 		/**
-		 * creates a new Instrument, loads samples from a given instrument within a given drumkit
-		 * \param drumkit_name the drumkit to search the instrument in
-		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * \return a new Instrument instance
-		 */
-		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_path, const QString& instrument_name );
-
-		/**
-		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
-		 * \param drumkit_path the drumkit to search the instrument in
-		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * for the drumkit.
-		 */
-		void load_from( const QString& drumkit_path, const QString& instrument_name );
-
-		/**
-		 * loads instrument from a given instrument into a `live` Instrument object.
-		 * \param drumkit the drumkit the instrument belongs to
-		 * \param instrument to load samples and members from
-		 * \param lookup Where to search (system/user folder or both)
-		 * for the drumkit.
-		 */
-		void load_from( std::shared_ptr<Drumkit> drumkit, std::shared_ptr<Instrument> instrument );
-
-		/**
 		 * Calls the InstrumentLayer::load_sample() member
 		 * function of all layers of each component of the
 		 * Instrument.
@@ -113,37 +88,53 @@ class Instrument : public H2Core::Object<Instrument>
 
 		/**
 		 * save the instrument within the given XMLNode
+		 *
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
-		 * component.
+		 *   component.
 		 * \param bRecentVersion Whether the drumkit format should be
-		 * supported by Hydrogen 0.9.7 or higher (whether it should be
-		 * composed of DrumkitComponents).
-		 * \param bFull Whether to write all parameters of the
-		 * contained #Sample as well. This will be done when storing
-		 * an #Instrument as part of a #Song but not when storing
-		 * as part of a #Drumkit.
+		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
+		 *   composed of DrumkitComponents).
+		 * \param bSongKit Whether the instrument is part of a
+		 *   stand-alone kit or part of a song. In the latter case all samples
+		 *   located in the corresponding drumkit folder and are referenced by
+		 *   filenames. In the former case, each instrument might be
+		 *   associated with a different kit and the lookup folder for the
+		 *   samples are stored on a per-instrument basis.
 		 */
-	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
+		void save_to( XMLNode* node, int component_id,
+					  bool bRecentVersion = true, bool bSongKit = false );
+
 		/**
 		 * load an instrument from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit
-		 * data. If empty, it will be read from @a pNode.
+		 *   data. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName Name of the drumkit found in @a
-		 * sDrumkitPath.
+		 *   sDrumkitPath.
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   instrument is contained in. It is used to resolve sample paths
+		 *   relative to the .h2song file.
 		 * \param license License assigned to all Samples that will be
-		 * loaded. If empty, the license will be read from @a
-		 * sDrumkitPath.
+		 *   loaded. If empty, the license will be read from @a
+		 *   sDrumkitPath.
+		 * @param bSongKit If true samples are loaded on a
+		 *   per-instrument basis. If the filename of the sample is a plain
+		 *   filename, it will be searched for in the folder associated with the
+		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
+		 *   (unique identifier locally). If it is an absolute path, it will be
+		 *   loaded directly.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new Instrument instance
 		 */
 		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
+													  const QString& sSongPath = "",
 													  const License& license = License(),
+													  bool bSongKit = false,
 													  bool bSilent = false );
 
 		///< set the name of the instrument
@@ -296,7 +287,7 @@ class Instrument : public H2Core::Object<Instrument>
 		void set_is_metronome_instrument(bool isMetronome);
 		bool is_metronome_instrument() const;
 
-		std::vector<std::shared_ptr<InstrumentComponent>>* get_components();
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components();
 		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID );
 
 		void set_apply_velocity( bool apply_velocity );
@@ -377,7 +368,7 @@ class Instrument : public H2Core::Object<Instrument>
 		int						__higher_cc;			///< higher cc level
 		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
 		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
-		std::vector<std::shared_ptr<InstrumentComponent>>* __components;		///< InstrumentLayer array
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
@@ -708,7 +699,7 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 	__is_metronome_instrument = isMetronome;
 }
 
-inline std::vector<std::shared_ptr<InstrumentComponent>>* Instrument::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components()
 {
 	return __components;
 }

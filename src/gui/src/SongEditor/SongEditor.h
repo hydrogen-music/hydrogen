@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -39,7 +39,6 @@
 #include "PatternFillDialog.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
-#include "../Widgets/WidgetWithHighlightedList.h"
 
 namespace H2Core {
 	class Hydrogen;
@@ -257,7 +256,6 @@ inline int SongEditor::getCursorColumn() const {
 /** \ingroup docGUI*/
 class SongEditorPatternList :  public QWidget
 							, protected WidgetWithScalableFont<8, 10, 12>
-							, public WidgetWithHighlightedList
 							, public H2Core::Object<SongEditorPatternList>
 							, public EventListener
 {
@@ -313,6 +311,7 @@ class SongEditorPatternList :  public QWidget
 		uint 				m_nGridHeight;
 		uint 				m_nWidth;
 		static const uint 	m_nInitialHeight = 10;
+		int m_nRowClicked;
 
 		QPixmap *			m_pBackgroundPixmap;
 		bool m_bBackgroundInvalid;
@@ -341,9 +340,6 @@ class SongEditorPatternList :  public QWidget
 	QPoint __drag_start_position;
 
 		void togglePattern( int );
-
-
-	void setRowSelection( RowSelection rowSelection );
 	/**
 	 * Specifies the row the mouse cursor is currently hovered
 	 * over. -1 for no cursor.

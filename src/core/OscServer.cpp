@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,6 +33,7 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
+#include <core/Basics/Drumkit.h>
 #include "core/Basics/InstrumentList.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"
@@ -183,7 +184,7 @@ int OscServer::generic_handler(const char *	path,
 
 	bool bMessageProcessed = false;
 	
-	int nNumberOfStrips = pSong->getInstrumentList()->size();
+	int nNumberOfStrips = pSong->getDrumkit()->getInstruments()->size();
 	
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );

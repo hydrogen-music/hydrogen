@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -29,6 +29,8 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Preferences/Preferences.h>
@@ -303,11 +305,22 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
 
-	unsigned int numInstruments = instList->size();
+	auto pInstrumentList = pDrumkit->getInstruments();
+
+	unsigned int numInstruments = pInstrumentList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		auto curInst = instList->get(index);
+		auto curInst = pInstrumentList->get(index);
 
 		int channel = curInst->get_midi_out_channel();
 		if (channel < 0) {

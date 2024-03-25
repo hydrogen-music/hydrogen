@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -99,16 +99,9 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
-		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
-		/**
-		 * \param sDrumkitPath
-		 * \param sInstrumentName
-		 * \param nTargetInstrument
-		 * \param AddedComponents
-		 * for the drumkit.
-		 */
-		void functionDropInstrumentRedoAction(QString sDrumkitPath, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents );
-		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
+		void functionDropInstrumentUndoAction( int nTargetInstrument );
+		void functionDropInstrumentRedoAction( const QString& sDrumkitPath, const QString& sInstrumentName, int nTargetInstrument );
+		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, const QString& instrumentName, const QString& drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
 		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -48,9 +48,12 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-	void				save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
+	void				save_to( XMLNode* node,
+								 bool bRecentVersion = true,
+								 bool bSongKit = false );
 		static std::shared_ptr<InstrumentComponent> load_from( XMLNode* pNode,
 															   const QString& sDrumkitPath,
+															   const QString& sSongPath = "",
 															   const License& drumkitLicense = License(),
 															   bool bSilent = false );
 

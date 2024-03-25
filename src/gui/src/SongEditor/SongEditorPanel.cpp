@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -716,7 +716,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	pPatternGroupsVect->clear();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pHydrogen->getSong()->readTempPatternList( filename );
+	pHydrogen->getSong()->loadTempPatternList( filename );
 	pHydrogen->updateSongSize();
 	pHydrogen->updateSelectedPattern( false );
 	pAudioEngine->unlock();
@@ -882,7 +882,7 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 	auto pSong = pHydrogen->getSong();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 
 	QString sPath, sFilename;

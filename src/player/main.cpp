@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -107,7 +107,7 @@ int main(int argc, char** argv){
 		switch( pippo ) {
 			case 'q':
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
-				hydrogen->sequencer_stop();
+				hydrogen->sequencerStop();
 
 				pSong = nullptr;
 				delete hydrogen;
@@ -123,11 +123,11 @@ int main(int argc, char** argv){
 				break;
 
 			case 'p':
-				hydrogen->sequencer_play();
+				hydrogen->sequencerPlay();
 				break;
 
 			case 's':
-				hydrogen->sequencer_stop();
+				hydrogen->sequencerStop();
 				break;
 
 			case 'b':

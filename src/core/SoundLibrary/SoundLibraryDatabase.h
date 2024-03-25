@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -24,8 +24,10 @@
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Object.h>
+#include <QStringList>
 #include <map>
 #include <memory>
 #include <vector>
@@ -65,15 +67,34 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
+	 * If the kit is not already present, it will be loaded from disk.
+	 *
 	 * @param sDrumkitPath Absolute path to the drumkit directory
 	 *   (containing a drumkit.xml) file as unique identifier.
-	 * @param bLoad Whether the drumkit should be loaded into the
-	 *   datebase in case it is not present yet.
 	 */
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath, bool bLoad = true );
-	const std::map<QString,std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+	const std::map<QString, std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
+		/** Retrieves an unique label for the kit associated with @a
+		 * sDrumkitPath. This may serve as a more accessible alternative to the
+		 * absolute path of the kit in the GUI. */
+		QString getUniqueLabel( const QString& sDrumkitPath );
+
+		/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
+		 * during an updateDrumkits()
+		 *
+		 * @param sDrumkitFolder Absolute path. */
+		void registerDrumkitFolder( const QString& sDrumkitFolder );
+
+		QStringList getDrumkitFolders() const;
+
+	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
+	 * drumkits.
+	 *
+	 * @return The list of unique types sorted by number of occurrence in
+	 * descending order.*/
+	 std::vector<DrumkitMap::Type> getAllTypes() const;
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
@@ -91,8 +112,18 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
-	std::map<QString,std::shared_ptr<Drumkit>> m_drumkitDatabase;
-	
+	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
+		/** The absolute path to a drumkit folder is not the most accessible way
+		 * to refer to a kit in the GUI. Instead, each kit will also have an
+		 * unique label. It is derived from the name of the drumkit. But as
+		 * there can be duplicates, the following rules are applied:
+		 * - Drumkit of system-level will carry the suffix " (system)"
+		 * - Drumkit added during a session but not installed in the system or
+		 *   user drumkit folder will carry the suffix " (session)"
+		 * - If a label is already present a number will be appended, like " (1)"
+		 * */
+		std::map<QString, QString> m_drumkitUniqueLabels;
+
 	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfoVector;
 	QStringList m_patternCategories;
 
@@ -104,6 +135,13 @@ private:
 	 * aforementioned folders.
 	 */
 	QStringList m_customDrumkitPaths;
+
+		/** Whole folders that will be scanned for drumkits in addition to the
+		 * system and user drumkti folder. */
+		QStringList m_customDrumkitFolders;
+
+		void registerUniqueLabel( const QString& sDrumkitPath,
+							  std::shared_ptr<Drumkit> pDrumkit );
 };
 }; // namespace H2Core
 

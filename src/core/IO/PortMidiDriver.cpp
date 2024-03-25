@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -23,6 +23,7 @@
 
 #include <core/IO/PortMidiDriver.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -59,7 +60,7 @@ void* PortMidiDriver_thread( void* param )
 	// SysEx messages in PortMidi spread across multiple PmEvents and
 	// it is our responsibility to put them together.
 	MidiMessage sysExMsg;
-	while ( instance->m_bRunning ) {
+	while ( instance->m_bRunning && instance->m_pMidiIn != nullptr ) {
 		length = Pm_Read( instance->m_pMidiIn, buffer, 1 );
 		if ( length > 0 ) {
 
@@ -324,6 +325,8 @@ void PortMidiDriver::open()
 		if ( sMidiPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI input device [%1] not found." )
 					  .arg( sMidiPortName ) );
+		} else {
+			INFOLOG( QString( "No MIDI input device selected" ) );
 		}
 		m_pMidiIn = nullptr;
 	}
@@ -351,11 +354,13 @@ void PortMidiDriver::open()
 		if ( sMidiOutputPortName != Preferences::getNullMidiPort() ) {
 			WARNINGLOG( QString( "MIDI output device [%1] not found." )
 						.arg( sMidiOutputPortName ) );
+		} else {
+			INFOLOG( QString( "No MIDI output device selected" ) );
 		}
 		m_pMidiOut = nullptr;
 	}
 
-	if ( m_pMidiOut != nullptr || m_pMidiIn != nullptr ) {
+	if ( m_pMidiIn != nullptr ) {
 		m_bRunning = true;
 
 		pthread_attr_t attr;
@@ -527,7 +532,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		return;
 	}
 
-	auto instList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {

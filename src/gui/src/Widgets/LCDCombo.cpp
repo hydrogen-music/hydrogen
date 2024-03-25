@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -156,8 +156,12 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 		if ( ! hasFocus() ) {
 			colorHighlightActive.setAlpha( 150 );
 		}
-	
-		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
+
+		QPen pen;
+		pen.setColor( colorHighlightActive );
+		pen.setWidth( 3 );
+		painter.setPen( pen );
+		painter.drawRoundedRect( 0, 0, width() - 1, height() - 1, 3,3 );
 	}
 }
 

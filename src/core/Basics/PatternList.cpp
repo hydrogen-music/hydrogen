@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -240,18 +240,6 @@ Pattern*  PatternList::find( const QString& name )
 		if ( __patterns[i]->get_name()==name ) return __patterns[i];
 	}
 	return nullptr;
-}
-
-void PatternList::swap( int idx_a, int idx_b )
-{
-	assertAudioEngineLocked();
-	assert( idx_a >= 0 && idx_a < __patterns.size() );
-	assert( idx_b >= 0 && idx_b < __patterns.size() );
-	if( idx_a == idx_b ) return;
-	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-	Pattern* tmp = __patterns[idx_a];
-	__patterns[idx_a] = __patterns[idx_b];
-	__patterns[idx_b] = tmp;
 }
 
 void PatternList::move( int idx_a, int idx_b )

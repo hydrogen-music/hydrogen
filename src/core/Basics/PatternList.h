@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -135,12 +135,6 @@ class XMLNode;
 		 * \return 0 if not found
 		 */
 		Pattern* find( const QString& name );
-		/**
-		 * swap the patterns of two different indexes
-		 * \param idx_a the first index
-		 * \param idx_b the second index
-		 */
-		void swap( int idx_a, int idx_b );
 		/**
 		 * move a pattern from a position to another
 		 * \param idx_a the start index

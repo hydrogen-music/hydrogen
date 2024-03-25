@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -150,19 +150,20 @@ public slots:
 		void action_report_bug();
 		void action_donate();
 
-		void action_instruments_addInstrument();
-		void action_instruments_clearAll();
-		void action_instruments_saveLibrary();
-		void action_instruments_saveAsLibrary();
-		void action_instruments_exportLibrary();
-		void action_instruments_importLibrary();
-		void action_instruments_onlineImportLibrary();
-		void action_instruments_addComponent();
+		void action_drumkit_new();
+		void action_drumkit_properties();
+		void action_drumkit_open();
+		void action_drumkit_addInstrument();
+		void action_drumkit_save();
+		void action_drumkit_save_to_session();
+		void action_drumkit_export();
+		/** @param bLoad whether to just import the kit or, in addition, load
+		 * the imported kit. */
+		void action_drumkit_import( bool bLoad = true );
+		void action_drumkit_onlineImport();
 
 		void functionDeleteInstrument( int nInstrument );
 
-		void action_banks_properties();
-		void action_banks_open();
 		
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
@@ -236,7 +237,7 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
-	void editDrumkitProperties( bool bDrumkitNameLocked );
+	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
 		void updateRecentUsedSongList();
 
 		HydrogenApp*	h2app;
@@ -298,8 +299,7 @@ public slots:
 
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;
-		QMenu* m_pDrumkitsMenu;
-		QMenu* m_pInstrumentsMenu;
+		QMenu* m_pDrumkitMenu;
 		QMenu* m_pViewMenu;
 		QMenu* m_pOptionsMenu;
 		QMenu* m_pDebugMenu;

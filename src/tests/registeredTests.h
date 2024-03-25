@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -23,15 +23,19 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "AdsrTest.h"
+#include "AudioBenchmark.h"
+#include "AudioDriverTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
 #include "CoreActionControllerTest.h"
+#include "EventQueueTest.cpp"
 #include "FilesystemTest.h"
 #include "FunctionalTests.cpp"
 #include "InstrumentListTest.cpp"
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiNoteTest.cpp"
+#include "NetworkTest.h"
 #include "NoteTest.cpp"
 #include "OscServerTest.h"
 #include "PatternTest.h"
@@ -42,15 +46,19 @@
 #include "XmlTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
+CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
 #ifdef H2CORE_HAVE_OSC
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );

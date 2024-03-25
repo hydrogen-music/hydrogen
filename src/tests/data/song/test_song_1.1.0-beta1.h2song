@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.1.1-'825a3f7d'</version>
+ <version>1.1.0-'d16cbf5a2'</version>
  <bpm>120</bpm>
  <volume>0.73</volume>
  <metronomeVolume>0.5</metronomeVolume>
@@ -14,7 +14,7 @@
  <playbackTrackEnabled>false</playbackTrackEnabled>
  <playbackTrackVolume>0</playbackTrackVolume>
  <action_mode>0</action_mode>
- <mode>song</mode>
+ <mode>pattern</mode>
  <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
  <pan_law_k_norm>1.33333</pan_law_k_norm>
  <humanize_time>0</humanize_time>
@@ -36,7 +36,8 @@
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -148,6 +149,149 @@
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
+    <layer>
+     <filename>../drumkits/baseKit/crash.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
+  </instrument>
+  <instrument>
+   <id>18</id>
+   <name>Kick Short</name>
+   <drumkit>TR808EmulationKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
+   <volume>1</volume>
+   <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
+   <randomPitchFactor>0</randomPitchFactor>
+   <muteGroup>-1</muteGroup>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>36</midiOutNote>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <instrumentComponent>
+    <component_id>0</component_id>
+    <gain>1</gain>
+    <layer>
+     <filename>808_Kick_Short.flac</filename>
+     <ismodified>true</ismodified>
+     <smode>reverse</smode>
+     <startframe>0</startframe>
+     <loopframe>853</loopframe>
+     <loops>7</loops>
+     <endframe>6153</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+     <volume>
+      <volume-position>0</volume-position>
+      <volume-value>0</volume-value>
+     </volume>
+     <volume>
+      <volume-position>841</volume-position>
+      <volume-value>0</volume-value>
+     </volume>
+     <pan>
+      <pan-position>0</pan-position>
+      <pan-value>45</pan-value>
+     </pan>
+     <pan>
+      <pan-position>841</pan-position>
+      <pan-value>45</pan-value>
+     </pan>
+    </layer>
+   </instrumentComponent>
+  </instrument>
+  <instrument>
+   <id>19</id>
+   <name>New instrument</name>
+   <drumkit></drumkit>
+   <drumkitLookup>2</drumkitLookup>
+   <volume>1</volume>
+   <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
+   <randomPitchFactor>0</randomPitchFactor>
+   <muteGroup>-1</muteGroup>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>55</midiOutNote>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <instrumentComponent>
+    <component_id>0</component_id>
+    <gain>1</gain>
+    <layer>
+     <filename>../drumkits/baseKit/hh.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
@@ -158,7 +302,8 @@
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -280,7 +425,8 @@
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -402,7 +548,8 @@
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.3</pan>
+   <pan_L>0.7</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -456,7 +603,8 @@
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -578,7 +726,8 @@
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.56</pan>
+   <pan_L>0.44</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -700,7 +849,8 @@
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -822,7 +972,8 @@
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.24</pan>
+   <pan_L>0.76</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -944,7 +1095,8 @@
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1066,7 +1218,8 @@
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.2</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.8</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1188,7 +1341,8 @@
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1310,7 +1464,8 @@
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.68</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.32</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1432,7 +1587,8 @@
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.44</pan>
+   <pan_L>0.56</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1554,7 +1710,8 @@
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.26</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.74</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1676,7 +1833,8 @@
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.5</pan>
+   <pan_L>0.5</pan_L>
+   <pan_R>1</pan_R>
    <gain>0.6</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1798,7 +1956,8 @@
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.02</pan>
+   <pan_L>0.98</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1920,7 +2079,8 @@
    <volume>0.69</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1947,6 +2107,91 @@
    <instrumentComponent>
     <component_id>0</component_id>
     <gain>1</gain>
+    <layer>
+     <filename>HatSemiOpen-Softest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>0.192029</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.188406</min>
+     <max>0.380435</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.380435</min>
+     <max>0.583333</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.57971</min>
+     <max>0.789855</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
@@ -1957,7 +2202,8 @@
    <volume>0.534828</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.44</pan>
+   <pan_L>0.56</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1970,7 +2216,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>999</Release>
+   <Release>1000</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -1984,6 +2230,91 @@
    <instrumentComponent>
     <component_id>0</component_id>
     <gain>1</gain>
+    <layer>
+     <filename>Bell-Softest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>0.217391</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.210145</min>
+     <max>0.402174</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.405797</min>
+     <max>0.605072</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.605072</min>
+     <max>0.782609</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.786232</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
    </instrumentComponent>
   </instrument>
  </instrumentList>
@@ -1999,192 +2330,65 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan>0</pan>
+     <pan_L>0.5</pan_L>
+     <pan_R>0.5</pan_R>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>0</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
+     <instrument>19</instrument>
      <note_off>false</note_off>
     </note>
     <note>
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan>0</pan>
+     <pan_L>0.5</pan_L>
+     <pan_R>0.5</pan_R>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>24</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
+     <instrument>18</instrument>
      <note_off>false</note_off>
     </note>
     <note>
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan>0</pan>
+     <pan_L>0.5</pan_L>
+     <pan_R>0.5</pan_R>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>2</instrument>
+     <instrument>18</instrument>
      <note_off>false</note_off>
     </note>
     <note>
-     <position>48</position>
+     <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan>0</pan>
+     <pan_L>0.5</pan_L>
+     <pan_R>0.5</pan_R>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>6</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>72</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>72</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>96</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>96</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
+     <instrument>0</instrument>
      <note_off>false</note_off>
     </note>
     <note>
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan>0</pan>
+     <pan_L>0.5</pan_L>
+     <pan_R>0.5</pan_R>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>120</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>144</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>144</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>168</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>2</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>168</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>6</instrument>
+     <instrument>19</instrument>
      <note_off>false</note_off>
     </note>
    </noteList>
@@ -2267,9 +2471,6 @@
   <group>
    <patternID>Pattern 1</patternID>
   </group>
-  <group>
-   <patternID>Pattern 1</patternID>
-  </group>
  </patternSequence>
  <ladspa>
   <fx>
@@ -2300,10 +2501,6 @@
  <BPMTimeLine/>
  <timeLineTag/>
  <automationPaths>
-  <path adjust="velocity">
-   <point x="0.0625" y="0.053571399"/>
-   <point x="1.0625" y="1.33929"/>
-   <point x="2.1875" y="0.107143"/>
-  </path>
+  <path adjust="velocity"/>
  </automationPaths>
 </song>

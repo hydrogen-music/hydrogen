@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -121,14 +121,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * the current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * \param pSong New Song.
-		 * \param bRelinking Whether the drumkit last loaded should be
-		 * relinked when under session management. This flag is used
-		 * to distinguish between the regular load of a song file
-		 * within a session and its replacement by another song (which
-		 * requires an update of the linked drumkit).
 		 * \return true on success
 		 */
-		bool openSong( std::shared_ptr<Song> pSong, bool bRelinking = true );
+		bool openSong( std::shared_ptr<Song> pSong );
 		/**
 		 * Saves the current #H2Core::Song.
 		 *
@@ -455,14 +450,8 @@ private:
 		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * \param pSong Pointer to the #H2Core::Song to set.
-		 * \param bRelinking Whether the drumkit last loaded should be
-		 * relinked when under session management. This flag is used
-		 * to distinguish between the regular load of a song file
-		 * within a session and its replacement by another song (which
-		 * requires an update of the linked drumkit).
-		 * \return true on success
 		 */
-		bool setSong( std::shared_ptr<Song> pSong, bool bRelinking = true );
+		bool setSong( std::shared_ptr<Song> pSong );
 
 	/**
 	 * Add @a sFilename to the list of recent songs in

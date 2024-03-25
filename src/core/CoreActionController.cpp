@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -432,7 +432,7 @@ std::shared_ptr<Instrument> CoreActionController::getStrip( int nStrip ) const {
 		return nullptr;
 	}
 
-	auto pInstr = pSong->getInstrumentList()->get( nStrip );
+	auto pInstr = pSong->getDrumkit()->getInstruments()->get( nStrip );
 	if ( pInstr == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nStrip ) );
 	}
@@ -458,7 +458,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	sendMasterVolumeFeedback();
 	
 	//PER-INSTRUMENT/STRIP STATES
-	auto pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	for ( int ii = 0; ii < pInstrList->size(); ii++){
 		auto pInstr = pInstrList->get( ii );
 		if ( pInstr != nullptr ) {
@@ -496,7 +496,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
-		pHydrogen->sequencer_stop();
+		pHydrogen->sequencerStop();
 	}
 	
 	// Create an empty Song.
@@ -511,9 +511,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
-		// The drumkit of the new song will linked into the session
-		// folder during the next song save.
-		pHydrogen->setSessionDrumkitNeedsRelinking( true );
 	}
 
 	pSong->setFilename( sSongPath );
@@ -530,12 +527,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 bool CoreActionController::openSong( const QString& sSongPath, const QString& sRecoverSongPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
-		// Stops recording, all queued MIDI notes, and the playback of
-		// the audio driver.
-		pHydrogen->sequencer_stop();
-	}
-	
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
 		// Filesystem::isSongPathValid takes care of the error log message.
@@ -562,30 +553,28 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
-	
-	auto pHydrogen = Hydrogen::get_instance();
- 
-	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
-		// Stops recording, all queued MIDI notes, and the playback of
-		// the audio driver.
-		pHydrogen->sequencer_stop();
-	}
+bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	if ( pSong == nullptr ) {
-		ERRORLOG( QString( "Unable to open song." ) );
+		ERRORLOG( QString( "Invalid song." ) );
 		return false;
 	}
 
-	return setSong( pSong, bRelinking );
+	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( std::shared_ptr<Song> pSong, bool bRelinking ) {
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencerStop();
+	}
+
 	// Update the Song.
-	pHydrogen->setSong( pSong, bRelinking );
+	pHydrogen->setSong( pSong );
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
@@ -627,28 +616,6 @@ bool CoreActionController::saveSong() {
 		return false;
 	}
 
-#ifdef H2CORE_HAVE_OSC
-	if ( pHydrogen->isUnderSessionManagement() &&
-		 pHydrogen->getSessionDrumkitNeedsRelinking() &&
-		 ! pHydrogen->getSessionIsExported() ) {
-
-		NsmClient::linkDrumkit( pSong );
-
-		// Properly set in NsmClient::linkDrumkit()
-		QString sSessionDrumkitPath = pSong->getLastLoadedDrumkitPath();
-
-		auto drumkitDatabase = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
-		if ( drumkitDatabase.find( sSessionDrumkitPath ) != drumkitDatabase.end() ) {
-			// In case the session folder is already present in the
-			// SoundLibraryDatabase, we have to update it (takes a
-			// while) to ensure it's clean and all kits are valid. If
-			// it's not present, we can skip it because loading is
-			// done lazily.
-			pHydrogen->getSoundLibraryDatabase()->updateDrumkit( sSessionDrumkitPath );
-		}
-	}
-#endif
-	
 	// Actual saving
 	bool bSaved = pSong->save( sSongPath );
 	if ( ! bSaved ) {
@@ -934,7 +901,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		return true;
 	}		
 	
-	pHydrogen->sequencer_stop();
+	pHydrogen->sequencerStop();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
@@ -1026,59 +993,71 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditiona
 }
 
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
-	if ( pDrumkit != nullptr ) {
-
-		auto pHydrogen = Hydrogen::get_instance();
-		auto pSong = pHydrogen->getSong();
-		if ( pSong != nullptr ) {
-
-			INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-					 .arg( pDrumkit->get_name() )
-					 .arg( pDrumkit->get_path() ) );
-
-			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		
-			pSong->setDrumkit( pDrumkit, bConditional );
-			
-			if ( pHydrogen->getSelectedInstrumentNumber() >=
-				 pSong->getInstrumentList()->size() ) {
-				pHydrogen->setSelectedInstrumentNumber(
-					std::max( 0, pSong->getInstrumentList()->size() -1 ),
-					false );
-			}
-
-			pHydrogen->renameJackPorts( pSong );
-			
-			pHydrogen->getAudioEngine()->unlock();
-	
-			initExternalControlInterfaces();
-
-			pHydrogen->setIsModified( true );
-	
-			// Create a symbolic link in the session folder when under session
-			// management.
-			if ( pHydrogen->isUnderSessionManagement() ) {
-				pHydrogen->setSessionDrumkitNeedsRelinking( true );
-			}
-
-			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
-		}
-		else {
-			ERRORLOG( "No song set yet" );
-			return false;
-		}
-	}
-	else {
+	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+			.arg( pDrumkit->getName() )
+			.arg( pDrumkit->getPath() ) );
+
+	// Use a cloned version of the kit from e.g. the SoundLibrary in
+	// order to not overwrite the original when altering the properties
+	// of the current kit.
+	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+
+	// It would be more clean to lock the audio engine _before_ loading
+	// the samples. We might pass a tempo marker while loading and users
+	// of Rubberband end up with a wrong sample length. But this is an
+	// edge-case and the regular user will benefit from a load prior to
+	// the locking resulting in lesser XRUNs.
+	pNewDrumkit->loadSamples(
+		pAudioEngine->getTransportPosition()->getBpm());
+
+	pAudioEngine->lock(RIGHT_HERE);
+
+	pSong->setDrumkit(pNewDrumkit);
+
+	// Remap instruments in pattern list to ensure component indices for
+	// SelectedLayerInfo's are up to date for the current kit.
+	for ( auto& pPattern : *pSong->getPatternList() ) {
+		for ( auto& pNote : *pPattern->get_notes() ) {
+			pNote.second->map_instrument( pNewDrumkit->getInstruments() );
+		}
+	}
+
+	pHydrogen->renameJackPorts(pSong);
+
+	pAudioEngine->unlock();
+
+	if ( pHydrogen->getSelectedInstrumentNumber() >=
+		 pNewDrumkit->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber(
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false);
+	}
+
+	initExternalControlInterfaces();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event(EVENT_DRUMKIT_LOADED, 0);
+
 	return true;
 }
 
-bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath ) {
+bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
+                                          const QString &sNewPath) {
 
-	if ( sNewPath.isEmpty() ) {
+        if ( sNewPath.isEmpty() ) {
 		INFOLOG( QString( "Upgrading kit at [%1] inplace." )
 				 .arg( sDrumkitPath ) );
 	} else {
@@ -1185,14 +1164,14 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 			sExportPath = sourceFileInfo.dir().absolutePath();
 		}
 		
-		if ( ! pDrumkit->exportTo( sExportPath, "", true, false ) ) {
+		if ( ! pDrumkit->exportTo( sExportPath, -1, true, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
 			return false;
 		}
 
 		INFOLOG( QString( "Upgraded drumkit exported as [%1]" )
-				 .arg( sExportPath + "/" + pDrumkit->get_name() +
+				 .arg( sExportPath + "/" + pDrumkit->getName() +
 					   Filesystem::drumkit_ext ) );
 	}
 
@@ -1372,7 +1351,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path to a compressed .h2drumkit file. It will
 		// be extracted to a temporary folder and loaded from there.
-		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), true ) ) {
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), nullptr, true ) ) {
 			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 			return nullptr;
@@ -1441,7 +1420,7 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		return false;
 	}
 
-	if ( ! Drumkit::install( sDrumkitPath, sTarget, true ) ) {
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, nullptr, true ) ) {
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;
@@ -1521,7 +1500,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getInstrumentList() );
+	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getDrumkit()->getInstruments() );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );

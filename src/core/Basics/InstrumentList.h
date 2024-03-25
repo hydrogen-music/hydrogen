@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -155,12 +155,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		std::shared_ptr<Instrument> findMidiNote( const int note );
 		/**
-		 * swap the instruments of two different indexes
-		 * \param idx_a the first index
-		 * \param idx_b the second index
-		 */
-		void swap( int idx_a, int idx_b );
-		/**
 		 * move an instrument from a position to another
 		 * \param idx_a the start index
 		 * \param idx_b the finish index
@@ -177,50 +171,57 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		void unload_samples();
 		/**
 		 * save the instrument list within the given XMLNode
+		 *
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
-		 * component.
+		 *   component.
 		 * \param bRecentVersion Whether the drumkit format should be
-		 * supported by Hydrogen 0.9.7 or higher (whether it should be
-		 * composed of DrumkitComponents).
-		 * \param bFull Whether to write all parameters of the
-		 * contained #Sample as well. This will be done when storing
-		 * an #Instrument as part of a #Song but not when storing
-		 * as part of a #Drumkit.
+		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
+		 *   composed of DrumkitComponents).
+		 * \param bSongKit Whether the instruments are part of a
+		 *   stand-alone kit or part of a song. In the latter case all samples
+		 *   located in the corresponding drumkit folder and are referenced by
+		 *   filenames. In the former case, each instrument might be
+		 *   associated with a different kit and the lookup folder for the
+		 *   samples are stored on a per-instrument basis.
 		 */
-	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true, bool bFull = false );
+		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true,
+					  bool bSongKit = false );
+
 		/**
 		 * load an instrument list from an XMLNode
+		 *
 		 * \param node the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the #Drumkit
 		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
+		 * @param sSongPath If not empty, absolute path to the .h2song file the
+		 *   instrument list is contained in. It is used to resolve sample
+		 *   paths relative to the .h2song file.
 		 * \param license License assigned to all Samples that will be
-		 * loaded. If empty, the license will be read from @a dk_path.
+		 *   loaded. If empty, the license will be read from @a dk_path.
+		 * @param bSongKit If true samples are loaded on a
+		 *   per-instrument basis. If the filename of the sample is a plain
+		 *   filename, it will be searched for in the folder associated with the
+		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
+		 *   (unique identifier locally). If it is an absolute path, it will be
+		 *   loaded directly.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new InstrumentList instance
 		 */
 	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
-									  const QString& sDrumkitPath,
-									  const QString& sDrumkitName,
-									  const License& license = License(),
-									  bool bSilent = false );
+													  const QString& sDrumkitPath,
+													  const QString& sDrumkitName,
+													  const QString& sSongPath = "",
+													  const License& license = License(),
+													  bool bSongKit = false,
+													  bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
 	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
-
-		/**
-		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".
-		 *
-		 * Check whether the same MIDI note is assignedto every
-		 * instrument - that condition makes MIDI export unusable.
-		 * When so, assign each instrument consecutive MIDI note
-		 * starting from #MIDI_DEFAULT_OFFSET.
-		 */
-		void fix_issue_307();
 
 		/**
 		 * Check if all instruments have assigned the same
@@ -248,7 +249,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	std::vector<std::shared_ptr<Instrument>>::iterator end();
 
 		/** Check if any instrument in the list is solo'd */
-		bool isAnyInstrumentSoloed();
+		bool isAnyInstrumentSoloed() const;
+
+		bool isAnyInstrumentSampleLoaded() const;
 
 	private:
 		std::vector<std::shared_ptr<Instrument>> __instruments;            ///< the list of instruments

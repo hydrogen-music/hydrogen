@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -33,6 +33,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -230,7 +231,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isMuteClicked = ref->isMuteClicked();
 
-	auto pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -252,7 +253,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 	auto pSong = Hydrogen::get_instance()->getSong();
 	float newVolume = ref->getVolume();
 
-	auto pCompo = pSong->getComponent( ref->getComponentID() );
+	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -263,7 +264,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getInstrumentList();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
 	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);
@@ -417,8 +418,8 @@ void Mixer::updateMixer()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getInstrumentList();
-	auto pDrumkitComponentList = pSong->getComponents();
+	auto pInstrList = pSong->getDrumkit()->getInstruments();
+	auto pDrumkitComponentList = pSong->getDrumkit()->getComponents();
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 

@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -35,6 +35,7 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -82,7 +83,7 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 	UNUSED( arg );
 
 	JackAudioDriver::pJackDriverInstance->m_pClient = nullptr;
-	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
+	Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 int JackAudioDriver::jackXRunCallback( void *arg ) {
 	UNUSED( arg );
@@ -138,7 +139,7 @@ int JackAudioDriver::connect()
 	// ready to start processing audio. It returns 0 on success
 	// and a non-zero error code otherwise.
 	if ( jack_activate( m_pClient ) ) {
-		Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
+		Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
 		return 1;
 	}
 
@@ -193,7 +194,7 @@ int JackAudioDriver::connect()
 		const char ** portnames = jack_get_ports( m_pClient, nullptr, nullptr, JackPortIsInput );
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
 			ERRORLOG( "Couldn't locate two Jack input ports" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+			Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		if ( jack_connect( m_pClient, jack_port_name( m_pOutputPort1 ),
@@ -201,7 +202,7 @@ int JackAudioDriver::connect()
 		     jack_connect( m_pClient, jack_port_name( m_pOutputPort2 ),
 				   portnames[1] ) != 0 ) {
 			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+			Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		free( portnames );
@@ -224,7 +225,7 @@ void JackAudioDriver::disconnect()
 		int nReturnCode = jack_client_close( pOldClient );
 		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_client_close" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CLOSE_CLIENT );
+			Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_CANNOT_CLOSE_CLIENT );
 		}
 	}
 	m_pClient = nullptr;
@@ -837,7 +838,8 @@ int JackAudioDriver::init( unsigned bufferSize )
 					   JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain" );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
-		pHydrogen->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
+		pHydrogen->getAudioEngine()->raiseError(
+			Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
 
@@ -875,7 +877,7 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 		return;
 	}
 
-	auto pInstrumentList = pSong->getInstrumentList();
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	std::shared_ptr<Instrument> pInstrument;
 	int nInstruments = static_cast<int>(pInstrumentList->size());
 
@@ -917,6 +919,29 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 
 void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, std::shared_ptr<Song> pSong )
 {
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return;
+	}
+
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Invalid instrument" );
+		return;
+	}
+
+	if ( pInstrumentComponent == nullptr ) {
+		ERRORLOG( "Invalid instrument component" );
+		return;
+	}
+
+	auto pDrumkitComponent = pSong->getDrumkit()->getComponent(
+		pInstrumentComponent->get_drumkit_componentID() );
+	if ( pDrumkitComponent == nullptr ) {
+		ERRORLOG( QString( "Drumkit component of ID [%1] could not be found." )
+				  .arg( pInstrumentComponent->get_drumkit_componentID() ) );
+		return;
+	}
+
 	QString sComponentName;
 
 	// The function considers `m_nTrackPortCount' as the number of
@@ -934,14 +959,13 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 						    JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 			if ( ! m_pTrackOutputPortsR[m] || ! m_pTrackOutputPortsL[m] ) {
-				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
+				Hydrogen::get_instance()->getAudioEngine()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 			}
 		}
 		m_nTrackPortCount = n + 1;
 	}
 
 	// Now that we're sure there is an n'th port, rename it.
-	auto pDrumkitComponent = pSong->getComponent( pInstrumentComponent->get_drumkit_componentID() );
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
 
@@ -1090,7 +1114,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
 
 	// Current pattern
-	Pattern* pPattern;
+	Pattern* pPattern = nullptr;
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
 	int nPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( nPatternNumber != -1 &&

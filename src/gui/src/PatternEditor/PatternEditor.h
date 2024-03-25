@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2020 by the Hydrogen Team
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -213,6 +213,8 @@ public slots:
 	virtual void copy();
 	virtual void paste() = 0;
 	virtual void cut();
+	virtual void alignToGrid();
+	virtual void randomizeVelocity();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -256,6 +258,10 @@ protected:
 
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
+
+	QList< QAction * > m_selectionActions;
+
+	void showPopupMenu( const QPoint & pos );
 
 	int getColumn( int x, bool bUseFineGrained = false ) const;
 	QPoint movingGridOffset() const;

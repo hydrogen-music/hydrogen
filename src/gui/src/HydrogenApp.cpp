@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -53,6 +53,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
 
@@ -225,8 +226,7 @@ HydrogenApp::~HydrogenApp()
 	#endif
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if (pHydrogen) {
-		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
+	if ( pHydrogen != nullptr ) {
 		delete pHydrogen;
 	}
 
@@ -592,14 +592,22 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	showStatusBarMessage( QString( "XRUNS [%1]!!!" )
-						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ) );
+	const auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return;
+	}
+	showStatusBarMessage( QString( "XRUNS [%1]!!!" ) .arg( pAudioDriver->getXRuns() ) );
 }
 
 void HydrogenApp::updateWindowTitle()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	assert(pSong);
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		assert(pSong);
+		return;
+	}
 
 	QString sTitle = Filesystem::untitled_song_name();
 
@@ -693,9 +701,14 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::drumkitLoadedEvent(){
-	showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
-								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitName() )
-								  .arg( Hydrogen::get_instance()->getLastLoadedDrumkitPath() ) ) );
+	const auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSong() != nullptr &&
+		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+		showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
+								  .arg( pDrumkit->getName() )
+								  .arg( pDrumkit->getPath() ) ) );
+	}
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -889,7 +902,7 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getInstrumentList()->
+		auto pInstrument = pSong->getDrumkit()->getInstruments()->
 			get( pQueue->m_addMidiNoteVector[0].m_row );
 		
 		// find if a (pitch matching) note is already present
@@ -1115,7 +1128,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	auto drumkitLicense = pDrumkit->get_license();
+	auto drumkitLicense = pDrumkit->getLicense();
 	auto contentVector = pDrumkit->summarizeContent();
 
 	QStringList additionalLicenses;

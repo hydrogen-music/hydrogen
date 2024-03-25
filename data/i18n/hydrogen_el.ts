@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Σταμάτημα</translation>
+        <translation>Σταμάτημα</translation>
     </message>
     <message>
         <source>Name: </source>
@@ -338,7 +338,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Mute</source>
         <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
-        <translation type="unfinished">Σίγηση</translation>
+        <translation>Σίγηση</translation>
     </message>
     <message>
         <source>BYP</source>
@@ -378,12 +378,12 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>General</source>
         <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Γενικά</translation>
+        <translation>Γενικά</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <extracomment>Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Όργανο</translation>
+        <extracomment>Text displayed on the button to show the Instrument Editor in the * Instrument Rack. Its size is designed to hold ten characters but is * quite flexible. * * It is also used in table headers corresponding to the instrument&apos;s name * or id.</extracomment>
+        <translation>Όργανο</translation>
     </message>
     <message>
         <source>Sound Library</source>
@@ -393,7 +393,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     <message>
         <source>Layers</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation type="unfinished">Στρώματα</translation>
+        <translation>Στρώματα</translation>
     </message>
     <message>
         <source>Load Layer</source>
@@ -436,7 +436,7 @@ B</source>
     <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation type="unfinished">Μείκτης</translation>
+        <translation>Μείκτης</translation>
     </message>
     <message>
         <source>Instrument Rack</source>
@@ -461,22 +461,22 @@ B</source>
     <message>
         <source>Decay</source>
         <extracomment>Text displayed below the rotary to adjust the decay of the ADSR in the Instrument Editor. Designed to hold five characters but flexible.</extracomment>
-        <translation type="unfinished">Πτώση</translation>
+        <translation>Πτώση</translation>
     </message>
     <message>
         <source>Sustain</source>
         <extracomment>Text displayed below the rotary to adjust the sustain of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Διάρκεια</translation>
+        <translation>Διάρκεια</translation>
     </message>
     <message>
         <source>Release</source>
         <extracomment>Text displayed below the rotary to adjust the release of the ADSR in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Απελευθέρωση</translation>
+        <translation>Απελευθέρωση</translation>
     </message>
     <message>
         <source>Channel</source>
         <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
-        <translation type="unfinished">Κανάλι</translation>
+        <translation>Κανάλι</translation>
     </message>
     <message>
         <source>Note</source>
@@ -591,7 +591,7 @@ B</source>
     <message>
         <source>Input</source>
         <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished">Εισαγόμενο</translation>
+        <translation>Εισαγόμενο</translation>
     </message>
     <message>
         <source>MIDI-In</source>
@@ -608,7 +608,7 @@ B</source>
         <extracomment>Text displayed in the Player Control to indicate where the set the tempo of the song. Designed to hold three characters but not that flexible.
 ----------
 Label shown in the input capture dialog for querying a new tempo value.</extracomment>
-        <translation type="unfinished">Χτ.ΑνάΛεπ.</translation>
+        <translation>Χτ.ΑνάΛεπ.</translation>
     </message>
     <message>
         <source>Hrs</source>
@@ -628,7 +628,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>1/1000</source>
         <extracomment>Text displayed in the Player Control to indicate the number of milliseconds passed since playback started. Designed to hold three characters but not that flexible.</extracomment>
-        <translation type="unfinished">1/1000</translation>
+        <translation>1/1000</translation>
     </message>
     <message>
         <source>Humanize</source>
@@ -648,7 +648,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>Velocity</source>
         <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
-        <translation type="unfinished">Ταχύτητα</translation>
+        <translation>Ταχύτητα</translation>
     </message>
     <message>
         <source>Master</source>
@@ -750,7 +750,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>off</source>
         <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation type="unfinished">ανενεργό</translation>
+        <translation>ανενεργό</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -796,27 +796,27 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>&amp;Ok</source>
         <extracomment>Text displayed on a Ok button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Εντάξει</translation>
+        <translation>&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Save</source>
         <extracomment>Text displayed on a Save button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">&amp;Αποθήκευση</translation>
+        <translation>&amp;Αποθήκευση</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <extracomment>Text displayed on a Cancel button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Α&amp;κύρωση</translation>
+        <translation>Α&amp;κύρωση</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
         <extracomment>Text displayed on a Discard button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Από&amp;ρριψη</translation>
+        <translation>Από&amp;ρριψη</translation>
     </message>
     <message>
         <source>&amp;Play</source>
         <extracomment>Text displayed on a Play button which will start playback. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished">Ανα&amp;παραγωγή</translation>
+        <translation>Ανα&amp;παραγωγή</translation>
     </message>
     <message>
         <source>Play &amp;original sample</source>
@@ -862,24 +862,8 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit registered in the current song can not be found on disk.
-Please load an existing drumkit first.
-Current kit:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>system</source>
-        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>You do not have permissions to write to the selected folder. Please select another one.</source>
         <extracomment>Error message shown when attempt to export a song, pattern, drumkit, MIDI etc. into a read-only folder.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -935,12 +919,12 @@ Current kit:</source>
     <message>
         <source>Pan</source>
         <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
-        <translation type="unfinished">Πανόψη</translation>
+        <translation>Πανόψη</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
         <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation type="unfinished">Αποκοπή Φίλτρου</translation>
+        <translation>Αποκοπή Φίλτρου</translation>
     </message>
     <message>
         <source>Tag Text</source>
@@ -950,6 +934,92 @@ Current kit:</source>
     <message>
         <source>Unable to export song</source>
         <extracomment>Shown in a dialog on export failure.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Id</source>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s id.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <extracomment>Shown in table headers when referring to a component&apos;s name.</extracomment>
+        <translation>Συστατικό</translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <extracomment>Shown in table headers when referring to a sample&apos;s name.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <translation>Άδεια</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Προσθήκη</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Διαγραφή</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Φόρτωμα</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation>Ιδιότητες</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online Import</source>
+        <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Drumkit Properties of Current Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This action can not be undone!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File could not be found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export drumkit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1016,6 +1086,148 @@ Current kit:</source>
     </message>
 </context>
 <context>
+    <name>Drumkit</name>
+    <message>
+        <source>New Drumkit</source>
+        <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory</source>
+        <translation>Κατάλογος</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Όλα</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitExportDialog_UI</name>
+    <message>
+        <source>Export</source>
+        <translation>Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Διαδρομή</translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation>Εξερεύνηση...</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Έκδοση</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation>0.9.7 και νεότερη</translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation>0.9.6 και παλαιότερη</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation>Συστατικό</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation>Άνοιγμα Βιβλιοθήκης Ήχων</translation>
+    </message>
+</context>
+<context>
+    <name>DrumkitPropertiesDialog_UI</name>
+    <message>
+        <source>General</source>
+        <translation>Γενικά</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Πληροφορίες</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation>Άδεια της Εικόνας</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Εξερεύνηση</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation>Άδεια της Ομάδας Κρουστών</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation>Δημιουργός</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Όνομα</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Εικόνα</translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save </source>
+        <translation>Αποθήκευση</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Ακύρωση</translation>
+    </message>
+</context>
+<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -1039,7 +1251,7 @@ Current kit:</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
+        <translation>Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
@@ -1048,14 +1260,14 @@ Current kit:</source>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Το αρχείο % υπάρχει. Να επανωγραφεί;</translation>
+        <translation>Το αρχείο % υπάρχει. Να επανωγραφεί;</translation>
     </message>
 </context>
 <context>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Διάλογος</translation>
+        <translation>Διάλογος</translation>
     </message>
     <message>
         <source>Filename</source>
@@ -1063,11 +1275,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">Εξε&amp;ρεύνηση...</translation>
+        <translation>Εξε&amp;ρεύνηση...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -1075,19 +1287,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
+        <translation>&amp;Εξαγωγή</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Κλείσιμο</translation>
+        <translation>&amp;Κλείσιμο</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -1306,13 +1518,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>FileBrowser</name>
-    <message>
-        <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation>%1&lt;br&gt;%2 χιλιοΧέρτζ&lt;br&gt;%3 %4</translation>
-    </message>
-</context>
-<context>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
@@ -1320,7 +1525,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Άνοιγμα</translation>
+        <translation>Άνοιγμα</translation>
     </message>
     <message>
         <source>Temporary directory</source>
@@ -1340,6 +1545,69 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>User data folder is not writable!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>H2Core::DrumkitPropertiesDialog</name>
+    <message>
+        <source>Edit Drumkit Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create New Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Image</source>
+        <translation>Άνοιγμα Εικόνας</translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation>Αρχεία Εικόνας (*.png *.jpg *.jpeg)</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specified image License String does not comply with the license selected in the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the drumkit must not be left empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete previous drumkit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this drumkit failed.</source>
+        <translation>Αποτυχία αποθήκευσης αυτής της ομάδας κρουστών.</translation>
+    </message>
+    <message>
+        <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to the Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overwrite existing drumkit stored in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load pixmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1386,61 +1654,6 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
-    <name>H2Core::SoundLibraryPropertiesDialog</name>
-    <message>
-        <source>SoundLibrary Properties</source>
-        <translation>Ιδιότητες της Βιβλιοθήκης Ήχων</translation>
-    </message>
-    <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Αποτυχία αποθήκευσης αυτής της ομάδας κρουστών.</translation>
-    </message>
-    <message>
-        <source>Open Image</source>
-        <translation>Άνοιγμα Εικόνας</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>Αρχεία Εικόνας (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Altering the name of a drumkit would result in the creation of a new one. To do so, you need to load the drumkit (if you haven&apos;t done so already) using right click &gt; load and select Drumkits &gt; Save As in the main menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current drumkit is read-only. Please use Drumkits &gt; Save As in the main menu to create a new one first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instrument</source>
-        <translation type="unfinished">Όργανο</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation type="unfinished">Συστατικό</translation>
-    </message>
-    <message>
-        <source>Sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation type="unfinished">Άδεια</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified image License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the drumkit must not be left empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
@@ -1460,7 +1673,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Σφάλμα στο φόρτωμα του τραγουδιού.</translation>
+        <translation>Σφάλμα στο φόρτωμα του τραγουδιού.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
@@ -1613,6 +1826,21 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
@@ -1653,10 +1881,6 @@ Value</source>
     <message>
         <source>Fill 1/8 notes</source>
         <translation>Συμπλήρωμα 1/8 στιγμάτων</translation>
-    </message>
-    <message>
-        <source>Randomize velocity</source>
-        <translation>Τυχαίωση της ταχύτητας</translation>
     </message>
     <message>
         <source>Delete instrument</source>
@@ -1708,7 +1932,7 @@ Value</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Όργανο</translation>
+        <translation>Όργανο</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -1716,6 +1940,15 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2063,10 +2296,6 @@ MIDI = %2</source>
         <translation>Άνοιγμα Μήτρας</translation>
     </message>
     <message>
-        <source>Clear all instruments?</source>
-        <translation>Καθάρισμα όλων των οργάνων;</translation>
-    </message>
-    <message>
         <source>Unknown audio driver</source>
         <translation>Άγνωστος οδηγός ήχου</translation>
     </message>
@@ -2137,18 +2366,6 @@ Do you want to discard the changes?
     <message>
         <source>Pro&amp;ject</source>
         <translation>Ε&amp;ργασία</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Όνομα του συστατικού</translation>
-    </message>
-    <message>
-        <source>Saving of this library failed.</source>
-        <translation>Αποτυχία αποθήκευσης αυτής της βιβλιοθήκης.</translation>
-    </message>
-    <message>
-        <source>Drum&amp;kits</source>
-        <translation>Ομάδες &amp;Κρουστών</translation>
     </message>
     <message>
         <source>&amp;View</source>
@@ -2239,12 +2456,8 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
+        <translation>&amp;Εξαγωγή</translation>
     </message>
     <message>
         <source>&amp;Import</source>
@@ -2255,15 +2468,7 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clea&amp;r All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2423,17 +2628,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-There have been recent changes to the drumkit settings.
-The session needs to be saved before exporting will can be continued.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] used in session could not found on your system. Please install it in to make the exported song work properly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Song saved into</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2455,6 +2649,34 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Import &amp;Demo Into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import drumkit</source>
+        <translation>Εισαγωγή ομάδας κρουστών</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred importing the SoundLibrary.</source>
+        <translation>Παρουσιάστηκε κάποιο σφάλμα στην εισαγωγή της ΒιβλιοθήκηςΉχων.</translation>
+    </message>
+    <message>
+        <source>Replace the drumkit of the current song with an empty one?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Save To Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2661,19 +2883,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">Α&amp;κύρωση</translation>
+        <translation>Α&amp;κύρωση</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;Εντάξει</translation>
+        <translation>&amp;Εντάξει</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
@@ -2821,6 +3043,22 @@ The session needs to be saved before exporting will can be continued.
         <source>Set note probability to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A&amp;lign to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize velocity</source>
+        <translation>Τυχαίωση της ταχύτητας</translation>
+    </message>
+    <message>
+        <source>Align notes to grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -2831,10 +3069,6 @@ The session needs to be saved before exporting will can be continued.
 </context>
 <context>
     <name>PatternEditorPanel</name>
-    <message>
-        <source>Loaded Soundlibrary</source>
-        <translation>Φορτωμένη Βιβλιοθήκη Ήχων</translation>
-    </message>
     <message>
         <source>Hear new notes</source>
         <translation>Άκουσμα νέων στιγμάτων</translation>
@@ -2945,7 +3179,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">ανενεργό</translation>
+        <translation>ανενεργό</translation>
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
@@ -2953,6 +3187,10 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3526,7 +3764,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Γενικά</translation>
+        <translation>Γενικά</translation>
     </message>
     <message>
         <source>Window</source>
@@ -3646,7 +3884,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Επεξεργαστής Τραγουδιού</translation>
+        <translation>Επεξεργαστής Τραγουδιού</translation>
     </message>
     <message>
         <source>Background</source>
@@ -3754,7 +3992,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
+        <translation>Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
     </message>
     <message>
         <source>Unable to start audio driver</source>
@@ -4349,7 +4587,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished">&amp;Καθάρισμα</translation>
+        <translation>&amp;Καθάρισμα</translation>
     </message>
     <message>
         <source>&amp;Define</source>
@@ -4415,16 +4653,12 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change note length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Καθάρισμα των στιγμάτων</translation>
+        <translation>Καθάρισμα των στιγμάτων</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
@@ -4432,10 +4666,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random velocity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4492,6 +4722,26 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switching drumkits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5161,14 +5411,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save modifications to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save modifications to new drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export drumkit to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5202,7 +5444,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Προβολή του Μείκτη</translation>
+        <translation>Προβολή του Μείκτη</translation>
     </message>
     <message>
         <source>Show instrument rack</source>
@@ -5460,6 +5702,14 @@ p, li { white-space: pre-wrap; }
         <source>All Categories</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Save current drumkit to Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5639,14 +5889,6 @@ Are you sure?</source>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>Delete</source>
-        <translation>Διαγραφή</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Ιδιότητες</translation>
-    </message>
-    <message>
         <source>Load Pattern</source>
         <translation>Φόρτωμα Μήτρας</translation>
     </message>
@@ -5671,7 +5913,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Αδυναμία εξαγωγής της μήτρας.</translation>
+        <translation>Αδυναμία εξαγωγής της μήτρας.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
@@ -5679,11 +5921,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Αποθηκεύτηκε η μήτρα.</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποθηκεύτηκε η μήτρα.</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
@@ -5752,77 +5990,20 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog</name>
+    <name>SoundLibraryDatabase</name>
     <message>
-        <source>Directory</source>
-        <translation>Κατάλογος</translation>
-    </message>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Εξαγωγή</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
+        <source>system</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>invalid drumkit</source>
+        <source>session</source>
+        <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation type="unfinished">Όλα</translation>
     </message>
 </context>
 <context>
-    <name>SoundLibraryExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Εξαγωγή</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Συστατικό</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Διαδρομή</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Έκδοση</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Εξερεύνηση...</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 και νεότερη</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 και παλαιότερη</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
-    </message>
-</context>
-<context>
-    <name>SoundLibraryImportDialog</name>
+    <name>SoundLibraryOnlineImportDialog</name>
     <message>
         <source>Sound Library import</source>
         <translation>Εισαγωγή Βιβλιοθήκης Ήχων</translation>
@@ -5864,6 +6045,14 @@ Overwrite the existing pattern?</source>
         <translation>Δημιουργός: %1</translation>
     </message>
     <message>
+        <source>Drumkit License: %1</source>
+        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation>Άδεια της Εικόνας: %1</translation>
+    </message>
+    <message>
         <source>Downloading SoundLibrary...</source>
         <translation>Λαμβάνεται η ΒιβλιοθήκηΉχων...</translation>
     </message>
@@ -5875,115 +6064,56 @@ Overwrite the existing pattern?</source>
         <source>An error occurred importing the SoundLibrary.</source>
         <translation>Παρουσιάστηκε κάποιο σφάλμα στην εισαγωγή της ΒιβλιοθήκηςΉχων.</translation>
     </message>
-    <message>
-        <source>Import drumkit</source>
-        <translation>Εισαγωγή ομάδας κρουστών</translation>
-    </message>
-    <message>
-        <source>Drumkit License: %1</source>
-        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
-    </message>
-    <message>
-        <source>Image License: %1</source>
-        <translation>Άδεια της Εικόνας: %1</translation>
-    </message>
 </context>
 <context>
-    <name>SoundLibraryImportDialog_UI</name>
+    <name>SoundLibraryOnlineImportDialog_UI</name>
     <message>
         <source>Dialog</source>
         <translation>Διάλογος</translation>
-    </message>
-    <message>
-        <source>Internet</source>
-        <translation>Διαδίκτυο</translation>
     </message>
     <message>
         <source>Update list</source>
         <translation>Ενημέρωση του κατάλογου</translation>
     </message>
     <message>
-        <source>Sound Library Name</source>
-        <translation>Όνομα της Βιβλιοθήκης Ήχων</translation>
-    </message>
-    <message>
-        <source>Author...</source>
-        <translation>Δημιουργός...</translation>
-    </message>
-    <message>
-        <source>Download and install</source>
-        <translation>Λήψη και εγκατάσταση</translation>
-    </message>
-    <message>
-        <source>Local file</source>
-        <translation>Τοπικό αρχείο</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Εξερεύνηση...</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>Εγκατάσταση</translation>
+        <source>Edit server list</source>
+        <translation>Επεξεργασία της λίστας των εξυπηρετητών</translation>
     </message>
     <message>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>Edit server list</source>
-        <translation>Επεξεργασία της λίστας των εξυπηρετητών</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Κλείσιμο</translation>
+        <source>Sound Library Name</source>
+        <translation>Όνομα της Βιβλιοθήκης Ήχων</translation>
     </message>
     <message>
         <source>TextLabel</source>
         <translation>ΕτικέταΚείμενου</translation>
     </message>
     <message>
-        <source>Image License...</source>
-        <translation>Άδεια της Εικόνας...</translation>
+        <source>Author...</source>
+        <translation>Δημιουργός...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
         <translation>Άδεια της Ομάδας Κρουστών...</translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryOpenDialog</name>
     <message>
-        <source>Open Sound Library</source>
-        <translation>Άνοιγμα Βιβλιοθήκης Ήχων</translation>
+        <source>Image License...</source>
+        <translation>Άδεια της Εικόνας...</translation>
     </message>
     <message>
-        <source>Load</source>
-        <translation>Φόρτωμα</translation>
+        <source>Download and install</source>
+        <translation>Λήψη και εγκατάσταση</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
+        <source>Close</source>
+        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
-    <message>
-        <source>Load</source>
-        <translation>Φόρτωμα</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Εξαγωγή</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <translation>Ιδιότητες</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Διαγραφή</translation>
-    </message>
     <message>
         <source>System drumkits</source>
         <translation>Ομάδες κρουστών του συστήματος</translation>
@@ -6006,14 +6136,6 @@ Are you sure?</source>
         <translation>Προειδοποίηση: η επιλεγμένη μήτρα θα διαγραφεί από το δίσκο.
 
 Στα σίγουρα;</translation>
-    </message>
-    <message>
-        <source>It is not possible to delete the currently loaded drumkit: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</source>
-        <translation>Δεν είναι δυνατή η διαγραφή της ομάδας κρουστών που είναι, τώρα, φορτωμένη: 
-  &quot;%1&quot;.
-To delete this drumkit first load another drumkit.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
@@ -6058,47 +6180,10 @@ Would you like to keep or discard the remaining instruments and notes?
         <source>is a read-only drumkit and can&apos;t be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>Name</source>
-        <translation>Όνομα</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Δημιουργός</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Πληροφορίες</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Αποθήκευση</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
-    </message>
-    <message>
-        <source>Drumkit License</source>
-        <translation>Άδεια της Ομάδας Κρουστών</translation>
-    </message>
-    <message>
-        <source>Image</source>
-        <translation>Εικόνα</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Εξερεύνηση</translation>
-    </message>
-    <message>
-        <source>Image License</source>
-        <translation>Άδεια της Εικόνας</translation>
-    </message>
-    <message>
-        <source>Content</source>
+        <source>It is not possible to delete drumkit: 
+  [%1]
+It contains samples used and loaded in the current song kit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6133,7 +6218,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Κλείσιμο</translation>
+        <translation>Κλείσιμο</translation>
     </message>
 </context>
 <context>

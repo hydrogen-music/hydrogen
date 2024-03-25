@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -85,7 +85,12 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive;
+		if ( isEnabled() )
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -94,11 +99,21 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 			colorHighlightActive.setAlpha( 150 );
 		}
 
+		int nWidth, nHeight;
+		if ( ! m_size.isNull() ) {
+			nWidth = m_size.width();
+			nHeight = m_size.height();
+		}
+		else {
+			nWidth = width();
+			nHeight = height();
+		}
+
 		QPen pen;
 		pen.setColor( colorHighlightActive );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 1, 1, m_size.width() - 2, m_size.height() - 2 ), 3, 3 );
+		painter.drawRoundedRect( QRect( 1, 1, nWidth - 2, nHeight - 2 ), 3, 3 );
 	}
 }
 
@@ -155,19 +170,21 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSiz
 		font.setPixelSize( nPixelSize );
 	}
 	font.setBold( true );
-	
-	setFont( font );
 
-	if ( ! m_size.isNull() ) {
+	if ( ! m_size.isNull() || width() > height() ) {
 		// Check whether the width of the text fits the available frame
 		// width of the label
-		while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
-				&& nPixelSize > 1 ) {
+		while ( QFontMetrics( font ).size( Qt::TextSingleLine, text() ).width() >
+				width() && nPixelSize > 1 ) {
 			nPixelSize--;
 			font.setPixelSize( nPixelSize );
-			setFont( font );
 		}
 	}
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
 }
 
 void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

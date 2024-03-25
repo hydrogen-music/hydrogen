@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -204,8 +204,8 @@ class Sample : public H2Core::Object<Sample>
 		 */
 		void unload();
 
-		/** \return true if both data channels are null pointers */
-		bool is_empty() const;
+		/** \return true if the associated sample file was loaded */
+		bool isLoaded() const;
 		QString get_filepath() const;
 		/** \return #__filepath */
 		const QString get_raw_filepath() const;
@@ -349,9 +349,8 @@ inline void Sample::unload()
 	__data_l = __data_r = nullptr;
 }
 
-inline bool Sample::is_empty() const
-{
-	return ( __data_l == 0 && __data_r == 0 );
+inline bool Sample::isLoaded() const {
+	return __frames != 0;
 }
 
 inline const QString Sample::get_raw_filepath() const

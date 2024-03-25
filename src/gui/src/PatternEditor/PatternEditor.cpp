@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by the Hydrogen Team
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -35,6 +35,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -85,12 +86,14 @@ PatternEditor::PatternEditor( QWidget *pParent,
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) ) );
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
+	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
+	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
@@ -375,13 +378,24 @@ void PatternEditor::selectNone()
 	m_selection.updateWidgetGroup();
 }
 
+void PatternEditor::showPopupMenu( const QPoint &pos )
+{
+	// Enable or disable menu actions that only operate on selections.
+	bool bEmpty = m_selection.isEmpty();
+	for ( auto & action : m_selectionActions ) {
+		action->setEnabled( !bEmpty );
+	}
+
+	m_pPopupMenu->popup( pos );
+}
+
 ///
 /// Copy selection to clipboard in XML
 ///
 void PatternEditor::copy()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -439,7 +453,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		return;
 	}
 	
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
@@ -449,6 +463,122 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		}
 	}
 	m_selection.updateWidgetGroup();
+}
+
+
+///
+/// Align selected (or all) notes to the current grid
+///
+void PatternEditor::alignToGrid() {
+
+	// Align selected notes to grid.
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected.
+		return;
+	}
+
+	validateSelection();
+	if ( m_selection.isEmpty() ) {
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	// Move the notes
+	pUndo->beginMacro( tr( "Align notes to grid" ) );
+
+	for ( Note *pNote : m_selection ) {
+
+		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		int nPosition = pNote->get_position();
+		int nNewInstrument = nInstrument;
+		int nGranularity = granularity();
+		// Round to the nearest position in the current grid. We add 1 to round up when the note is precisely
+		// in the middle. This allows us to change a 4/4 pattern to a 6/8 swing feel by changing the grid to
+		// 1/8th triplest, and hitting 'align'.
+		int nNewPosition = nGranularity * ( (nPosition+(nGranularity/2)+1) / nGranularity );
+		// Move note
+		pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
+											nNewPosition, nNewInstrument, pNote ) );
+	}
+
+	pUndo->endMacro();
+}
+
+
+void PatternEditor::randomizeVelocity()
+{
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected. Nothing to be randomized.
+		return;
+	}
+
+	validateSelection();
+	if ( m_selection.isEmpty() ) {
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "invalid song" );
+		return;
+	}
+
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "invalid drumkit" );
+		return;
+	}
+
+	auto pInstrumentList = pDrumkit->getInstruments();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	pUndo->beginMacro( tr( "Random velocity" ) );
+
+	for ( Note *pNote : m_selection ) {
+
+		float fVal = ( rand() % 100 ) / 100.0;
+		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
+						   0.0, 1.0 );
+		SE_editNotePropertiesVolumeAction *action =
+			new SE_editNotePropertiesVolumeAction( pNote->get_position(),
+												   PatternEditor::Mode::Velocity,
+												   m_nSelectedPatternNumber,
+												   pInstrumentList->index( pNote->get_instrument() ),
+												   fVal,
+												   pNote->get_velocity(),
+												   pNote->getPan(),
+												   pNote->getPan(),
+												   pNote->get_lead_lag(),
+												   pNote->get_lead_lag(),
+												   pNote->get_probability(),
+												   pNote->get_probability(),
+												   pNote->get_key(),
+												   pNote->get_key(),
+												   pNote->get_octave(),
+												   pNote->get_octave() );
+		pUndo->push( action );
+	}
+
+	pUndo->endMacro();
+
 }
 
 void PatternEditor::setCurrentInstrument( int nInstrument ) {
@@ -679,21 +809,20 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
-
 	auto pPref = H2Core::Preferences::get_instance();
-	const QColor colorsActive[5] = {
+	const std::vector<QColor> colorsActive = {
 		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
 	};
-	const QColor colorsInactive[5] = {
+	const std::vector<QColor> colorsInactive = {
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 190 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 200 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 210 ) ),
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 230 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 250 ) ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -716,14 +845,17 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
+			float x = PatternEditor::nMargin;
 			p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
-			for ( float x = PatternEditor::nMargin ; x < m_nActiveWidth; x += fStep ) {
+			while ( x < m_nActiveWidth ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				x += fStep;
 			}
 			
 			p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
-			for ( float x = m_nActiveWidth ; x < m_nEditorWidth; x += fStep ) {
+			while ( x < m_nEditorWidth ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				x += fStep;
 			}
 		}
 		nRes *= 2;
@@ -735,16 +867,20 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		int nColour = 1;
 		while ( m_nResolution >= nRes ) {
 			nColour++;
-			p.setPen( QPen( colorsActive[ nColour ], 1, style ) );
-			for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 2) {
+			float x = PatternEditor::nMargin + fStep;
+			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
+							1, style ) );
+			while ( x < m_nActiveWidth + fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				x += fStep * 2;
 			}
-			
-			p.setPen( QPen( colorsInactive[ nColour ], 1, style ) );
-			for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 2) {
+
+			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
+							1, style ) );
+			while ( x < m_nEditorWidth ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				x += fStep * 2;
 			}
-			
 			nRes *= 2;
 			fStep /= 2;
 		}
@@ -754,27 +890,33 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// Triplet style markers, we only differentiate colours on the
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
+		float x = PatternEditor::nMargin;
 		p.setPen(  QPen( colorsActive[ 0 ], 1, style ) );
-		for ( float x = PatternEditor::nMargin; x < m_nActiveWidth; x += fStep * 3 ) {
+		while ( x < m_nActiveWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+			x += fStep * 3;
 		}
 		
 		p.setPen(  QPen( colorsInactive[ 0 ], 1, style ) );
-		for ( float x = m_nActiveWidth; x < m_nEditorWidth; x += fStep * 3 ) {
+		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+			x += fStep * 3;
 		}
 		
 		// Second and third marks
+		x = PatternEditor::nMargin + fStep;
 		p.setPen(  QPen( colorsActive[ 2 ], 1, style ) );
-		for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 3 ) {
+		while ( x < m_nActiveWidth + fStep ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
+			x += fStep * 3;
 		}
 		
 		p.setPen( QPen( colorsInactive[ 2 ], 1, style ) );
-		for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 3 ) {
+		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
+			x += fStep * 3;
 		}
 	}
 
@@ -1249,7 +1391,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	Note* pDraggedNote = nullptr;
 	if ( editor == Editor::PianoRoll ) {
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentnumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1264,7 +1406,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1326,7 +1468,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	if ( editor == Editor::PianoRoll ) {
 		
 		auto pSelectedInstrument =
-			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentNumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1341,7 +1483,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 												 false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;

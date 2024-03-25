@@ -44,7 +44,7 @@
 environment:
   GENERATOR: "MinGW Makefiles"
   UPLOAD_ARTIFACTS: false
-  TARGET_VERSION: '1.2.2'
+  TARGET_VERSION: '1.3.0-alpha'
   matrix:
 
     - job_name: 'Ubuntu 20.04'
@@ -63,6 +63,7 @@ environment:
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+      PACKAGE_PREFIX: 'mingw-w64-x86_64'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
@@ -73,6 +74,7 @@ environment:
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw32'
       MSYS_REPO: 'mingw32/mingw-w64-i686'
+      PACKAGE_PREFIX: 'mingw-w64-i686'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
@@ -90,6 +92,11 @@ init:
           UPLOAD_ARTIFACTS=true
       fi
 
+  - cmd: |-
+      REM *** Upload artifacts in case either the branch is named *-artifacts or HEAD is located on a tag. ***
+      if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
+      if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
+
 for:
   - 
     matrix:
@@ -99,6 +106,29 @@ for:
     cache: $HOME/cache_dir
 
     before_build: |-
+      # In case we are not at a tag, we append some additional information to a)
+      # indicate that the artifact is not an official release and b) allow use
+      # to track down which sources it corresponds to.
+      #
+      # Attention: Be sure to tweak both. Also adjust the copies in all other
+      # pipelines (it can't, unfortunately, moved in the `init` section as the
+      # git repo is not available at this point yet).
+      DISPLAY_VERSION=$TARGET_VERSION
+      if [[ "$(git describe --abbrev=0)" == "$TARGET_VERSION" ]]; then
+          # If the last tag matches the display version (we are working on the
+          # same branch the tag is located in - the release branch), we will use
+          # `git describe` since it nicely adds the number of commits passed
+          # since the tag next to the current commit id.
+          DISPLAY_VERSION=$(git describe --tags)
+      else
+          # We are working on a release which is not a patch release of the last
+          # one (feature branch, develop branch, master after splitting of a
+          # dedicated release branch). We just add the commit hash to the
+          # display version.
+          DISPLAY_VERSION="$TARGET_VERSION-$(git log --pretty=format:'%h' -n 1)"
+      fi
+
+      echo $DISPLAY_VERSION
 
       cache_tag=usr_cache_portmidi # this can be modified to rebuild deps
 
@@ -164,8 +194,9 @@ for:
               -DWANT_LRDF=1 \
               -DWANT_PORTMIDI=1 \
               -DWANT_PORTAUDIO=1 \
-              -DWANT_RUBBERBAND=1 .. \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DWANT_RUBBERBAND=1 \
+              -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. \
           && \
         make -j $CPUS
 
@@ -200,6 +231,30 @@ for:
     cache: $HOME/cache_dir_appimage
 
     before_build: |-
+      # In case we are not at a tag, we append some additional information to a)
+      # indicate that the artifact is not an official release and b) allow use
+      # to track down which sources it corresponds to.
+      #
+      # Attention: Be sure to tweak both. Also adjust the copies in all other
+      # pipelines (it can't, unfortunately, moved in the `init` section as the
+      # git repo is not available at this point yet).
+      DISPLAY_VERSION=$TARGET_VERSION
+      if [[ "$(git describe --abbrev=0)" == "$TARGET_VERSION" ]]; then
+          # If the last tag matches the display version (we are working on the
+          # same branch the tag is located in - the release branch), we will use
+          # `git describe` since it nicely adds the number of commits passed
+          # since the tag next to the current commit id.
+          DISPLAY_VERSION=$(git describe --tags)
+      else
+          # We are working on a release which is not a patch release of the last
+          # one (feature branch, develop branch, master after splitting of a
+          # dedicated release branch). We just add the commit hash to the
+          # display version.
+          DISPLAY_VERSION="$TARGET_VERSION-$(git log --pretty=format:'%h' -n 1)"
+      fi
+
+      echo $DISPLAY_VERSION
+
       if [ "$UPLOAD_ARTIFACTS" == "false" ]; then
          echo "Skipping AppImage build as artifacts are not requested"
          exit 0
@@ -290,6 +345,7 @@ for:
             -DWANT_RUBBERBAND=1 \
             -DWANT_APPIMAGE=1 \
             -DWANT_DYNAMIC_JACK_CHECK=1 \
+            -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
             -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
@@ -330,7 +386,9 @@ for:
         --output appimage || exit 1
 
       echo -e "\n *** Upload AppImage ***\n"
-      appveyor PushArtifact Hydrogen-x86_64.AppImage || exit 1
+      TARGET_NAME=Hydrogen-${DISPLAY_VERSION}-x86_64.AppImage
+      mv Hydrogen-x86_64.AppImage ${TARGET_NAME} || exit 1
+      appveyor PushArtifact ${TARGET_NAME} || exit 1
 
   - 
     cache: /Users/appveyor/cache_dir
@@ -339,6 +397,29 @@ for:
         - job_group: 'Mac OS X'
 
     before_build: |-
+      # In case we are not at a tag, we append some additional information to a)
+      # indicate that the artifact is not an official release and b) allow use
+      # to track down which sources it corresponds to.
+      #
+      # Attention: Be sure to tweak both. Also adjust the copies in all other
+      # pipelines (it can't, unfortunately, moved in the `init` section as the
+      # git repo is not available at this point yet).
+      DISPLAY_VERSION=$TARGET_VERSION
+      if [[ "$(git describe --abbrev=0)" == "$TARGET_VERSION" ]]; then
+          # If the last tag matches the display version (we are working on the
+          # same branch the tag is located in - the release branch), we will use
+          # `git describe` since it nicely adds the number of commits passed
+          # since the tag next to the current commit id.
+          DISPLAY_VERSION=$(git describe --tags)
+      else
+          # We are working on a release which is not a patch release of the last
+          # one (feature branch, develop branch, master after splitting of a
+          # dedicated release branch). We just add the commit hash to the
+          # display version.
+          DISPLAY_VERSION="$TARGET_VERSION-$(git log --pretty=format:'%h' -n 1)"
+      fi
+
+      echo $DISPLAY_VERSION
 
       ###############################################################
       # Set up macOS dependencies
@@ -416,6 +497,7 @@ for:
               cd build &&                                                       \
               cmake -DWANT_LASH=1                                               \
                     -DWANT_LRDF=1                                               \
+                    -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
                     -DWANT_RUBBERBAND=1 .. &&                                   \
               make -j $CPUS
       ) || exit 1
@@ -424,7 +506,7 @@ for:
       (
         cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
-        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
 
         if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
@@ -455,11 +537,43 @@ for:
     cache: '%USERPROFILE%\AppData\Roaming\ccache'
     before_build:
       cmd: |-
+          REM *** In case we are not at a tag, we append some additional information to a)
+          REM *** indicate that the artifact is not an official release and b) allow use
+          REM *** to track down which sources it corresponds to.
+          REM ***
+          REM *** Attention: the code for determining the version string is present in the
+          REM *** top-level CMakeLists.txt file too. Be sure to tweak both. Also adjust
+          REM *** the copies in all other pipelines (it can't, unfortunately, moved in the
+          REM *** `init` section as the git repo is not available at this point yet).
+          set DISPLAY_VERSION=%TARGET_VERSION%
 
-          REM *** Upload artifacts in case either the branch is named ***
-          REM *** *-artifacts or HEAD is located on a tag. ***
-          if defined APPVEYOR_REPO_TAG_NAME (set UPLOAD_ARTIFACTS="true") else (echo No tag name defined)
-          if not "%APPVEYOR_REPO_BRANCH%"=="%APPVEYOR_REPO_BRANCH:-artifacts=%" set UPLOAD_ARTIFACTS="true"
+          echo %TARGET_VERSION%
+
+          FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG=%%i
+          echo %GIT_LAST_TAG%
+
+          FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION=%%i
+          echo %GIT_DESCRIPTION%
+
+          FOR /F "delims=" %%i IN ('"git log --pretty=format:'%%h' -n 1"') DO set GIT_COMMIT_HASH=%%i
+          echo %GIT_COMMIT_HASH%
+
+          REM *** If the last tag matches the display version (we are working on the
+          REM *** same branch the tag is located in - the release branch), we will use
+          REM *** `git describe` since it nicely adds the number of commits passed
+          REM *** since the tag next to the current commit id.
+          if %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%GIT_DESCRIPTION%
+
+          REM *** We are working on a release which is not a patch release of the last
+          REM *** one (feature branch, develop branch, master after splitting of a
+          REM *** dedicated release branch). We just add the commit hash to the
+          REM *** display version.
+          if not %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%TARGET_VERSION%-%GIT_COMMIT_HASH%
+
+          REM *** Remove quotes from variable as this would prevent use from
+          REM *** properly find the file during upload.
+          set DISPLAY_VERSION=%DISPLAY_VERSION:'=%
+          echo %DISPLAY_VERSION%
 
           if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 appveyor exit
 
@@ -478,13 +592,13 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
-          REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
-          c:\msys64\usr\bin\pacman --noconfirm -S -q -y %MSYS_REPO%-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
+          REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -y -q %MSYS_REPO%-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
-          c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
           ccache -M 256M
           ccache -s
@@ -497,7 +611,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -552,8 +666,8 @@ on_finish:
   - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeConfigureLog.yaml
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win64.exe || cmd /c "exit /b 1"
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%TARGET_VERSION%-win32.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win32.exe || cmd /c "exit /b 1"
 
   - cmd: |
       if %UPLOAD_ARTIFACTS%=="true" curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%

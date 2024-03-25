@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,13 +20,15 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_EXPORT_DIALOG_H
-#define SOUND_LIBRARY_EXPORT_DIALOG_H
+#ifndef DRUMKIT_EXPORT_DIALOG_H
+#define DRUMKIT_EXPORT_DIALOG_H
+
+#include <map>
 
 #include <QtGui>
 #include <QtWidgets>
 
-#include "ui_SoundLibraryExportDialog_UI.h"
+#include "ui_DrumkitExportDialog_UI.h"
 
 #include <core/Object.h>
 #include <core/Basics/Drumkit.h>
@@ -35,13 +37,13 @@
 ///
 ///
 /** \ingroup docGUI*/
-class SoundLibraryExportDialog :  public QDialog, public Ui_SoundLibraryExportDialog_UI,  public H2Core::Object<SoundLibraryExportDialog>
+class DrumkitExportDialog :  public QDialog, public Ui_DrumkitExportDialog_UI,  public H2Core::Object<DrumkitExportDialog>
 {
-	H2_OBJECT(SoundLibraryExportDialog)
+	H2_OBJECT(DrumkitExportDialog)
 	Q_OBJECT
 	public:
-	SoundLibraryExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
-		~SoundLibraryExportDialog();
+	DrumkitExportDialog( QWidget* pParent, std::shared_ptr<H2Core::Drumkit> pDrumkit );
+		~DrumkitExportDialog();
 
 private slots:
 	void on_exportBtn_clicked();
@@ -53,7 +55,7 @@ private slots:
 private:
 	void updateComponentList();
 	std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
-	QStringList m_components;
+	std::map<int, QString> m_componentLabels;
 };
 
 

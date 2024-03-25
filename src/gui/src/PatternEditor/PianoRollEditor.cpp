@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -28,6 +28,7 @@
 #include <cassert>
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
@@ -524,7 +525,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
-		m_pPopupMenu->popup( ev->globalPos() );
+		showPopupMenu( ev->globalPos() );
 
 	}
 
@@ -654,7 +655,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
+	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( selectedinstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Instrument [%1] could not be found" )
 				  .arg( selectedinstrument ) );
@@ -850,7 +851,7 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;

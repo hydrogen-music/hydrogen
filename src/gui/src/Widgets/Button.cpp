@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -435,18 +435,21 @@ void Button::updateFont() {
 
 	QFont font( pPref->getLevel3FontFamily() );
 	font.setPixelSize( nPixelSize );
-	setFont( font );
 
 	if ( m_size.width() > m_size.height() ) {
 		// Check whether the width of the text fits the available frame
 		// width of the button.
-		while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
-				&& nPixelSize > 1 ) {
+		while ( QFontMetrics( font ).size( Qt::TextSingleLine, text() ).width() >
+				width() && nPixelSize > 1 ) {
 			nPixelSize--;
 			font.setPixelSize( nPixelSize );
-			setFont( font );
 		}
 	}
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
 }
 	
 void Button::paintEvent( QPaintEvent* ev )

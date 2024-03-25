@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -43,10 +43,165 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Adsr.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
 
-std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent ) {
+std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
+	XMLNode* pNode, const QString& sSongPath, bool bSilent )
+{
+
+	// These old kits contain only an instrument list and all instrument
+	// components and rely on sample loading per-instrument. How the kit itself
+	// is called was only introduced somewhere after 1.0.0 and might not be
+	// present at all. We try to determine the name and use all metadata of the
+	// kit in case it is installed. If not, we just fall back to sane defaults
+	// and a drumkit name indicating legacy loading.
+
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pComponents =
+		std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+	XMLNode componentListNode = pNode->firstChildElement( "componentList" );
+	if ( ( ! componentListNode.isNull()  ) ) {
+		// Song was written after the introduction of components.
+		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
+		while ( ! componentNode.isNull()  ) {
+			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			if ( pDrumkitComponent != nullptr ) {
+				pComponents->push_back( pDrumkitComponent );
+			}
+
+			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
+		}
+	}
+	else {
+		// No components here yet. Fall back to default one.
+		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
+		pComponents->push_back( pDrumkitComponent );
+	}
+
+	// Since drumkit parts were stored at root level, we have access to all
+	// other data in here too.
+	auto license = License( pNode->read_string( "license", "", false,
+												false, true ) );
+
+	// Instrument List
+	//
+	// By supplying no drumkit path the individual drumkit meta infos
+	// stored in the 'instrument' nodes will be used.
+	auto pInstrumentList = InstrumentList::load_from( pNode,
+													  "", // sDrumkitPath
+													  "", // sDrumkitName
+													  sSongPath,
+													  license, // per-instrument licenses
+													  true, // allow composition
+													  bSilent );
+	if ( pInstrumentList == nullptr ) {
+		return nullptr;
+	}
+
+	QString sLastLoadedDrumkitPath =
+		pNode->read_string( "last_loaded_drumkit", "", true, false, true );
+	QString sLastLoadedDrumkitName =
+		pNode->read_string( "last_loaded_drumkit_name", "", true, false, true );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() ) {
+		// Prior to version 1.2.0 the last loaded drumkit was read
+		// from the last instrument loaded and was not written to disk
+		// explicitly. This caused problems the moment the user put an
+		// instrument from a different drumkit at the end of the
+		// instrument list. To nevertheless retrieve the last loaded
+		// drumkit we will use a heuristic by taking the majority vote
+		// among the loaded instruments.
+		std::map<QString,int> loadedDrumkits;
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			if ( loadedDrumkits.find( ppInstrument->get_drumkit_path() ) !=
+				 loadedDrumkits.end() ) {
+				loadedDrumkits[ ppInstrument->get_drumkit_path() ] += 1;
+			}
+			else {
+				loadedDrumkits[ ppInstrument->get_drumkit_path() ] = 1;
+			}
+		}
+
+		QString sMostCommonDrumkit;
+		int nMax = -1;
+		for ( const auto& xx : loadedDrumkits ) {
+			if ( xx.second > nMax ) {
+				sMostCommonDrumkit = xx.first;
+				nMax = xx.second;
+			}
+		}
+
+		sLastLoadedDrumkitPath = sMostCommonDrumkit;
+	}
+
+#ifdef H2CORE_HAVE_APPIMAGE
+	if ( !sLastLoadedDrumkitPath.isEmpty() ) {
+		// The drumkit path contains an absolute path to the last drumkit used.
+		// Since the system kits are mounted at a different (temporary) path on
+		// each run of the AppImage, we need to manually adjust the path to
+		// ensure consistency.
+		sLastLoadedDrumkitPath =
+			Filesystem::rerouteDrumkitPath( sLastLoadedDrumkitPath );
+	}
+#endif
+
+	// Attempt to access the last loaded drumkit to load it into the
+	// SoundLibraryDatabase in case it was a custom one (e.g. loaded via OSC or
+	// from a different system data folder due to a different install prefix).
+	auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitPath );
+
+	if ( pDrumkit == nullptr && !sLastLoadedDrumkitName.isEmpty() ) {
+		// Loading by path did not worked. But maybe loading by name will do
+		// (per-path loading guarantees to uniquely identify kits on one system
+		// but is in general not protable to other systems. Name-based lookup,
+		// however, is portable as long as btoh systems have the required kit
+		// installed).
+		pDrumkit = pSoundLibraryDatabase->getDrumkit( sLastLoadedDrumkitName );
+	}
+
+	// Ensure we do not overwrite the original drumkit when altering the one
+	// associated with the current song.
+	std::shared_ptr<Drumkit> pNewDrumkit;
+	if ( pDrumkit == nullptr ) {
+		// We could not load a dedicated kit. Falling back to the default one.
+		pNewDrumkit = std::make_shared<Drumkit>();
+	} else {
+		pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	}
+
+	// Assign the loaded parts and load samples.
+	pNewDrumkit->setComponents( pComponents );
+	pNewDrumkit->setInstruments( pInstrumentList );
+
+	return pNewDrumkit;
+}
+
+void Legacy::saveEmbeddedSongDrumkit( XMLNode* pRootNode,
+									  std::shared_ptr<Drumkit> pDrumkit,
+									  bool bSilent ) {
+
+	pRootNode->write_string( "last_loaded_drumkit", pDrumkit->getPath() );
+	pRootNode->write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
+
+	XMLNode componentListNode = pRootNode->createNode( "componentList" );
+	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
+		if ( ppComponent != nullptr ) {
+			ppComponent->save_to( &componentListNode );
+		}
+	}
+
+	pDrumkit->getInstruments()->save_to( pRootNode, -1, true, true );
+}
+
+std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sSongPath,
+	const License& drumkitLicense,
+	bool bSilent )
+{
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using back compatibility code to load instrument component" );
 	}
@@ -65,8 +220,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent( XMLNode* p
 				break;
 			}
 
-			auto pLayer = InstrumentLayer::load_from( &layerNode, sDrumkitPath,
-													  drumkitLicense, bSilent );
+			auto pLayer = InstrumentLayer::load_from(
+				&layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
 				pCompo->set_layer( pLayer, nLayer );
 				nLayer++;

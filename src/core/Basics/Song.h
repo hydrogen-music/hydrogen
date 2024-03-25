@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -44,12 +44,11 @@ class ADSR;
 class Sample;
 class Note;
 class Instrument;
-class InstrumentList;
 class Pattern;
 class Drumkit;
-class DrumkitComponent;
 class PatternList;
 class AutomationPath;
+class SoundLibraryDatabase;
 class Timeline;
 
 /**
@@ -124,13 +123,37 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		None = 3
 	};
 
-		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
+		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
+		 * constructor. It is just a minimal version with not all its members
+		 * properly initialized and can causes crashes (in the
+		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
+		 * instead. */
+		Song( QString sName = "",
+			  const QString& sAuthor = "hydrogen",
+			  float fBpm = 120,
+			  float fVolume = 0.5 );
 		~Song();
 
-		static std::shared_ptr<Song> getEmptySong();
+		/** Creates the default / fallback song.
+		 *
+		 * @param pDB When creating an empty song during startup, the
+		 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
+		 *   compensated by passing the created instance directly instead. */
+		static std::shared_ptr<Song> getEmptySong(
+			std::shared_ptr<SoundLibraryDatabase> pDB = nullptr );
 
 	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
-	bool 			save( const QString& sFilename, bool bSilent = false );
+	/** Writes the song as .h2song to disk.
+	 *
+	 * @param sFilename Absolute path to write the song to.
+	 * @param bLegacy Whether the current format containing a proper
+	 *   #H2Core::Drumkit or the legacy format (prior to version 1.3.0)
+	 *   containing only selected drumkit parts should be used.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed.
+	 */
+	bool 			save( const QString& sFilename, bool bLegacy = false,
+						  bool bSilent = false );
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
@@ -159,6 +182,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		PatternList* getPatternList() const;
 		void setPatternList( PatternList* pList );
 
+		std::shared_ptr<Drumkit> getDrumkit() const;
+		void setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
+
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
 		 * \return #m_pPatternGroupSequence */
@@ -176,9 +202,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
-
-		std::shared_ptr<InstrumentList>		getInstrumentList() const;
-		void			setInstrumentList( std::shared_ptr<InstrumentList> pList );
 
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
@@ -214,14 +237,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			getIsModified() const;
 		void			setIsModified( bool bIsModified);
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
-
 		AutomationPath *	getVelocityAutomationPath() const;
 
-		std::shared_ptr<DrumkitComponent>	getComponent( int nID ) const;
-
-		void			readTempPatternList( const QString& sFilename );
-		bool			writeTempPatternList( const QString& sFilename );
+		void			loadTempPatternList( const QString& sFilename );
+		bool			saveTempPatternList( const QString& sFilename );
 							
 		QString			copyInstrumentLineToString( int selectedInstrument );
 		bool			pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns );
@@ -265,28 +284,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional );
-	void removeInstrument( int nInstrumentNumber, bool bConditional );
+	void removeInstrument( int nInstrumentNumber );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
-	/** Checks whether a component of name @a sComponentName exists in
-	 * #m_pComponents.
-	 *
-	 * \return Component ID on success and -1 on failure.
-	 */
-	int findExistingComponent( const QString& sComponentName ) const;
-	int findFreeComponentID( int nStartingID = 0 ) const;
-	/** Ensures @a sComponentName is not used by any other component
-		loaded into the song yet.*/
-	QString makeComponentNameUnique( const QString& sComponentName ) const;
-
-
-	const QString& getLastLoadedDrumkitName() const;
-	void setLastLoadedDrumkitName( const QString& sName );
-	QString getLastLoadedDrumkitPath() const;
-	void setLastLoadedDrumkitPath( const QString& sPath );
-	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -300,12 +301,12 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 private:
 
 	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
-	void writeTo( XMLNode* pNode, bool bSilent = false );
+	void saveTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
 
 	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent = false );
-	void writeVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
-	void writePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
+	void saveVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
+	void savePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
@@ -336,10 +337,13 @@ private:
 		PatternList*	m_pPatternList;
 		///< Sequence of pattern groups
 		std::vector<PatternList*>* m_pPatternGroupSequence;
-		///< Instrument list
-		std::shared_ptr<InstrumentList>	       	m_pInstrumentList;
-		///< list of drumkit component
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>>	m_pComponents;				
+
+		/** Current drumkit
+		 *
+		 * This one is either based on the last kit loaded from the
+		 * `SoundLibraryDatabase` or is a brand new kit. */
+		std::shared_ptr<Drumkit> m_pDrumkit;
+
 		QString			m_sFilename;
 
 		/**
@@ -521,14 +525,9 @@ inline bool Song::getIsModified() const
 	return m_bIsModified;
 }
 
-inline std::shared_ptr<InstrumentList> Song::getInstrumentList() const
+inline std::shared_ptr<Drumkit> Song::getDrumkit() const
 {
-	return m_pInstrumentList;
-}
-
-inline void Song::setInstrumentList( std::shared_ptr<InstrumentList> pList )
-{
-	m_pInstrumentList = pList;
+	return m_pDrumkit;
 }
 
 inline PatternList* Song::getPatternList() const
@@ -654,11 +653,6 @@ inline void Song::setMode( Song::Mode mode )
 	m_mode = mode;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Song::getComponents() const
-{
-	return m_pComponents;
-}
-
 inline AutomationPath* Song::getVelocityAutomationPath() const
 {
 	return m_pVelocityAutomationPath;
@@ -733,19 +727,6 @@ inline int Song::getPanLawType() const {
 
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
-}
-
-inline const QString& Song::getLastLoadedDrumkitName() const
-{
-	return m_sLastLoadedDrumkitName;
-}
-inline void Song::setLastLoadedDrumkitName( const QString& sName )
-{
-	m_sLastLoadedDrumkitName = sName;
-}
-inline void Song::setLastLoadedDrumkitPath( const QString& sPath )
-{
-	m_sLastLoadedDrumkitPath = sPath;
 }
 };
 

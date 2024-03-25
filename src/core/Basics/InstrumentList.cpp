@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -67,8 +67,16 @@ void InstrumentList::unload_samples()
 	}
 }
 
-std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<InstrumentList> InstrumentList::load_from(
+	XMLNode* pNode,
+	const QString& sDrumkitPath,
+	const QString& sDrumkitName,
+	const QString& sSongPath,
+	const License& license,
+	bool bSongKit,
+	bool bSilent )
 {
+
 	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
 		ERRORLOG( "'instrumentList' node not found. Unable to load instrument list." );
@@ -86,10 +94,9 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode, const
 			break;
 		}
 
-		auto pInstrument = Instrument::load_from( &instrumentNode,
-												  sDrumkitPath,
-												  sDrumkitName,
-												  license, bSilent );
+		auto pInstrument = Instrument::load_from(
+			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
+			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
 		}
@@ -109,14 +116,18 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from( XMLNode* pNode, const
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion, bool bFull )
+void InstrumentList::save_to( XMLNode* node,
+							  int component_id,
+							  bool bRecentVersion,
+							  bool bSongKit )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
 		assert( pInstrument );
 		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( &instruments_node, component_id, bRecentVersion, bFull );
+			pInstrument->save_to( &instruments_node, component_id, bRecentVersion,
+								  bSongKit );
 		}
 	}
 }
@@ -258,17 +269,6 @@ std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> ins
 	return nullptr;
 }
 
-void InstrumentList::swap( int idx_a, int idx_b )
-{
-	assert( idx_a >= 0 && idx_a < __instruments.size() );
-	assert( idx_b >= 0 && idx_b < __instruments.size() );
-	if( idx_a == idx_b ) return;
-	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-	auto tmp = __instruments[idx_a];
-	__instruments[idx_a] = __instruments[idx_b];
-	__instruments[idx_b] = tmp;
-}
-
 void InstrumentList::move( int idx_a, int idx_b )
 {
 	assert( idx_a >= 0 && idx_a < __instruments.size() );
@@ -324,14 +324,6 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 	}
 
 	return results;
-}
-
-void InstrumentList::fix_issue_307()
-{
-	if ( has_all_midi_notes_same() ) {
-		WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
-		set_default_midi_out_notes();
-	}
 }
 
 bool InstrumentList::has_all_midi_notes_same() const
@@ -410,16 +402,35 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 }
 
 
-bool InstrumentList::isAnyInstrumentSoloed()
+bool InstrumentList::isAnyInstrumentSoloed() const
 {
-	for ( auto &pInstrument : __instruments ) {
-		if ( pInstrument->is_soloed() ) {
+	for ( const auto& pInstrument : __instruments ) {
+		if ( pInstrument != nullptr && pInstrument->is_soloed() ) {
 			return true;
 		}
 	}
 	return false;
 }
 
+bool InstrumentList::isAnyInstrumentSampleLoaded() const {
+	for ( const auto& pInstrument : __instruments ) {
+		if ( pInstrument != nullptr ) {
+			for ( const auto& pCompo : *pInstrument->get_components() ) {
+				if ( pCompo != nullptr ) {
+					for ( const auto& pLayer : pCompo->get_layers() ) {
+						if ( pLayer != nullptr &&
+							 pLayer->get_sample() != nullptr &&
+							 pLayer->get_sample()->isLoaded() ) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
 
 };
 

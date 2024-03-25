@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -50,12 +50,16 @@ public:
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
+	bool getIsHovered() const;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 protected:
 	QSize m_size;
 	virtual void paintEvent( QPaintEvent *ev ) override;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
 
 private:
 	void updateFont();
@@ -63,12 +67,16 @@ private:
 
 	bool m_bFixedFont;
 	bool m_bUseRedFont;
+	bool m_bEntered;
 	bool m_bIsActive;
 
 	std::vector<int> m_fontPointSizes;
 };
 inline bool LCDDisplay::getIsActive() const {
 	return m_bIsActive;
+}
+inline bool LCDDisplay::getIsHovered() const {
+	return m_bEntered;
 }
 
 #endif

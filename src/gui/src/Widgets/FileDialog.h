@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -23,6 +23,7 @@
 #define FILEDIALOG_H
 
 #include <QDialog>
+#include <QFileDialog>
 #include <core/Object.h>
 
 /** Custom file dialog checking whether the user has write access to

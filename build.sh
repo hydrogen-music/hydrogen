@@ -2,7 +2,7 @@
 
 # Hydrogen
 # Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
-# Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+# Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
 #
 # http://www.hydrogen-music.org
 #
@@ -276,10 +276,10 @@ for arg in $@; do
         m|make)
             cmd="cmake_make";;
         mm)
-            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="cmake_make";;
         mt)
-            CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_CLANG_TIDY=1"
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DWANT_CLANG_TIDY=1"
             cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;

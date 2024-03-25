@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -153,8 +153,6 @@ private:
 	void setFrameOffsetTempo( long long nFrameOffset );
 	void setTickOffsetQueuing( double nTickOffset );
 	void setTickOffsetSongSize( double fTickOffset );
-	void setPlayingPatterns( PatternList* pPatternList );
-	void setNextPatterns( PatternList* pPatternList );
 	void setPatternSize( int nPatternSize );
 	void setLastLeadLagFactor( long long nValue );
 	void setBar( int nBar );

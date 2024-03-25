@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -22,6 +22,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/AudioEngine/AudioEngine.h>
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
@@ -116,7 +117,17 @@ void TransportPosition::setBpm( float fNewBpm ) {
 	m_fBpm = fNewBpm;
 
 	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
-		Hydrogen::get_instance()->recalculateRubberband( getBpm() );
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit == nullptr ) {
+			return;
+		}
+
+		pDrumkit->recalculateRubberband( getBpm() );
 	}
 }
  
@@ -216,10 +227,21 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	const auto pSong = pHydrogen->getSong();
 	const auto pTimeline = pHydrogen->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
-	assert( pSong );
+	const auto pAudioDriver = pHydrogen->getAudioOutput();
+
+	if ( pSong == nullptr || pTimeline == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		*fTickMismatch = 0;
+		return 0;
+	}
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		*fTickMismatch = 0;
+		return 0;
+	}
 
 	if ( nSampleRate == 0 ) {
-		nSampleRate = pHydrogen->getAudioOutput()->getSampleRate();
+		nSampleRate = pAudioDriver->getSampleRate();
 	}
 	const int nResolution = pSong->getResolution();
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
@@ -462,10 +484,19 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	const auto pSong = pHydrogen->getSong();
 	const auto pTimeline = pHydrogen->getTimeline();
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
-	assert( pSong );
+	const auto pAudioDriver = pHydrogen->getAudioOutput();
+
+	if ( pSong == nullptr || pTimeline == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return 0;
+	}
+	if ( pAudioDriver == nullptr ) {
+		ERRORLOG( "AudioDriver is not ready!" );
+		return 0;
+	}
 
 	if ( nSampleRate == 0 ) {
-		nSampleRate = pHydrogen->getAudioOutput()->getSampleRate();
+		nSampleRate = pAudioDriver->getSampleRate();
 	}
 	const int nResolution = pSong->getResolution();
 	double fTick = 0;

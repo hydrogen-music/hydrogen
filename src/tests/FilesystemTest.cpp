@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -62,4 +62,28 @@ void FilesystemTest::testPermissions(){
 	CPPUNIT_ASSERT( Filesystem::file_writable( m_sTmpPath, true ) );
 	___INFOLOG( "passed" );
 #endif
+}
+
+void FilesystemTest::testUniquePrefix() {
+	const QString sBasePath( QDir::temp().absoluteFilePath( "base" ) );
+
+	QString sBaseUniquePath, sBasePathAgain;
+	for ( int ii = 0; ii < 10; ++ii ) {
+		sBaseUniquePath = Filesystem::addUniquePrefix( sBasePath );
+		CPPUNIT_ASSERT( sBaseUniquePath != sBasePath );
+
+		sBasePathAgain = Filesystem::removeUniquePrefix( sBaseUniquePath );
+		CPPUNIT_ASSERT( sBasePathAgain == sBasePath );
+	}
+
+	// Almost our prefix, but not exactly.
+	const QString sNoPrefixPath( QDir::temp().absoluteFilePath(
+									 "tmp-AEWF-test.h2song" ) );
+	const QString sNoPrefixPath2( QDir::temp().absoluteFilePath(
+									 "tmp-AEWFDSD4-test.h2song" ) );
+
+	CPPUNIT_ASSERT( sNoPrefixPath ==
+					Filesystem::removeUniquePrefix( sNoPrefixPath ) );
+	CPPUNIT_ASSERT( sNoPrefixPath2 ==
+					Filesystem::removeUniquePrefix( sNoPrefixPath2 ) );
 }

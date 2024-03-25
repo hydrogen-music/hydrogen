@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2023 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -21,6 +21,7 @@
  */
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -53,14 +54,21 @@ using namespace H2Core;
 #include <cmath>
 
 
-void PatternEditorPanel::updateSLnameLabel( )
+void PatternEditorPanel::updateDrumkitLabel( )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
-	m_pSLlabel->setFont( font );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
+	m_pDrumkitLabel->setFont( font );
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			m_pDrumkitLabel->setText( pDrumkit->getName() );
+		}
+	}
 }
 
 
@@ -104,13 +112,23 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	//soundlibrary name
-	m_pSLlabel = new QLabel( nullptr );
-	m_pSLlabel->setFont( boldFont );
-	m_pSLlabel->setText( Hydrogen::get_instance()->getLastLoadedDrumkitName() );
-	m_pSLlabel->setFixedSize( 170, 20 );
-	m_pSLlabel->move( 10, 3 );
-	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
-	m_pEditorTop1_hbox->addWidget( m_pSLlabel );
+	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
+										  ClickableLabel::Color::Bright, true );
+	m_pDrumkitLabel->setFont( boldFont );
+	m_pDrumkitLabel->setFixedSize( 170, 20 );
+	m_pDrumkitLabel->move( 10, 3 );
+	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
+	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			m_pDrumkitLabel->setText( pDrumkit->getName() );
+		}
+	}
+	connect( m_pDrumkitLabel, &ClickableLabel::labelClicked,
+			 [=]() { HydrogenApp::get_instance()->getMainForm()->
+					 action_drumkit_properties(); } );
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
@@ -136,7 +154,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
 			
-	QLabel* pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
+	auto pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	pLabel1->resize( QSize( 20, 17 ) );
 	pLabel1->setText( "/" );
 	pLabel1->setFont( boldFont );
@@ -516,14 +534,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 
-	m_pPatternNameLbl = new QLabel( nullptr );
+	m_pPatternNameLbl = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
+											ClickableLabel::Color::Bright, true );
 	m_pPatternNameLbl->setFont( boldFont );
-	m_pPatternNameLbl->setText( "pattern name label" );
-	m_pPatternNameLbl->setPalette(label_palette);
-
-
-
-
+	m_pPatternNameLbl->setPalette( label_palette );
+	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
+			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
+					 getSongEditorPatternList()->patternPopup_properties(); } );
 
 
 // NOTE_PROPERTIES BUTTONS
@@ -643,7 +660,7 @@ PatternEditorPanel::~PatternEditorPanel()
 }
 
 void PatternEditorPanel::drumkitLoadedEvent() {
-	updateSLnameLabel();
+	updateDrumkitLabel();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -1043,7 +1060,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
@@ -1127,7 +1144,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		// Performs an editor update with updateEditor() (and no argument).
 		selectedPatternChangedEvent();
 		selectedInstrumentChangedEvent();
-		updateSLnameLabel();
+		updateDrumkitLabel();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
 	}
@@ -1247,7 +1264,7 @@ void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes chan
 		// because they will always carry the same.
 		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		boldFont.setBold( true );
-		m_pSLlabel->setFont( boldFont );
+		m_pDrumkitLabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
 
 		updateStyleSheet();
