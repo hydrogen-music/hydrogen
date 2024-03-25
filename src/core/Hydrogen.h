@@ -192,11 +192,13 @@ public:
 
 	void updateSongSize();
 
-		void			addRealtimeNote ( int instrument,
+		bool			addRealtimeNote ( int instrument,
 							  float velocity,
-							  float fPan = 0.0f,
 							  bool noteoff=false,
 							  int msg1=0 );
+
+		int getHihatOpenness() const;
+		void setHihatOpenness( int nValue );
 
 		void			restartDrivers();
 
@@ -599,6 +601,9 @@ private:
 
 	SoundLibraryDatabase* m_pSoundLibraryDatabase;
 
+		/** Controls the instrument selection within a hihat group. */
+		int m_nHihatOpenness;
+
 	/** 
 	 * Constructor, entry point, and initialization of the
 	 * Hydrogen application.
@@ -689,6 +694,12 @@ inline int Hydrogen::getLastMidiEventParameter() const {
 }
 inline void	Hydrogen::setLastMidiEventParameter( int nParam ) {
 	m_nLastMidiEventParameter = nParam;
+}
+inline int Hydrogen::getHihatOpenness() const {
+	return m_nHihatOpenness;
+}
+inline void Hydrogen::setHihatOpenness( int nValue ) {
+	m_nHihatOpenness = std::clamp( nValue, 0, 127 );
 }
 };
 

@@ -67,20 +67,31 @@ MidiTable::~MidiTable()
 	}
 }
 
-void MidiTable::midiSensePressed( int row ){
+void MidiTable::midiSensePressed( int nRow ){
 
-	m_nCurrentMidiAutosenseRow = row;
+	m_nCurrentMidiAutosenseRow = nRow;
 	MidiSenseWidget midiSenseWidget( this );
 	midiSenseWidget.exec();
+	if ( midiSenseWidget.getLastMidiEvent() == H2Core::MidiMessage::Event::Null ) {
+		// Rejected
+		return;
+	}
 
-	LCDCombo * eventCombo =  dynamic_cast <LCDCombo *> ( cellWidget( row, 1 ) );
-	LCDSpinBox * eventSpinner = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 2 ) );
+	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	LCDSpinBox* pEventSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	if ( pEventCombo == nullptr ) {
+		ERRORLOG( QString( "No event combobox in row [%1]" ).arg( nRow ) );
+		return;
+	}
+	if ( pEventSpinner == nullptr ) {
+		ERRORLOG( QString( "No event spinner in row [%1]" ).arg( nRow ) );
+		return;
+	}
 
-
-	eventCombo->setCurrentIndex( eventCombo->findText(
+	pEventCombo->setCurrentIndex( pEventCombo->findText(
 									 H2Core::MidiMessage::EventToQString(
 										 midiSenseWidget.getLastMidiEvent() ) ) );
-	eventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
+	pEventSpinner->setValue( midiSenseWidget.getLastMidiEventParameter() );
 
 	m_pUpdateTimer->start( 100 );
 
@@ -140,14 +151,17 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
 
-	QSignalMapper *signalMapper = new QSignalMapper(this);
-
-	connect(midiSenseButton, SIGNAL( clicked()), signalMapper, SLOT( map() ));
-	signalMapper->setMapping( midiSenseButton, oldRowCount );
-	connect( signalMapper, SIGNAL(mapped( int ) ), this, SLOT( midiSensePressed(int) ) );
+	connect( midiSenseButton, &QPushButton::clicked, [=](){
+		for ( int ii = 0; ii < rowCount(); ii++ ) {
+			if ( cellWidget( ii, 0 ) == midiSenseButton ) {
+				midiSensePressed( ii );
+				return;
+			}
+		}
+		ERRORLOG( QString( "Unable to midiSenseButton of initial row [%1] in MidiTable!" )
+				  .arg( oldRowCount ) );
+	});
 	setCellWidget( oldRowCount, 0, midiSenseButton );
-
-
 
 	LCDCombo *eventBox = new LCDCombo(this);
 	eventBox->setSize( QSize( m_nColumn1Width, m_nRowHeight ) );

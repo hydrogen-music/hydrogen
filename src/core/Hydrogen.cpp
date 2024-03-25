@@ -114,6 +114,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bSessionDrumkitNeedsRelinking( false )
 					 , m_bSessionIsExported( false )
+					 , m_nHihatOpenness( 127 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -354,9 +355,8 @@ void Hydrogen::midi_noteOn( Note *note )
 	m_pAudioEngine->noteOn( note );
 }
 
-void Hydrogen::addRealtimeNote(	int		nInstrument,
+bool Hydrogen::addRealtimeNote(	int		nInstrument,
 								float	fVelocity,
-								float	fPan,
 								bool	bNoteOff,
 								int		nNote )
 {
@@ -375,7 +375,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
-		return;
+		return false;
 	}
 
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -386,13 +386,14 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
 					  .arg( nInstrument ) );
 			pAudioEngine->unlock();
-			return;
+			return false;
 		}
 	}
 
 	// Get current pattern and column
 	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
+	const float fPan = 0;
 
 	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
@@ -408,7 +409,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
 					  .arg( nColumn ).arg( 0 )
 					  .arg( pColumns->size() ) );
-			return;
+			return false;
 		}
 		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
@@ -442,7 +443,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 		if ( ! pCurrentPattern ) {
 			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
-			return;
+			return false;
 		}
 
 		// Locate nTickInPattern -- may need to wrap around end of pattern
@@ -474,7 +475,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 				  .arg( nInstrumentNumber )
 				  .arg( bPlaySelectedInstrument ) );
 		pAudioEngine->unlock();
-		return;
+		return false;
 	}
 
 	// Record note
@@ -557,7 +558,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Play back the note.
 	if ( ! pInstr->hasSamples() ) {
 		pAudioEngine->unlock();
-		return;
+		return true;
 	}
 	
 	if ( bPlaySelectedInstrument ) {
@@ -592,6 +593,7 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	m_pAudioEngine->unlock(); // unlock the audio engine
+	return true;
 }
 
 
@@ -1718,9 +1720,12 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
+			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nHihatOpenness ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
-	} else {
+	}
+	else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
 			.append( QString( ", __song: " ) );
@@ -1770,7 +1775,9 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", lastMidiEvent: %1" )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
+			.append( QString( ", lastMidiEventParameter: %1" )
+					 .arg( m_nLastMidiEventParameter ) )
+			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}
