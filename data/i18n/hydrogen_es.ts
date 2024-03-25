@@ -4196,10 +4196,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>&amp;General</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>&amp;Sistema de Audio</translation>
     </message>
@@ -4338,14 +4334,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
         <translation>Idioma / Γλώσσα / Язык / 言語</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation>Reabrir última canción &amp;utilizada</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
-        <translation>Reabrir última lista de re&amp;producción utilizada</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>

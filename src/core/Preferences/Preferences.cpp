@@ -230,8 +230,6 @@ Preferences::Preferences()
 	m_nOscTemporaryPort = -1;
 
 	//___ General properties ___
-	m_brestoreLastSong = true;
-	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
 	m_bShowNoteOverwriteWarning = true;
@@ -352,8 +350,6 @@ bool Preferences::loadPreferences( bool bGlobal )
 			__playselectedinstrument = rootNode.read_bool( "instrumentInputMode", __playselectedinstrument, false, false );
 			m_bShowDevelWarning = rootNode.read_bool( "showDevelWarning", m_bShowDevelWarning, false, false );
 			m_bShowNoteOverwriteWarning = rootNode.read_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning, false, false );
-			m_brestoreLastSong = rootNode.read_bool( "restoreLastSong", m_brestoreLastSong, false, false );
-			m_brestoreLastPlaylist = rootNode.read_bool( "restoreLastPlaylist", m_brestoreLastPlaylist, false, false );
 			m_bUseLash = rootNode.read_bool( "useLash", false, false, false );
 			__useTimelineBpm = rootNode.read_bool( "useTimeLine", __useTimelineBpm, false, false );
 			m_nMaxBars = rootNode.read_int( "maxBars", 400, false, false );
@@ -878,8 +874,6 @@ bool Preferences::savePreferences()
 
 	////// GENERAL ///////
 	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
-	rootNode.write_bool( "restoreLastSong", m_brestoreLastSong );
-	rootNode.write_bool( "restoreLastPlaylist", m_brestoreLastPlaylist );
 
 	rootNode.write_bool( "useLash", m_bsetLash );
 	rootNode.write_bool( "useTimeLine", __useTimelineBpm );

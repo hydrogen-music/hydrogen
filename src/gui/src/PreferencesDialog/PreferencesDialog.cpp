@@ -169,8 +169,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// General tab
 	QSize generalTabWidgetSize( 60, 24 );
 	
-	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
-	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
@@ -1024,18 +1022,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	// General tab
 	//////////////////////////////////////////////////////////////////
 	bool bGeneralOptionAltered = false;
-	
-	if ( pPref->isRestoreLastSongEnabled() !=
-		 restoreLastUsedSongCheckbox->isChecked() ) {
-		pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
-		bGeneralOptionAltered = true;
-	}
-	
-	if ( pPref->isRestoreLastPlaylistEnabled() !=
-		 restoreLastUsedPlaylistCheckbox->isChecked() ) {
-		pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
-		bGeneralOptionAltered = true;
-	}
 	
 	if ( pPref->isPlaylistUsingRelativeFilenames() !=
 		 useRelativePlaylistPathsCheckbox->isChecked() ) {

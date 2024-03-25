@@ -4035,10 +4035,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>常规(&amp;G)</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
         <translation>第一步，调整控制器/键盘触发延迟和计算所得 BPM 之间的时序不匹配</translation>
     </message>
@@ -4322,14 +4318,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
         <translation>语言/Language/Γλώσσα/Язык</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation>重新打开上次的乐曲(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
-        <translation>重新打开上次的播放列表(&amp;P)</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>

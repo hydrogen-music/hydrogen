@@ -426,8 +426,6 @@ public:
 	const QString&	getPreferredLanguage();
 	void			setPreferredLanguage( const QString& sLanguage );
 
-	void			setRestoreLastSongEnabled( bool restore );
-	void			setRestoreLastPlaylistEnabled( bool restore );
 	void			setUseRelativeFilenamesForPlaylists( bool value );
 
 	void			setShowDevelWarning( bool value );
@@ -436,8 +434,6 @@ public:
 	bool			getShowNoteOverwriteWarning();
 	void			setShowNoteOverwriteWarning( bool bValue );
 
-	bool			isRestoreLastSongEnabled();
-	bool			isRestoreLastPlaylistEnabled();
 	bool			isPlaylistUsingRelativeFilenames();
 
 	void			setLastSongFilename( const QString& filename );
@@ -698,9 +694,6 @@ private:
 	 ///rubberband bpm change queue
 	bool				m_useTheRubberbandBpmChangeEvent;
 
-	///< Restore last song?
-	bool				m_brestoreLastSong;
-	bool				m_brestoreLastPlaylist;
 	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
@@ -1038,14 +1031,6 @@ inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
 	m_sPreferredLanguage = sLanguage;
 }
 
-inline void Preferences::setRestoreLastSongEnabled( bool restore ) {
-	m_brestoreLastSong = restore;
-}
-
-inline void Preferences::setRestoreLastPlaylistEnabled( bool restore ) {
-	m_brestoreLastPlaylist = restore;
-}
-
 inline void Preferences::setUseRelativeFilenamesForPlaylists( bool value ) {
 	m_bUseRelativeFilenamesForPlaylists= value;
 }
@@ -1072,14 +1057,6 @@ inline void Preferences::setHideKeyboardCursor( bool value ) {
 
 inline bool Preferences::hideKeyboardCursor() {
 	return m_bHideKeyboardCursor;
-}
-
-inline bool Preferences::isRestoreLastSongEnabled() {
-	return m_brestoreLastSong;
-}
-
-inline bool Preferences::isRestoreLastPlaylistEnabled() {
-	return m_brestoreLastPlaylist;
 }
 
 inline bool Preferences::isPlaylistUsingRelativeFilenames() {
