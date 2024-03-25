@@ -123,9 +123,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 		std::shared_ptr<H2Core::Song>pSong = nullptr;
 
 		if ( sSongFilename.isEmpty() ) {
-			if ( pPref->isRestoreLastSongEnabled() ) {
-				sSongFilename = pPref->getLastSongFilename();
-			}
+			sSongFilename = pPref->getLastSongFilename();
 		}
 
 		bool bRet = false;
@@ -204,8 +202,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if ( pPref->isRestoreLastPlaylistEnabled() &&
-		 ! pPref->getLastPlaylistFilename().isEmpty() ) {
+	if ( ! pPref->getLastPlaylistFilename().isEmpty() ) {
 		bool bLoadSuccessful = h2app->getPlayListDialog()->loadListByFileName(
 			pPref->getLastPlaylistFilename() );
 		if ( bLoadSuccessful ) {

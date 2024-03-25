@@ -361,9 +361,8 @@ int main(int argc, char *argv[])
 				pSong = Song::load( songFilename );
 			} else {
 				/* Try load last song */
-				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 				QString filename = preferences->getLastSongFilename();
-				if ( restoreLastSong && ( !filename.isEmpty() )) {
+				if ( !filename.isEmpty() ) {
 					pSong = Song::load( filename );
 				}
 			}
