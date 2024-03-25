@@ -36,7 +36,8 @@ void FilesystemTest::setUp() {
 	m_sNoAccessPath = "/etc/shadow";
 #endif
 	m_sReadOnlyPath = "/etc/profile";
-	m_sFullAccessPath = Filesystem::usr_data_path().append( "test.h2song"  );
+	m_sFullAccessPath = QString( Filesystem::usr_data_path() )
+		.append( "test.h2song"  );
 	m_sTmpPath = Filesystem::tmp_file_path( "test.h2song" );
 #endif
 }

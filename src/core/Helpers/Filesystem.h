@@ -65,6 +65,14 @@ namespace H2Core
 		system = 2
 	};
 
+	/** Indicates what type of file, like .h2song, .h2playlist, a function as to
+	 * handle. */
+	enum class Type {
+		Song,
+		Playlist
+	};
+		static QString TypeToQString( const Type& type );
+
 		static const QString songs_ext;
 		static const QString scripts_ext;
 		static const QString patterns_ext;
@@ -86,21 +94,21 @@ namespace H2Core
 		static bool bootstrap( Logger* logger, const QString& sys_path=nullptr );
 
 		/** returns system data path */
-		static QString sys_data_path();
+		static const QString& sys_data_path();
 		/** returns user data path */
-		static QString usr_data_path();
+		static const QString& usr_data_path();
 
 		/** returns user ladspa paths */
-		static QStringList ladspa_paths();
+		static const QStringList& ladspa_paths();
 
 		/** returns system config path */
 		static QString sys_config_path();
 		/** returns user config path */
-		static QString usr_config_path();
+		static const QString& usr_config_path();
 		/** returns system empty sample file path */
 		static QString empty_sample_path();
 		/**
-		 * Provides the full path to the current empty song.
+		 * Provides the full path to the current empty song or playlist.
 		 *
 		 * The basename consists of a fixed expression and an optional
 		 * suffix ensuring the path does not point to an existing
@@ -119,11 +127,11 @@ namespace H2Core
 		 * modifications applied to an empty song. If the user - by
 		 * design or coincidence - picks the empty song path to save a
 		 * file or if the OSC API is used to save the empty song,
-		 * empty_song_path() will use a suffix to return yet again a
+		 * empty_path() will use a suffix to return yet again a
 		 * path to a non-existing file and allow for the behavior
 		 * described above.
 		 */
-		static QString empty_song_path();
+		static QString empty_path( const Type& type );
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
 		static QString default_song_name();
@@ -151,7 +159,7 @@ namespace H2Core
 		/** returns the path to the playlist pattern XSD (xml schema definition) file */
 		static QString playlist_xsd_path( );
 		/** returns the full path (including filename) of the logfile */
-		static QString log_file_path();
+		static const QString& log_file_path();
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -261,14 +269,14 @@ namespace H2Core
 		 * \returns Full path to the folder containing the samples of
 		 *   the H2Core::Drumkit corresponding to \a dk_name.
 		 */
-		static QString drumkit_path_search( const QString& dk_name, Lookup lookup = Lookup::stacked, bool bSilent = false );
+		static QString drumkit_path_search( const QString& dk_name, const Lookup& lookup = Lookup::stacked, bool bSilent = false );
 		/**
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		static QString drumkit_dir_search( const QString& dk_name, Lookup lookup );
+		static QString drumkit_dir_search( const QString& dk_name, const Lookup& lookup );
 		/**
 		 * returns true if the path contains a usable drumkit
 		 * \param dk_path the root drumkit location
@@ -319,23 +327,26 @@ namespace H2Core
 		static bool song_exists( const QString& sg_name );
 
 		/**
-		 * Checks the path pointing to a .h2song.
+		 * Checks the path @a sPath.
 		 *
-		 * It will be checked whether @a songPath
+		 * It will be checked whether @a sPath
 		 * - is absolute
 		 * - exists (if @a bCheckExistance is set to true)
-		 * - has the '.h2song' suffix
-		 * - is writable (read-only songs are considered valid as well
-		 * and the function returns true. But it also triggers an
-		 * event informing the GUI to show a read-only warning.)
+		 * - has the suffix corresponding to @a type
+		 * - is writable (read-only files are considered valid as well
+		 *   and the function returns `true`. But it also triggers an
+		 *   event informing the GUI to show a read-only warning.)
 		 *
-		 * \param sSongPath Absolute path to an .h2song file.
+		 * @param type Whether the file is a .h2song or .h2playlist etc.
+		 * \param sPath Absolute path to a file of type @a type.
 		 * \param bCheckExistance Whether the existence of the file is
-		 * checked (should be true for opening and false for creating
-		 * a new song)
+		 *   checked (should be true for opening and false for creating
+		 *   a new song/playlist)
 		 * \return true - if valid.
 		 */
-		static bool isSongPathValid( const QString& sSongPath, bool bCheckExistance = false );
+		static bool isPathValid( const Type& type,
+								 const QString& sPath,
+								 bool bCheckExistance = false );
 
 		/**
 		 * Takes an arbitrary path, replaces white spaces by
@@ -495,6 +506,8 @@ namespace H2Core
 			 * addUniquePrefix(), this function removes it and restores the
 			 * original base name of the file.*/
 			static QString removeUniquePrefix( const QString& sUniqueFilePath );
+
+			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger

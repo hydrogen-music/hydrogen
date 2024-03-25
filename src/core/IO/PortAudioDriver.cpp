@@ -105,14 +105,15 @@ QStringList PortAudioDriver::getHostAPIs()
 }
 	
 // List devices
-QStringList PortAudioDriver::getDevices( QString HostAPI ) {
+QStringList PortAudioDriver::getDevices( const QString& sHostAPI ) {
 	if ( ! m_bInitialised ) {
 		Pa_Initialize();
 		m_bInitialised = true;
 	}
 
 	QStringList devices;
-	if ( HostAPI.isNull() || HostAPI == "" ) {
+	QString sApi { sHostAPI };
+	if ( sApi.isNull() || sApi == "" ) {
 		WARNINGLOG( "Using default HostAPI" );
 		auto pInfo = Pa_GetHostApiInfo( Pa_GetDefaultHostApi() );
 		if ( pInfo == nullptr ) {
@@ -120,7 +121,7 @@ QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 			return devices;
 		}
 		
-		HostAPI = pInfo->name;
+		sApi = pInfo->name;
 	}
 
 	int nDevices = Pa_GetDeviceCount();
@@ -132,7 +133,7 @@ QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 
 		// Filter by API
 		auto pInfo = Pa_GetHostApiInfo( pDeviceInfo->hostApi );
-		if ( pInfo == nullptr || pInfo->name != HostAPI ) {
+		if ( pInfo == nullptr || pInfo->name != sApi ) {
 			continue;
 		}
 		if ( pDeviceInfo->maxOutputChannels >= 2 ) {

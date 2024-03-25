@@ -56,8 +56,8 @@ public:
 	DeviceComboBox( QWidget *pParent );
 
 	/// Set the driver name to use
-	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
-	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
+	void setDriver( const QString& sDriver ) { m_sDriver = sDriver; }
+	void setHostAPI( const QString& sHostAPI ) { m_sHostAPI = sHostAPI; }
 
 	virtual void showPopup();
 };
@@ -70,7 +70,7 @@ class HostAPIComboBox : public LCDCombo {
 
 public:
 	HostAPIComboBox( QWidget *pParent );
-	void setValue( QString sHostAPI );
+	void setValue( const QString& sHostAPI );
 	virtual void showPopup();
 };
 
@@ -81,10 +81,10 @@ public:
 class IndexedTreeItem : public QTreeWidgetItem {
 
 public:
-	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel );
-	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels );
-	IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel );
-	IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, const QString& sLabel );
+	IndexedTreeItem( int nId, QTreeWidgetItem* pParent, const QStringList& labels );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, const QString& sLabel );
+	IndexedTreeItem( int nId, QTreeWidget* pParent, const QStringList& labels );
 	int getId() const;
 	
 private:
@@ -169,7 +169,7 @@ private:
 	void setDriverInfoPortAudio();
 	void setDriverInfoPulseAudio();
 	void updateDriverPreferences();
-	void updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme );
+	void updateAppearanceTab( const H2Core::Theme& pTheme );
 
 	void initializeShortcutsTab();
 	void updateShortcutsTab();
@@ -188,8 +188,8 @@ private:
 	std::vector<std::pair<H2Core::Shortcuts::Action,QKeySequence>> m_lastShortcutsSelected;
 
 	void setIndexedTreeItemDirty( IndexedTreeItem* pItem );
-	QColor* getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> uiStyle ) const;
-	void setColorById( int nId, const QColor& color, std::shared_ptr<H2Core::ColorTheme> uiStyle );
+	std::unique_ptr<QColor> getColorById( int nId, const H2Core::ColorTheme& uiStyle ) const;
+	void setColorById( int nId, const QColor& color, H2Core::ColorTheme& uiStyle );
 	void updateColorTree();
 	/**
 	 * Introduce a temporal smoothing. Otherwise, moving the slider
@@ -197,9 +197,9 @@ private:
 	 * triggering a recoloring of the whole GUI.
 	 */
 	void triggerColorSliderTimer();
-	std::shared_ptr<H2Core::Theme> m_pCurrentTheme;
-	std::shared_ptr<H2Core::Theme> m_pPreviousTheme;
-	QColor* m_pCurrentColor;
+	H2Core::Theme m_currentTheme;
+	H2Core::Theme m_previousTheme;
+	std::unique_ptr<QColor> m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;
 

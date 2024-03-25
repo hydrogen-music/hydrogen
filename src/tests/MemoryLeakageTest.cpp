@@ -37,6 +37,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/License.h>
 
 #include <core/Sampler/Sampler.h>
@@ -275,7 +276,6 @@ void MemoryLeakageTest::testLoading() {
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 	
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	QString sDrumkitPath =
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
@@ -284,7 +284,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/drumkitComponent.xml" ) ) );
 		node = doc.firstChildElement( "drumkitComponent" );
-		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( &node );
+		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( node );
 		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
 		pDrumkitComponent = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -303,7 +303,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentComponent.xml" ) ) );
 		node = doc.firstChildElement( "instrumentComponent" );
-		auto pInstrumentComponent = H2Core::InstrumentComponent::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ) );
+		auto pInstrumentComponent = H2Core::InstrumentComponent::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ) );
 		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
 		pInstrumentComponent = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -312,7 +312,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrument.xml" ) ) );
 		node = doc.firstChildElement( "instrument" );
-		auto pInstrument = H2Core::Instrument::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ) );
+		auto pInstrument = H2Core::Instrument::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ) );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -321,7 +321,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentLayer.xml" ) ) );
 		node = doc.firstChildElement( "instrumentLayer" );
-		auto pInstrumentLayer = H2Core::InstrumentLayer::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ) );
+		auto pInstrumentLayer = H2Core::InstrumentLayer::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ) );
 		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
 		pInstrumentLayer = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -330,7 +330,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
 		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
+		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -339,11 +339,11 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
 		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
+		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( &node, pInstrumentList );
+		auto pNote = H2Core::Note::load_from( node, pInstrumentList );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
 		pInstrumentList = nullptr;
@@ -353,11 +353,11 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentListV2.xml" ) ) );
 		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
+		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( &node, pInstrumentList );
+		auto pNote = H2Core::Note::load_from( node, pInstrumentList );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
 		pInstrumentList = nullptr;
@@ -367,7 +367,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
 		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
+		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		auto pPattern = H2Core::Pattern::load_file( H2TEST_FILE( "pattern/pat.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
@@ -377,9 +377,9 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pPlaylist = H2Core::Playlist::load_file( H2TEST_FILE( "playlist/test.h2playlist" ), true );
+		auto pPlaylist = H2Core::Playlist::load( H2TEST_FILE( "playlist/test.h2playlist" ) );
 		CPPUNIT_ASSERT( pPlaylist != nullptr );
-		delete pPlaylist;
+		pPlaylist = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -428,7 +428,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
 		node = doc.firstChildElement( "song" );
-		auto pInstrumentList = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
+		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		auto pPattern = H2Core::Legacy::load_drumkit_pattern( H2TEST_FILE( "pattern/legacy_pattern.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
@@ -446,12 +446,12 @@ void MemoryLeakageTest::testLoading() {
 													 true ) );
 		pDrumkit2->loadSamples();
 	
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		int nLoaded = H2Core::Base::getAliveObjectCount();
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
-		pCoreActionController->setDrumkit( pDrumkit2 );
-		pCoreActionController->setDrumkit( pDrumkit );
+		H2Core::CoreActionController::setDrumkit( pDrumkit2 );
+		H2Core::CoreActionController::setDrumkit( pDrumkit );
 		CPPUNIT_ASSERT( nLoaded == H2Core::Base::getAliveObjectCount() );
 	}
 	___INFOLOG( "passed" );

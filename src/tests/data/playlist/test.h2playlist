@@ -3,12 +3,12 @@
  <name>test.h2playlist</name>
  <songs>
   <song>
-   <path>../../../git/hydrogen/data/demo_songs/GM_kit_demo1.h2song</path>
+   <path>../../../../data/demo_songs/GM_kit_demo1.h2song</path>
    <scriptPath>no Script</scriptPath>
    <scriptEnabled>false</scriptEnabled>
   </song>
   <song>
-   <path>../../../git/hydrogen/data/demo_songs/GM_kit_demo2.h2song</path>
+   <path>../../../../data/demo_songs/GM_kit_demo2.h2song</path>
    <scriptPath>no Script</scriptPath>
    <scriptEnabled>false</scriptEnabled>
   </song>

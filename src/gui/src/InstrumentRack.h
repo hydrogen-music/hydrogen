@@ -48,7 +48,7 @@ class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>
 public slots:
 	/** Used by the #Shotlist*/
 	void showSoundLibrary( bool bShow );
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		/// button for showing the Sound Library

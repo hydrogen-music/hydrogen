@@ -15,6 +15,16 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			adding, deleting, and renaming drumkit components can now be undone.
 		- Pattern and drumkit properties can be edited by clicking the corresponding
 			name in the left column of the Pattern Editor.
+		- new OSC commands:
+				- `NEW_PLAYLIST`
+				- `OPEN_PLAYLIST`
+				- `SAVE_PLAYLIST`
+				- `SAVE_PLAYLIST_AS`
+				- `PLAYLIST_ADD_SONG`
+				- `PLAYLIST_ADD_CURRENT_SONG`
+				- `PLAYLIST_REMOVE_SONG`
+		- `.h2playlist` files are now backed up by and can be restored from autosave
+			files as well.
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
@@ -33,6 +43,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  beginning and end of a song if loop mode is enabled. In pattern
 		  mode they move transport to be beginning and next is updating
 		  pending stacked patterns.
+		- PlaylistEditor:
+				- All actions can now be undone and redone.
+				- Songs can be loaded by keyboard selection and pressing Enter key.
+				- Playlist can be rearranged using drag and drop.
 		- NSM:
 				- Drumkits are no longer linked into the session folder
 				- All drumkits in the session folder (proper drumkit folders containing

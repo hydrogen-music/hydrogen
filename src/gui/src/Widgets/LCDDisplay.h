@@ -42,7 +42,8 @@ class LCDDisplay : public QLineEdit, public H2Core::Object<LCDDisplay>
 	Q_OBJECT
 
 public:
-	LCDDisplay( QWidget* pParent, QSize size = QSize( 0, 0 ), bool bFixedFont = false, bool bIsActive = true );
+	LCDDisplay( QWidget* pParent, const QSize& size = QSize( 0, 0 ),
+				bool bFixedFont = false, bool bIsActive = true );
 	~LCDDisplay();
 
 	void setUseRedFont( bool bUseRedFont );
@@ -53,7 +54,7 @@ public:
 	bool getIsHovered() const;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 protected:
 	QSize m_size;

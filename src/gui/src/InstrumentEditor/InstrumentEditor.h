@@ -60,7 +60,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
-		void setFileforLayer(QString filename );
 
 		void selectComponent( int nComponent );
 		void renameComponent( int nComponentId, const QString& sNewName );
@@ -77,7 +76,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 	/** Used by #Shotlist */
 	void showLayers( bool bShow );
 		void showSampleEditor();
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void addComponentAction();
 		void deleteComponentAction();
 		void renameComponentAction();

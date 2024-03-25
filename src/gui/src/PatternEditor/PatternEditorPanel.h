@@ -118,7 +118,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );

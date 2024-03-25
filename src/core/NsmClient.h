@@ -148,7 +148,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 	/** \return m_bUnderSessionManagement*/
 	bool getUnderSessionManagement() const;
 
-	QString getSessionFolderPath() const;
+	const QString& getSessionFolderPath() const;
 	void setSessionFolderPath( const QString& sPath );
 
 	bool getIsNewSession() const;
@@ -286,7 +286,7 @@ inline bool NsmClient::getUnderSessionManagement() const {
 	return m_bUnderSessionManagement;
 }
 
-inline QString NsmClient::getSessionFolderPath() const {
+inline const QString& NsmClient::getSessionFolderPath() const {
 	return m_sSessionFolderPath;
 }
 inline void NsmClient::setSessionFolderPath( const QString& sPath ) {

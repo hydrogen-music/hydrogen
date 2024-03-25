@@ -92,7 +92,9 @@ class Pattern : public H2Core::Object<Pattern>
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static Pattern* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
+	static Pattern* load_from( const XMLNode& node,
+							   std::shared_ptr<InstrumentList> instruments,
+							   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param drumkit_name the name of the drumkit it is supposed to play with
@@ -166,7 +168,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * check if this pattern contains a note referencing the given instrument
 		 * \param instr the instrument
 		*/
-		bool references( std::shared_ptr<Instrument> instr );
+		bool references( std::shared_ptr<Instrument> instr ) const;
 		/**
 		 * delete the notes referencing the given instrument
 		 * The function is thread safe (it locks the audio data while deleting notes)
@@ -225,7 +227,8 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param node the XMLNode to feed
 		 * \param instrumentOnly export only the notes of that instrument if given
 		 */
-		void save_to( XMLNode* node, const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
+		void save_to( XMLNode& node,
+					  const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

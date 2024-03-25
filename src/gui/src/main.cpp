@@ -35,7 +35,7 @@
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 #include "Skin.h"
 #include "Reporter.h"
 
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
 		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
 		Qt::HighDpiScaleFactorRoundingPolicy policy;
 
-		switch ( pPref->getUIScalingPolicy() ) {
+		switch ( pPref->getTheme().m_interface.m_uiScalingPolicy ) {
 		case H2Core::InterfaceTheme::ScalingPolicy::Smaller:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
 			break;
@@ -365,9 +365,11 @@ int main(int argc, char *argv[])
 		// Force layout
 		if ( !sUiLayout.isEmpty() ) {
 			if ( sUiLayout == "tabbed" ) {
-				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::Tabbed );
+				pPref->getThemeWritable().m_interface.m_layout =
+					H2Core::InterfaceTheme::Layout::Tabbed;
 			} else {
-				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::SinglePane );
+				pPref->getThemeWritable().m_interface.m_layout =
+					H2Core::InterfaceTheme::Layout::SinglePane;
 			}
 		}
 
@@ -413,7 +415,7 @@ int main(int argc, char *argv[])
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
 
-		QString family = pPref->getApplicationFontFamily();
+		QString family = pPref->getTheme().m_font.m_sApplicationFontFamily;
 		pQApp->setFont( QFont( family, 10 ) );
 
 		QTranslator qttor( nullptr );
@@ -447,7 +449,7 @@ int main(int argc, char *argv[])
 		}
 		pQApp->installTranslator( &tor );
 
-		QString sStyle = pPref->getQTStyle();
+		const QString sStyle = pPref->getTheme().m_interface.m_sQTStyle;
 		if ( !sStyle.isEmpty() ) {
 			pQApp->setStyle( sStyle );
 		}
@@ -558,9 +560,6 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		
-		// Tell Hydrogen it was started via the QT5 GUI.
-		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::notReady );
-		
 		pHydrogen->startNsmClient();
 
 		// If the NSM_URL variable is present, Hydrogen will not
@@ -577,24 +576,15 @@ int main(int argc, char *argv[])
 			QApplication::restoreOverrideCursor();
 		}
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		MainForm *pMainForm =
+			new MainForm( pQApp, sSongFilename, sPlaylistFilename );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );
 
-		if( ! sPlaylistFilename.isEmpty() ){
-			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
-			if ( loadlist ){
-				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
-			} else {
-				___ERRORLOG ( "Error loading the playlist" );
-			}
-		}
-
-
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );
+			H2Core::CoreActionController::setDrumkit( sDrumkitToLoad );
 		}
 
 		// Write the changes in the Preferences to disk to make them
@@ -617,7 +607,8 @@ int main(int argc, char *argv[])
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
 		if ( pHydrogen->getSong()->getFilename() !=
-			 H2Core::Filesystem::empty_song_path() ) {
+			 H2Core::Filesystem::empty_path(
+				 H2Core::Filesystem::Type::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 			// Mark empty song created in a new NSM session modified
 			// in order to emphasis that an initial song save is

@@ -43,10 +43,11 @@ class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisp
 		explicit DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
-		void updateDisplay( QString filename );
+		void updateDisplay( const QString& filename );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
-		void setDetailSamplePosition( unsigned posi, float zoomfactor, QString type);
+		void setDetailSamplePosition( unsigned posi, float zoomfactor,
+									  const QString& type);
 
 	private:
 		QPixmap m_background;

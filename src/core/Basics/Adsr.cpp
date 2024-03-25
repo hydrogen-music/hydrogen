@@ -295,7 +295,7 @@ float ADSR::release()
 	return m_fReleaseValue;
 }
 
-QString ADSR::StateToQString( State state ) {
+QString ADSR::StateToQString( const State& state ) {
 	switch( state ) {
 	case State::Attack:
 		return std::move( "Attack" );

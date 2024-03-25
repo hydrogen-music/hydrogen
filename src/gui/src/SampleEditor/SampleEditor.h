@@ -48,10 +48,11 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
+		SampleEditor( QWidget* pParent, int nSelectedComponent,
+					  int nSelectedLayer, const QString& nSampleFilename );
 		~SampleEditor();
 
-		void setSampleName( QString name);
+		void setSampleName( const QString& name );
 		bool getCloseQuestion();
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
@@ -63,9 +64,9 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
-		void valueChangedProcessingTypeComboBox( const QString );
-		void valueChangedrubberComboBox( const QString  );
-		void valueChangedrubberbandCsettingscomboBox( const QString );
+		void valueChangedProcessingTypeComboBox( const QString& );
+		void valueChangedrubberComboBox( const QString& );
+		void valueChangedrubberbandCsettingscomboBox( const QString& );
 		void valueChangedpitchdoubleSpinBox( double );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();

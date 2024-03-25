@@ -62,7 +62,7 @@ namespace
 namespace H2Core
 {
 
-Song::Song( QString sName, const QString& sAuthor, float fBpm, float fVolume )
+Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
 	, m_resolution( 48 )
@@ -92,10 +92,10 @@ Song::Song( QString sName, const QString& sAuthor, float fBpm, float fVolume )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 {
-	if ( sName.isEmpty() ){
-		sName = Filesystem::untitled_song_name();
+	if ( m_sName.isEmpty() ){
+		m_sName = Filesystem::untitled_song_name();
 	}
-	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
+	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
 
@@ -144,7 +144,7 @@ void Song::setBpm( float fBpm ) {
 	}
 }
 
-void Song::setActionMode( Song::ActionMode actionMode ) {
+void Song::setActionMode( const Song::ActionMode& actionMode ) {
 	m_actionMode = actionMode;
 }
 
@@ -219,7 +219,7 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 		}
 	}
 
-	auto pSong = Song::loadFrom( &songNode, sFilename, bSilent );
+	auto pSong = Song::loadFrom( songNode, sFilename, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setFilename( sFilename );
 	}
@@ -227,33 +227,33 @@ std::shared_ptr<Song> Song::load( const QString& sFilename, bool bSilent )
 	return pSong;
 }
 
-std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilename, bool bSilent )
+std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sFilename, bool bSilent )
 {
 	auto pPreferences = Preferences::get_instance();
 
-	float fBpm = pRootNode->read_float( "bpm", 120, false, false, bSilent );
-	float fVolume = pRootNode->read_float( "volume", 0.5, false, false, bSilent );
-	QString sName( pRootNode->read_string( "name", "Untitled Song",
+	float fBpm = rootNode.read_float( "bpm", 120, false, false, bSilent );
+	float fVolume = rootNode.read_float( "volume", 0.5, false, false, bSilent );
+	QString sName( rootNode.read_string( "name", "Untitled Song",
 										   false, false, bSilent ) );
-	QString sAuthor( pRootNode->read_string( "author", "Unknown Author",
+	QString sAuthor( rootNode.read_string( "author", "Unknown Author",
 											 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 
-	pSong->setIsMuted( pRootNode->read_bool( "isMuted", false, true, false,
+	pSong->setIsMuted( rootNode.read_bool( "isMuted", false, true, false,
 											 bSilent ) );
-	pSong->setMetronomeVolume( pRootNode->read_float( "metronomeVolume", 0.5,
+	pSong->setMetronomeVolume( rootNode.read_float( "metronomeVolume", 0.5,
 													  false, false, bSilent ) );
-	pSong->setNotes( pRootNode->read_string( "notes", "...", false, false, bSilent ) );
-	pSong->setLicense( License( pRootNode->read_string( "license", "",
+	pSong->setNotes( rootNode.read_string( "notes", "...", false, false, bSilent ) );
+	pSong->setLicense( License( rootNode.read_string( "license", "",
 														false, false, bSilent ), sAuthor ) );
-	if ( pRootNode->read_bool( "loopEnabled", false, false, false, bSilent ) ) {
+	if ( rootNode.read_bool( "loopEnabled", false, false, false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
 
-	if ( pRootNode->read_bool( "patternModeMode",
+	if ( rootNode.read_bool( "patternModeMode",
 							   static_cast<bool>(Song::PatternMode::Selected),
 							   false, false, bSilent ) ) {
 		pSong->setPatternMode( Song::PatternMode::Selected );
@@ -261,7 +261,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		pSong->setPatternMode( Song::PatternMode::Stacked );
 	}
 
-	if ( pRootNode->read_string( "mode", "pattern", false, false, bSilent ) == "song" ) {
+	if ( rootNode.read_string( "mode", "pattern", false, false, bSilent ) == "song" ) {
 		pSong->setMode( Song::Mode::Song );
 	} else {
 		pSong->setMode( Song::Mode::Pattern );
@@ -269,10 +269,10 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 
 	const auto sSongPath = Filesystem::absolute_path( sFilename );
 
-	QString sPlaybackTrack( pRootNode->read_string( "playbackTrackFilename", "",
+	QString sPlaybackTrack( rootNode.read_string( "playbackTrackFilename", "",
 													false, true, bSilent ) );
 	QFileInfo playbackTrackInfo( sPlaybackTrack );
-	if ( playbackTrackInfo.isRelative() ) {
+	if ( ! sPlaybackTrack.isEmpty() && playbackTrackInfo.isRelative() ) {
 		// Playback track has been made portable by manually
 		// converting the absolute path stored by Hydrogen into a
 		// relative one.
@@ -290,26 +290,26 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		sPlaybackTrack = "";
 	}
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
-	pSong->setPlaybackTrackEnabled( pRootNode->read_bool( "playbackTrackEnabled", false,
+	pSong->setPlaybackTrackEnabled( rootNode.read_bool( "playbackTrackEnabled", false,
 														  false, false, bSilent ) );
-	pSong->setPlaybackTrackVolume( pRootNode->read_float( "playbackTrackVolume", 0.0,
+	pSong->setPlaybackTrackVolume( rootNode.read_float( "playbackTrackVolume", 0.0,
 														  false, false, bSilent ) );
 
-	pSong->setHumanizeTimeValue( pRootNode->read_float( "humanize_time", 0.0,
+	pSong->setHumanizeTimeValue( rootNode.read_float( "humanize_time", 0.0,
 														false, false, bSilent ) );
-	pSong->setHumanizeVelocityValue( pRootNode->read_float( "humanize_velocity", 0.0,
+	pSong->setHumanizeVelocityValue( rootNode.read_float( "humanize_velocity", 0.0,
 															false, false, bSilent ) );
-	pSong->setSwingFactor( pRootNode->read_float( "swing_factor", 0.0, false, false, bSilent ) );
+	pSong->setSwingFactor( rootNode.read_float( "swing_factor", 0.0, false, false, bSilent ) );
 	pSong->setActionMode( static_cast<Song::ActionMode>(
-		pRootNode->read_int( "action_mode",
+		rootNode.read_int( "action_mode",
 							 static_cast<int>( Song::ActionMode::selectMode ),
 							 false, false, bSilent ) ) );
-	pSong->setIsPatternEditorLocked( pRootNode->read_bool( "isPatternEditorLocked",
+	pSong->setIsPatternEditorLocked( rootNode.read_bool( "isPatternEditorLocked",
 														   false, true, false, true ) );
 
 	bool bContainsIsTimelineActivated;
 	bool bIsTimelineActivated =
-		pRootNode->read_bool( "isTimelineActivated", false,
+		rootNode.read_bool( "isTimelineActivated", false,
 							  &bContainsIsTimelineActivated, true, false, true );
 	if ( ! bContainsIsTimelineActivated ) {
 		// .h2song file was created in an older version of
@@ -322,7 +322,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
 
 	// pan law
-	QString sPanLawType( pRootNode->read_string( "pan_law_type",
+	QString sPanLawType( rootNode.read_string( "pan_law_type",
 												 "RATIO_STRAIGHT_POLYGONAL",
 												 false, false, bSilent ) );
 	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
@@ -364,7 +364,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		}
 	}
 
-	float fPanLawKNorm = pRootNode->read_float( "pan_law_k_norm", Sampler::K_NORM_DEFAULT,
+	float fPanLawKNorm = rootNode.read_float( "pan_law_k_norm", Sampler::K_NORM_DEFAULT,
 												false, false, bSilent );
 	if ( fPanLawKNorm <= 0.0 ) {
 		if ( ! bSilent ) {
@@ -376,14 +376,14 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
 	std::shared_ptr<Drumkit> pDrumkit;
-	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info");
+	XMLNode drumkitNode = rootNode.firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
 		// Current format (>= 1.3.0) storing a proper Drumkit
-		pDrumkit = Drumkit::loadFrom( &drumkitNode, "", sSongPath, true, bSilent );
+		pDrumkit = Drumkit::loadFrom( drumkitNode, "", sSongPath, true, bSilent );
 	}
 	else {
 		// Older format (< 1.3.0) storing only selected elements
-		pDrumkit = Legacy::loadEmbeddedSongDrumkit( pRootNode, sSongPath, bSilent );
+		pDrumkit = Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -394,15 +394,15 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	pSong->setDrumkit( pDrumkit );
 
 	// Pattern list
-	pSong->setPatternList( PatternList::load_from( pRootNode,
+	pSong->setPatternList( PatternList::load_from( rootNode,
 												   pSong->getDrumkit()->getInstruments(),
 												   bSilent ) );
 
 	// Virtual Patterns
-	pSong->loadVirtualPatternsFrom( pRootNode, bSilent );
+	pSong->loadVirtualPatternsFrom( rootNode, bSilent );
 
 	// Pattern sequence
-	pSong->loadPatternGroupVectorFrom( pRootNode, bSilent );
+	pSong->loadPatternGroupVectorFrom( rootNode, bSilent );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// reset FX
@@ -414,7 +414,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 #endif
 
 	// LADSPA FX
-	XMLNode ladspaNode = pRootNode->firstChildElement( "ladspa" );
+	XMLNode ladspaNode = rootNode.firstChildElement( "ladspa" );
 	if ( ! ladspaNode.isNull() ) {
 		int nFX = 0;
 		XMLNode fxNode = ladspaNode.firstChildElement( "fx" );
@@ -454,25 +454,43 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 
 	std::shared_ptr<Timeline> pTimeline = std::make_shared<Timeline>();
-	XMLNode bpmTimeLineNode = pRootNode->firstChildElement( "BPMTimeLine" );
+	XMLNode bpmTimeLineNode = rootNode.firstChildElement( "BPMTimeLine" );
 	if ( ! bpmTimeLineNode.isNull() ) {
 		XMLNode newBPMNode = bpmTimeLineNode.firstChildElement( "newBPM" );
+
+		// Use more efficient version to add TempoMarkers that will only
+		// sort and update them once.
+		std::vector<std::shared_ptr<Timeline::TempoMarker>> tempoMarkers;
 		while ( ! newBPMNode.isNull() ) {
-			pTimeline->addTempoMarker( newBPMNode.read_int( "BAR", 0, false, false, bSilent ),
-									   newBPMNode.read_float( "BPM", 120.0, false, false, bSilent ) );
+			tempoMarkers.push_back( std::make_shared<Timeline::TempoMarker>(
+				newBPMNode.read_int( "BAR", 0, false, false, bSilent ),
+				newBPMNode.read_float( "BPM", 120.0, false, false, bSilent ) ) );
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
+		}
+
+		if ( tempoMarkers.size() > 0 ) {
+			pTimeline->addTempoMarkers( tempoMarkers );
 		}
 	} else if ( ! bSilent ) {
 		WARNINGLOG( "'BPMTimeLine' node not found" );
 	}
 
-	XMLNode timeLineTagNode = pRootNode->firstChildElement( "timeLineTag" );
+	XMLNode timeLineTagNode = rootNode.firstChildElement( "timeLineTag" );
 	if ( ! timeLineTagNode.isNull() ) {
 		XMLNode newTAGNode = timeLineTagNode.firstChildElement( "newTAG" );
+		// Use more efficient version to add TempoMarkers that will only sort
+		// once.
+		std::vector<std::shared_ptr<Timeline::Tag>> tags;
+
 		while ( ! newTAGNode.isNull() ) {
-			pTimeline->addTag( newTAGNode.read_int( "BAR", 0, false, false, bSilent ),
-							   newTAGNode.read_string( "TAG", "", false, false, bSilent ) );
+			tags.push_back( std::make_shared<Timeline::Tag>(
+				newTAGNode.read_int( "BAR", 0, false, false, bSilent ),
+				newTAGNode.read_string( "TAG", "", false, false, bSilent ) ) );
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
+		}
+
+		if ( tags.size() > 0 ) {
+			pTimeline->addTags( tags );
 		}
 	} else if ( ! bSilent ) {
 		WARNINGLOG( "TagTimeLine node not found" );
@@ -480,7 +498,7 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	pSong->setTimeline( pTimeline );
 
 	// Automation Paths
-	XMLNode automationPathsNode = pRootNode->firstChildElement( "automationPaths" );
+	XMLNode automationPathsNode = rootNode.firstChildElement( "automationPaths" );
 	if ( ! automationPathsNode.isNull() ) {
 		AutomationPathSerializer pathSerializer;
 
@@ -533,7 +551,7 @@ bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	saveTo( &rootNode, bLegacy, bSilent );
+	saveTo( rootNode, bLegacy, bSilent );
 
 	setFilename( sFilename );
 	setIsModified( false );
@@ -550,9 +568,9 @@ bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 	return true;
 }
 
-void Song::loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent ) {
+void Song::loadVirtualPatternsFrom( const XMLNode& node, bool bSilent ) {
 
-	XMLNode virtualPatternListNode = pNode->firstChildElement( "virtualPatternList" );
+	XMLNode virtualPatternListNode = node.firstChildElement( "virtualPatternList" );
 	if ( virtualPatternListNode.isNull() ) {
 		ERRORLOG( "'virtualPatternList' node not found. Aborting." );
 		return;
@@ -602,8 +620,8 @@ void Song::loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent ) {
 	m_pPatternList->flattened_virtual_patterns_compute();
 }
 
-void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
-    XMLNode patternSequenceNode = pNode->firstChildElement( "patternSequence" );
+void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
+    XMLNode patternSequenceNode = node.firstChildElement( "patternSequence" );
 	if ( patternSequenceNode.isNull() ) {
 		if ( ! bSilent ) {
 			ERRORLOG( "'patternSequence' node not found. Aborting." );
@@ -613,7 +631,7 @@ void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
 
 	if ( ! patternSequenceNode.firstChildElement( "patternID" ).isNull() ) {
 		// back-compatibility code..
-		m_pPatternGroupSequence = Legacy::loadPatternGroupVector( &patternSequenceNode,
+		m_pPatternGroupSequence = Legacy::loadPatternGroupVector( patternSequenceNode,
 																  m_pPatternList,
 																  bSilent );
 	}
@@ -657,8 +675,8 @@ void Song::loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::saveVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
-	XMLNode virtualPatternListNode = pNode->createNode( "virtualPatternList" );
+void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
+	XMLNode virtualPatternListNode = node.createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
 			XMLNode patternNode = virtualPatternListNode.createNode( "pattern" );
@@ -671,8 +689,8 @@ void Song::saveVirtualPatternsTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::savePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
-	XMLNode patternSequenceNode = pNode->createNode( "patternSequence" );
+void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
+	XMLNode patternSequenceNode = node.createNode( "patternSequence" );
 	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
 		if ( pPatternList != nullptr ) {
 			XMLNode groupNode = patternSequenceNode.createNode( "group" );
@@ -686,36 +704,36 @@ void Song::savePatternGroupVectorTo( XMLNode* pNode, bool bSilent ) {
 	}
 }
 
-void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
-	pRootNode->write_string( "version", QString( get_version().c_str() ) );
-	pRootNode->write_float( "bpm", m_fBpm );
-	pRootNode->write_float( "volume", m_fVolume );
-	pRootNode->write_bool( "isMuted", m_bIsMuted );
-	pRootNode->write_float( "metronomeVolume", m_fMetronomeVolume );
-	pRootNode->write_string( "name", m_sName );
-	pRootNode->write_string( "author", m_sAuthor );
-	pRootNode->write_string( "notes", m_sNotes );
-	pRootNode->write_string( "license", m_license.getLicenseString() );
-	pRootNode->write_bool( "loopEnabled", isLoopEnabled() );
+void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
+	rootNode.write_string( "version", QString( get_version().c_str() ) );
+	rootNode.write_float( "bpm", m_fBpm );
+	rootNode.write_float( "volume", m_fVolume );
+	rootNode.write_bool( "isMuted", m_bIsMuted );
+	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
+	rootNode.write_string( "name", m_sName );
+	rootNode.write_string( "author", m_sAuthor );
+	rootNode.write_string( "notes", m_sNotes );
+	rootNode.write_string( "license", m_license.getLicenseString() );
+	rootNode.write_bool( "loopEnabled", isLoopEnabled() );
 
 	bool bPatternMode = static_cast<bool>(Song::PatternMode::Selected);
 	if ( m_patternMode == Song::PatternMode::Stacked ) {
 		bPatternMode = static_cast<bool>(Song::PatternMode::Stacked);
 	}
-	pRootNode->write_bool( "patternModeMode", bPatternMode );
+	rootNode.write_bool( "patternModeMode", bPatternMode );
 
-	pRootNode->write_string( "playbackTrackFilename", m_sPlaybackTrackFilename );
-	pRootNode->write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
-	pRootNode->write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
-	pRootNode->write_int( "action_mode", static_cast<int>( m_actionMode ) );
-	pRootNode->write_bool( "isPatternEditorLocked",
+	rootNode.write_string( "playbackTrackFilename", m_sPlaybackTrackFilename );
+	rootNode.write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
+	rootNode.write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
+	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
+	rootNode.write_bool( "isPatternEditorLocked",
 						   m_bIsPatternEditorLocked );
-	pRootNode->write_bool( "isTimelineActivated", m_bIsTimelineActivated );
+	rootNode.write_bool( "isTimelineActivated", m_bIsTimelineActivated );
 
 	if ( m_mode == Song::Mode::Song ) {
-		pRootNode->write_string( "mode", QString( "song" ) );
+		rootNode.write_string( "mode", QString( "song" ) );
 	} else {
-		pRootNode->write_string( "mode", QString( "pattern" ) );
+		rootNode.write_string( "mode", QString( "pattern" ) );
 	}
 
 	QString sPanLawType; // prepare the pan law string to write
@@ -758,35 +776,35 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
 	}
 	// write the pan law string in file
-	pRootNode->write_string( "pan_law_type", sPanLawType );
-	pRootNode->write_float( "pan_law_k_norm", m_fPanLawKNorm );
+	rootNode.write_string( "pan_law_type", sPanLawType );
+	rootNode.write_float( "pan_law_k_norm", m_fPanLawKNorm );
 
-	pRootNode->write_float( "humanize_time", m_fHumanizeTimeValue );
-	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
-	pRootNode->write_float( "swing_factor", m_fSwingFactor );
+	rootNode.write_float( "humanize_time", m_fHumanizeTimeValue );
+	rootNode.write_float( "humanize_velocity", m_fHumanizeVelocityValue );
+	rootNode.write_float( "swing_factor", m_fSwingFactor );
 
 	if ( !bLegacy ) {
 		// Current format
 		//
 		// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated
 		// by a ancient design desicion and we will stick to it.
-		auto drumkitNode = pRootNode->createNode( "drumkit_info" );
-		m_pDrumkit->saveTo( &drumkitNode,
+		auto drumkitNode = rootNode.createNode( "drumkit_info" );
+		m_pDrumkit->saveTo( drumkitNode,
 							-1, // All components
 							true, // Use the most-recent format
 							true, // Enable per-instrument sample loading
 							bSilent );
 	} else {
-		Legacy::saveEmbeddedSongDrumkit( pRootNode, m_pDrumkit, bSilent );
+		Legacy::saveEmbeddedSongDrumkit( rootNode, m_pDrumkit, bSilent );
 	}
 
-	m_pPatternList->save_to( pRootNode, nullptr );
+	m_pPatternList->save_to( rootNode, nullptr );
 
-	saveVirtualPatternsTo( pRootNode, bSilent );
+	saveVirtualPatternsTo( rootNode, bSilent );
 
-	savePatternGroupVectorTo( pRootNode, bSilent );
+	savePatternGroupVectorTo( rootNode, bSilent );
 
-	XMLNode ladspaFxNode = pRootNode->createNode( "ladspa" );
+	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
 
@@ -827,7 +845,7 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
-	XMLNode bpmTimeLineNode = pRootNode->createNode( "BPMTimeLine" );
+	XMLNode bpmTimeLineNode = rootNode.createNode( "BPMTimeLine" );
 	if ( tempoMarkerVector.size() >= 1 ){
 		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
 			if ( tt == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
@@ -841,7 +859,7 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 
 	//time line tag
 	auto tagVector = pTimeline->getAllTags();
-	XMLNode timeLineTagNode = pRootNode->createNode( "timeLineTag" );
+	XMLNode timeLineTagNode = rootNode.createNode( "timeLineTag" );
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			XMLNode newTAGNode = timeLineTagNode.createNode( "newTAG" );
@@ -851,7 +869,7 @@ void Song::saveTo( XMLNode* pRootNode, bool bLegacy, bool bSilent ) {
 	}
 
 	// Automation Paths
-	XMLNode automationPathsNode = pRootNode->createNode( "automationPaths" );
+	XMLNode automationPathsNode = rootNode.createNode( "automationPaths" );
 	AutomationPath *pPath = getVelocityAutomationPath();
 	if ( pPath != nullptr ) {
 		XMLNode pathNode = automationPathsNode.createNode( "path" );
@@ -899,7 +917,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	pSong->setFilename( Filesystem::empty_song_path() );
+	pSong->setFilename( Filesystem::empty_path( Filesystem::Type::Song ) );
 
 	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
 
@@ -1006,22 +1024,22 @@ void Song::loadTempPatternList( const QString& sFilename )
 		return;
 	}
 
-	loadVirtualPatternsFrom( &root, false );
-	loadPatternGroupVectorFrom( &root, false );
+	loadVirtualPatternsFrom( root, false );
+	loadPatternGroupVectorFrom( root, false );
 }
 
-bool Song::saveTempPatternList( const QString& sFilename )
+bool Song::saveTempPatternList( const QString& sFilename ) const
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "sequence" );
 
-	saveVirtualPatternsTo( &root, false );
-	savePatternGroupVectorTo( &root, false );
+	saveVirtualPatternsTo( root, false );
+	savePatternGroupVectorTo( root, false );
 
 	return doc.write( sFilename );
 }
 
-QString Song::copyInstrumentLineToString( int nSelectedInstrument )
+QString Song::copyInstrumentLineToString( int nSelectedInstrument ) const
 {
 	auto pInstrument = getDrumkit()->getInstruments()->get( nSelectedInstrument );
 	if ( pInstrument == nullptr ) {
@@ -1036,13 +1054,15 @@ QString Song::copyInstrumentLineToString( int nSelectedInstrument )
 	rootNode.write_string( "author", getAuthor() );
 	rootNode.write_string( "license", getLicense().getLicenseString() );
 
-	m_pPatternList->save_to( &rootNode, pInstrument );
+	m_pPatternList->save_to( rootNode, pInstrument );
 
 	// Serialize document
 	return doc.toString();
 }
 
-bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns )
+bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
+										  int nSelectedInstrument,
+										  std::list<Pattern *>& patterns ) const
 {
 	XMLDoc doc;
 	if ( ! doc.setContent( sSerialized ) ) {
@@ -1126,7 +1146,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 						XMLNode instrumentText = instrument.firstChild();
 
 						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( &noteNode, getDrumkit()->getInstruments() );
+						Note *pNote = Note::load_from( noteNode, getDrumkit()->getInstruments() );
 
 						pat->insert_note( pNote ); // Add note to created pattern
 
@@ -1245,7 +1265,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto pp : *m_pPatternGroupSequence ) {
+		for ( const auto& pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1258,7 +1278,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
 			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
 			.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto mm : m_latestRoundRobins ) {
+		for ( const auto& mm : m_latestRoundRobins ) {
 			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s )
@@ -1292,7 +1312,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", m_pPatternGroupSequence:" ) );
-		for ( auto pp : *m_pPatternGroupSequence ) {
+		for ( const auto& pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1305,7 +1325,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
 			.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) )
 			.append( QString( ", m_latestRoundRobins" ) );
-		for ( auto mm : m_latestRoundRobins ) {
+		for ( const auto& mm : m_latestRoundRobins ) {
 			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( ", m_mode: %1" )

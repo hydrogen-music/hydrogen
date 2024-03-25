@@ -84,7 +84,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 							  bool bDoAdd = true, bool bDoDelete = true,
 							  bool bIsNoteOff = false );
 		void undoRedoAction(    int column,
-								NotePropertiesRuler::Mode mode,
+								const NotePropertiesRuler::Mode& mode,
 								int nSelectedPatternNumber,
 								int nSelectedInstrument,
 								float velocity,
@@ -94,18 +94,32 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 								int noteKeyVal,
 								int octaveKeyVal );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
-		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
+		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
+										   int nSelectedInstrument,
+										   int patternNumber );
+		void functionFillNotesUndoAction( const QStringList& noteList,
+										  int nSelectedInstrument,
+										  int patternNumber );
+		void functionFillNotesRedoAction( const QStringList& noteList,
+										  int nSelectedInstrument,
+										  int patternNumber );
+		void functionRandomVelocityAction( const QStringList& noteVeloValue,
+										   int nSelectedInstrument,
+										   int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument );
-		void functionDropInstrumentRedoAction( const QString& sDrumkitPath, const QString& sInstrumentName, int nTargetInstrument );
-		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, const QString& instrumentName, const QString& drumkitName );
+		void functionDropInstrumentRedoAction( const QString& sDrumkitPath,
+											   const QString& sInstrumentName,
+											   int nTargetInstrument );
+		void functionDeleteInstrumentUndoAction( const std::list< H2Core::Note* >& noteList,
+												 int nSelectedInstrument,
+												 const QString& instrumentName,
+												 const QString& drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
-		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
-		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
+		void functionPasteNotesRedoAction( const std::list<H2Core::Pattern*>& changeList,
+										   std::list<H2Core::Pattern*>& appliedList);
+		void functionPasteNotesUndoAction( std::list<H2Core::Pattern*>& appliedList);
 
 		// Synthetic UI events from selection manager
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
@@ -117,7 +131,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
 		// the selection.
-		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
 		virtual QRect getKeyboardCursorRect() override;
 
@@ -126,7 +140,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 	void createBackground() override;
@@ -151,7 +165,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void paintEvent(QPaintEvent *ev) override;
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 
-		QString renameCompo( QString OriginalName );
+		QString renameCompo( const QString& OriginalName );
 };
 
 

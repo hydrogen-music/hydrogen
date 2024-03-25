@@ -26,7 +26,7 @@
 #include "ShotList.h"
 #include "HydrogenApp.h"
 
-ShotList::ShotList( QString sShotsFilename ) {
+ShotList::ShotList( const QString& sShotsFilename ) {
 	QFile shots( sShotsFilename );
 	m_nNextShot = 0;
 	
@@ -41,7 +41,7 @@ ShotList::ShotList( QString sShotsFilename ) {
 	HydrogenApp::get_instance()->addEventListener( this );
 }
 
-ShotList::ShotList( QStringList shots ) {
+ShotList::ShotList( const QStringList& shots ) {
 	m_shots = shots;
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -53,7 +53,7 @@ ShotList::~ShotList() {
 	}
 }
 
-QWidget *ShotList::findWidgetInheriting( QObject *pObject, QString &sName ) {
+QWidget *ShotList::findWidgetInheriting( QObject *pObject, const QString& sName ) {
 	if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
 		return dynamic_cast< QWidget *>( pObject );
 	}
@@ -66,7 +66,7 @@ QWidget *ShotList::findWidgetInheriting( QObject *pObject, QString &sName ) {
 	return nullptr;
 }
 
-QWidget *ShotList::findWidget( QString &sName ) {
+QWidget *ShotList::findWidget( const QString& sName ) {
 	for ( QWidget * pTop : QApplication::topLevelWidgets() ) {
 
 		QWidget *pWidget = pTop->findChild< QWidget *>( sName );
@@ -83,7 +83,7 @@ QWidget *ShotList::findWidget( QString &sName ) {
 	return nullptr;
 }
 
-void ShotList::shoot( QString s ) {
+void ShotList::shoot( const QString& s ) {
 	___INFOLOG( QString( "Taking shot: %1" ).arg( s.trimmed() ) );
 	QStringList words = s.trimmed().split( QRegExp( "\\s+" ) );
 	if ( s.size() == 0 ) {

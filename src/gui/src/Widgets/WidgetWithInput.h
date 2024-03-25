@@ -60,7 +60,10 @@ class WidgetWithInput : public QWidget, public MidiLearnable {
 	Q_OBJECT
 
 public:
-	WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax, bool bModifyOnChange );
+	WidgetWithInput( QWidget* parent, bool bUseIntSteps,
+					 const QString& sBaseTooltip, int nScrollSpeed,
+					 int nScrollSpeedFast, float fMin, float fMax,
+					 bool bModifyOnChange );
 	~WidgetWithInput();
 	void setMin( float fMin );
 	float getMin() const;
@@ -78,7 +81,7 @@ public:
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
-	QString getBaseTooltip() const;
+	const QString& getBaseTooltip() const;
 	void setBaseTooltip( const QString& sBaseTooltip );
 
 	int getWidgetWidth() const;
@@ -154,7 +157,7 @@ inline float WidgetWithInput::getDefaultValue() const {
 inline bool WidgetWithInput::getIsActive() const {
 	return m_bIsActive;
 }
-inline QString WidgetWithInput::getBaseTooltip() const {
+inline const QString& WidgetWithInput::getBaseTooltip() const {
 	return m_sBaseTooltip;
 }
 inline int WidgetWithInput::getWidgetWidth() const {

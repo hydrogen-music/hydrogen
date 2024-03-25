@@ -22,7 +22,9 @@
 
 #include "InputCaptureDialog.h"
 
-InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle, const QString& sLabel, Type type, float fMin, float fMax )
+InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle,
+										const QString& sLabel, const Type& type,
+										float fMin, float fMax )
 	: QDialog( pParent ),
 	  m_sTitle( sTitle ),
 	  m_sLabel( sLabel ),

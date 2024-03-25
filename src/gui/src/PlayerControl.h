@@ -74,7 +74,7 @@ public:
 	virtual void driverChangedEvent() override;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void activateSongMode( bool bActivate );
 
 private slots:

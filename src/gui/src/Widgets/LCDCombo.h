@@ -38,20 +38,21 @@ class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, pu
 	Q_OBJECT
 
 public:
-	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = false );
+	explicit LCDCombo( QWidget *pParent, const QSize& size = QSize( 0, 0 ),
+					   bool bModifyOnChange = false );
 	~LCDCombo();
 
-	void setSize( QSize size );
+	void setSize( const QSize& size );
 	void setModifyOnChange( bool bModifyOnChange );
 	
 	virtual void showPopup() override;
-	void addItem(const QString &text, const QVariant &userData = QVariant());
+	void addItem(const QString& sText, const QVariant& userData = QVariant());
 	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void handleIsModified( int );
 
 private:

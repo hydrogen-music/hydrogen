@@ -93,7 +93,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 	Preferences* pPref = Preferences::get_instance();
 
-	QColor defaultColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
+	QColor defaultColor = pPref->getTheme().m_color.m_songEditor_backgroundColor;
 	
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();

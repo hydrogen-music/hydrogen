@@ -558,7 +558,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
-bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage, PmMessage msg ) {
+bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg ) {
 	// End of exception byte indicating the end of a SysEx message.
 	unsigned char eox = 247;
 	unsigned char c = msg & 0x000000ffUL;
@@ -588,7 +588,7 @@ bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage, PmMessage msg )
 	return false;
 }
 
-QString PortMidiDriver::translatePmError( PmError err ) {
+QString PortMidiDriver::translatePmError( const PmError& err ) {
 	QString sRes( Pm_GetErrorText( err ) );
 	if ( err == pmHostError ) {
 		// Get OS-dependent part of the error messages, e.g. something

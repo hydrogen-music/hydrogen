@@ -89,10 +89,10 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QFont fontText( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
-	QFont fontButton( pPref->getLevel2FontFamily(), getPointSizeButton() );
+	QFont fontText( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont fontButton( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSizeButton() );
 	
-	p.fillRect( ev->rect(), pPref->getColorTheme()->m_windowColor );
+	p.fillRect( ev->rect(), pPref->getTheme().m_color.m_windowColor );
 
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
@@ -114,9 +114,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 	QColor layerLabelColor, layerSegmentColor, highlightColor;
 	if ( InstrumentEditorPanel::get_instance()->getInstrumentEditor()->getIsActive() ) {
-		highlightColor = pPref->getColorTheme()->m_highlightColor;
+		highlightColor = pPref->getTheme().m_color.m_highlightColor;
 	} else {
-		highlightColor = pPref->getColorTheme()->m_lightColor;
+		highlightColor = pPref->getTheme().m_color.m_lightColor;
 	}
 
 	int nLayer = 0;
@@ -134,10 +134,10 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					if ( pSample != nullptr ) {
 						label = pSample->get_filename();
 						layerSegmentColor =
-							pPref->getColorTheme()->m_accentColor.lighter( 130 );
+							pPref->getTheme().m_color.m_accentColor.lighter( 130 );
 					} else {
 						layerSegmentColor =
-							pPref->getColorTheme()->m_buttonRedColor;
+							pPref->getTheme().m_color.m_buttonRedColor;
 					}
 						
 					
@@ -152,23 +152,23 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 													 static_cast<float>(nColorScalingWidth) ) ) -
 						nColorScalingWidth + 100;
 					layerLabelColor =
-						pPref->getColorTheme()->m_windowColor.lighter( nColorScaling );
+						pPref->getTheme().m_color.m_windowColor.lighter( nColorScaling );
 					
 					p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
-					p.setPen( pPref->getColorTheme()->m_windowTextColor );
+					p.setPen( pPref->getTheme().m_color.m_windowTextColor );
 					p.setFont( fontButton );
 					p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 					
 					if ( m_nSelectedLayer == i ) {
 						p.setPen( highlightColor );
 					} else {
-						p.setPen( pPref->getColorTheme()->m_windowTextColor.darker( 145 ) );
+						p.setPen( pPref->getTheme().m_color.m_windowTextColor.darker( 145 ) );
 					}
 					p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
 					
 					// layer view
 					p.fillRect( 0, y, width(), m_nLayerHeight,
-								pPref->getColorTheme()->m_windowColor );
+								pPref->getTheme().m_color.m_windowColor );
 					p.fillRect( x1, y, x2 - x1, m_nLayerHeight, layerSegmentColor );
 					
 					nLayer++;
@@ -176,21 +176,21 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				else {
 					// layer view
 					p.fillRect( 0, y, width(), m_nLayerHeight,
-								pPref->getColorTheme()->m_windowColor );
+								pPref->getTheme().m_color.m_windowColor );
 				}
 			}
 			else {
 				// layer view
 				p.fillRect( 0, y, width(), m_nLayerHeight,
-							pPref->getColorTheme()->m_windowColor );
+							pPref->getTheme().m_color.m_windowColor );
 			}
 		}
 		else {
 			// layer view
 			p.fillRect( 0, y, width(), m_nLayerHeight,
-							pPref->getColorTheme()->m_windowColor );
+							pPref->getTheme().m_color.m_windowColor );
 		}
-		QColor layerTextColor = pPref->getColorTheme()->m_windowTextColor;
+		QColor layerTextColor = pPref->getTheme().m_color.m_windowTextColor;
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.setFont( fontText );
@@ -475,7 +475,7 @@ int LayerPreview::getPointSizeButton() const
 	
 	int nPointSize;
 	
-	switch( pPref->getFontSize() ) {
+	switch( pPref->getTheme().m_font.m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
@@ -490,7 +490,7 @@ int LayerPreview::getPointSizeButton() const
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void LayerPreview::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {

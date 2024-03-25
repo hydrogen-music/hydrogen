@@ -107,13 +107,34 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 
+	// First, let's check whether there are any changes.
+	struct tagChange {
+		QString sNewText;
+		QString sOldText;
+		int nColumn;
+	};
+	std::vector<tagChange> changes;
+
 	for ( int ii = 0; ii < m_nMaxRows; ii++ ){
 		QTableWidgetItem* pTagItem = tagTableWidget->item( ii, 0 );
 		if ( pTagItem != nullptr && m_oldTags[ ii ] != pTagItem->text() ) {
-			SE_editTagAction *action =
-				new SE_editTagAction( pTagItem->text(), m_oldTags[ ii ], ii );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			changes.push_back( { pTagItem->text(), m_oldTags[ ii ], ii } );
 		}
+	}
+
+	// If there are any changes, ensure they can be undone in a single action.
+	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	if ( changes.size() == 1 ) {
+		pUndoStack->push( new SE_editTagAction(
+			changes[0].sNewText, changes[0].sOldText, changes[0].nColumn ) );
+	}
+	else if ( changes.size() > 1 ){
+		pUndoStack->beginMacro( tr( "Edit tags" ) );
+		for ( const auto& change : changes ) {
+			pUndoStack->push( new SE_editTagAction(
+								  change.sNewText, change.sOldText, change.nColumn ) );
+		}
+		pUndoStack->endMacro();
 	}
 	accept();
 }

@@ -41,7 +41,7 @@ class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 		explicit MidiSenseWidget(QWidget*,bool bDirectWrite = false , std::shared_ptr<Action> pAction = nullptr);
 		~MidiSenseWidget();
 
-		H2Core::MidiMessage::Event getLastMidiEvent() const;
+		const H2Core::MidiMessage::Event& getLastMidiEvent() const;
 		int getLastMidiEventParameter() const;
 
 	private slots:
@@ -56,7 +56,7 @@ class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 		bool							m_bDirectWrite;
 };
 
-inline H2Core::MidiMessage::Event MidiSenseWidget::getLastMidiEvent() const {
+inline const H2Core::MidiMessage::Event& MidiSenseWidget::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }
 inline int MidiSenseWidget::getLastMidiEventParameter() const {

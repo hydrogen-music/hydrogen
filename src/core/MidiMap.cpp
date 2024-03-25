@@ -93,7 +93,7 @@ void MidiMap::reset()
 		Action::getNullActionType() );
 }
 
-void MidiMap::registerMMCEvent( QString sEventString, std::shared_ptr<Action> pAction )
+void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<Action> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -209,7 +209,7 @@ void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
 	m_pcActionVector.push_back( pAction );
 }
 
-std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( QString sEventString )
+std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( const QString& sEventString )
 {
 	QMutexLocker mx(&__mutex);
 
@@ -223,7 +223,7 @@ std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( QString sEventStrin
 		}
 	}
 
-	return std::move( actions );
+	return actions;
 }
 
 std::vector<std::shared_ptr<Action>> MidiMap::getNoteActions( int nNote )
@@ -240,7 +240,7 @@ std::vector<std::shared_ptr<Action>> MidiMap::getNoteActions( int nNote )
 		}
 	}
 
-	return std::move( actions );
+	return actions;
 }
 
 std::vector<std::shared_ptr<Action>> MidiMap::getCCActions( int nParameter ) {
@@ -256,10 +256,11 @@ std::vector<std::shared_ptr<Action>> MidiMap::getCCActions( int nParameter ) {
 		}
 	}
 
-	return std::move( actions );
+	return actions;
 }
 
-std::vector<int> MidiMap::findCCValuesByActionParam1( QString sActionType, QString sParam1 ) {
+std::vector<int> MidiMap::findCCValuesByActionParam1( const QString& sActionType,
+													  const QString& sParam1 ) {
 	QMutexLocker mx(&__mutex);
 	std::vector<int> values;
 
@@ -270,10 +271,10 @@ std::vector<int> MidiMap::findCCValuesByActionParam1( QString sActionType, QStri
 		}
 	}
 	
-	return std::move( values );
+	return values;
 }
 
-std::vector<int> MidiMap::findCCValuesByActionType( QString sActionType ) {
+std::vector<int> MidiMap::findCCValuesByActionType( const QString& sActionType ) {
 	QMutexLocker mx(&__mutex);
 	std::vector<int> values;
 
@@ -283,7 +284,7 @@ std::vector<int> MidiMap::findCCValuesByActionType( QString sActionType ) {
 		}
 	}
 	
-	return std::move( values );
+	return values;
 }
 
 std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const {
@@ -328,7 +329,7 @@ std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMid
 		}
 	}
 
-	return std::move( midiEvents );
+	return midiEvents;
 }
 
 QString MidiMap::toQString( const QString& sPrefix, bool bShort ) const {

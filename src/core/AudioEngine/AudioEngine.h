@@ -29,7 +29,6 @@
 #include <core/Object.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
-#include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
 
@@ -231,7 +230,7 @@ public:
 	 * - true : On successful acquisition of the lock
 	 * - false : On failure
 	 */
-	bool			tryLockFor( std::chrono::microseconds duration, 
+	bool			tryLockFor( const std::chrono::microseconds& duration,
 								  const char* file, 
 								  unsigned int line, 
 								  const char* function );
@@ -270,7 +269,6 @@ public:
 	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
 	Sampler*		getSampler() const;
-	Synth*			getSynth() const;
 
 	/** \return Time passed since the beginning of the song*/
 	float			getElapsedTime() const;	
@@ -305,14 +303,6 @@ public:
 					
 	void			setupLadspaFX();
 	
-	/**
-	 * Hands the provided Song to JackAudioDriver::makeTrackOutputs() if
-	 * @a pSong is not a null pointer and the audio driver #m_pAudioDriver
-	 * is an instance of the JackAudioDriver.
-	 * \param pSong Song for which per-track output ports should be generated.
-	 */
-	void			renameJackPorts(std::shared_ptr<Song> pSong);
-
 	MidiInput*		getMidiDriver() const;
 	MidiOutput*		getMidiOutDriver() const;
 	
@@ -321,7 +311,7 @@ public:
 	
 	void raiseError( unsigned nErrorCode );
 	
-	State 			getState() const;
+	const State& 	getState() const;
 
 	void 			setMasterPeak_L( float value );
 	float 			getMasterPeak_L() const;
@@ -352,7 +342,7 @@ public:
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	long long		getLeadLagInFrames( double fTick );
+	long long		getLeadLagInFrames( double fTick ) const;
 
 	double getSongSizeInTicks() const;
 
@@ -436,7 +426,7 @@ public:
 	 */
 	int getEnqueuedNotesNumber() const;
 
-	const QStringList getSupportedAudioDrivers() const;
+	const QStringList& getSupportedAudioDrivers() const;
 
 		/** Stops all playback, transport, and note rendering and set the engine
 		 * in #State::Prepared. (It is needs some interaction/configuration in
@@ -523,9 +513,8 @@ private:
 	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
-	void 			setState( State state );
-	void 			setNextState( State state );
-	State 			getNextState() const;
+	void 			setState( const State& state );
+	void 			setNextState( const State& state );
 
 	void				startPlayback();
 	
@@ -597,7 +586,6 @@ private:
 	QString getDriverNames() const;
 
 	Sampler* 			m_pSampler;
-	Synth* 				m_pSynth;
 	AudioOutput *		m_pAudioDriver;
 	MidiInput *			m_pMidiDriver;
 	MidiOutput *		m_pMidiDriverOut;
@@ -790,14 +778,10 @@ inline float AudioEngine::getMaxProcessTime() const {
 	return m_fMaxProcessTime;
 }
 
-inline AudioEngine::State AudioEngine::getState() const {
+inline const AudioEngine::State& AudioEngine::getState() const {
 	return m_state;
 }
-
-inline AudioEngine::State AudioEngine::getNextState() const {
-	return m_nextState;
-}
-inline void AudioEngine::setNextState( AudioEngine::State state) {
+inline void AudioEngine::setNextState( const AudioEngine::State& state) {
 	m_nextState = state;
 }
 
@@ -836,7 +820,7 @@ inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 inline int AudioEngine::getEnqueuedNotesNumber() const {
 	return m_songNoteQueue.size();
 }
-inline const QStringList AudioEngine::getSupportedAudioDrivers() const {
+inline const QStringList& AudioEngine::getSupportedAudioDrivers() const {
 	return m_supportedAudioDrivers;
 }
 };

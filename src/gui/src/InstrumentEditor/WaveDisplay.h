@@ -52,10 +52,10 @@ class WaveDisplay :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>
 		virtual void	resizeEvent( QResizeEvent * event ) override;
 		virtual void	mouseDoubleClickEvent(QMouseEvent *ev) override;
 		
-		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
+		void			setSampleNameAlignment( const Qt::AlignmentFlag& flag );
 
 public slots:
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	
 	signals:
 		void doubleClicked(QWidget *pWidget);
@@ -78,7 +78,7 @@ public slots:
 		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
 };
 
-inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)
+inline void WaveDisplay::setSampleNameAlignment( const Qt::AlignmentFlag& flag )
 {
 	m_SampleNameAlignment = flag;
 }

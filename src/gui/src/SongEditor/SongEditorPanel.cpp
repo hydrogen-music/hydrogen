@@ -484,7 +484,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
-	float fallOff = pPref->getMixerFalloffSpeed();
+	float fallOff = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	
 	// fader
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
@@ -702,7 +702,7 @@ void SongEditorPanel::clearSequence()
 }
 
 
-void SongEditorPanel::restoreGroupVector( QString filename )
+void SongEditorPanel::restoreGroupVector( const QString& filename )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -798,7 +798,7 @@ void SongEditorPanel::patternEditorLockedEvent() {
 	}
 }
 
-void SongEditorPanel::stateChangedEvent( H2Core::AudioEngine::State ) {
+void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 	// The lock button is highlighted when transport is rolling.
 	patternEditorLockedEvent();
 }

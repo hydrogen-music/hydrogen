@@ -109,7 +109,7 @@ PatternEditor::~PatternEditor()
 	}
 }
 
-void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		
@@ -155,10 +155,10 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor fullColor = pPref->getColorTheme()->m_patternEditor_noteVelocityFullColor;
-	QColor defaultColor = pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor;
-	QColor halfColor = pPref->getColorTheme()->m_patternEditor_noteVelocityHalfColor;
-	QColor zeroColor = pPref->getColorTheme()->m_patternEditor_noteVelocityZeroColor;
+	QColor fullColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityFullColor;
+	QColor defaultColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor;
+	QColor halfColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityHalfColor;
+	QColor zeroColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityZeroColor;
 
 	// The colors defined in the Preferences correspond to fixed
 	// velocity values. In case the velocity lies between two of those
@@ -200,7 +200,9 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 
-void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
+void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
+									H2Core::Note *pNote,
+									bool bIsForeground ) const
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -208,10 +210,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
-	const QColor noteInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 150 ) );
-	const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteOffColor );
-	const QColor noteoffInactiveColor( pPref->getColorTheme()->m_windowTextColor );
+	const QColor noteColor( pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
+	const QColor noteInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
+	const QColor noteoffColor( pPref->getTheme().m_color.m_patternEditor_noteOffColor );
+	const QColor noteoffInactiveColor( pPref->getTheme().m_color.m_windowTextColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -419,7 +421,7 @@ void PatternEditor::copy()
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( &note_node );
+		pNote->save_to( note_node );
 	}
 
 	if ( bWroteNote ) {
@@ -645,7 +647,7 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
 }
 
-bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
+bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& elements )
 {
 	if ( m_pPattern == nullptr ) {
 		return false;
@@ -703,8 +705,8 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 }
 
 
-void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
-											   std::vector< H2Core::Note *> &overwritten )
+void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+											   const std::vector< H2Core::Note *>& overwritten )
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -739,8 +741,8 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 }
 
 
-void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
-												   std::vector< H2Core::Note *> &overwritten )
+void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
+												   const std::vector< H2Core::Note *>& overwritten )
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -807,22 +809,22 @@ QPoint PatternEditor::movingGridOffset( ) const {
 
 
 //! Draw lines for note grid.
-void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
+void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	const std::vector<QColor> colorsActive = {
-		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
-		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line1Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line2Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line3Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line4Color ),
+		QColor( pPref->getTheme().m_color.m_patternEditor_line5Color ),
 	};
 	const std::vector<QColor> colorsInactive = {
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 190 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 210 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 230 ) ),
-		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 250 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 190 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 210 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 230 ) ),
+		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -928,10 +930,10 @@ QColor PatternEditor::selectedNoteColor() const {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
-		const QColor selectHighlightColor( pPref->getColorTheme()->m_selectionHighlightColor );
+		const QColor selectHighlightColor( pPref->getTheme().m_color.m_selectionHighlightColor );
 		return selectHighlightColor;
 	} else {
-		const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
+		const QColor selectInactiveColor( pPref->getTheme().m_color.m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }
@@ -1368,7 +1370,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 										  int nLength,
 										  int nSelectedPatternNumber,
 										  int nSelectedInstrumentnumber,
-										  Editor editor)
+										  const Editor& editor)
 {
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1439,8 +1441,8 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 											  int nRow,
 											  int nSelectedPatternNumber,
 											  int nSelectedInstrumentNumber,
-											  Mode mode,
-											  Editor editor,
+											  const Mode& mode,
+											  const Editor& editor,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
@@ -1533,7 +1535,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 }
 
 					
-QString PatternEditor::modeToQString( Mode mode ) {
+QString PatternEditor::modeToQString( const Mode& mode ) {
 	QString s;
 	
 	switch ( mode ) {
@@ -1560,7 +1562,7 @@ QString PatternEditor::modeToQString( Mode mode ) {
 	return s;
 }
 
-void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
+void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 	QString s;
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );

@@ -64,7 +64,7 @@ class InstrumentLine : public PixmapWidget
 	static constexpr int m_nButtonWidth = 18;
 
 public slots:
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
 		void functionClearNotes();

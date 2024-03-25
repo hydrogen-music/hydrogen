@@ -51,12 +51,14 @@ public:
 		Dark
 	};
 	
-	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ),
-							 QString sText = "", Color color = Color::Bright,
+	explicit ClickableLabel( QWidget *pParent,
+							 const QSize& size = QSize( 0, 0 ),
+							 const QString& sText = "",
+							 const Color& color = Color::Bright,
 							 bool bIsEditable = false );
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void setText( const QString& sNewText );
 
 signals:
@@ -64,7 +66,8 @@ signals:
 
 private:
 	void updateStyleSheet();
-	void updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize );
+	void updateFont( const QString& sFontFamily,
+					 const H2Core::FontTheme::FontSize& fontSize );
 
 	virtual void mousePressEvent( QMouseEvent * e ) override;
 	virtual void enterEvent( QEvent * e ) override;

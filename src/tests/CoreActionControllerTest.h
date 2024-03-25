@@ -24,18 +24,16 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
-#include <core/CoreActionController.h>
 
 class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
 	CPPUNIT_TEST( testSessionManagement );
-	CPPUNIT_TEST( testIsSongPathValid );
+	CPPUNIT_TEST( testIsPathValid );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
 	H2Core::Hydrogen* m_pHydrogen;
-	H2Core::CoreActionController* m_pController;
-	
+
 	QString m_sFileNameImproper;
 	QString m_sFileName;
 	QString m_sFileName2;
@@ -48,12 +46,12 @@ public:
 	// files.
 	void tearDown();
 	
-	// Tests the CoreActionController::newSong(),
-	// CoreActionController::openSong(),
+	// Tests the CoreActionController::loadSong(),
+	// CoreActionController::setSong(),
 	// CoreActionController::saveSong()
 	// CoreActionController::saveSongAs() methods.
 	void testSessionManagement();
 	
-	// Tests Filesystem::isSongPathValid()
-	void testIsSongPathValid();
+	// Tests Filesystem::isPathValid()
+	void testIsPathValid();
 };

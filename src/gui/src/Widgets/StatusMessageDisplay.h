@@ -35,13 +35,13 @@ class StatusMessageDisplay : public LCDDisplay, public H2Core::Object<StatusMess
 	Q_OBJECT
 
 public:
-	StatusMessageDisplay( QWidget* pParent, QSize size );
+	StatusMessageDisplay( QWidget* pParent, const QSize& size );
 	~StatusMessageDisplay();
 
 	void showMessage( const QString& sMessage, const QString& sCaller = "" );
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private slots:
 	void onStatusTimerEvent();

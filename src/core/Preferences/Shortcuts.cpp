@@ -43,8 +43,8 @@ Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
 Shortcuts::~Shortcuts() {
 }
 
-void Shortcuts::saveTo( XMLNode* pNode ) {
-	XMLNode shortcutsNode = pNode->createNode( "shortcuts" );
+void Shortcuts::saveTo( XMLNode& node ) const {
+	XMLNode shortcutsNode = node.createNode( "shortcuts" );
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {
 			XMLNode shortcutNode = shortcutsNode.createNode( "shortcut" );
@@ -55,11 +55,11 @@ void Shortcuts::saveTo( XMLNode* pNode ) {
 	}
 }
 
-std::shared_ptr<Shortcuts> Shortcuts::loadFrom( XMLNode* pNode, bool bSilent ) {
+std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilent ) {
 	auto pShortcuts = std::make_shared<Shortcuts>();
 	pShortcuts->createActionInfoMap();
 	
-	XMLNode shortcutsNode = pNode->firstChildElement( "shortcuts" );
+	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
 		if ( Hydrogen::get_instance() == nullptr ||
 			 Hydrogen::get_instance()->getGUIState() != H2Core::Hydrogen::GUIState::ready ) {
@@ -232,19 +232,19 @@ void Shortcuts::createDefaultShortcuts() {
 
 }
 
-std::vector<Shortcuts::Action> Shortcuts::getActions( QKeySequence keySequence ) const {
+std::vector<Shortcuts::Action> Shortcuts::getActions( const QKeySequence& keySequence ) const {
 	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
 		// Key found
 		return it->second;
 	}
 	else {
-		std::vector<Action> v;
-		return std::move( v );
+		return std::vector<Action>();
 	}
 }
 
-void Shortcuts::deleteShortcut( QKeySequence keySequence, Action action ) {
+void Shortcuts::deleteShortcut( const QKeySequence& keySequence,
+								const Action& action ) {
 	for ( auto it = m_actionsMap.begin(); it != m_actionsMap.end(); ) {
 		if ( it->first == keySequence ) {
 			for ( std::vector<Shortcuts::Action>::iterator itAction = it->second.begin();
@@ -273,7 +273,7 @@ void Shortcuts::deleteShortcut( QKeySequence keySequence, Action action ) {
 }
 
 
-Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
+Shortcuts::ActionInfo Shortcuts::getActionInfo( const Action& action ) const {
 	auto it = m_actionInfoMap.find( action );
 	if ( it != m_actionInfoMap.end() ) {
 		// Action found
@@ -284,7 +284,7 @@ Shortcuts::ActionInfo Shortcuts::getActionInfo( Action action ) const {
 	}
 }
 
-QKeySequence Shortcuts::getKeySequence( Action action ) const {
+QKeySequence Shortcuts::getKeySequence( const Action& action ) const {
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {
 			if ( aaction == action ) {
@@ -295,7 +295,7 @@ QKeySequence Shortcuts::getKeySequence( Action action ) const {
 	return QKeySequence( "" );
 }
 
-std::vector<QKeySequence> Shortcuts::getKeySequences( Action action ) const {
+std::vector<QKeySequence> Shortcuts::getKeySequences( const Action& action ) const {
 	std::vector<QKeySequence> keySequences;
 	
 	for ( const auto& [kkeySequence, aactions] : m_actionsMap ) {
@@ -706,7 +706,7 @@ void Shortcuts::createActionInfoMap() {
 #endif
 }
 
-QString Shortcuts::categoryToQString( Category category ) {
+QString Shortcuts::categoryToQString( const Category& category ) {
 	QString s;
 
 	switch ( category ) {
@@ -742,7 +742,8 @@ QString Shortcuts::categoryToQString( Category category ) {
 	return std::move( s );
 };
 
-void Shortcuts::insertShortcut( QKeySequence keySequence, Action action ) {
+void Shortcuts::insertShortcut( const QKeySequence& keySequence,
+								const Action& action ) {
 	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
 		// Key found
@@ -766,7 +767,8 @@ void Shortcuts::insertShortcut( QKeySequence keySequence, Action action ) {
 	}
 }
 
-void Shortcuts::insertActionInfo( Action action, Category category,
+void Shortcuts::insertActionInfo( const Action& action,
+								  const Category& category,
 								  const QString& sDescription ) {
 	m_actionInfoMap[ action ] = { category, sDescription };
 }

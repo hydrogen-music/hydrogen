@@ -45,6 +45,7 @@ https://www.gnu.org/licenses
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/IO/JackAudioDriver.h>
@@ -163,8 +164,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pSongLoopBtn->setObjectName( "PlayerControlLoopButton" );
 	m_pSongLoopBtn->move( 308, 15);
 	connect( m_pSongLoopBtn, &QPushButton::clicked,
-			 [=]( bool bChecked ) { Hydrogen::get_instance()->getCoreActionController()->
-					 activateLoopMode( bChecked );
+			 [=]( bool bChecked ) {
+				 CoreActionController::activateLoopMode( bChecked );
 			 });
 	if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
 		m_pSongLoopBtn->setChecked( true );
@@ -528,10 +529,10 @@ void PlayerControl::updatePlayerControl()
 		m_pShowInstrumentRackBtn->setChecked( pH2App->getInstrumentRack()->isVisible() );
 	}
 
-	auto state = m_pHydrogen->getAudioEngine()->getState();
 	if ( ! m_pPlayBtn->isDown() && ! m_pStopBtn->isDown() &&
 		 ! m_pFfwdBtn->isDown() && ! m_pRwdBtn->isDown() ) {
-		if ( state == H2Core::AudioEngine::State::Playing ) {
+		if ( m_pHydrogen->getAudioEngine()->getState() ==
+			 H2Core::AudioEngine::State::Playing ) {
 			m_pPlayBtn->setChecked(true);
 		} else {
 			m_pPlayBtn->setChecked(false);
@@ -601,34 +602,30 @@ void PlayerControl::updatePlayerControl()
 
 
 	//beatcounter get BC message
-	char bcstatus[4];
-	int beatstocountondisplay = 1;
-	beatstocountondisplay = m_pHydrogen->getBcStatus();
+	QString sBcStatus;
+	int nEventCount = m_pHydrogen->getBcStatus();
 
-	switch (beatstocountondisplay){
+	switch (nEventCount){
 		case 1 :
-			if (bcDisplaystatus == 1){
+			if ( bcDisplaystatus == 1 ){
 				Preferences::get_instance()->m_bbc = Preferences::BC_OFF;
 				bcDisplaystatus = 0;
 			}
-			sprintf(bcstatus, "R");
-			if ( m_pBCDisplayZ->text() != bcstatus ) {
-				m_pBCDisplayZ->setText( QString (bcstatus) );
-			}
+			sBcStatus = "R";
 
 			break;
 		default:
-			if (Preferences::get_instance()->m_bbc == Preferences::BC_OFF){
+			if ( Preferences::get_instance()->m_bbc == Preferences::BC_OFF ){
 				Preferences::get_instance()->m_bbc = Preferences::BC_ON;
 				bcDisplaystatus = 1;
 			}
-			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
-			if ( m_pBCDisplayZ->text() != bcstatus ) {
-				m_pBCDisplayZ->setText( QString (bcstatus) );
-			}
-
+			sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10,
+											 QChar(static_cast<char>(0)) );
 	}
-	
+	if ( m_pBCDisplayZ->text() != sBcStatus ) {
+		m_pBCDisplayZ->setText( sBcStatus );
+	}
+
 	// Rubberband
 	if ( m_pRubberBPMChange->isChecked() != pPref->getRubberBandBatchMode() ) {
 		m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
@@ -696,7 +693,7 @@ void PlayerControl::stopBtnClicked()
 		m_pPlayBtn->setChecked(false);
 	}
 	m_pHydrogen->sequencerStop();
-	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
+	CoreActionController::locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
 }
 
@@ -756,14 +753,13 @@ void PlayerControl::songModeActivationEvent()
 }
 
 void PlayerControl::activateSongMode( bool bActivate ) {
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( bActivate ) {
-		pCoreActionController->activateSongMode( true );
+		CoreActionController::activateSongMode( true );
 		m_pSongModeBtn->setChecked( true );
 		m_pPatternModeBtn->setChecked( false );
 	}
 	else {
-		pCoreActionController->activateSongMode( false );
+		CoreActionController::activateSongMode( false );
 		m_pSongModeBtn->setChecked( false );
 		m_pPatternModeBtn->setChecked( true );
 	}
@@ -772,8 +768,7 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
 	if ( m_pLCDBPMSpinbox->getIsActive() &&
 		 m_bLCDBPMSpinboxIsArmed ) {
-		m_pHydrogen->getCoreActionController()->
-			setBpm( static_cast<float>( fNewBpmValue ) );
+		CoreActionController::setBpm( static_cast<float>( fNewBpmValue ) );
 	}
 }
 
@@ -843,30 +838,32 @@ void PlayerControl::rubberbandButtonToggle()
 
 void PlayerControl::bcbUpButtonClicked()
 {
-	int tmp = m_pHydrogen->getBeatsToCount();
-	char tmpb[3];
-
-	tmp ++;
-	if (tmp > 16) {
-		tmp = 2;
+	int nBeatsToCount = m_pHydrogen->getBeatsToCount();
+	nBeatsToCount++;
+	if ( nBeatsToCount > 16 ) {
+		nBeatsToCount = 2;
 	}
-	
-	sprintf(tmpb, "%02d", tmp );
-	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setBeatsToCount( tmp );
+
+	m_pHydrogen->setBeatsToCount( nBeatsToCount );
+
+	m_pBCDisplayB->setText(
+		QString( "%1" ).arg( m_pHydrogen->getBeatsToCount(), 2, 10,
+							 QChar(static_cast<char>(0)) ) );
 }
 
 void PlayerControl::bcbDownButtonClicked()
 {
-	int tmp = m_pHydrogen->getBeatsToCount();
-	char tmpb[3];
-	tmp --;
-	if (tmp < 2 ) {
-		tmp = 16;
+	int nBeatsToCount = m_pHydrogen->getBeatsToCount();
+	nBeatsToCount--;
+	if ( nBeatsToCount < 2 ) {
+		nBeatsToCount = 16;
 	}
-	sprintf(tmpb, "%02d", tmp );
-	m_pBCDisplayB->setText( QString( tmpb ) );
-	m_pHydrogen->setBeatsToCount( tmp );
+	m_pHydrogen->setBeatsToCount( nBeatsToCount );
+
+	m_pBCDisplayB->setText(
+		QString( "%1" ).arg( m_pHydrogen->getBeatsToCount(), 2, 10,
+							 QChar(static_cast<char>(0)) ) );
+
 }
 
 void PlayerControl::bctUpButtonClicked()
@@ -905,13 +902,11 @@ void PlayerControl::jackTransportBtnClicked()
 	}
 
 	auto pPref = Preferences::get_instance();
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	
 	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		pCoreActionController->activateJackTransport( false );
+		CoreActionController::activateJackTransport( false );
 	}
 	else {
-		pCoreActionController->activateJackTransport( true );
+		CoreActionController::activateJackTransport( true );
 	}
 }
 
@@ -926,30 +921,28 @@ void PlayerControl::jackMasterBtnClicked()
 	}
 
 	auto pPref = Preferences::get_instance();
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	
 	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		pCoreActionController->activateJackTimebaseMaster( false );
+		CoreActionController::activateJackTimebaseMaster( false );
 	}
 	else {
-		pCoreActionController->activateJackTimebaseMaster( true );
+		CoreActionController::activateJackTimebaseMaster( true );
 	}
 #endif
 }
 // ~ jack time master
 
-void PlayerControl::fastForwardBtnClicked()
-{
+void PlayerControl::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+	CoreActionController::locateToColumn(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 }
 
 
 
-void PlayerControl::rewindBtnClicked()
-{
+void PlayerControl::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+	CoreActionController::locateToColumn(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
 void PlayerControl::loopModeActivationEvent() {
@@ -970,12 +963,8 @@ void PlayerControl::loopModeActivationEvent() {
 	}
 }
 
-void PlayerControl::metronomeButtonClicked()
-{
-	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	CoreActionController* pController = pHydrogen->getCoreActionController();
-	
-	pController->setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
+void PlayerControl::metronomeButtonClicked() {
+	CoreActionController::setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
 }
 
 void PlayerControl::showMixerButtonClicked()
@@ -1006,8 +995,12 @@ void PlayerControl::updateBPMSpinbox() {
 	updateBPMSpinboxToolTip();
 }
 
-void PlayerControl::showStatusBarMessage( const QString& sMessage, const QString& sCaller ) {
-	m_pStatusLabel->showMessage( sMessage, sCaller );
+void PlayerControl::showStatusBarMessage( const QString& sMessage,
+										  const QString& sCaller ) {
+	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
+		 H2Core::Hydrogen::GUIState::ready ) {
+		m_pStatusLabel->showMessage( sMessage, sCaller );
+	}
 }
 
 void PlayerControl::updateBPMSpinboxToolTip() {
@@ -1199,7 +1192,7 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 
-void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PlayerControl::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		auto pPref = Preferences::get_instance();

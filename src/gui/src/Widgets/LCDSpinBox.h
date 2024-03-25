@@ -86,7 +86,7 @@ public:
 	bool getIsHovered() const;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void setValue( double fValue );
 
 private slots:

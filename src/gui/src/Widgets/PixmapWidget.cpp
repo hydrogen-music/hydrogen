@@ -56,7 +56,7 @@ void PixmapWidget::setColor(const QColor& color)
 
 
 
-void PixmapWidget::setPixmap( QString sPixmapPath, bool expand_horiz )
+void PixmapWidget::setPixmap( const QString& sPixmapPath, bool expand_horiz )
 {
 	if ( m_sPixmapPath == sPixmapPath ) {
 		return;

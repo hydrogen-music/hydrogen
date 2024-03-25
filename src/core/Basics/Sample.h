@@ -47,7 +47,7 @@ class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 		int value;  ///< value
 		/** to be able to sort velocity points vectors */
 		struct Comparator {
-			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b )
+			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b ) const
 			{
 				return a.frame < b.frame;
 			}
@@ -150,7 +150,8 @@ class Sample : public H2Core::Object<Sample>
 		 * \param path the path to write the sample to
 		 * \param format the format of the output
 		 */
-		bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
+		bool write( const QString& path,
+					int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) ) const;
 	
 		/**
 		 * Load a sample from a file.
@@ -206,11 +207,9 @@ class Sample : public H2Core::Object<Sample>
 
 		/** \return true if the associated sample file was loaded */
 		bool isLoaded() const;
-		QString get_filepath() const;
-		/** \return #__filepath */
-		const QString get_raw_filepath() const;
+		const QString& get_filepath() const;
 		/** \return Filename part of #__filepath */
-		const QString get_filename() const;
+		QString get_filename() const;
 		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
 		/** \param filename sets #__filepath*/
@@ -247,19 +246,19 @@ class Sample : public H2Core::Object<Sample>
 		/** \return #__is_modified */
 		bool get_is_modified() const;
 		/** \return #__pan_envelope */
-		PanEnvelope* get_pan_envelope();
+		const PanEnvelope& get_pan_envelope() const;
 		/** \return #__velocity_envelope */
-		VelocityEnvelope* get_velocity_envelope();
+		const VelocityEnvelope& get_velocity_envelope() const;
 		/** \return #__loops parameters */
-		Loops get_loops() const;
+		const Loops& get_loops() const;
 		/** \return #__rubberband parameters */
-		Rubberband get_rubberband() const;
-	void set_pan_envelope( PanEnvelope envelope );
-	void set_velocity_envelope( VelocityEnvelope envelope );
-	void set_loops( Loops loops );
-	void set_rubberband( Rubberband rubberband );
+		const Rubberband& get_rubberband() const;
+	void set_pan_envelope( const PanEnvelope& envelope );
+	void set_velocity_envelope( const VelocityEnvelope& envelope );
+	void set_loops( const Loops& loops );
+	void set_rubberband( const Rubberband& rubberband );
 
-	License getLicense() const;
+	const License& getLicense() const;
 	void setLicense( const License& license );
 	
 		/**
@@ -353,17 +352,12 @@ inline bool Sample::isLoaded() const {
 	return __frames != 0;
 }
 
-inline const QString Sample::get_raw_filepath() const
-{
-	return __filepath;
-}
-
 inline void Sample::set_filepath( const QString& sFilepath )
 {
 	__filepath = sFilepath;
 }
 
-inline const QString Sample::get_filename() const
+inline QString Sample::get_filename() const
 {
 	return __filepath.section( "/", -1 );
 }
@@ -420,42 +414,42 @@ inline bool Sample::get_is_modified() const
 
 inline QString Sample::get_loop_mode_string() const
 {
-	return __loop_modes.at(__loops.mode);
+	return std::move( __loop_modes.at(__loops.mode) );
 }
 
-inline Sample::PanEnvelope* Sample::get_pan_envelope()
+inline const Sample::PanEnvelope& Sample::get_pan_envelope() const
 {
-	return &__pan_envelope;
+	return __pan_envelope;
 }
 
-inline Sample::VelocityEnvelope* Sample::get_velocity_envelope()
+inline const Sample::VelocityEnvelope& Sample::get_velocity_envelope() const
 {
-	return &__velocity_envelope;
+	return __velocity_envelope;
 }
 
-inline Sample::Loops Sample::get_loops() const
+inline const Sample::Loops& Sample::get_loops() const
 {
 	return __loops;
 }
 
-inline Sample::Rubberband Sample::get_rubberband() const
+inline const Sample::Rubberband& Sample::get_rubberband() const
 {
 	return __rubberband;
 }
-inline void Sample::set_pan_envelope( PanEnvelope envelope ) {
+inline void Sample::set_pan_envelope( const PanEnvelope& envelope ) {
 	__pan_envelope = envelope;
 }
-inline void Sample::set_velocity_envelope( VelocityEnvelope envelope ) {
+inline void Sample::set_velocity_envelope( const VelocityEnvelope& envelope ) {
 	__velocity_envelope = envelope;
 }
-inline void Sample::set_loops( Loops loops ) {
+inline void Sample::set_loops( const Loops& loops ) {
 	__loops = loops;
 }
-inline void Sample::set_rubberband( Rubberband rubberband ) {
+inline void Sample::set_rubberband( const Rubberband& rubberband ) {
 	__rubberband = rubberband;
 }
 
-inline License Sample::getLicense() const {
+inline const License& Sample::getLicense() const {
 	return m_license;
 }
 inline void Sample::setLicense( const License& license ) {

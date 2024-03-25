@@ -58,7 +58,7 @@ public:
 	virtual float* getOut_R() override;
 
 	static QStringList getDevices();
-	static QStringList getDevices( QString HostAPI );
+	static QStringList getDevices( const QString& HostAPI );
 	static QStringList getHostAPIs();
 
 private:

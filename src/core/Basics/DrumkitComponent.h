@@ -45,8 +45,8 @@ class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 		DrumkitComponent( std::shared_ptr<DrumkitComponent> other );
 		~DrumkitComponent();
 
-		void						save_to( XMLNode* node );
-		static std::shared_ptr<DrumkitComponent>	load_from( XMLNode* node );
+		void						save_to( XMLNode& node );
+		static std::shared_ptr<DrumkitComponent>	load_from( const XMLNode& node );
 
 		void						load_from( std::shared_ptr<DrumkitComponent> component );
 

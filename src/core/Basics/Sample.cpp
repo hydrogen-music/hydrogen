@@ -99,14 +99,14 @@ Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
 	memcpy( __data_l, pOther->get_data_l(), __frames * 4 );
 	memcpy( __data_r, pOther->get_data_r(), __frames * 4 );
 	
-	PanEnvelope* pPan = pOther->get_pan_envelope();
-	for( int i=0; i<pPan->size(); i++ ) {
-		__pan_envelope.push_back( pPan->at(i) );
+	auto pPan = pOther->get_pan_envelope();
+	for( int i=0; i<pPan.size(); i++ ) {
+		__pan_envelope.push_back( pPan.at(i) );
 	}
 
-	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
-	for( int i=0; i<pVelocity->size(); i++ ) {
-		__velocity_envelope.push_back( pVelocity->at(i) );
+	auto pVelocity = pOther->get_velocity_envelope();
+	for( int i=0; i<pVelocity.size(); i++ ) {
+		__velocity_envelope.push_back( pVelocity.at(i) );
 	}
 }
 
@@ -128,7 +128,7 @@ void Sample::set_filename( const QString& filename )
 }
 
 
-QString Sample::get_filepath() const
+const QString& Sample::get_filepath() const
 {
 	return __filepath;
 }
@@ -674,7 +674,7 @@ Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& sMode )
 	return Loops::FORWARD;
 }
 
-bool Sample::write( const QString& path, int format )
+bool Sample::write( const QString& path, int format ) const
 {
 	float* obuf = new float[ SAMPLE_CHANNELS * __frames ];
 	for ( int i = 0; i < __frames; ++i ) {

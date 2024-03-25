@@ -87,7 +87,7 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 		
 	}
 	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	font.setWeight( 63 );
 	painter->setFont( font );
 	painter->setPen( QColor( 255 , 255, 255, 200 ) );
@@ -177,7 +177,7 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	}	
 }
 
-void WaveDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void WaveDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();

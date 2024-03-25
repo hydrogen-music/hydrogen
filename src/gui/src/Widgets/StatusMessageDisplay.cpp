@@ -27,7 +27,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
-StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
+StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, const QSize& size )
 	: LCDDisplay( pParent, size, false, false )
 	, m_bEntered( false )
 	, m_nShowTimeout( 5500 )
@@ -56,7 +56,7 @@ StatusMessageDisplay::StatusMessageDisplay( QWidget * pParent, QSize size )
 StatusMessageDisplay::~StatusMessageDisplay() {
 }
 
-void StatusMessageDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void StatusMessageDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	LCDDisplay::onPreferencesChanged( changes );
 	updateStyleSheet();
 	
@@ -73,8 +73,8 @@ void StatusMessageDisplay::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor textColor = pPref->getColorTheme()->m_windowTextColor;
-	QColor backgroundColor = pPref->getColorTheme()->m_windowColor;
+	QColor textColor = pPref->getTheme().m_color.m_windowTextColor;
+	QColor backgroundColor = pPref->getTheme().m_color.m_windowColor;
 
 	QString sStyleSheet = QString( "\
 QLineEdit { \
@@ -96,7 +96,7 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -126,6 +126,11 @@ void StatusMessageDisplay::leaveEvent( QEvent* ev ) {
 }
 
 void StatusMessageDisplay::mousePressEvent( QMouseEvent* ev ) {
+	if ( m_statusMessages.size() == 0 ) {
+		// No messages to display yet.
+		return;
+	}
+
 	QMenu* messageMenu = new QMenu( this );
 
 	for ( const auto& sMessage : m_statusMessages ) {

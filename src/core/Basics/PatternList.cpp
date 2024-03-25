@@ -53,8 +53,10 @@ PatternList::~PatternList()
 	}
 }
 
-PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent ) {
-	XMLNode patternsNode = pNode->firstChildElement( "patternList" );
+PatternList* PatternList::load_from( const XMLNode& node,
+									 std::shared_ptr<InstrumentList> pInstrumentList,
+									 bool bSilent ) {
+	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
 		return nullptr;
@@ -66,7 +68,7 @@ PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentL
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern = Pattern::load_from( &patternNode, pInstrumentList, bSilent );
+		Pattern* pPattern = Pattern::load_from( patternNode, pInstrumentList, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -84,12 +86,12 @@ PatternList* PatternList::load_from( XMLNode* pNode, std::shared_ptr<InstrumentL
 	return pPatternList;
 }
 
-void PatternList::save_to( XMLNode* pNode, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
-	XMLNode patternListNode = pNode->createNode( "patternList" );
+void PatternList::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
+	XMLNode patternListNode = node.createNode( "patternList" );
 	
 	for ( const auto& pPattern : __patterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->save_to( &patternListNode, pInstrumentOnly );
+			pPattern->save_to( patternListNode, pInstrumentOnly );
 		}
 	}
 }
@@ -151,16 +153,16 @@ void PatternList::insert( int nIdx, Pattern* pPattern )
 	__patterns.insert( __patterns.begin() + nIdx, pPattern );
 }
 
-Pattern* PatternList::get( int idx )
-{
-	assertAudioEngineLocked();
-	if ( idx < 0 || idx >= __patterns.size() ) {
-		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return nullptr;
-	}
-	assert( idx >= 0 && idx < __patterns.size() );
-	return __patterns[idx];
-}
+// Pattern* PatternList::get( int idx )
+// {
+// 	assertAudioEngineLocked();
+// 	if ( idx < 0 || idx >= __patterns.size() ) {
+// 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+// 		return nullptr;
+// 	}
+// 	assert( idx >= 0 && idx < __patterns.size() );
+// 	return __patterns[idx];
+// }
 
 Pattern* PatternList::get( int idx ) const
 {
@@ -234,10 +236,12 @@ void PatternList::set_to_old()
 	}
 }
 
-Pattern*  PatternList::find( const QString& name )
+Pattern*  PatternList::find( const QString& name ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]->get_name()==name ) return __patterns[i];
+		if ( __patterns[i]->get_name()==name ) {
+			return __patterns[i];
+		}
 	}
 	return nullptr;
 }
@@ -269,7 +273,7 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-bool PatternList::check_name( QString patternName, Pattern* ignore )
+bool PatternList::check_name( const QString& patternName, Pattern* ignore ) const
 {
 	if (patternName == "") {
 		return false;
@@ -283,22 +287,24 @@ bool PatternList::check_name( QString patternName, Pattern* ignore )
 	return true;
 }
 
-QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* ignore )
+QString PatternList::find_unused_pattern_name( const QString& sSourceName,
+											   Pattern* ignore ) const
 {
 	QString unusedPatternNameCandidate;
-
-	if( sourceName.isEmpty() ) {
-		sourceName = "Pattern 11";
+	QString sSource { sSourceName };
+	
+	if( sSource.isEmpty() ) {
+		sSource = "Pattern 11";
 	}
 
 	int i = 1;
 	QString suffix = "";
-	unusedPatternNameCandidate = sourceName;
+	unusedPatternNameCandidate = sSource;
 
-	// Check if the sourceName already has a number suffix, and if so, start
+	// Check if the sSource already has a number suffix, and if so, start
 	// searching for an unused name from that number.
 	QRegularExpression numberSuffixRe("(.+) #(\\d+)$");
-	QRegularExpressionMatch match = numberSuffixRe.match(sourceName);
+	QRegularExpressionMatch match = numberSuffixRe.match(sSource);
 	if (match.hasMatch()) {
 		QString numberSuffix = match.captured(2);
 
@@ -319,13 +325,13 @@ QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* igno
 
 int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
-	for ( const auto ppPattern : __patterns ) {
+	for ( const auto& ppPattern : __patterns ) {
 		if ( ppPattern->get_length() > nMax ) {
 			nMax = ppPattern->get_length();
 		}
 
 		if ( bIncludeVirtuals ) {
-			for ( const auto ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
+			for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
 				if ( ppVirtualPattern->get_length() > nMax ) {
 					nMax = ppVirtualPattern->get_length();
 				}
@@ -340,14 +346,14 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
-		for ( auto pp : __patterns ) {
+		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
 		sOutput = QString( "[PatternList] " );
-		for ( auto pp : __patterns ) {
+		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
 			}

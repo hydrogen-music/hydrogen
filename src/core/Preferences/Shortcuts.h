@@ -250,7 +250,7 @@ public:
 			filtering instead.*/
 		All = 100
 	};
-	static QString categoryToQString( Category category );
+	static QString categoryToQString( const Category& category );
 	
 	/** Some context for an #Action */
 	struct ActionInfo {
@@ -262,8 +262,8 @@ public:
 	Shortcuts( const std::shared_ptr<Shortcuts> pOther );
 	~Shortcuts();
 
-	void saveTo( XMLNode* pNode );
-	static std::shared_ptr<Shortcuts> loadFrom( XMLNode* pNode, bool bSilent = false );
+	void saveTo( XMLNode& node ) const;
+	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, bool bSilent = false );
 
 	/**
 	 * Creates the default key bindings as fallback when upgrading
@@ -275,14 +275,14 @@ public:
 	 */
 	void createDefaultShortcuts();
 
-	std::vector<Action> getActions( QKeySequence keySequence ) const;
+	std::vector<Action> getActions( const QKeySequence& keySequence ) const;
 	/**
 	 * Removes mapping between @a keySequence and @a action in
 	 * #m_actionsMap.
 	 */
-	void deleteShortcut( QKeySequence keySequence, Action action );
-	void insertShortcut( QKeySequence keySequence, Action action );
-	ActionInfo getActionInfo( Action action ) const;
+	void deleteShortcut( const QKeySequence& keySequence, const Action& action );
+	void insertShortcut( const QKeySequence& keySequence, const Action& action );
+	ActionInfo getActionInfo( const Action& action ) const;
 
 	/**
 	 * Returns the first (or primary) key sequence mapped to an @a
@@ -293,14 +293,14 @@ public:
 	 * the generated GUI menus. Only the first one is used for this
 	 * purpose.
 	 */
-	QKeySequence getKeySequence( Action action ) const;
+	QKeySequence getKeySequence( const Action& action ) const;
 
 	/**
 	 * Returns all key sequences mapped to an @a action.
 	 */
-	std::vector<QKeySequence> getKeySequences( Action action ) const;
+	std::vector<QKeySequence> getKeySequences( const Action& action ) const;
 
-	const std::map<Action, ActionInfo> getActionInfoMap() const;
+	const std::map<Action, ActionInfo>& getActionInfoMap() const;
 
 	bool requiresDefaults() const;
 	
@@ -309,7 +309,9 @@ public:
 private:
 
 	void createActionInfoMap();
-	void insertActionInfo( Action action, Category category, const QString& sDescription );
+	void insertActionInfo( const Action& action,
+						   const Category& category,
+						   const QString& sDescription );
 
 	std::map<Action, ActionInfo> m_actionInfoMap;
 	std::map<QKeySequence, std::vector<Action>> m_actionsMap;
@@ -320,7 +322,7 @@ private:
 	bool m_bRequiresDefaults;
 };
 
-inline const std::map<Shortcuts::Action, Shortcuts::ActionInfo> Shortcuts::getActionInfoMap() const {
+inline const std::map<Shortcuts::Action, Shortcuts::ActionInfo>& Shortcuts::getActionInfoMap() const {
 	return m_actionInfoMap;
 }
 inline bool Shortcuts::requiresDefaults() const {

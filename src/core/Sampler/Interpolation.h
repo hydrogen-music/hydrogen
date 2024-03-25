@@ -24,6 +24,7 @@
 #define INTERPOLATION_H
 
 #include <cmath>
+#include <QString>
 
 namespace H2Core
 {
@@ -36,7 +37,7 @@ namespace Interpolation
 								Cubic = 3,
 								Hermite = 4 };
 
-	static const QString ModeToQString( InterpolateMode mode )
+	static const QString ModeToQString( const InterpolateMode& mode )
 	{
 		switch ( mode ) {
 		case InterpolateMode::Linear:

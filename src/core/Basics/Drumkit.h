@@ -73,7 +73,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Hydrogen.*/
 		Song = 4
 	};
-		static QString TypeToString( Type type );
+		static QString TypeToString( const Type& type );
 		static Type DetermineType( const QString& sPath );
 
 		/** drumkit constructor, does nothing */
@@ -123,7 +123,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
-		static std::shared_ptr<Drumkit> loadFrom( XMLNode* pNode,
+		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sPath,
 												  const QString& sSongPath,
 												  bool bSongKit = false,
@@ -144,7 +144,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void saveTo( XMLNode* pNode,
+		void saveTo( XMLNode& pNode,
 					 int nComponent_id = -1,
 					 bool bRecentVersion = true,
 					 bool bSongKit = false,
@@ -257,12 +257,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		void setType( Type type );
-		Type getType() const;
+		void setType( const Type& type );
+		const Type& getType() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
-		QString getPath() const;
+		const QString& getPath() const;
 		/** #m_sName setter */
 		void setName( const QString& name );
 		/** #m_sName accessor */
@@ -295,7 +295,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents();
+	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
 	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
 
@@ -313,10 +313,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Maps a compoment Id to an unique component label.*/
 		std::map<int, QString> generateUniqueComponentLabels() const;
 
-		const std::shared_ptr<DrumkitMap>	getDrumkitMap() const;
+		const DrumkitMap&	getDrumkitMap() const;
 		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
 
-		const std::shared_ptr<DrumkitMap>	getDrumkitMapFallback() const;
+		const DrumkitMap&	getDrumkitMapFallback() const;
 
 	/**
 	 * Returns vector of lists containing instrument name, component
@@ -435,10 +435,10 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
-inline void Drumkit::setType( Drumkit::Type type ) {
+inline void Drumkit::setType( const Drumkit::Type& type ) {
 	m_type = type;
 }
-inline Drumkit::Type Drumkit::getType() const {
+inline const Drumkit::Type& Drumkit::getType() const {
 	return m_type;
 }
 
@@ -514,18 +514,18 @@ inline const bool Drumkit::areSamplesLoaded() const
 	return m_bSamplesLoaded;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents()
+inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents() const
 {
 	return m_pComponents;
 }
-inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMap() const {
-	return m_pDrumkitMap;
+inline const DrumkitMap& Drumkit::getDrumkitMap() const {
+	return *m_pDrumkitMap;
 }
 inline void	Drumkit::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
 	m_pDrumkitMap = pDrumkitMap;
 }
-inline const std::shared_ptr<DrumkitMap> Drumkit::getDrumkitMapFallback() const {
-	return m_pDrumkitMapFallback;
+inline const DrumkitMap& Drumkit::getDrumkitMapFallback() const {
+	return *m_pDrumkitMapFallback;
 }
 
 };

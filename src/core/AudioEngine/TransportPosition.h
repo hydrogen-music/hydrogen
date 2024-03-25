@@ -49,10 +49,10 @@ class TransportPosition : public H2Core::Object<TransportPosition>
 	H2_OBJECT(TransportPosition)
 public:
 
-	TransportPosition( const QString sLabel = "" );
+	TransportPosition( const QString& sLabel = "" );
 	~TransportPosition();
 
-	const QString getLabel() const;
+	const QString& getLabel() const;
 	long long getFrame() const;
 	/**
 	 * Retrieve a rounded version of #m_fTick.
@@ -403,7 +403,7 @@ private:
 	int m_nBeat;
 };
 
-inline const QString TransportPosition::getLabel() const {
+inline const QString& TransportPosition::getLabel() const {
 	return m_sLabel;
 }
 inline long long TransportPosition::getFrame() const {

@@ -20,66 +20,32 @@
  *
  */
 
+#include "MimeTest.h"
+#include "TestHelper.h"
 
-#ifndef SYNTH_H
-#define SYNTH_H
-
-#include <cstdint>
-#include <vector>
-
+#include <core/Logger.h>
 #include <core/Object.h>
+#include <core/Basics/Playlist.h>
 
+void MimeTest::testPlaylistSerialization(){
+	___INFOLOG( "" );
 
-namespace H2Core
-{
-class Note;
-class AudioOutput;
+	const auto pPlaylist =
+		H2Core::Playlist::load( H2TEST_FILE( "/playlist/test.h2playlist" ) );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+	CPPUNIT_ASSERT( pPlaylist->size() > 0 );
 
-///
-/// A simple synthetizer...
-///
-/** \ingroup docCore docAudioEngine*/
-class Synth : public H2Core::Object<Synth>
-{
-	H2_OBJECT(Synth)
-public:
-	float *m_pOut_L;
-	float *m_pOut_R;
+	for ( const auto& ppEntry : *pPlaylist ) {
+		CPPUNIT_ASSERT( ppEntry != nullptr );
 
-	/**
-	 * Constructor of the Synth.
-	 *
-	 * It is called by AudioEngine::AudioEngine() and stored in
-	 * AudioEngine::m_pSynth.
-	 */
-	Synth();
-	~Synth();
+		const auto sMimeText = ppEntry->toMimeText();
+		CPPUNIT_ASSERT( ! sMimeText.isEmpty() );
 
-	/// Start playing a note
-	void noteOn( Note* pNote );
+		const auto pNewEntry = H2Core::PlaylistEntry::fromMimeText( sMimeText );
+		CPPUNIT_ASSERT( pNewEntry != nullptr );
 
-	/// Stop playing a note.
-	void noteOff( Note* pNote );
-
-	void process( uint32_t nFrames );
-	void setAudioOutput( AudioOutput* pAudioOutput );
-
-	int getPlayingNotesNumber() {
-		return m_playingNotesQueue.size();
+		CPPUNIT_ASSERT( pNewEntry == ppEntry );
 	}
 
-
-private:
-	std::vector<Note*> m_playingNotesQueue;
-
-	float m_fTheta;
-	AudioOutput *m_pAudioOutput;
-
-
-};
-
-} // namespace H2Core
-
-#endif
-
-
+	___INFOLOG( "passed" );
+}

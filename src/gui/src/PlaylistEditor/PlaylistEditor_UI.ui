@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PlaylistDialog_UI</class>
- <widget class="QDialog" name="PlaylistDialog_UI">
+ <class>PlaylistEditor_UI</class>
+ <widget class="QDialog" name="PlaylistEditor_UI">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -52,15 +52,12 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QTreeWidget" name="m_pPlaylistTree">
+        <widget class="PlaylistTableWidget" name="m_pPlaylistTable">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>271</height>
           </size>
-         </property>
-         <property name="acceptDrops">
-          <bool>false</bool>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -71,38 +68,12 @@
          <property name="tabKeyNavigation">
           <bool>true</bool>
          </property>
-         <property name="showDropIndicator" stdset="0">
-          <bool>false</bool>
-         </property>
-         <property name="dragEnabled">
-          <bool>false</bool>
-         </property>
          <property name="dragDropOverwriteMode">
           <bool>false</bool>
          </property>
-         <property name="dragDropMode">
-          <enum>QAbstractItemView::NoDragDrop</enum>
-         </property>
-         <property name="rootIsDecorated">
+         <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
-         <property name="uniformRowHeights">
-          <bool>true</bool>
-         </property>
-         <property name="itemsExpandable">
-          <bool>false</bool>
-         </property>
-         <property name="sortingEnabled">
-          <bool>false</bool>
-         </property>
-         <property name="move" stdset="0">
-          <stringlist/>
-         </property>
-         <column>
-          <property name="text">
-           <string>Song list</string>
-          </property>
-         </column>
         </widget>
        </item>
        <item>
@@ -143,6 +114,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlaylistTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header location="global">../src/PlaylistEditor/PlaylistEditor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

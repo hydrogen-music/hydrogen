@@ -82,7 +82,7 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void SampleWaveDisplay::updateDisplay( QString filename )
+void SampleWaveDisplay::updateDisplay( const QString& filename )
 {
 
 	auto pNewSample = Sample::load( filename );

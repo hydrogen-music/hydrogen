@@ -32,7 +32,7 @@ std::set<QProcess *> Reporter::m_children;
 
 using namespace H2Core;
 
-void Reporter::addLine( QString s )
+void Reporter::addLine( const QString& s )
 {
 	// Keep only a few lines of the output
 	while ( m_lines.size() > 128 ) {

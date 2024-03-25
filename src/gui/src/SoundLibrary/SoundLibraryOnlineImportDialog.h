@@ -70,9 +70,9 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		QTreeWidgetItem* m_pSongItem;
 		QTreeWidgetItem* m_pPatternItem;
 
-		bool isSoundLibraryItemAlreadyInstalled( H2Core::SoundLibraryInfo sInfo );
+		bool isSoundLibraryItemAlreadyInstalled( const H2Core::SoundLibraryInfo& sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);
-		void writeCachedImage( const QString& imageFile, QPixmap& pixmap );
+		void writeCachedImage( const QString& imageFile, const QPixmap& pixmap );
 		void clearImageCache();
 		QString readCachedImage( const QString& imageFile );
 		QString readCachedData(const QString& fileName);
@@ -81,8 +81,8 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
-		void showImage( QPixmap pixmap );
-		void loadImage( QString img );
+		void showImage( const QPixmap& pixmap );
+		void loadImage( const QString& img );
 
 };
 

@@ -81,7 +81,7 @@ protected:
 	void autoResize();
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 signals:
 	void valueChanged();

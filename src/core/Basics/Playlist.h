@@ -24,13 +24,56 @@
 #define H2C_PLAYLIST_H
 
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
+
+#include <memory>
+#include <vector>
 
 namespace H2Core
 {
 
-/**
- * Drumkit info
-*/
+class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
+	H2_OBJECT(PlaylistEntry)
+
+	PlaylistEntry( const QString& sFilePath = "", const QString& sScriptPath = "",
+				   bool bScriptEnabled = false );
+	PlaylistEntry( std::shared_ptr<PlaylistEntry> pOther );
+
+	static const QString sLegacyEmptyScriptPath;
+
+		const QString& getSongPath() const;
+		void setSongPath( const QString& sSongPath );
+		const QString& getScriptPath() const;
+		void setScriptPath( const QString& sScriptPath );
+		bool getScriptEnabled() const;
+		void setScriptEnabled( bool bEnabled );
+		bool getSongExists() const;
+		bool getScriptExists() const;
+
+	static std::shared_ptr<PlaylistEntry> fromMimeText( const QString& sText );
+	QString toMimeText() const;
+
+	friend bool operator==( std::shared_ptr<PlaylistEntry> pLeft,
+							std::shared_ptr<PlaylistEntry> pRight );
+	friend bool operator!=( std::shared_ptr<PlaylistEntry> pLeft,
+							std::shared_ptr<PlaylistEntry> pRight );
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+private:
+
+	QString m_sSongPath;
+	QString m_sScriptPath;
+	bool m_bScriptEnabled;
+
+	/** Runtime member variable. Not written to disk and set whenever
+	 * #m_sSongPath is updated. */
+	bool m_bSongExists;
+	/** Runtime member variable. Not written to disk and set whenever
+	 * #m_sScriptPath is updated. */
+	bool m_bScriptExists;
+};
+
 /** \ingroup docCore docDataStructure */
 class Playlist : public H2Core::Object<Playlist>
 
@@ -38,54 +81,45 @@ class Playlist : public H2Core::Object<Playlist>
 		H2_OBJECT(Playlist)
 
 	public:
-		struct Entry
-		{
-			QString filePath;
-			bool fileExists;
-			QString scriptPath;
-			bool scriptEnabled;
-		};
 		
-		/**
-		 * If #__instance equals 0, a new Playlist singleton
-		 * will be created and stored in it.
-		 *
-		 * It is called in Hydrogen::audioEngine_init().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current Playlist singleton
-		 * stored in #__instance.
-		 */
-		static Playlist* get_instance() { assert(__instance); return __instance; }
+		Playlist();
 
-		~Playlist();
-
-		void	activateSong (int SongNumber );
+		bool	activateSong (int SongNumber );
 
 		int		size() const;
-		Entry*	get( int idx );
+		std::shared_ptr<PlaylistEntry>	get( int idx ) const;
+
+		std::vector<std::shared_ptr<PlaylistEntry>>::iterator begin() {
+			return m_entries.begin();
+		}
+		std::vector<std::shared_ptr<PlaylistEntry>>::iterator end() {
+			return m_entries.end();
+		}
 
 		void	clear();
-		void	add( Entry* entry );
+		/** Adds a new song/ entry to the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, @a pEntry will be appended at
+		 * the end of the playlist. */
+		bool	add( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
+		/** Removes a song from the current playlist.
+		 *
+		 * If @a nIndex is set to a value of -1, the first occurrance of @a
+		 * pEntry will be deleted. */
+		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
-		void	setNextSongByNumber( int SongNumber );
-		int		getSelectedSongNr();
-		void	setSelectedSongNr( int songNumber );
+		int		getActiveSongNumber() const;
 
-		int		getActiveSongNumber();
-		void	setActiveSongNumber( int ActiveSongNumber );
-		
-		bool	getSongFilenameByNumber( int songNumber, QString& fileName);
+		QString	getSongFilenameByNumber( int nSongNumber ) const;
 
-		const QString& getFilename();
+		const QString& getFilename() const;
 		void setFilename( const QString& filename );
-		bool getIsModified();
+		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
-		static Playlist* load( const QString& filename, bool useRelativePaths );
-		static Playlist* load_file( const QString& pl_path, bool useRelativePaths );
-		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths );
+		static std::shared_ptr<Playlist> load( const QString& sPath );
+		bool saveAs( const QString& sTargetPath, bool bSilent = false );
+		bool save( bool bSilent = false ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -97,56 +131,47 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		/**
-		 * Object holding the current Playlist singleton. It is
-		 * initialized with NULL, set with create_instance(), and
-		 * accessed with get_instance().
-		 */
-		static Playlist* __instance;
-		QString __filename;
 
-		std::vector<Entry*> __entries;
+		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
+		void saveTo( XMLNode& node ) const;
 
-		int m_nSelectedSongNumber;
+		void execScript( int index ) const;
+
+		void setActiveSongNumber( int ActiveSongNumber );
+
+		QString m_sFilename;
+		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
 		int m_nActiveSongNumber;
-
 		bool m_bIsModified;
 
-		Playlist();
 
-		void execScript( int index );
-
-		void save_to( XMLNode* node, bool useRelativePaths );
-		static Playlist* load_from( XMLNode* root, QFileInfo& fileInfo, bool useRelativePaths );
 };
+
+inline const QString& PlaylistEntry::getSongPath() const {
+	return m_sSongPath;
+}
+inline const QString& PlaylistEntry::getScriptPath() const {
+	return m_sScriptPath;
+}
+inline bool PlaylistEntry::getScriptEnabled() const {
+	return m_bScriptEnabled;
+}
+inline void PlaylistEntry::setScriptEnabled( bool bEnabled ) {
+	m_bScriptEnabled = bEnabled;
+}
+inline bool PlaylistEntry::getSongExists() const {
+	return m_bSongExists;
+}
+inline bool PlaylistEntry::getScriptExists() const {
+	return m_bScriptExists;
+}
 
 inline int Playlist::size() const
 {
-	return __entries.size();
+	return m_entries.size();
 }
 
-inline Playlist::Entry* Playlist::get( int idx )
-{
-	assert( idx >= 0 && idx < size() );
-	return __entries[ idx ];
-}
-
-inline void Playlist::add( Entry* entry )
-{
-	__entries.push_back( entry );
-}
-
-inline int Playlist::getSelectedSongNr()
-{
-	return m_nSelectedSongNumber;
-}
-
-inline void Playlist::setSelectedSongNr( int songNumber )
-{
-	m_nSelectedSongNumber = songNumber;
-}
-
-inline int Playlist::getActiveSongNumber()
+inline int Playlist::getActiveSongNumber() const
 {
 	return m_nActiveSongNumber;
 }
@@ -156,17 +181,17 @@ inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
 	m_nActiveSongNumber = ActiveSongNumber ;
 }
 
-inline const QString& Playlist::getFilename()
+inline const QString& Playlist::getFilename() const
 {
-	return __filename;
+	return m_sFilename;
 }
 
 inline void Playlist::setFilename( const QString& filename )
 {
-	__filename = filename;
+	m_sFilename = filename;
 }
 
-inline bool Playlist::getIsModified()
+inline bool Playlist::getIsModified() const
 {
 	return m_bIsModified;
 }

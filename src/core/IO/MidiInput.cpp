@@ -115,7 +115,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::START: /* Start from position 0 */
 			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-				pHydrogen->getCoreActionController()->locateToColumn( 0 );
+				CoreActionController::locateToColumn( 0 );
 				auto pAction = std::make_shared<Action>("PLAY");
 				MidiActionManager::get_instance()->handleAction( pAction );
 			}

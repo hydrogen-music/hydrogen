@@ -44,8 +44,14 @@ class ColorTheme : public H2Core::Object<ColorTheme>
 	H2_OBJECT(ColorTheme)
 public:
 	ColorTheme();
-	ColorTheme( const std::shared_ptr<ColorTheme> pOther );
-	
+	ColorTheme( const ColorTheme& other ) = default;
+	ColorTheme& operator=( const ColorTheme& other ) = default;
+	ColorTheme( ColorTheme&& other ) = default;
+	ColorTheme& operator=( ColorTheme&& other ) = default;
+
+	void saveTo( XMLNode& parent ) const;
+	static ColorTheme loadFrom( const XMLNode& parent );
+
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
 	QColor m_songEditor_virtualRowColor;
@@ -133,7 +139,10 @@ class InterfaceTheme : public H2Core::Object<InterfaceTheme>
 	H2_OBJECT(InterfaceTheme)
 public:
 	InterfaceTheme();
-	InterfaceTheme( const std::shared_ptr<InterfaceTheme> pOther );
+	InterfaceTheme( const InterfaceTheme& other ) = default;
+	InterfaceTheme& operator=( const InterfaceTheme& other ) = default;
+	InterfaceTheme( InterfaceTheme&& other ) = default;
+	InterfaceTheme& operator=( InterfaceTheme&& other ) = default;
 
 	static float FALLOFF_SLOW;
 	static float FALLOFF_NORMAL;
@@ -163,13 +172,13 @@ public:
 	QString m_sQTStyle;
 	float m_fMixerFalloffSpeed;
 	Layout m_layout;
-	ScalingPolicy m_scalingPolicy;
+	ScalingPolicy m_uiScalingPolicy;
 	IconColor m_iconColor;
 	ColoringMethod m_coloringMethod;
 	std::vector<QColor> m_patternColors;
 	int	m_nVisiblePatternColors;
 	/** Not read from/written to disk */
-	int	m_nMaxPatternColors;
+	static constexpr int nMaxPatternColors = 50;
 };
 	
 /** \ingroup docCore docConfiguration*/
@@ -178,7 +187,10 @@ class FontTheme : public H2Core::Object<FontTheme>
 	H2_OBJECT(FontTheme)
 public:
 	FontTheme();
-	FontTheme( const std::shared_ptr<FontTheme> pOther );
+	FontTheme( const FontTheme& other ) = default;
+	FontTheme& operator=( const FontTheme& other ) = default;
+	FontTheme( FontTheme&& other ) = default;
+	FontTheme& operator=( FontTheme&& other ) = default;
 
 	/** Enables custom scaling of the font size in the GUI.*/
 	enum class FontSize {
@@ -197,47 +209,23 @@ public:
 class Theme : public H2Core::Object<Theme> {
 	H2_OBJECT(Theme)
 public:
-	Theme();
-	Theme( const std::shared_ptr<Theme> pOther );
+	Theme( const ColorTheme& colorTheme = ColorTheme(),
+		   const InterfaceTheme& interfaceTheme = InterfaceTheme(),
+		   const FontTheme& fontTheme = FontTheme() );
 
-	void setTheme( const std::shared_ptr<Theme> pOther );
+	Theme( const Theme& other );
+	Theme& operator=( const Theme& other );
 
-	const std::shared_ptr<ColorTheme> getColorTheme() const;
-	void setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
-	const std::shared_ptr<InterfaceTheme> getInterfaceTheme() const;
-	void setInterfaceTheme( const std::shared_ptr<InterfaceTheme> pNewInterfaceTheme );
-	const std::shared_ptr<FontTheme> getFontTheme() const;
-	void setFontTheme( const std::shared_ptr<FontTheme> pNewFontTheme );
+	Theme( Theme&& other );
+	Theme& operator=( Theme&& other );
 
-	static void writeColorTheme( XMLNode* parent, std::shared_ptr<Theme> pTheme );
-	static void readColorTheme( XMLNode parent, std::shared_ptr<Theme> pTheme );
-	static std::shared_ptr<Theme> importTheme( const QString& sPath );
-	static bool exportTheme( const QString& sPath, const std::shared_ptr<Theme> pTheme );
+	static std::unique_ptr<Theme> importFrom( const QString& sPath );
+	bool exportTo( const QString& sPath ) const;
 
-private:
-	std::shared_ptr<ColorTheme> m_pColorTheme;
-	std::shared_ptr<InterfaceTheme> m_pInterfaceTheme;
-	std::shared_ptr<FontTheme> m_pFontTheme;
+	ColorTheme m_color;
+	InterfaceTheme m_interface;
+	FontTheme m_font;
 };
-
-inline const std::shared_ptr<ColorTheme> Theme::getColorTheme() const {
-	return m_pColorTheme;
-}
-inline void Theme::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
-	m_pColorTheme = pNewColorTheme;
-}
-inline const std::shared_ptr<InterfaceTheme> Theme::getInterfaceTheme() const {
-	return m_pInterfaceTheme;
-}
-inline void Theme::setInterfaceTheme( const std::shared_ptr<InterfaceTheme> pNewInterfaceTheme ) {
-	m_pInterfaceTheme = pNewInterfaceTheme;
-}
-inline const std::shared_ptr<FontTheme> Theme::getFontTheme() const {
-	return m_pFontTheme;
-}
-inline void Theme::setFontTheme( const std::shared_ptr<FontTheme> pNewFontTheme ) {
-	m_pFontTheme = pNewFontTheme;
-}
 
 };
 

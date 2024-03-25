@@ -68,7 +68,7 @@ void InstrumentList::unload_samples()
 }
 
 std::shared_ptr<InstrumentList> InstrumentList::load_from(
-	XMLNode* pNode,
+	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
@@ -77,7 +77,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	bool bSilent )
 {
 
-	XMLNode instrumentListNode = pNode->firstChildElement( "instrumentList" );
+	XMLNode instrumentListNode = node.firstChildElement( "instrumentList" );
 	if ( instrumentListNode.isNull() ) {
 		ERRORLOG( "'instrumentList' node not found. Unable to load instrument list." );
 		return nullptr;
@@ -95,7 +95,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 		}
 
 		auto pInstrument = Instrument::load_from(
-			&instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
 			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
 			( *pInstrumentList ) << pInstrument;
@@ -116,17 +116,17 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode* node,
+void InstrumentList::save_to( XMLNode& node,
 							  int component_id,
 							  bool bRecentVersion,
-							  bool bSongKit )
+							  bool bSongKit ) const
 {
-	XMLNode instruments_node = node->createNode( "instrumentList" );
+	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
 		assert( pInstrument );
 		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( &instruments_node, component_id, bRecentVersion,
+			pInstrument->save_to( instruments_node, component_id, bRecentVersion,
 								  bSongKit );
 		}
 	}
@@ -187,7 +187,7 @@ void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 	__instruments.insert( __instruments.begin() + idx, instrument );
 }
 
-std::shared_ptr<Instrument> InstrumentList::operator[]( int idx )
+std::shared_ptr<Instrument> InstrumentList::operator[]( int idx ) const
 {
 	if ( idx < 0 || idx >= __instruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
@@ -218,34 +218,42 @@ std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 	return __instruments.at( idx );
 }
 
-int InstrumentList::index( std::shared_ptr<Instrument> instr )
+int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]==instr ) return i;
+		if ( __instruments[i]==instr ) {
+			return i;
+		}
 	}
 	return -1;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::find( const int id )
+std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_id()==id ) return __instruments[i];
+		if ( __instruments[i]->get_id()==id ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::find( const QString& name )
+std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_name()==name ) return __instruments[i];
+		if ( __instruments[i]->get_name()==name ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note )
+std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
+		if ( __instruments[i]->get_midi_out_note()==note ) {
+			return __instruments[i];
+		}
 	}
 	return nullptr;
 }
@@ -352,14 +360,14 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
-		for ( auto ii : __instruments ) {
+		for ( const auto& ii : __instruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
 		sOutput = QString( "[InstrumentList] " );
-		for ( auto ii : __instruments ) {
+		for ( const auto& ii : __instruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() )
 								.arg( ii->get_name() ) );

@@ -42,7 +42,9 @@ public:
 		String,
 	};
 
-	InputCaptureDialog( QWidget* pParent, const QString& sTitle, const QString& sLabel, Type type, float fMin = 0, float fMax = 0 );
+	InputCaptureDialog( QWidget* pParent, const QString& sTitle,
+						const QString& sLabel, const Type& type,
+						float fMin = 0, float fMax = 0 );
 	~InputCaptureDialog();
 
 	QString text() const;

@@ -41,7 +41,7 @@ using namespace H2Core;
 
 AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 									 bool bShowInstrumentManipulationControls,
-									 QString sDefaultPath,
+									 const QString& sDefaultPath,
 									 const QString& sFilename )
 		: QDialog ( pParent )
 		, Object ()
@@ -53,10 +53,10 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	adjustSize();
 	setFixedSize ( width(), height() );
 
-	if ( sDefaultPath.isEmpty() ) {
-		sDefaultPath = QDir::homePath();
-	}
 	m_sSelectedDirectory = sDefaultPath;
+	if ( m_sSelectedDirectory.isEmpty() ) {
+		 m_sSelectedDirectory = QDir::homePath();
+	}
 	
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
@@ -142,7 +142,7 @@ AudioFileBrowser::~AudioFileBrowser()
 }
 
 
-bool AudioFileBrowser::isFileSupported( QString filename )
+bool AudioFileBrowser::isFileSupported( const QString& filename )
 {
 	if 	(
 		( filename.endsWith( ".ogg" ) ) ||

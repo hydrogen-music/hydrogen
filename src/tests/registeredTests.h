@@ -35,6 +35,7 @@
 #include "LicenseTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiNoteTest.cpp"
+#include "MimeTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.cpp"
 #include "OscServerTest.h"
@@ -57,6 +58,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );

@@ -188,14 +188,14 @@ public:
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
-	int getPlayingNotesNumber() {
+	int getPlayingNotesNumber() const {
 		return m_playingNotesQueue.size();
 	}
 
 	void preview_sample( std::shared_ptr<Sample> pSample, int length );
 	void preview_instrument( std::shared_ptr<Instrument> pInstr );
 
-	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr );
+	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
 
 	void setInterpolateMode( Interpolation::InterpolateMode mode ){
 			 m_interpolateMode = mode;
@@ -209,7 +209,9 @@ public:
 		return m_pPlaybackTrackInstrument;
 	}
 
-	Interpolation::InterpolateMode getInterpolateMode(){ return m_interpolateMode; }
+	Interpolation::InterpolateMode getInterpolateMode() const {
+		return m_interpolateMode;
+	}
 
 	/**
 	 * Loading of the playback track.
@@ -234,7 +236,7 @@ public:
 	 */
 	void handleSongSizeChange();
 
-	const std::vector<Note*> getPlayingNotesQueue() const;
+	const std::vector<Note*>& getPlayingNotesQueue() const;
 	
 private:
 	std::vector<Note*> m_playingNotesQueue;
@@ -288,7 +290,7 @@ private:
 	);
 };
 
-inline const std::vector<Note*> Sampler::getPlayingNotesQueue() const {
+inline const std::vector<Note*>& Sampler::getPlayingNotesQueue() const {
 	return m_playingNotesQueue;
 }
 

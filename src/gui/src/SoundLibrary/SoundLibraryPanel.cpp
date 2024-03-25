@@ -57,6 +57,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -180,10 +181,10 @@ void SoundLibraryPanel::updateTree()
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
-	QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( childFont );
 	
 	m_pTreeSystemDrumkitsItem = nullptr;
@@ -443,7 +444,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 
 
-void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
+void SoundLibraryPanel::on_DrumkitList_rightClicked( const QPoint& pos )
 {
 	if( __sound_library_tree->currentItem() == nullptr ) {
 		return;
@@ -493,7 +494,7 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 
 
 
-void SoundLibraryPanel::on_DrumkitList_leftClicked( QPoint pos )
+void SoundLibraryPanel::on_DrumkitList_leftClicked( const QPoint& pos )
 {
 	__start_drag_position = pos;
 }
@@ -694,8 +695,7 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->getCoreActionController()
-		->setDrumkit( pNewDrumkit, bConditionalLoad );
+	H2Core::CoreActionController::setDrumkit( pNewDrumkit, bConditionalLoad );
 
 	QApplication::restoreOverrideCursor();
 }
@@ -754,8 +754,8 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 					for ( const auto& ppLayer : ppComponent->get_layers() ) {
 						if ( ppLayer != nullptr &&
 							 ppLayer->get_sample() != nullptr &&
-							 ! ppLayer->get_sample()->get_raw_filepath().isEmpty() &&
-							 ppLayer->get_sample()->get_raw_filepath().contains(
+							 ! ppLayer->get_sample()->get_filepath().isEmpty() &&
+							 ppLayer->get_sample()->get_filepath().contains(
 								 sDrumkitPath ) ) {
 							bSampleContained = true;
 							break;
@@ -842,9 +842,10 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
+	const QString sFilename = Filesystem::song_path(
+		__sound_library_tree->currentItem()->text( 0 ) );
 
-	HydrogenApp::get_instance()->openSong( sFilename );
+	HydrogenApp::openFile( Filesystem::Type::Song, sFilename );
 }
 
 
@@ -853,9 +854,8 @@ void SoundLibraryPanel::on_patternLoadAction() {
 
 	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
 	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip( 0 );
-	Hydrogen::get_instance()->getCoreActionController()
-		->openPattern( Filesystem::pattern_path( sDrumkitName,
-												 sPatternName ) );
+	H2Core::CoreActionController::openPattern(
+		Filesystem::pattern_path( sDrumkitName, sPatternName ) );
 }
 
 
@@ -905,13 +905,13 @@ void SoundLibraryPanel::test_expandedItems()
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
 
-void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont font( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

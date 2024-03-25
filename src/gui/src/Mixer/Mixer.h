@@ -78,7 +78,7 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine *ref );
 		void closeEvent(QCloseEvent *event) override;
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
