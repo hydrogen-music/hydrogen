@@ -84,6 +84,10 @@ if($build)
 
     Write-Host 'Starting build'
     cmake --build . -j $env:NUMBER_OF_PROCESSORS
+    if ( -not $? ) {
+	cd ../windows
+	throw 'build failed'
+    }
 
     if(!(test-path "windows/extralibs"))
     {
