@@ -129,6 +129,9 @@ class Sample : public H2Core::Object<Sample>
 				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 		};
 
+	static QString sndfileErrorToQString( int nError );
+	static QString sndfileFormatToQString( int nFormat );
+
 		/**
 		 * Sample constructor
 		 * \param filepath the path to the sample
