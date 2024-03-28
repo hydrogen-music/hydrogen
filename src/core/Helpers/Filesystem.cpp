@@ -917,19 +917,19 @@ bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance
 
 	if ( !songFileInfo.isAbsolute() ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
+						.arg( sSongPath ));
 		return false;
 	}
 	
 	if ( songFileInfo.exists() ) {
 		if ( !songFileInfo.isReadable() ) {
 			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
+						.arg( sSongPath ));
 			return false;
 		}
 		if ( !songFileInfo.isWritable() ) {
 			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( sSongPath.toLocal8Bit().data() ));
+						.arg( sSongPath ));
 			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		}
 	} else if ( bCheckExistance ) {
@@ -939,7 +939,7 @@ bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance
 	
 	if ( songFileInfo.suffix() != "h2song" ) {
 		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( sSongPath.toLocal8Bit().data() ));
+					.arg( sSongPath ));
 		return false;
 	}
 	
