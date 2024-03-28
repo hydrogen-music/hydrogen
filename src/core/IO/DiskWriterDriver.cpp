@@ -29,6 +29,7 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/IO/DiskWriterDriver.h>
 
 #include <pthread.h>
@@ -104,38 +105,6 @@ void* diskWriterDriver_thread( void* param )
 	}
 //	#endif
 
-
-///formats
-//          SF_FORMAT_WAV          = 0x010000,     /* Microsoft WAV format (little endian). */
-//          SF_FORMAT_AIFF         = 0x020000,     /* Apple/SGI AIFF format (big endian). */
-//          SF_FORMAT_AU           = 0x030000,     /* Sun/NeXT AU format (big endian). */
-//          SF_FORMAT_RAW          = 0x040000,     /* RAW PCM data. */
-//          SF_FORMAT_PAF          = 0x050000,     /* Ensoniq PARIS file format. */
-//          SF_FORMAT_SVX          = 0x060000,     /* Amiga IFF / SVX8 / SV16 format. */
-//          SF_FORMAT_NIST         = 0x070000,     /* Sphere NIST format. */
-//          SF_FORMAT_VOC          = 0x080000,     /* VOC files. */
-//          SF_FORMAT_IRCAM        = 0x0A0000,     /* Berkeley/IRCAM/CARL */
-//          SF_FORMAT_W64          = 0x0B0000,     /* Sonic Foundry's 64 bit RIFF/WAV */
-//          SF_FORMAT_MAT4         = 0x0C0000,     /* Matlab (tm) V4.2 / GNU Octave 2.0 */
-//          SF_FORMAT_MAT5         = 0x0D0000,     /* Matlab (tm) V5.0 / GNU Octave 2.1 */
-//          SF_FORMAT_PVF          = 0x0E0000,     /* Portable Voice Format */
-//          SF_FORMAT_XI           = 0x0F0000,     /* Fasttracker 2 Extended Instrument */
-//          SF_FORMAT_HTK          = 0x100000,     /* HMM Tool Kit format */
-//          SF_FORMAT_SDS          = 0x110000,     /* Midi Sample Dump Standard */
-//          SF_FORMAT_AVR          = 0x120000,     /* Audio Visual Research */
-//          SF_FORMAT_WAVEX        = 0x130000,     /* MS WAVE with WAVEFORMATEX */
-//          SF_FORMAT_SD2          = 0x160000,     /* Sound Designer 2 */
-//          SF_FORMAT_FLAC         = 0x170000,     /* FLAC lossless file format */
-//          SF_FORMAT_CAF          = 0x180000,     /* Core Audio File format */
-//	    SF_FORMAT_OGG
-///bits
-//          SF_FORMAT_PCM_S8       = 0x0001,       /* Signed 8 bit data */
-//          SF_FORMAT_PCM_16       = 0x0002,       /* Signed 16 bit data */
-//          SF_FORMAT_PCM_24       = 0x0003,       /* Signed 24 bit data */
-//          SF_FORMAT_PCM_32       = 0x0004,       /* Signed 32 bit data */
-///used for ogg
-//          SF_FORMAT_VORBIS
-
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
 		pDriver->m_bDoneWriting = true;
@@ -143,11 +112,29 @@ void* diskWriterDriver_thread( void* param )
 		return nullptr;
 	}
 
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
+#ifdef WIN32
+	// On Windows we use a special version of sf_open to ensure we get all
+	// characters of the filename entered in the GUI right. No matter which
+	// encoding was used locally.
+	// We have to terminate the string using a null character ourselves.
+	QString sPaddedPath = pDriver->m_sFilename.append( '\0' );
+	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+
+	sPaddedPath.toWCharArray( encodedFilename );
+	
+	SNDFILE* m_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+								   &soundInfo );
+	delete encodedFilename;
+#else
+	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
+							   &soundInfo );
+#endif
+
 	if ( m_file == nullptr ) {
-		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
+		__ERRORLOG( QString( "Unable to open file [%1] with format [%2]: %3" )
 					.arg( pDriver->m_sFilename )
-					.arg( sf_strerror( nullptr ) ) );
+					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
+					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		pDriver->m_bDoneWriting = true;
 		pthread_exit( nullptr );
 		return nullptr;
