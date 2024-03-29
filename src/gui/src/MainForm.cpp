@@ -662,13 +662,13 @@ void MainForm::action_file_new()
 
 
 
-void MainForm::action_file_save_as()
+bool MainForm::action_file_save_as()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		return;
+		return false;
 	}
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
@@ -691,10 +691,13 @@ void MainForm::action_file_save_as()
 		                               QMessageBox::Save )
 		     == QMessageBox::Cancel ) {
 			INFOLOG( "Exporting cancelled at relinking" );
-			return;
+			return false;
 		}
 
-		action_file_save();
+		if ( ! action_file_save() ) {
+			ERRORLOG( "Unable to save file" );
+			return false;
+		}
 	}
 
 	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
@@ -768,7 +771,10 @@ void MainForm::action_file_save_as()
 			// function directly since action_file_save as does some
 			// additional checks and prompts the user a warning dialog
 			// if required.
-			action_file_save( sNewFilename );
+			if ( ! action_file_save( sNewFilename ) ) {
+				ERRORLOG( "Unable to save song" );
+				return false;
+			}
 		}
 
 #ifdef H2CORE_HAVE_OSC
@@ -790,21 +796,23 @@ void MainForm::action_file_save_as()
 		
 		h2app->updateWindowTitle();
 	}
+
+	return true;
 }
 
 
 
-void MainForm::action_file_save()
+bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-void MainForm::action_file_save( const QString& sNewFilename )
+bool MainForm::action_file_save( const QString& sNewFilename )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
-		return;
+		return false;
 	}
 	
 	auto pCoreActionController = pHydrogen->getCoreActionController();
@@ -828,7 +836,7 @@ void MainForm::action_file_save( const QString& sNewFilename )
 		                               QMessageBox::Save | QMessageBox::Cancel,
 		                               QMessageBox::Save )
 		     == QMessageBox::Cancel ) {
-			return;
+			return false;
 		}
 		pSong->clearMissingSamples();
 	}
@@ -845,10 +853,12 @@ void MainForm::action_file_save( const QString& sNewFilename )
 	
 	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
-	} else {
-		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sFilename );
+		return false;
 	}
+
+	h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
+									 sFilename );
+	return true;
 }
 
 
@@ -2295,10 +2305,15 @@ bool MainForm::handleUnsavedChanges()
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
 			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
-				action_file_save();
-			} else {
+				if ( ! action_file_save() ) {
+					return false;
+				}
+			}
+			else {
 				// never been saved
-				action_file_save_as();
+				if ( ! action_file_save_as() ) {
+					return false;
+				}
 			}
 			// save
 			break;
@@ -2308,40 +2323,32 @@ bool MainForm::handleUnsavedChanges()
 			break;
 		case 2: // Cancel clicked or Alt+C pressed or Escape pressed
 			// don't exit
-			done = true;
-			rv = false;
-			break;
+			return false;
 		}
 	}
 
-	if( rv != false ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		while ( !done && Playlist::get_instance()->getIsModified() ) {
-			switch(
-					QMessageBox::information(
-								this, 
-								"Hydrogen",
-								tr("\nThe current playlist contains unsaved changes.\n"
-								"Do you want to discard the changes?\n"),
-								pCommonStrings->getButtonDiscard(),
-								pCommonStrings->getButtonCancel(),
-								nullptr,      // Enter == button 0
-								2 ) ) { // Escape == button 1
-			case 0: // Discard clicked or Alt+D pressed
+	while ( !done && Playlist::get_instance()->getIsModified() ) {
+		switch(
+			QMessageBox::information(
+				this, 
+				"Hydrogen",
+				tr("\nThe current playlist contains unsaved changes.\n"
+				   "Do you want to discard the changes?\n"),
+				pCommonStrings->getButtonDiscard(),
+				pCommonStrings->getButtonCancel(),
+				nullptr,      // Enter == button 0
+				2 ) ) { // Escape == button 1
+		case 0: // Discard clicked or Alt+D pressed
 				// don't save but exit
-				done = true;
-				break;
-			case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+			done = true;
+			break;
+		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
 				// don't exit
-				done = true;
-				rv = false;
-				break;
-			}
+			return false;
 		}
 	}
 
-
-	return rv;
+	return true;
 }
 
 
