@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <vector>
 
-#include <core/Smf/SMFEvent.h>
+#include <core/SMF/SMFEvent.h>
 
 namespace H2Core
 {
