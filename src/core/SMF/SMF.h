@@ -27,7 +27,7 @@
 
 #include <string>
 #include <cstdio>
-#include <vector>
+#include <QByteArray>
 
 #include <core/SMF/SMFEvent.h>
 
@@ -46,7 +46,8 @@ public:
 	~SMFHeader();
 	
 	void addTrack();
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
+	virtual QString toQString() const override;
 	
 private:
 	int m_nFormat;		///< SMF format
@@ -67,7 +68,8 @@ public:
 
 	void addEvent( SMFEvent *pEvent );
 
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
+	virtual QString toQString() const override;
 
 private:
 	std::vector<SMFEvent*> m_eventList;
@@ -84,7 +86,8 @@ public:
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
+	virtual QString toQString() const override;
 
 private:
 	std::vector<SMFTrack*> m_trackList;
