@@ -1257,8 +1257,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	
 	int ret = archive_write_open_filename(a, sTargetName.toUtf8().constData());
 	if ( ret != ARCHIVE_OK ) {
-		ERRORLOG( QString("Couldn't create archive [%0]" )
-			.arg( sTargetName ) );
+		ERRORLOG( QString("Couldn't create archive [%0]: %1" )
+				  .arg( sTargetName.toUtf8().constData() )
+				  .arg( archive_error_string( a ) ) );
 		setName( sOldDrumkitName );
 		return false;
 	}
