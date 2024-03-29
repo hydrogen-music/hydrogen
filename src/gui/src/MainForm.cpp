@@ -843,6 +843,7 @@ bool MainForm::action_file_save_as()
 			// additional checks and prompts the user a warning dialog
 			// if required.
 			if ( ! action_file_save( sNewFilename ) ) {
+				ERRORLOG( "Unable to save song" );
 				return false;
 			}
 		}
@@ -934,12 +935,12 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 	
 	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
-	} else {
-		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
-									 sFilename );
+		return false;
 	}
 
-	return bSaved;
+	h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
+									 sFilename );
+	return true;
 }
 
 
