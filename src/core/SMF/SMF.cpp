@@ -28,7 +28,10 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/AutomationPath.h>
-#include <fstream>
+
+#include <QFile>
+#include <QTextCodec>
+#include <QTextStream>
 
 namespace H2Core
 {
@@ -51,7 +54,7 @@ void SMFHeader::addTrack() {
 	m_nTracks++;	
 }
 
-std::vector<char> SMFHeader::getBuffer()
+QByteArray SMFHeader::getBuffer() const
 {
 	SMFBuffer buffer;
 
@@ -62,6 +65,10 @@ std::vector<char> SMFHeader::getBuffer()
 	buffer.writeWord( m_nTPQN );
 
 	return buffer.m_buffer;
+}
+
+QString SMFHeader::toQString() const {
+	return QString( getBuffer().toHex( ' ' ) );
 }
 
 
@@ -87,16 +94,14 @@ SMFTrack::~SMFTrack()
 
 
 
-std::vector<char> SMFTrack::getBuffer()
+QByteArray SMFTrack::getBuffer() const
 {
-	// fill the data vector
-	std::vector<char> trackData;
+	QByteArray trackData;
 
 	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
 		SMFEvent *pEv = m_eventList[ i ];
-		std::vector<char> buf = pEv->getBuffer();
+		auto buf = pEv->getBuffer();
 
-		// copy the buffer into the data vector
 		for ( unsigned j = 0; j < buf.size(); j++ ) {
 			trackData.push_back( buf[ j ] );
 		}
@@ -108,7 +113,7 @@ std::vector<char> SMFTrack::getBuffer()
 	buf.writeDWord( 1297379947 );		// MTrk
 	buf.writeDWord( trackData.size() + 4 );	// Track length
 
-	std::vector<char> trackBuf = buf.getBuffer();
+	auto trackBuf = buf.getBuffer();
 
 	for ( unsigned i = 0; i < trackData.size(); i++ ) {
 		trackBuf.push_back( trackData[i] );
@@ -116,17 +121,19 @@ std::vector<char> SMFTrack::getBuffer()
 
 
 	//  track end
-	trackBuf.push_back( 0x00 );		// delta
-	trackBuf.push_back( 0xFF );
-	trackBuf.push_back( 0x2F );
-	trackBuf.push_back( 0x00 );
+	trackBuf.push_back( static_cast<char>(0x00) );		// delta
+	trackBuf.push_back( static_cast<char>(0xFF) );
+	trackBuf.push_back( static_cast<char>(0x2F) );
+	trackBuf.push_back( static_cast<char>(0x00) );
 
 
 
 	return trackBuf;
 }
 
-
+QString SMFTrack::toQString() const {
+	return QString( getBuffer().toHex( ' ' ) );
+}
 
 void SMFTrack::addEvent( SMFEvent *pEvent )
 {
@@ -167,27 +174,22 @@ void SMF::addTrack( SMFTrack *pTrack )
 
 
 
-std::vector<char> SMF::getBuffer()
+QByteArray SMF::getBuffer() const
 {
-	std::vector<char> smfVect;
-
 	// header
-	std::vector<char> headerVect = m_pHeader->getBuffer();
-	for ( unsigned i = 0; i < headerVect.size(); i++ ) {
-		smfVect.push_back( headerVect[ i ] );
-	}
-
+	auto smfBuffer = m_pHeader->getBuffer();
 
 	// tracks
 	for ( unsigned nTrack = 0; nTrack < m_trackList.size(); nTrack++ ) {
 		SMFTrack *pTrack = m_trackList[ nTrack ];
-		std::vector<char> trackVect = pTrack->getBuffer();
-		for ( unsigned i = 0; i < trackVect.size(); i++ ) {
-			smfVect.push_back( trackVect[ i ] );
-		}
+		smfBuffer.append( pTrack->getBuffer() );
 	}
 
-	return smfVect;
+	return smfBuffer;
+}
+
+QString SMF::toQString() const {
+	return QString( getBuffer().toHex( ' ' ) );
 }
 
 
@@ -222,7 +224,7 @@ SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
 
 void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
-	INFOLOG( "save" );
+	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
 
 	SMF* pSmf = createSMF( pSong );
 
@@ -336,17 +338,18 @@ void SMFWriter::sortEvents( EventList *pEvents )
 void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 {
 	// save the midi file
-	FILE* pFile = fopen( sFilename.toLocal8Bit(), "wb" );
-
-	if( pFile == nullptr ) {
+	QFile file( sFilename );
+	if ( ! file.open( QIODevice::WriteOnly ) ) {
+		ERRORLOG( QString( "Unable to open file [%1] for writing" )
+				  .arg( sFilename ) );
 		return;
 	}
 
-	std::vector<char> smfVect = pSmf->getBuffer();
-	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
-		fwrite( &smfVect[ i ], 1, 1, pFile );
-	}
-	fclose( pFile );
+	QDataStream stream( &file );
+	const auto buffer = pSmf->getBuffer();
+	stream.writeRawData( buffer.constData(), buffer.size() );
+
+	file.close();
 }
 
 
