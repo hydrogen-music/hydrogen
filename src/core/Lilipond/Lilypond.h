@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+#include <core/Object.h>
+
 namespace H2Core {
 
 class Pattern;
@@ -37,7 +39,8 @@ class Song;
 
 /// A class to convert a Hydrogen song to LilyPond format
 /** \ingroup docCore*/
-class LilyPond {
+class LilyPond : public H2Core::Object<LilyPond>{
+	H2_OBJECT(LilyPond)
 public:
 	LilyPond();
 
