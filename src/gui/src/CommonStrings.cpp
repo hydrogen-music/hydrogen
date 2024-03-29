@@ -466,6 +466,7 @@ CommonStrings::CommonStrings(){
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
+	m_sImportDrumkitFailure = tr( "Unable to import drumkit" );
 	m_sPlaylistSaveFailure = tr( "Unable to save playlist" );
 	/*: Shown e.g. as suffix in a window title in case an underlying file was
 	 *  modified */
@@ -532,6 +533,18 @@ CommonStrings::CommonStrings(){
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/
 	m_sErrorNotFoundShort = tr( "File not found" );
+
+	/*: Suffix appended to a drumkit, song, or pattern name in case it
+	 * is found on system-level and is read-only. */
+	m_sSoundLibrarySystemSuffix = tr( "system" );
+	/*: Suffix appended to a drumkit that are loaded non-persistently
+	 *  into the current Hydrogen session. */
+	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Displayed in a warning message in case the user tries to read
+	 * or write data to a file/path Hydrogen can not handle in the
+	 * current encoding.*/
+	m_sEncodingError = tr( "The provided filename can not be handled by your current encoding" );
 }
 
 CommonStrings::~CommonStrings(){}

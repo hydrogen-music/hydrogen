@@ -21,6 +21,9 @@
  */
 
 #include "DrumkitExportDialog.h"
+
+#include <QTextCodec>
+
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 #include "../Widgets/FileDialog.h"
@@ -145,8 +148,22 @@ void DrumkitExportDialog::on_exportBtn_clicked()
 								 nTargetComponentId, // Selected component
 								 bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical( this, "Hydrogen",
-							   pCommonStrings->getExportDrumkitFailure() );
+
+		// Check whether encoding might be the problem in here.
+		auto pCodec = QTextCodec::codecForLocale();
+		if ( ! pCodec->canEncode( drumkitPathTxt->text() ) ) {
+			QMessageBox::critical(
+				this, "Hydrogen", QString( "%1\n\n%2\n\n%3: [%4]" )
+				.arg( pCommonStrings->getExportDrumkitFailure() )
+				.arg( drumkitPathTxt->text() )
+				.arg( pCommonStrings->getEncodingError() )
+				.arg( QString( pCodec->name() ) ) );
+		}
+		else {
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getExportDrumkitFailure() );
+		}
+		
 		return;
 	}
 

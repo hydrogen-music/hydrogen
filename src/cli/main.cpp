@@ -313,8 +313,13 @@ int main(int argc, char *argv[])
 #endif
 
 		if ( ! sInstallDrumkitName.isEmpty() ){
-			Drumkit::install( sInstallDrumkitName );
-			exit(0);
+			if ( ! Drumkit::install( sInstallDrumkitName ) ) {
+				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
+							 .arg( sInstallDrumkitName ) );
+				exit( 1  );
+			}
+
+			exit( 0 );
 		}
 
 		if ( ! sSelectedDriver.isEmpty() ) {

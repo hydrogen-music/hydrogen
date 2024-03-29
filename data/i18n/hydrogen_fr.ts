@@ -1063,6 +1063,25 @@ Are you sure?</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
         <translation>Historique d&apos;annulation</translation>
     </message>
+    <message>
+        <source>Unable to import drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
+        <translation type="unfinished">système</translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished">session</translation>
+    </message>
+    <message>
+        <source>The provided filename can not be handled by your current encoding</source>
+        <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2706,10 +2725,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Drumkit imported in %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
@@ -6063,12 +6078,12 @@ Overwrite the existing pattern?</source>
         <translation>Téléchargement de la bibliothèque de sons...</translation>
     </message>
     <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>La bibliothèque de sons a été importée dans %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Une erreur s&apos;est produite lors de l&apos;importation de la bibliothèque de sons.</translation>
+        <source>Drumkit
+
+%1
+
+imported into %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

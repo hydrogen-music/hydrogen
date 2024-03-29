@@ -77,6 +77,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <QTextCodec>
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -1453,13 +1454,27 @@ void MainForm::action_drumkit_export() {
 	exportDialog.exec();
 }
 
+bool MainForm::checkDrumkitPathEncoding( const QString& sPath,
+										 const QString& sContext ) {
 
+	// Check whether encoding might be the problem in here.
+	auto pCodec = QTextCodec::codecForLocale();
+	if ( ! pCodec->canEncode( sPath ) ) {
+		QMessageBox::critical(
+			nullptr, "Hydrogen", QString( "%1\n\n%2\n\n%3: [%4]" )
+			.arg( sContext ).arg( sPath )
+			.arg( HydrogenApp::get_instance()->getCommonStrings()
+				  ->getEncodingError() )
+			.arg( QString( pCodec->name() ) ) );
+		return false;
+	}
+
+	return true;
+}
 
 
 void MainForm::action_drumkit_import( bool bLoad ) {
 	auto pPreferences = H2Core::Preferences::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 
 	QString sPath = pPreferences->getLastImportDrumkitDirectory();
 	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
@@ -1474,68 +1489,80 @@ void MainForm::action_drumkit_import( bool bLoad ) {
 
 	fd.setWindowTitle( tr( "Import drumkit" ) );
 
-	QString sFilename = "";
+	QString sFileName = "";
 	if ( fd.exec() == QDialog::Accepted ) {
-		sFilename = fd.selectedFiles().first();
+		sFileName = fd.selectedFiles().first();
 	} else {
 		// Closed
 		return;
 	}
 
-	if ( sFilename.isEmpty() ) {
+	if ( sFileName.isEmpty() ) {
 		ERRORLOG( "No drumkit file selected." );
 		return;
 	}
 
 	pPreferences->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
 
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-
-	try {
-		QString sImportedPath;
-		if ( ! H2Core::Drumkit::install( sFilename, "", &sImportedPath ) ) {
-			QApplication::restoreOverrideCursor();
-			QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
-			return;
-		}
-
-		// update the drumkit list
-		pSoundLibraryDatabase->update();
-
-		if ( bLoad ) {
-#ifdef H2CORE_HAVE_LIBARCHIVE
-			if ( ! sImportedPath.isEmpty() ) {
-				auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
-				if ( pDrumkit == nullptr ) {
-					ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
-							  .arg( sFilename ) );
-					return;
-				}
-				auto pAction = new SE_switchDrumkitAction(
-					pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
-					SE_switchDrumkitAction::Type::SwitchDrumkit );
-				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-			}
-			else {
-				ERRORLOG( QString( "Unable to determine imported path for [%1]" )
-						  .arg( sFilename ) );
-			}
-#else
-			WARNINGLOG( "Imported drumkit was not loaded. This feature is only supported when compiled with libarchive." );
-#endif
-		}
-
-		QApplication::restoreOverrideCursor();
-		QMessageBox::information( this, "Hydrogen",
-								  QString( tr( "Drumkit imported in %1" )
-										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
-	}
-	catch( H2Core::H2Exception ex ) {
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
-	}
+	loadDrumkit( sFileName, bLoad );
 }
 
+void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+
+	QString sImportedPath;
+	if ( ! H2Core::Drumkit::install( sFileName, "", &sImportedPath ) ) {
+		QApplication::restoreOverrideCursor();
+		if ( checkDrumkitPathEncoding(
+				 sFileName, pCommonStrings->getImportDrumkitFailure() ) ) {
+			// In case it was not an encoding error, we have to
+			// create and error window ourselves.
+			QMessageBox::critical(
+				nullptr, "Hydrogen", QString( "%1\n\n%2" )
+				.arg( pCommonStrings->getImportDrumkitFailure() )
+				.arg( sFileName ) );
+		}
+
+		return;
+	}
+
+	// update the drumkit list
+	pSoundLibraryDatabase->updateDrumkits();
+
+	if ( bLoad ) {
+#ifdef H2CORE_HAVE_LIBARCHIVE
+		if ( ! sImportedPath.isEmpty() ) {
+			auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
+			if ( pDrumkit == nullptr ) {
+				ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
+						  .arg( sFileName ) );
+				QApplication::restoreOverrideCursor();
+				return;
+			}
+			auto pAction = new SE_switchDrumkitAction(
+				pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
+				SE_switchDrumkitAction::Type::SwitchDrumkit );
+			HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		}
+		else {
+			ERRORLOG( QString( "Unable to determine imported path for [%1]" )
+					  .arg( sFileName ) );
+		}
+#else
+		WARNINGLOG( "Imported drumkit was not loaded. This feature is only supported when compiled with libarchive." );
+#endif
+	}
+
+	QApplication::restoreOverrideCursor();
+	QMessageBox::information(
+		this, "Hydrogen",
+		QString( tr( "Drumkit imported in %1" )
+				 .arg( H2Core::Filesystem::usr_data_path() ) ) );
+}
 
 void MainForm::action_drumkit_onlineImport()
 {
@@ -1786,7 +1813,7 @@ void MainForm::onFixMissingSamples()
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( e->type() == QEvent::FileOpen ) {
@@ -1800,10 +1827,11 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 				HydrogenApp::openFile( Filesystem::Type::Song, sFileName );
 			}
 
-		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
-			H2Core::Drumkit::install( sFileName );
-
-		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+		}
+		else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+			loadDrumkit( sFileName, true );
+		}
+		else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
 			if ( HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
 				HydrogenApp::openFile( Filesystem::Type::Playlist, sFileName );
 			}

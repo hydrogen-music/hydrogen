@@ -396,8 +396,12 @@ int main(int argc, char *argv[])
 
 #endif
 		if( ! sDrumkitName.isEmpty() ){
-			H2Core::Drumkit::install( sDrumkitName );
-			exit(0);
+			if ( ! H2Core::Drumkit::install( sDrumkitName ) ) {
+				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
+							 .arg( sDrumkitName ) );
+				exit( 1  );
+			}
+			exit( 0 );
 		}
 
 		if ( ! sSelectedDriver.isEmpty() ) {

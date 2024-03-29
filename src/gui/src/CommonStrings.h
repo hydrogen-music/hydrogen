@@ -191,9 +191,16 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCapturePan() const { return m_sInputCapturePan; }
 	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
-	
+
+	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
+	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
+	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
+
+	const QString& getEncodingError() const { return m_sEncodingError; }
+
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
 	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
+	const QString& getImportDrumkitFailure() const { return m_sImportDrumkitFailure; }
 	const QString& getPlaylistSaveFailure() const { return m_sPlaylistSaveFailure; }
 	const QString& getIsModified() const { return m_sIsModified; }
 	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
@@ -378,6 +385,7 @@ private:
 
 	QString m_sExportSongFailure;
 	QString m_sExportDrumkitFailure;
+	QString m_sImportDrumkitFailure;
 	QString m_sPlaylistSaveFailure;
 	QString m_sIsModified;
 	QString m_sReadOnlyAdvice;
@@ -408,5 +416,11 @@ private:
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;
+
+	QString m_sSoundLibraryFailedPreDrumkitLoad;
+	QString m_sSoundLibrarySystemSuffix;
+	QString m_sSoundLibrarySessionSuffix;
+
+	QString m_sEncodingError;
 };
 #endif

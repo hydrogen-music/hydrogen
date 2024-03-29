@@ -1064,6 +1064,25 @@ Are you sure?</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
         <translation>Deshacer historial</translation>
     </message>
+    <message>
+        <source>Unable to import drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
+        <translation type="unfinished">sistema</translation>
+    </message>
+    <message>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished">sesión</translation>
+    </message>
+    <message>
+        <source>The provided filename can not be handled by your current encoding</source>
+        <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2705,10 +2724,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Drumkit imported in %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocurrió un error al importar la Librería de Sonidos.</translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
@@ -6063,12 +6078,12 @@ Overwrite the existing pattern?</source>
         <translation>Descargando Librería de Sonidos...</translation>
     </message>
     <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Librería de Sonidos importada en %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocurrió un error al importar la Librería de Sonidos.</translation>
+        <source>Drumkit
+
+%1
+
+imported into %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

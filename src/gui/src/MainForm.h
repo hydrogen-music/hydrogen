@@ -80,6 +80,14 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
+		/** Due to limitations in `libarchive` we do not support UTF-8 encoding
+		 * in drumkit import and export.
+		 *
+		 * This functions takes care of informing the user via a warning dialog
+		 * and indicates success using its return value. */
+		static bool checkDrumkitPathEncoding( const QString& sPath,
+											  const QString& sContext );
+
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
@@ -237,6 +245,8 @@ public slots:
 	private:
 	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
 		void updateRecentUsedSongList();
+
+		void loadDrumkit( const QString& sFileName, bool bLoad );
 
 		HydrogenApp*	h2app;
 
