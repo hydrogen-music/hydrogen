@@ -4168,10 +4168,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>一般(&amp;G)</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>オーディオシステム(&amp;S)</translation>
     </message>
@@ -4309,14 +4305,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
