@@ -179,6 +179,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
 	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
 	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
+
+	const QString& getEncodingError() const { return m_sEncodingError; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -318,5 +320,7 @@ private:
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;
 	QString m_sSoundLibrarySessionSuffix;
+
+	QString m_sEncodingError;
 };
 #endif

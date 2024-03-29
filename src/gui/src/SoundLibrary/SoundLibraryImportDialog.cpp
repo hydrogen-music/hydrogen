@@ -28,6 +28,7 @@
 #include "../Widgets/FileDialog.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
+#include "../CommonStrings.h"
 
 #include <core/H2Exception.h>
 #include <core/Preferences/Preferences.h>
@@ -41,6 +42,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QCryptographicHash>
+#include <QTextCodec>
 
 #include <memory>
 
@@ -713,9 +715,29 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	QString sError = tr( "An error occurred importing the SoundLibrary."  );
 	
 	try {
-		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
+		if ( ! H2Core::Drumkit::install( SoundLibraryPathTxt->text() ) ) {
+			QApplication::restoreOverrideCursor();
+			
+			// Check whether encoding might be the problem in here.
+			auto pCodec = QTextCodec::codecForLocale();
+			if ( ! pCodec->canEncode( SoundLibraryPathTxt->text() ) ) {
+				QMessageBox::critical(
+					this, "Hydrogen", QString( "%1\n\n%2\n\n%3: [%4]" )
+					.arg( sError ).arg( SoundLibraryPathTxt->text() )
+					.arg( HydrogenApp::get_instance()->getCommonStrings()
+						  ->getEncodingError() )
+					.arg( QString( pCodec->name() ) ) );
+			}
+			else {
+				QMessageBox::critical( this, "Hydrogen", sError );
+			}
+					 
+			return;
+		}
 		// update the drumkit list
 		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 		QApplication::restoreOverrideCursor();
@@ -725,7 +747,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
+		QMessageBox::warning( this, "Hydrogen", sError );
 	}
 }
 
