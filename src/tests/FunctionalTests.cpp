@@ -40,7 +40,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Playlist.h>
-#include <core/Smf/SMF.h>
+#include <core/SMF/SMF.h>
 #include "TestHelper.h"
 #include "assertions/File.h"
 #include "assertions/AudioFile.h"
