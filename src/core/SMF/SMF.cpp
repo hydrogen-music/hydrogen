@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/Smf/SMF.h>
+#include <core/SMF/SMF.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>

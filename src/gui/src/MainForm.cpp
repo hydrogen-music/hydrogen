@@ -25,7 +25,7 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/Smf/SMF.h>
+#include <core/SMF/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Pattern.h>

@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/Smf/SMFEvent.h>
+#include <core/SMF/SMFEvent.h>
 #include <core/Timehelper.h>
 
 namespace H2Core
