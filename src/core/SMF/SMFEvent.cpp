@@ -28,25 +28,20 @@ namespace H2Core
 
 SMFBuffer::SMFBuffer() {}
 
-void SMFBuffer::writeByte( short int nByte )
-{
-//	infoLog( "[writeByte] " + to_string( nByte ) );
-	m_buffer.push_back( nByte );
+void SMFBuffer::writeByte( char nChar ) {
+	m_buffer.push_back( nChar );
 }
 
 
 
-void SMFBuffer::writeWord( int nVal )
-{
-//	infoLog( "writeWord" );
+void SMFBuffer::writeWord( int nVal ) {
 	writeByte( nVal >> 8 );
 	writeByte( nVal );
 }
 
 
 
-void SMFBuffer::writeDWord( long nVal )
-{
+void SMFBuffer::writeDWord( long nVal ) {
 	writeByte( nVal >> 24 );
 	writeByte( nVal >> 16 );
 	writeByte( nVal >> 8 );
@@ -55,21 +50,15 @@ void SMFBuffer::writeDWord( long nVal )
 
 
 
-void SMFBuffer::writeString( const QString& sMsg )
-{
-//	infoLog( "writeString" );
+void SMFBuffer::writeString( const QString& sMsg ) {
 	writeVarLen( sMsg.length() );
 
-	for ( int i = 0; i < sMsg.length(); i++ ) {
-				writeByte( sMsg.toLocal8Bit().at(i) );
-	}
+	m_buffer.append( sMsg.toUtf8() );
 }
 
 
 
-void SMFBuffer::writeVarLen( long value )
-{
-//	infoLog( "[writeVarLen]" );
+void SMFBuffer::writeVarLen( long value ) {
 	long buffer;
 	buffer = value & 0x7f;
 	while ( ( value >>= 7 ) > 0 ) {
@@ -102,7 +91,7 @@ SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigne
 }
 
 
-std::vector<char> SMFTrackNameMetaEvent::getBuffer()
+QByteArray SMFTrackNameMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
@@ -124,7 +113,7 @@ SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, unsigned nTicks )
 }
 
 
-std::vector<char> SMFSetTempoMetaEvent::getBuffer()
+QByteArray SMFSetTempoMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	long msPerBeat;
@@ -154,7 +143,7 @@ SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor
 }
 
 
-std::vector<char> SMFCopyRightNoticeMetaEvent::getBuffer()
+QByteArray SMFCopyRightNoticeMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	QString sCopyRightString;
@@ -192,7 +181,7 @@ SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned 
 }
 
 
-std::vector<char> SMFTimeSignatureMetaEvent::getBuffer()
+QByteArray SMFTimeSignatureMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	
@@ -230,6 +219,10 @@ SMFEvent::~SMFEvent()
 	//infoLog( "DESTROY" );
 }
 
+QString SMFEvent::toQString() const {
+	return QString( getBuffer().toHex( ' ' ) );
+}
+
 
 // ::::::::::::::
 
@@ -246,7 +239,7 @@ SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int n
 
 
 
-std::vector<char> SMFNoteOnEvent::getBuffer()
+QByteArray SMFNoteOnEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
@@ -274,7 +267,7 @@ SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int
 
 
 
-std::vector<char> SMFNoteOffEvent::getBuffer()
+QByteArray SMFNoteOffEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );

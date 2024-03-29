@@ -23,7 +23,8 @@
 #ifndef SMF_EVENT_H
 #define SMF_EVENT_H
 
-#include <vector>
+#include <QByteArray>
+#include <QString>
 #include <core/Object.h>
 
 namespace H2Core
@@ -34,17 +35,17 @@ class SMFBuffer : public H2Core::Object<SMFBuffer>
 {
 	H2_OBJECT(SMFBuffer)
 public:
-	std::vector<char> getBuffer() {
+	QByteArray getBuffer() {
 		return m_buffer;
 	}
 
-	void writeByte( short int nByte );
+	void writeByte( char nByte );
 	void writeWord( int nVal );
 	void writeDWord( long nVal );
 	void writeString( const QString& sMsg );
 	void writeVarLen( long nVal );
 
-	std::vector<char> m_buffer;
+	QByteArray m_buffer;
 
 	SMFBuffer();
 };
@@ -79,7 +80,8 @@ class SMFBase
 {
 public:
 	virtual ~SMFBase() {}
-	virtual std::vector<char> getBuffer() = 0;
+	virtual QByteArray getBuffer() const = 0;
+	virtual QString toQString() const = 0;
 };
 
 
@@ -92,6 +94,7 @@ public:
 	SMFEvent(unsigned nTicks );
 	virtual ~SMFEvent();
 
+	virtual QString toQString() const override;
 	int m_nTicks;
 	int m_nDeltaTime;
 };
@@ -104,7 +107,7 @@ class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNam
 	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 
 private:
 	QString m_sTrackName;
@@ -119,7 +122,7 @@ class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoM
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
 	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 
 private:
 	unsigned m_fBPM;
@@ -134,7 +137,7 @@ class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCo
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
 	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 
 private:
 	QString m_sAuthor;
@@ -149,7 +152,7 @@ class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTime
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
 	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
 private:
@@ -165,7 +168,7 @@ class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 public:
 	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 
 protected:
 	unsigned m_nChannel;
@@ -182,7 +185,7 @@ class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 public:
 	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-	virtual std::vector<char> getBuffer() override;
+	virtual QByteArray getBuffer() const override;
 
 protected:
 	unsigned m_nChannel;
