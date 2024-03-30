@@ -540,6 +540,9 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 		if ( pSong != nullptr ) {
 			pSong->setFilename( sSongPath );
 		}
+		// The autosaved file we've just recovered counts as a modified version
+		// of the intended song.
+		pHydrogen->setIsModified( true );
 	} else {
 		pSong = Song::load( sSongPath );
 	}

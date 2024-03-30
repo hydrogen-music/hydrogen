@@ -432,6 +432,8 @@ bool HydrogenApp::openSong( QString sFilename ) {
 		int nRet = msgBox.exec();
 
 		if ( nRet == QMessageBox::Discard ) {
+			QFile file( sRecoverFilename );
+			file.remove();
 			sRecoverFilename = "";
 		}
 	}
