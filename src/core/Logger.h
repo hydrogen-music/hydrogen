@@ -59,14 +59,17 @@ class Logger {
 		 * create the logger instance if not exists, set the log level and return the instance
 		 * \param msk the logging level bitmask
 		 */
-	static Logger* bootstrap( unsigned msk, const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	static Logger* bootstrap( unsigned msk,
+							  const QString& sLogFilePath = QString(),
+							  bool bUseStdout = true );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */
-	static Logger* create_instance( const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	static Logger* create_instance( const QString& sLogFilePath = QString(),
+									bool bUseStdout = true );
 		/**
 		 * Returns a pointer to the current H2Core::Logger
 		 * singleton stored in #__instance.

@@ -258,12 +258,14 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
+		QCommandLineOption logFileOption( QStringList() << "L" << "log-file",
+										  "Alternative log file path", "Path" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
 #ifdef H2CORE_HAVE_OSC
 		QCommandLineOption oscPortOption( QStringList() << "O" << "osc-port",
-										  "Custom port for OSC connections", "-1" );
+										  "Custom port for OSC connections", "int" );
 #endif
 		
 		parser.addHelpOption();
@@ -276,6 +278,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
+		parser.addOption( logFileOption );
 		parser.addOption( shotListOption );
 		parser.addOption( uiLayoutOption );
 		parser.addOption( noReporterOption );
@@ -296,6 +299,7 @@ int main(int argc, char *argv[])
 		QString sVerbosityString = parser.value( verboseOption );
 		QString sShotList = parser.value( shotListOption );
 		QString sUiLayout = parser.value( uiLayoutOption );
+		QString sLogFile = parser.value( logFileOption );
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -343,9 +347,7 @@ int main(int argc, char *argv[])
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
-		H2Core::Logger::create_instance();
-		H2Core::Logger::set_bit_mask( logLevelOpt );
-		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile );
 		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {
