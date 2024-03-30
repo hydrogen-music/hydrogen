@@ -52,13 +52,11 @@ void* loggerThread_func( void* param ) {
 #  endif
 #endif
 	FILE* log_file = nullptr;
-	if ( logger->__use_file ) {
-		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
-		if ( ! log_file ) {
-			fprintf( stderr, "%s",
-					 QString( "Error: can't open log file [%1] for writing...\n" )
-					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
-		}
+	log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
+	if ( ! log_file ) {
+		fprintf( stderr, "%s",
+				 QString( "Error: can't open log file [%1] for writing...\n" )
+				 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
 	}
 	Logger::queue_t* queue = &logger->__msg_queue;
 	Logger::queue_t::iterator it, last;
@@ -110,7 +108,6 @@ Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout ) 
 }
 
 Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
-	__use_file( true ),
 	__running( true ),
 	m_sLogFilePath( sLogFilePath ),
 	m_bUseStdout( bUseStdout ) {

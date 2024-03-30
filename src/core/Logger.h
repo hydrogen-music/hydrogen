@@ -91,13 +91,6 @@ class Logger {
 		static void set_bit_mask( unsigned msk )    { __bit_msk = msk; }
 		/** return the current log level bit mask */
 		static unsigned bit_mask()                  { return __bit_msk; }
-		/**
-		 * set use file flag
-		 * \param use the flag status
-		 */
-		void set_use_file( bool use )               { __use_file = use; }
-		/** return __use_file */
-		bool use_file() const                       { return __use_file; }
 
 	/**
 	 * Waits till the logger thread poped all remaining messages from
@@ -157,7 +150,6 @@ class Logger {
 		 * get_instance().
 		 */
 		static Logger* __instance;
-		bool __use_file;                ///< write log to file if set to true
 		bool __running;                 ///< set to true when the logger thread is running
 		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
 		queue_t __msg_queue;            ///< the message queue
