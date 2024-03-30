@@ -32,3 +32,9 @@ GTAGS
 
 # Ignore compiled (binary) translation artifacts of `msgfmt`.
 *.mo
+
+# Test artifacts
+tests/jackTearDown/jackTearDown
+tests/jackTimebase/jackTimebase
+tests/jackTimebase/hydrogen.log
+tests/jackTimebase/test.log
