@@ -127,6 +127,8 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
 	if ( m_sLogFilePath.isEmpty() ) {
 		m_sLogFilePath = Filesystem::log_file_path();
 	}
+
+
 	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
