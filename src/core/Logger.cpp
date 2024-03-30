@@ -128,13 +128,14 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
 		m_sLogFilePath = Filesystem::log_file_path();
 	}
 
-
-	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
 	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
+
+	log( Info, "Logger" , "Logger", QString( "Using log file [%1]" )
+		 .arg( m_sLogFilePath ) );
 }
 
 Logger::~Logger() {
