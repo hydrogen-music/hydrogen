@@ -28,6 +28,7 @@
 #include <pthread.h>
 #include <memory>
 #include <QtCore/QString>
+#include <QStringList>
 
 #include <core/config.h>
 
@@ -61,7 +62,8 @@ class Logger {
 		 */
 	static Logger* bootstrap( unsigned msk,
 							  const QString& sLogFilePath = QString(),
-							  bool bUseStdout = true );
+							  bool bUseStdout = true,
+							  bool bLogTimestamps = false );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
@@ -69,7 +71,9 @@ class Logger {
 		 * It is called in Hydrogen::create_instance().
 		 */
 	static Logger* create_instance( const QString& sLogFilePath = QString(),
-									bool bUseStdout = true );
+									bool bUseStdout = true,
+									bool bLogTimestamps = false );
+
 		/**
 		 * Returns a pointer to the current H2Core::Logger
 		 * singleton stored in #__instance.
@@ -157,12 +161,18 @@ class Logger {
 		static const char* __levels[];  ///< levels strings
 		pthread_cond_t __messages_available;
 	QString m_sLogFilePath;
+
+		QStringList m_prefixList;
+		QStringList m_colorList;
+
 	bool m_bUseStdout;
+		bool m_bLogTimestamps;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
-	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true,
+			bool bLogTimestamps = false );
 
 #ifndef HAVE_SSCANF
 		/**

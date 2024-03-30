@@ -27,6 +27,7 @@
 #include <chrono>
 #include <thread>
 #include <QtCore/QDir>
+#include <QDateTime>
 
 #ifdef WIN32
 #include <windows.h>
@@ -97,21 +98,33 @@ void* loggerThread_func( void* param ) {
 	return nullptr;
 }
 
-Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath, bool bUseStdout ) {
+Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
+						   bool bUseStdout, bool bLogTimestamps ) {
 	Logger::set_bit_mask( msk );
-	return Logger::create_instance( sLogFilePath, bUseStdout );
+	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
 }
 
-Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout ) {
-	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout );
+Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
+								 bool bLogTimestamps ) {
+	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout,
+														  bLogTimestamps );
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps ) :
 	__running( true ),
 	m_sLogFilePath( sLogFilePath ),
-	m_bUseStdout( bUseStdout ) {
+	m_bUseStdout( bUseStdout ),
+	m_bLogTimestamps( bLogTimestamps ) {
 	__instance = this;
+
+	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
+#ifdef WIN32
+	m_colorList << "" << "" << "" << "" << "" << "" << "";
+#else
+	m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
+				<< "\033[35;1m" << "\033[35;1m";
+#endif
 
 	// Sanity checks.
 	QFileInfo fiLogFile( m_sLogFilePath );
@@ -147,13 +160,6 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		return;
 	}
 
-	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C)", "(L) " };
-#ifdef WIN32
-	const char* color[] = { "", "", "", "", "", "", "" };
-#else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35;1m", "\033[35;1m" };
-#endif // WIN32
-
 	int i;
 	switch( level ) {
 	case Error:
@@ -179,12 +185,15 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		break;
 	}
 
-	QString tmp = QString( "%1%2%3::%4 %5\033[0m\n" )
-				  .arg( color[i] )
-				  .arg( prefix[i] )
-				  .arg( class_name )
-				  .arg( func_name )
-				  .arg( msg );
+	QString sTimestampPrefix;
+	if ( m_bLogTimestamps ) {
+		sTimestampPrefix = QString( "[%1] " )
+			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
+	}
+
+	QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+		.arg( m_colorList[i] ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
+		.arg( class_name ).arg( func_name ).arg( msg );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );
