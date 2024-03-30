@@ -356,37 +356,38 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( fals
 {
 	m_pPreferences = pPreferences;
 	
-	if( m_pPreferences->getOscServerEnabled() )
-	{
-		int port = m_pPreferences->getOscServerPort();
+	if ( m_pPreferences->getOscServerEnabled() ) {
+		int nPort;
+		if ( m_pPreferences->m_nOscTemporaryPort != -1  ) {
+			nPort = m_pPreferences->m_nOscTemporaryPort;
+		} else {
+			nPort = m_pPreferences->getOscServerPort();
+		}
 	
-		m_pServerThread = new lo::ServerThread( port );
+		m_pServerThread = new lo::ServerThread( nPort );
 		
 		// If there is already another service registered to the same
 		// port, the OSC server is not valid an can not be started.
-		if ( !m_pServerThread->is_valid() ) {
-			int tmpPort;
-			
+		if ( ! m_pServerThread->is_valid() ) {
 			delete m_pServerThread;
 			
 			// Instead, let the liblo library choose a working
 			// port on their own (nullptr argument).
 			m_pServerThread = new lo::ServerThread( nullptr );
 			
-			tmpPort = m_pServerThread->port();
+			const int nTmpPort = m_pServerThread->port();
 			
-			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.").arg(port).arg(tmpPort));
+			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.")
+					  .arg( nPort ).arg( nTmpPort ) );
 
-			m_pPreferences->m_nOscTemporaryPort = tmpPort;
+			m_pPreferences->m_nOscTemporaryPort = nTmpPort;
 			
-			H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
-		} else {
-			INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
+			H2Core::EventQueue::get_instance()->push_event(
+				H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
 		}
-	} else {
-		
+	}
+	else {
 		m_pServerThread = nullptr;
-		
 	}
 }
 
@@ -1396,7 +1397,8 @@ bool OscServer::start() {
 		nOscPortUsed = m_pPreferences->getOscServerPort();
 	}
 	
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( nOscPortUsed ));
+	INFOLOG( QString( "Osc server started. Listening on port %1" )
+			 .arg( nOscPortUsed ) );
 
 	return true;
 }

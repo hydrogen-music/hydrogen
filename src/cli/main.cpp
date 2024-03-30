@@ -78,6 +78,7 @@ static struct option long_opts[] = {
 	{"extract", required_argument, nullptr, 'x'},
 	{"target", required_argument, nullptr, 't'},
 	{"drumkit", required_argument, nullptr, 'k'},
+	{"osc-port", required_argument, nullptr, 'O'},
 	{nullptr, 0, nullptr, 0},
 };
 
@@ -182,6 +183,7 @@ int main(int argc, char *argv[])
 		short bits = 16;
 		int rate = 44100;
 		short interpolation = 0;
+		int nOscPort = -1;
 		int c;
 		while ( 1 ) {
 			c = getopt_long(argc, argv, opts, long_opts, nullptr);
@@ -199,6 +201,9 @@ int main(int argc, char *argv[])
 				break;
 			case 'o':
 				outFilename = QString::fromLocal8Bit(optarg);
+				break;
+			case 'O':
+				nOscPort = strtol( optarg, nullptr, 10 );
 				break;
 			case 'i':
 				//install h2drumkit
@@ -271,6 +276,9 @@ int main(int argc, char *argv[])
 		Preferences* preferences = Preferences::get_instance();
 #ifdef H2CORE_HAVE_OSC
 		preferences->setOscServerEnabled( true );
+		if ( nOscPort != -1 ) {
+			preferences->m_nOscTemporaryPort = nOscPort;
+		}
 #endif
 		// See below for Hydrogen.
 
@@ -617,6 +625,10 @@ void showUsage()
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
 	std::cout << "       [0:linear (default), 1:cosine, 2:third, 3:cubic, 4:hermite]" << std::endl;
+
+#ifdef H2CORE_HAVE_OSC
+	std::cout << "   -O, --osc-port INT - Custom port for OSC connections" << std::endl;
+#endif
 
 #ifdef H2CORE_HAVE_LASH
 	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl

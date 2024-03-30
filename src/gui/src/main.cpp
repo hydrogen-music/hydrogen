@@ -261,6 +261,10 @@ int main(int argc, char *argv[])
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
+#ifdef H2CORE_HAVE_OSC
+		QCommandLineOption oscPortOption( QStringList() << "O" << "osc-port",
+										  "Custom port for OSC connections", "-1" );
+#endif
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -275,6 +279,9 @@ int main(int argc, char *argv[])
 		parser.addOption( shotListOption );
 		parser.addOption( uiLayoutOption );
 		parser.addOption( noReporterOption );
+#ifdef H2CORE_HAVE_OSC
+		parser.addOption( oscPortOption );
+#endif
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		// Evaluate the options
@@ -289,7 +296,7 @@ int main(int argc, char *argv[])
 		QString sVerbosityString = parser.value( verboseOption );
 		QString sShotList = parser.value( shotListOption );
 		QString sUiLayout = parser.value( uiLayoutOption );
-		
+
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
 			if( !sVerbosityString.isEmpty() )
@@ -299,6 +306,18 @@ int main(int argc, char *argv[])
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
 			}
 		}
+
+		int nOscPort = -1;
+#ifdef H2CORE_HAVE_OSC
+		QString sOscPort = parser.value( oscPortOption );
+		if ( ! sOscPort.isEmpty() ) {
+			bool bOk;
+			const int nParsedOscPort = sOscPort.toInt( &bOk, 10 );
+			if ( bOk ) {
+				nOscPort = nParsedOscPort;
+			}
+		}
+#endif
 
 		// Operating system GUIs typically pass documents to open as
 		// simple positional arguments to the process command
@@ -371,6 +390,10 @@ int main(int argc, char *argv[])
 				pPref->getThemeWritable().m_interface.m_layout =
 					H2Core::InterfaceTheme::Layout::SinglePane;
 			}
+		}
+
+		if ( nOscPort != -1 ) {
+			pPref->m_nOscTemporaryPort = nOscPort;
 		}
 
 #ifdef H2CORE_HAVE_LASH

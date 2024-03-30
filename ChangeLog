@@ -74,6 +74,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  without triggering their associated actions.
 				- `CLEAR_INSTRUMENT` - to remove all notes of the selected pattern
  				  associated with the provided instrument number.
+		- CLI option `-O`/`--osc-port` to use a custom OSC port in both `hydrogen`
+			and `h2cli`.
 	* Changed
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.
