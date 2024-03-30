@@ -260,6 +260,9 @@ int main(int argc, char *argv[])
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
 		QCommandLineOption logFileOption( QStringList() << "L" << "log-file",
 										  "Alternative log file path", "Path" );
+		QCommandLineOption logTimestampsOption(
+			QStringList() << "T" << "log-timestamps",
+			"Add timestamps to all log messages" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
@@ -279,6 +282,7 @@ int main(int argc, char *argv[])
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
 		parser.addOption( logFileOption );
+		parser.addOption( logTimestampsOption );
 		parser.addOption( shotListOption );
 		parser.addOption( uiLayoutOption );
 		parser.addOption( noReporterOption );
@@ -300,6 +304,7 @@ int main(int argc, char *argv[])
 		QString sShotList = parser.value( shotListOption );
 		QString sUiLayout = parser.value( uiLayoutOption );
 		QString sLogFile = parser.value( logFileOption );
+		bool bLogTimestamps = parser.isSet( logTimestampsOption );
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -347,7 +352,8 @@ int main(int argc, char *argv[])
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
-		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile );
+		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile,
+												  true, bLogTimestamps );
 		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {

@@ -71,6 +71,7 @@ static struct option long_opts[] = {
 	{"version", 0, nullptr, 'v'},
 	{"verbose", optional_argument, nullptr, 'V'},
 	{"log-file", required_argument, nullptr, 'L'},
+	{"log-timestamps", 0, nullptr, 'T'},
 	{"help", 0, nullptr, 'h'},
 	{"install", required_argument, nullptr, 'i'},
 	{"check", required_argument, nullptr, 'c'},
@@ -178,6 +179,7 @@ int main(int argc, char *argv[])
 		bool bUpgradeDrumkit = false;
 		QString sDrumkitToExtract;
 		bool bExtractDrumkit = false;
+		bool bLogTimestamps = false;
 		QString sTarget = "";
 		short bits = 16;
 		int rate = 44100;
@@ -251,6 +253,9 @@ int main(int argc, char *argv[])
 			case 'L':
 				sLogFile = QString::fromLocal8Bit( optarg );
 				break;
+			case 'T':
+				bLogTimestamps = true;
+				break;
 			case 'h':
 			case '?':
 				showHelpOpt = true;
@@ -271,7 +276,7 @@ int main(int argc, char *argv[])
 
 		// Man your battle stations... this is not a drill.
 		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ),
-											sLogFile );
+											sLogFile, true, bLogTimestamps );
 		Base::bootstrap( logger, logger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
@@ -675,6 +680,7 @@ void showUsage()
 	std::cout << "   -V[Level], --verbose[=Level] - Set verbosity level" << std::endl;
 	std::cout << "       [None, Error, Warning, Info, Debug, Constructor, Locks, 0xHHHH]" << std::endl;
 	std::cout << "   -L, --log-file - Alternative log file path" << std::endl;
+	std::cout << "   -T, --log-timestamps - Add timestamps to all log messages" << std::endl;
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
