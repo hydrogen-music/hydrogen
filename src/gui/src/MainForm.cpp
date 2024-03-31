@@ -1772,8 +1772,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			}
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
-			H2Core::Drumkit::install( sFileName );
-
+			QString sImportedPath;
+			if ( H2Core::Drumkit::install( sFileName, "", &sImportedPath ) ) {
+				auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+				if ( pSoundLibraryDatabase != nullptr ) {
+					pSoundLibraryDatabase->update();
+					auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sImportedPath );
+					if ( pDrumkit == nullptr ) {
+						ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
+								  .arg( sFileName ) );
+					}
+					auto pAction = new SE_switchDrumkitAction(
+						pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
+						SE_switchDrumkitAction::Type::SwitchDrumkit );
+					h2app->m_pUndoStack->push( pAction );
+				}
+			}
 		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
 			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sFileName );
 			if ( loadlist ) {
