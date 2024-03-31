@@ -77,14 +77,16 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
-	
+
+		if ( pInstr->get_volume() != fVolumeValue ) {
+			pHydrogen->setIsModified( true );
+		}
+
 		pInstr->set_volume( fVolumeValue );
 	
 		if ( bSelectStrip ) {
 			pHydrogen->setSelectedInstrumentNumber( nStrip );
 		}
-	
-		pHydrogen->setIsModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
 	}
@@ -108,10 +110,12 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
+
+	if ( pSong->getIsMuted() != bIsMuted ) {
+		pHydrogen->setIsModified( true );
+	}
+
 	pSong->setIsMuted( bIsMuted );
-	
-	pHydrogen->setIsModified( true );
 
 	return sendMasterIsMutedFeedback();
 }
@@ -131,11 +135,13 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
+		if ( pInstr->is_muted() != bIsMuted ) {
+			pHydrogen->setIsModified( true );
+		}
+
 		pInstr->set_muted( bIsMuted );
 
 		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
-	
-		pHydrogen->setIsModified( true );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
@@ -153,17 +159,18 @@ bool CoreActionController::toggleStripIsSoloed( int nStrip )
 	return setStripIsSoloed( nStrip, !pInstr->is_soloed() );
 }
 
-bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
+bool CoreActionController::setStripIsSoloed( int nStrip, bool bIsSoloed )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
+		if ( pInstr->is_soloed() != bIsSoloed ) {
+			pHydrogen->setIsModified( true );
+		}
 	
-		pInstr->set_soloed( isSoloed );
+		pInstr->set_soloed( bIsSoloed );
 
 		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
-	
-		pHydrogen->setIsModified( true );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
@@ -176,12 +183,14 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
-	
+
+		if ( pInstr->getPanWithRangeFrom0To1() != fValue ) {
+			pHydrogen->setIsModified( true );
+		}
+
 		pInstr->setPanWithRangeFrom0To1( fValue );
 		
 		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
-		
-		pHydrogen->setIsModified( true );
 		
 		if ( bSelectStrip ) {
 			pHydrogen->setSelectedInstrumentNumber( nStrip );
@@ -199,13 +208,15 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
-	
+
+		if ( pInstr->getPan() != fValue ) {
+			pHydrogen->setIsModified( true );
+		}
+
 		pInstr->setPan( fValue );
-		
+
 		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
-		
-		pHydrogen->setIsModified( true );
-		
+
 		if ( bSelectStrip ) {
 			pHydrogen->setSelectedInstrumentNumber( nStrip );
 		}
@@ -526,6 +537,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 bool CoreActionController::openSong( const QString& sSongPath, const QString& sRecoverSongPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	bool bModified = false;
  
 	// Check whether the provided path is valid.
 	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
@@ -540,6 +552,9 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 		if ( pSong != nullptr ) {
 			pSong->setFilename( sSongPath );
 		}
+		// The autosaved file we've just recovered counts as a modified version
+		// of the intended song.
+		bModified = true;
 	} else {
 		pSong = Song::load( sSongPath );
 	}
@@ -549,8 +564,10 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 				  .arg( sSongPath ) );
 		return false;
 	}
-	
-	return setSong( pSong );
+
+	setSong( pSong );
+	pSong->setIsModified( bModified );
+	return true;
 }
 
 bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
@@ -1795,10 +1812,12 @@ void CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->setNextBpm( fBpm );
 	pAudioEngine->unlock();
 
-	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm );
+	if ( pHydrogen->getSong()->getBpm() != fBpm ) {
+		// Store it's value in the .h2song file.
+		pHydrogen->getSong()->setBpm( fBpm );
 
-	pHydrogen->setIsModified( true );
+		pHydrogen->setIsModified( true );
+	}
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }

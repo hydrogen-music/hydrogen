@@ -425,14 +425,22 @@ bool HydrogenApp::openSong( QString sFilename ) {
 		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "There are unsaved changes." ) );
 		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-		msgBox.setDefaultButton( QMessageBox::Discard );
+		msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::Discard | QMessageBox::No );
+		msgBox.setDefaultButton( QMessageBox::No );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Question );
 		int nRet = msgBox.exec();
 
-		if ( nRet == QMessageBox::Discard ) {
+		switch ( nRet ) {
+		case  QMessageBox::Discard: {
+			QFile file( sRecoverFilename );
+			file.remove();
 			sRecoverFilename = "";
+			break;
+		}
+		case QMessageBox::No:
+			sRecoverFilename = "";
+			break;
 		}
 	}
 	

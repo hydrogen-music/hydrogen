@@ -630,11 +630,8 @@ int main(int argc, char *argv[])
 				pHydrogen->setIsModified( true );
 			}
 			else {
-				NsmClient::get_instance()->sendDirtyState( false );
-				pHydrogen->setIsModified( false );
+				NsmClient::get_instance()->sendDirtyState( pHydrogen->getIsModified() );
 			}
-#else
-			pHydrogen->setIsModified( false );
 #endif
 		}
 

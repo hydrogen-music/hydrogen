@@ -599,11 +599,6 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		updateComponentLabels();
 		selectedInstrumentChangedEvent();
-
-		// The function call above sets some spurious isModified when
-		// updating the states of the widgets. This has to be reset
-		// for a freshly loaded song.
-		H2Core::Hydrogen::get_instance()->setIsModified( false );
 	}
 }
 
@@ -1376,9 +1371,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 void InstrumentEditor::muteGroupChanged( double fValue )
 {
-	 if ( m_pInstrument == nullptr ) {
-		 return;
-	 }
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
 
 	m_pInstrument->set_mute_group( static_cast<int>(fValue) );
 	selectedInstrumentChangedEvent();	// force an update
@@ -1387,23 +1382,27 @@ void InstrumentEditor::muteGroupChanged( double fValue )
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
 	if ( m_pInstrument == nullptr ) {
-		 return;
-	 }
+		return;
+	}
 
-	m_pInstrument->set_stop_notes( on );
-	Hydrogen::get_instance()->setIsModified( true );
-	selectedInstrumentChangedEvent();	// force an update
+	if ( m_pInstrument->is_stop_notes() != on ) {
+		m_pInstrument->set_stop_notes( on );
+		Hydrogen::get_instance()->setIsModified( true );
+		selectedInstrumentChangedEvent();	// force an update
+	}
 }
 
 void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 {
-	 if ( m_pInstrument == nullptr ) {
-		 return;
-	 }
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
 
-	m_pInstrument->set_apply_velocity( on );
-	Hydrogen::get_instance()->setIsModified( true );
-	selectedInstrumentChangedEvent();	// force an update
+	if ( m_pInstrument->get_apply_velocity() != on ) {
+		m_pInstrument->set_apply_velocity( on );
+		Hydrogen::get_instance()->setIsModified( true );
+		selectedInstrumentChangedEvent();	// force an update
+	}
 }
 
 void InstrumentEditor::midiOutChannelChanged( double fValue ) {
