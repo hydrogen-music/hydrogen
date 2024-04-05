@@ -35,7 +35,8 @@ CMAKE_OPTIONS="
     -DWANT_LASH=0 \
     -DWANT_LRDF=1 \
     -DWANT_COREAUDIO=1 \
-    -DWANT_COREMIDI=1
+    -DWANT_COREMIDI=1 \
+    -DWANT_INTEGRATION_TESTS=1
 "
 CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 MAKE_OPTS="-j 3"
