@@ -161,6 +161,36 @@ public:
 	std::list<QString> 		m_patternCategories;
 
 	//	audio engine properties ___
+	enum class AudioDriver {
+		None,
+		Null,
+		Fake,
+		Disk,
+		Auto,
+		Jack,
+		Oss,
+		Alsa,
+		PulseAudio,
+		CoreAudio,
+		PortAudio
+	};
+	static AudioDriver parseAudioDriver( const QString& sDriver );
+	static QString audioDriverToQString( const AudioDriver& driver );
+	static std::vector<AudioDriver> getSupportedAudioDrivers();
+
+	/**
+	 * Attempts to call several JACK executables in order to check for
+	 * existing JACK support.
+	 *
+	 * In an earlier version I tried checking the presence of the
+	 * `libjack.so` shared library. But this one comes preinstalled
+	 * with most Linux distribution regardless of JACK itself is
+	 * present or not.
+	 *
+	 * @return Whether or not JACK support appears to be functional.
+	 */
+	static bool checkJackSupport();
+
 	/**
 	 * Audio driver
 	 *
@@ -178,7 +208,7 @@ public:
 	 * - "PulseAudio" : createDriver() will create a PulseAudioDriver.
 	 * - "Fake" : createDriver() will create a FakeDriver.
 	 */
-	QString				m_sAudioDriver;
+	AudioDriver			m_audioDriver;
 	/** If set to true, samples of the metronome will be added to
 	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
 	 * regular basis.*/

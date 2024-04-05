@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
 
-		preferences->m_sAudioDriver = "JACK";
+		preferences->m_audioDriver = Preferences::AudioDriver::Jack;
 
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();

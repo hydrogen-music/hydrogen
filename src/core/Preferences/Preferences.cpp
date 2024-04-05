@@ -44,6 +44,7 @@
 #include <core/IO/AlsaAudioDriver.h>
 
 #include <QDir>
+#include <QProcess>
 //#include <QApplication>
 
 namespace H2Core
@@ -143,7 +144,7 @@ Preferences::Preferences()
 	m_patternCategories.push_back( QString("not_categorized") );
 
 	//___ audio engine properties ___
-	m_sAudioDriver = QString("Auto");
+	m_audioDriver = AudioDriver::Auto;
 	m_bUseMetronome = false;
 	m_fMetronomeVolume = 0.5;
 	m_nMaxNotes = 256;
@@ -435,17 +436,14 @@ bool Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "audio_engine node not found" );
 				bRecreate = true;
 			} else {
-				m_sAudioDriver = audioEngineNode.read_string( "audio_driver", m_sAudioDriver, false, false );
-				// Ensure compatibility will older versions of the
-				// files after capitalization in the GUI
-				// (2021-02-05). This can be dropped in releases >=
-				// 1.2
-				if ( m_sAudioDriver == "Jack" ) {
-					m_sAudioDriver = "JACK";
-				} else if ( m_sAudioDriver == "Oss" ) {
-					m_sAudioDriver = "OSS";
-				} else if ( m_sAudioDriver == "Alsa" ) {
-					m_sAudioDriver = "ALSA";
+				const QString sAudioDriver = audioEngineNode.read_string(
+					"audio_driver", Preferences::audioDriverToQString(
+						Preferences::AudioDriver::Auto ),
+					false, false );
+				m_audioDriver = parseAudioDriver( sAudioDriver );
+				if ( m_audioDriver == AudioDriver::None ) {
+					WARNINGLOG( "Falling back to 'Auto' audio driver" );
+					m_audioDriver = AudioDriver::Auto;
 				}
 				m_bUseMetronome = audioEngineNode.read_bool( "use_metronome", m_bUseMetronome, false, false );
 				m_fMetronomeVolume = audioEngineNode.read_float( "metronome_volume", 0.5f, false, false );
@@ -552,15 +550,16 @@ bool Preferences::loadPreferences( bool bGlobal )
 					WARNINGLOG( "midi_driver node not found" );
 					bRecreate = true;
 				} else {
-					m_sMidiDriver = midiDriverNode.read_string( "driverName", "ALSA", false, false );
+					m_sMidiDriver = midiDriverNode.read_string(
+						"driverName", m_sMidiDriver, false, false );
 					// Ensure compatibility will older versions of the
 					// files after capitalization in the GUI
 					// (2021-02-05). This can be dropped in releases
 					// >= 1.2
-					if ( m_sAudioDriver == "JackMidi" ) {
-						m_sAudioDriver = "JACK-MIDI";
-					} else if ( m_sAudioDriver == "CoreMidi" ) {
-						m_sAudioDriver = "CoreMIDI";
+					if ( m_sMidiDriver == "JackMidi" ) {
+						m_sMidiDriver = "JACK-MIDI";
+					} else if ( m_sMidiDriver == "CoreMidi" ) {
+						m_sMidiDriver = "CoreMIDI";
 					}
 					m_sMidiPortName = midiDriverNode.read_string(
 						"port_name", Preferences::getNullMidiPort(), false, false );
@@ -948,7 +947,8 @@ bool Preferences::savePreferences()
 	XMLNode audioEngineNode = rootNode.createNode( "audio_engine" );
 	{
 		// audio driver
-		audioEngineNode.write_string( "audio_driver", m_sAudioDriver );
+		audioEngineNode.write_string( "audio_driver",
+									  audioDriverToQString( m_audioDriver ) );
 
 		// use metronome
 		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
@@ -1236,6 +1236,213 @@ bool Preferences::savePreferences()
 
 	return doc.write( sPreferencesFilename );
 }
+
+Preferences::AudioDriver Preferences::parseAudioDriver( const QString& sDriver ) {
+	const QString s = QString( sDriver ).toLower();
+	if ( s == "auto" ) {
+		return AudioDriver::Auto;
+	}
+	else if ( s == "jack" || s == "jackaudio") {
+		return AudioDriver::Jack;
+	}
+	else if ( s == "oss" ) {
+		return AudioDriver::Oss;
+	}
+	else if ( s == "alsa" ) {
+		return AudioDriver::Alsa;
+	}
+	else if ( s == "pulseaudio" || s == "pulse" ) {
+		return AudioDriver::PulseAudio;
+	}
+	else if ( s == "coreaudio" || s == "core" ) {
+		return AudioDriver::CoreAudio;
+	}
+	else if ( s == "portaudio" || s == "port" ) {
+		return AudioDriver::PortAudio;
+	}
+	else {
+		if ( Logger::isAvailable() ) {
+			ERRORLOG( QString( "Unable to parse driver [%1]" ). arg( sDriver ) );
+		}
+		return AudioDriver::None;
+	}
+}
+
+QString Preferences::audioDriverToQString( const Preferences::AudioDriver& driver ) {
+	switch ( driver ) {
+	case AudioDriver::Auto:
+		return "Auto";
+	case AudioDriver::Jack:
+		return "JACK";
+	case AudioDriver::Oss:
+		return "OSS";
+	case AudioDriver::Alsa:
+		return "ALSA";
+	case AudioDriver::PulseAudio:
+		return "PulseAudio";
+	case AudioDriver::CoreAudio:
+		return "CoreAudio";
+	case AudioDriver::PortAudio:
+		return "PortAudio";
+	case AudioDriver::Disk:
+		return "Disk";
+	case AudioDriver::Fake:
+		return "Fake";
+	case AudioDriver::Null:
+		return "Null";
+	case AudioDriver::None:
+		return "nullptr";
+	default:
+		return "Unhandled driver type";
+	}
+}
+
+bool Preferences::checkJackSupport() {
+	// Check whether the Logger is already available.
+	const bool bUseLogger = Logger::isAvailable();
+
+#ifndef H2CORE_HAVE_JACK
+	if ( bUseLogger ) {
+		INFOLOG( "Hydrogen was compiled without JACK support." );
+	}
+	return false;
+#else
+  #ifndef H2CORE_HAVE_DYNAMIC_JACK_CHECK
+	if ( bUseLogger ) {
+		INFOLOG( "JACK support enabled." );
+	}
+	return true;
+  #else
+	/**
+	 * Calls @a sExecutable in a subprocess using the @a sOption CLI
+	 * option and reports the results.
+	 *
+	 * @return An empty string indicates, that the call exited with a
+	 *   code other than zero.
+	 */
+	auto checkExecutable = [&]( const QString& sExecutable,
+								const QString& sOption ) {
+		QProcess process;
+		process.start( sExecutable, QStringList( sOption ) );
+		process.waitForFinished( -1 );
+
+		if ( process.exitCode() != 0 ) {
+			return "";
+		}
+
+		QString sStdout = process.readAllStandardOutput();
+		if ( sStdout.isEmpty() ) {
+			return "No output";
+		}
+
+		return sStdout.trimmed();
+	};
+
+
+	bool bJackSupport = false;
+
+	// Classic JACK
+	const QString sCapture = checkExecutable( "jackd", "--version" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackSupport = true;
+		if ( bUseLogger ) {
+			INFOLOG( QString( "'jackd' of version [%1] found." )
+					 .arg( sCapture ) );
+		}
+	}
+
+	// JACK compiled with DBus support (maybe this one is packaged but
+	// the classical one isn't).
+	//
+	// `jackdbus` is supposed to be run by the DBus message daemon and
+	// does not have proper CLI options. But it does not fail by
+	// passing a `-h` either and this will serve for checking its
+	// presence.
+	sCapture = checkExecutable( "jackdbus", "-h" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackSupport = true;
+		if ( bUseLogger ) {
+			INFOLOG( "'jackdbus' found." );
+		}
+	}
+
+	// Pipewire JACK interface
+	//
+	// `pw-jack` has no version query CLI option (yet). But showing
+	// the help will serve for checking its presence.
+	sCapture = checkExecutable( "pw-jack", "-h" );
+	if ( ! sCapture.isEmpty() ) {
+		bJackSupport = true;
+		if ( bUseLogger ) {
+			INFOLOG( "'pw-jack' found." );
+		}
+	}
+
+	if ( bUseLogger ) {
+		if ( bJackSupport ) {
+			INFOLOG( "Dynamic JACK discovery succeeded. JACK support enabled." );
+		}
+		else {
+			WARNINGLOG( "Dynamic JACK discovery failed. JACK support disabled." );
+		}
+	}
+
+	return bJackSupport;
+  #endif
+#endif
+}
+
+std::vector<Preferences::AudioDriver> Preferences::getSupportedAudioDrivers() {
+
+	std::vector<AudioDriver> drivers;
+
+	// We always do a fresh check. Maybe dynamical discovery will yield a
+	// different result this time.
+	bool bJackSupported = checkJackSupport();
+
+	// The order of the assigned drivers is important as Hydrogen uses
+	// it when trying different drivers in case "Auto" was selected.
+#if defined(WIN32)
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	drivers.push_back( AudioDriver::PortAudio );
+  #endif
+	if ( bJackSupported ) {
+		drivers.push_back( AudioDriver::Jack );
+	}
+#elif defined(__APPLE__)
+  #ifdef H2CORE_HAVE_COREAUDIO
+	drivers.push_back( AudioDriver::CoreAudio );
+  #endif
+	if ( bJackSupported ) {
+		drivers.push_back( AudioDriver::Jack );
+	}
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	drivers.push_back( AudioDriver::PulseAudio );
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	drivers.push_back( AudioDriver::PortAudio );
+  #endif
+#else /* Linux */
+	if ( bJackSupported ) {
+		drivers.push_back( AudioDriver::Jack );
+	}
+  #ifdef H2CORE_HAVE_PULSEAUDIO
+	drivers.push_back( AudioDriver::PulseAudio );
+  #endif
+  #ifdef H2CORE_HAVE_ALSA
+	drivers.push_back( AudioDriver::Alsa );
+  #endif
+  #ifdef H2CORE_HAVE_OSS
+	drivers.push_back( AudioDriver::Oss );
+  #endif
+  #ifdef H2CORE_HAVE_PORTAUDIO
+	drivers.push_back( AudioDriver::PortAudio );
+  #endif
+#endif
+
+	return drivers;
+}
+
 
 void Preferences::setMostRecentFX( QString FX_name )
 {

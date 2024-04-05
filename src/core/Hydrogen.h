@@ -72,6 +72,8 @@ public:
 			server.*/
 		Jack = 2
 	};
+
+
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order.
@@ -240,9 +242,8 @@ void			previewSample( Sample *pSample );
 
 	enum ErrorMessages {
 		/**
-		 * The provided input string in createDriver() does
-		 * not match any of the choices for
-		 * Preferences::m_sAudioDriver.
+		 * The provided input in createDriver() does not match any of the
+		 * choices for #H2Core::Preferences::AudioDriver.
 		 */
 		UNKNOWN_DRIVER,
 		/**
