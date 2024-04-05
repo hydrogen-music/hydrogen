@@ -8,6 +8,7 @@ include_directories(
     ${QT_INCLUDES}
     ${OSC_INCLUDE_DIRS}
     ${LIBSNDFILE_INCLUDE_DIRS}
+    ${CPPUNIT_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}
 )
 
@@ -17,6 +18,7 @@ set_property(TARGET h2JackTimebase PROPERTY CXX_STANDARD 17)
 target_link_libraries(h2JackTimebase
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
+	${CPPUNIT_LIBRARIES}
 	${OSC_LIBRARIES}
 	)
 
