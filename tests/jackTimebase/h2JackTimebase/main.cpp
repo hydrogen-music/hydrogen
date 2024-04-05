@@ -49,6 +49,12 @@
 #include <core/Basics/Playlist.h>
 #include <core/Sampler/Interpolation.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/OscServer.h>
+
+#include <lo/lo.h>
+#include <lo/lo_cpp.h>
+
+#include "TransportTestsTimebase.h"
 
 #include <iostream>
 #include <signal.h>
@@ -87,6 +93,40 @@ void signal_handler ( int signum )
 }
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
+
+void runTransportTests( lo_arg **argv, int argc ) {
+	___INFOLOG( "[runTransportTest] start tests" );
+
+	auto pPref = Preferences::get_instance();
+	pPref->m_bUseMetronome = false;
+
+	TransportTestsTimebase::testFrameToTickConversion();
+	TransportTestsTimebase::testTransportProcessing();
+	TransportTestsTimebase::testTransportProcessingTimeline();
+	TransportTestsTimebase::testTransportRelocation();
+	TransportTestsTimebase::testLoopMode();
+	TransportTestsTimebase::testSongSizeChange();
+	TransportTestsTimebase::testSongSizeChangeInLoopMode();
+	TransportTestsTimebase::testPlaybackTrack();
+	TransportTestsTimebase::testSampleConsistency();
+	TransportTestsTimebase::testNoteEnqueuing();
+	TransportTestsTimebase::testNoteEnqueuingTimeline();
+	TransportTestsTimebase::testHumanization();
+
+	// The tests in here tend to produce a very large number of log
+	// messages and a couple of them may tend to be printed _after_
+	// the results of the overall test runnner. This is quite
+	// unpleasant as the overall result is only shown after
+	// scrolling. As the TestRunner itself does not seem to support
+	// fixtures, we flush the logger in here.
+	H2Core::Logger::get_instance()->flush();
+
+	// Reset to default audio driver config
+	pPref->m_nBufferSize = 1024;
+	pPref->m_nSampleRate = 44100;
+
+	___INFOLOG( "[runTransportTest] DONE" );
+}
 
 int main(int argc, char *argv[])
 {
@@ -173,7 +213,7 @@ int main(int argc, char *argv[])
 
 		// Man your battle stations... this is not a drill.
 		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ),
-											sLogFile, false, true );
+											sLogFile, true, true );
 		Base::bootstrap( logger, logger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
@@ -216,6 +256,11 @@ int main(int argc, char *argv[])
 		signal(SIGINT, signal_handler);
 
 		auto pCoreActionController = pHydrogen->getCoreActionController();
+		auto pOscServer = OscServer::get_instance();
+		pOscServer->getServerThread()->add_method(
+			"/h2JackTimebase/TransportTests", "", runTransportTests );
+		pOscServer->getServerThread()->add_method(
+			nullptr, nullptr, OscServer::generic_handler, nullptr );
 
 		while ( ! bQuit ) {
 			Event event = pQueue->pop_event();

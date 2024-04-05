@@ -22,6 +22,10 @@ const hydrogenStartupTime = 3700
 // finish its tear down.
 const hydrogenTearDownTime = 3000
 
+// oscCommandTime defines the time in milliseconds the tests do wait after
+// sending an OSC command before going on.
+const oscCommandTime = 500
+
 var hydrogenLogFile = "./hydrogen.log"
 var testBinaryLogFile = "./test.log"
 
@@ -29,11 +33,17 @@ var testBinaryLogFile = "./test.log"
 var hydrogenChan chan bool
 // testBinaryChan is used by startTestBinary() to indicate it exited.
 var testBinaryChan chan bool
+// testingChan is used to indicated that the unit tests either failed or
+// succeeded.
+var testingChan chan bool
 
 var hydrogenPath = path.Join(
     "..", "..", "build", "src", "gui", "hydrogen")
 var testBinaryPath = path.Join(
     "..", "..", "build", "tests", "jackTimebase", "h2JackTimebase", "h2JackTimebase")
+
+var hydrogenClient *osc.Client
+var testBinaryClient *osc.Client
 
 // Integration test checking for errors/crashes when closing Hydrogen while
 // using the JACK driver (on Linux).
@@ -53,16 +63,19 @@ func main() {
 
     hydrogenChan = make(chan bool, 1)
     testBinaryChan = make(chan bool, 1)
+    testingChan = make(chan bool, 1)
 
     testContext, testContextCancel := context.WithCancel(context.Background())
 
-    hydrogenClient := osc.NewClient("localhost", oscHydrogenPort)
-    testBinaryClient := osc.NewClient("localhost", oscTestBinaryPort)
+    hydrogenClient = osc.NewClient("localhost", oscHydrogenPort)
+    testBinaryClient = osc.NewClient("localhost", oscTestBinaryPort)
 
     go startHydrogen(testContext)
     go startTestBinary(testContext)
 
     time.Sleep(hydrogenStartupTime * time.Millisecond)
+
+    go runTestSuite()
 
     mainLoop()
 
@@ -70,9 +83,8 @@ func main() {
 
 
     // Teardown
-    msg := osc.NewMessage("/Hydrogen/QUIT")
-    hydrogenClient.Send(msg)
-    testBinaryClient.Send(msg)
+    sendMsg(hydrogenClient, osc.NewMessage("/Hydrogen/QUIT"))
+    sendMsg(testBinaryClient, osc.NewMessage("/Hydrogen/QUIT"))
 
     // Give both applications time to shut down gracefully
     time.Sleep(hydrogenTearDownTime * time.Millisecond)
@@ -91,12 +103,26 @@ func mainLoop() {
         case <-testBinaryChan:
             // Test binary exits
             return
+        case <-testingChan:
+            // Integration tests failed or succeeded
+            return
 
         default:
             time.Sleep(100 * time.Millisecond)
             continue
         }
     }
+}
+
+func sendMsg(c *osc.Client, m *osc.Message) {
+
+    log.Printf("[sendMsg] sending message [%v] to [:%v]",
+        m.String(), c.Port())
+
+    c.Send(m)
+
+    // Wait for Hydrogen to receive and handle the message.
+    time.Sleep(oscCommandTime * time.Millisecond)
 }
 
 func startHydrogen(ctx context.Context) {
@@ -116,7 +142,7 @@ func startHydrogen(ctx context.Context) {
 
 func startTestBinary(ctx context.Context) {
     cmd := exec.CommandContext(ctx, testBinaryPath, "-L", testBinaryLogFile,
-        "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-V", "Debug")
+        "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-VDebug")
     err := cmd.Run()
     if err == nil {
         log.Printf("[startTestBinary] [%v] exited", cmd.String())
@@ -126,4 +152,15 @@ func startTestBinary(ctx context.Context) {
     }
 
     testBinaryChan <- true
+}
+
+func runTestSuite() {
+    // run transport tests without JACK Timebase
+    sendMsg(hydrogenClient,
+        osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(0)))
+    sendMsg(testBinaryClient,
+        osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(0)))
+    sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))
+
+    sendMsg(testBinaryClient, osc.NewMessage("/Hydrogen/QUIT"))
 }
