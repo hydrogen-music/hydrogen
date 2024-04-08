@@ -938,11 +938,20 @@ bool Drumkit::install( const QString& sSourcePath,
 	archive_read_support_format_all( arch );
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	if ( archive_read_open_file( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#else
-	if ( archive_read_open_filename( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#endif
+	if ( archive_read_open_file( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" )
+#else
+  #ifdef WIN32
+	QString sSourcePathPadded = sSourcePath;
+	sSourcePathPadded.append( '\0' );
+	auto sourcePathW = sSourcePathPadded.toStdWString();
+	if ( archive_read_open_filename_w( arch, sourcePathW.c_str(), 10240 ) ) {
+		_ERRORLOG( QString( "archive_read_open_filename_w() [%1] %2" )
+  #else
+	if ( archive_read_open_filename( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
+		_ERRORLOG( QString( "archive_read_open_filename() [%1] %2" )
+  #endif
+#endif
 				   .arg( archive_errno( arch ) )
 				   .arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
@@ -1254,11 +1263,19 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	#endif
 
 	archive_write_set_format_pax_restricted(a);
-	
-	int ret = archive_write_open_filename(a, sTargetName.toUtf8().constData());
+
+#ifdef WIN32
+	QString sTargetNamePadded = QString( sTargetName );
+	sTargetNamePadded.append( '\0' );
+	const auto targetPath = sTargetNamePadded.toStdWString();
+	int ret = archive_write_open_filename_w(a, targetPath.c_str() );
+#else
+	const auto targetPath = sTargetName.toUtf8();
+	int ret = archive_write_open_filename(a, targetPath.constData());
+#endif
 	if ( ret != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't create archive [%0]: %1" )
-				  .arg( sTargetName.toUtf8().constData() )
+				  .arg( QString( targetPath ) )
 				  .arg( archive_error_string( a ) ) );
 		setName( sOldDrumkitName );
 		return false;
@@ -1281,6 +1298,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
+		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
+		// This leads to segfaults in some libarchive versions, like 3.7.2 and
+		// 3.6.2.
 		archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
