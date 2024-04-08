@@ -596,11 +596,20 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 	archive_read_support_format_all( arch );
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	if ( archive_read_open_file( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#else
-	if ( archive_read_open_filename( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#endif
+	if ( archive_read_open_file( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" )
+#else
+  #ifdef WIN32
+	QString sSourcePathPadded = sSourcePath;
+	sSourcePathPadded.append( '\0' );
+	auto sourcePathW = sSourcePathPadded.toStdWString();
+	if ( archive_read_open_filename_w( arch, sourcePathW.c_str(), 10240 ) ) {
+		_ERRORLOG( QString( "archive_read_open_filename_w() [%1] %2" )
+  #else
+	if ( archive_read_open_filename( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
+		_ERRORLOG( QString( "archive_read_open_filename() [%1] %2" )
+  #endif
+#endif
 				   .arg( archive_errno( arch ) )
 				   .arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
@@ -897,11 +906,19 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	#endif
 
 	archive_write_set_format_pax_restricted(a);
-	
-	int ret = archive_write_open_filename(a, sTargetName.toUtf8().constData());
+
+#ifdef WIN32
+	QString sTargetNamePadded = QString( sTargetName );
+	sTargetNamePadded.append( '\0' );
+	const auto targetPath = sTargetNamePadded.toStdWString();
+	int ret = archive_write_open_filename_w(a, targetPath.c_str() );
+#else
+	const auto targetPath = sTargetName.toUtf8();
+	int ret = archive_write_open_filename(a, sTargetPath);
+#endif
 	if ( ret != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't create archive [%0]: %1" )
-				  .arg( sTargetName.toUtf8().constData() )
+				  .arg( targetPath )
 				  .arg( archive_error_string( a ) ) );
 		set_name( sOldDrumkitName );
 		return false;
@@ -924,7 +941,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
-		archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+		archive_entry_set_pathname_utf8(entry, sTargetFilename.toUtf8().constData());
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
