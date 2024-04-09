@@ -171,7 +171,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 *
 	 * \return true on success 
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "",
+				   bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
 		 *

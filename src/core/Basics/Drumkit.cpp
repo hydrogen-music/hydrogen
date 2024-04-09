@@ -724,7 +724,8 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 #endif
 }
 
-bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion, bool bSilent ) {
+bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName,
+						bool bRecentVersion, bool bSilent ) {
 
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
@@ -913,8 +914,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	const auto targetPath = sTargetNamePadded.toStdWString();
 	int ret = archive_write_open_filename_w(a, targetPath.c_str() );
 #else
-	const auto targetPath = sTargetName.toUtf8();
-	int ret = archive_write_open_filename(a, sTargetPath);
+	const auto targetPath = sTargetName.toUtf8().constData();
+	int ret = archive_write_open_filename(a, targetPath);
 #endif
 	if ( ret != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't create archive [%0]: %1" )
