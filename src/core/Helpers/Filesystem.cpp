@@ -685,7 +685,7 @@ QString Filesystem::tmp_file_path( const QString &base )
 {
 	// Ensure template base will produce a valid filename
 	QString validBase = base;
-	validBase.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
+	validBase.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	QFileInfo f( validBase );
 	QString templateName( tmp_dir() + "/" );
@@ -946,7 +946,7 @@ QString Filesystem::validateFilePath( const QString& sPath ) {
 	// Ensure the name will be a valid filename
 	QString sValidName( sPath );
 	sValidName.replace( " ", "_" );
-	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+	sValidName.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	return sValidName;
 }

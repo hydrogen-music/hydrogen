@@ -28,6 +28,7 @@ class FilesystemTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( FilesystemTest );
 	CPPUNIT_TEST( testPermissions );
 	CPPUNIT_TEST( testUniquePrefix );
+	CPPUNIT_TEST( testFilePathValidation );
 	CPPUNIT_TEST_SUITE_END();
 	
 	
@@ -37,6 +38,7 @@ public:
 	
 	void testPermissions();
 		void testUniquePrefix();
+	void testFilePathValidation();
 
 private:
 	QString m_sNotExistingPath;

@@ -88,3 +88,23 @@ void FilesystemTest::testUniquePrefix() {
 	CPPUNIT_ASSERT( sNoPrefixPath2 ==
 					Filesystem::removeUniquePrefix( sNoPrefixPath2 ) );
 }
+
+void FilesystemTest::testFilePathValidation() {
+	QStringList invalidFilenames, validFilenames;
+
+	validFilenames << "test.h2song" << "123-te-s_t.h2drumkit"
+		<< "ếИ£TestKit越.h2pattern";
+	invalidFilenames << "te/s/t/.h2song" << "test@h2song" << "t\\e\\s\\t.h2song"
+		<< "?!h2song" << "test*.%h2drumkit";
+
+	for ( const auto& ssName : validFilenames ) {
+		const auto ssValidated = Filesystem::validateFilePath( ssName );
+		CPPUNIT_ASSERT( ssName == ssValidated );
+	}
+	for ( const auto& ssName : invalidFilenames ) {
+		const auto ssValidated = Filesystem::validateFilePath( ssName );
+		const auto ssValidatedTwice = Filesystem::validateFilePath( ssValidated );
+		CPPUNIT_ASSERT( ssName != ssValidated );
+		CPPUNIT_ASSERT( ssValidatedTwice == ssValidated );
+	}
+}
