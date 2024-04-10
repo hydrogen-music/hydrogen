@@ -20,18 +20,21 @@
  *
  */
 
+#include <QFile>
+#include <QDataStream>
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
 #else
-#ifndef WIN32
+  #ifndef WIN32
 #include <fcntl.h>
 #include <errno.h>
 #include <zlib.h>
 #include <libtar.h>
-#endif
+  #endif
 #endif
 
 #include <core/Basics/Sample.h>
@@ -894,9 +897,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	struct archive *a;
 	struct archive_entry *entry;
 	struct stat st;
-	char buff[8192];
-	int len;
-	FILE *f;
+	const int nBufferSize = 8192;
+	char buff[ nBufferSize ];
+	int nBytesRead;
 
 	a = archive_write_new();
 
@@ -947,13 +950,22 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
 		archive_write_header(a, entry);
-		f = fopen( sFilename.toUtf8().constData(), "rb" );
-		len = fread(buff, sizeof(char), sizeof(buff), f);
-		while ( len > 0 ) {
-				archive_write_data(a, buff, len);
-				len = fread(buff, sizeof(char), sizeof(buff), f);
+
+		QFile file( sFilename );
+		if ( ! file.open( QIODevice::ReadOnly ) ) {
+			ERRORLOG( QString( "Unable to open file [%1] for reading" )
+				  .arg( sFilename ) );
+			archive_entry_free( entry );
+			continue;
 		}
-		fclose(f);
+
+		QDataStream stream( &file );
+		nBytesRead = stream.readRawData( buff, nBufferSize );
+		while ( nBytesRead > 0 ) {
+			archive_write_data( a, buff, nBytesRead );
+			nBytesRead = stream.readRawData( buff, nBufferSize );
+		}
+		file.close();
 		archive_entry_free(entry);
 	}
 	archive_write_close(a);
