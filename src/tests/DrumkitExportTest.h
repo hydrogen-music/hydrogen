@@ -30,11 +30,11 @@ class DrumkitExportTest : public CppUnit::TestCase {
 
 // Otherwise either export won't work or a command line zip is used, which is
 // bound to produce slightly different results.
-#ifdef H2CORE_HAVE_LIBARCHIVE
 	CPPUNIT_TEST_SUITE( DrumkitExportTest );
+#ifdef H2CORE_HAVE_LIBARCHIVE
 	CPPUNIT_TEST( testDrumkitExportAndImport );
-	CPPUNIT_TEST_SUITE_END();
 #endif
+	CPPUNIT_TEST_SUITE_END();
 
 	private:
 		QString m_sTestKitName;
