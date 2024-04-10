@@ -994,7 +994,7 @@ bool Drumkit::install( const QString& sSourcePath,
 			sExtractedDir = npInfo.absoluteDir().absolutePath();
 		}
 
-		QByteArray newpath = np.toLocal8Bit();
+		QByteArray newpath = np.toUtf8();
 
 		archive_entry_set_pathname( entry, newpath.data() );
 		r = archive_read_extract( arch, entry, 0 );
