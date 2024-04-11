@@ -911,7 +911,7 @@ bool Drumkit::install( const QString& sSourcePath,
 {
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
-			_INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
+			INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
 		}
 		
 	} else {
@@ -920,109 +920,143 @@ bool Drumkit::install( const QString& sSourcePath,
 		}
 		
 		if ( ! bSilent ) {		
-			_INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
+			INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
 					  .arg( sSourcePath ).arg( sTargetPath ) );
 		}
 	}
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
-	int r;
-	struct archive* arch;
+	int nRet;
+	struct archive* a;
 	struct archive_entry* entry;
 
-	arch = archive_read_new();
+	a = archive_read_new();
+	if ( a == nullptr ) {
+		ERRORLOG( "Unable to create new archive" );
+		return false;
+	}
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_support_compression_all( arch );
+	archive_read_support_compression_all( a );
 #else
-	archive_read_support_filter_all( arch );
+	nRet = archive_read_support_filter_all( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't add support for all filters: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
 #endif
 
-	archive_read_support_format_all( arch );
+	nRet = archive_read_support_format_all( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't add support for all formats: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
+
+	// Shutdown version used on error. Therefore, contained commands are not
+	// checked for errors themselves.
+	auto tearDown = [&]() {
+		archive_read_close( a );
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	if ( archive_read_open_file( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
-		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" )
+		archive_read_finish( a );
+#else
+		archive_read_free( a );
+#endif
+	};
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	nRet = archive_read_open_file( a, sSourcePath.toUtf8().constData(), 10240 );
 #else
   #ifdef WIN32
 	QString sSourcePathPadded = sSourcePath;
 	sSourcePathPadded.append( '\0' );
 	auto sourcePathW = sSourcePathPadded.toStdWString();
-	if ( archive_read_open_filename_w( arch, sourcePathW.c_str(), 10240 ) ) {
-		_ERRORLOG( QString( "archive_read_open_filename_w() [%1] %2" )
+	nRet = archive_read_open_filename_w( a, sourcePathW.c_str(), 10240 );
   #else
-	if ( archive_read_open_filename( arch, sSourcePath.toUtf8().constData(), 10240 ) ) {
-		_ERRORLOG( QString( "archive_read_open_filename() [%1] %2" )
+	nRet = archive_read_open_filename( a, sSourcePath.toUtf8().constData(),
+									   10240 );
   #endif
 #endif
-				   .arg( archive_errno( arch ) )
-				   .arg( archive_error_string( arch ) ) );
-		archive_read_close( arch );
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_read_finish( arch );
-#else
-		archive_read_free( arch );
-#endif
-
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString( "Unable to open archive [%1] for reading: %2" )
+				   .arg( sSourcePath )
+				   .arg( archive_error_string( a ) ) );
+		tearDown();
 		return false;
 	}
-	bool ret = true;
 
-	QString dk_dir;
+	QString sDrumkitDir;
 	if ( ! sTargetPath.isEmpty() ) {
-		dk_dir = sTargetPath + "/";
+		sDrumkitDir = sTargetPath + "/";
 	} else {
-		dk_dir = Filesystem::usr_drumkits_dir() + "/";
+		sDrumkitDir = Filesystem::usr_drumkits_dir() + "/";
 	}
 
 	// Keep track of where the artifacts where extracted to
 	QString sExtractedDir = "";
 		
-	while ( ( r = archive_read_next_header( arch, &entry ) ) != ARCHIVE_EOF ) {
-		if ( r != ARCHIVE_OK ) {
-			_ERRORLOG( QString( "archive_read_next_header() [%1] %2" )
-					   .arg( archive_errno( arch ) )
-					   .arg( archive_error_string( arch ) ) );
-			ret = false;
-			break;
+	while ( ( nRet = archive_read_next_header( a, &entry ) ) != ARCHIVE_EOF ) {
+		if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString( "Unable to read next archive header: %1" )
+					   .arg( archive_error_string( a ) ) );
+			tearDown();
+			return false;
 		}
-		QString np = dk_dir + archive_entry_pathname( entry );
-
-		if ( np.contains( Filesystem::drumkit_xml() ) ) {
-			QFileInfo npInfo( np );
-			sExtractedDir = npInfo.absoluteDir().absolutePath();
+		if ( entry == nullptr ) {
+			ERRORLOG( "Couldn't read in next archive entry" );
+			return false;
 		}
 
-		QByteArray newpath = np.toUtf8();
+		QString sNewPath = QString::fromUtf8( archive_entry_pathname_utf8( entry ) );
+		if ( sNewPath.isEmpty() ) {
+			sNewPath = QString( archive_entry_pathname( entry ) );
+		}
+		sNewPath.prepend( sDrumkitDir );
+
+		if ( sNewPath.contains( Filesystem::drumkit_xml() ) ) {
+			QFileInfo newPathInfo( sNewPath );
+			sExtractedDir = newPathInfo.absoluteDir().absolutePath();
+		}
+
+		QByteArray newpath = sNewPath.toUtf8();
 
 		archive_entry_set_pathname( entry, newpath.data() );
-		r = archive_read_extract( arch, entry, 0 );
-		if ( r == ARCHIVE_WARN ) {
-			_WARNINGLOG( QString( "archive_read_extract() [%1] %2" )
-						 .arg( archive_errno( arch ) )
-						 .arg( archive_error_string( arch ) ) );
-		} else if ( r != ARCHIVE_OK ) {
-			_ERRORLOG( QString( "archive_read_extract() [%1] %2" )
-					   .arg( archive_errno( arch ) )
-					   .arg( archive_error_string( arch ) ) );
-			ret = false;
-			break;
+		nRet = archive_read_extract( a, entry, 0 );
+		if ( nRet == ARCHIVE_WARN ) {
+			WARNINGLOG( QString( "While extracting content of [%1] from archive: %2" )
+						 .arg( sNewPath )
+						 .arg( archive_error_string( a ) ) );
+		}
+		else if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString( "Unable to extract content of [%1] from archive: %2" )
+					   .arg( sNewPath )
+					   .arg( archive_error_string( a ) ) );
+			tearDown();
+			return false;
 		}
 	}
-	archive_read_close( arch );
+	nRet = archive_read_close( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't close archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+		return false;
+	}
 
 	if ( pInstalledPath != nullptr ) {
 		*pInstalledPath = sExtractedDir;
 	}
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_finish( arch );
+	archive_read_finish( a );
 #else
-	archive_read_free( arch );
+	nRet = archive_read_free( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't free memory associated with archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
 #endif
 
-	return ret;
+	return true;
 #else // H2CORE_HAVE_LIBARCHIVE
 #ifndef WIN32
 	// GUNZIP
@@ -1259,8 +1293,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 	a = archive_write_new();
 	if ( a == nullptr ) {
-		ERRORLOG( "Unable to create a new archive" );
-		set_name( sOldDrumkitName );
+		ERRORLOG( "Unable to create new archive" );
+		setName( sOldDrumkitName );
 		return false;
 	}
 
@@ -1271,7 +1305,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	if ( nRet != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't add GZIP filter: %1" )
 				  .arg( archive_error_string( a ) ) );
-		set_name( sOldDrumkitName );
+		setName( sOldDrumkitName );
 		return false;
 	}
 #endif
@@ -1280,7 +1314,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	if ( nRet != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't set archive format to 'pax restricted': %1" )
 				  .arg( archive_error_string( a ) ) );
-		set_name( sOldDrumkitName );
+		setName( sOldDrumkitName );
 		return false;
 	}
 
@@ -1321,7 +1355,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		entry = archive_entry_new();
 		if ( entry == nullptr ) {
 			ERRORLOG( "Unable to create new archive entry" );
-			set_name( sOldDrumkitName );
+			setName( sOldDrumkitName );
 			return false;
 		}
 		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
@@ -1336,7 +1370,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 			ERRORLOG( QString("Couldn't write entry for [%1] to archive header: %2" )
 					  .arg( sFilename )
 					  .arg( archive_error_string( a ) ) );
-			set_name( sOldDrumkitName );
+			setName( sOldDrumkitName );
 			return false;
 		}
 
@@ -1371,21 +1405,20 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	if ( nRet != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't close archive: %1" )
 				  .arg( archive_error_string( a ) ) );
-		set_name( sOldDrumkitName );
+		setName( sOldDrumkitName );
 		return false;
 	}
 
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_write_finish(a);
-	#else
-		nRet = archive_write_free(a);
-		if ( nRet != ARCHIVE_OK ) {
-			// This is a bug but exporting did work nevertheless.
-			ERRORLOG( QString("Couldn't free memory associated with archive: %1" )
-					  .arg( archive_error_string( a ) ) );
-		}
-	#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_write_finish(a);
+#else
+	nRet = archive_write_free(a);
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't free memory associated with archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
+#endif
 
 	sourceFilesList.clear();
 
@@ -1418,7 +1451,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 									  true, true ) ) {
 			ERRORLOG( QString( "Unable to create tmp folder [%1]" )
 					  .arg( tmpFolder.path() + "/" + sDirName ) );
-			set_name( sOldDrumkitName );
+			setName( sOldDrumkitName );
 			return false;
 		}
 
@@ -1431,7 +1464,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 			if ( ! Filesystem::file_copy( ssFile, sNewFilePath, true, true ) ) {
 				ERRORLOG( QString( "Unable to copy file [%1] to [%2]." )
 						  .arg( ssFile ).arg( sNewFilePath ) );
-				set_name( sOldDrumkitName );
+				setName( sOldDrumkitName );
 				return false;
 			}
 
@@ -1460,7 +1493,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	if ( nRet != 0 ) {
 		ERRORLOG( QString( "Unable to export drumkit using system command:\n%1" )
 				  .arg( sCmd ) );
-			set_name( sOldDrumkitName );
+			setName( sOldDrumkitName );
 		return false;
 	}
 
@@ -1469,7 +1502,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	// the system will clean it up anyway).
 	Filesystem::rm( tmpFolder.path(), true, true );
 
-	set_name( sOldDrumkitName );
+	setName( sOldDrumkitName );
 			
 	return true;
 #else // WIN32
