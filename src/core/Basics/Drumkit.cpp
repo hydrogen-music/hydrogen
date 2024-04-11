@@ -1255,30 +1255,48 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	struct stat st;
 	const int nBufferSize = 8192;
 	char buff[ nBufferSize ];
-	int nBytesRead;
+	int nBytesRead, nRet;
 
 	a = archive_write_new();
+	if ( a == nullptr ) {
+		ERRORLOG( "Unable to create a new archive" );
+		set_name( sOldDrumkitName );
+		return false;
+	}
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_write_set_compression_gzip(a);
-	#else
-		archive_write_add_filter_gzip(a);
-	#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_write_set_compression_gzip( a );
+#else
+	nRet = archive_write_add_filter_gzip( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't add GZIP filter: %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
+#endif
 
-	archive_write_set_format_pax_restricted(a);
+	nRet = archive_write_set_format_pax_restricted( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't set archive format to 'pax restricted': %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
+
 
 #ifdef WIN32
 	QString sTargetNamePadded = QString( sTargetName );
 	sTargetNamePadded.append( '\0' );
 	const auto targetPath = sTargetNamePadded.toStdWString();
-	int ret = archive_write_open_filename_w(a, targetPath.c_str() );
+	nRet = archive_write_open_filename_w( a, targetPath.c_str() );
 #else
-	const auto targetPath = sTargetName.toUtf8();
-	int ret = archive_write_open_filename(a, targetPath.constData());
+	const auto targetPath = sTargetName.toUtf8().constData();
+	nRet = archive_write_open_filename( a, targetPath );
 #endif
-	if ( ret != ARCHIVE_OK ) {
-		ERRORLOG( QString("Couldn't create archive [%0]: %1" )
-				  .arg( QString( targetPath ) )
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't create archive [%1]: %2" )
+				  .arg( targetPath )
 				  .arg( archive_error_string( a ) ) );
 		setName( sOldDrumkitName );
 		return false;
@@ -1301,6 +1319,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
+		if ( entry == nullptr ) {
+			ERRORLOG( "Unable to create new archive entry" );
+			set_name( sOldDrumkitName );
+			return false;
+		}
 		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
 		// This leads to segfaults in some libarchive versions, like 3.7.2 and
 		// 3.6.2.
@@ -1308,7 +1331,14 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
-		archive_write_header(a, entry);
+		nRet = archive_write_header(a, entry);
+		if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString("Couldn't write entry for [%1] to archive header: %2" )
+					  .arg( sFilename )
+					  .arg( archive_error_string( a ) ) );
+			set_name( sOldDrumkitName );
+			return false;
+		}
 
 		QFile file( sFilename );
 		if ( ! file.open( QIODevice::ReadOnly ) ) {
@@ -1321,18 +1351,40 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		QDataStream stream( &file );
 		nBytesRead = stream.readRawData( buff, nBufferSize );
 		while ( nBytesRead > 0 ) {
-			archive_write_data( a, buff, nBytesRead );
+			nRet = archive_write_data( a, buff, nBytesRead );
+			if ( nRet < 0 ) {
+				ERRORLOG( QString( "Error while writing data to entry of [%1]: %2" )
+						  .arg( sFilename ).arg( archive_error_string( a ) ) );
+				break;
+			}
+			else if ( nRet != nBytesRead ) {
+				WARNINGLOG( QString( "Only [%1/%2] bytes written to archive entry of [%3]" )
+							.arg( nRet ).arg( nBytesRead ).arg( sFilename ) );
+			}
+
 			nBytesRead = stream.readRawData( buff, nBufferSize );
 		}
 		file.close();
 		archive_entry_free(entry);
 	}
-	archive_write_close(a);
+	nRet = archive_write_close(a);
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't close archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
+
 
 	#if ARCHIVE_VERSION_NUMBER < 3000000
 		archive_write_finish(a);
 	#else
-		archive_write_free(a);
+		nRet = archive_write_free(a);
+		if ( nRet != ARCHIVE_OK ) {
+			// This is a bug but exporting did work nevertheless.
+			ERRORLOG( QString("Couldn't free memory associated with archive: %1" )
+					  .arg( archive_error_string( a ) ) );
+		}
 	#endif
 
 	sourceFilesList.clear();
