@@ -1410,8 +1410,13 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		pDrumkit = Drumkit::load( sDrumkitPath, false, true );
 		*sDrumkitDir = sDrumkitPath;
 		
-	} else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() &&
-				Filesystem::file_readable( sDrumkitPath, true ) ) {
+	}
+	else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() ) {
+		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "Drumkit file [%1] not readable" )
+					  .arg( sDrumkitPath ) );
+			return nullptr;
+		}
 
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
@@ -1419,8 +1424,13 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		pDrumkit = Drumkit::load( sDrumkitDirPath, false, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
-	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&
-				Filesystem::file_readable( sDrumkitPath, true ) ) {
+	}
+	else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext ) {
+		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "Drumkit archive [%1] not readable" )
+					  .arg( sDrumkitPath ) );
+			return nullptr;
+		}
 
 		*bIsCompressed = true;
 		
