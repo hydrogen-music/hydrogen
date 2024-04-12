@@ -4165,10 +4165,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation>&amp;General</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>&amp;Sistema d&apos;Àudio</translation>
     </message>
@@ -4306,14 +4302,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

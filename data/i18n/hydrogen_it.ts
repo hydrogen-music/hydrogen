@@ -4099,10 +4099,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>###</source>
         <translation>###</translation>
     </message>
@@ -4308,14 +4304,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

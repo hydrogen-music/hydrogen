@@ -368,8 +368,7 @@ int main(int argc, char *argv[])
 			else {
 				/* Try load last song */
 				const QString sSongPath = preferences->getLastSongFilename();
-				if ( preferences->isRestoreLastSongEnabled() &&
-					 ! sSongPath.isEmpty() ) {
+				if ( ! sSongPath.isEmpty() ) {
 					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}
 			}

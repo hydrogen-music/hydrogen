@@ -119,9 +119,9 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 
 	/////////// Load song and playlist
 	auto openFile = [=]( const Filesystem::Type& type, const QString& sPath,
-						 const QString& sLastPath, bool bRestore ) {
+						 const QString& sLastPath ) {
 		bool bRet = false;
-		if ( sPath.isEmpty() && bRestore ) {
+		if ( sPath.isEmpty() ) {
 			bRet = HydrogenApp::openFile( type, sLastPath );
 		}
 		else if ( ! sPath.isEmpty() ) {
@@ -137,18 +137,15 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	// loaded Song.
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
 		if ( ! openFile( Filesystem::Type::Song, sSongFilename,
-						 pPref->getLastSongFilename(),
-						 pPref->isRestoreLastSongEnabled() ) ) {
+						 pPref->getLastSongFilename() ) ) {
 			// Fall back to an empty song.
-			HydrogenApp::openSong( H2Core::Song::getEmptySong() );
-		}
+			HydrogenApp::openSong( H2Core::Song::getEmptySong() );		}
 	}
 
 	// We need no fallback for the playlist as a new one corresponds to an empty
 	// one.
 	openFile( Filesystem::Type::Playlist, sPlaylistFilename,
-			  pPref->getLastPlaylistFilename(),
-			  pPref->isRestoreLastPlaylistEnabled() );
+			  pPref->getLastPlaylistFilename() );
 
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );

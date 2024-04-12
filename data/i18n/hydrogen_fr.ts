@@ -4142,10 +4142,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>&amp;Général</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>&amp;Système audio</translation>
     </message>
@@ -4392,14 +4388,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>MIDI driver</source>
         <translation>Pilote MIDI</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation>Réouvrir le dernier morceau utili&amp;sé</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
-        <translation>Réouvrir la dernière liste de lecture utili&amp;sée</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>

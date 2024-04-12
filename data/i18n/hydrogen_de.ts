@@ -4197,10 +4197,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>&amp;Generell</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>Audio&amp;system</translation>
     </message>
@@ -4371,14 +4367,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Prefer larger</source>
         <translation>Bevorzuge Größere</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation>Zuletzt geöffneten &amp;Song beim Start öffnen</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
-        <translation>Zuletzt geöffnete &amp;Playlist beim Start öffnen</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>
