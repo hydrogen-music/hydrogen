@@ -565,7 +565,8 @@ bool Drumkit::remove( const QString& sDrumkitDir )
 	return true;
 }
 	
-bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
+bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
+					   bool bSilent )
 {
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
@@ -587,6 +588,11 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 	int nRet;
 	struct archive* a;
 	struct archive_entry* entry;
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Importing using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
 
 	a = archive_read_new();
 	if ( a == nullptr ) {
@@ -927,6 +933,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	}
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Exporting using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
 
 	struct archive *a;
 	struct archive_entry *entry;
