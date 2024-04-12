@@ -87,7 +87,6 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::share
 };
 
 MidiSenseWidget::~MidiSenseWidget(){
-	INFOLOG("DESTROY");
 	m_pUpdateTimer->stop();
 }
 

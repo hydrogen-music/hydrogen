@@ -41,6 +41,7 @@
 #include "core/AudioEngine/AudioEngine.h"
 #include "core/Basics/Song.h"
 #include "core/MidiAction.h"
+#include "core/IO/MidiCommon.h"
 
 OscServer * OscServer::__instance = nullptr;
 
@@ -991,6 +992,76 @@ void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
 	pController->removePattern( static_cast<int>(std::round( argv[0]->f )) );
 }
 
+void OscServer::CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv,int i)
+{
+	INFOLOG( "processing message" );
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	const int nInstr = pHydrogen->getSelectedInstrumentNumber();
+	if ( nInstr == -1 ) {
+		WARNINGLOG( "No instrument selected" );
+		return;
+	}
+
+	pHydrogen->getCoreActionController()->clearInstrumentInPattern( nInstr );
+}
+
+void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
+{
+	INFOLOG( "processing message" );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()
+		->clearInstrumentInPattern( static_cast<int>(std::round( argv[0]->f )) );
+}
+
+void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
+{
+	INFOLOG( "processing message" );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>( "CLEAR_PATTERN" );
+	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
+{
+	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
+	if ( nNote < H2Core::MidiMessage::instrumentOffset || nNote > 127 ) {
+		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
+				  .arg( nNote ).arg( H2Core::MidiMessage::instrumentOffset ) );
+		return;
+	}
+
+	float fVelocity = argv[1]->f;
+	if ( fVelocity < 0 ) {
+		WARNINGLOG( QString( "Provided velocity [%1] out of bound. Using minimum value [0] instead." )
+					.arg( fVelocity ) );
+		fVelocity = 0;
+	}
+	else if ( fVelocity > 1.0 ) {
+		WARNINGLOG( QString( "Provided velocity [%1] out of bound. Using maximum value [1.0] instead." )
+					.arg( fVelocity ) );
+		fVelocity = 1.0;
+	}
+
+	INFOLOG( QString( "processing message with note: [%1] and velocity: [%2]" )
+			 .arg( nNote ).arg( fVelocity ) );
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()
+		->handleNote( nNote, fVelocity, false );
+}
+
+void OscServer::NOTE_OFF_Handler( lo_arg** argv, int i )
+{
+	const int nNote = static_cast<int>( std::round( argv[0]->f ) );
+	if ( nNote < H2Core::MidiMessage::instrumentOffset || nNote > 127 ) {
+		ERRORLOG( QString( "Provided note [%1] out of bound [%2,127]." )
+				  .arg( nNote ).arg( H2Core::MidiMessage::instrumentOffset ) );
+		return;
+	}
+
+	INFOLOG( QString( "processing message with note: [%1]" ).arg( nNote ) );
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()
+		->handleNote( nNote, 0.0, true );
+}
+
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -1347,6 +1418,17 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/NEW_PATTERN", "s", NEW_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_INSTRUMENT", "f", CLEAR_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "",
+								CLEAR_SELECTED_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_SELECTED_INSTRUMENT", "f",
+								CLEAR_SELECTED_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "", CLEAR_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/CLEAR_PATTERN", "f", CLEAR_PATTERN_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/NOTE_ON", "ff", NOTE_ON_Handler);
+	m_pServerThread->add_method("/Hydrogen/NOTE_OFF", "f", NOTE_OFF_Handler);
+
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);

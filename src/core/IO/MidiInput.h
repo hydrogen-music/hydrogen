@@ -60,10 +60,6 @@ protected:
 
 	void handleNoteOnMessage( const MidiMessage& msg );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
-
-
-private:
-	int __hihat_cc_openess;
 };
 
 };
