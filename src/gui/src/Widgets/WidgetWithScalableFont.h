@@ -38,7 +38,7 @@
 template < int nSmall, int nNormal, int nLarge >
 class WidgetWithScalableFont {
 protected:
-  constexpr int getPointSize( H2Core::FontTheme::FontSize fontSize ) const {
+  constexpr int getPointSize( const H2Core::FontTheme::FontSize& fontSize ) const {
     switch ( fontSize ) {
     case H2Core::FontTheme::FontSize::Small:
       return nSmall;

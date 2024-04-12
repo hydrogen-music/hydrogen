@@ -36,6 +36,7 @@
 #include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiAction.h>
@@ -140,7 +141,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -423,7 +424,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -614,7 +615,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 	Preferences *pPref = Preferences::get_instance();
 
-	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
@@ -665,14 +666,12 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pVelocityLbl->move( 62, 190 );
 }
 
-MasterMixerLine::~MasterMixerLine()
-{
+MasterMixerLine::~MasterMixerLine() {
 	m_fMaxPeak = 0.0;
 }
 
-void MasterMixerLine::muteClicked()
-{
-	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
+void MasterMixerLine::muteClicked() {
+	CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
 }
 
 void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
@@ -857,7 +856,7 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 
 	QPainter p( this );
 	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );
@@ -865,7 +864,7 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	p.drawText( -m_nWidgetHeight + 5, 0, m_nWidgetHeight - 10, m_nWidgetWidth, Qt::AlignVCenter, m_sInstrName );
 }
 
-void InstrumentNameWidget::setText( QString text )
+void InstrumentNameWidget::setText( const QString& text )
 {
 	if (m_sInstrName != text ) {
 		m_sInstrName = text;
@@ -873,7 +872,7 @@ void InstrumentNameWidget::setText( QString text )
 	}
 }
 
-QString InstrumentNameWidget::text()
+const QString& InstrumentNameWidget::text()
 {
 	return m_sInstrName;
 }
@@ -890,7 +889,7 @@ void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 	emit doubleClicked();
 }
 
-void InstrumentNameWidget::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void InstrumentNameWidget::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
@@ -947,7 +946,7 @@ LadspaFXMixerLine::~LadspaFXMixerLine()
 //	infoLog( "DESTROY" );
 }
 
-void LadspaFXMixerLine::setName(QString name)
+void LadspaFXMixerLine::setName( const QString& name )
 {
 	m_pNameLCD->setText( name );
 }

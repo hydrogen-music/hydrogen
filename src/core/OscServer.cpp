@@ -35,6 +35,7 @@
 
 #include <core/Basics/Drumkit.h>
 #include "core/Basics/InstrumentList.h"
+#include "core/Basics/Playlist.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"
 #include "core/EventQueue.h"
@@ -46,7 +47,7 @@
 OscServer * OscServer::__instance = nullptr;
 
 
-QString OscServer::qPrettyPrint(lo_type type,void * data)
+QString OscServer::qPrettyPrint( const lo_type& type, void* data )
 {
 	QString formattedString;
 
@@ -174,7 +175,6 @@ int OscServer::generic_handler(const char *	path,
 							   void *		user_data)
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pController = pHydrogen->getCoreActionController();
 	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
@@ -231,7 +231,8 @@ int OscServer::generic_handler(const char *	path,
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as changing pan of strip [%1] in absolute numbers" )
 						 .arg( nStrip ) );
-				pController->setStripPan( nStrip, argv[0]->f, false );
+				H2Core::CoreActionController::setStripPan(
+					nStrip, argv[0]->f, false );
 				bMessageProcessed = true;
 			}
 			else {
@@ -250,7 +251,7 @@ int OscServer::generic_handler(const char *	path,
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as changing pan of strip [%1] in symmetric, absolute numbers" )
 						 .arg( nStrip ) );
-				pController->setStripPanSym( nStrip, argv[0]->f, false );
+				H2Core::CoreActionController::setStripPanSym( nStrip, argv[0]->f, false );
 				bMessageProcessed = true;
 			}
 			else {
@@ -309,7 +310,7 @@ int OscServer::generic_handler(const char *	path,
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
 						 .arg( nStrip ) );
-				pController->toggleStripIsMuted( nStrip );
+				H2Core::CoreActionController::toggleStripIsMuted( nStrip );
 				bMessageProcessed = true;
 			}
 			else {
@@ -328,7 +329,7 @@ int OscServer::generic_handler(const char *	path,
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
 						 .arg( nStrip ) );
-				pController->toggleStripIsSoloed( nStrip );
+				H2Core::CoreActionController::toggleStripIsSoloed( nStrip );
 				bMessageProcessed = true;
 			}
 			else {
@@ -413,182 +414,158 @@ void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/STOP_TOGGLE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::STOP_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("STOP");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAUSE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_READY");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD/STROBE_TOGGLE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_STROBE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_EXIT");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::MUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNMUTE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE_TOGGLE");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>(">>_NEXT_BAR");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::BPM_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	const float fNewBpm = argv[0]->f;
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->
-		setBpm( fNewBpm );
+	H2Core::CoreActionController::setBpm( argv[0]->f );
 }
 
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_INCR");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-	
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_DECR");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 	
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
-
-	// Null song handling done in MidiActionManager.
-	pController->setMasterVolume( argv[0]->f );
+	H2Core::CoreActionController::setMasterVolume( argv[0]->f );
 }
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
@@ -596,32 +573,27 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_RELATIVE");
 	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ));
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
 	INFOLOG( "processing message" );
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
-
-	// Null song handling done in MidiActionManager.
-	pController->setStripVolume( param1, param2, false );
+	H2Core::CoreActionController::setStripVolume( param1, param2, false );
 }
 
-void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
+void OscServer::STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
+											  const QString& param2 )
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("STRIP_VOLUME_RELATIVE");
 	pAction->setParameter1( param1 );
 	pAction->setValue( param2 );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
@@ -629,10 +601,9 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_NEXT_PATTERN");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
@@ -640,10 +611,9 @@ void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_ONLY_NEXT_PATTERN");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
@@ -651,42 +621,39 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_AND_PLAY_PATTERN");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
-void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2)
+void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
+													  const QString& param2)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("FILTER_CUTOFF_LEVEL_ABSOLUTE");
 	pAction->setParameter1( param1 );
 	pAction->setValue( param2 );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("BEATCOUNTER");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("TAP_TEMPO");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
@@ -695,40 +662,35 @@ void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_SONG");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
-
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("TOGGLE_METRONOME");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
@@ -737,30 +699,26 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_INSTRUMENT");
 	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
 
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
-
 	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNDO_ACTION");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// This one does also work the current song being nullptr.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("REDO_ACTION");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// This one does also work the current song being nullptr.
-	pActionManager->handleAction( pAction );
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 // -------------------------------------------------------------------
@@ -769,260 +727,155 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pController = pHydrogen->getCoreActionController();
-	pController->newSong( QString::fromUtf8( &argv[0]->s ) );
+	const auto sPath = QString::fromUtf8( &argv[0]->s );
+	if ( ! H2Core::Filesystem::isPathValid(
+			 H2Core::Filesystem::Type::Song, sPath ) ||
+		 ! H2Core::Filesystem::file_writable( sPath ) ) {
+		ERRORLOG( QString( "Unable to create new song for invalid path [%1]" )
+				  .arg( sPath ) );
+		return;
+	}
+
+	auto pSong = H2Core::Song::getEmptySong();
+	pSong->setFilename( sPath );
+	H2Core::CoreActionController::setSong( pSong );
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pController = pHydrogen->getCoreActionController();
-	pController->openSong( QString::fromUtf8( &argv[0]->s ) );
+	auto pSong = H2Core::CoreActionController::loadSong(
+		QString::fromUtf8( &argv[0]->s ) );
+	H2Core::CoreActionController::setSong( pSong );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->saveSong();
+	H2Core::CoreActionController::saveSong();
 }
 
 void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->saveSongAs( QString::fromUtf8( &argv[0]->s ) );
+	H2Core::CoreActionController::saveSongAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-	
-	auto pController = pHydrogen->getCoreActionController();
-	pController->savePreferences();
+	H2Core::CoreActionController::savePreferences();
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pController = pHydrogen->getCoreActionController();
-	pController->quit();
+	H2Core::CoreActionController::quit();
 }
 
 // -------------------------------------------------------------------
 
 void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-
-	if ( argv[0]->f != 0 ) { 
-		pController->activateTimeline( true );
+	if ( argv[0]->f != 0 ) {
+		H2Core::CoreActionController::activateTimeline( true );
 	} else {
-		pController->activateTimeline( false );
+		H2Core::CoreActionController::activateTimeline( false );
 	}
 }
 
 void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->addTempoMarker( static_cast<int>(std::round( argv[0]->f )),
-								 argv[1]->f);
+	H2Core::CoreActionController::addTempoMarker(
+		static_cast<int>(std::round( argv[0]->f )), argv[1]->f);
 }
 
 void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->deleteTempoMarker( static_cast<int>( std::round( argv[0]->f ) ) );
+	H2Core::CoreActionController::deleteTempoMarker(
+		static_cast<int>( std::round( argv[0]->f ) ) );
 }
 
 void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-	
-	auto pController = pHydrogen->getCoreActionController();
-
 	if ( argv[0]->f != 0 ) {
-		pController->activateJackTransport( true );
+		H2Core::CoreActionController::activateJackTransport( true );
 	} else {
-		pController->activateJackTransport( false );
+		H2Core::CoreActionController::activateJackTransport( false );
 	}
 }
 
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateJackTimebaseMaster( true );
+		H2Core::CoreActionController::activateJackTimebaseMaster( true );
 	} else {
-		pController->activateJackTimebaseMaster( false );
+		H2Core::CoreActionController::activateJackTimebaseMaster( false );
 	}
 }
 
 void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateSongMode( true );
+		H2Core::CoreActionController::activateSongMode( true );
 	} else {
-		pController->activateSongMode( false );
+		H2Core::CoreActionController::activateSongMode( false );
 	}
 }
 
 void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateLoopMode( true );
+		H2Core::CoreActionController::activateLoopMode( true );
 	} else {
-		pController->activateLoopMode( false );
+		H2Core::CoreActionController::activateLoopMode( false );
 	}
 }
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	pHydrogen->getCoreActionController()->locateToColumn( static_cast<int>(std::round( argv[0]->f ) ) );
+	H2Core::CoreActionController::locateToColumn(
+		static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 void OscServer::NEW_PATTERN_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-	
-	auto pController = pHydrogen->getCoreActionController();
-	pController->newPattern( QString::fromUtf8( &argv[0]->s ) );
+	H2Core::CoreActionController::newPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::OPEN_PATTERN_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->openPattern( QString::fromUtf8( &argv[0]->s ) );
+	H2Core::CoreActionController::openPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->removePattern( static_cast<int>(std::round( argv[0]->f )) );
+	H2Core::CoreActionController::removePattern(
+		static_cast<int>(std::round( argv[0]->f )) );
 }
 
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pController = pHydrogen->getCoreActionController();
-	pController->toggleGridCell( static_cast<int>(std::round( argv[0]->f )),
-								 static_cast<int>(std::round( argv[1]->f )) );
+	H2Core::CoreActionController::toggleGridCell(
+		static_cast<int>(std::round( argv[0]->f )),
+		static_cast<int>(std::round( argv[1]->f )) );
 }
 
 void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-	
-	auto pController = pHydrogen->getCoreActionController();
-
 	bool bConditionalLoad = true;
 	if ( argc > 1 ) {
 		bConditionalLoad = argv[1]->f == 0 ? false : true;
 	}
 	
-	pController->setDrumkit( QString::fromUtf8( &argv[0]->s ),
-							 bConditionalLoad );
+	H2Core::CoreActionController::setDrumkit(
+		QString::fromUtf8( &argv[0]->s ), bConditionalLoad );
 }
 
 void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-
 	QString sNewPath = "";
 	if ( argc > 1 ) {
 		sNewPath = QString::fromUtf8( &argv[1]->s );
 	}
 	
-	pController->upgradeDrumkit( QString::fromUtf8( &argv[0]->s ),
-								 sNewPath );
+	H2Core::CoreActionController::upgradeDrumkit(
+		QString::fromUtf8( &argv[0]->s ), sNewPath );
 }
 
 void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1033,28 +886,92 @@ void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
 		bValidateLegacyKits = argv[1]->f == 0 ? false : true;
 	}
 	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ),
-								  bValidateLegacyKits );
+	H2Core::CoreActionController::validateDrumkit(
+		QString::fromUtf8( &argv[0]->s ), bValidateLegacyKits );
 }
 
 void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-
 	QString sTargetDir = "";
 	if ( argc > 1 ) {
 		sTargetDir = QString::fromUtf8( &argv[1]->s );
 	}
 	
-	pController->extractDrumkit( QString::fromUtf8( &argv[0]->s ), sTargetDir );
+	H2Core::CoreActionController::extractDrumkit(
+		QString::fromUtf8( &argv[0]->s ), sTargetDir );
+}
+
+void OscServer::NEW_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pPlaylist = std::make_shared<H2Core::Playlist>();
+	H2Core::CoreActionController::setPlaylist( pPlaylist );
+}
+
+void OscServer::OPEN_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pPlaylist = H2Core::Playlist::load( QString::fromUtf8( &argv[0]->s ) );
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( QString( "Unable to load Playlist [%1]" )
+				  .arg( QString::fromUtf8( &argv[0]->s ) ) );
+		return;
+	}
+
+	H2Core::CoreActionController::setPlaylist( pPlaylist );
+}
+
+void OscServer::SAVE_PLAYLIST_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	H2Core::CoreActionController::savePlaylist();
+}
+
+void OscServer::SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	H2Core::CoreActionController::savePlaylistAs( QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
+	pEntry->setSongPath( QString::fromUtf8( &argv[0]->s ) );
+	// Append at the end
+	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+}
+
+void OscServer::PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set" );
+		return;
+	}
+	auto pEntry = std::make_shared<H2Core::PlaylistEntry>();
+	pEntry->setSongPath( pSong->getFilename() );
+	// Append at the end
+	H2Core::CoreActionController::addToPlaylist( pEntry, -1 );
+}
+
+void OscServer::PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		ERRORLOG( "invalid playlist" );
+		return;
+	}
+
+	const int nIndex = argv[0]->f;
+	if ( nIndex < 0 || nIndex >= pPlaylist->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIndex ).arg( pPlaylist->size() ) );
+		return;
+	}
+	auto pEntry = pPlaylist->get( nIndex );
+	H2Core::CoreActionController::removeFromPlaylist( pEntry, nIndex );
 }
 
 // -------------------------------------------------------------------
 // Helper functions
 
-bool IsLoAddressEqual( lo_address first, lo_address second )
+bool IsLoAddressEqual( const lo_address& first, const lo_address& second )
 {
 	bool portEqual = ( strcmp( lo_address_get_port( first ), lo_address_get_port( second ) ) == 0);
 	bool hostEqual = ( strcmp( lo_address_get_hostname( first ), lo_address_get_hostname( second ) ) == 0);
@@ -1063,7 +980,7 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
-void OscServer::broadcastMessage( const char* msgText, lo_message message ) {
+void OscServer::broadcastMessage( const char* msgText, const lo_message& message ) {
 	for ( const auto& clientAddress: m_pClientRegistry ){
 		
 		INFOLOG( QString( "Outgoing OSC broadcast message %1" ).arg( msgText ));
@@ -1235,8 +1152,7 @@ bool OscServer::init()
 					 .arg( lo_address_get_port( address ) )
 					 .arg( lo_address_get_protocol( address ) ) );
 										
-			H2Core::Hydrogen::get_instance()->getCoreActionController()
-				->initExternalControlInterfaces();
+			H2Core::CoreActionController::initExternalControlInterfaces();
 		}
 									
 		// Returning 1 means that the
@@ -1344,6 +1260,21 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "sf", VALIDATE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/NEW_PLAYLIST", "", NEW_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/NEW_PLAYLIST", "f", NEW_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/OPEN_PLAYLIST", "s", OPEN_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "", SAVE_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST", "f", SAVE_PLAYLIST_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PLAYLIST_AS", "s", SAVE_PLAYLIST_AS_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_SONG", "s",
+								PLAYLIST_ADD_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "",
+								PLAYLIST_ADD_CURRENT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_ADD_CURRENT_SONG", "f",
+								PLAYLIST_ADD_CURRENT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_REMOVE_SONG", "f",
+								PLAYLIST_REMOVE_SONG_Handler);
 
 	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 

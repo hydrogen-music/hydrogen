@@ -140,7 +140,7 @@ class Note : public H2Core::Object<Note>
 		 * save the note within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode& node ) const;
 		/**
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
@@ -149,7 +149,7 @@ class Note : public H2Core::Object<Note>
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static Note* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
+	static Note* load_from( const XMLNode& node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
 
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument
@@ -157,7 +157,7 @@ class Note : public H2Core::Object<Note>
 		 */
 		void map_instrument( std::shared_ptr<InstrumentList> instruments );
 		/** #__instrument accessor */
-		std::shared_ptr<Instrument> get_instrument();
+		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */
 		bool has_instrument() const;
 		/**
@@ -250,8 +250,8 @@ class Note : public H2Core::Object<Note>
 		/*
 		 * selected sample
 		 * */
-	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID );
-	std::map<int, std::shared_ptr<SelectedLayerInfo>> get_layers_selected() const;
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID ) const;
+	const std::map<int, std::shared_ptr<SelectedLayerInfo>>& get_layers_selected() const;
 
 
 		void set_probability( float value );
@@ -279,9 +279,9 @@ class Note : public H2Core::Object<Note>
 		/** Filter output is sustaining note */
 		bool filter_sustain() const;
 		/** #__key accessor */
-		Key get_key();
+		Key get_key() const;
 		/** #__octave accessor */
-		Octave get_octave();
+		Octave get_octave() const;
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
 		int get_midi_key() const;
 		/** midi velocity accessor 
@@ -302,7 +302,7 @@ class Note : public H2Core::Object<Note>
 		float get_total_pitch() const;
 
 		/** return a string representation of key-octave */
-		QString key_to_string();
+		QString key_to_string() const;
 		/**
 		 * parse str and set #__key and #__octave
 		 * \param str the string to be parsed
@@ -422,7 +422,7 @@ class Note : public H2Core::Object<Note>
 	 * and will reuse this parameter in every following call while
 	 * disregarding the provided @a nSelectedLayer.
 	 */
-	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 );
+	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 ) const;
 
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
@@ -500,7 +500,7 @@ inline std::shared_ptr<ADSR> Note::get_adsr() const
 	return __adsr;
 }
 
-inline std::shared_ptr<Instrument> Note::get_instrument()
+inline std::shared_ptr<Instrument> Note::get_instrument() const
 {
 	return __instrument;
 }
@@ -620,12 +620,12 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID ) const
 {
-	return __layers_selected[ CompoID ];
+	return __layers_selected.at( CompoID );
 }
 
-inline std::map<int, std::shared_ptr<SelectedLayerInfo>> Note::get_layers_selected() const
+inline const std::map<int, std::shared_ptr<SelectedLayerInfo>>& Note::get_layers_selected() const
 {
 	return __layers_selected;
 }
@@ -672,12 +672,12 @@ inline bool Note::filter_sustain() const
 			 fabs( __bpfb_l ) > fLimit || fabs( __bpfb_r ) > fLimit );
 }
 
-inline Note::Key Note::get_key()
+inline Note::Key Note::get_key() const
 {
 	return __key;
 }
 
-inline Note::Octave Note::get_octave()
+inline Note::Octave Note::get_octave() const
 {
 	return __octave;
 }

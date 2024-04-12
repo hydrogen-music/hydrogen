@@ -46,8 +46,8 @@ class Translations : public Object<Translations>
   // find appropriate translation given list of user prefs
 public:
   
-  static QStringList availableTranslations( QString sFileName,
-                                            QString sDirectory = H2Core::Filesystem::i18n_dir() ) {
+  static QStringList availableTranslations( const QString& sFileName,
+                                            const QString& sDirectory = H2Core::Filesystem::i18n_dir() ) {
     QStringList translations;
     QDir d( sDirectory );
     QStringList filter = QStringList( sFileName + "_*.qm" );
@@ -77,7 +77,9 @@ public:
   /// user's preferred languages in turn.
   ///
 
-  static QString findTranslation( QStringList languages, QString sFileName, QString sDirectory = H2Core::Filesystem::i18n_dir() )
+  static QString findTranslation( const QStringList& languages,
+								  const QString& sFileName,
+								  const QString& sDirectory = H2Core::Filesystem::i18n_dir() )
   {
     for ( QString sLanguage : languages ) {
       sLanguage.replace( '-', '_' );
@@ -99,7 +101,10 @@ public:
     return QString();
   }
 
-  static bool loadTranslation( QStringList languages, QTranslator &tor, QString sFileName, QString sDirectory = H2Core::Filesystem::i18n_dir() )
+  static bool loadTranslation( const QStringList& languages,
+							   QTranslator& tor,
+							   const QString& sFileName,
+							   const QString& sDirectory = H2Core::Filesystem::i18n_dir() )
   {
     QString sLanguage = findTranslation( languages, sFileName, sDirectory );
     if ( sLanguage.isNull() ) {

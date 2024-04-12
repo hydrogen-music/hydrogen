@@ -72,7 +72,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		//! @name PatternEditor interfaces
 		//! @{
-		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
@@ -92,7 +92,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void copy() override {}
 		virtual void paste() override {}
 		virtual void cut() override {}
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void scrolled( int );
 
 	private:

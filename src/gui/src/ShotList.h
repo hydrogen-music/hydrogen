@@ -50,10 +50,10 @@ class ShotList : public QObject, public EventListener {
 	Q_OBJECT
 
 	/// Find a widget which inherits the named class
-	static QWidget *findWidgetInheriting( QObject *pObject, QString &sName );
+	static QWidget *findWidgetInheriting( QObject *pObject, const QString& sName );
 
 	/// Find a widget by name
-	static QWidget *findWidget( QString &sName );
+	static QWidget *findWidget( const QString& sName );
 
 	/// Buffer for construction of Q_ARGs.
 	class Arg {
@@ -64,7 +64,7 @@ class ShotList : public QObject, public EventListener {
 			bool m_b;
 		};
 	public:
-		Arg( QString &sArg ) : m_sArg( sArg ) {}
+		Arg( const QString& sArg ) : m_sArg( sArg ) {}
 
 		operator QGenericArgument() {
 			if (( m_sArg == "true" )) {
@@ -91,11 +91,11 @@ private:
 	QStringList m_shots;
 	int m_nNextShot;
 
-	void shoot( QString s );
+	void shoot( const QString& s );
 
 public:
-	ShotList( QStringList shots );
-	ShotList( QString sShotsFilename );
+	ShotList( const QStringList& shots );
+	ShotList( const QString& sShotsFilename );
 	~ShotList();
 
 	void shoot();

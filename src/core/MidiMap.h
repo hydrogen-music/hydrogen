@@ -67,7 +67,7 @@ public:
 	void reset();  ///< Reinitializes the object.
 
 	/** Sets up the relation between a mmc event and an action */
-	void registerMMCEvent( QString, std::shared_ptr<Action> );
+	void registerMMCEvent( const QString&, std::shared_ptr<Action> );
 	/** Sets up the relation between a note event and an action */
 	void registerNoteEvent( int , std::shared_ptr<Action> );
 	/** Sets up the relation between a cc event and an action */
@@ -75,21 +75,22 @@ public:
 	/** Sets up the relation between a program change and an action */
 	void registerPCEvent( std::shared_ptr<Action> );
 
-	std::multimap<QString, std::shared_ptr<Action>> getMMCActionMap() const;
-	std::multimap<int, std::shared_ptr<Action>> getNoteActionMap() const;
-	std::multimap<int, std::shared_ptr<Action>> getCCActionMap() const;
+	const std::multimap<QString, std::shared_ptr<Action>>& getMMCActionMap() const;
+	const std::multimap<int, std::shared_ptr<Action>>& getNoteActionMap() const;
+	const std::multimap<int, std::shared_ptr<Action>>& getCCActionMap() const;
 	
 	/** Returns all MMC actions which are linked to the given event. */
-	std::vector<std::shared_ptr<Action>> getMMCActions( QString sEventString );
+	std::vector<std::shared_ptr<Action>> getMMCActions( const QString& sEventString );
 	/** Returns all note actions which are linked to the given event. */
 	std::vector<std::shared_ptr<Action>> getNoteActions( int nNote );
 	/** Returns the cc action which was linked to the given event. */
 	std::vector<std::shared_ptr<Action>> getCCActions( int nParameter );
 	/** Returns the pc action which was linked to the given event. */
-	std::vector<std::shared_ptr<Action>> getPCActions() const;
+	const std::vector<std::shared_ptr<Action>>& getPCActions() const;
 		
-	std::vector<int> findCCValuesByActionParam1( QString sActionType, QString sParam1 );
-	std::vector<int> findCCValuesByActionType( QString sActionType );
+	std::vector<int> findCCValuesByActionParam1( const QString& sActionType,
+												 const QString& sParam1 );
+	std::vector<int> findCCValuesByActionType( const QString& sActionType );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular
@@ -119,16 +120,16 @@ private:
 	QMutex __mutex;
 };
 
-inline std::multimap<QString, std::shared_ptr<Action>> MidiMap::getMMCActionMap() const {
+inline const std::multimap<QString, std::shared_ptr<Action>>& MidiMap::getMMCActionMap() const {
 	return m_mmcActionMap;
 }
-inline std::multimap<int, std::shared_ptr<Action>> MidiMap::getNoteActionMap() const {
+inline const std::multimap<int, std::shared_ptr<Action>>& MidiMap::getNoteActionMap() const {
 	return m_noteActionMap;
 }
-inline std::multimap<int, std::shared_ptr<Action>> MidiMap::getCCActionMap() const {
+inline const std::multimap<int, std::shared_ptr<Action>>& MidiMap::getCCActionMap() const {
 	return m_ccActionMap;
 }
-inline std::vector<std::shared_ptr<Action>> MidiMap::getPCActions() const {
+inline const std::vector<std::shared_ptr<Action>>& MidiMap::getPCActions() const {
 	return m_pcActionVector;
 }
 

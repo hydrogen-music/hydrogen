@@ -394,6 +394,7 @@ CommonStrings::CommonStrings(){
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
+	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
 	
@@ -465,6 +466,11 @@ CommonStrings::CommonStrings(){
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
+	m_sPlaylistSaveFailure = tr( "Unable to save playlist" );
+	/*: Shown e.g. as suffix in a window title in case an underlying file was
+	 *  modified */
+	m_sIsModified = tr( "modified" );
+	m_sReadOnlyAdvice = tr( "Use 'Save as' to enable autosave." );
 
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );
@@ -497,10 +503,35 @@ CommonStrings::CommonStrings(){
 	/*: Names an action in a drop down or pop up menu. (with no further text)*/
 	m_sMenuActionOnlineImport = tr( "Online Import" );
 
+	/*: Used both as name for the undo menu in the main and playlist menu bar as
+	 *  well as for the undo action itself. Mind the & symbol. The character
+	 *  right after it will be used as default shortcut (Alt + character) for
+	 *  this action. You can place it somewhere else or even just drop it. But
+	 *  please mind possible conflicts (double assignments) with other
+	 *  shortcuts.*/
+	m_sUndoMenuUndo = tr( "&Undo" );
+	/*: Used name for the redo action in undo menus. Mind the & symbol. The
+	 *  character right after it will be used as default shortcut (Alt +
+	 *  character) for this action. You can place it somewhere else or even just
+	 *  drop it. But please mind possible conflicts (double assignments) with
+	 *  other shortcuts.*/
+	m_sUndoMenuRedo = tr( "&Redo" );
+	/*: Used name for the action in undo menus opening a context menu showing
+	 *  the particular undo history. Mind the & symbol. The character right
+	 *  after it will be used as default shortcut (Alt + character) for this
+	 *  action. You can place it somewhere else or even just drop it. But please
+	 *  mind possible conflicts (double assignments) with other shortcuts.*/
+	m_sUndoMenuHistory = tr( "Undo &History" );
+	/*: Window title of the dialog showing the undo history. */
+	m_sUndoHistoryTitle = tr( "Undo history" );
+
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
+	/*: Shorter version of missing file warning. E.g. used as a prefix for the
+	 *  song path in the Playlist editor.*/
+	m_sErrorNotFoundShort = tr( "File not found" );
 }
 
 CommonStrings::~CommonStrings(){}

@@ -929,7 +929,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 
-		QPen pen( pPref->getColorTheme()->m_cursorColor );
+		QPen pen( pPref->getTheme().m_color.m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
@@ -946,7 +946,7 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor color = pPref->getColorTheme()->m_highlightColor;
+	QColor color = pPref->getTheme().m_color.m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -1032,11 +1032,11 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	const QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_line5Color );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
-	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
+	const QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_line5Color );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	const QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor( pPref->getTheme().m_color.m_windowColor );
 
 	if ( nHeight == 0 ) {
 		nHeight = height();
@@ -1077,8 +1077,8 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
-	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 	QPainter p( pixmap );
 
 	drawDefaultBackground( p );
@@ -1162,9 +1162,9 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	QColor baseLineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	QColor baseLineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	QPainter p( pixmap );
 
@@ -1283,13 +1283,13 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
-	QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
-	QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
-	QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
-	QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
-	QColor textColor( pPref->getColorTheme()->m_patternEditor_textColor );
+	QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
+	const QColor backgroundInactiveColor( pPref->getTheme().m_color.m_windowColor );
+	QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
 
 	QPainter p( pixmap );
 	p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight, backgroundInactiveColor );
@@ -1313,7 +1313,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	
 	p.setFont( font );
 	p.setPen( textColor );
@@ -1463,7 +1463,7 @@ void NotePropertiesRuler::songModeActivationEvent() {
 	updateEditor();
 }
 
-std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
+std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {
 		return std::move( result );
@@ -1481,11 +1481,12 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	// Account for the notional active area of the slider. We allow a
 	// width of 8 as this is the size of the circle used for the zero
 	// position on the lead/lag editor.
-	r = r.normalized();
-	if ( r.top() == r.bottom() && r.left() == r.right() ) {
-		r += QMargins( 2, 2, 2, 2 );
+	auto rNormalized = r.normalized();
+	if ( rNormalized.top() == rNormalized.bottom() &&
+		 rNormalized.left() == rNormalized.right() ) {
+		rNormalized += QMargins( 2, 2, 2, 2 );
 	}
-	r += QMargins( 4, 4, 4, 4 );
+	rNormalized += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
 		if ( it->second->get_instrument() != pSelectedInstrument
@@ -1495,7 +1496,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 		int pos = it->first;
 		uint x_pos = PatternEditor::nMargin + pos * m_fGridWidth;
-		if ( r.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
+		if ( rNormalized.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
 			result.push_back( it->second );
 		}
 	}
@@ -1522,7 +1523,7 @@ void NotePropertiesRuler::selectAll()
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
-void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void NotePropertiesRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

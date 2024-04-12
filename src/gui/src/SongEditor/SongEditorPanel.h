@@ -76,7 +76,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * signal the user her last action was not permitted.
 		 */
 		void highlightPatternEditorLocked( bool bUseRedBackground );	
-		void restoreGroupVector( QString filename );
+		void restoreGroupVector( const QString& filename );
 		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
 		 * JACK timebase master is detected and enables it when it's
@@ -105,7 +105,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	virtual void updateSongEvent( int ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void playbackTrackChangedEvent() override;
-	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
+	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 
 	public slots:
 	/** Used by the shotlist during automated generation of images

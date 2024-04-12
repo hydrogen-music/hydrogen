@@ -121,7 +121,7 @@ class Base {
 		 *
 		 * \param map Object map retrieved using getObjectMap().
 		 */
-		static void printObjectMapDiff( object_map_t map );
+		static void printObjectMapDiff( const object_map_t& map );
 		/** String used to format the debugging string output of some
 			core classes.*/
 		static QString sPrintIndention;

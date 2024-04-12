@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Synth</source>
-        <translation>合成器</translation>
-    </message>
-    <message>
         <source>###</source>
         <translation>###</translation>
     </message>
@@ -1023,6 +1019,48 @@ Are you sure?</source>
         <source>Unable to export drumkit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to save playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
+        <translation>已修改</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>您要保存更改吗？</translation>
+    </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>使用“另存为”作为自动保存选项。</translation>
+    </message>
+    <message>
+        <source>File not found</source>
+        <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
+        <translation>文件未找到</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>撤销(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation>恢复(&amp;R)</translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation>撤消历史(&amp;H)</translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>撤消历史</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1655,6 +1693,10 @@ Overwrite the existing file?</source>
         <source>Tag</source>
         <translation>标签</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1671,10 +1713,6 @@ Overwrite the existing file?</source>
         <translation>混音器</translation>
     </message>
     <message>
-        <source>modified</source>
-        <translation>已修改</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>加载乐曲时出错。</translation>
     </message>
@@ -1685,12 +1723,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Preferences loaded.</source>
         <translation>首选项已加载。</translation>
-    </message>
-    <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-        <translation>只读乐曲。
-使用“另存为”作为自动保存选项。</translation>
     </message>
     <message>
         <source>There are unsaved changes.</source>
@@ -1713,7 +1745,43 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>乐曲另存为： </translation>
     </message>
     <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation>只读乐曲。</translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>播放列表：设置乐曲编号 %1</translation>
+    </message>
+    <message>
+        <source>New Song</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Playlist</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2211,10 +2279,6 @@ MIDI = %2</translation>
         <translation>Hydrogen已就绪。</translation>
     </message>
     <message>
-        <source>Undo history</source>
-        <translation>撤消历史</translation>
-    </message>
-    <message>
         <source>Pro&amp;ject</source>
         <translation>项目(&amp;J)</translation>
     </message>
@@ -2241,10 +2305,6 @@ MIDI = %2</translation>
     <message>
         <source>&amp;Quit</source>
         <translation>退出(&amp;Q)</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
     </message>
     <message>
         <source>&amp;View</source>
@@ -2381,36 +2441,12 @@ Are you sure you want to save?</source>
         <translation>未知错误 %1</translation>
     </message>
     <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>播放列表：设置乐曲编号 %1</translation>
-    </message>
-    <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
         <translation>您使用的是 Hydrogen 开发版本，请帮助我们在 Hydrogen 开发邮件列表中报告错误或给出建议。&lt;br&gt;&lt;br&gt;感谢！</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
         <translation>播放列表：乐曲编号 %1</translation>
-    </message>
-    <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-该文档包含未保存的更改。
-您要保存更改吗？
-</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-当前播放列表包含未保存的更改。
-您要放弃更改吗？
-</translation>
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
@@ -2455,14 +2491,6 @@ Do you want to discard the changes?
     <message>
         <source>Export &amp;LilyPond File</source>
         <translation>导出 &amp;LilyPond 文件</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation>恢复(&amp;R)</translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
-        <translation>撤消历史(&amp;H)</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
@@ -3468,10 +3496,30 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
         <source>Playlist Browser</source>
         <translation>浏览播放列表</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>倒回</translation>
+    </message>
+    <message>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>播放/暂停/加载所选乐曲</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>快进</translation>
+    </message>
+    <message>
+        <source>sort</source>
+        <translation>排序</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3526,70 +3574,12 @@ LilyPond 导出是一项实验性功能。
         <translation>创建(&amp;C) 新脚本</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>倒回</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>播放/暂停/加载所选乐曲</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>快进</translation>
-    </message>
-    <message>
-        <source>Song list</source>
-        <translation>乐曲列表</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>脚本</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>执行脚本</translation>
-    </message>
-    <message>
-        <source>sort</source>
-        <translation>排序</translation>
-    </message>
-    <message>
-        <source>Add Song to PlayList</source>
-        <translation>将乐曲添加到播放列表</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>请先保存您的乐曲</translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation>未选择乐曲！</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-当前播放列表包含未保存的更改。
-您要放弃更改吗？
-</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>没有脚本</translation>
-    </message>
-    <message>
         <source>Load Playlist</source>
         <translation>加载播放列表</translation>
-    </message>
-    <message>
-        <source>File not found: </source>
-        <translation>文件未找到： </translation>
     </message>
     <message>
         <source>New Script</source>
@@ -3602,10 +3592,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>脚本名称或脚本路径包含空格。
 注意！
 脚本路径和脚本名称不能包含空格。</translation>
-    </message>
-    <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>警告，新文件仅能由文件所有者执行！</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3624,10 +3610,6 @@ Sorry, but this will not work for the moment.</source>
         <translation>保存播放列表</translation>
     </message>
     <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>列表中没有乐曲或没有选择乐曲！</translation>
-    </message>
-    <message>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation>Hydrogen 播放列表 (*.sh)</translation>
     </message>
@@ -3644,16 +3626,8 @@ The path to the script and the scriptname must without whitespaces.</source>
 脚本路径和脚本名称不能包含空格。</translation>
     </message>
     <message>
-        <source>No Script in use!</source>
-        <translation>没有使用脚本！</translation>
-    </message>
-    <message>
         <source>No Script selected!</source>
         <translation>未选择脚本！</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>没有脚本</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3664,19 +3638,54 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>暂停。</translation>
     </message>
     <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>播放列表：设置乐曲编号 %1</translation>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>播放列表浏览器</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>乐曲列表</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>脚本</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>执行脚本</translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>没有脚本</translation>
     </message>
 </context>
 <context>
@@ -4025,6 +4034,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Virtual Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4725,6 +4738,18 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>将乐曲添加到播放列表</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5611,7 +5636,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>将乐曲添加到播放列表</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

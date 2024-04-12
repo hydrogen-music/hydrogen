@@ -75,7 +75,7 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 *
 	 * \return A #H2Core::DrumkitMap on success, an empty map otherwise.
 	 */
-	static std::shared_ptr<DrumkitMap> loadFrom( XMLNode* pNode,
+	static std::shared_ptr<DrumkitMap> loadFrom( const XMLNode& pNode,
 													 bool bSilent = false );
 
 	/**
@@ -88,7 +88,7 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 *
 	 * \return true on success
 	 */
-	bool save( const QString& sPath, bool bSilent = false );
+	bool save( const QString& sPath, bool bSilent = false ) const;
 	/**
 	 * Save a #H2Core::DrumkitMap to an XML node.
 	 *
@@ -98,14 +98,14 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 *
 	 * \return true on success
 	 */
-	void saveTo( XMLNode* pNode, bool bSilent = false );
+	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
 
 	/** Get all types for @a nId */
 	std::vector<Type> getTypes( int nId ) const;
 	/** Returns all unique types found #m_mapping */
 	std::set<Type> getAllTypes() const;
 
-	void addMapping( int nId, Type sType );
+	void addMapping( int nId, const Type& sType );
 
 	/** Whether there are mappings present in the map */
 	bool isEmpty() const;

@@ -63,7 +63,8 @@ DetailWaveDisplay::~DetailWaveDisplay()
 }
 
 
-void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor, QString type)
+void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor,
+												 const QString& type)
 {
 	m_pDetailSamplePosition = posi ;
 	m_pZoomFactor = zoomfactor;
@@ -120,7 +121,7 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 
 
 
-void DetailWaveDisplay::updateDisplay( QString filename )
+void DetailWaveDisplay::updateDisplay( const QString& filename )
 {
 
 	auto pNewSample = Sample::load( filename );

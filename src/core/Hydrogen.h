@@ -31,7 +31,6 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/CoreActionController.h>
 #include <core/Timehelper.h>
 
 #include <stdint.h> // for uint32_t et al
@@ -40,9 +39,9 @@
 
 namespace H2Core
 {
-	class CoreActionController;
 	class AudioEngine;
 	class SoundLibraryDatabase;
+	class Playlist;
 
 ///
 /// Hydrogen Audio Engine.
@@ -92,6 +91,8 @@ public:
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
+	std::shared_ptr<Playlist> getPlaylist() const;
+	void setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 
 // ***** SEQUENCER ********
 	/// Start the internal sequencer
@@ -101,8 +102,8 @@ public:
 	void			sequencerStop();
 
 	///Last received midi message
-	MidiMessage::Event	getLastMidiEvent() const;
-	void				setLastMidiEvent( MidiMessage::Event event );
+	const MidiMessage::Event& getLastMidiEvent() const;
+	void				setLastMidiEvent( const MidiMessage::Event& event );
 	int					getLastMidiEventParameter() const;
 	void				setLastMidiEventParameter( int nParam );
 
@@ -117,8 +118,8 @@ public:
 		 */ 	
 		std::shared_ptr<Song>			getSong() const{ return m_pSong; }
 		/**
-		 * Sets the current song #m_pSong to @a newSong.
-		 * \param newSong Pointer to the new Song object.
+		 * Sets the current song #m_pSong to @a pNewSong.
+		 * \param pNewSong Pointer to the new Song object.
 		 */
 		void			setSong( std::shared_ptr<Song> pNewSong );
 
@@ -159,19 +160,19 @@ public:
 	/** Wrapper around Song::setMode() which also triggers
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setMode( Song::Mode mode );
+	void setMode( const Song::Mode& mode );
 	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers
 	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setActionMode( Song::ActionMode mode );
+	void setActionMode( const Song::ActionMode& mode );
 
 	Song::PatternMode getPatternMode() const;
 	/** Wrapper around Song::setPatternMode() which also triggers
 	EVENT_STACKED_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setPatternMode( Song::PatternMode mode );
+	void setPatternMode( const Song::PatternMode& mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -305,10 +306,10 @@ public:
 
 	// beatconter
 	void			setBeatsToCount( int beatstocount);
-	int			getBeatsToCount();
+	int			getBeatsToCount() const;
 	void			setNoteLength( float notelength);
-	float			getNoteLength();
-	int			getBcStatus();
+	float			getNoteLength() const;
+	int			getBcStatus() const;
 	bool			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
@@ -331,8 +332,6 @@ public:
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
 	
-	CoreActionController* 	getCoreActionController() const;
-
 	/************************************************************/
 	/********************** Playback track **********************/
 	/**
@@ -346,24 +345,28 @@ public:
 	/**
 	 * Wrapper function for loading the playback track.
 	 */
-	void			loadPlaybackTrack( QString sFilename );
+	void			loadPlaybackTrack( const QString& sFilename );
 	/************************************************************/
 
 	/** Specifies the state of the Qt GUI*/
 	enum class		GUIState {
-		/**There is a GUI but it is not ready yet (during startup).*/
-		notReady = -1,
-		/**No GUI available.*/
-		unavailable = 0,
-		/**There is a working GUI.*/
-		ready = 1
+		/** Hydrogen is still starting up. Core maybe already somewhat ready but
+		 * GUI is most probably not.*/
+		startup = -1,
+		/** Hydrogen is up and running but there is no GUI available. */
+		headless = 0,
+		/** Hydrogen is up and running and there is a working GUI. */
+		ready = 1,
+		/** Teardown of Hydrogen was initialized and the Event handling system
+		 * might not work anymore. */
+		shutdown
 	};
 	
 	/**\return #m_GUIState*/
-	GUIState		getGUIState() const;
+	const GUIState&	getGUIState() const;
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_GUIState.*/
-	void			setGUIState( const GUIState state );
+	void			setGUIState( const GUIState& state );
 	/**
 	 * \return Whether JackAudioDriver is used as current audio
 	 * driver.
@@ -501,11 +504,7 @@ private:
 	 * Local instance of the Timeline object.
 	 */
 	std::shared_ptr<Timeline>	m_pTimeline;
-	/**
-	 * Local instance of the CoreActionController object.
-	 */ 
-	CoreActionController* 	m_pCoreActionController;
-	
+
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	m_instrumentDeathRow;
 	
@@ -544,6 +543,8 @@ private:
 	AudioEngine*	m_pAudioEngine;
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
+
+	std::shared_ptr<Playlist> m_pPlaylist;
 
 	/** 
 	 * Constructor, entry point, and initialization of the
@@ -584,11 +585,6 @@ inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
 	m_pTimeline = pTimeline;
 }
 
-inline CoreActionController* Hydrogen::getCoreActionController() const
-{
-	return m_pCoreActionController;
-}
-
 inline bool Hydrogen::getIsExportSessionActive() const
 {
 	return m_bExportSessionIsActive;
@@ -598,11 +594,11 @@ inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
 }
 
-inline Hydrogen::GUIState Hydrogen::getGUIState() const {
+inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {
 	return m_GUIState;
 }
 
-inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
+inline void Hydrogen::setGUIState( const Hydrogen::GUIState& state ) {
 	m_GUIState = state;
 }
 inline int Hydrogen::getSelectedPatternNumber() const
@@ -620,10 +616,10 @@ inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
 inline bool Hydrogen::getSessionIsExported() const {
 	return m_bSessionIsExported;
 }
-inline MidiMessage::Event Hydrogen::getLastMidiEvent() const {
+inline const MidiMessage::Event& Hydrogen::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }
-inline void Hydrogen::setLastMidiEvent( MidiMessage::Event event ) {
+inline void Hydrogen::setLastMidiEvent( const MidiMessage::Event& event ) {
 	m_lastMidiEvent = event;
 }
 inline int Hydrogen::getLastMidiEventParameter() const {
@@ -631,6 +627,12 @@ inline int Hydrogen::getLastMidiEventParameter() const {
 }
 inline void	Hydrogen::setLastMidiEventParameter( int nParam ) {
 	m_nLastMidiEventParameter = nParam;
+}
+inline std::shared_ptr<Playlist> Hydrogen::getPlaylist() const {
+	return m_pPlaylist;
+}
+inline void Hydrogen::setPlaylist( std::shared_ptr<Playlist> pPlaylist ){
+	m_pPlaylist = pPlaylist;
 }
 };
 

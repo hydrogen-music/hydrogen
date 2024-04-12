@@ -102,8 +102,8 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode* node, int component_id,
-					  bool bRecentVersion = true, bool bSongKit = false );
+		void save_to( XMLNode& node, int component_id,
+					  bool bRecentVersion = true, bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument from an XMLNode
@@ -129,7 +129,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( XMLNode* pNode,
+		static std::shared_ptr<Instrument> load_from( const XMLNode& pNode,
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
 													  const QString& sSongPath = "",
@@ -273,7 +273,7 @@ class Instrument : public H2Core::Object<Instrument>
 		///< set the path of the related drumkit
 		void set_drumkit_path( const QString& sPath );
 		///< get the path of the related drumkits
-		QString get_drumkit_path() const;
+		const QString& get_drumkit_path() const;
 		///< set the name of the related drumkit
 		void set_drumkit_name( const QString& sName );
 		///< get the name of the related drumkits
@@ -287,8 +287,8 @@ class Instrument : public H2Core::Object<Instrument>
 		void set_is_metronome_instrument(bool isMetronome);
 		bool is_metronome_instrument() const;
 
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components();
-		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID );
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
+		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID ) const;
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -699,7 +699,7 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 	__is_metronome_instrument = isMetronome;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components()
+inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components() const
 {
 	return __components;
 }

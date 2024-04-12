@@ -20,40 +20,19 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_TREE_H
-#define SOUND_LIBRARY_TREE_H
+#ifndef MIME_TEST_H
+#define MIME_TEST_H
 
-#include <QtGui>
-#include <QtWidgets>
+#include <cppunit/extensions/HelperMacros.h>
 
-#include <core/Object.h>
-
-/** \ingroup docGUI*/
-class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibraryTree>
-{
-    H2_OBJECT(SoundLibraryTree)
-	Q_OBJECT
-	public:
-		explicit SoundLibraryTree( QWidget *pParent );
-
-	signals:
-		void leftClicked( const QPoint& pos );
-		void rightClicked( const QPoint& pos );
-		void onMouseMove( QMouseEvent* event );
-
-
-	private slots:
-
-
-	protected:
-
-		virtual void mousePressEvent(QMouseEvent *event) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-
+class MimeTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( MimeTest );
+	CPPUNIT_TEST( testPlaylistSerialization );
+	CPPUNIT_TEST_SUITE_END();
+	
+	
+public:
+	void testPlaylistSerialization();
 
 };
-
-
-
 #endif
-

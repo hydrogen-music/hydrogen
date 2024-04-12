@@ -53,7 +53,8 @@ private slots:
 	void sendChanged();
 	
 private:
-	void insertNewRow( std::shared_ptr<Action> pAction, QString eventString, int eventParameter );
+	void insertNewRow( std::shared_ptr<Action> pAction, const QString& eventString,
+					   int eventParameter );
 	void updateRow( int nRow );
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	

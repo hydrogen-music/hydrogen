@@ -57,6 +57,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -105,7 +106,7 @@ Hydrogen* Hydrogen::__instance = nullptr;
 Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
-					 , m_GUIState( GUIState::unavailable )
+					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
 					 , m_CurrentTime( {0,0} )
@@ -125,12 +126,11 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
 
 	m_pTimeline = std::make_shared<Timeline>();
-	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
 
 	m_pAudioEngine = new AudioEngine();
-	Playlist::create_instance();
+	m_pPlaylist = std::make_shared<Playlist>();
 
 	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(AudioEngine::State::Initialized) );
 
@@ -169,7 +169,6 @@ Hydrogen::~Hydrogen()
 	
 	killInstruments();
 
-	delete m_pCoreActionController;
 	delete m_pAudioEngine;
 
 	__instance = nullptr;
@@ -193,11 +192,6 @@ void Hydrogen::create_instance()
 	if ( __instance == nullptr ) {
 		__instance = new Hydrogen;
 	}
-
-	// See audioEngine_init() for:
-	// AudioEngine::create_instance();
-	// Effects::create_instance();
-	// Playlist::create_instance();
 }
 
 void Hydrogen::initBeatcounter()
@@ -255,7 +249,7 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( QString sFilename )
+void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 {
 	if ( m_pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
@@ -263,18 +257,16 @@ void Hydrogen::loadPlaybackTrack( QString sFilename )
 	}
 
 	if ( ! sFilename.isEmpty() &&
-		 ! Filesystem::file_exists( sFilename, true ) ) {
-		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist." )
+		 ! Filesystem::file_exists( sFilename, true ) || sFilename.isEmpty() ) {
+		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist or is empty." )
 				  .arg( sFilename ) );
-		sFilename = "";
-	}
-
-	if ( sFilename.isEmpty() ) {
-		INFOLOG( "Disable playback track" );
+		m_pSong->setPlaybackTrackFilename( "" );
+		INFOLOG( "Disabling playback track" );
 		m_pSong->setPlaybackTrackEnabled( false );
 	}
-	
-	m_pSong->setPlaybackTrackFilename( sFilename );
+	else {
+		m_pSong->setPlaybackTrackFilename( sFilename );
+	}
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 	
@@ -331,7 +323,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
-	m_pCoreActionController->initExternalControlInterfaces();
+	CoreActionController::initExternalControlInterfaces();
 }
 
 void Hydrogen::midiNoteOn( Note *note )
@@ -671,7 +663,7 @@ void Hydrogen::startExportSong( const QString& filename)
 {
 	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	getCoreActionController()->locateToTick( 0 );
+	CoreActionController::locateToTick( 0 );
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
@@ -687,7 +679,7 @@ void Hydrogen::stopExportSong()
 	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	getCoreActionController()->locateToTick( 0 );
+	CoreActionController::locateToTick( 0 );
 	DEBUGLOG( "done" );
 }
 
@@ -824,7 +816,7 @@ void Hydrogen::onTapTempoAccelEvent()
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
-	m_pCoreActionController->setBpm( fBPM );
+	CoreActionController::setBpm( fBPM );
 #endif
 }
 
@@ -927,7 +919,7 @@ void Hydrogen::setBeatsToCount( int beatstocount)
 	m_nBeatsToCount = beatstocount;
 }
 /** \return #m_nBeatsToCount*/
-int Hydrogen::getBeatsToCount()
+int Hydrogen::getBeatsToCount() const
 {
 	return m_nBeatsToCount;
 }
@@ -937,12 +929,12 @@ void Hydrogen::setNoteLength( float notelength)
 	m_fTaktoMeterCompute = notelength;
 }
 
-float Hydrogen::getNoteLength()
+float Hydrogen::getNoteLength() const
 {
 	return m_fTaktoMeterCompute;
 }
 
-int Hydrogen::getBcStatus()
+int Hydrogen::getBcStatus() const
 {
 	return m_nEventCount;
 }
@@ -1012,7 +1004,7 @@ bool Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
-			m_pCoreActionController->setBpm( fBeatCountBpm );
+			CoreActionController::setBpm( fBeatCountBpm );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
@@ -1238,7 +1230,7 @@ Song::Mode Hydrogen::getMode() const {
 	return Song::Mode::None;
 }
 
-void Hydrogen::setMode( Song::Mode mode ) {
+void Hydrogen::setMode( const Song::Mode& mode ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
@@ -1253,7 +1245,7 @@ Song::ActionMode Hydrogen::getActionMode() const {
 	return Song::ActionMode::None;
 }
 
-void Hydrogen::setActionMode( Song::ActionMode mode ) {
+void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 	if ( m_pSong != nullptr ) {
 		m_pSong->setActionMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
@@ -1268,7 +1260,7 @@ Song::PatternMode Hydrogen::getPatternMode() const {
 	return Song::PatternMode::None;
 }
 
-void Hydrogen::setPatternMode( Song::PatternMode mode )
+void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 {
 	if ( m_pSong != nullptr &&
 		 getPatternMode() != mode ) {
@@ -1568,7 +1560,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nEventCount ) )
 			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatCount ) )
 			.append( QString( "%1%2m_fBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto dd : m_fBeatDiffs ) {
+		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
@@ -1586,7 +1578,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
 		sOutput.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto const& ii : m_instrumentDeathRow ) {
+		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			} else {
@@ -1620,7 +1612,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nEventCount: %1" ).arg( m_nEventCount ) )
 			.append( QString( ", m_nBeatCount: %1" ).arg( m_nBeatCount ) )
 			.append( QString( ", m_fBeatDiffs: [" ) );
-		for ( auto dd : m_fBeatDiffs ) {
+		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
 		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
@@ -1638,7 +1630,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
 		sOutput.append( QString( ", m_instrumentDeathRow: [" ) );
-		for ( auto const& ii : m_instrumentDeathRow ) {
+		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			} else {

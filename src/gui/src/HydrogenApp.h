@@ -65,7 +65,7 @@ class LadspaFXProperties;
 class LadspaFXInfo;
 class LadspaFXGroup;
 class InstrumentRack;
-class PlaylistDialog;
+class PlaylistEditor;
 class SampleEditor;
 class Director;
 class InfoBar;
@@ -84,22 +84,26 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		virtual ~HydrogenApp();
 
-		/** 
-		 * \param sFilename Absolute or relative path used to load the next #H2Core::Song.
+		/**
+		 * Specfial routine for song or playlist loading with failure dialog,
+		 * which is save to call even in case the GUI is not fully initialized.
+		 *
+		 * \param sFilename Absolute or relative path used to load the next
+		 *   #H2Core::Song or #H2Core::Playlist.
 		 * \return bool true on success
 		 */
-		static bool openSong( QString sFilename );
+		static bool openFile( const H2Core::Filesystem::Type& type,
+							  const QString& sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
-	/**
-	 * Specialized version of openSong( QString sFilename ) trying to
-	 * open the autosave file corresponding to current empty song.
-	 *
-	 * This will be used if the last set in Hydrogen was an empty one.
-	 * If the user either decided to discard the changes or Hydrogen
-	 * was terminated untimely, this function allows to restore all
-	 * changes that would have been lost otherwise.
-	 */
-	static bool recoverEmptySong();
+		static QString findAutoSaveFile( const H2Core::Filesystem::Type& type,
+										 const QString& sBaseFile );
+
+		/** Checks whether there are unsaved changes in the current song (for
+		* H2Core::Filesystem::FileType::Song) or playlist (for
+		* H2Core::Filesystem::FileType::Playlist).
+		*
+		* @return `true` if handled, `false` if aborted. */
+		static bool handleUnsavedChanges( const H2Core::Filesystem::Type& type );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
@@ -107,9 +111,10 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showInstrumentPanel(bool);
 		void showAudioEngineInfoForm();
 		void showFilesystemInfoForm();
-		void showPlaylistDialog();
+		void showPlaylistEditor();
 		void showDirector();
-		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
+		void showSampleEditor( const QString& name, int mSelectedComponemt,
+							   int mSelectedLayer );
 
 		bool hideKeyboardCursor();
 		void setHideKeyboardCursor( bool bHidden );
@@ -118,7 +123,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
 		AudioEngineInfoForm*		getAudioEngineInfoForm();
-		PlaylistDialog*			getPlayListDialog();
+		PlaylistEditor*			getPlaylistEditor();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
 		PatternEditorPanel*		getPatternEditorPanel();
@@ -185,8 +190,8 @@ signals:
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
 	 */
-	void changePreferences( H2Core::Preferences::Changes changes );
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void changePreferences( const H2Core::Preferences::Changes& changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private slots:
 	void propagatePreferences();
@@ -206,7 +211,7 @@ private slots:
 		SongEditorPanel *			m_pSongEditorPanel;
 		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
-		PlaylistDialog *			m_pPlaylistDialog;
+		PlaylistEditor *			m_pPlaylistEditor;
 		SampleEditor *				m_pSampleEditor;
 		Director *					m_pDirector;
 		QTimer *					m_pEventQueueTimer;
@@ -258,6 +263,8 @@ private slots:
 		 */
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void drumkitLoadedEvent() override;
+		void playlistChangedEvent( int nValue ) override;
+		void playlistLoadSongEvent() override;
 	
 };
 
@@ -287,9 +294,9 @@ inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
 	return m_pAudioEngineInfoForm;
 }
 
-inline PlaylistDialog* HydrogenApp::getPlayListDialog()
+inline PlaylistEditor* HydrogenApp::getPlaylistEditor()
 {
-	return m_pPlaylistDialog;
+	return m_pPlaylistEditor;
 }
 
 inline Director* HydrogenApp::getDirector()

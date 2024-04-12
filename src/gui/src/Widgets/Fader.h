@@ -32,6 +32,7 @@
 #include "WidgetWithInput.h"
 
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 
 /** Custom fader widget.
  *
@@ -52,7 +53,10 @@ public:
 		Master
 	};
 	
-	Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps = false, bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0, bool bModifyOnChange = true );
+	Fader( QWidget *pParent, const Type& type,
+		   const QString& sBaseTooltip, bool bUseIntSteps = false,
+		   bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0,
+		   bool bModifyOnChange = true );
 	~Fader();
 
 	void setMaxPeak( float fMax );
@@ -65,7 +69,7 @@ public:
 	float getPeak_R() const {	return m_fPeakValue_R;	}
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private:
 	bool m_bWithoutKnob;

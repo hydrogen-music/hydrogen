@@ -162,6 +162,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonPlay() const { return m_sButtonPlay; }
 	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
 	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
+	const QString& getSavingChanges() const { return m_sSavingChanges; }
 
 	const QString& getMutableDialog() const { return m_sMutableDialog; }
 
@@ -193,6 +194,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
 	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
+	const QString& getPlaylistSaveFailure() const { return m_sPlaylistSaveFailure; }
+	const QString& getIsModified() const { return m_sIsModified; }
+	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
 
 	const QString& getInstrumentId() const { return m_sInstrumentId; }
 	const QString& getInstrumentType() const { return m_sInstrumentType; }
@@ -210,10 +214,16 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
 	const QString& getMenuActionOnlineImport() const { return m_sMenuActionOnlineImport; }
 
+	const QString& getUndoMenuUndo() const { return m_sUndoMenuUndo; }
+	const QString& getUndoMenuRedo() const { return m_sUndoMenuRedo; }
+	const QString& getUndoMenuHistory() const { return m_sUndoMenuHistory; }
+	const QString& getUndoHistoryTitle() const { return m_sUndoHistoryTitle; }
+
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -333,6 +343,7 @@ private:
 	QString m_sButtonPlay;
 	QString m_sButtonPlayOriginalSample;
 	QString m_sUnsavedChanges;
+	QString m_sSavingChanges;
 	
 	QString m_sMutableDialog;
 	
@@ -367,6 +378,9 @@ private:
 
 	QString m_sExportSongFailure;
 	QString m_sExportDrumkitFailure;
+	QString m_sPlaylistSaveFailure;
+	QString m_sIsModified;
+	QString m_sReadOnlyAdvice;
 
 	QString m_sInstrumentId;
 	QString m_sInstrumentType;
@@ -384,9 +398,15 @@ private:
 	QString m_sMenuActionImport;
 	QString m_sMenuActionOnlineImport;
 
+		QString m_sUndoMenuUndo;
+		QString m_sUndoMenuRedo;
+		QString m_sUndoMenuHistory;
+		QString m_sUndoHistoryTitle;
+
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;
 
 		QString m_sErrorNotFound;
+		QString m_sErrorNotFoundShort;
 };
 #endif

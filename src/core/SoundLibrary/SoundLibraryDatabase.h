@@ -73,13 +73,13 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 *   (containing a drumkit.xml) file as unique identifier.
 	 */
 	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
-	const std::map<QString, std::shared_ptr<Drumkit>> getDrumkitDatabase() const {
+	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
 		/** Retrieves an unique label for the kit associated with @a
 		 * sDrumkitPath. This may serve as a more accessible alternative to the
 		 * absolute path of the kit in the GUI. */
-		QString getUniqueLabel( const QString& sDrumkitPath );
+		QString getUniqueLabel( const QString& sDrumkitPath ) const;
 
 		/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
 		 * during an updateDrumkits()

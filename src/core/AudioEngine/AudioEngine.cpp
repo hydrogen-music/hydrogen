@@ -91,13 +91,12 @@ inline timeval currentTime2()
 
 AudioEngine::AudioEngine()
 		: m_pSampler( nullptr )
-		, m_pSynth( nullptr )
 		, m_pAudioDriver( nullptr )
 		, m_pMidiDriver( nullptr )
 		, m_pMidiDriverOut( nullptr )
 		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
-		, m_fSongSizeInTicks( 0 )
+		, m_fSongSizeInTicks( MAX_NOTES )
 		, m_nRealtimeFrame( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
@@ -115,8 +114,7 @@ AudioEngine::AudioEngine()
 	m_pQueuingPosition = std::make_shared<TransportPosition>( "Queuing" );
 	
 	m_pSampler = new Sampler;
-	m_pSynth = new Synth;
-	
+
 	m_pEventQueue = EventQueue::get_instance();
 	
 	srand( time( nullptr ) );
@@ -214,19 +212,12 @@ AudioEngine::~AudioEngine()
 #endif
 
 	delete m_pSampler;
-	delete m_pSynth;
 }
 
 Sampler* AudioEngine::getSampler() const
 {
 	assert(m_pSampler);
 	return m_pSampler;
-}
-
-Synth* AudioEngine::getSynth() const
-{
-	assert(m_pSynth);
-	return m_pSynth;
 }
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
@@ -272,7 +263,7 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	return true;
 }
 
-bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLockFor( const std::chrono::microseconds& duration, const char* file, unsigned int line, const char* function )
 {
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -980,7 +971,7 @@ void AudioEngine::startAudioDrivers()
 	}
 	else {
 		AudioOutput* pAudioDriver;
-		for ( QString sDriver : getSupportedAudioDrivers() ) {
+		for ( const auto& sDriver : getSupportedAudioDrivers() ) {
 			if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
 				break;
 			}
@@ -1412,7 +1403,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// Update the state of the audio engine depending on whether it
 	// was started or stopped by the user.
-	if ( pAudioEngine->getNextState() == State::Playing ) {
+	if ( pAudioEngine->m_nextState == State::Playing ) {
 		if ( pAudioEngine->getState() == State::Ready ) {
 			pAudioEngine->startPlayback();
 		}
@@ -1517,17 +1508,6 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
-	auto synth = getSynth();
-	if (synth->getPlayingNotesNumber() != 0) {
-		synth->process( nFrames );
-		out_L = synth->m_pOut_L;
-		out_R = synth->m_pOut_R;
-		for ( unsigned i = 0; i < nFrames; ++i ) {
-			pBuffer_L[ i ] += out_L[ i ];
-			pBuffer_R[ i ] += out_R[ i ];
-		}
-	}
-
 #ifdef H2CORE_HAVE_LADSPA
 	timeval ladspaTime_start = currentTime2();
 
@@ -1572,11 +1552,12 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		fPeak_L = std::max( fPeak_L, pBuffer_L[i] );
 		fPeak_R = std::max( fPeak_R, pBuffer_R[i] );
 	}
+
 	m_fMasterPeak_L = fPeak_L;
 	m_fMasterPeak_R = fPeak_R;
 }
 
-void AudioEngine::setState( AudioEngine::State state ) {
+void AudioEngine::setState( const AudioEngine::State& state ) {
 	m_state = state;
 	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(state) );
 }
@@ -2607,7 +2588,7 @@ double AudioEngine::getLeadLagInTicks() {
 	return 5;
 }
 
-long long AudioEngine::getLeadLagInFrames( double fTick ) {
+long long AudioEngine::getLeadLagInFrames( double fTick ) const {
 	double fTmp;
 	const long long nFrameStart =
 		TransportPosition::computeFrameFromTick( fTick, &fTmp );
@@ -2695,18 +2676,17 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fLastTickEnd: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLastTickEnd, 0, 'f' ) )
 			.append( QString( "%1%2m_bLookaheadApplied: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bLookaheadApplied ) )
 			.append( QString( "%1%2m_pSampler: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_pSynth: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pAudioDriver: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pMidiDriver: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pMidiDriverOut: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pEventQueue: stringification not implemented\n" ).arg( sPrefix ).arg( s ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : m_fFXPeak_L ) {
+		for ( const auto& ii : m_fFXPeak_L ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( "]\n%1%2m_fFXPeak_R: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : m_fFXPeak_R ) {
+		for ( const auto& ii : m_fFXPeak_R ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( " ]\n" ) );
@@ -2766,18 +2746,17 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fLastTickEnd: %1" ).arg( m_fLastTickEnd, 0, 'f' ) )
 			.append( QString( ", m_bLookaheadApplied: %1" ).arg( m_bLookaheadApplied ) )
 			.append( QString( ", m_pSampler: ..." ) )
-			.append( QString( ", m_pSynth: ..." ) )
 			.append( QString( ", m_pAudioDriver: ..." ) )
 			.append( QString( ", m_pMidiDriver: ..." ) )
 			.append( QString( ", m_pMidiDriverOut: ..." ) )
 			.append( QString( ", m_pEventQueue: ..." ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( ", m_fFXPeak_L: [" ) );
-		for ( auto ii : m_fFXPeak_L ) {
+		for ( const auto& ii : m_fFXPeak_L ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( "], m_fFXPeak_R: [" ) );
-		for ( auto ii : m_fFXPeak_R ) {
+		for ( const auto& ii : m_fFXPeak_R ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
 		sOutput.append( QString( " ]" ) );
