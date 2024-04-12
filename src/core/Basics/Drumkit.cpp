@@ -904,11 +904,8 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 	return m_pInstruments->summarizeContent( m_pComponents );
 }
 
-bool Drumkit::install( const QString& sSourcePath,
-					   const QString& sTargetPath,
-					   QString* pInstalledPath,
-					   bool bSilent )
-{
+bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
+					   QString* pInstalledPath, bool bSilent ) {
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
 			INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
@@ -929,6 +926,11 @@ bool Drumkit::install( const QString& sSourcePath,
 	int nRet;
 	struct archive* a;
 	struct archive_entry* entry;
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Importing using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
 
 	a = archive_read_new();
 	if ( a == nullptr ) {
@@ -1283,6 +1285,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	filesUsed << sTmpMapPath;
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Exporting using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
 
 	struct archive *a;
 	struct archive_entry *entry;
