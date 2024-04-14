@@ -25,6 +25,10 @@
 #include <stdio.h>
 #endif
 
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResult.h>
+
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
@@ -55,6 +59,7 @@
 #include <lo/lo_cpp.h>
 
 #include "TransportTestsTimebase.h"
+#include "TestHelper.h"
 
 #include <iostream>
 #include <signal.h>
@@ -92,46 +97,57 @@ void signal_handler ( int signum )
 	}
 }
 
+void tearDown() {
+	___INFOLOG( "Shutting down" );
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getAudioEngine()->getState() ==
+			 H2Core::AudioEngine::State::Playing ) {
+			pHydrogen->sequencerStop();
+	}
+
+	delete TestHelper::get_instance();
+
+	delete pHydrogen;
+	delete EventQueue::get_instance();
+	delete Preferences::get_instance();
+
+	delete MidiMap::get_instance();
+	delete MidiActionManager::get_instance();
+
+	___INFOLOG( "Quitting..." );
+	delete Logger::get_instance();
+}
+
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
 
 void runTransportTests( lo_arg **argv, int argc ) {
-	___INFOLOG( "[runTransportTest] start tests" );
+	___INFOLOG( "\n\n\nstart tests\n\n\n" );
 
-	auto pPref = Preferences::get_instance();
-	pPref->m_bUseMetronome = false;
+	CPPUNIT_TEST_SUITE_REGISTRATION( TransportTestsTimebase );
 
-	TransportTestsTimebase::testFrameToTickConversion();
-	TransportTestsTimebase::testTransportProcessing();
-	TransportTestsTimebase::testTransportProcessingTimeline();
-	TransportTestsTimebase::testTransportRelocation();
-	TransportTestsTimebase::testLoopMode();
-	TransportTestsTimebase::testSongSizeChange();
-	TransportTestsTimebase::testSongSizeChangeInLoopMode();
-	TransportTestsTimebase::testPlaybackTrack();
-	TransportTestsTimebase::testSampleConsistency();
-	TransportTestsTimebase::testNoteEnqueuing();
-	TransportTestsTimebase::testNoteEnqueuingTimeline();
-	TransportTestsTimebase::testHumanization();
+	CppUnit::TextUi::TestRunner runner;
+	CppUnit::TestFactoryRegistry &registry =
+		CppUnit::TestFactoryRegistry::getRegistry();
+	runner.addTest( registry.makeTest() );
+	const bool bSuccessful = runner.run( "", false );
 
-	// The tests in here tend to produce a very large number of log
-	// messages and a couple of them may tend to be printed _after_
-	// the results of the overall test runnner. This is quite
-	// unpleasant as the overall result is only shown after
-	// scrolling. As the TestRunner itself does not seem to support
-	// fixtures, we flush the logger in here.
-	H2Core::Logger::get_instance()->flush();
+	if ( bSuccessful ) {
+		___INFOLOG( "\n\n\nDONE\n\n\n" );
+	} else {
+		___ERRORLOG( "\n\n\nFAILED\n\n\n" );
+	}
 
-	// Reset to default audio driver config
-	pPref->m_nBufferSize = 1024;
-	pPref->m_nSampleRate = 44100;
+	tearDown();
 
-	___INFOLOG( "[runTransportTest] DONE" );
+	if ( bSuccessful ) {
+		exit( 0 );
+	} else {
+		exit( 1 );
+	}
 }
 
 int main(int argc, char *argv[])
 {
-	int nReturnCode = 0;
-	
 	try {
 #ifdef WIN32
 		// In case Hydrogen was started using a CLI attach its output to
@@ -250,8 +266,12 @@ int main(int argc, char *argv[])
 		}
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
+		preferences->m_bUseMetronome = false;
+		preferences->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+		preferences->m_nBufferSize = 1024;
 
 		EventQueue *pQueue = EventQueue::get_instance();
+		TestHelper::createInstance();
 
 		signal(SIGINT, signal_handler);
 
@@ -278,23 +298,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-
-		if ( pHydrogen->getAudioEngine()->getState() ==
-			 H2Core::AudioEngine::State::Playing ) {
-			pHydrogen->sequencerStop();
-		}
-
-		pSong = nullptr;
-
-		delete pHydrogen;
-		delete pQueue;
-		delete preferences;
-
-		delete MidiMap::get_instance();
-		delete MidiActionManager::get_instance();
-
-		___INFOLOG( "Quitting..." );
-		delete Logger::get_instance();
+		tearDown();
 	}
 	catch ( const H2Exception& ex ) {
 		std::cerr << "[main] Exception: " << ex.what() << std::endl;
@@ -303,7 +307,7 @@ int main(int argc, char *argv[])
 		std::cerr << "[main] Unknown exception X-(" << std::endl;
 	}
 
-	return nReturnCode;
+	return 0;
 }
 
 /* Show some information */
