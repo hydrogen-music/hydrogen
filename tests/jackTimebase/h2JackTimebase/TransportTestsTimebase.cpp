@@ -36,7 +36,7 @@
 using namespace H2Core;
 
 void TransportTestsTimebase::testFrameToTickConversion() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
@@ -49,11 +49,11 @@ void TransportTestsTimebase::testFrameToTickConversion() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testFrameToTickConversion );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testTransportProcessing() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
@@ -66,11 +66,11 @@ void TransportTestsTimebase::testTransportProcessing() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testTransportProcessing );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testTransportProcessingTimeline() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongTransportProcessingTimeline =
@@ -84,11 +84,11 @@ void TransportTestsTimebase::testTransportProcessingTimeline() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testTransportProcessingTimeline );
 	}
-	___INFOLOG( "passed" );
-}		
+	___INFOLOG( "\npassed\n" );
+}
  
 void TransportTestsTimebase::testTransportRelocation() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
@@ -115,11 +115,11 @@ void TransportTestsTimebase::testTransportRelocation() {
 	}
 
 	pCoreActionController->activateTimeline( false );
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testLoopMode() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_loopMode.h2song" );
 
@@ -136,11 +136,11 @@ void TransportTestsTimebase::testLoopMode() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testLoopMode );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testSongSizeChange() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
@@ -170,11 +170,11 @@ void TransportTestsTimebase::testSongSizeChange() {
 	}
 	
 	pCoreActionController->activateLoopMode( false );
-	___INFOLOG( "passed" );
-}		
+	___INFOLOG( "\npassed\n" );
+}
 
 void TransportTestsTimebase::testSongSizeChangeInLoopMode() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
@@ -187,11 +187,11 @@ void TransportTestsTimebase::testSongSizeChangeInLoopMode() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testSongSizeChangeInLoopMode );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testPlaybackTrack() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 
 	QString sSongFile = H2TEST_FILE( "song/AE_playbackTrack.h2song" );
 	QString sOutFile = Filesystem::tmp_file_path("testPlaybackTrack.wav");
@@ -200,11 +200,11 @@ void TransportTestsTimebase::testPlaybackTrack() {
 	TestHelper::exportSong( sSongFile, sOutFile );
 	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testSampleConsistency() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
 	const QString sDrumkitDir = H2TEST_FILE( "drumkits/sampleKit/" );
@@ -226,11 +226,11 @@ void TransportTestsTimebase::testSampleConsistency() {
 	TestHelper::exportSong( sOutFile );
 	H2TEST_ASSERT_AUDIO_FILES_DATA_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testNoteEnqueuing() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongNoteEnqueuing =
@@ -244,11 +244,11 @@ void TransportTestsTimebase::testNoteEnqueuing() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testNoteEnqueuing );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testNoteEnqueuingTimeline() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
 
@@ -263,11 +263,11 @@ void TransportTestsTimebase::testNoteEnqueuingTimeline() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testNoteEnqueuingTimeline );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testHumanization() {
-	___INFOLOG( "" );
+	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSongHumanization =
@@ -281,7 +281,7 @@ void TransportTestsTimebase::testHumanization() {
 		TestHelper::varyAudioDriverConfig( ii );
 		perform( &AudioEngineTests::testHumanization );
 	}
-	___INFOLOG( "passed" );
+	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::perform( std::function<void()> func ) {

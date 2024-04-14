@@ -23,30 +23,62 @@
 #include <functional>
 #include <cppunit/extensions/HelperMacros.h>
 
-class TransportTestsTimebase : public CppUnit::TestFixture {
+#include <core/Preferences/Preferences.h>
+
+class TransportTestsTimebase : public CppUnit::TestCase {
+		CPPUNIT_TEST_SUITE( TransportTestsTimebase );
+		CPPUNIT_TEST( testFrameToTickConversion );
+		CPPUNIT_TEST( testTransportProcessing );
+		CPPUNIT_TEST( testTransportProcessingTimeline );
+		CPPUNIT_TEST( testTransportRelocation );
+		CPPUNIT_TEST( testLoopMode );
+		CPPUNIT_TEST( testSongSizeChange );
+		CPPUNIT_TEST( testSongSizeChangeInLoopMode );
+		CPPUNIT_TEST( testPlaybackTrack );
+		CPPUNIT_TEST( testSampleConsistency );
+		CPPUNIT_TEST( testNoteEnqueuing );
+		CPPUNIT_TEST( testNoteEnqueuingTimeline );
+		CPPUNIT_TEST( testHumanization );
+		CPPUNIT_TEST_SUITE_END();
 
 public:
-	static void testFrameToTickConversion();
+	void testFrameToTickConversion();
 
-	static void testTransportProcessing();
-	static void testTransportProcessingTimeline();
-	static void testTransportRelocation();
-	static void testLoopMode();
-	static void testSongSizeChange();
-	static void testSongSizeChangeInLoopMode();
+	void testTransportProcessing();
+	void testTransportProcessingTimeline();
+	void testTransportRelocation();
+	void testLoopMode();
+	void testSongSizeChange();
+	void testSongSizeChangeInLoopMode();
 	/**
 	 * Checks whether the playback track is rendered properly and
 	 * whether it doesn't get affected by tempo markers.
 	 */
-	static void testPlaybackTrack();
-	static void testSampleConsistency();
-	static void testNoteEnqueuing();
+	void testPlaybackTrack();
+	void testSampleConsistency();
+	void testNoteEnqueuing();
 	/**
 	 * Checks whether the order of notes enqueued and processed by the
 	 * Sampler is consistent on tempo change.
 	 */
-	static void testNoteEnqueuingTimeline();
-	static void testHumanization();
+	void testNoteEnqueuingTimeline();
+	void testHumanization();
+
+		virtual void tearDown() override {
+			// The tests in here tend to produce a very large number of log
+			// messages and a couple of them may tend to be printed _after_ the
+			// results of the overall test runnner. This is quite unpleasant as
+			// the overall result is only shown after scrolling. As the
+			// TestRunner itself does not seem to support fixtures, we flush the
+			// logger in here.
+			H2Core::Logger::get_instance()->flush();
+
+			// Reset to default audio driver config
+			auto pPref = H2Core::Preferences::get_instance();
+			pPref->m_nBufferSize = 1024;
+			pPref->m_nSampleRate = 44100;
+		}
+
 
 private:
 	static void perform( std::function<void()> func );

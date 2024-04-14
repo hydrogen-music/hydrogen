@@ -37,4 +37,4 @@ GTAGS
 tests/jackTearDown/jackTearDown
 tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
-tests/jackTimebase/test.log
+tests/jackTimebase/test*.log
