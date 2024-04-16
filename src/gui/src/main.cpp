@@ -60,6 +60,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
 #include <core/Logger.h>
+#include <core/Version.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -220,11 +221,7 @@ int main(int argc, char *argv[])
 		
 		QCommandLineParser parser;
 		
-		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team" ) +
-		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
-		
-		parser.setApplicationDescription( aboutText );
+		parser.setApplicationDescription( H2Core::getAboutText() );
 
 		QStringList availableAudioDrivers;
 		for ( const auto& ddriver : H2Core::Preferences::getSupportedAudioDrivers() ) {
@@ -331,7 +328,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		
-		std::cout << aboutText.toStdString();
+		std::cout << H2Core::getAboutText().toStdString();
 		
 		setup_unix_signal_handlers();
 		QString sInitialisingCrashContext( "Initialising Hydrogen" );

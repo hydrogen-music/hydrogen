@@ -51,6 +51,12 @@ bool version_older_than( int major, int minor, int patch ) {
 	}
 }
 
+QString getAboutText() {
+	return QString( "\nHydrogen %1 [%2]  [http://www.hydrogen-music.org]\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" )
+		.arg( QString::fromStdString( H2Core::get_version() ) )
+		.arg( QString::fromStdString( __DATE__ ) );
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

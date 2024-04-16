@@ -560,18 +560,8 @@ int main(int argc, char *argv[])
 }
 
 /* Show some information */
-void showInfo()
-{
-	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
-	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team" << std::endl;
-
-	if ( Base::count_active() ) {
-		std::cout << "\nObject counting active" << std::endl;
-	}
-
-	std::cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << std::endl;
-	std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
-	std::cout << "under certain conditions. See the file COPYING for details\n" << std::endl;
+void showInfo() {
+	std::cout << getAboutText().toStdString() << std::endl;
 }
 
 /**

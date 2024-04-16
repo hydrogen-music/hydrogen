@@ -24,6 +24,7 @@
 #define H2C_VERSION_H
 
 #include <string>
+#include <QString>
 
 namespace H2Core {
 
@@ -34,6 +35,8 @@ std::string get_version();
  * return true of the current version is older than the given values
  */
 bool version_older_than( int major, int minor, int patch );
+
+	QString getAboutText();
 
 };
 
