@@ -144,8 +144,10 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamp
 	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 
-	log( Info, "Logger" , "Logger", QString( "Using log file [%1]" )
-		 .arg( m_sLogFilePath ) );
+	if ( should_log( Info ) ) {
+		log( Info, "Logger", "Logger", QString( "Using log file [%1]" )
+			 .arg( m_sLogFilePath ) );
+	}
 }
 
 Logger::~Logger() {
