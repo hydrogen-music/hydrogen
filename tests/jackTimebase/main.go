@@ -144,7 +144,7 @@ func startTestBinary(ctx context.Context, logFileSuffix string) {
 
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
-        "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-VDebug")
+        "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-V", "Locks")
     err := cmd.Run()
     if err == nil {
         log.Println("[startTestBinary] SUCCESS!")
