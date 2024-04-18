@@ -304,9 +304,11 @@ int main(int argc, char *argv[])
 		QString sOscPort = parser.value( oscPortOption );
 		if ( ! sOscPort.isEmpty() ) {
 			bool bOk;
-			const int nParsedOscPort = sOscPort.toInt( &bOk, 10 );
-			if ( bOk ) {
-				nOscPort = nParsedOscPort;
+			nOscPort = sOscPort.toInt( &bOk, 10 );
+			if ( ! bOk ) {
+				std::cerr << "Unable to parse 'osc-port' option. Please provide an integer value"
+						  << std::endl;
+				exit( 1 );
 			}
 		}
 #endif
