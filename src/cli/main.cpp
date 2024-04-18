@@ -25,6 +25,9 @@
 #include <stdio.h>
 #endif
 
+#include <QCoreApplication>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
@@ -54,34 +57,6 @@
 #include <signal.h>
 
 using namespace H2Core;
-
-void showInfo();
-void showUsage();
-
-#define HAS_ARG 1
-static struct option long_opts[] = {
-	{"driver", required_argument, nullptr, 'd'},
-	{"song", required_argument, nullptr, 's'},
-	{"playlist", required_argument, nullptr, 'p'},
-	{"bits", required_argument, nullptr, 'b'},
-	{"rate", required_argument, nullptr, 'r'},
-	{"outfile", required_argument, nullptr, 'o'},
-	{"interpolation", required_argument, nullptr, 'I'},
-	{"version", 0, nullptr, 'v'},
-	{"verbose", optional_argument, nullptr, 'V'},
-	{"log-file", required_argument, nullptr, 'L'},
-	{"log-timestamps", 0, nullptr, 'T'},
-	{"help", 0, nullptr, 'h'},
-	{"install", required_argument, nullptr, 'i'},
-	{"check", required_argument, nullptr, 'c'},
-	{"legacy-check", required_argument, nullptr, 'l'},
-	{"upgrade", required_argument, nullptr, 'u'},
-	{"extract", required_argument, nullptr, 'x'},
-	{"target", required_argument, nullptr, 't'},
-	{"drumkit", required_argument, nullptr, 'k'},
-	{"osc-port", required_argument, nullptr, 'O'},
-	{nullptr, 0, nullptr, 0},
-};
 
 class Sleeper : public QThread
 {
@@ -117,23 +92,12 @@ void show_playlist (uint active )
 	std::cout << std::endl;
 }
 
-QString makePathAbsolute( const char* path ) {
-
-	QString sPath = QString::fromLocal8Bit( path );
-	QFileInfo fileInfo( sPath );
-	if ( fileInfo.isRelative() ) {
-		sPath = fileInfo.absoluteFilePath();
-	}
-
-	return sPath;
-}
-
-#define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
-
 int main(int argc, char *argv[])
 {
-	int nReturnCode = 0;
-	
+	// Indicates whether or not h2cli handled the requested action and is done
+	// and whether it was successful.
+	int nReturnCode = -1;
+
 	try {
 #ifdef WIN32
 		// In case Hydrogen was started using a CLI attach its output to
@@ -144,139 +108,186 @@ int main(int argc, char *argv[])
 			freopen("CONIN$", "w", stdin);
 		}
 #endif
-	
-		// Options...
-		char *cp;
-		struct option *op;
-		char opts[NELEM(long_opts) * 3 + 1];
 
-		// Build up the short option QString
-		cp = opts;
-		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
-			*cp++ = op->val;
-			if (op->has_arg) {
-				*cp++ = ':';
-			}
-			if (op->has_arg == optional_argument ) {
-				*cp++ = ':';  // gets another one
-			}
+		// Create bootstrap QApplication for command line argument parsing.
+		QCoreApplication* pApp = new QCoreApplication( argc, argv );
+		pApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
+		QCommandLineParser parser;
+		parser.setApplicationDescription(
+			H2Core::getAboutText() +
+			"\n\nThe CLI of Hydrogen can be used in two different ways. Either for exporting a song into an audio file\n\n" +
+			"  h2cli -s /usr/share/hydrogen/data/demo_songs/GM_kit_demo1.h2song \\\n        -d GMRockKit -d auto -o ./example.wav\n\n" +
+			"or for checking, extracting, installing, or upgrading an existing drumkit\n\n" +
+			"  h2cli -c /usr/share/hydrogen/data/drumkits/GMRockKit" );
+
+		QStringList availableAudioDrivers;
+		for ( const auto& ddriver : H2Core::Preferences::getSupportedAudioDrivers() ) {
+			availableAudioDrivers << H2Core::Preferences::audioDriverToQString( ddriver );
 		}
+		availableAudioDrivers << H2Core::Preferences::audioDriverToQString(
+			H2Core::Preferences::AudioDriver::Auto );
+
+		QCommandLineOption audioDriverOption(
+			QStringList() << "d" << "driver",
+			QString( "Use the selected audio driver\n   - " )
+			.append( availableAudioDrivers.join( "\n   - " ) )
+			.append( " [default]" ), "Audiodriver");
+		QCommandLineOption songFileOption(
+			QStringList() << "s" << "song",
+			"Load a song (*.h2song) at startup", "File" );
+		QCommandLineOption installDrumkitOption(
+			QStringList() << "i" << "install",
+			"Install a drumkit (*.h2drumkit)", "File");
+		QCommandLineOption checkDrumkitOption(
+			QStringList() << "c" << "check",
+			"Validates a drumkit (*.h2drumkit) against current drumkit format",
+			"File" );
+		QCommandLineOption legacyCheckDrumkitOption(
+			QStringList() << "l" << "legacy-check",
+			"Validates a drumkit (*.h2drumkit) against current as well as legacy drumkit formats",
+			"File" );
+		QCommandLineOption upgradeDrumkitOption(
+			QStringList() << "u" << "upgrade",
+			"Upgrades a drumkit. The provided file can be either an absolute path to a folder containing a drumkit, an absolute path to a drumkit file (drumkit.xml) itself, or an absolute path to a compressed drumkit ( *.h2drumkit). If no target folder was specified using the -t option, a backup of the drumkit is created and the original one is upgraded in place. If a compressed drumkit is provided as first argument, the upgraded drumkit will be compressed as well.",
+			"File" );
+		QCommandLineOption extractDrumkitOption(
+			QStringList() << "x" << "extract",
+			"Extracts the content of a drumkit (.h2drumkit). If no target is specified using the -t option, this command behaves like --install.",
+			"File" );
+		QCommandLineOption targetOption(
+			QStringList() << "t" << "target",
+			"Target folder the extracted (-x) or upgraded (-u) drumkit will be stored in. The folder is created if it does not exists yet.",
+			"File" );
+		QCommandLineOption bitsOption(
+			QStringList() << "b" << "bits", "Set bits depth while exporting file",
+			"int", "16" );
+		QCommandLineOption rateOption(
+			QStringList() << "r" << "rate", "Set bitrate while exporting file",
+			"int", "44100" );
+		QCommandLineOption outputFileOption(
+			QStringList() << "o" << "outfile", "Output to file (export)", "File" );
+		QCommandLineOption interpolationOption(
+			QStringList() << "I" << "interpolation",
+			"Interpolation:\n   - 0 (linear) [default]\n   - 1 (cosine)\n   - 2 (third)\n   - 3 (cubic)\n   - 4 (hermite)",
+			"int", "0" );
+		QCommandLineOption playlistFileNameOption(
+			QStringList() << "p" << "playlist",
+			"Load a playlist (*.h2playlist) at startup", "File" );
+		QCommandLineOption systemDataPathOption(
+			QStringList() << "P" << "data",
+			"Use an alternate system data path", "Path" );
+	QCommandLineOption kitOption(
+			QStringList() << "k" << "kit",
+			"Load a drumkit at startup", "DrumkitName" );
+		QCommandLineOption verboseOption(
+			QStringList() << "V" << "verbose",
+			"Debug level, if present, may be\n   - None\n   - Error [default]\n   - Warning\n   - Info\n   - Debug\n   - Constructors\n   - Locks", "Level" );
+		QCommandLineOption logFileOption(
+			QStringList() << "L" << "log-file",
+			"Alternative log file path", "Path" );
+		QCommandLineOption logTimestampsOption(
+			QStringList() << "T" << "log-timestamps",
+			"Add timestamps to all log messages" );
+#ifdef H2CORE_HAVE_OSC
+		QCommandLineOption oscPortOption(
+			QStringList() << "O" << "osc-port",
+			"Custom port for OSC connections", "int" );
+#endif
+
+		parser.addOption( audioDriverOption );
+		parser.addOption( songFileOption );
+		parser.addOption( playlistFileNameOption );
+		parser.addOption( outputFileOption );
+		parser.addOption( systemDataPathOption );
+		parser.addOption( rateOption );
+		parser.addOption( bitsOption );
+		parser.addOption( kitOption );
+		parser.addOption( interpolationOption );
+		parser.addOption( installDrumkitOption );
+		parser.addOption( checkDrumkitOption );
+		parser.addOption( legacyCheckDrumkitOption );
+		parser.addOption( upgradeDrumkitOption );
+		parser.addOption( extractDrumkitOption );
+		parser.addOption( targetOption );
+#ifdef H2CORE_HAVE_OSC
+		parser.addOption( oscPortOption );
+#endif
+		parser.addOption( verboseOption );
+		parser.addOption( logFileOption );
+		parser.addOption( logTimestampsOption );
+		parser.addHelpOption();
+		parser.addVersionOption();
+		// Evaluate the options
+		parser.process( *pApp );
 
 		// Deal with the options
-		QString songFilename;
-		QString playlistFilename;
-		QString outFilename = nullptr;
-		QString sSelectedDriver;
-		bool showVersionOpt = false;
-		const char* logLevelOpt = "Error";
-		bool showHelpOpt = false;
-		QString drumkitName, drumkitToLoad, sDrumkitToValidate, sLogFile;
-		bool bValidateDrumkit = false;
-		bool bValidateLegacyKits = false;
-		QString sDrumkitToUpgrade;
-		bool bUpgradeDrumkit = false;
-		QString sDrumkitToExtract;
-		bool bExtractDrumkit = false;
-		bool bLogTimestamps = false;
-		QString sTarget = "";
-		short bits = 16;
-		int rate = 44100;
-		short interpolation = 0;
-		int nOscPort = -1;
-		int c;
-		while ( 1 ) {
-			c = getopt_long(argc, argv, opts, long_opts, nullptr);
-			if ( c == -1 ) break;
+		const QString sSongFilename = parser.value( songFileOption );
+		const QString sPlaylistFilename = parser.value( playlistFileNameOption );
+		const QString sSysDataPath = parser.value( systemDataPathOption );
+		const QString sOutFilename = parser.value( outputFileOption );
+		const QString sSelectedDriver = parser.value( audioDriverOption );
+		const QString sVerbosityString = parser.value( verboseOption );
+		const QString sInstallDrumkitName = parser.value( installDrumkitOption );
+		const QString sDrumkitToLoad = parser.value( kitOption );
+		const QString sDrumkitToValidate = parser.value( checkDrumkitOption );
+		const QString sDrumkitToLegacyValidate = parser.value( legacyCheckDrumkitOption );
+		const QString sLogFile = parser.value( logFileOption );
+		const QString sDrumkitToUpgrade = parser.value( upgradeDrumkitOption );
+		const QString sDrumkitToExtract = parser.value( extractDrumkitOption );
+		const bool bLogTimestamps = parser.isSet( logTimestampsOption );
+		const QString sTarget = parser.value( targetOption );
 
-			switch(c) {
-			case 'd':
-				sSelectedDriver = QString::fromLocal8Bit(optarg);
-				break;
-			case 's':
-				songFilename = QString::fromLocal8Bit(optarg);
-				break;
-			case 'p':
-				playlistFilename = QString::fromLocal8Bit(optarg);
-				break;
-			case 'o':
-				outFilename = QString::fromLocal8Bit(optarg);
-				break;
-			case 'O':
-				nOscPort = strtol( optarg, nullptr, 10 );
-				break;
-			case 'i':
-				//install h2drumkit
-				drumkitName = makePathAbsolute( optarg );
-				break;
-			case 'c':
-				//validate h2drumkit
-				sDrumkitToValidate = makePathAbsolute( optarg );
-				bValidateDrumkit = true;
-				break;
-			case 'l':
-				//validate h2drumkit including legacy XSD definitions
-				sDrumkitToValidate = makePathAbsolute( optarg );
-				bValidateDrumkit = true;
-				bValidateLegacyKits = true;
-				break;
-			case 'u':
-				//upgrade h2drumkit
-				sDrumkitToUpgrade = makePathAbsolute( optarg );
-				bUpgradeDrumkit = true;
-				break;
-			case 'x':
-				//extract h2drumkit
-				sDrumkitToExtract = makePathAbsolute( optarg );
-				bExtractDrumkit = true;
-				break;
-			case 't':
-				sTarget = makePathAbsolute( optarg );
-				break;
-			case 'k':
-				//load Drumkit
-				drumkitToLoad = QString::fromLocal8Bit(optarg);
-				break;
-			case 'r':
-				rate = strtol(optarg, nullptr, 10);
-				break;
-			case 'b':
-				bits = strtol(optarg, nullptr, 10);
-				break;
-			case 'v':
-				showVersionOpt = true;
-				break;
-			case 'V':
-				logLevelOpt = (optarg) ? optarg : "Warning";
-				break;
-			case 'L':
-				sLogFile = QString::fromLocal8Bit( optarg );
-				break;
-			case 'T':
-				bLogTimestamps = true;
-				break;
-			case 'h':
-			case '?':
-				showHelpOpt = true;
-				break;
+		bool bOk;
+		const short bits = parser.value( bitsOption ).toShort( &bOk );
+		if ( ! bOk ) {
+			std::cerr << "Unable to parse 'bits' option. Please provide an integer value (short)"
+				<< std::endl;
+			exit( 1 );
+		}
+		const int nRate = parser.value( rateOption ).toInt( &bOk );
+		if ( ! bOk ) {
+			std::cerr << "Unable to parse 'rate' option. Please provide an integer value"
+				<< std::endl;
+			exit( 1 );
+		}
+		const short interpolation =
+			parser.value( interpolationOption ).toShort( &bOk );
+		if ( ! bOk ) {
+			std::cerr << "Unable to parse 'interpolation' option. Please provide an integer value (short)"
+				<< std::endl;
+			exit( 1 );
+		}
+		const QString sOscPort = parser.value( oscPortOption );
+		int nOscPort = -1;
+		if ( ! sOscPort.isEmpty() ) {
+			nOscPort = parser.value( oscPortOption ).toInt( &bOk );
+			if ( ! bOk ) {
+				std::cerr << "Unable to parse 'osc-port' option. Please provide an integer value"
+						  << std::endl;
+				exit( 1 );
 			}
 		}
 
-		if ( showVersionOpt ) {
-			std::cout << get_version() << std::endl;
-			exit(0);
-		}
-
-		showInfo();
-		if ( showHelpOpt ) {
-			showUsage();
-			exit(0);
+		unsigned logLevelOpt = H2Core::Logger::Error;
+		if ( parser.isSet( verboseOption ) ){
+			if( !sVerbosityString.isEmpty() )
+			{
+				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
+			} else {
+				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			}
 		}
 
 		// Man your battle stations... this is not a drill.
-		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ),
+		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, bLogTimestamps );
-		Base::bootstrap( logger, logger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( logger );
+		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
+		if ( sSysDataPath.isEmpty() ) {
+			H2Core::Filesystem::bootstrap( pLogger );
+		} else {
+			H2Core::Filesystem::bootstrap( pLogger, sSysDataPath );
+		}
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
@@ -296,8 +307,8 @@ int main(int argc, char *argv[])
 		LashClient* lashClient = LashClient::get_instance();
 #endif
 
-		if ( ! drumkitName.isEmpty() ){
-			Drumkit::install( drumkitName );
+		if ( ! sInstallDrumkitName.isEmpty() ){
+			Drumkit::install( sInstallDrumkitName );
 			exit(0);
 		}
 
@@ -313,11 +324,11 @@ int main(int argc, char *argv[])
 				// notify client that this project was not a new one
 				lashClient->setNewProject(false);
 
-				songFilename = "";
-				songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
-				songFilename.append("/hydrogen.h2song");
+				sSongFilename = "";
+				sSongFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
+				sSongFilename.append("/hydrogen.h2song");
 
-				//Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+				//Logger::get_instance()->log("[LASH] Restore file: " + sSongFilename);
 
 				lash_event_destroy(lash_event);
 			} else if (lash_event) {
@@ -332,15 +343,15 @@ int main(int argc, char *argv[])
 		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
-		if ( ! playlistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load ( playlistFilename, preferences->isPlaylistUsingRelativeFilenames() );
+		if ( ! sPlaylistFilename.isEmpty() ) {
+			pPlaylist = Playlist::load ( sPlaylistFilename, preferences->isPlaylistUsingRelativeFilenames() );
 			if ( ! pPlaylist ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;
 			}
 
 			/* Load first song */
-			preferences->setLastPlaylistFilename( playlistFilename );
+			preferences->setLastPlaylistFilename( sPlaylistFilename );
 			
 			QString FirstSongFilename;
 			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
@@ -348,7 +359,7 @@ int main(int argc, char *argv[])
 			
 			if( pSong ){
 				pHydrogen->setSong( pSong );
-				preferences->setLastSongFilename( songFilename );
+				preferences->setLastSongFilename( sSongFilename );
 				
 				pPlaylist->activateSong( 0 );
 			}
@@ -358,8 +369,8 @@ int main(int argc, char *argv[])
 
 		// Load song - if wasn't already loaded with playlist
 		if ( ! pSong ) {
-			if ( !songFilename.isEmpty() ) {
-				pSong = Song::load( songFilename );
+			if ( !sSongFilename.isEmpty() ) {
+				pSong = Song::load( sSongFilename );
 			} else {
 				/* Try load last song */
 				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
@@ -374,14 +385,14 @@ int main(int argc, char *argv[])
 				___INFOLOG("Starting with empty song");
 				pSong = Song::getEmptySong();
 			} else {
-				preferences->setLastSongFilename( songFilename );
+				preferences->setLastSongFilename( sSongFilename );
 			}
 
 			pHydrogen->setSong( pSong );
 		}
 
-		if ( ! drumkitToLoad.isEmpty() ){
-			pHydrogen->getCoreActionController()->setDrumkit( drumkitToLoad, true );
+		if ( ! sDrumkitToLoad.isEmpty() ){
+			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -408,35 +419,55 @@ int main(int argc, char *argv[])
 
 		signal(SIGINT, signal_handler);
 
-		
-		bool ExportMode = false;
-		if ( ! outFilename.isEmpty() ) {
+		// Hydrogen is up and running. Let's handle the requested user action.
+
+		bool bExportMode = false;
+		if ( ! sOutFilename.isEmpty() ) {
 			auto pInstrumentList = pSong->getInstrumentList();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}
-			pHydrogen->startExportSession(rate, bits);
-			pHydrogen->startExportSong( outFilename );
+			pHydrogen->startExportSession(nRate, bits);
+			pHydrogen->startExportSong( sOutFilename );
 			std::cout << "Export Progress ... ";
-			ExportMode = true;
+			bExportMode = true;
 		}
 
 		auto pCoreActionController = pHydrogen->getCoreActionController();
 
-		if ( bValidateDrumkit ) {
+		if ( ! sDrumkitToValidate.isEmpty() ) {
 			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate,
-					 bValidateLegacyKits ) ) {
+					 false ) ) {
 				nReturnCode = 1;
 
 				std::cout << "Provided drumkit [" <<
 					sDrumkitToValidate.toLocal8Bit().data() << "] is INVALID!" << std::endl;
-				
+
 			} else {
+				nReturnCode = 0;
 				std::cout << "Provided drumkit [" <<
 					sDrumkitToValidate.toLocal8Bit().data() << "] is valid" << std::endl;
 			}
 
-		} else if ( bExtractDrumkit ) {
+		}
+
+		if ( ! sDrumkitToLegacyValidate.isEmpty() ) {
+			if ( ! pCoreActionController->validateDrumkit(
+					 sDrumkitToLegacyValidate, true ) ) {
+				nReturnCode = 1;
+
+				std::cout << "Provided legacy drumkit [" <<
+					sDrumkitToLegacyValidate.toLocal8Bit().data() << "] is INVALID!" << std::endl;
+				
+			} else {
+				nReturnCode = 0;
+				std::cout << "Provided legacy drumkit [" <<
+					sDrumkitToLegacyValidate.toLocal8Bit().data() << "] is valid" << std::endl;
+			}
+
+		}
+
+		if ( ! sDrumkitToExtract.isEmpty() ) {
 			if ( ! pCoreActionController->extractDrumkit( sDrumkitToExtract,
 														  sTarget ) ) {
 				nReturnCode = 1;
@@ -449,8 +480,9 @@ int main(int argc, char *argv[])
 						sDrumkitToExtract.toLocal8Bit().data() << "] to [" <<
 						sTarget.toLocal8Bit().data() << "]" << std::endl;
 				}
-			} else {
-				
+			}
+			else {
+				nReturnCode = 0;
 				if ( sTarget.isEmpty() ) {
 					std::cout << "Drumkit [" <<
 						sDrumkitToExtract.toLocal8Bit().data() <<
@@ -462,8 +494,9 @@ int main(int argc, char *argv[])
 						sTarget.toLocal8Bit().data() << "]!" << std::endl;
 				}
 			}
+		}
 
-		} else if ( bUpgradeDrumkit ) {
+		if ( ! sDrumkitToUpgrade.isEmpty() ) {
 			if ( ! pCoreActionController->upgradeDrumkit( sDrumkitToUpgrade,
 														  sTarget ) ) {
 				nReturnCode = 1;
@@ -471,7 +504,9 @@ int main(int argc, char *argv[])
 				std::cout << "Unable to upgrade provided drumkit [" <<
 					sDrumkitToUpgrade.toLocal8Bit().data() << "]!" << std::endl;
 				
-			} else {
+			}
+			else {
+				nReturnCode = 0;
 				std::cout << "Provided drumkit [" <<
 					sDrumkitToUpgrade.toLocal8Bit().data() << "] upgraded";
 
@@ -481,9 +516,10 @@ int main(int argc, char *argv[])
 				}
 				std::cout << std::endl;
 			}
-		} else {
+		}
 
-			// Interactive mode
+		if ( nReturnCode == -1 || bExportMode ) {
+			// Interactive mode - h2cli is not done yet.
 			while ( ! quit ) {
 				/* FIXME: Someday here will be The Real CLI ;-) */
 				Event event = pQueue->pop_event();
@@ -492,7 +528,7 @@ int main(int argc, char *argv[])
 				/* Event handler */
 				switch ( event.type ) {
 				case EVENT_PROGRESS: /* event used only in export mode */
-					if ( ! ExportMode ) break;
+					if ( ! bExportMode ) break;
 	
 					if ( event.value < 100 ) {
 						std::cout << "\rExport Progress ... " << event.value << "%";
@@ -510,7 +546,7 @@ int main(int argc, char *argv[])
 					
 						if( pSong ) {
 							pHydrogen->setSong( pSong );
-							preferences->setLastSongFilename( songFilename );
+							preferences->setLastSongFilename( sSongFilename );
 						
 							pPlaylist->activateSong( event.value );
 						}
@@ -555,98 +591,12 @@ int main(int argc, char *argv[])
 	}
 	catch ( const H2Exception& ex ) {
 		std::cerr << "[main] Exception: " << ex.what() << std::endl;
+		nReturnCode = 1;
 	}
 	catch (...) {
 		std::cerr << "[main] Unknown exception X-(" << std::endl;
+		nReturnCode = 1;
 	}
 
-	return nReturnCode;
-}
-
-/* Show some information */
-void showInfo() {
-	std::cout << getAboutText().toStdString() << std::endl;
-}
-
-/**
- * Show the correct usage
- */
-void showUsage()
-{
-	QStringList availableAudioDrivers;
-	for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
-		availableAudioDrivers << Preferences::audioDriverToQString( ddriver );
-	}
-	availableAudioDrivers << Preferences::audioDriverToQString(
-		Preferences::AudioDriver::Auto );
-
-
-	std::cout << "Usage: h2cli OPTION [ARGS]" << std::endl;
-	std::cout << std::endl;
-	std::cout << "The CLI of Hydrogen can be used in two different ways. Either" << std::endl;
-	std::cout << "for exporting a song into an audio file or for checking and" << std::endl;
-	std::cout << "an existing drumkit." << std::endl;
-	std::cout << std::endl;
-	std::cout << "Exporting:" << std::endl;
-	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver" << std::endl;
-	std::cout << QString( "       [%1]" ).arg( availableAudioDrivers.join( ", " ) )
-		.toLocal8Bit().data() << std::endl;
-	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
-	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
-	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
-	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
-	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
-	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
-	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
-	std::cout << "       [0:linear (default), 1:cosine, 2:third, 3:cubic, 4:hermite]" << std::endl;
-
-#ifdef H2CORE_HAVE_OSC
-	std::cout << "   -O, --osc-port INT - Custom port for OSC connections" << std::endl;
-#endif
-
-#ifdef H2CORE_HAVE_LASH
-	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
-			  << "                            it (LASH 0.5.3 and later)." << std::endl;
-	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
-			  << "                          from a crash." << std::endl;
-#endif
-	std::cout << std::endl;
-	std::cout << "Example: h2cli -s /usr/share/hydrogen/data/demo_songs/GM_kit_demo1.h2song \\" << std::endl;
-	std::cout << "               -d GMRockKit -d auto -o ./example.wav" << std::endl;
-
-	std::cout << std::endl;
-	std::cout << "Drumkit handling:" << std::endl;
-	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "   -c, --check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "                      against current drumkit format" << std::endl;
-	std::cout << "   -l, --legcay-check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "                             against current as well as legacy" << std::endl;
-	std::cout << "                             drumkit formats" << std::endl;
-	std::cout << "   -u, --upgrade FILE - upgrades a drumkit. FILE can be either" << std::endl;
-	std::cout << "                        an absolute path to a folder containing a" << std::endl;
-	std::cout << "                        drumkit, an absolute path to a drumkit file" << std::endl;
-	std::cout << "                        (drumkit.xml) itself, or an absolute path to" << std::endl;
-	std::cout << "                        a compressed drumkit ( *.h2drumkit). If no" << std::endl;
-	std::cout << "                        target folder was specified using the -t option" << std::endl;
-	std::cout << "                        a backup of the drumkit created and the original" << std::endl;
-	std::cout << "                        one is upgraded in place. If a compressed drumkit" << std::endl;
-	std::cout << "                        is provided as first argument, the upgraded" << std::endl;
-	std::cout << "                        drumkit will be compressed as well." << std::endl;
-	std::cout << "   -x, --extract FILE - extracts the content of a drumkit (.h2drumkit)" << std::endl;
-	std::cout << "                        If no target is specified using the -t option" << std::endl;
-	std::cout << "                        this command behaves like --install." << std::endl;
-	std::cout << "   -t, --target FOLDER - target folder the extracted (-x) or upgraded (-u)" << std::endl;
-	std::cout << "                         drumkit will be stored in. The folder is created" << std::endl;
-	std::cout << "                         if it not exists yet." << std::endl;
-	std::cout << std::endl;
-	std::cout << "Example: h2cli -c /usr/share/hydrogen/data/drumkits/GMRockKit" << std::endl;
-
-	std::cout << std::endl;
-	std::cout << "Miscellaneous:" << std::endl;
-	std::cout << "   -V[Level], --verbose[=Level] - Set verbosity level" << std::endl;
-	std::cout << "       [None, Error, Warning, Info, Debug, Constructor, Locks, 0xHHHH]" << std::endl;
-	std::cout << "   -L, --log-file - Alternative log file path" << std::endl;
-	std::cout << "   -T, --log-timestamps - Add timestamps to all log messages" << std::endl;
-	std::cout << "   -v, --version - Show version info" << std::endl;
-	std::cout << "   -h, --help - Show this help message" << std::endl;
+	return std::max( nReturnCode, 0 );
 }
