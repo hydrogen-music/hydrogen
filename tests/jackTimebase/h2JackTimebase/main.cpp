@@ -29,6 +29,9 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/TestResult.h>
 
+#include <QCoreApplication>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
@@ -66,20 +69,6 @@
 #include <signal.h>
 
 using namespace H2Core;
-
-void showInfo();
-void showUsage();
-
-#define HAS_ARG 1
-static struct option long_opts[] = {
-	{"osc-port", required_argument, nullptr, 'O'},
-	{"song", required_argument, nullptr, 's'},
-	{"version", 0, nullptr, 'v'},
-	{"verbose", optional_argument, nullptr, 'V'},
-	{"log-file", required_argument, nullptr, 'L'},
-	{"help", 0, nullptr, 'h'},
-	{nullptr, 0, nullptr, 0},
-};
 
 class Sleeper : public QThread
 {
@@ -119,7 +108,6 @@ void tearDown() {
 	delete Logger::get_instance();
 }
 
-#define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
 void startTestJackDriver( lo_arg **argv, int argc ) {
 	CoreActionController::activateLoopMode( false );
 	CoreActionController::locateToTick( 0 );
@@ -174,74 +162,70 @@ int main(int argc, char *argv[])
 				  << std::endl;
 		exit( 1 );
 #endif
+		// Create bootstrap QApplication for command line argument parsing.
+		QCoreApplication* pApp = new QCoreApplication( argc, argv );
+		pApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
-		// Options...
-		char *cp;
-		struct option *op;
-		char opts[NELEM(long_opts) * 3 + 1];
+		QCommandLineParser parser;
+		parser.setApplicationDescription( H2Core::getAboutText() );
 
-		// Build up the short option QString
-		cp = opts;
-		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
-			*cp++ = op->val;
-			if (op->has_arg) {
-				*cp++ = ':';
-			}
-			if (op->has_arg == optional_argument ) {
-				*cp++ = ':';  // gets another one
-			}
-		}
+		QCommandLineOption songFileOption(
+			QStringList() << "s" << "song",
+			"Load a song (*.h2song) at startup", "File" );
+		QCommandLineOption verboseOption(
+			QStringList() << "V" << "verbose",
+			"Debug level, if present, may be\n   - None\n   - Error [default]\n   - Warning\n   - Info\n   - Debug\n   - Constructors\n   - Locks", "Level" );
+		QCommandLineOption logFileOption(
+			QStringList() << "L" << "log-file",
+			"Alternative log file path", "Path" );
+#ifdef H2CORE_HAVE_OSC
+		QCommandLineOption oscPortOption(
+			QStringList() << "O" << "osc-port",
+			"Custom port for OSC connections", "int" );
+#endif
+
+		parser.addOption( songFileOption );
+#ifdef H2CORE_HAVE_OSC
+		parser.addOption( oscPortOption );
+#endif
+		parser.addOption( verboseOption );
+		parser.addOption( logFileOption );
+		parser.addHelpOption();
+		parser.addVersionOption();
+		// Evaluate the options
+		parser.process( *pApp );
 
 		// Deal with the options
-		QString songFilename, sLogFile;
+		const QString sSongFilename = parser.value( songFileOption );
+		const QString sVerbosityString = parser.value( verboseOption );
+		const QString sLogFile = parser.value( logFileOption );
+		const QString sOscPort = parser.value( oscPortOption );
 		int nOscPort = -1;
-		bool showVersionOpt = false;
-		const char* logLevelOpt = "Error";
-		bool showHelpOpt = false;
-		int c;
-		while ( 1 ) {
-			c = getopt_long(argc, argv, opts, long_opts, nullptr);
-			if ( c == -1 ) break;
-
-			switch(c) {
-			case 's':
-				songFilename = QString::fromLocal8Bit(optarg);
-				break;
-			case 'O':
-				nOscPort = strtol( optarg, nullptr, 10 );
-				break;
-			case 'v':
-				showVersionOpt = true;
-				break;
-			case 'V':
-				logLevelOpt = (optarg) ? optarg : "Warning";
-				break;
-			case 'L':
-				sLogFile = QString::fromLocal8Bit( optarg );
-				break;
-			case 'h':
-			case '?':
-				showHelpOpt = true;
-				break;
+		if ( ! sOscPort.isEmpty() ) {
+			bool bOk;
+			nOscPort = parser.value( oscPortOption ).toInt( &bOk );
+			if ( ! bOk ) {
+				std::cerr << "Unable to parse 'osc-port' option. Please provide an integer value"
+						  << std::endl;
+				exit( 1 );
 			}
 		}
 
-		if ( showVersionOpt ) {
-			std::cout << get_version() << std::endl;
-			exit(0);
-		}
-
-		showInfo();
-		if ( showHelpOpt ) {
-			showUsage();
-			exit(0);
+		unsigned logLevelOpt = H2Core::Logger::Error;
+		if ( parser.isSet( verboseOption ) ){
+			if( !sVerbosityString.isEmpty() )
+			{
+				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
+			} else {
+				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			}
 		}
 
 		// Man your battle stations... this is not a drill.
-		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ),
+		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, true );
-		Base::bootstrap( logger, logger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( logger );
+		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
+		Filesystem::bootstrap( pLogger );
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
@@ -261,8 +245,8 @@ int main(int argc, char *argv[])
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		std::shared_ptr<Song> pSong = nullptr;
 
-		if ( ! songFilename.isEmpty() ) {
-			pSong = Song::load( songFilename );
+		if ( ! sSongFilename.isEmpty() ) {
+			pSong = Song::load( sSongFilename );
 		}
 
 		/* Still not loaded */
@@ -321,37 +305,4 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-/* Show some information */
-void showInfo()
-{
-	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
-	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team" << std::endl;
-	std::cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << std::endl;
-	std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
-	std::cout << "under certain conditions. See the file COPYING for details\n" << std::endl;
-}
-
-/**
- * Show the correct usage
- */
-void showUsage() {
-	std::cout << "Usage: h2JackTimebase OPTION [ARGS]" << std::endl;
-	std::cout << std::endl;
-	std::cout << "This CLI version of Hydrogen is build to the sole purpose of" << std::endl;
-	std::cout << "performing an intergration test of the JACK Timebase transport" << std::endl;
-	std::cout << std::endl;
-	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
-
-	std::cout << std::endl;
-	std::cout << "Example: h2JackTimebase -s /usr/share/hydrogen/data/demo_songs/GM_kit_demo1.h2song \\" << std::endl;
-	std::cout << "               -d GMRockKit -d auto -o ./example.wav" << std::endl;
-
-	std::cout << std::endl;
-	std::cout << "Miscellaneous:" << std::endl;
-	std::cout << "   -V[Level], --verbose[=Level] - Set verbosity level" << std::endl;
-	std::cout << "       [None, Error, Warning, Info, Debug, Constructor, Locks, 0xHHHH]" << std::endl;
-	std::cout << "   -v, --version - Show version info" << std::endl;
-	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
