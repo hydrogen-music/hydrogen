@@ -28,6 +28,7 @@
 #include "core/Preferences/Preferences.h"
 #include <core/EventQueue.h>
 #include <core/Basics/Song.h>
+#include <core/IO/DiskWriterDriver.h>
 
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -249,23 +250,19 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
 	pHydrogen->startExportSong( sFileName );
 
+	auto pDriver =
+		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
 	const int nMaxSleeps = 30;
 	int nSleeps = 0;
-	bool bDone = false;
-	while ( ! bDone ) {
-		H2Core::Event event = pQueue->pop_event();
+	while ( ! pDriver->isDoneWriting() ) {
+		usleep(100 * 1000);
 
-		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
-			bDone = true;
-		}
-		else if ( event.type == H2Core::EVENT_NONE ) {
-			usleep(100 * 1000);
-
-			// Export should not take that long. There is somethings wrong in
-			// here.
-			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
-			nSleeps++;
-		}
+		// Export should not take that long. There is somethings wrong in
+		// here.
+		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+		nSleeps++;
 	}
 	pHydrogen->stopExportSession();
 
@@ -291,23 +288,19 @@ void TestHelper::exportSong( const QString& sFileName )
 	pHydrogen->startExportSession( 44100, 16 );
 	pHydrogen->startExportSong( sFileName );
 
+	auto pDriver =
+		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
 	const int nMaxSleeps = 30;
 	int nSleeps = 0;
-	bool bDone = false;
-	while ( ! bDone ) {
-		H2Core::Event event = pQueue->pop_event();
+	while ( ! pDriver->isDoneWriting() ) {
+		usleep(100 * 1000);
 
-		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
-			bDone = true;
-		}
-		else if ( event.type == H2Core::EVENT_NONE ) {
-			usleep(100 * 1000);
-
-			// Export should not take that long. There is somethings wrong in
-			// here.
-			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
-			nSleeps++;
-		}
+		// Export should not take that long. There is somethings wrong in
+		// here.
+		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+		nSleeps++;
 	}
 	pHydrogen->stopExportSession();
 

@@ -138,6 +138,7 @@ void* diskWriterDriver_thread( void* param )
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
+		pDriver->m_bDoneWriting = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -148,6 +149,7 @@ void* diskWriterDriver_thread( void* param )
 		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
 					.arg( pDriver->m_sFilename )
 					.arg( sf_strerror( nullptr ) ) );
+		pDriver->m_bDoneWriting = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -303,6 +305,8 @@ void* diskWriterDriver_thread( void* param )
 	delete[] pData;
 	pData = nullptr;
 
+	pDriver->m_bDoneWriting = true;
+
 	sf_close( m_file );
 
 	__INFOLOG( "DiskWriterDriver thread end" );
@@ -320,7 +324,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
-		, m_pOut_R( nullptr ) {
+		, m_pOut_R( nullptr )
+		, m_bDoneWriting( false ) {
 }
 
 
