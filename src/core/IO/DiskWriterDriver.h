@@ -61,6 +61,10 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		virtual void disconnect() override;
 
 		void write();
+		bool isDoneWriting() const {
+			return m_bDoneWriting;
+		}
+		bool m_bDoneWriting;
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;
@@ -73,14 +77,14 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 	void setSampleDepth( int nNewDepth ) {
 		m_nSampleDepth = nNewDepth;
 	}
-		
+
 		virtual float* getOut_L() override {
 			return m_pOut_L;
 		}
 		virtual float* getOut_R() override {
 			return m_pOut_R;
 		}
-		
+
 		void  setFileName( const QString& sFilename ){
 			m_sFilename = sFilename;
 		}

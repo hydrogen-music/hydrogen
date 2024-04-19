@@ -29,6 +29,7 @@
 #include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
+#include <core/IO/DiskWriterDriver.h>
 
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -250,40 +251,21 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
 	pHydrogen->startExportSong( sFileName );
 
+	auto pDriver =
+		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
 	const int nMaxSleeps = 30;
 	int nSleeps = 0;
-	bool bDone = false;
-	while ( ! bDone ) {
+	while ( ! pDriver->isDoneWriting() ) {
+		usleep(100 * 1000);
 
-		___DEBUGLOG( pQueue->toQString() );
-
-		H2Core::Event event = pQueue->pop_event();
-
-		___DEBUGLOG( event.toQString() );
-
-		if (event.type == H2Core::EVENT_PROGRESS) {
-			___DEBUGLOG( QString( "progress: %1" ).arg( event.value ) );
-
-			// Ensure audio export does work.
-			CPPUNIT_ASSERT( event.value != -1 );
-			
-			if ( event.value == 100 ) {
-				bDone = true;
-			}
-		}
-		else if ( event.type == H2Core::EVENT_NONE ) {
-			// No new event left.
-			usleep(100 * 1000);
-
-			// Export should not take that long. There is somethings wrong in
-			// here.
-			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
-			nSleeps++;
-		}
+		// Export should not take that long. There is somethings wrong in
+		// here.
+		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+		nSleeps++;
 	}
-	___DEBUGLOG( "pre stopExportSession" );
 	pHydrogen->stopExportSession();
-	___DEBUGLOG( "post stopExportSession" );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
@@ -304,42 +286,24 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	___DEBUGLOG( "pre startExportSession" );
 	pHydrogen->startExportSession( 44100, 16 );
-	___DEBUGLOG( "post startExportSession" );
 	pHydrogen->startExportSong( sFileName );
-	___DEBUGLOG( "post startExportSong" );
+
+	auto pDriver =
+		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
+	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nMaxSleeps = 30;
 	int nSleeps = 0;
-	bool bDone = false;
-	while ( ! bDone ) {
+	while ( ! pDriver->isDoneWriting() ) {
+		usleep(100 * 1000);
 
-		___DEBUGLOG( pQueue->toQString() );
-		
-		H2Core::Event event = pQueue->pop_event();
-
-		___DEBUGLOG( event.toQString() );
-
-		// Ensure audio export does work.
-		CPPUNIT_ASSERT( !(event.type == H2Core::EVENT_PROGRESS && event.value == -1) );
-
-		if (event.type == H2Core::EVENT_PROGRESS && event.value == 100) {
-			bDone = true;
-		}
-		else if ( event.type == H2Core::EVENT_NONE ) {
-			// No new event left.
-			usleep(100 * 1000);
-
-			// Export should not take that long. There is somethings wrong in
-			// here.
-			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
-			nSleeps++;
-		}
+		// Export should not take that long. There is somethings wrong in
+		// here.
+		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+		nSleeps++;
 	}
-	___DEBUGLOG( "pre stopExportSession" );
 	pHydrogen->stopExportSession();
-	___DEBUGLOG( "post stopExportSession" );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
