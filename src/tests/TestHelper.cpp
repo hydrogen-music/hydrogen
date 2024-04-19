@@ -250,6 +250,8 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
 	pHydrogen->startExportSong( sFileName );
 
+	const int nMaxSleeps = 30;
+	int nSleeps = 0;
 	bool bDone = false;
 	while ( ! bDone ) {
 
@@ -272,6 +274,11 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		else if ( event.type == H2Core::EVENT_NONE ) {
 			// No new event left.
 			usleep(100 * 1000);
+
+			// Export should not take that long. There is somethings wrong in
+			// here.
+			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+			nSleeps++;
 		}
 	}
 	___DEBUGLOG( "pre stopExportSession" );
@@ -303,6 +310,8 @@ void TestHelper::exportSong( const QString& sFileName )
 	pHydrogen->startExportSong( sFileName );
 	___DEBUGLOG( "post startExportSong" );
 
+	const int nMaxSleeps = 30;
+	int nSleeps = 0;
 	bool bDone = false;
 	while ( ! bDone ) {
 
@@ -321,6 +330,11 @@ void TestHelper::exportSong( const QString& sFileName )
 		else if ( event.type == H2Core::EVENT_NONE ) {
 			// No new event left.
 			usleep(100 * 1000);
+
+			// Export should not take that long. There is somethings wrong in
+			// here.
+			CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
+			nSleeps++;
 		}
 	}
 	___DEBUGLOG( "pre stopExportSession" );
