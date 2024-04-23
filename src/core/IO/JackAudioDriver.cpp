@@ -270,15 +270,15 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
-void JackAudioDriver::relocateUsingBBT()
+bool JackAudioDriver::relocateUsingBBT()
 {
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
-		return;
+		return false;
 	}
 	if ( m_timebaseState != Timebase::Slave ) {
 		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
-		return;
+		return false;
 	}
 
 	// Sometime the JACK server does send seemingly random nuisance.
@@ -296,7 +296,7 @@ void JackAudioDriver::relocateUsingBBT()
 				  .arg( m_JackTransportPos.beats_per_bar )
 				  .arg( m_JackTransportPos.beats_per_minute )
 				  .arg( m_JackTransportPos.ticks_per_beat ) );
-		return;
+		return false;
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -307,7 +307,7 @@ void JackAudioDriver::relocateUsingBBT()
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
 		// DEBUGLOG( "No song set." );
-		return;
+		return false;
 	}
 
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
@@ -402,6 +402,8 @@ void JackAudioDriver::relocateUsingBBT()
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
 
 	pAudioEngine->locate( fNewTick, false );
+
+	return true;
 }
 
 bool JackAudioDriver::compareAdjacentBBT() const
@@ -486,11 +488,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	return true;
 }
 
-void JackAudioDriver::updateTransportPosition()
+bool JackAudioDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
-		return;
+		return false;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -532,7 +534,7 @@ void JackAudioDriver::updateTransportPosition()
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
 		// DEBUGLOG( "No song set." );
-		return;
+		return false;
 	}
 
 	if ( bTimebaseEnabled ) {
@@ -580,7 +582,9 @@ void JackAudioDriver::updateTransportPosition()
 		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 		} else {
-			relocateUsingBBT();
+			if ( ! relocateUsingBBT() ) {
+			   return false;
+			}
 		}
 	}
 
@@ -593,9 +597,13 @@ void JackAudioDriver::updateTransportPosition()
 		if ( pAudioEngine->getTransportPosition()->getBpm() !=
 			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
 			 !compareAdjacentBBT() ) {
-			relocateUsingBBT();
+			if ( ! relocateUsingBBT() ) {
+			   return false;
+			}
 		}
 	}
+
+	return true;
 }
 
 float* JackAudioDriver::getOut_L()

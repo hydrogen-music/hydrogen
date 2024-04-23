@@ -466,8 +466,8 @@ public:
 	friend bool CoreActionController::activateLoopMode( bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	friend void JackAudioDriver::updateTransportPosition();
-	friend void JackAudioDriver::relocateUsingBBT();
+	friend bool JackAudioDriver::updateTransportPosition();
+	friend bool JackAudioDriver::relocateUsingBBT();
 	friend class AudioEngineTests;
 private:
 
