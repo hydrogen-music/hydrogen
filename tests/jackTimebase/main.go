@@ -131,12 +131,13 @@ func startHydrogen(ctx context.Context) {
     cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack", "--nosplash",
         "-s", hydrogenTestSongPath, "-O", strconv.FormatInt(oscHydrogenPort, 10),
         "-L", hydrogenLogFile, "-T", "-V", "Debug")
-    err := cmd.Run()
+    output, err := cmd.CombinedOutput()
     if err == nil {
         log.Printf("[startHydrogen] [%v] exited", cmd.String())
     } else {
         log.Printf("[startHydrogen] ERROR: [%v] exited with error: %v",
             cmd.String(), err)
+        log.Printf("[startTestBinary] stdout/stderr: %v", string(output))
     }
 
     hydrogenFailedChan <- true
@@ -149,7 +150,7 @@ func startTestBinary(ctx context.Context, logFileSuffix string) {
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
         "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-V", "Debug")
-    err := cmd.Run()
+    output, err := cmd.CombinedOutput()
     if err == nil {
         log.Println("[startTestBinary] SUCCESS!")
         log.Println("")
@@ -157,6 +158,7 @@ func startTestBinary(ctx context.Context, logFileSuffix string) {
     } else {
         log.Printf("[startTestBinary] ERROR: [%v] exited with error: %v",
             cmd.String(), err)
+        log.Printf("[startTestBinary] stdout/stderr: %v", string(output))
         log.Println("")
         testBinaryFailedChan <- true
     }
