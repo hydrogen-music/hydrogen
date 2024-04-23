@@ -285,8 +285,11 @@ public:
 	 * information from the JACK server, writes them to
 	 * #m_JackTransportPos and in #m_JackTransportState, and updates
 	 * the AudioEngine in case of a mismatch.
+	 *
+	 * @return false in case something went wrong (important for consistency
+	 * checks during unit testing).
 	 */
-	void updateTransportPosition();
+	bool updateTransportPosition();
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -355,8 +358,10 @@ public:
 	 *
 	 * This type of operation is triggered whenever the transport
 	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master.*/
-	void relocateUsingBBT();
+	 * the presence of an external timebase master.
+	 *
+	 * @return false on failure. */
+	bool relocateUsingBBT();
 
 private:
 
