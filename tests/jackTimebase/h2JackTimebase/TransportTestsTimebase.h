@@ -23,46 +23,19 @@
 #include <functional>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
 class TransportTestsTimebase : public CppUnit::TestCase {
 		CPPUNIT_TEST_SUITE( TransportTestsTimebase );
-		CPPUNIT_TEST( testFrameToTickConversion );
-		CPPUNIT_TEST( testTransportProcessing );
-		CPPUNIT_TEST( testTransportProcessingTimeline );
-		CPPUNIT_TEST( testTransportRelocation );
-		CPPUNIT_TEST( testLoopMode );
-		CPPUNIT_TEST( testSongSizeChange );
-		CPPUNIT_TEST( testSongSizeChangeInLoopMode );
-		CPPUNIT_TEST( testPlaybackTrack );
-		CPPUNIT_TEST( testSampleConsistency );
-		CPPUNIT_TEST( testNoteEnqueuing );
-		CPPUNIT_TEST( testNoteEnqueuingTimeline );
-		CPPUNIT_TEST( testHumanization );
+		CPPUNIT_TEST( testTransportProcessingJack );
+		CPPUNIT_TEST( testTransportRelocationJack );
 		CPPUNIT_TEST_SUITE_END();
 
 public:
-	void testFrameToTickConversion();
-
-	void testTransportProcessing();
-	void testTransportProcessingTimeline();
-	void testTransportRelocation();
-	void testLoopMode();
-	void testSongSizeChange();
-	void testSongSizeChangeInLoopMode();
-	/**
-	 * Checks whether the playback track is rendered properly and
-	 * whether it doesn't get affected by tempo markers.
-	 */
-	void testPlaybackTrack();
-	void testSampleConsistency();
-	void testNoteEnqueuing();
-	/**
-	 * Checks whether the order of notes enqueued and processed by the
-	 * Sampler is consistent on tempo change.
-	 */
-	void testNoteEnqueuingTimeline();
-	void testHumanization();
+	void testTransportProcessingJack();
+	void testTransportRelocationJack();
 
 		virtual void tearDown() override {
 			// The tests in here tend to produce a very large number of log
@@ -72,11 +45,6 @@ public:
 			// TestRunner itself does not seem to support fixtures, we flush the
 			// logger in here.
 			H2Core::Logger::get_instance()->flush();
-
-			// Reset to default audio driver config
-			auto pPref = H2Core::Preferences::get_instance();
-			pPref->m_nBufferSize = 1024;
-			pPref->m_nSampleRate = 44100;
 		}
 
 

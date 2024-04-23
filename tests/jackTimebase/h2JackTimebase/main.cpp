@@ -243,7 +243,9 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
 
-		preferences->m_audioDriver = Preferences::AudioDriver::Jack;
+		preferences->m_bUseMetronome = false;
+		preferences->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;
+		preferences->m_nBufferSize = 1024;
 
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -260,17 +262,15 @@ int main(int argc, char *argv[])
 		}
 		pHydrogen->setSong( pSong );
 
-		if ( ! pHydrogen->hasJackAudioDriver() ) {
+        if ( ! pHydrogen->hasJackAudioDriver() ) {
 			___ERRORLOG( "Unable to start JACK driver" );
 			bQuit = true;
 		}
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-		preferences->m_bUseMetronome = false;
-		preferences->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
-		preferences->m_nBufferSize = 1024;
-
 		EventQueue *pQueue = EventQueue::get_instance();
+		// Surpress errors in case the queue is full
+		pQueue->setSilent( true );
 		TestHelper::createInstance();
 
 		signal(SIGINT, signal_handler);
