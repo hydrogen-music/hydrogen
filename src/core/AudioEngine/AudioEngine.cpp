@@ -77,7 +77,7 @@ namespace H2Core
 	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
 #define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
 	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
-#define AE_DEBUGLOG(x) DEBUGOG( QString( "[%1] %2" ) \
+#define AE_DEBUGLOG(x) DEBUGLOG( QString( "[%1] %2" ) \
 	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
 
 /** Gets the current time.
