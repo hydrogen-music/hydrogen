@@ -44,6 +44,9 @@
 namespace H2Core
 {
 
+JackAudioDriver::Timebase AudioEngineTests::m_referenceTimebase =
+	JackAudioDriver::Timebase::None;
+
 void AudioEngineTests::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
@@ -1984,6 +1987,11 @@ void AudioEngineTests::testTransportProcessingJack() {
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 
+	// The Timebase state must remain the same (as we do not change it on
+	// purpose).
+	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->getTimebaseState();
+
 	startJackAudioDriver();
 
 	// Check whether all frames are covered when running playback in song mode
@@ -2049,6 +2057,11 @@ void AudioEngineTests::testTransportRelocationJack() {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
+
+	// The Timebase state must remain the same (as we do not change it on
+	// purpose).
+	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->getTimebaseState();
 
 	startJackAudioDriver();
 	auto pDriver = dynamic_cast<JackAudioDriver*>(
@@ -2188,6 +2201,12 @@ void AudioEngineTests::startJackAudioDriver() {
 	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
+
+	auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->getTimebaseState();
+	auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->m_nTimebaseTracking;
+
 	pAudioEngine->stopAudioDrivers();
 
 	// Start a modified version of the JACK audio driver.
@@ -2196,6 +2215,9 @@ void AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Unable to create JackAudioDriver" );
 	}
 #ifdef H2CORE_HAVE_JACK
+	pDriver->m_timebaseState = previousTimebaseState;
+	pDriver->m_nTimebaseTracking = nPreviousTimebaseTracking;
+
 	// Suppress default audio output
 	pDriver->setConnectDefaults( false );
 #else
@@ -2241,12 +2263,17 @@ void AudioEngineTests::stopJackAudioDriver() {
 int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);
+	if ( pDriver == nullptr ) {
+		AudioEngineTests::throwException(
+			"[jackTestProcessCallback] No JACK driver!" );
+	}
+
 	// For the JACK driver it is very important (#1867) to not do anything while
 	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
 	// locking or message logging.
 	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
-			 pAudioEngine->getState() == AudioEngine::State::Playing ) &&
-		 dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
+			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
 		return 0;
 	}
 	const auto sDrivers = pAudioEngine->getDriverNames();
@@ -2262,7 +2289,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// Calculate maximum time to wait for audio engine lock. Using the
 	// last calculated processing time as an estimate of the expected
 	// processing time for this frame.
-	float sampleRate = static_cast<float>(pAudioEngine->m_pAudioDriver->getSampleRate());
+	float sampleRate = static_cast<float>(pDriver->getSampleRate());
 	pAudioEngine->m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
 	float fSlackTime = pAudioEngine->m_fMaxProcessTime - pAudioEngine->m_fProcessTime;
 
@@ -2311,14 +2338,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		auto pAudioDriver = pHydrogen->getAudioOutput();
-		if ( pAudioDriver == nullptr ) {
-			AudioEngineTests::throwException(
-				QString( "[jackTestProcessCallback] [%1] AudioDriver is not ready!" )
-				.arg( sDrivers ) );
-		}
-		if ( ! static_cast<JackAudioDriver*>( pAudioDriver )->
-			 updateTransportPosition() ) {
+		if ( ! pDriver->updateTransportPosition() ) {
 				AudioEngineTests::throwException(
 					QString( "[jackTestProcessCallback] [%1] Error while update JACK transport position" )
 					.arg( sDrivers ) );
@@ -2330,6 +2350,14 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 			.arg( sDrivers ) );
 	}
 #endif
+	// Check whether the Timebase state is still the same.
+	if ( pDriver->getTimebaseState() != AudioEngineTests::m_referenceTimebase ) {
+		AudioEngineTests::throwException(
+			QString( "[jackTestProcessCallback] Timebase state changed from [%1] -> [%2]" )
+			.arg( JackAudioDriver::TimebaseToQString( pDriver->getTimebaseState() ) )
+			.arg( JackAudioDriver::TimebaseToQString(
+					  AudioEngineTests::m_referenceTimebase ) ) );
+	}
 
 	// Check whether the tempo was changed.
 	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pTransportPosition );

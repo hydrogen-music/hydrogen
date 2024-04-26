@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Note.h>
+#include <core/IO/JackAudioDriver.h>
 
 #include <memory>
 #include <vector>
@@ -108,7 +109,8 @@ public:
 		/** Process callback for the testing instance of the
 		 * #H2Core::JackAudioDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );
-	
+
+	static JackAudioDriver::Timebase m_referenceTimebase;
 private:
 	static int processTransport( const QString& sContext,
 								 int nFrames,
