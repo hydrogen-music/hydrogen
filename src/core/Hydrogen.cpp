@@ -1152,13 +1152,16 @@ float Hydrogen::getMasterBpm() const {
 	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
 	  } else {
-		  return std::nan("No JACK driver");
+		  ERRORLOG("No JACK driver");
+		  return std::nan("");
 	  }
   } else {
-	  return std::nan("No audio driver");
+	  ERRORLOG("No audio driver");
+	  return std::nan("");
   }
 #else
-  return std::nan("No JACK support");
+  ERRORLOG("No JACK support");
+  return std::nan("");
 #endif
 }
 
