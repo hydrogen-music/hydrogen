@@ -1983,8 +1983,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
-	auto pTransportPos = pAE->getTransportPosition();
-	auto pQueuingPos = pAE->m_pQueuingPosition;
 
 	startJackAudioDriver();
 
@@ -1992,7 +1990,14 @@ void AudioEngineTests::testTransportProcessingJack() {
 	// without looping.
 	CoreActionController::activateLoopMode( false );
 
+	// In case the reference Hydrogen is JACK Timebase master, Timeline of this
+	// instance is deactivated and we are listening to tempo changes broadcasted
+	// by the JACK server. We need to verify we actually receive them.
+	bool bTempoChangeEncountered;
+	float fBpm;
+
 	pAE->lock( RIGHT_HERE );
+	fBpm = pAE->getBpmAtColumn( 0 );
 
 	// The callback function registered to the JACK server will take care of
 	// consistency checking. In here we just start playback and wait till it's
@@ -2009,6 +2014,10 @@ void AudioEngineTests::testTransportProcessingJack() {
 	const int nIncrement = 100;
 	while ( pAE->getState() == AudioEngine::State::Playing ||
 			pAE->m_nextState == AudioEngine::State::Playing ) {
+		if ( ! bTempoChangeEncountered && fBpm != pAE->getBpmAtColumn( 0 ) ) {
+			bTempoChangeEncountered = true;
+		}
+
 		if ( nMilliSeconds >= nMaxMilliSeconds ) {
 			AudioEngineTests::throwException(
 				QString( "[testTransportProcessingJack] playback takes too long" ) );
@@ -2027,28 +2036,36 @@ void AudioEngineTests::testTransportProcessingJack() {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave &&
+		 ! bTempoChangeEncountered ) {
+		throwException( "[testTransportProcessingJack] no tempo changes received from JACK Timebase master" );
+	}
+
 	stopJackAudioDriver();
 }
 
 void AudioEngineTests::testTransportRelocationJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 
 	startJackAudioDriver();
+	auto pDriver = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput());
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+	}
+
+    std::random_device randomSeed;
+    std::default_random_engine randomEngine( randomSeed() );
+    std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
 
 	pAE->lock( RIGHT_HERE );
 	pAE->stop();
 	if ( pAE->getState() == AudioEngine::State::Playing ) {
 		pAE->stopPlayback();
 	}
-
-    std::random_device randomSeed;
-    std::default_random_engine randomEngine( randomSeed() );
-    std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
-	std::uniform_int_distribution<long long> frameDist( 0, pPref->m_nBufferSize );
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
@@ -2061,12 +2078,11 @@ void AudioEngineTests::testTransportRelocationJack() {
 	double fNewTick;
 	long long nNewFrame;
 
-	auto waitForRelocation = []( double fTick, long long nFrame ) {
+	auto waitForRelocation = [=]( double fTick, long long nFrame ) {
 		const int nMaxMilliSeconds = 5000;
+		const int nSecondTryMilliSeconds = 1000;
 		int nMilliSeconds = 0;
 		const int nIncrement = 100;
-		const auto pTransportPos = Hydrogen::get_instance()->getAudioEngine()
-			->getTransportPosition();
 
 		// We send the tick value to and received it back from the JACK server
 		// via rountines in the libjack2 library. We have to relaxed about the
@@ -2079,12 +2095,28 @@ void AudioEngineTests::testTransportRelocationJack() {
 				AudioEngineTests::throwException(
 					QString( "[testTransportRelocationJack] playback takes too long" ) );
 			}
+			else if ( nMilliSeconds == nSecondTryMilliSeconds ) {
+				// Occassionally the JACK server seems to drop our relocation
+				// attempt silently. This is not good but acceptable since we
+				// are firing them in rapid succession. That's not the usual
+				// use-case. In order to not make this behavior break our test,
+				// we do a second attempt to be sure.
+				if ( fTick != -1 ) {
+					pAE->lock( RIGHT_HERE );
+					pAE->locate( fTick, true );
+					pAE->unlock();
+				}
+				else {
+					pDriver->locateTransport( nFrame );
+				}
+			}
 
 			QTest::qSleep( nIncrement );
 			nMilliSeconds += nIncrement;
 		}
 	};
 
+	double fTickMismatch;
 	const int nProcessCycles = 100;
 	for ( int nn = 0; nn < nProcessCycles; ++nn ) {
 
@@ -2105,6 +2137,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 		pAE->locate( fNewTick, true );
 		pAE->unlock();
 
+
 		waitForRelocation( fNewTick, -1 );
 		// We send the tick value to and received it back from the JACK server
 		// via rountines in the libjack2 library. We have to relaxed about the
@@ -2118,10 +2151,16 @@ void AudioEngineTests::testTransportRelocationJack() {
 			pTransportPos, "[testTransportRelocationJack] mismatch tick-based" );
 
 		// Frame-based relocation
-		nNewFrame = frameDist( randomEngine );
-		pAE->lock( RIGHT_HERE );
-		pAE->locateToFrame( nNewFrame );
-		pAE->unlock();
+		// We sample ticks and convert them since we are using tempo markers.
+		if ( nn < nProcessCycles - 1 ) {
+			nNewFrame = TransportPosition::computeFrameFromTick(
+				tickDist( randomEngine ), &fTickMismatch );
+		} else {
+			// With this one there were rounding mishaps in v1.2.3
+			nNewFrame = 2174246;
+		}
+
+		pDriver->locateTransport( nNewFrame );
 
 		waitForRelocation( -1, nNewFrame );
 		if ( pTransportPos->getFrame() != nNewFrame ) {
@@ -2292,14 +2331,14 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	}
 #endif
 
+	// Check whether the tempo was changed.
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pTransportPosition );
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pQueuingPosition );
+
 	AudioEngineTests::checkTransportPosition(
 			pAudioEngine->getTransportPosition(),
 			QString( "[jackTestProcessCallback] [%1] : post JACK" )
 			.arg( sDrivers ) );
-
-	// Check whether the tempo was changed.
-	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pTransportPosition );
-	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pQueuingPosition );
 
 	// Update the state of the audio engine depending on whether it
 	// was started or stopped by the user.
