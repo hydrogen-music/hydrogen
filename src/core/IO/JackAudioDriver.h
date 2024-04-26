@@ -568,6 +568,18 @@ private:
 	 * More user-friendly version of #m_nTimebaseTracking.
 	 */ 
 	Timebase m_timebaseState;
+
+		/** Stores the last tempo sent by an external Timebase master.
+		 *
+		 * When stopping transport (pause + move to start) the JACK server does
+		 * for some reason looses the BBT capability for a single process cycle.
+		 * We have guard against this or else we have some spurious state
+		 * changes. If such a thing happens, it is very likely that the master
+		 * will still be master and we will still be slave ones transport is
+		 * starting again. Therefore, we pretend to still be in this state
+		 * instead of dropping Timebase support too and offer the last tempo to
+		 * the remainder of Hydrogen. */
+		float m_fLastTimebaseBpm;
 };
 
 }; // H2Core namespace
