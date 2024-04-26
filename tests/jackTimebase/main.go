@@ -149,6 +149,7 @@ func startTestBinary(ctx context.Context, logFileSuffix string) {
 
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
+        "-s", hydrogenTestSongPath,
         "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-V", "Debug")
     output, err := cmd.CombinedOutput()
     if err == nil {

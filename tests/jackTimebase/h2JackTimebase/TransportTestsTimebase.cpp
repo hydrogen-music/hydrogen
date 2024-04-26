@@ -39,11 +39,6 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	CoreActionController::setSong( pSongDemo );
-
 	perform( &AudioEngineTests::testTransportProcessingJack );
 
 	___INFOLOG( "\npassed\n" );
@@ -53,25 +48,10 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
-	CoreActionController::setSong( pSongDemo );
-	
-	CoreActionController::activateTimeline( true );
-	CoreActionController::addTempoMarker( 0, 120 );
-	CoreActionController::addTempoMarker( 1, 100 );
-	CoreActionController::addTempoMarker( 2, 20 );
-	CoreActionController::addTempoMarker( 3, 13.4 );
-	CoreActionController::addTempoMarker( 4, 383.2 );
-	CoreActionController::addTempoMarker( 5, 64.38372 );
-	CoreActionController::addTempoMarker( 6, 96.3 );
-	CoreActionController::addTempoMarker( 7, 240.46 );
-	CoreActionController::addTempoMarker( 8, 200.1 );
-	
 	perform( &AudioEngineTests::testTransportRelocationJack );
 
 	CoreActionController::activateTimeline( false );
+
 	___INFOLOG( "\npassed\n" );
 }
 

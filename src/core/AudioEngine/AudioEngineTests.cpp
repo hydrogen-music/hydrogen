@@ -1982,7 +1982,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	auto pQueuingPos = pAE->m_pQueuingPosition;
@@ -1991,7 +1990,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
-	pCoreActionController->activateLoopMode( false );
+	CoreActionController::activateLoopMode( false );
 
 	pAE->lock( RIGHT_HERE );
 
@@ -2009,7 +2008,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 	int nMilliSeconds = 0;
 	const int nIncrement = 100;
 	while ( pAE->getState() == AudioEngine::State::Playing ||
-			pAE->getNextState() == AudioEngine::State::Playing ) {
+			pAE->m_nextState == AudioEngine::State::Playing ) {
 		if ( nMilliSeconds >= nMaxMilliSeconds ) {
 			AudioEngineTests::throwException(
 				QString( "[testTransportProcessingJack] playback takes too long" ) );
@@ -2034,7 +2033,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 void AudioEngineTests::testTransportRelocationJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
@@ -2305,7 +2303,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 	// Update the state of the audio engine depending on whether it
 	// was started or stopped by the user.
-	if ( pAudioEngine->getNextState() == AudioEngine::State::Playing ) {
+	if ( pAudioEngine->m_nextState == AudioEngine::State::Playing ) {
 		if ( pAudioEngine->getState() == AudioEngine::State::Ready ) {
 			pAudioEngine->startPlayback();
 		}
