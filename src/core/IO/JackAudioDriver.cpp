@@ -1174,7 +1174,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 				
 	}
 
-	// JackAudioDriver::printJackTransportPos( pJackPosition );
+	DEBUGLOG( JackAudioDriver::JackTransportPosToQString( pJackPosition ) );
     
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nTimebaseTracking = 2;
@@ -1205,33 +1205,55 @@ void JackAudioDriver::printState() const {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	printJackTransportPos( &m_JackTransportPos );
-	
-	std::cout << "\033[35m[Hydrogen] [JackAudioDriver state]"
-			  << ", m_JackTransportState: " << m_JackTransportState
-			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)
-			  << ", current pattern column: "
-			  << pHydrogen->getAudioEngine()->getTransportPosition()->getColumn()
-			  << "\33[0m" << std::endl;
+	DEBUGLOG( QString( "m_JackTransportState: %1,\n m_JackTransportPos: %2,\nm_timebaseState: %3, current pattern column: %4" )
+			  .arg( m_JackTransportState )
+			  .arg( JackTransportPosToQString( &m_JackTransportPos ) )
+			  .arg( static_cast<int>(m_timebaseState) )
+			  .arg( pHydrogen->getAudioEngine()->getTransportPosition()->
+					getColumn() ) );
 }
 
+QString JackAudioDriver::JackTransportPosToQString( const jack_position_t* pPos ) {
+	return QString( "frame: %1, frame_rate: %2, valid: %3, bar: %4, beat: %5, tick: %6, bar_start_tick: %7, beats_per_bar: %8, beat_type: %9, ticks_per_beat: %10, beats_per_minute: %11, frame_time: %12, next_time: %13" )
+		.arg( pPos->frame ).arg( pPos->frame_rate )
+		.arg( pPos->valid, 8, 16, QLatin1Char( '0' ) ) // hex value
+		.arg( pPos->bar ).arg( pPos->beat ).arg( pPos->tick )
+		.arg( pPos->bar_start_tick ).arg( pPos->beats_per_bar )
+		.arg( pPos->beat_type ).arg( pPos->ticks_per_beat )
+		.arg( pPos->beats_per_minute ).arg( pPos->frame_time )
+		.arg( pPos->next_time );
+}
 
-void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
-	std::cout << "\033[36m[Hydrogen] [JACK transport]"
-			  << " frame: " << pPos->frame
-			  << ", frame_rate: " << pPos->frame_rate
-			  << std::hex << ", valid: 0x" << pPos->valid
-			  << std::dec << ", bar: " << pPos->bar
-			  << ", beat: " << pPos->beat
-			  << ", tick: " << pPos->tick
-			  << ", bar_start_tick: " << pPos->bar_start_tick
-			  << ", beats_per_bar: " << pPos->beats_per_bar
-			  << ", beat_type: " << pPos->beat_type
-			  << ", ticks_per_beat: " << pPos->ticks_per_beat
-			  << ", beats_per_minute: " << pPos->beats_per_minute
-			  << ", frame_time: " << pPos->frame_time
-			  << ", next_time: " << pPos->next_time
-			  << "\033[0m" << std::endl;
+QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t ) {
+	switch( t ) {
+		case Timebase::None:
+			return "None";
+		case Timebase::Slave:
+			return "Slave";
+		case Timebase::Master:
+			return "Master";
+		default:
+			return "Unknown";
+	}
+}
+QString JackAudioDriver::TransportStateToQString( const jack_transport_state_t& t ) {
+	switch( t ) {
+		case JackTransportStopped:
+			return "Stopped";
+		case JackTransportRolling:
+			return "Rolling";
+		case JackTransportStarting:
+			return "Starting";
+		case JackTransportLooping:
+			// Only used in old systems.
+			return "Looping";
+		default:
+			// There is the JackTransportStarting state too. But we do not cover
+			// it here (yet) for the sake of backward compatibility.
+			return QString( "Unknown JackTransportState [%1]" )
+				.arg( static_cast<int>(t) );
+
+	}
 }
 };
 
