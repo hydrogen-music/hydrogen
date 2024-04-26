@@ -285,14 +285,18 @@ bool JackAudioDriver::relocateUsingBBT()
 	if ( m_JackTransportPos.beat_type < 1 ||
 		 m_JackTransportPos.bar < 1 ||
 		 m_JackTransportPos.beat < 1 ||
+		 m_JackTransportPos.beat > m_JackTransportPos.beats_per_bar ||
 		 m_JackTransportPos.beats_per_bar < 1 ||
 		 m_JackTransportPos.beats_per_minute < MIN_BPM ||
 		 m_JackTransportPos.beats_per_minute > MAX_BPM ||
+		 m_JackTransportPos.tick < 0 ||
+		 m_JackTransportPos.tick >= m_JackTransportPos.ticks_per_beat ||
 		 m_JackTransportPos.ticks_per_beat < 1 ) {
-		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, beats_per_bar: %4, beats_per_minute: %5, ticks_per_beat: %6" )
+		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
 				  .arg( m_JackTransportPos.beat_type )
 				  .arg( m_JackTransportPos.bar )
 				  .arg( m_JackTransportPos.beat )
+				  .arg( m_JackTransportPos.tick )
 				  .arg( m_JackTransportPos.beats_per_bar )
 				  .arg( m_JackTransportPos.beats_per_minute )
 				  .arg( m_JackTransportPos.ticks_per_beat ) );
