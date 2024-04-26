@@ -1078,9 +1078,13 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
 		const float fJackMasterBpm = pHydrogen->getMasterBpm();
-		if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
-			fBpm = fJackMasterBpm;
-			// AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+		if ( ! std::isnan( fJackMasterBpm ) ) {
+			if ( fBpm != fJackMasterBpm ) {
+				fBpm = fJackMasterBpm;
+				// AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+			}
+		} else {
+			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
 	else if ( pSong->getIsTimelineActivated() &&
