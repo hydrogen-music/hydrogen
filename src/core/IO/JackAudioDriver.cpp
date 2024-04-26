@@ -102,7 +102,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
 	  m_nTimebaseTracking( -1 ),
-	  m_timebaseState( Timebase::None )
+	  m_timebaseState( Timebase::None ),
+	  m_fLastTimebaseBpm( 120 )
 {
 	auto pPreferences = Preferences::get_instance();
 	
@@ -542,6 +543,18 @@ bool JackAudioDriver::updateTransportPosition()
 	}
 
 	if ( bTimebaseEnabled ) {
+	if ( m_JackTransportPos.valid & JackPositionBBT ) {
+		m_fLastTimebaseBpm =
+			static_cast<float>(m_JackTransportPos.beats_per_minute );
+	}
+
+	// When stopping transport (pause + move to start) the JACK server does for
+	// some reason looses the BBT capability for a single process cycle. We have
+	// guard against this or else we have some spurious state changes.
+	if ( bTimebaseEnabled &&
+		 ! ( m_JackTransportState == JackTransportStopped &&
+			 m_JackTransportPos.valid == 0 &&
+			 m_JackTransportPos.frame == 0 ) ) {
 		// Update the status regrading JACK timebase master.
 		if ( m_JackTransportState != JackTransportStopped ) {
 			if ( m_nTimebaseTracking > 1 ) {
@@ -582,8 +595,8 @@ bool JackAudioDriver::updateTransportPosition()
 		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
 		// 		 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
 		// 		 .arg( m_JackTransportPos.frame ) );
-		
-		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
+		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ||
+			 m_JackTransportPos.frame == 0 ) {
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 		} else {
 			if ( ! relocateUsingBBT() ) {
@@ -592,7 +605,8 @@ bool JackAudioDriver::updateTransportPosition()
 		}
 	}
 
-	if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave ){
+	if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave &&
+		 ( m_JackTransportPos.valid & JackPositionBBT ) ) {
 		m_previousJackTransportPos = m_JackTransportPos;
 		
 		// There is a JACK timebase master and it's not us. If it
@@ -1169,12 +1183,11 @@ JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 	return Timebase::None;
 }
 float JackAudioDriver::getMasterBpm() const {
-	if ( !( m_JackTransportPos.valid & JackPositionBBT ) ||
-		 m_timebaseState != Timebase::Slave ) {
+	if ( m_timebaseState != Timebase::Slave ) {
 		return std::nan("no tempo, no masters");
 	}
 	
-	return static_cast<float>(m_JackTransportPos.beats_per_minute );
+	return m_fLastTimebaseBpm;
 }
 
 
