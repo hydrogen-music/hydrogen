@@ -108,6 +108,7 @@ public:
 		/** Only normal clients registered */
 		None = -1
 	};
+	static QString TimebaseToQString( const Timebase& t );
 	
 	/** 
 	 * Object holding the external client session with the JACK
@@ -363,6 +364,7 @@ public:
 	 * @return false on failure. */
 	bool relocateUsingBBT();
 
+		friend class AudioEngineTests;
 private:
 
 	/** Compares the BBT information stored in #m_JackTransportPos and
@@ -418,7 +420,8 @@ private:
 	 */	
 	static void jackDriverShutdown( void* arg );
 
-	static void printJackTransportPos( const jack_position_t* pPos );
+	static QString JackTransportPosToQString( const jack_position_t* pPos );
+	static QString TransportStateToQString( const jack_transport_state_t& pPos );
 
 	/** Show debugging information.*/
 	void printState() const;
