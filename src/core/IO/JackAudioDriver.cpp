@@ -1141,7 +1141,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->bar_start_tick = 0;
 	} else {
 		// +1 since the counting bars starts at 1.
-		pJackPosition->bar = pPos->getColumn() + 1;
+		pJackPosition->bar = std::max( 0, pPos->getColumn() ) + 1;
 
 		// Number of ticks that have elapsed between frame 0 and the
 		// first beat of the next measure.
