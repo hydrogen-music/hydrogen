@@ -374,9 +374,21 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+
+		double fNewTick = fTick;
+		// As the tick mismatch is lost when converting a sought location from
+		// ticks into frames, sending it to the JACK server, receiving it in a
+		// callback, and providing it here, we will use a heuristic in order to
+		// not experience any glitches upon relocation.
+		if ( std::fmod( fTick, std::floor( fTick ) ) >= 0.97 ) {
+			fNewTick = std::round( fTick );
+			AE_INFOLOG( QString( "Tick [%1] will be rounded to [%2] in order to avoid glitches" )
+						.arg( fTick, 0, 'E', -1 ).arg( fNewTick ) );
+		}
+
 		double fTickMismatch;
 		const long long nNewFrame =	TransportPosition::computeFrameFromTick(
-			fTick, &fTickMismatch );
+			fNewTick, &fTickMismatch );
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
 		return;
 	}
@@ -399,18 +411,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	
 	resetOffsets();
 
-	double fNewTick = TransportPosition::computeTickFromFrame( nFrame );
-
-	// As the tick mismatch is lost when converting a sought location
-	// from ticks into frames, sending it to the JACK server,
-	// receiving it in a callback, and providing it here, we will use
-	// a heuristic in order to not experience any glitches upon
-	// relocation.
-	if ( std::fmod( fNewTick, std::floor( fNewTick ) ) >= 0.97 ) {
-		AE_INFOLOG( QString( "Computed tick [%1] will be rounded to [%2] in order to avoid glitches" )
-				 .arg( fNewTick, 0, 'E', -1 ).arg( std::round( fNewTick ) ) );
-		fNewTick = std::round( fNewTick );
-	}
+	const double fNewTick = TransportPosition::computeTickFromFrame( nFrame );
 	m_fLastTickEnd = fNewTick;
 
 	// Assure tick<->frame can be converted properly using mismatch.
