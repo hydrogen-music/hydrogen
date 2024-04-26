@@ -599,9 +599,7 @@ bool JackAudioDriver::updateTransportPosition()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( pAudioEngine->getTransportPosition()->getBpm() !=
-			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
-			 !compareAdjacentBBT() ) {
+		if ( !compareAdjacentBBT() ) {
 			if ( ! relocateUsingBBT() ) {
 			   return false;
 			}
