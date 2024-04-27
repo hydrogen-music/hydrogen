@@ -21,10 +21,11 @@
  */
 
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
-#include <core/Basics/Sample.h>
 #include <core/License.h>
 #include <core/Hydrogen.h>
 #include <core/NsmClient.h>
@@ -67,6 +68,15 @@ InstrumentLayer::~InstrumentLayer()
 void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
 {
 	__sample = sample;
+}
+
+void InstrumentLayer::set_pitch( float fValue )
+{
+	if ( fValue < Instrument::fPitchMin || fValue > Instrument::fPitchMax ) {
+		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
+					.arg( Instrument::fPitchMin ).arg( Instrument::fPitchMax ) );
+	}
+	__pitch = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
 }
 
 void InstrumentLayer::load_sample( float fBpm )

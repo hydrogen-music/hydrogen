@@ -302,6 +302,12 @@ class Instrument : public H2Core::Object<Instrument>
 	/** Whether the instrument contains at least one non-missing
 	 * sample */
 	bool hasSamples() const;
+
+		/** Maximum support pitch value */
+		static constexpr float fPitchMax = 24.5;
+		/** Minimum support pitch value */
+		static constexpr float fPitchMin = -24.5;
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -561,11 +567,6 @@ inline float Instrument::get_fx_level( int index ) const
 inline void Instrument::set_random_pitch_factor( float val )
 {
 	__random_pitch_factor = val;
-}
-
-inline void Instrument::set_pitch_offset( float val )
-{
-	__pitch_offset = val;
 }
 
 inline float Instrument::get_random_pitch_factor() const

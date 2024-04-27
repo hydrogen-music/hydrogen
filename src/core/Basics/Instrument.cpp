@@ -556,6 +556,15 @@ void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 	__adsr = adsr;
 }
 
+void Instrument::set_pitch_offset( float fValue )
+{
+	if ( fValue < fPitchMin || fValue > fPitchMax ) {
+		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
+					.arg( fPitchMin ).arg( fPitchMax ) );
+	}
+	__pitch_offset = std::clamp( fValue, fPitchMin, fPitchMax );
+}
+
 std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID ) const
 {
 	for ( const auto& pComponent : *get_components() ) {
