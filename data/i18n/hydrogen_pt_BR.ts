@@ -775,7 +775,7 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bloqueio o Editor de Padrão para mostrar e seguir apenas o padrão que as notas gravadas serão inseridas no Modo Canção. </translation>
     </message>
     <message>
         <source>Not compiled</source>
@@ -1023,7 +1023,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Unable to save playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível salvar a playlist</translation>
     </message>
     <message>
         <source>modified</source>
@@ -1036,7 +1036,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Use &apos;Save as&apos; to enable autosave.</source>
-        <translation type="unfinished"></translation>
+        <translation>Use &apos;Salvar como&apos; para habilitar o salvamento automático.</translation>
     </message>
     <message>
         <source>File not found</source>
@@ -1051,12 +1051,12 @@ Are you sure?</source>
     <message>
         <source>&amp;Redo</source>
         <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Refazer</translation>
     </message>
     <message>
         <source>Undo &amp;History</source>
         <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desfazer &amp;História</translation>
     </message>
     <message>
         <source>Undo history</source>
@@ -1693,11 +1693,11 @@ Sobrescrever o arquivo existente?</translation>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation>Etiquetar</translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <source>Edit tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar tags</translation>
     </message>
 </context>
 <context>
@@ -1748,15 +1748,15 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Error loading playlist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro carregando playlist</translation>
     </message>
     <message>
         <source>Song is read-only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canção é somente-leitura</translation>
     </message>
     <message>
         <source>Playlist is read-only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist é somente-leitura</translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
@@ -1765,12 +1765,12 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
         <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>A &lt;b&gt;Canção&lt;/b&gt; atual contém mudanças não salvas.</translation>
     </message>
     <message>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>A &lt;b&gt;Playlist&lt;/b&gt; atual contém mudanças não salvas.</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
@@ -1779,12 +1779,12 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>New Song</source>
         <extracomment>Object containing unsaved changes.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nova Canção</translation>
     </message>
     <message>
         <source>New Playlist</source>
         <extracomment>Object containing unsaved changes.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nova Playlist</translation>
     </message>
 </context>
 <context>
@@ -2905,7 +2905,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>Relationship between the sound&apos;s apparent image position and the pan knob control</source>
-        <translation type="unfinished">Relação entre a posição de imagem auditiva aparente e a posição de controle de panorama</translation>
+        <translation>Relação entre a posição de imagem auditiva aparente e a posição de controle de panorama</translation>
     </message>
     <message>
         <source>dB Center Compensation rejected</source>
@@ -3058,11 +3058,11 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>Leading beat by</source>
-        <translation type="unfinished"></translation>
+        <translation>Beat adiantado por</translation>
     </message>
     <message>
         <source>Lagging beat by</source>
-        <translation type="unfinished"></translation>
+        <translation>Beat atrasado por</translation>
     </message>
     <message>
         <source>Note on beat</source>
@@ -3204,19 +3204,19 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>quarter triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de semínima</translation>
     </message>
     <message>
         <source>eighth triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de colcheia</translation>
     </message>
     <message>
         <source>sixteenth triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de semi-colcheia</translation>
     </message>
     <message>
         <source>thirty-second triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de fusa</translation>
     </message>
     <message>
         <source>off</source>
@@ -3653,27 +3653,27 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Add Songs to PlayList</source>
-        <translation type="unfinished"></translation>
+        <translation>Adiciona Canções à Playlist</translation>
     </message>
     <message>
         <source>Unable to open playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível abrir playlist</translation>
     </message>
     <message>
         <source>Unable to open selected file with write access</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível abrir o arquivo com acesso de escrita</translation>
     </message>
     <message>
         <source>The new file is executable by the owner of the file!</source>
-        <translation type="unfinished"></translation>
+        <translation>O novo arquivo é executável pelo dono do arquivo!</translation>
     </message>
     <message>
         <source>Edit playlist scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar scripts de playlist</translation>
     </message>
     <message>
         <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar playlist</translation>
     </message>
 </context>
 <context>
@@ -3876,7 +3876,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Accent Text</source>
-        <translation type="unfinished">Texto de Acento</translation>
+        <translation>Texto de Acento</translation>
     </message>
     <message>
         <source>Button Red</source>
@@ -3896,7 +3896,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Playhead</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicador de reprodução</translation>
     </message>
     <message>
         <source>Cursor</source>
@@ -4052,7 +4052,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Theme couldn&apos;t be imported</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível importar tema</translation>
     </message>
 </context>
 <context>
@@ -4381,11 +4381,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-        <translation type="unfinished"></translation>
+		<translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
     </message>
     <message>
         <source>Enable JACK &amp;timebase master support</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilita suporte JACK timebase master</translation>
     </message>
     <message>
         <source>Apply and restart output</source>
@@ -4421,7 +4421,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>High-resolution display scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala de exibição de alta resolução</translation>
     </message>
     <message>
         <source>Prefer smaller</source>
@@ -4517,7 +4517,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Font used within listings, like for the names of the available Pattern and Instruments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonte usada com listas, por exemplo nomes de Padrões e Instrumentos disponíveis.</translation>
     </message>
     <message>
         <source>Item font</source>
@@ -4605,7 +4605,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Add additional rows for the select actions to allow them to be bound to further shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicione linhas adicionais para as ações selecionadas para permitir que elas sejam vinculadas a outros atalhos</translation>
     </message>
     <message>
         <source>Duplicate</source>
@@ -4616,7 +4616,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <name>QObject</name>
     <message>
         <source>Move pattern list item ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Move item da lista de padrões ( %1, %2 )</translation>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
@@ -4760,11 +4760,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Remove song to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover música da playlist</translation>
     </message>
     <message>
         <source>Replace playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Substituir playlist</translation>
     </message>
 </context>
 <context>
@@ -4790,7 +4790,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <name>SampleEditor</name>
     <message>
         <source>SampleEditor </source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Sample</translation>
     </message>
     <message>
         <source>new sample length</source>
@@ -5174,7 +5174,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Record toggling</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternar gravação</translation>
     </message>
     <message>
         <source>Record deactivation</source>
@@ -5186,7 +5186,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Unmute master output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ativar saída master</translation>
     </message>
     <message>
         <source>Mute toggling of master output</source>
@@ -5202,15 +5202,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Move playhead to the beginnning of the song</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover playhead para o início da canção</translation>
     </message>
     <message>
         <source>Move playhead one bar forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover playhead uma barra para frente</translation>
     </message>
     <message>
         <source>Move playhead one bar backward</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover playhead uma barra para trás</translation>
     </message>
     <message>
         <source>BPM increase (coarse)</source>
@@ -5534,7 +5534,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Print object debug count to log</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimit contagem de debug de objeto para o log</translation>
     </message>
     <message>
         <source>Open user manual</source>
@@ -5554,39 +5554,39 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>VK Note-on Pitch 36 (C2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 36</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 37 (C#2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 37</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 38 (D2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 38 (D2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 39 (D#2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 39 (D#2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 40 (E2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 40 (E2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 41 (F2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 41 (F2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 42 (F#2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 42 (F#2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 43 (G2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 43 (G2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 44 (G#2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 44 (G#2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 45 (A2)</source>
@@ -5594,59 +5594,59 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>VK Note-on Pitch 46 (A#2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 46 (A#2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 47 (B2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 47 (B2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 48 (C3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 48 (C3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 49 (C#3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 49 (C#3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 50 (D3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 50 (D3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 51 (D#3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 51 (D#3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 52 (E3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 52 (E3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 53 (F3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 53 (F3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 54 (F#3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 54 (F#3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 55 (G3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 55 (G3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 56 (G#3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 56 (G#3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 57 (A3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 57 (A3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 58 (A#3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 58 (A#3)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 59 (B3)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 59 (B3)</translation>
     </message>
     <message>
         <source>Add song to Playlist</source>
@@ -5718,7 +5718,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>PlaylistEditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Playlist</translation>
     </message>
     <message>
         <source>All Categories</source>
