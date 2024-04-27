@@ -488,6 +488,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
+		static void INSTRUMENT_PITCH_Handler( lo_arg **argv, int t);
 		/**
 		 * Creates an Action of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
