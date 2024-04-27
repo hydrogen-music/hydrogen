@@ -777,7 +777,7 @@ B</translation>
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bloqueio o Editor de Padrão para mostrar e seguir apenas o padrão que as notas gravadas serão inseridas no Modo Canção. </translation>
     </message>
     <message>
         <source>Not compiled</source>
@@ -1319,7 +1319,7 @@ Sobrescrever o arquivo existente?</translation>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation>Etiquetar</translation>
+        <translation>Tag</translation>
     </message>
 </context>
 <context>
@@ -2580,7 +2580,7 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Relationship between the sound&apos;s apparent image position and the pan knob control</source>
-        <translation type="unfinished">Relação entre a posição de imagem auditiva aparente e a posição de controle de panorama</translation>
+        <translation>Relação entre a posição de imagem auditiva aparente e a posição de controle de panorama</translation>
     </message>
     <message>
         <source>dB Center Compensation rejected</source>
@@ -2733,11 +2733,11 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>Leading beat by</source>
-        <translation type="unfinished"></translation>
+        <translation>Beat adiantado por</translation>
     </message>
     <message>
         <source>Lagging beat by</source>
-        <translation type="unfinished"></translation>
+        <translation>Beat atrasado por</translation>
     </message>
     <message>
         <source>Note on beat</source>
@@ -2867,19 +2867,19 @@ The session needs to be saved before exporting will can be continued.
     </message>
     <message>
         <source>quarter triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de semínima</translation>
     </message>
     <message>
         <source>eighth triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de colcheia</translation>
     </message>
     <message>
         <source>sixteenth triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de semi-colcheia</translation>
     </message>
     <message>
         <source>thirty-second triplet</source>
-        <translation type="unfinished"></translation>
+        <translation>tercina de fusa</translation>
     </message>
     <message>
         <source>off</source>
@@ -3554,7 +3554,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Accent Text</source>
-        <translation type="unfinished">Texto de Acento</translation>
+        <translation>Texto de Acento</translation>
     </message>
     <message>
         <source>Button Red</source>
@@ -3574,7 +3574,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Playhead</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicador de reprodução</translation>
     </message>
     <message>
         <source>Cursor</source>
@@ -4067,11 +4067,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-        <translation type="unfinished"></translation>
+		<translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
     </message>
     <message>
         <source>Enable JACK &amp;timebase master support</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilita suporte JACK timebase master</translation>
     </message>
     <message>
         <source>Apply and restart output</source>
@@ -4107,7 +4107,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>High-resolution display scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala de exibição de alta resolução</translation>
     </message>
     <message>
         <source>Prefer smaller</source>
@@ -4203,7 +4203,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Font used within listings, like for the names of the available Pattern and Instruments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonte usada com listas, por exemplo nomes de Padrões e Instrumentos disponíveis.</translation>
     </message>
     <message>
         <source>Item font</source>
@@ -4250,7 +4250,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <name>QObject</name>
     <message>
         <source>Move pattern list item ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Move item da lista de padrões ( %1, %2 )</translation>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
@@ -4400,7 +4400,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <name>SampleEditor</name>
     <message>
         <source>SampleEditor </source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Sample</translation>
     </message>
     <message>
         <source>new sample length</source>
