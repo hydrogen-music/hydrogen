@@ -64,9 +64,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * should be selected.
 		 */
 		static bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
+		static bool setInstrumentPitch( int nInstrument, float fValue );
 		static bool setMetronomeIsActive( bool isActive );
 		static bool setMasterIsMuted( bool isMuted );
-		
+
 		static bool setStripIsMuted( int nStrip, bool isMuted );
 		static bool toggleStripIsMuted( int nStrip );
 		

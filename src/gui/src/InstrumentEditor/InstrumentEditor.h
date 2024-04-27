@@ -142,6 +142,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		ClickableLabel* m_pPitchCoarseLbl;
 		ClickableLabel* m_pPitchFineLbl;
 		ClickableLabel* m_pPitchRandomLbl;
+		void setInstrumentPitch();
 
 		// Low pass filter
 		Button *m_pFilterBypassBtn;

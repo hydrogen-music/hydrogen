@@ -92,6 +92,33 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	return false;
 }
 
+bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit" );
+		return false;
+	}
+	auto pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrument = pInstrumentList->get( nInstrument );
+	if( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
+				  .arg( nInstrument ) );
+		return false;
+	}
+
+	pInstrument->set_pitch_offset( fValue );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED,
+											nInstrument );
+
+	return true;
+}
+
 bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
 	Preferences::get_instance()->m_bUseMetronome = isActive;
