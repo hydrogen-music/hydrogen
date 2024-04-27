@@ -530,7 +530,7 @@ B</translation>
     <message>
         <source>HH Press. Grp</source>
         <extracomment>Text displayed below the LCD to set the hihat pressure group in the Instrument Editor. Designed to hold 13 characters but is only moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pressão Chimbal</translation>
     </message>
     <message>
         <source>Max Range</source>
@@ -841,7 +841,7 @@ Are you sure?</source>
     <message>
         <source>License parsed from License String. You can use this combo box to overwrite the current license with a predefined one</source>
         <extracomment>Tool tip used for the combo boxes in both the drumkit and song property dialog to set a predefined license type.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Licença analisada a partir da String de Licença. Você pode usar esta caixa de combinação para substituir a licença atual por uma predefinida</translation>
     </message>
     <message>
         <source>License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license</source>
@@ -4345,7 +4345,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
+		<translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
@@ -5166,7 +5166,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Record toggling (if playback isn&apos;t running)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternar gravação (se o playback não estiver tocando)</translation>
     </message>
     <message>
         <source>Record activation</source>
@@ -5190,7 +5190,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Mute toggling of master output</source>
-        <translation type="unfinished"></translation>
+		<translation>Ativar/desativar master output</translation>
     </message>
     <message>
         <source>Increase volume of master output</source>
@@ -5590,7 +5590,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>VK Note-on Pitch 45 (A2)</source>
-        <translation type="unfinished"></translation>
+        <translation>VK Note-on Pitch 45 (A2)</translation>
     </message>
     <message>
         <source>VK Note-on Pitch 46 (A#2)</source>
@@ -5960,7 +5960,7 @@ Sobrescrever o padrão existente?</translation>
     <name>SongEditorPositionRuler</name>
     <message>
         <source>The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it.</source>
-        <translation type="unfinished"></translation>
+        <translation>O andamento definido no widget de BPM será usado como padrão para o início da canção. Clique com o botão esquerdo para sobrescrever.</translation>
     </message>
 </context>
 <context>
