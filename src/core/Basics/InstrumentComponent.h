@@ -48,17 +48,17 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-	void				save_to( XMLNode* node,
+	void				save_to( XMLNode& node,
 								 bool bRecentVersion = true,
-								 bool bSongKit = false );
-		static std::shared_ptr<InstrumentComponent> load_from( XMLNode* pNode,
+								 bool bSongKit = false ) const;
+		static std::shared_ptr<InstrumentComponent> load_from( const XMLNode& pNode,
 															   const QString& sDrumkitPath,
 															   const QString& sSongPath = "",
 															   const License& drumkitLicense = License(),
 															   bool bSilent = false );
 
-		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
-		std::shared_ptr<InstrumentLayer>	get_layer( int idx );
+		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
+		std::shared_ptr<InstrumentLayer>	get_layer( int idx ) const;
 	/**
 	 * Get all initialized layers.
 	 *
@@ -71,7 +71,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		void				set_layer( std::shared_ptr<InstrumentLayer> layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
-		int					get_drumkit_componentID();
+		int					get_drumkit_componentID() const;
 
 		void				set_gain( float gain );
 		float				get_gain() const;
@@ -122,7 +122,7 @@ inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_co
 }
 /** Returns the component ID of the drumkit.
  * \return #__related_drumkit_componentID */
-inline int InstrumentComponent::get_drumkit_componentID()
+inline int InstrumentComponent::get_drumkit_componentID() const
 {
 	return __related_drumkit_componentID;
 }
@@ -137,13 +137,13 @@ inline float InstrumentComponent::get_gain() const
 	return __gain;
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx )
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx ) const
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::get_layer( int idx )
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::get_layer( int idx ) const
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];

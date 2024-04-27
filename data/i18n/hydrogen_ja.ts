@@ -146,10 +146,6 @@
         <translation>サンプラー</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>シンセサイザー</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>シーケンサー</translation>
     </message>
@@ -1023,6 +1019,48 @@ Are you sure?</source>
         <source>Unable to export drumkit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to save playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>変更を保存しますか？</translation>
+    </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found</source>
+        <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1655,6 +1693,10 @@ Overwrite the existing file?</source>
         <source>Tag</source>
         <translation>タグ</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1671,10 +1713,6 @@ Overwrite the existing file?</source>
         <translation>ミキサー</translation>
     </message>
     <message>
-        <source>modified</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>ソングの読み込みに失敗しました。</translation>
     </message>
@@ -1684,11 +1722,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Preferences loaded.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1712,7 +1745,43 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>プレイリスト: ソングNo. %1 にセット</translation>
+    </message>
+    <message>
+        <source>New Song</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Playlist</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2312,10 +2381,6 @@ MIDI = %2</source>
         <translation>パターンを開く</translation>
     </message>
     <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>プレイリスト: ソングNo. %1 にセット</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
@@ -2329,34 +2394,11 @@ MIDI = %2</source>
         <translation>パターンをエクスポートできませんでした。</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>ドキュメントは保存されていない変更を含んでいます。
-変更を保存しますか？</translation>
-    </message>
-    <message>
-        <source>Undo history</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2433,14 +2475,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3461,27 +3495,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
-    <message>
-        <source>Song list</source>
-        <translation>ソングリスト</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>スクリプト</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>スクリプトの実行</translation>
-    </message>
-    <message>
-        <source>Add Song to PlayList</source>
-        <translation>ソングをプレイリストに追加</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>ソングが選択されていません!</translation>
-    </message>
+    <name>PlaylistEditor</name>
     <message>
         <source>Load Playlist</source>
         <translation>プレイリストの読み込み</translation>
@@ -3491,20 +3505,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>プレイリストの保存</translation>
     </message>
     <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>リストにソングがないか、ソングが選択されていません!</translation>
-    </message>
-    <message>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation>Hydrogen プレイリスト (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
         <translation>選択したソングにスクリプトを追加</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>スクリプトが使われていません!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3537,10 +3543,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>スクリプト名あるいはスクリプトのパスが空白文字を含んでいます。
 重要
 スクリプト名あるいはスクリプトのパスが空白文字を含んではいけません。</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>スクリプトなし!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3611,10 +3613,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>まずソングを保存して下さい</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>警告, 新しいファイルは所有者が実行を許されている必要があります!</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>一時停止。</translation>
     </message>
@@ -3623,30 +3621,11 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>プレイリストブラウザー</translation>
     </message>
     <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>プレイリスト: ソング No. %1 に設定</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>スクリプトなし</translation>
-    </message>
-    <message>
         <source>&amp;New Playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File not found: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3655,16 +3634,55 @@ IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>プレイリストブラウザー</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>ソングリスト</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>スクリプト</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>スクリプトの実行</translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>スクリプトなし</translation>
     </message>
 </context>
 <context>
@@ -4015,6 +4033,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Virtual Row</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4168,10 +4190,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>一般(&amp;G)</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>オーディオシステム(&amp;S)</translation>
     </message>
@@ -4309,14 +4327,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4725,6 +4735,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>ソングをプレイリストに追加</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5598,7 +5620,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>ソングをプレイリストに追加</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

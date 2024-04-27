@@ -20,6 +20,7 @@
  *
  */
 
+#include <core/CoreActionController.h>
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
 #include "core/Hydrogen.h"
@@ -69,8 +70,7 @@ int NsmClient::OpenCallback( const char *name,
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPref = H2Core::Preferences::get_instance();
-	auto pController = pHydrogen->getCoreActionController();
-	
+
 	if ( !name ) {
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
 		return ERR_LAUNCH_FAILED;
@@ -152,7 +152,7 @@ int NsmClient::OpenCallback( const char *name,
 		NsmClient::get_instance()->setIsNewSession( true );
 	}
 
-	if ( ! pController->openSong( pSong ) ) {
+	if ( ! H2Core::CoreActionController::setSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}
@@ -166,8 +166,7 @@ void NsmClient::copyPreferences( const char* name ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
-	
+
 	QFile preferences( H2Core::Filesystem::usr_config_path() );
 	if ( !preferences.exists() ) {
 		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
@@ -200,7 +199,7 @@ void NsmClient::copyPreferences( const char* name ) {
 		}
 	}
 
-	pCoreActionController->updatePreferences();
+	H2Core::CoreActionController::updatePreferences();
 	
 	NsmClient::printMessage( "Preferences loaded!" );
 }
@@ -215,14 +214,11 @@ void NsmClient::printMessage( const QString& msg ) {
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
-
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-
-	if ( ! pController->saveSong() ) {
+	if ( ! H2Core::CoreActionController::saveSong() ) {
 		NsmClient::printError( "Unable to save Song!" );
 		return ERR_GENERAL;
 	}
-	if ( ! pController->savePreferences() ) {
+	if ( ! H2Core::CoreActionController::savePreferences() ) {
 		NsmClient::printError( "Unable to save Preferences!" );
 		return ERR_GENERAL;
 	}

@@ -152,7 +152,7 @@ enum EventType {
 	/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
 		(1) was activated */
 	EVENT_STACKED_MODE_ACTIVATION,
-	/** Toggles the button indicating the usage loop mode.*/
+/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
@@ -181,7 +181,18 @@ enum EventType {
 	EVENT_PLAYBACK_TRACK_CHANGED,
 	EVENT_SOUND_LIBRARY_CHANGED,
 	EVENT_NEXT_SHOT,
-	EVENT_MIDI_MAP_CHANGED
+	EVENT_MIDI_MAP_CHANGED,
+	/**
+	 * Event triggered whenever part of or the whole current #H2Core::Playlist
+	 * changed.
+	 *
+	 * If the value of the event is
+	 * - 0 - update the GUI to represent the Playlist loaded by the core.
+	 * - 1 - triggered whenever the Playlist was saved via the core part
+	 *       (updated the title and status bar).
+	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
+	 */
+	EVENT_PLAYLIST_CHANGED
 };
 
 /** Basic building block for the communication between the core of

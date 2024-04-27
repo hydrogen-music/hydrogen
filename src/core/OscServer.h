@@ -145,7 +145,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 *
 		 * \return QString representation of @a data.
 		 */
-		static QString qPrettyPrint(lo_type type,void * data);
+		static QString qPrettyPrint( const lo_type& type, void* data );
 		
 		/**
 		 * Registers all handler functions.
@@ -442,7 +442,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Action.
 		 * \param param2 Sets Action::parameter2 of the newly created
 		 * Action.*/
-		static void STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2);
+		static void STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
+												   const QString& param2);
 		/**
 		 * Calls H2Core::CoreActionController::setStripVolume() with
 		 * both @a param1 and @a param2.
@@ -497,7 +498,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * Action.
 		 * \param param2 Sets Action::parameter2 of the newly created
 		 * Action.*/
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2);
+		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
+														  const QString& param2);
 		/**
 		 * Creates an Action of type @b BEATCOUNTER and passes its
 		 * references to MidiActionManager::handleAction().
@@ -586,8 +588,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void REDO_ACTION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::newSong().
-		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
 		 * same name, it will be overwritten.
@@ -597,8 +597,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		static void NEW_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::openSong().
-		 *
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2song file.
 		 *
@@ -711,8 +709,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void RELOCATE_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::newSong().
-		 *
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2pattern file. If another file already exists with the
 		 * same name, it will be overwritten.
@@ -743,6 +739,49 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
 		static void REMOVE_PATTERN_Handler(lo_arg **argv, int argc);
+		static void CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv, int argc);
+		/**
+		 * The handler expects the user to provide the number of the instrument
+		 * for which all notes should be removed from the currently selected
+		 * pattern.
+		 *
+		 * \param argv The "f" field does contain the instrument number
+		 * (caution: it starts at 0).
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void CLEAR_INSTRUMENT_Handler(lo_arg **argv, int argc);
+		/**
+		 * The handler removes all notes from the the currently selected
+		 * pattern.
+		 *
+		 * \param argv The "f" field does contain the instrument number
+		 * (caution: it starts at 0).
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void CLEAR_PATTERN_Handler(lo_arg **argv, int argc);
+
+		/**
+		 * Provides a similar behavior as a NOTE_ON MIDI message.
+		 *
+		 * \param argv The first "f" holds the note. It is designed after the
+		 *   MIDI NOTE_ON handling and expects an integer between 36 and 127
+		 *   (inspired by the General MIDI standard).
+		 *   The second "f" field contains the velocity of the new note within
+		 *   the range of [0, 1.0]
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void NOTE_ON_Handler(lo_arg **argv, int argc);
+
+		/**
+		 * Provides a similar behavior as a NOTE_OFF MIDI message.
+		 *
+		 * \param argv The "f" field holds the note. It is designed after the
+		 *   MIDI NOTE_ON handling and expects an integer between 36 and 127
+		 *   (inspired by the General MIDI standard).
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void NOTE_OFF_Handler(lo_arg **argv, int argc);
+
 		/**
 		 * Triggers CoreActionController::songEditorToggleGridCell().
 		 *
@@ -802,6 +841,15 @@ class OscServer : public H2Core::Object<OscServer>
 		 * in the user's drumkit data folder.
 		 */
 	static void EXTRACT_DRUMKIT_Handler( lo_arg **argv, int argc );
+
+		static void NEW_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void OPEN_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void SAVE_PLAYLIST_Handler(lo_arg **argv, int argc);
+		static void SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc);
+		static void PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc);
+
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *
@@ -850,7 +898,7 @@ class OscServer : public H2Core::Object<OscServer>
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
-		void broadcastMessage( const char* msgText, lo_message message);
+		void broadcastMessage( const char* msgText, const lo_message& message);
 	
 		/** Pointer to the H2Core::Preferences singleton. Although it
 		 * could be accessed internally using

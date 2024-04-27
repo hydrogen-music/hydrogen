@@ -45,7 +45,7 @@ class LED : public QWidget, public H2Core::Object<LED>
 	Q_OBJECT
 
 public:
-	LED( QWidget *pParent, QSize size );
+	LED( QWidget *pParent, const QSize& size );
 	virtual ~LED();
 	
 	LED(const LED&) = delete;
@@ -74,7 +74,7 @@ class MetronomeLED : public LED, public EventListener, public H2Core::Object<Met
 	Q_OBJECT
 
 public:
-	MetronomeLED( QWidget *pParent, QSize size );
+	MetronomeLED( QWidget *pParent, const QSize& size );
 	virtual ~MetronomeLED();
 
 public slots:

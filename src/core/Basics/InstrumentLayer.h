@@ -108,7 +108,7 @@ namespace H2Core
 		 *   whether just the basename or - if not - the absolute path will be
 		 *   stored.
 		 */
-		void save_to( XMLNode* node, bool bSongKit = false );
+		void save_to( XMLNode& node, bool bSongKit = false ) const;
 		/**
 		 * load an instrument layer from an XMLNode
 		 *
@@ -124,7 +124,7 @@ namespace H2Core
 		 *
 		 * \return a new InstrumentLayer instance
 		 */
-		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* pNode,
+		static std::shared_ptr<InstrumentLayer> load_from( const XMLNode& pNode,
 														   const QString& sDrumkitPath,
 														   const QString& sSongPath = "",
 														   const License& drumkitLicense = License(),

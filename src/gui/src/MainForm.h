@@ -51,12 +51,12 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	public:
 		QApplication* m_pQApp;
 
-	MainForm( QApplication * pQApplication, QString sSongFilename );
+	MainForm( QApplication * pQApplication, const QString& sSongFilename,
+			  const QString& sPlaylistFilename = "" );
 		~MainForm();
 
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void jacksessionEvent( int nValue) override;
-		virtual void playlistLoadSongEvent(int nIndex) override;
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 
@@ -79,6 +79,8 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void updatePreferencesEvent( int nValue ) override;
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
+
+		void setPreviousAutoSavePlaylistFile( const QString& sFile );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
@@ -122,8 +124,8 @@ public slots:
 	 * this function serves both the "save as" functionality (with
 	 * sNewFilename being non-empty) and the "save" one.
 	 */
-		void action_file_save( const QString& sNewFilename );
-	void action_file_save();
+		bool action_file_save( const QString& sNewFilename );
+	bool action_file_save();
 		
 		/**
 		 * Project > Save As / Export from Session handling function.
@@ -136,7 +138,7 @@ public slots:
 		 * name provided by the NSM server must be used or the restart
 		 * of the session fails.
 		 */
-		void action_file_save_as();
+		bool action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as( int nPatternRow = -1 );
 		bool action_file_exit();
@@ -166,7 +168,7 @@ public slots:
 
 		
 		void action_window_showMixer();
-		void action_window_showPlaylistDialog();
+		void action_window_showPlaylistEditor();
 		void action_window_show_DirectorWidget();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
@@ -223,7 +225,7 @@ public slots:
 		void setMainWindowSize( int w, int h ) {
 			setFixedSize( w, h );
 		}
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 
 	private slots:
@@ -231,10 +233,6 @@ public slots:
 		void onPlaylistDisplayTimer();
 		void onFixMidiSetup();
 		void onFixMissingSamples();
-
-	protected:
-		// Returns true if handled, false if aborted.
-		bool handleUnsavedChanges();
 
 	private:
 	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
@@ -265,7 +263,7 @@ public slots:
 		QAction *	m_pRecentFileAction3;
 		QAction *	m_pRecentFileAction4;
 
-		QUndoView *	m_pUndoView;///debug only
+		QUndoView *	m_pUndoView;
 
 	void startAutosaveTimer();
 		QTimer		m_AutosaveTimer;
@@ -311,7 +309,8 @@ public slots:
 	/** Since the filename of the current song does change whenever
 		the users uses "Save As" multiple autosave files would be
 		written unless we take care of them.*/
-	QString m_sPreviousAutoSaveFilename;
+	QString m_sPreviousAutoSaveSongFile;
+	QString m_sPreviousAutoSavePlaylistFile;
 
 	/**
 	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
@@ -323,5 +322,7 @@ public slots:
 
 	bool nullDriverCheck();
 };
-
+inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
+	m_sPreviousAutoSavePlaylistFile = sFile;
+}
 #endif

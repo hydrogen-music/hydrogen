@@ -115,17 +115,19 @@ Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<Instru
 
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return load_from( &pattern_node, pInstrumentList );
+	return load_from( pattern_node, pInstrumentList );
 }
 
-Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent )
+Pattern* Pattern::load_from( const XMLNode& node,
+							 std::shared_ptr<InstrumentList> pInstrumentList,
+							 bool bSilent )
 {
 	Pattern* pPattern = new Pattern(
-	    node->read_string( "name", nullptr, false, false ),
-	    node->read_string( "info", "", false, true ),
-	    node->read_string( "category", "unknown", false, true, true ),
-	    node->read_int( "size", -1, false, false ),
-	    node->read_int( "denominator", 4, false, false )
+	    node.read_string( "name", nullptr, false, false ),
+	    node.read_string( "info", "", false, true ),
+	    node.read_string( "category", "unknown", false, true, true ),
+	    node.read_int( "size", -1, false, false ),
+	    node.read_int( "denominator", 4, false, false )
 	);
 
 	if ( pInstrumentList == nullptr ) {
@@ -133,11 +135,11 @@ Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pIns
 		return pPattern;
 	}
 	
-	XMLNode note_list_node = node->firstChildElement( "noteList" );
+	XMLNode note_list_node = node.firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* pNote = Note::load_from( &note_node, pInstrumentList, bSilent );
+			Note* pNote = Note::load_from( note_node, pInstrumentList, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr ) {
 				pPattern->insert_note( pNote );
@@ -162,13 +164,13 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	root.write_string( "author", author );							// FIXME this is never loaded back
 	root.write_string( "license", license.getLicenseString() );
 	// FIXME this is never loaded back
-	save_to( &root );
+	save_to( root );
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> pInstrumentOnly ) const
+void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const
 {
-	XMLNode pattern_node =  node->createNode( "pattern" );
+	XMLNode pattern_node =  node.createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
@@ -184,7 +186,7 @@ void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> pInstrum
 			 ( pInstrumentOnly == nullptr ||
 			   pNote->get_instrument()->get_id() == nId ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
-			pNote->save_to( &note_node );
+			pNote->save_to( note_node );
 		}
 	}
 }
@@ -252,7 +254,7 @@ void Pattern::remove_note( Note* note )
 	}
 }
 
-bool Pattern::references( std::shared_ptr<Instrument> instr )
+bool Pattern::references( std::shared_ptr<Instrument> instr ) const
 {
 	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
 		Note* note = it->second;
@@ -285,6 +287,29 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequire
 	if ( locked ) {
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
+	while ( slate.size() ) {
+		delete slate.front();
+		slate.pop_front();
+	}
+}
+
+void Pattern::clear( bool bRequiresLock )
+{
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	if ( bRequiresLock ){
+		pAudioEngine->lock( RIGHT_HERE );
+	}
+	std::list< Note* > slate;
+	for ( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
+		Note* note = it->second;
+		assert( note );
+		slate.push_back( note );
+		__notes.erase( it++ );
+	}
+	if ( bRequiresLock ) {
+		pAudioEngine->unlock();
+	}
+
 	while ( slate.size() ) {
 		delete slate.front();
 		slate.pop_front();

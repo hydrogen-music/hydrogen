@@ -47,7 +47,7 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		
 	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect,
 					  bool bShowInstrumentManipulationControls,
-					  QString sDefaultPath = "",
+					  const QString& sDefaultPath = "",
 					  const QString& sFilename = "" );
 	~AudioFileBrowser();
 	
@@ -75,7 +75,7 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		void browseTree( const QModelIndex& index );
 
 		void getEnvironment();
-		bool isFileSupported( QString filename );
+		bool isFileSupported( const QString& filename );
 		
 		SampleWaveDisplay *	m_pSampleWaveDisplay;
 		

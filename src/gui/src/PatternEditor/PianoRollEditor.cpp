@@ -171,7 +171,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = cursorPosition();
 
-		QPen pen( pPref->getColorTheme()->m_cursorColor );
+		QPen pen( pPref->getTheme().m_color.m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
@@ -189,7 +189,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = pPref->getColorTheme()->m_highlightColor;
+	QColor color = pPref->getTheme().m_color.m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -216,15 +216,15 @@ void PianoRollEditor::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor = pPref->getColorTheme()->m_windowColor;
-	const QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
-	const QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
+	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
+	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	const QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	const QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 	// The line corresponding to the default pitch set to new notes
 	// will be highlighted.
 	const QColor baseNoteColor = octaveColor.lighter( 119 );
-	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	unsigned start_x = 0;
 	unsigned end_x = m_nActiveWidth;
@@ -293,9 +293,9 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	p.setFont( font );
-	p.setPen( pPref->getColorTheme()->m_patternEditor_textColor );
+	p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
 
 	int offset = 0;
 	int insertx = 3;
@@ -359,7 +359,7 @@ void PianoRollEditor::drawPattern()
 								pixelRatio * rect().height() ) );
 
 	// for each note...
-	for ( Pattern *pPattern : getPatternsToShow() ) {
+	for ( const auto& pPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( pPattern == m_pPattern );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, pPattern ) {
@@ -807,7 +807,7 @@ void PianoRollEditor::deleteSelection()
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
-		for ( Note *pNote : m_selection ) {
+		for ( const auto& pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
 				if ( pNote->get_instrument() == pSelectedInstrument ) {
 					int nLine = pitchToLine( pNote->get_notekey_pitch() );
@@ -923,7 +923,7 @@ void PianoRollEditor::paste()
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
-			Note *pNote = Note::load_from( &n, pInstrList );
+			Note *pNote = Note::load_from( n, pInstrList );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 
@@ -1195,7 +1195,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 	pUndo->endMacro();
 }
 
-std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) 
+std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )
 {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {
@@ -1210,14 +1210,15 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 		return std::move( result );
 	}
 
-	r = r.normalized();
-	if ( r.top() == r.bottom() && r.left() == r.right() ) {
-		r += QMargins( 2, 2, 2, 2 );
+	auto rNormalized = r.normalized();
+	if ( rNormalized.top() == rNormalized.bottom() &&
+		 rNormalized.left() == rNormalized.right() ) {
+		rNormalized += QMargins( 2, 2, 2, 2 );
 	}
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - w - PatternEditor::nMargin) / m_fGridWidth;
-	int x_max = (r.right() + w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_min = (rNormalized.left() - w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_max = (rNormalized.right() + w - PatternEditor::nMargin) / m_fGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 
@@ -1227,7 +1228,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			uint start_x = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
-			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
+			if ( rNormalized.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );
 			}
 		}
@@ -1246,7 +1247,7 @@ QRect PianoRollEditor::getKeyboardCursorRect()
 				  m_fGridWidth*6, m_nGridHeight+3 );
 }
 
-void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {

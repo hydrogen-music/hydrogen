@@ -52,7 +52,8 @@
 using namespace H2Core;
 
 
-SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString sSampleFilename )
+SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
+							 int nSelectedLayer, const QString& sSampleFilename )
 		: QDialog ( pParent )
 		, Object ()
 {
@@ -235,24 +236,26 @@ void SampleEditor::getAllFrameInfos()
 	__loops = pSample->get_loops();
 	__rubberband = pSample->get_rubberband();
 
-	if ( pSample->get_velocity_envelope()->size()==0 ) {
+	if ( pSample->get_velocity_envelope().size()==0 ) {
 		m_pTargetSampleView->get_velocity()->clear();
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( 0, 0 ) );
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
 		m_pTargetSampleView->get_velocity()->clear();
 
-		for(auto& pt : *pSample->get_velocity_envelope() ){
+		for( const auto& pt : pSample->get_velocity_envelope() ){
 			m_pTargetSampleView->get_velocity()->emplace_back( pt );
 		}
 	}
 
-	if ( pSample->get_pan_envelope()->size()==0 ) {
+	if ( pSample->get_pan_envelope().size()==0 ) {
 		m_pTargetSampleView->get_pan()->clear();
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( 0, m_pTargetSampleView->height()/2 ) );
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
-	} else {
-		for(auto& pt : *pSample->get_pan_envelope() ){
+	}
+	else {
+		m_pTargetSampleView->get_pan()->clear();
+		for ( const auto& pt : pSample->get_pan_envelope() ){
 			m_pTargetSampleView->get_pan()->emplace_back( pt );
 		}
 	}
@@ -322,9 +325,9 @@ void SampleEditor::getAllFrameInfos()
 	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
 	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
 	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
-	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
-	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
-	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
+	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString& ) ) );
+	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString& ) ) );
+	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString& ) ) );
 	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
 }
 
@@ -887,7 +890,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 
 
-void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
+void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString&  )
 {
 	int new_settings = rubberbandCsettingscomboBox->currentIndex();
 	if (new_settings == __rubberband.c_settings) {
@@ -912,7 +915,7 @@ void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 }
 
 
-void SampleEditor::valueChangedrubberComboBox( const QString  )
+void SampleEditor::valueChangedrubberComboBox( const QString&  )
 {
 
 	if( rubberComboBox->currentText() != "off" ){
@@ -1000,7 +1003,7 @@ void SampleEditor::checkRatioSettings()
 }
 
 
-void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
+void SampleEditor::valueChangedProcessingTypeComboBox( const QString& unused )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
 		case 0 ://

@@ -57,38 +57,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="restoreLastUsedSongCheckbox">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Reopen last used &amp;song</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+R</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="restoreLastUsedPlaylistCheckbox">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Reopen last used &amp;playlist</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+R</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="useRelativePlaylistPathsCheckbox">
          <property name="text">
           <string>Use &amp;relative paths for playlist</string>

@@ -248,8 +248,8 @@ void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 	m_drumkitUniqueLabels[ sDrumkitPath ] = sUniqueItemLabel;
 }
 
-QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) {
-	return m_drumkitUniqueLabels[ sDrumkitPath ];
+QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) const {
+	return m_drumkitUniqueLabels.at( sDrumkitPath );
 }
 
 void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder ) {
@@ -264,7 +264,7 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	drumkitFolders << Filesystem::sys_drumkits_dir()
 		<< Filesystem::usr_drumkits_dir();
 
-	return std::move( drumkitFolders );
+	return drumkitFolders;
 }
 
 std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
@@ -273,10 +273,9 @@ std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 	// All types available
 	std::multiset<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
-		if ( ppDrumkit != nullptr && ppDrumkit->getDrumkitMap() != nullptr &&
-			 ppDrumkit->getDrumkitMapFallback() != nullptr ) {
-			allTypes.merge( ppDrumkit->getDrumkitMap()->getAllTypes() );
-			allTypes.merge( ppDrumkit->getDrumkitMapFallback()->getAllTypes() );
+		if ( ppDrumkit != nullptr ) {
+			allTypes.merge( ppDrumkit->getDrumkitMap().getAllTypes() );
+			allTypes.merge( ppDrumkit->getDrumkitMapFallback().getAllTypes() );
 		}
 	}
 
@@ -307,7 +306,7 @@ std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 		 --ii;
 	 }
 
-	return std::move( results );
+	return results;
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )

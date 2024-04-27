@@ -35,45 +35,45 @@ class Action : public H2Core::Object<Action> {
 		return "NOTHING";
 	}
 
-	Action( QString sType = getNullActionType() );
-	Action( std::shared_ptr<Action> pOther );
+	Action( const QString& sType = getNullActionType() );
+	Action( const std::shared_ptr<Action> pAction );
 
 	/** Checks whether m_sType is of getNullActionType() */
 	bool isNull() const;
 
-		void setParameter1( QString text ){
+		void setParameter1( const QString& text ){
 			m_sParameter1 = text;
 		}
 
-		void setParameter2( QString text ){
+		void setParameter2( const QString& text ){
 			m_sParameter2 = text;
 		}
 
-		void setParameter3( QString text ){
+		void setParameter3( const QString& text ){
 			m_sParameter3 = text;
 		}
 
-		void setValue( QString text ){
+		void setValue( const QString& text ){
 			m_sValue = text;
 		}
 
-		QString getParameter1() const {
+		const QString& getParameter1() const {
 			return m_sParameter1;
 		}
 
-		QString getParameter2() const {
+		const QString& getParameter2() const {
 			return m_sParameter2;
 		}
 
-		QString getParameter3() const {
+		const QString& getParameter3() const {
 			return m_sParameter3;
 		}
 
-		QString getValue() const {
+		const QString& getValue() const {
 			return m_sValue;
 		}
 
-		QString getType() const {
+		const QString& getType() const {
 			return m_sType;
 		}
 
@@ -83,7 +83,7 @@ class Action : public H2Core::Object<Action> {
 	 *   with the same widget. The value will differ depending on the
 	 *   incoming MIDI event.
 	 */
-	bool isEquivalentTo( std::shared_ptr<Action> pOther );
+	bool isEquivalentTo( const std::shared_ptr<Action> pOther ) const;
 
 	friend bool operator ==(const Action& lhs, const Action& rhs ) {
 		return ( lhs.m_sType == rhs.m_sType &&
@@ -212,10 +212,12 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool redo_action(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool gain_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
+		bool clear_selected_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
+		bool clear_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
 
 		int m_nLastBpmChangeCCParameter;
 
-	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+	bool setSongFromPlaylist( int nSongNumber, H2Core::Hydrogen* pHydrogen );
 	bool nextPatternSelection( int nPatternNumber );
 	bool onlyNextPatternSelection( int nPatternNumber );
 
@@ -229,7 +231,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 *   successfully. Calling functions should treat the event
 		 *   resulting in @a actions as consumed.
 		 */
-	bool handleActions( std::vector<std::shared_ptr<Action>> actions );
+	bool handleActions( const std::vector<std::shared_ptr<Action>>& actions );
 		/**
 		 * The handleAction method is the heart of the
 		 * MidiActionManager class. It executes the operations that
@@ -237,7 +239,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 *
 		 * @return true - if @a action was handled successfully.
 		 */
-		bool handleAction( std::shared_ptr<Action> action );
+		bool handleAction( const std::shared_ptr<Action> action );
 		/**
 		 * If #__instance equals 0, a new MidiActionManager
 		 * singleton will be created and stored in it.
@@ -251,7 +253,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 */
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
-		QStringList getActionList(){
+		const QStringList& getActionList() const {
 			return m_actionList;
 		}
 	/**

@@ -85,7 +85,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		uint m_nRulerWidth;
@@ -110,7 +110,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
-	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
+	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
 	virtual void playingPatternsChangedEvent() override;

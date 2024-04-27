@@ -48,7 +48,9 @@ private:
 			QString m_sEmail;
 			QString m_sInfo;
 
-			Author( QString sName, QString sEmail, QString sInfo ) : m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
+			Author( const QString& sName, const QString& sEmail,
+					const QString& sInfo )
+				: m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
 	};
 };
 

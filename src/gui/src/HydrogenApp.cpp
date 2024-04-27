@@ -47,7 +47,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "PlaylistEditor/PlaylistDialog.h"
+#include "PlaylistEditor/PlaylistEditor.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -75,7 +75,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pAudioEngineInfoForm( nullptr )
  , m_pSongEditorPanel( nullptr )
  , m_pPlayerControl( nullptr )
- , m_pPlaylistDialog( nullptr )
+ , m_pPlaylistEditor( nullptr )
  , m_pSampleEditor( nullptr )
  , m_pDirector( nullptr )
  , m_nPreferencesUpdateTimeout( 100 )
@@ -112,9 +112,10 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
-	m_pPlaylistDialog = new PlaylistDialog( nullptr );
-	WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
-	setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
+	// This must be done _after_ the creation of m_pCommonStrings.
+	m_pPlaylistEditor = new PlaylistEditor( nullptr );
+	WindowProperties playlistEditorProp = pPref->getPlaylistEditorProperties();
+	setWindowProperties( m_pPlaylistEditor, playlistEditorProp, SetAll );
 
 	m_pDirector = new Director( nullptr );
 	WindowProperties directorProp = pPref->getDirectorProperties();
@@ -134,7 +135,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 			 this, &HydrogenApp::onPreferencesChanged );
 }
 
-void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
+void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties& prop, unsigned flags ) {
 	if ( flags & SetVisible ) {
 		if ( prop.visible) {
 			pWindow->show();
@@ -208,7 +209,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pAudioEngineInfoForm;
 	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
-	delete m_pPlaylistDialog;
+	delete m_pPlaylistEditor;
 	delete m_pDirector;
 	delete m_pSampleEditor;
 
@@ -239,7 +240,7 @@ HydrogenApp::~HydrogenApp()
 void HydrogenApp::setupSinglePanedInterface()
 {
 	Preferences *pPref = Preferences::get_instance();
-	InterfaceTheme::Layout layout = pPref->getDefaultUILayout();
+	InterfaceTheme::Layout layout = pPref->getTheme().m_interface.m_layout;
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -260,7 +261,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 	// trigger a relocation to sync the transport position of the
 	// editors in the panel.
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
+	H2Core::CoreActionController::locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -380,18 +381,31 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-bool HydrogenApp::openSong( QString sFilename ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
+QString HydrogenApp::findAutoSaveFile( const Filesystem::Type& type,
+									   const QString& sBaseFile ) {
+	QString sExtension, sEmpty;
+	switch ( type ) {
+	case Filesystem::Type::Song:
+		sExtension = Filesystem::songs_ext;
+		/*: Object containing unsaved changes.*/
+		sEmpty = tr( "New Song" );
+		break;
+
+	case Filesystem::Type::Playlist:
+		sExtension = Filesystem::playlist_ext;
+		/*: Object containing unsaved changes.*/
+		sEmpty = tr( "New Playlist" );
+		break;
+
+	default:
+		ERRORLOG( QString( "Unsupported file type: [%1]" )
+				  .arg( Filesystem::TypeToQString( type ) ) );
+		return "";
+	}
 
 	// Check whether there is an autosave file next to it
 	// containing newer content.
-	QFileInfo fileInfo( sFilename );
-
-	// Ensure the path to the file is not relative.
-	if ( fileInfo.isRelative() ) {
-		sFilename = fileInfo.absoluteFilePath();
-	}
+	QFileInfo fileInfo( sBaseFile );
 
 	// In case the user did open a hidden file, the baseName()
 	// will be an empty string.
@@ -399,48 +413,115 @@ bool HydrogenApp::openSong( QString sFilename ) {
 	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
-	
+
 	// Hidden autosave file (recent version)
-	QFileInfo autoSaveFileRecent( QString( "%1/.%2.autosave.h2song" )
+	QFileInfo autoSaveFileRecent( QString( "%1/.%2.autosave%3" )
 								  .arg( fileInfo.absoluteDir().absolutePath() )
-								  .arg( sBaseName ) );
+								  .arg( sBaseName ).arg( sExtension ) );
 	// Visible autosave file (older version)
-	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave.h2song" )
+	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave%3" )
 							   .arg( fileInfo.absoluteDir().absolutePath() )
-							   .arg( sBaseName ) );
+							   .arg( sBaseName ).arg( sExtension ) );
 	QString sRecoverFilename = "";
 	if ( autoSaveFileRecent.exists() &&
-		 autoSaveFileRecent.lastModified() >
-		 fileInfo.lastModified() ) {
+		 autoSaveFileRecent.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
-	} else if ( autoSaveFileOld.exists() &&
-				autoSaveFileOld.lastModified() >
-				fileInfo.lastModified()  ) {
+	}
+	else if ( autoSaveFileOld.exists() &&
+				autoSaveFileOld.lastModified() > fileInfo.lastModified() ) {
 		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
 	}
-
-	if ( ! sRecoverFilename.isEmpty() ) {
-		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "There are unsaved changes." ) );
-		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-		msgBox.setDefaultButton( QMessageBox::Discard );
-		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Question );
-		int nRet = msgBox.exec();
-
-		if ( nRet == QMessageBox::Discard ) {
-			sRecoverFilename = "";
-		}
+	else if ( sBaseFile == Filesystem::empty_path( type ) &&
+			  autoSaveFileRecent.exists() ) {
+		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
 	}
-	
-	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
+
+	if ( sRecoverFilename.isEmpty() ) {
+		return "";
+	}
+
+	QString sFile;
+	if ( sBaseFile == Filesystem::empty_path( type ) ) {
+		sFile = sEmpty;
+	} else {
+		sFile = sBaseFile;
+	}
+
+	QMessageBox msgBox;
+	// Not commonized in CommmonStrings as it is required before
+	// HydrogenApp was instantiated.
+	msgBox.setText( QString( "%1\n[%2]" )
+					.arg( tr( "There are unsaved changes." ) ).arg( sFile ) );
+	msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
+	msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::No );
+	msgBox.setDefaultButton( QMessageBox::No );
+	msgBox.setWindowTitle( "Hydrogen" );
+	msgBox.setIcon( QMessageBox::Question );
+	int nRet = msgBox.exec();
+
+	if ( nRet == QMessageBox::Ok ) {
+		return sRecoverFilename;
+	}
+	else {
+		return "";
+	}
+}
+
+bool HydrogenApp::openFile( const Filesystem::Type& type, const QString& sFilename ) {
+
+	QString sText;
+	switch( type ) {
+	case Filesystem::Type::Song:
+		sText = tr( "Error loading song." );
+		break;
+
+	case Filesystem::Type::Playlist:
+		sText = tr( "Error loading playlist." );
+		break;
+
+	default:
+		ERRORLOG( QString( "Unsupported type [%1]" )
+				  .arg( Filesystem::TypeToQString( type ) ) );
+		return false;
+	}
+
+	QString sPath;
+	if ( sFilename.isEmpty() ) {
+		sPath = H2Core::Filesystem::empty_path( type );
+	}
+	else {
+		sPath = H2Core::Filesystem::absolute_path( sFilename );
+	}
+	const auto sRecoverFilename = findAutoSaveFile( type, sPath );
+
+	bool bRet;
+	// Ensure the path to the file is not relative.
+	if ( type == Filesystem::Type::Song ) {
+		std::shared_ptr<Song> pSong;
+		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+			pSong = Song::getEmptySong();
+		} else {
+			pSong = CoreActionController::loadSong( sPath, sRecoverFilename );
+		}
+
+		bRet = CoreActionController::setSong( pSong );
+	}
+	else {
+		std::shared_ptr<Playlist> pPlaylist;
+		if ( sFilename.isEmpty() && sRecoverFilename.isEmpty() ) {
+			pPlaylist = std::make_shared<Playlist>();
+		} else {
+			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFilename );
+		}
+
+		bRet = CoreActionController::setPlaylist( pPlaylist );
+	}
+
+	if ( ! bRet ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setText( QString( "%1\n[%2]" ).arg( sText ).arg( sPath ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
@@ -452,8 +533,7 @@ bool HydrogenApp::openSong( QString sFilename ) {
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->openSong( pSong ) ) {
+	if ( ! CoreActionController::setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -467,72 +547,104 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 	return true;
 }
 
-bool HydrogenApp::recoverEmptySong() {
+// Returns true if unsaved changes are successfully handled (saved, discarded, etc.)
+// Returns false if not (i.e. Cancel)
+bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Type& type )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pSong = pHydrogen->getSong();
+	auto pPlaylist = pHydrogen->getPlaylist();
 
-	// Check whether there is an autosave file next to it
-	// containing newer content.
-	QString sFilename( H2Core::Filesystem::empty_song_path() );
-	QFileInfo fileInfo( sFilename );
+	bool bIsModified = false;
+	QString sText;
 
-	// In case the user did open a hidden file, the baseName()
-	// will be an empty string.
-	QString sBaseName( fileInfo.completeBaseName() );
-	if ( sBaseName.startsWith( "." ) ) {
-		sBaseName.remove( 0, 1 );
+	switch( type ) {
+	case Filesystem::Type::Song:
+		if ( pSong != nullptr ) {
+			bIsModified = pSong->getIsModified();
+		}
+		/*: The symbols `<b>` and `</b>` correspond to HTML code
+		  printing the enclosed `Song` in bold letters. Please do not alter them
+		  but translate the enclosed `Song` instead.*/
+		sText = tr( "The current <b>Song</b> contains unsaved changes." );
+		break;
+
+	case Filesystem::Type::Playlist:
+		if ( pPlaylist != nullptr ) {
+			bIsModified = pPlaylist->getIsModified();
+		}
+		/*: The symbols `<b>` and `</b>` correspond to HTML code
+		  printing the enclosed `Playlist` in bold letters. Please do not alter
+		  them but translate the enclosed `Playlist` instead.*/
+		sText = tr( "The current <b>Playlist</b> contains unsaved changes." );
+		break;
+
+	default:
+		ERRORLOG( QString( "Unsupported type [%1]" )
+				  .arg( Filesystem::TypeToQString( type ) ) );
+		return false;
 	}
-	
-	QFileInfo autoSaveFile( QString( "%1/.%2.autosave.h2song" )
-								  .arg( fileInfo.absoluteDir().absolutePath() )
-								  .arg( sBaseName ) );
-	QString sRecoverFilename = "";
 
-	// Since there is no original file we can not check whether these
-	// changes have been done "recently". It's up to the calling
-	// function to ensure the corresponding empty song was indeed the
-	// last one opened by the user.
-	if ( autoSaveFile.exists() ) {
-		sRecoverFilename = autoSaveFile.absoluteFilePath();
-	}
-
-	if ( ! sRecoverFilename.isEmpty() ) {
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	auto newDialog = [=]( const QString& sText ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "There are unsaved changes." ) );
-		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
-		msgBox.setDefaultButton( QMessageBox::Discard );
+		msgBox.setText( sText );
+		msgBox.setInformativeText( pCommonStrings->getSavingChanges() );
+		msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::No |
+									QMessageBox::Cancel );
+		msgBox.setDefaultButton( QMessageBox::Save );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Question );
-		int nRet = msgBox.exec();
+		return msgBox.exec();
+	};
 
-		if ( nRet == QMessageBox::Discard ) {
-			sRecoverFilename = "";
+	if ( bIsModified ) {
+		const int nRet = newDialog( sText );
+
+		switch( nRet ) {
+		case QMessageBox::Save:
+			bool bOk;
+
+			if ( type == Filesystem::Type::Song ) {
+				if ( ! pSong->getFilename().isEmpty() ) {
+					bOk = pHydrogenApp->getMainForm()->action_file_save();
+				} else {
+					// never been saved
+					bOk = pHydrogenApp->getMainForm()->action_file_save_as();
+				}
+			}
+			else {
+				if ( ! pPlaylist->getFilename().isEmpty() ) {
+					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylist();
+				} else {
+					// never been saved
+					bOk = pHydrogenApp->getPlaylistEditor()->savePlaylistAs();
+				}
+			}
+
+			if ( ! bOk ) {
+				ERRORLOG( QString( "Unable to save current %1" )
+						  .arg( Filesystem::TypeToQString( type ) ) );
+				return false;
+			}
+			break;
+
+		case QMessageBox::No:
+			break;
+
+		case QMessageBox::Cancel:
+			INFOLOG( QString( "Writing unsave changes to %1 canceled." )
+						  .arg( Filesystem::TypeToQString( type ) ) );
+			return false;
+
+		default:
+			ERRORLOG( QString( "Unhandled return code for %1 [%2]" )
+						  .arg( Filesystem::TypeToQString( type ) ).arg( nRet ) );
 		}
 	}
-
-	if ( sRecoverFilename.isEmpty() ) {
-		return false;
-	}
-	
-	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
-		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
-		msgBox.setWindowTitle( "Hydrogen" );
-		msgBox.setIcon( QMessageBox::Warning );
-		msgBox.exec();
-		return false;
-	}
-
-	// The song has not been properly saved yet. Also this prevents
-	// the autosave file we just loaded from being removed in case the
-	// user decides to quit and reopen Hydrogen right after this call
-	// without introducing any changes.
-	pHydrogen->setIsModified( true );
 
 	return true;
 }
@@ -544,7 +656,8 @@ void HydrogenApp::showMixer(bool show)
 		 *   otherwise open mixer window
 		 */
 
-	InterfaceTheme::Layout layout = Preferences::get_instance()->getDefaultUILayout();
+	auto layout = Preferences::get_instance()->
+		getTheme().m_interface.m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 2 );
@@ -561,8 +674,8 @@ void HydrogenApp::showInstrumentPanel(bool show)
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
 		 *   otherwise hide instrument panel
 		 */
-
-	InterfaceTheme::Layout layout = Preferences::get_instance()->getDefaultUILayout();
+	auto layout = Preferences::get_instance()->
+		getTheme().m_interface.m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
@@ -614,7 +727,7 @@ void HydrogenApp::updateWindowTitle()
 	QString sSongName( pSong->getName() );
 	QString sFilePath( pSong->getFilename() );
 
-	if ( sFilePath == Filesystem::empty_song_path() ||
+	if ( sFilePath == Filesystem::empty_path( Filesystem::Type::Song ) ||
 		 sFilePath.isEmpty() ) {
 		// An empty song is _not_ associated with a file. Therefore,
 		// we mustn't show the file name.
@@ -642,7 +755,7 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	if( pSong->getIsModified() ){
-		sTitle.append( " (" + tr( "modified" ) + ")" );
+		sTitle.append( " (" + m_pCommonStrings->getIsModified() + ")" );
 	}
 
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) +
@@ -662,12 +775,12 @@ void HydrogenApp::showFilesystemInfoForm()
 	m_pFilesystemInfoForm->show();
 }
 
-void HydrogenApp::showPlaylistDialog()
+void HydrogenApp::showPlaylistEditor()
 {
-	if ( m_pPlaylistDialog->isVisible() ) {
-		m_pPlaylistDialog->hide();
+	if ( m_pPlaylistEditor->isVisible() ) {
+		m_pPlaylistEditor->hide();
 	} else {
-		m_pPlaylistDialog->show();
+		m_pPlaylistEditor->show();
 	}
 	m_pMainForm->update_playlist_checkbox();
 }
@@ -684,7 +797,8 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer )
+void HydrogenApp::showSampleEditor( const QString& name, int mSelectedComponemt,
+									int mSelectedLayer )
 {
 
 	if ( m_pSampleEditor ){
@@ -714,6 +828,12 @@ void HydrogenApp::drumkitLoadedEvent(){
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();
+}
+
+void HydrogenApp::playlistLoadSongEvent() {
+	showStatusBarMessage(
+		tr( "Playlist: Set song No. %1" )
+		.arg( Hydrogen::get_instance()->getPlaylist()->getActiveSongNumber() + 1 ) );
 }
 
 void HydrogenApp::onEventQueueTimer()
@@ -793,7 +913,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PLAYLIST_LOADSONG:
-				pListener->playlistLoadSongEvent( event.value );
+				pListener->playlistLoadSongEvent();
 				break;
 
 			case EVENT_UNDO_REDO:
@@ -890,6 +1010,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_MIDI_MAP_CHANGED:
 				pListener->midiMapChangedEvent();
+				break;
+
+			case EVENT_PLAYLIST_CHANGED:
+				pListener->playlistChangedEvent( event.value );
 				break;
 
 			default:
@@ -1006,7 +1130,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// selections etc.
 		// But we won't change the layout!
 		Preferences *pPref = Preferences::get_instance();
-		InterfaceTheme::Layout layout = pPref->getDefaultUILayout();
+		auto layout = Preferences::get_instance()->
+			getTheme().m_interface.m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, SetWidth + SetHeight );
@@ -1037,8 +1162,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		m_pMixer->updateMixer();
 
-		WindowProperties playlistDialogProp = pPref->getPlaylistDialogProperties();
-		setWindowProperties( m_pPlaylistDialog, playlistDialogProp, SetAll );
+		WindowProperties playlistEditorProp = pPref->getPlaylistEditorProperties();
+		setWindowProperties( m_pPlaylistEditor, playlistEditorProp, SetAll );
 
 		WindowProperties directorProp = pPref->getDirectorProperties();
 		setWindowProperties( m_pDirector, directorProp, SetAll );
@@ -1088,17 +1213,25 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
-	} else if ( nValue == 2 ) {
-
-		// The event was triggered before the Song was fully loaded by
-		// the core. It's most likely to be present by now, but it's
-		// probably better to avoid displaying its path just to be
-		// sure.
-		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
+	}
+	else if ( nValue == 2 ) {
+		QMessageBox::information(
+			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+			.arg( tr("Song is read-only." ) )
+			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
 	}
 }
 
-void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
+void HydrogenApp::playlistChangedEvent( int nValue ) {
+	if ( nValue == 2 ) {
+		QMessageBox::information(
+			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+			.arg( tr("Playlist is read-only." ) )
+			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+	}
+}
+
+void HydrogenApp::changePreferences( const H2Core::Preferences::Changes& changes ) {
 	if ( m_pPreferencesUpdateTimer->isActive() ) {
 		m_pPreferencesUpdateTimer->stop();
 	}
@@ -1238,7 +1371,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	return true;
 }
 
-void HydrogenApp::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		H2Core::Hydrogen::get_instance()->getAudioEngine()->
 			getMetronomeInstrument()->set_volume(

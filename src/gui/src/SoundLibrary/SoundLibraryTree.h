@@ -37,8 +37,8 @@ class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibrary
 		explicit SoundLibraryTree( QWidget *pParent );
 
 	signals:
-		void leftClicked( QPoint pos );
-		void rightClicked( QPoint pos );
+		void leftClicked( const QPoint& pos );
+		void rightClicked( const QPoint& pos );
 		void onMouseMove( QMouseEvent* event );
 
 

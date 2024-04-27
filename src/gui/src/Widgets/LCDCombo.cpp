@@ -28,7 +28,7 @@
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
+LCDCombo::LCDCombo( QWidget *pParent, const QSize& size, bool bModifyOnChange )
 	: QComboBox( pParent )
 	, m_size( size )
 	, m_bEntered( false )
@@ -94,8 +94,8 @@ void LCDCombo::updateStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 
 
-	QColor widgetColor = pPref->getColorTheme()->m_widgetColor;
-	QColor widgetTextColor = pPref->getColorTheme()->m_widgetTextColor;
+	QColor widgetColor = pPref->getTheme().m_color.m_widgetColor;
+	QColor widgetTextColor = pPref->getTheme().m_color.m_widgetTextColor;
 	QColor widgetInactiveColor = 
 		Skin::makeWidgetColorInactive( widgetColor );
 	QColor widgetTextInactiveColor =
@@ -120,13 +120,13 @@ QComboBox QAbstractItemView { \
 }")
 				   .arg( widgetTextColor.name() )
 				   .arg( widgetColor.name() )
-				   .arg( pPref->getLevel3FontFamily() )
-				   .arg( getPointSize( pPref->getFontSize() ) )
+				   .arg( pPref->getTheme().m_font.m_sLevel3FontFamily )
+				   .arg( getPointSize( pPref->getTheme().m_font.m_fontSize ) )
 				   .arg( widgetTextInactiveColor.name() )
 				   .arg( widgetInactiveColor.name() ) );
 }
 
-void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void LCDCombo::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
@@ -145,9 +145,9 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 		} else {
-			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -175,7 +175,7 @@ void LCDCombo::leaveEvent( QEvent* ev ) {
 	m_bEntered = false;
 }
 
-void LCDCombo::setSize( QSize size ) {
+void LCDCombo::setSize( const QSize& size ) {
 	m_size = size;
 	
 	setFixedSize( size );

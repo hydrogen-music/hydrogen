@@ -63,6 +63,7 @@ environment:
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+      PACKAGE_PREFIX: 'mingw-w64-x86_64'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
@@ -73,6 +74,7 @@ environment:
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw32'
       MSYS_REPO: 'mingw32/mingw-w64-i686'
+      PACKAGE_PREFIX: 'mingw-w64-i686'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
@@ -590,13 +592,13 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
-          REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
-          c:\msys64\usr\bin\pacman --noconfirm -S -q -y %MSYS_REPO%-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
+          REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -y -q %MSYS_REPO%-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
-          c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
           ccache -M 256M
           ccache -s

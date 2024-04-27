@@ -145,10 +145,6 @@
         <translation>Sampler</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Sintetizador</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Sequenciador</translation>
     </message>
@@ -1025,6 +1021,48 @@ Are you sure?</source>
         <source>Unable to export drumkit</source>
         <translation>Não foi possível exportar o drumkit</translation>
     </message>
+    <message>
+        <source>Unable to save playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
+        <translation>modificado</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Deseja salvar as mudanças?</translation>
+    </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found</source>
+        <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
+        <translation>Arquivo não encontrado</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>&amp;Desfazer</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>Desfazer histórico</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1657,6 +1695,10 @@ Sobrescrever o arquivo existente?</translation>
         <source>Tag</source>
         <translation>Etiquetar</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1673,10 +1715,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Mixer</translation>
     </message>
     <message>
-        <source>modified</source>
-        <translation>modificado</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>Erro ao carregar música.</translation>
     </message>
@@ -1687,12 +1725,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Preferences loaded.</source>
         <translation>Preferências carregadas.</translation>
-    </message>
-    <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
-		<translation>Canção é somente leitura.
-Use &apos;Salvar como&apos; para ativar o salvamento automático.</translation>
     </message>
     <message>
         <source>Input Midi Note</source>
@@ -1715,8 +1747,44 @@ Use &apos;Salvar como&apos; para ativar o salvamento automático.</translation>
         <translation>Canção salva como:</translation>
     </message>
     <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
         <translation>Algumas licenças de amostras diferem da licença escolhida para o drumkit [%1] e serão sobrescritas. Você tem certeza?</translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Lista de Reprodução: Definir música Nº %1</translation>
+    </message>
+    <message>
+        <source>New Song</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Playlist</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2324,10 +2392,6 @@ MIDI = %2</translation>
         <translation>Abrir Padrão</translation>
     </message>
     <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Lista de reprodução: Definir música Nº %1</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation>Info|Sobre</translation>
@@ -2341,40 +2405,12 @@ MIDI = %2</translation>
         <translation>Não foi possível exportar padrão.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Este documento contém mudanças não salvas.
-Deseja salvar as mudanças?
-</translation>
-    </message>
-    <message>
-        <source>Undo history</source>
-        <translation>Desfazer histórico</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>&amp;Desfazer</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>Arquivo LilyPond (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
         <translation>Exportar arquivo LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-A lista de reprodução atual contém mudanças não salvas.
-Deseja descartar as mudanças?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -2443,14 +2479,6 @@ Deseja descartar as mudanças?
     <message>
         <source>Export &amp;LilyPond File</source>
 		<translation>Exportar &amp;Arquivo LilyPond</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-		<translation>&amp;Refazer</translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
-		<translation>Desfazer &amp;História</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
@@ -3482,27 +3510,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
-    <message>
-        <source>Song list</source>
-        <translation>Lista de músicas</translation>
-    </message>
-    <message>
-        <source>Script</source>
-        <translation>Script</translation>
-    </message>
-    <message>
-        <source>exec Script</source>
-        <translation>Executar Script</translation>
-    </message>
-    <message>
-        <source>Add Song to PlayList</source>
-        <translation>Adicionar música à Lista de Reprodução</translation>
-    </message>
-    <message>
-        <source>No Song selected!</source>
-        <translation>Nenhuma música selecionada!</translation>
-    </message>
+    <name>PlaylistEditor</name>
     <message>
         <source>Load Playlist</source>
         <translation>Carregar Lista de Reprodução</translation>
@@ -3512,20 +3520,12 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Salvar Lista de Reprodução</translation>
     </message>
     <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Nenhuma música na Lista ou nenhuma Música selecionada!</translation>
-    </message>
-    <message>
         <source>Hydrogen Playlist (*.sh)</source>
         <translation>Lista de Reprodução do Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
         <translation>Adicionar Script à Música selecionada</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>Nenhum Scripr em uso!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
@@ -3558,10 +3558,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Nome do script ou caminho do script contém espaços em branco.
 IMPORTANTE
 O caminho do script e o nome do script devem estar sem espaços em branco.</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Sem Script!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3632,10 +3628,6 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
         <translation>Por favor, salve sua música primeiro</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>AVISO, o novo arquivo é executável pelo proprietário do arquivo!</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>Pausar.</translation>
     </message>
@@ -3644,34 +3636,12 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
         <translation>Buscador da Lista de Reprodução</translation>
     </message>
     <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Lista de Reprodução: definir música nº %1</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>sem Script</translation>
-    </message>
-    <message>
         <source>&amp;New Playlist</source>
         <translation>&amp;Nova Lista de Reprodução</translation>
     </message>
     <message>
-        <source>File not found: </source>
-        <translation>Arquivo não encontrado</translation>
-    </message>
-    <message>
         <source>No valid song selected!</source>
         <translation>Nenhuma música válida selecionada!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-A presente Lista de Reprodução contém mudanças não salvas.
-Deseja descartar as mudanças?
-</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
@@ -3681,16 +3651,55 @@ The path to the script and the scriptname must be without whitespaces.</source>
 IMPORTANTE
 O caminho para o script e o nome do script não devem conter espaços em branco.</translation>
     </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Buscador da Lista de Reprodução</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Lista de músicas</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Script</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Executar Script</translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>Sem Script</translation>
     </message>
 </context>
 <context>
@@ -4041,6 +4050,10 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <source>Virtual Row</source>
         <translation>Linha Virtual</translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4132,10 +4145,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>Alt+R</source>
-        <translation>Alt+R</translation>
     </message>
     <message>
         <source>###</source>
@@ -4320,14 +4329,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
         <translation>Linguagem / Γλώσσα / Язык / 言語</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-		<translation>Reabrir última canção &amp;usada</translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
-        <translation>Reabrir última playlist &amp;usada</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>
@@ -4752,6 +4753,18 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Rename component</source>
         <translation>Renomear componente</translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Adicionar música à Lista de Reprodução</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5637,7 +5650,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation>Adicionar canção à playlist</translation>
+        <translation>Adicionar música à Lista de Reprodução</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

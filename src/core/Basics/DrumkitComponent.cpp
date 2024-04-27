@@ -47,13 +47,9 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	, __volume( 1.0 )
 	, __muted( false )
 	, __soloed( false )
-	, __out_L( nullptr )
-	, __out_R( nullptr )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 {
-	__out_L = new float[ MAX_BUFFER_SIZE ];
-	__out_R = new float[ MAX_BUFFER_SIZE ];
 }
 
 DrumkitComponent::DrumkitComponent( std::shared_ptr<DrumkitComponent> other )
@@ -62,35 +58,13 @@ DrumkitComponent::DrumkitComponent( std::shared_ptr<DrumkitComponent> other )
 	, __volume( other->__volume )
 	, __muted( other->__muted )
 	, __soloed( other->__soloed )
-	, __out_L( nullptr )
-	, __out_R( nullptr )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 {
-	__out_L = new float[ MAX_BUFFER_SIZE ];
-	__out_R = new float[ MAX_BUFFER_SIZE ];
 }
 
 DrumkitComponent::~DrumkitComponent()
 {
-	delete[] __out_L;
-	delete[] __out_R;
-}
-
-void DrumkitComponent::reset_outs( uint32_t nFrames )
-{
-	memset( __out_L, 0, nFrames * sizeof( float ) );
-	memset( __out_R, 0, nFrames * sizeof( float ) );
-}
-
-float DrumkitComponent::get_out_L( int nBufferPos )
-{
-	return __out_L[nBufferPos];
-}
-
-float DrumkitComponent::get_out_R( int nBufferPos )
-{
-	return __out_R[nBufferPos];
 }
 
 void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
@@ -101,23 +75,23 @@ void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
 	this->set_volume( component->get_volume() );
 }
 
-std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( XMLNode* node )
+std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( const XMLNode& node )
 {
-	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
+	int id = node.read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
 	auto pDrumkitComponent =
-		std::make_shared<DrumkitComponent>( id, node->read_string( "name", "", false, false ) );
-	pDrumkitComponent->set_volume( node->read_float( "volume", 1.0f, true, false ) );
+		std::make_shared<DrumkitComponent>( id, node.read_string( "name", "", false, false ) );
+	pDrumkitComponent->set_volume( node.read_float( "volume", 1.0f, true, false ) );
 
 	return pDrumkitComponent;
 }
 
-void DrumkitComponent::save_to( XMLNode* node )
+void DrumkitComponent::save_to( XMLNode& node )
 {
-	XMLNode ComponentNode = node->createNode( "drumkitComponent" );
+	XMLNode ComponentNode = node.createNode( "drumkitComponent" );
 	ComponentNode.write_int( "id", __id );
 	ComponentNode.write_string( "name", __name );
 	ComponentNode.write_float( "volume", __volume );

@@ -97,7 +97,7 @@ HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
 {
 }
 
-void HostAPIComboBox::setValue( QString sHostAPI ) {
+void HostAPIComboBox::setValue( const QString& sHostAPI ) {
 	// The ComboBox doesn't have any item strings until it's actually opened,
 	// so we must add the item to it temporarily
 	clear();
@@ -118,19 +118,23 @@ void HostAPIComboBox::showPopup()
 }
 
 
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
+								  const QString& sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent, QStringList labels )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
+								  const QStringList& labels )
     : QTreeWidgetItem( pParent, labels ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QString sLabel )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent,
+								  const QString& sLabel )
     : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
 	m_nId = nId;
 }
-IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent, QStringList labels )
+IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidget* pParent,
+								  const QStringList& labels )
     : QTreeWidgetItem( pParent, labels ) {
 	m_nId = nId;
 }
@@ -148,10 +152,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	, m_changes( H2Core::Preferences::Changes::None )
 	, m_bMidiTableChanged( false )
 	, m_bShortcutsChanged( false )
-	, m_selectedCategory( H2Core::Shortcuts::Category::All ) {
-	
-	m_pCurrentTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
-	m_pPreviousTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
+	, m_selectedCategory( H2Core::Shortcuts::Category::All )
+	, m_currentTheme( H2Core::Preferences::get_instance()->getTheme() )
+	, m_previousTheme( H2Core::Preferences::get_instance()->getTheme() )
+{
 	setupUi( this );
 
 	setWindowTitle( tr( "Preferences" ) );
@@ -169,8 +173,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// General tab
 	QSize generalTabWidgetSize( 60, 24 );
 	
-	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
-	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
@@ -512,7 +514,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			 SLOT( onIconColorChanged(int)) );
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 
-	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors );
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( InterfaceTheme::nMaxPatternColors );
 	int nButtonSize = fontSizeComboBox->height();
 	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
 	// Using a fixed one size resizing of the widget seems to happen
@@ -521,9 +523,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
-	for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
+	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		ColorSelectionButton* bbutton =
-			new ColorSelectionButton( this, m_pCurrentTheme->getInterfaceTheme()->m_patternColors[ ii ],
+			new ColorSelectionButton( this, m_currentTheme.m_interface.m_patternColors[ ii ],
 									  nButtonSize );
 		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
@@ -644,7 +646,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	updateColorTree();
 
-	updateAppearanceTab( m_pCurrentTheme );
+	updateAppearanceTab( m_currentTheme );
 
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
@@ -671,7 +673,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 
 	}
 	
-	H2Core::Preferences::get_instance()->setTheme( m_pPreviousTheme );
+	H2Core::Preferences::get_instance()->setTheme( m_previousTheme );
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 
 	reject();
@@ -1025,18 +1027,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	bool bGeneralOptionAltered = false;
 	
-	if ( pPref->isRestoreLastSongEnabled() !=
-		 restoreLastUsedSongCheckbox->isChecked() ) {
-		pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
-		bGeneralOptionAltered = true;
-	}
-	
-	if ( pPref->isRestoreLastPlaylistEnabled() !=
-		 restoreLastUsedPlaylistCheckbox->isChecked() ) {
-		pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
-		bGeneralOptionAltered = true;
-	}
-	
 	if ( pPref->isPlaylistUsingRelativeFilenames() !=
 		 useRelativePlaylistPathsCheckbox->isChecked() ) {
 		pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
@@ -1106,7 +1096,7 @@ void PreferencesDialog::on_okBtn_clicked()
 				m_changes | H2Core::Preferences::Changes::GeneralTab );
 	}
 
-	pPref->setTheme( m_pCurrentTheme );
+	pPref->setTheme( m_currentTheme );
 
 	if ( m_bNeedDriverRestart ) {
 		// Restart audio and MIDI drivers now that we updated all
@@ -1526,8 +1516,8 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 
-	m_pCurrentTheme->getFontTheme()->m_sApplicationFontFamily = font.family();
-	pPref->setApplicationFontFamily( font.family() );
+	m_currentTheme.m_font.m_sApplicationFontFamily = font.family();
+	pPref->getThemeWritable().m_font.m_sApplicationFontFamily = font.family();
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1539,8 +1529,8 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 
-	m_pCurrentTheme->getFontTheme()->m_sLevel2FontFamily = font.family();
-	pPref->setLevel2FontFamily( font.family() );
+	m_currentTheme.m_font.m_sLevel2FontFamily = font.family();
+	pPref->getThemeWritable().m_font.m_sLevel2FontFamily = font.family();
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1552,8 +1542,8 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 
-	m_pCurrentTheme->getFontTheme()->m_sLevel3FontFamily = font.family();
-	pPref->setLevel3FontFamily( font.family() );
+	m_currentTheme.m_font.m_sLevel3FontFamily = font.family();
+	pPref->getThemeWritable().m_font.m_sLevel3FontFamily = font.family();
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1564,7 +1554,7 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 
 void PreferencesDialog::onRejected() {
 
-	updateAppearanceTab( m_pPreviousTheme );
+	updateAppearanceTab( m_previousTheme );
 
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 }
@@ -1574,16 +1564,16 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 	switch ( nIndex ) {
 	case 0:
-		pPref->setFontSize( FontTheme::FontSize::Small );
-		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Small;
+		pPref->getThemeWritable().m_font.m_fontSize = FontTheme::FontSize::Small;
+		m_currentTheme.m_font.m_fontSize = FontTheme::FontSize::Small;
 		break;
 	case 1:
-		pPref->setFontSize( FontTheme::FontSize::Medium );
-		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Medium;
+		pPref->getThemeWritable().m_font.m_fontSize = FontTheme::FontSize::Medium;
+		m_currentTheme.m_font.m_fontSize = FontTheme::FontSize::Medium;
 		break;
 	case 2:
-		pPref->setFontSize( FontTheme::FontSize::Large );
-		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Large;
+		pPref->getThemeWritable().m_font.m_fontSize = FontTheme::FontSize::Large;
+		m_currentTheme.m_font.m_fontSize = FontTheme::FontSize::Large;
 		break;
 	default:
 		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
@@ -1598,17 +1588,18 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	if ( static_cast<InterfaceTheme::Layout>(nIndex) !=
-		 m_pPreviousTheme->getInterfaceTheme()->m_layout ||
-		 m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy !=
-		 m_pPreviousTheme->getInterfaceTheme()->m_scalingPolicy ) {
+		 m_previousTheme.m_interface.m_layout ||
+		 m_currentTheme.m_interface.m_uiScalingPolicy !=
+		 m_previousTheme.m_interface.m_uiScalingPolicy ) {
 		UIChangeWarningLabel->show();
-		INFOLOG( "hosw" );
-	} else {
-		INFOLOG( "hide" );
+	}
+	else {
 		UIChangeWarningLabel->hide();
 	}
-	m_pCurrentTheme->getInterfaceTheme()->m_layout = static_cast<InterfaceTheme::Layout>(nIndex);
-	Preferences::get_instance()->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(nIndex) );
+	m_currentTheme.m_interface.m_layout =
+		static_cast<InterfaceTheme::Layout>(nIndex);
+	Preferences::get_instance()->getThemeWritable().m_interface.m_layout =
+		static_cast<InterfaceTheme::Layout>(nIndex);
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1619,17 +1610,19 @@ void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 
 void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex ) {
 	if ( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) !=
-		 m_pPreviousTheme->getInterfaceTheme()->m_scalingPolicy ||
-		 m_pCurrentTheme->getInterfaceTheme()->m_layout !=
-		 m_pPreviousTheme->getInterfaceTheme()->m_layout ) {
+		 m_previousTheme.m_interface.m_uiScalingPolicy ||
+		 m_currentTheme.m_interface.m_layout !=
+		 m_previousTheme.m_interface.m_layout ) {
 		UIChangeWarningLabel->show();
 		INFOLOG( "hosw" );
 	} else {
 		INFOLOG( "hide" );
 		UIChangeWarningLabel->hide();
 	}
-	m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
-	Preferences::get_instance()->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) );
+	m_currentTheme.m_interface.m_uiScalingPolicy =
+		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
+	Preferences::get_instance()->getThemeWritable().m_interface.m_uiScalingPolicy =
+		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1639,8 +1632,10 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 }
 
 void PreferencesDialog::onIconColorChanged( int nIndex ) {
-	m_pCurrentTheme->getInterfaceTheme()->m_iconColor = static_cast<InterfaceTheme::IconColor>(nIndex);
-	H2Core::Preferences::get_instance()->setIconColor( static_cast<InterfaceTheme::IconColor>(nIndex) );
+	m_currentTheme.m_interface.m_iconColor =
+		static_cast<InterfaceTheme::IconColor>(nIndex);
+	H2Core::Preferences::get_instance()->getThemeWritable().m_interface.m_iconColor =
+		static_cast<InterfaceTheme::IconColor>(nIndex);
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1650,9 +1645,10 @@ void PreferencesDialog::onIconColorChanged( int nIndex ) {
 }
 
 void PreferencesDialog::onColorNumberChanged( int nIndex ) {
-	Preferences::get_instance()->setVisiblePatternColors( nIndex );
-	m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors = nIndex;
-	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+	Preferences::get_instance()->getThemeWritable().m_interface.m_nVisiblePatternColors =
+		nIndex;
+	m_currentTheme.m_interface.m_nVisiblePatternColors = nIndex;
+	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		if ( ii < nIndex ) {
 			m_colorSelectionButtons[ ii ]->pretendToShow();
 		} else {
@@ -1668,13 +1664,15 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 }
 
 void PreferencesDialog::onColorSelectionClicked() {
-	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
+	int nMaxPatternColors =
+		InterfaceTheme::nMaxPatternColors;
 	std::vector<QColor> colors( nMaxPatternColors );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
 		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
 	}
-	m_pCurrentTheme->getInterfaceTheme()->m_patternColors = colors;
-	Preferences::get_instance()->setPatternColors( colors );
+	m_currentTheme.m_interface.m_patternColors = colors;
+	Preferences::get_instance()->getThemeWritable().m_interface.m_patternColors =
+		colors;
 
 	m_changes =
 		static_cast<H2Core::Preferences::Changes>(
@@ -1684,21 +1682,23 @@ void PreferencesDialog::onColorSelectionClicked() {
 }
 
 void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
-	m_pCurrentTheme->getInterfaceTheme()->m_coloringMethod = static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
-	Preferences::get_instance()->setColoringMethod( static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex) );
+	m_currentTheme.m_interface.m_coloringMethod =
+		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
+	Preferences::get_instance()->getThemeWritable().m_interface.m_coloringMethod =
+		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
 
 	if ( nIndex == 0 ) {
 		coloringMethodAuxSpinBox->hide();
 		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
-		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
+		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->pretendToHide();
 		}
 	} else {
 		coloringMethodAuxSpinBox->show();
 		coloringMethodAuxLabel->show();
 		colorSelectionLabel->show();
-		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
+		for ( int ii = 0; ii < m_currentTheme.m_interface.m_nVisiblePatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}
@@ -1714,14 +1714,20 @@ void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
 	Preferences *pPref = Preferences::get_instance();
 	
 	if ( nIndex == 0 ) {
-		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_SLOW;
-		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_SLOW );
+		m_currentTheme.m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_SLOW;
+		pPref->getThemeWritable().m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_SLOW;
 	} else if ( nIndex == 1 ) {
-		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_NORMAL;
-		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_NORMAL );
+		m_currentTheme.m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_NORMAL;
+		pPref->getThemeWritable().m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_NORMAL;
 	} else if ( nIndex == 2 ) {
-		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_FAST;
-		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_FAST );
+		m_currentTheme.m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_FAST;
+		pPref->getThemeWritable().m_interface.m_fMixerFalloffSpeed =
+			InterfaceTheme::FALLOFF_FAST;
 	} else {
 		ERRORLOG( QString("Wrong mixerFalloff value = %1").arg( nIndex ) );
 	}
@@ -1794,15 +1800,14 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 	UNUSED( index );
 	
 	QString sStyle = styleComboBox->currentText();
-	if ( sStyle != m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle ) {
+	if ( sStyle != m_currentTheme.m_interface.m_sQTStyle ) {
 
 		// Instant visual feedback.
-		QApplication *pQApp = (HydrogenApp::get_instance())->getMainForm()->m_pQApp;
-		pQApp->setStyle( sStyle );
-		Preferences *pPref = Preferences::get_instance();
-		pPref->setQTStyle( sStyle );
+		HydrogenApp::get_instance()->getMainForm()->m_pQApp->setStyle( sStyle );
+		Preferences::get_instance()->getThemeWritable().m_interface.m_sQTStyle =
+			sStyle;
 
-		m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
+		m_currentTheme.m_interface.m_sQTStyle = sStyle;
 
 		m_changes =
 			static_cast<H2Core::Preferences::Changes>(
@@ -1855,66 +1860,66 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 	}
 }
 
-QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> pColorTheme ) const {
+std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, const H2Core::ColorTheme& colorTheme ) const {
 	switch( nId ) {
-	case 0x100: return &pColorTheme->m_windowColor;
-	case 0x101: return &pColorTheme->m_windowTextColor;
-	case 0x102: return &pColorTheme->m_baseColor;
-	case 0x103: return &pColorTheme->m_alternateBaseColor;
-	case 0x104: return &pColorTheme->m_textColor;
-	case 0x105: return &pColorTheme->m_buttonColor;
-	case 0x106: return &pColorTheme->m_buttonTextColor;
-	case 0x107: return &pColorTheme->m_lightColor;
-	case 0x108: return &pColorTheme->m_midLightColor;
-	case 0x109: return &pColorTheme->m_midColor;
-	case 0x10a: return &pColorTheme->m_darkColor;
-	case 0x10b: return &pColorTheme->m_shadowTextColor;
-	case 0x10c: return &pColorTheme->m_highlightColor;
-	case 0x10d: return &pColorTheme->m_highlightedTextColor;
-	case 0x10e: return &pColorTheme->m_selectionHighlightColor;
-	case 0x10f: return &pColorTheme->m_selectionInactiveColor;
-	case 0x110: return &pColorTheme->m_toolTipBaseColor;
-	case 0x111: return &pColorTheme->m_toolTipTextColor;
-	case 0x200: return &pColorTheme->m_widgetColor;
-	case 0x201: return &pColorTheme->m_widgetTextColor;
-	case 0x202: return &pColorTheme->m_accentColor;
-	case 0x203: return &pColorTheme->m_accentTextColor;
-	case 0x204: return &pColorTheme->m_buttonRedColor;
-	case 0x205: return &pColorTheme->m_buttonRedTextColor;
-	case 0x206: return &pColorTheme->m_spinBoxColor;
-	case 0x207: return &pColorTheme->m_spinBoxTextColor;
-	case 0x208: return &pColorTheme->m_playheadColor;
-	case 0x209: return &pColorTheme->m_cursorColor;
-	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
-	case 0x301: return &pColorTheme->m_songEditor_alternateRowColor;
-	case 0x302: return &pColorTheme->m_songEditor_virtualRowColor;
-	case 0x303: return &pColorTheme->m_songEditor_selectedRowColor;
-	case 0x304: return &pColorTheme->m_songEditor_selectedRowTextColor;
-	case 0x305: return &pColorTheme->m_songEditor_lineColor;
-	case 0x306: return &pColorTheme->m_songEditor_textColor;
-	case 0x307: return &pColorTheme->m_songEditor_automationBackgroundColor;
-	case 0x308: return &pColorTheme->m_songEditor_automationLineColor;
-	case 0x309: return &pColorTheme->m_songEditor_automationNodeColor;
-	case 0x30a: return &pColorTheme->m_songEditor_stackedModeOnColor;
-	case 0x30b: return &pColorTheme->m_songEditor_stackedModeOnNextColor;
-	case 0x30c: return &pColorTheme->m_songEditor_stackedModeOffNextColor;
-	case 0x400: return &pColorTheme->m_patternEditor_backgroundColor;
-	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
-	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
-	case 0x403: return &pColorTheme->m_patternEditor_selectedRowTextColor;
-	case 0x404: return &pColorTheme->m_patternEditor_octaveRowColor;
-	case 0x405: return &pColorTheme->m_patternEditor_textColor;
-	case 0x406: return &pColorTheme->m_patternEditor_noteVelocityFullColor;
-	case 0x407: return &pColorTheme->m_patternEditor_noteVelocityDefaultColor;
-	case 0x408: return &pColorTheme->m_patternEditor_noteVelocityHalfColor;
-	case 0x409: return &pColorTheme->m_patternEditor_noteVelocityZeroColor;
-	case 0x40a: return &pColorTheme->m_patternEditor_noteOffColor;
-	case 0x40b: return &pColorTheme->m_patternEditor_lineColor;
-	case 0x40c: return &pColorTheme->m_patternEditor_line1Color;
-	case 0x40d: return &pColorTheme->m_patternEditor_line2Color;
-	case 0x40e: return &pColorTheme->m_patternEditor_line3Color;
-	case 0x40f: return &pColorTheme->m_patternEditor_line4Color;
-	case 0x410: return &pColorTheme->m_patternEditor_line5Color;
+	case 0x100: return std::make_unique<QColor>(colorTheme.m_windowColor);
+	case 0x101: return std::make_unique<QColor>(colorTheme.m_windowTextColor);
+	case 0x102: return std::make_unique<QColor>(colorTheme.m_baseColor);
+	case 0x103: return std::make_unique<QColor>(colorTheme.m_alternateBaseColor);
+	case 0x104: return std::make_unique<QColor>(colorTheme.m_textColor);
+	case 0x105: return std::make_unique<QColor>(colorTheme.m_buttonColor);
+	case 0x106: return std::make_unique<QColor>(colorTheme.m_buttonTextColor);
+	case 0x107: return std::make_unique<QColor>(colorTheme.m_lightColor);
+	case 0x108: return std::make_unique<QColor>(colorTheme.m_midLightColor);
+	case 0x109: return std::make_unique<QColor>(colorTheme.m_midColor);
+	case 0x10a: return std::make_unique<QColor>(colorTheme.m_darkColor);
+	case 0x10b: return std::make_unique<QColor>(colorTheme.m_shadowTextColor);
+	case 0x10c: return std::make_unique<QColor>(colorTheme.m_highlightColor);
+	case 0x10d: return std::make_unique<QColor>(colorTheme.m_highlightedTextColor);
+	case 0x10e: return std::make_unique<QColor>(colorTheme.m_selectionHighlightColor);
+	case 0x10f: return std::make_unique<QColor>(colorTheme.m_selectionInactiveColor);
+	case 0x110: return std::make_unique<QColor>(colorTheme.m_toolTipBaseColor);
+	case 0x111: return std::make_unique<QColor>(colorTheme.m_toolTipTextColor);
+	case 0x200: return std::make_unique<QColor>(colorTheme.m_widgetColor);
+	case 0x201: return std::make_unique<QColor>(colorTheme.m_widgetTextColor);
+	case 0x202: return std::make_unique<QColor>(colorTheme.m_accentColor);
+	case 0x203: return std::make_unique<QColor>(colorTheme.m_accentTextColor);
+	case 0x204: return std::make_unique<QColor>(colorTheme.m_buttonRedColor);
+	case 0x205: return std::make_unique<QColor>(colorTheme.m_buttonRedTextColor);
+	case 0x206: return std::make_unique<QColor>(colorTheme.m_spinBoxColor);
+	case 0x207: return std::make_unique<QColor>(colorTheme.m_spinBoxTextColor);
+	case 0x208: return std::make_unique<QColor>(colorTheme.m_playheadColor);
+	case 0x209: return std::make_unique<QColor>(colorTheme.m_cursorColor);
+	case 0x300: return std::make_unique<QColor>(colorTheme.m_songEditor_backgroundColor);
+	case 0x301: return std::make_unique<QColor>(colorTheme.m_songEditor_alternateRowColor);
+	case 0x302: return std::make_unique<QColor>(colorTheme.m_songEditor_virtualRowColor);
+	case 0x303: return std::make_unique<QColor>(colorTheme.m_songEditor_selectedRowColor);
+	case 0x304: return std::make_unique<QColor>(colorTheme.m_songEditor_selectedRowTextColor);
+	case 0x305: return std::make_unique<QColor>(colorTheme.m_songEditor_lineColor);
+	case 0x306: return std::make_unique<QColor>(colorTheme.m_songEditor_textColor);
+	case 0x307: return std::make_unique<QColor>(colorTheme.m_songEditor_automationBackgroundColor);
+	case 0x308: return std::make_unique<QColor>(colorTheme.m_songEditor_automationLineColor);
+	case 0x309: return std::make_unique<QColor>(colorTheme.m_songEditor_automationNodeColor);
+	case 0x30a: return std::make_unique<QColor>(colorTheme.m_songEditor_stackedModeOnColor);
+	case 0x30b: return std::make_unique<QColor>(colorTheme.m_songEditor_stackedModeOnNextColor);
+	case 0x30c: return std::make_unique<QColor>(colorTheme.m_songEditor_stackedModeOffNextColor);
+	case 0x400: return std::make_unique<QColor>(colorTheme.m_patternEditor_backgroundColor);
+	case 0x401: return std::make_unique<QColor>(colorTheme.m_patternEditor_alternateRowColor);
+	case 0x402: return std::make_unique<QColor>(colorTheme.m_patternEditor_selectedRowColor);
+	case 0x403: return std::make_unique<QColor>(colorTheme.m_patternEditor_selectedRowTextColor);
+	case 0x404: return std::make_unique<QColor>(colorTheme.m_patternEditor_octaveRowColor);
+	case 0x405: return std::make_unique<QColor>(colorTheme.m_patternEditor_textColor);
+	case 0x406: return std::make_unique<QColor>(colorTheme.m_patternEditor_noteVelocityFullColor);
+	case 0x407: return std::make_unique<QColor>(colorTheme.m_patternEditor_noteVelocityDefaultColor);
+	case 0x408: return std::make_unique<QColor>(colorTheme.m_patternEditor_noteVelocityHalfColor);
+	case 0x409: return std::make_unique<QColor>(colorTheme.m_patternEditor_noteVelocityZeroColor);
+	case 0x40a: return std::make_unique<QColor>(colorTheme.m_patternEditor_noteOffColor);
+	case 0x40b: return std::make_unique<QColor>(colorTheme.m_patternEditor_lineColor);
+	case 0x40c: return std::make_unique<QColor>(colorTheme.m_patternEditor_line1Color);
+	case 0x40d: return std::make_unique<QColor>(colorTheme.m_patternEditor_line2Color);
+	case 0x40e: return std::make_unique<QColor>(colorTheme.m_patternEditor_line3Color);
+	case 0x40f: return std::make_unique<QColor>(colorTheme.m_patternEditor_line4Color);
+	case 0x410: return std::make_unique<QColor>(colorTheme.m_patternEditor_line5Color);
 	default: return nullptr;
 	}
 
@@ -1922,123 +1927,123 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 }
 
 void PreferencesDialog::setColorById( int nId, const QColor& color,
-									  std::shared_ptr<H2Core::ColorTheme> pColorTheme ) {
+									  H2Core::ColorTheme& colorTheme ) {
 	switch( nId ) {
-	case 0x100:  pColorTheme->m_windowColor = color;
+	case 0x100:  colorTheme.m_windowColor = color;
 		break;
-	case 0x101:  pColorTheme->m_windowTextColor = color;
+	case 0x101:  colorTheme.m_windowTextColor = color;
 		break;
-	case 0x102:  pColorTheme->m_baseColor = color;
+	case 0x102:  colorTheme.m_baseColor = color;
 		break;
-	case 0x103:  pColorTheme->m_alternateBaseColor = color;
+	case 0x103:  colorTheme.m_alternateBaseColor = color;
 		break;
-	case 0x104:  pColorTheme->m_textColor = color;
+	case 0x104:  colorTheme.m_textColor = color;
 		break;
-	case 0x105:  pColorTheme->m_buttonColor = color;
+	case 0x105:  colorTheme.m_buttonColor = color;
 		break;
-	case 0x106:  pColorTheme->m_buttonTextColor = color;
+	case 0x106:  colorTheme.m_buttonTextColor = color;
 		break;
-	case 0x107:  pColorTheme->m_lightColor = color;
+	case 0x107:  colorTheme.m_lightColor = color;
 		break;
-	case 0x108:  pColorTheme->m_midLightColor = color;
+	case 0x108:  colorTheme.m_midLightColor = color;
 		break;
-	case 0x109:  pColorTheme->m_midColor = color;
+	case 0x109:  colorTheme.m_midColor = color;
 		break;
-	case 0x10a:  pColorTheme->m_darkColor = color;
+	case 0x10a:  colorTheme.m_darkColor = color;
 		break;
-	case 0x10b:  pColorTheme->m_shadowTextColor = color;
+	case 0x10b:  colorTheme.m_shadowTextColor = color;
 		break;
-	case 0x10c:  pColorTheme->m_highlightColor = color;
+	case 0x10c:  colorTheme.m_highlightColor = color;
 		break;
-	case 0x10d:  pColorTheme->m_highlightedTextColor = color;
+	case 0x10d:  colorTheme.m_highlightedTextColor = color;
 		break;
-	case 0x10e:  pColorTheme->m_selectionHighlightColor = color;
+	case 0x10e:  colorTheme.m_selectionHighlightColor = color;
 		break;
-	case 0x10f:  pColorTheme->m_selectionInactiveColor = color;
+	case 0x10f:  colorTheme.m_selectionInactiveColor = color;
 		break;
-	case 0x110:  pColorTheme->m_toolTipBaseColor = color;
+	case 0x110:  colorTheme.m_toolTipBaseColor = color;
 		break;
-	case 0x111:  pColorTheme->m_toolTipTextColor = color;
+	case 0x111:  colorTheme.m_toolTipTextColor = color;
 		break;
-	case 0x200:  pColorTheme->m_widgetColor = color;
+	case 0x200:  colorTheme.m_widgetColor = color;
 		break;
-	case 0x201:  pColorTheme->m_widgetTextColor = color;
+	case 0x201:  colorTheme.m_widgetTextColor = color;
 		break;
-	case 0x202:  pColorTheme->m_accentColor = color;
+	case 0x202:  colorTheme.m_accentColor = color;
 		break;
-	case 0x203:  pColorTheme->m_accentTextColor = color;
+	case 0x203:  colorTheme.m_accentTextColor = color;
 		break;
-	case 0x204:  pColorTheme->m_buttonRedColor = color;
+	case 0x204:  colorTheme.m_buttonRedColor = color;
 		break;
-	case 0x205:  pColorTheme->m_buttonRedTextColor = color;
+	case 0x205:  colorTheme.m_buttonRedTextColor = color;
 		break;
-	case 0x206:  pColorTheme->m_spinBoxColor = color;
+	case 0x206:  colorTheme.m_spinBoxColor = color;
 		break;
-	case 0x207:  pColorTheme->m_spinBoxTextColor = color;
+	case 0x207:  colorTheme.m_spinBoxTextColor = color;
 		break;
-	case 0x208:  pColorTheme->m_playheadColor = color;
+	case 0x208:  colorTheme.m_playheadColor = color;
 		break;
-	case 0x209:  pColorTheme->m_cursorColor = color;
+	case 0x209:  colorTheme.m_cursorColor = color;
 		break;
-	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
+	case 0x300:  colorTheme.m_songEditor_backgroundColor = color;
 		break;
-	case 0x301:  pColorTheme->m_songEditor_alternateRowColor = color;
+	case 0x301:  colorTheme.m_songEditor_alternateRowColor = color;
 		break;
-	case 0x302:  pColorTheme->m_songEditor_virtualRowColor = color;
+	case 0x302:  colorTheme.m_songEditor_virtualRowColor = color;
 		break;
-	case 0x303:  pColorTheme->m_songEditor_selectedRowColor = color;
+	case 0x303:  colorTheme.m_songEditor_selectedRowColor = color;
 		break;
-	case 0x304:  pColorTheme->m_songEditor_selectedRowTextColor = color;
+	case 0x304:  colorTheme.m_songEditor_selectedRowTextColor = color;
 		break;
-	case 0x305:  pColorTheme->m_songEditor_lineColor = color;
+	case 0x305:  colorTheme.m_songEditor_lineColor = color;
 		break;
-	case 0x306:  pColorTheme->m_songEditor_textColor = color;
+	case 0x306:  colorTheme.m_songEditor_textColor = color;
 		break;
-	case 0x307:  pColorTheme->m_songEditor_automationBackgroundColor = color;
+	case 0x307:  colorTheme.m_songEditor_automationBackgroundColor = color;
 		break;
-	case 0x308:  pColorTheme->m_songEditor_automationLineColor = color;
+	case 0x308:  colorTheme.m_songEditor_automationLineColor = color;
 		break;
-	case 0x309:  pColorTheme->m_songEditor_automationNodeColor = color;
+	case 0x309:  colorTheme.m_songEditor_automationNodeColor = color;
 		break;
-	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnColor = color;
+	case 0x30a:  colorTheme.m_songEditor_stackedModeOnColor = color;
 		break;
-	case 0x30b:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+	case 0x30b:  colorTheme.m_songEditor_stackedModeOnNextColor = color;
 		break;
-	case 0x30c:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
+	case 0x30c:  colorTheme.m_songEditor_stackedModeOffNextColor = color;
 		break;
-	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
+	case 0x400:  colorTheme.m_patternEditor_backgroundColor = color;
 		break;
-	case 0x401:  pColorTheme->m_patternEditor_alternateRowColor = color;
+	case 0x401:  colorTheme.m_patternEditor_alternateRowColor = color;
 		break;
-	case 0x402:  pColorTheme->m_patternEditor_selectedRowColor = color;
+	case 0x402:  colorTheme.m_patternEditor_selectedRowColor = color;
 		break;
-	case 0x403:  pColorTheme->m_patternEditor_selectedRowTextColor = color;
+	case 0x403:  colorTheme.m_patternEditor_selectedRowTextColor = color;
 		break;
-	case 0x404:  pColorTheme->m_patternEditor_octaveRowColor = color;
+	case 0x404:  colorTheme.m_patternEditor_octaveRowColor = color;
 		break;
-	case 0x405:  pColorTheme->m_patternEditor_textColor = color;
+	case 0x405:  colorTheme.m_patternEditor_textColor = color;
 		break;
-	case 0x406:  pColorTheme->m_patternEditor_noteVelocityFullColor = color;
+	case 0x406:  colorTheme.m_patternEditor_noteVelocityFullColor = color;
 		break;
-	case 0x407:  pColorTheme->m_patternEditor_noteVelocityDefaultColor = color;
+	case 0x407:  colorTheme.m_patternEditor_noteVelocityDefaultColor = color;
 		break;
-	case 0x408:  pColorTheme->m_patternEditor_noteVelocityHalfColor = color;
+	case 0x408:  colorTheme.m_patternEditor_noteVelocityHalfColor = color;
 		break;
-	case 0x409:  pColorTheme->m_patternEditor_noteVelocityZeroColor = color;
+	case 0x409:  colorTheme.m_patternEditor_noteVelocityZeroColor = color;
 		break;
-	case 0x40a:  pColorTheme->m_patternEditor_noteOffColor = color;
+	case 0x40a:  colorTheme.m_patternEditor_noteOffColor = color;
 		break;
-	case 0x40b:  pColorTheme->m_patternEditor_lineColor = color;
+	case 0x40b:  colorTheme.m_patternEditor_lineColor = color;
 		break;
-	case 0x40c:  pColorTheme->m_patternEditor_line1Color = color;
+	case 0x40c:  colorTheme.m_patternEditor_line1Color = color;
 		break;
-	case 0x40d:  pColorTheme->m_patternEditor_line2Color = color;
+	case 0x40d:  colorTheme.m_patternEditor_line2Color = color;
 		break;
-	case 0x40e:  pColorTheme->m_patternEditor_line3Color = color;
+	case 0x40e:  colorTheme.m_patternEditor_line3Color = color;
 		break;
-	case 0x40f:  pColorTheme->m_patternEditor_line4Color = color;
+	case 0x40f:  colorTheme.m_patternEditor_line4Color = color;
 		break;
-	case 0x410:  pColorTheme->m_patternEditor_line5Color = color;
+	case 0x410:  colorTheme.m_patternEditor_line5Color = color;
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}
@@ -2056,12 +2061,12 @@ void PreferencesDialog::setIndexedTreeItemDirty( IndexedTreeItem* pItem) {
 		return;
 	}
 
-	QColor* pCurrentColor = getColorById( nId, m_pCurrentTheme->getColorTheme() );
+	auto pCurrentColor = getColorById( nId, m_currentTheme.m_color );
 	if ( pCurrentColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get current color for id [%1]" ).arg( nId ) );
 		return;
 	}
-	QColor* pPreviousColor = getColorById( nId, m_pPreviousTheme->getColorTheme() );
+	auto pPreviousColor = getColorById( nId, m_previousTheme.m_color );
 	if ( pPreviousColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get previous color for id [%1]" ).arg( nId ) );
 		return;
@@ -2102,14 +2107,14 @@ void PreferencesDialog::colorTreeSelectionChanged() {
 		// A text node without color was clicked.
 		m_pCurrentColor = nullptr;
 	} else {
-		m_pCurrentColor = getColorById( nId, m_pCurrentTheme->getColorTheme() );
+		m_pCurrentColor = getColorById( nId, m_currentTheme.m_color );
 	}
 	updateColors();
 }
 
 void PreferencesDialog::colorButtonChanged() {
-	setColorById( m_nCurrentId, colorButton->getColor(), m_pCurrentTheme->getColorTheme() );
-	m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
+	setColorById( m_nCurrentId, colorButton->getColor(), m_currentTheme.m_color );
+	m_pCurrentColor = getColorById( m_nCurrentId, m_currentTheme.m_color );
 	updateColors();
 }
 
@@ -2182,7 +2187,8 @@ void PreferencesDialog::updateColors() {
       vval->blockSignals(false);
 
 	  updateColorTree();
-	  H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
+	  H2Core::Preferences::get_instance()->getThemeWritable().m_color =
+		  m_currentTheme.m_color;
 
 	  m_changes =
 		  static_cast<H2Core::Preferences::Changes>(
@@ -2282,13 +2288,16 @@ void PreferencesDialog::importTheme() {
 		return;
 	}
 
-	auto pTheme = Theme::importTheme( sSelectedPath );
-	m_pCurrentTheme = std::make_shared<Theme>( pTheme );
-	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
+	auto pTheme = Theme::importFrom( sSelectedPath );
+	if ( pTheme == nullptr ) {
+		QMessageBox::critical( this, "Hydrogen", tr("Theme couldn't be imported") );
+		return;
+	}
+	m_currentTheme = *pTheme;
+	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
 	if ( m_nCurrentId == 0 ) {
 		m_pCurrentColor = nullptr;
 		updateColorTree();
-		H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
 
 		m_changes =
 			static_cast<H2Core::Preferences::Changes>(
@@ -2296,7 +2305,7 @@ void PreferencesDialog::importTheme() {
 	  
 		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 	}
-	updateAppearanceTab( m_pCurrentTheme );
+	updateAppearanceTab( m_currentTheme );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath );
 
@@ -2332,7 +2341,7 @@ void PreferencesDialog::exportTheme() {
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 
 	if ( sSelectedPath.isEmpty() ||
-		 ! Theme::exportTheme( sSelectedPath, m_pCurrentTheme ) ) {
+		 ! m_currentTheme.exportTo( sSelectedPath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme can not be exported.") );
 		return;
 	}
@@ -2345,9 +2354,9 @@ void PreferencesDialog::exportTheme() {
 }
 
 void PreferencesDialog::resetTheme() {
-	m_pCurrentTheme = std::make_shared<Theme>( m_pPreviousTheme );
-	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
-	updateAppearanceTab( m_pCurrentTheme );
+	m_currentTheme = m_previousTheme;
+	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
+	updateAppearanceTab( m_currentTheme );
 	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 
@@ -2355,14 +2364,14 @@ void PreferencesDialog::resetTheme() {
 }
 
 
-void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme ) {
+void PreferencesDialog::updateAppearanceTab( const H2Core::Theme& theme ) {
 	
 	// Colors
-	m_pCurrentColor = getColorById( m_nCurrentId, pTheme->getColorTheme() );
+	m_pCurrentColor = getColorById( m_nCurrentId, theme.m_color );
 	updateColors();
 
 	// Interface
-	float fFalloffSpeed = pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed;
+	float fFalloffSpeed = theme.m_interface.m_fMixerFalloffSpeed;
 	if ( fFalloffSpeed == InterfaceTheme::FALLOFF_SLOW ) {
 		mixerFalloffComboBox->setCurrentIndex( 0 );
 	}
@@ -2375,16 +2384,16 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	else {
 		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg( fFalloffSpeed ) );
 	}
-	uiLayoutComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_layout ) );
+	uiLayoutComboBox->setCurrentIndex( static_cast<int>( theme.m_interface.m_layout ) );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_scalingPolicy ) );
+	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>( theme.m_interface.m_uiScalingPolicy ) );
 #else
 	uiScalingPolicyComboBox->setEnabled( false );
 	uiScalingPolicyLabel->setEnabled( false );
 #endif
 
-	iconColorComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_iconColor ) );
+	iconColorComboBox->setCurrentIndex( static_cast<int>( theme.m_interface.m_iconColor ) );
 	
 	// Style
 	QStringList list = QStyleFactory::keys();
@@ -2393,7 +2402,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); it++) {
 		styleComboBox->addItem( *it );
 		QString sStyle = (*it);
-		if (sStyle == pTheme->getInterfaceTheme()->m_sQTStyle ) {
+		if (sStyle == theme.m_interface.m_sQTStyle ) {
 			styleComboBox->setCurrentIndex( i );
 			HydrogenApp::get_instance()->getMainForm()->m_pQApp->setStyle( sStyle );
 		}
@@ -2401,67 +2410,38 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	}
 
 	//SongEditor coloring
-	int nColoringMethod = static_cast<int>(pTheme->getInterfaceTheme()->m_coloringMethod);
-	if ( nColoringMethod == 0 ) {
-		// "Automatic" selected 
-		coloringMethodAuxSpinBox->hide();
-		colorSelectionLabel->hide();
-	} else {
-		coloringMethodAuxSpinBox->show();
-		colorSelectionLabel->show();
-	}
-
-	coloringMethodCombo->setCurrentIndex( nColoringMethod );
-	coloringMethodAuxSpinBox->setValue( pTheme->getInterfaceTheme()->m_nVisiblePatternColors );
+	const auto coloringMethod = theme.m_interface.m_coloringMethod;
+	coloringMethodCombo->setCurrentIndex( static_cast<int>(coloringMethod) );
+	coloringMethodAuxSpinBox->setValue( theme.m_interface.m_nVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
 
-	// Ensure the number of color buttons match.
-	if ( m_colorSelectionButtons.size() !=
-		 pTheme->getInterfaceTheme()->m_nMaxPatternColors ) {
-	
-		m_colorSelectionButtons.resize( pTheme->getInterfaceTheme()->m_nMaxPatternColors );
-		m_colorSelectionButtons.clear();
-		int nButtonSize = fontSizeComboBox->height();
-		// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
-		// Using a fixed one size resizing of the widget seems to happen
-		// after the constructor is called.
-		float fLineWidth = 308;
-		int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
-
-		colorSelectionGrid->setHorizontalSpacing( 4 );
-		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
-			ColorSelectionButton* bbutton =
-				new ColorSelectionButton( this, pTheme->getInterfaceTheme()->m_patternColors[ ii ],
-										  nButtonSize );
+	if ( coloringMethod == InterfaceTheme::ColoringMethod::Automatic ) {
+		// "Automatic" selected
+		coloringMethodAuxSpinBox->hide();
+		coloringMethodAuxLabel->hide();
+		colorSelectionLabel->hide();
+		for ( const auto& bbutton : m_colorSelectionButtons ) {
 			bbutton->pretendToHide();
-			connect( bbutton, &ColorSelectionButton::colorChanged, this,
-					 &PreferencesDialog::onColorSelectionClicked );
-			colorSelectionGrid->addWidget( bbutton,
-										   std::floor( static_cast<float>( ii ) /
-													   static_cast<float>( nButtonsPerLine ) ),
-										   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
-			m_colorSelectionButtons[ ii ] = bbutton;
 		}
 	}
+	else {
+		coloringMethodAuxSpinBox->show();
+		coloringMethodAuxLabel->show();
+		colorSelectionLabel->show();
 
-	// Update their colors.
-	for ( int ii = 0; ii < m_colorSelectionButtons.size(); ++ii ) {
-		m_colorSelectionButtons[ ii ]->setColor( pTheme->getInterfaceTheme()->
-												 m_patternColors[ ii ] );
-	}
-
-	// Display only the required number.
-	if ( nColoringMethod != 0 ) {
-		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
+		// Display only the required number and update their colors.
+		for ( int ii = 0; ii < theme.m_interface.m_nVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->setColor( theme.m_interface.
+													 m_patternColors[ ii ] );
+			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}
 
 	// Fonts
-	applicationFontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sApplicationFontFamily ) );
-	level2FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel2FontFamily ) );
-	level3FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel3FontFamily ) );
-	switch( pTheme->getFontTheme()->m_fontSize ) {
+	applicationFontComboBox->setCurrentFont( QFont( theme.m_font.m_sApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( theme.m_font.m_sLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( theme.m_font.m_sLevel3FontFamily ) );
+	switch( theme.m_font.m_fontSize ) {
 	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );
 		break;
@@ -2473,7 +2453,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		break;
 	default:
 		ERRORLOG( QString( "Unknown font size: %1" )
-				  .arg( static_cast<int>( pTheme->getFontTheme()->m_fontSize ) ) );
+				  .arg( static_cast<int>( theme.m_font.m_fontSize ) ) );
 	}
 }
 

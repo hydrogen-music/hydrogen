@@ -34,7 +34,9 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
-Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax, bool bModifyOnChange )
+Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseTooltip,
+			  bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax,
+			  bool bModifyOnChange )
 	: WidgetWithInput( pParent,
 					   bUseIntSteps,
 					   sBaseTooltip,
@@ -111,7 +113,7 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 Fader::~Fader() {
 }
 
-void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes )
+void Fader::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		update();
@@ -178,9 +180,9 @@ void Fader::paintEvent( QPaintEvent *ev)
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 	} else {
-		colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

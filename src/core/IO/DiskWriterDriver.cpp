@@ -401,7 +401,7 @@ void DiskWriterDriver::disconnect()
 	
 	m_bIsRunning = false;
 
-	pthread_join( diskWriterDriverThread, NULL );
+	pthread_join( diskWriterDriverThread, nullptr );
 
 	delete[] m_pOut_L;
 	m_pOut_L = nullptr;

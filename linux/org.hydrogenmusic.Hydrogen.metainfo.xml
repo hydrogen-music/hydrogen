@@ -66,7 +66,33 @@
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
   <releases>
-    <release version="1.2.2" date="2023-09-09">
+    <release version="1.2.3" date="2024-01-12">
+	<description>
+	  <p>This patch release introduces an AppImage build and fixes a number of bugs and inconsistencies found since version 1.2.2</p>
+	  <p xml:lang="de">Korrekturversion, die ein AppImage beinhaltet und eine Reihe von Fehler und Ungereimtheiten seit der 1.2.2 behebt.</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.3</url>
+	<artifacts>
+	  <artifact type="binary" platform="x86_64-linux-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-x86_64.AppImage</location>
+		<checksum type="sha256">8aebbb767b1ac0285e8f4d336f2824e2699c9c1112db0d7f23c937e56be0d34a</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3.dmg</location>
+		<checksum type="sha256">a93321a565ecc8f629532a8309e59b2bc7efc15167fd8ee088a60cfb42433dd5</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="i386-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-win32.exe</location>
+		<checksum type="sha256">2066e10f722557054a49f0e39a635bbe56f1dcbc1a588fb18377cb1cf50b2748</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.3/Hydrogen-1.2.3-win64.exe</location>
+		<checksum type="sha256">3c78f2356ae7641fb7395dde3ebdf3970f0e07fb7dfe600b6b50632c0589a149</checksum>
+	  </artifact>
+	</artifacts>
+    </release>
+
+  <release version="1.2.2" date="2023-09-09">
 	<description>
 	  <p>This patch release introduces an AppImage build and fixes a number of bugs and inconsistencies found since version 1.2.1</p>
 	  <p xml:lang="de">Korrekturversion, die ein AppImage beinhaltet und eine Reihe von Fehler und Ungereimtheiten seit der 1.2.1 behebt.</p>
