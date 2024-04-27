@@ -68,6 +68,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- `CLEAR_SELECTED_INSTRUMENT` - to remove all notes of the selected
 				  pattern associated with the currently selected instrument.
 				- `CLEAR_PATTERN` - to remove all notes of the selected pattern.
+				- `INSTRUMENT_PITCH` - to adjust the pitch of an instrument.
 		- OSC commands
 				- `NOTE_ON` and `NOTE_OFF` which are handled like incoming MIDI events
 				  without triggering their associated actions.

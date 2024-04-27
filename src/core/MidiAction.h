@@ -200,6 +200,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool pan_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool pan_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 	bool pan_absolute_sym(std::shared_ptr<Action> , H2Core::Hydrogen * );
+		bool instrument_pitch(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool filter_cutoff_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool beatcounter(std::shared_ptr<Action> , H2Core::Hydrogen * );
 		bool tap_tempo(std::shared_ptr<Action> , H2Core::Hydrogen * );

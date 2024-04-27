@@ -182,6 +182,8 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE_SYM", std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
+	m_actionMap.insert(std::make_pair("INSTRUMENT_PITCH",
+									  std::make_pair( &MidiActionManager::instrument_pitch, 1 ) ));
 	m_actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
 	m_actionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
 	m_actionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
@@ -894,6 +896,22 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
+}
+
+bool MidiActionManager::instrument_pitch( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+
+	bool ok;
+	float fPitch;
+	const int nInstrument = pAction->getParameter1().toInt(&ok,10);
+	const int nPitchMidi = pAction->getValue().toInt(&ok,10);
+	if ( nPitchMidi != 0 ) {
+		fPitch = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+			( (float) (nPitchMidi / 127.0 ) ) + Instrument::fPitchMin;
+	} else {
+		fPitch = Instrument::fPitchMin;
+	}
+
+	return CoreActionController::setInstrumentPitch( nInstrument, fPitch );
 }
 
 bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {

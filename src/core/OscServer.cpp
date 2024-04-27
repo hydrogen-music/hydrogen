@@ -284,7 +284,7 @@ int OscServer::generic_handler(const char *	path,
 			}
 		}
 	}
-	
+
 	QRegExp rxStripFilterCutoffAbs( "/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)" );
 	pos = rxStripFilterCutoffAbs.indexIn( oscPath );
 	if ( pos > -1 ) {
@@ -637,6 +637,15 @@ void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
 
 	// Null song handling done in MidiActionManager.
 	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+
+void OscServer::INSTRUMENT_PITCH_Handler( lo_arg** argv, int )
+{
+	INFOLOG( "processing message" );
+
+	H2Core::CoreActionController::setInstrumentPitch(
+		static_cast<int>( argv[0]->f ), argv[1]->f );
 }
 
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
@@ -1259,6 +1268,9 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/UNMUTE", "f", UNMUTE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "", MUTE_TOGGLE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "f", MUTE_TOGGLE_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/INSTRUMENT_PITCH", "ff",
+								INSTRUMENT_PITCH_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "", NEXT_BAR_Handler);
 	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "f", NEXT_BAR_Handler);
