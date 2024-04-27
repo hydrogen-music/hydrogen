@@ -140,9 +140,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 									  pCommonStrings->getPitchLabel() );
 	m_pPitchLbl->move( 25, 235 );
 	
-
+	const float fFinePitch = 0.5;
 	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center,
-									   tr( "Pitch offset (Coarse)" ), true, -24, 24 );
+									   tr( "Pitch offset (Coarse)" ), true,
+									   Instrument::fPitchMin + fFinePitch,
+									   Instrument::fPitchMax - fFinePitch );
 	m_pPitchCoarseRotary->move( 84, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
@@ -152,7 +154,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchCoarseLbl->move( 82, 235 );
 
 	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center,
-									 tr( "Pitch offset (Fine)" ), false, -0.5, 0.5 );
+									 tr( "Pitch offset (Fine)" ), false,
+									 -fFinePitch, fFinePitch );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 138, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
@@ -413,7 +416,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchLbl->move( 17, 412 );
 
 	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::Type::Center,
-											tr( "Layer pitch (Coarse)" ), true, -24.0, 24.0 );
+											tr( "Layer pitch (Coarse)" ), true,
+											Instrument::fPitchMin + fFinePitch,
+											Instrument::fPitchMax - fFinePitch );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pLayerPitchCoarseLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ),

@@ -882,10 +882,12 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 		return false;
 	}
 	
-	if( pitch_param != 0 ){
-		pLayer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+	if ( pitch_param != 0 ) {
+		pLayer->set_pitch(
+			( Instrument::fPitchMax - Instrument::fPitchMin ) *
+			( (float) (pitch_param / 127.0 ) ) + Instrument::fPitchMin );
 	} else {
-		pLayer->set_pitch( -24.5 );
+		pLayer->set_pitch( Instrument::fPitchMin );
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
