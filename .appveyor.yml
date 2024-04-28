@@ -589,7 +589,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-cppunit
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-winpthreads-git
           REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
           c:\msys64\usr\bin\pacman --noconfirm -S -y -q %MSYS_REPO%-ladspa-sdk
           if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
