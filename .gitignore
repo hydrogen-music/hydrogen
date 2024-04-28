@@ -32,3 +32,6 @@ GTAGS
 
 # Ignore compiled (binary) translation artifacts of `msgfmt`.
 *.mo
+
+# Ignore cache folder of clangd used in LSP editor support.
+.cache/
