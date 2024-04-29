@@ -11,6 +11,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- `CLEAR_INSTRUMENT` - to remove all notes of the selected pattern
  				  associated with the provided instrument number.
 	* Changed
+		- Brazilian translation updated.
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.
 		- Virtual keyboard strokes are now mapped exactly as incoming MIDI `NOTE_ON`
