@@ -2627,15 +2627,15 @@ void AudioEngine::checkJackSupport() {
 	// importing the file) or by passing the `-d jack` CLI option.
 	if ( Preferences::get_instance()->m_sAudioDriver != "JACK" ) {
 		if ( ! JackAudioDriver::checkSupport() ) {
-			AE_WARNINGLOG( "JACK support disabled." );
+			WARNINGLOG( "JACK support disabled." );
 			m_bJackSupported = false;
 			return;
 		}
 
-		AE_INFOLOG( "JACK support enabled." );
+		INFOLOG( "JACK support enabled." );
 	}
 	else {
-		AE_INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
+		INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
 	}
   #endif
 
@@ -2643,7 +2643,7 @@ void AudioEngine::checkJackSupport() {
 	return;
 
 #else
-	AE_INFOLOG( "Hydrogen was compiled without JACK support." );
+	INFOLOG( "Hydrogen was compiled without JACK support." );
 	m_bJackSupported = false;
 	return;
 #endif
