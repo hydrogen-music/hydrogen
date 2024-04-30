@@ -156,7 +156,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	}
 
 	auto pDrumkit =
-		Drumkit::loadFrom( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
+		Drumkit::loadFrom( root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
 						   "", false, bSilent );
 	
 	if ( pDrumkit == nullptr ) {
@@ -202,13 +202,13 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	return pDrumkit;
 }
 
-std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
+std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
 											bool bSongKit,
 											bool bSilent )
 {
-	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
+	QString sDrumkitName = node.read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
@@ -218,12 +218,12 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 
 	pDrumkit->m_sPath = sDrumkitPath;
 	pDrumkit->m_sName = sDrumkitName;
-	pDrumkit->m_sAuthor = node->read_string( "author", "undefined author",
+	pDrumkit->m_sAuthor = node.read_string( "author", "undefined author",
 											true, true, true );
-	pDrumkit->m_sInfo = node->read_string( "info", "No information available.",
+	pDrumkit->m_sInfo = node.read_string( "info", "No information available.",
 										  true, true, bSilent  );
 
-	License license( node->read_string( "license", "undefined license",
+	License license( node.read_string( "license", "undefined license",
 										true, true, bSilent  ),
 					 pDrumkit->m_sAuthor );
 	pDrumkit->setLicense( license );
@@ -231,18 +231,18 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( XMLNode* node,
 	// As of 2022 we have no drumkits featuring an image in
 	// stock. Thus, verbosity of this one will be turned of in order
 	// to make to log more concise.
-	pDrumkit->setImage( node->read_string( "image", "",
+	pDrumkit->setImage( node.read_string( "image", "",
 											true, true, true ) );
-	License imageLicense( node->read_string( "imageLicense", "undefined license",
+	License imageLicense( node.read_string( "imageLicense", "undefined license",
 											 true, true, true  ),
 						  pDrumkit->m_sAuthor );
 	pDrumkit->setImageLicense( imageLicense );
 
-	XMLNode componentListNode = node->firstChildElement( "componentList" );
+	XMLNode componentListNode = node.firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
 			if ( pDrumkitComponent != nullptr ) {
 				pDrumkit->getComponents()->push_back(pDrumkitComponent);
 			}
@@ -326,7 +326,8 @@ QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersi
 	return sExportName;
 }
 
-bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentVersion, bool bSilent )
+bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
+					bool bRecentVersion, bool bSilent )
 {
 	QString sDrumkitFolder( sDrumkitPath );
 	if ( sDrumkitPath.isEmpty() ) {
@@ -405,20 +406,20 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID, bool bRecentV
 		root.appendChild( doc.createComment( License::getGPLLicenseNotice( m_sAuthor ) ) );
 	}
 	
-	saveTo( &root, nComponentID, bRecentVersion, false, bSilent );
+	saveTo( root, nComponentID, bRecentVersion, false, bSilent );
 	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
 }
 
-void Drumkit::saveTo( XMLNode* node,
+void Drumkit::saveTo( XMLNode& node,
 					  int component_id,
 					  bool bRecentVersion,
 					  bool bSongKit,
 					  bool bSilent ) const
 {
-	node->write_string( "name", m_sName );
-	node->write_string( "author", m_sAuthor );
-	node->write_string( "info", m_sInfo );
-	node->write_string( "license", m_license.getLicenseString() );
+	node.write_string( "name", m_sName );
+	node.write_string( "author", m_sAuthor );
+	node.write_string( "info", m_sInfo );
+	node.write_string( "license", m_license.getLicenseString() );
 
 	QString sImage;
 	if ( bSongKit ) {
@@ -431,18 +432,18 @@ void Drumkit::saveTo( XMLNode* node,
 		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage ) )
 			.fileName();
 	}
-	node->write_string( "image", sImage );
-	node->write_string( "imageLicense", m_imageLicense.getLicenseString() );
+	node.write_string( "image", sImage );
+	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
 	// have components. If the user decides to export the kit to
 	// legacy version, the components will be omitted and Instrument
 	// layers corresponding to component_id will be exported.
 	if ( bRecentVersion ) {
-		XMLNode components_node = node->createNode( "componentList" );
+		XMLNode components_node = node.createNode( "componentList" );
 		if ( component_id == -1 && m_pComponents->size() > 0 ) {
 			for ( const auto& pComponent : *m_pComponents ){
-				pComponent->save_to( &components_node );
+				pComponent->save_to( components_node );
 			}
 		}
 		else {
@@ -453,7 +454,7 @@ void Drumkit::saveTo( XMLNode* node,
 					if ( pComponent != nullptr &&
 						 pComponent->get_id() == component_id ) {
 						bComponentFound = true;
-						pComponent->save_to( &components_node );
+						pComponent->save_to( components_node );
 					}
 				}
 			} else {
@@ -466,7 +467,7 @@ void Drumkit::saveTo( XMLNode* node,
 							  .arg( component_id ) );
 				}
 				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-				pDrumkitComponent->save_to( &components_node );
+				pDrumkitComponent->save_to( components_node );
 			}
 		}
 	} else {
@@ -616,7 +617,7 @@ void Drumkit::removeInstrument( int nInstrumentNumber ) {
 
 	// Check whether there are other instruments holding samples in those
 	// components as well. If not, delete the component.
-	for ( const auto nnComponentId : componentsWithSamplesIds ) {
+	for ( const auto& nnComponentId : componentsWithSamplesIds ) {
 		bool bOtherSamplesFound = false;
 		for ( const auto& ppInstrument : *m_pInstruments ) {
 			if ( ppInstrument != nullptr &&
@@ -1190,7 +1191,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 			bSampleFound = false;
 			for( const auto& pInstr : *( getInstruments() ) ){
 				if( pInstr != nullptr ) {
-					for ( auto const& pComponent : *( pInstr->get_components() ) ) {
+					for ( const auto& pComponent : *( pInstr->get_components() ) ) {
 						if ( pComponent != nullptr &&
 							 ( nComponentId == -1 ||
 							   pComponent->get_drumkit_componentID() == nComponentId ) ) {
@@ -1395,13 +1396,13 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 }
 
-QString Drumkit::getPath() const {
+const QString& Drumkit::getPath() const {
 	return m_sPath;
 }
 
 std::shared_ptr<DrumkitComponent> Drumkit::getComponent( int nID ) const
 {
-	for ( auto pComponent : *m_pComponents ) {
+	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent->get_id() == nID ) {
 			return pComponent;
 		}
@@ -1428,7 +1429,7 @@ std::map<int,QString> Drumkit::generateUniqueComponentLabels() const {
 		}
 	}
 
-	return labelMap;
+	return std::move( labelMap );
 }
 
 void Drumkit::recalculateRubberband( float fBpm ) {
@@ -1498,7 +1499,7 @@ Drumkit::Type Drumkit::DetermineType( const QString& sPath ) {
 	}
 }
 
-QString Drumkit::TypeToString( Type type ) {
+QString Drumkit::TypeToString( const Type& type ) {
 	switch( type ) {
 	case Type::System:
 		return "System";
@@ -1532,7 +1533,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bSamplesLoaded ) )
 			.append( QString( "%1" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto cc : *m_pComponents ) {
+		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -1556,7 +1557,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", samples_loaded: %1" ).arg( m_bSamplesLoaded ) )
 			.append( QString( ", [%1]" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", components: [ " ) );
-		for ( auto cc : *m_pComponents ) {
+		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}

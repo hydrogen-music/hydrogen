@@ -204,7 +204,7 @@ QString MidiMessage::TypeToQString( MidiMessageType type ) {
 	return std::move( sType );
 }
 
-QString MidiMessage::EventToQString( Event event ) {
+QString MidiMessage::EventToQString( const Event& event ) {
 	QString sEvent;
 	
 	switch ( event ) {

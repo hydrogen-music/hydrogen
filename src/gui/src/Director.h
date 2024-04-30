@@ -55,7 +55,7 @@ public:
 	virtual void closeEvent( QCloseEvent* ev ) override;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	void resizeEvent( QResizeEvent *event ) override;
 

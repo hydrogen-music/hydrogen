@@ -54,14 +54,14 @@ public:
 	explicit InstrumentNameWidget(QWidget* parent);
 	~InstrumentNameWidget();
 
-	void	setText(QString text);
-	QString text();
+	void	setText( const QString& text );
+	const QString& text();
 
 	void	mousePressEvent( QMouseEvent * e ) override;
 	void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	
 signals:
 	void	clicked();
@@ -106,8 +106,8 @@ public:
 	void	setPeak_R( float peak );
 	float	getPeak_R();
 
-	void	setName(QString name) {     m_pNameWidget->setText( name );        }
-	QString getName() {      return m_pNameWidget->text();        }
+	void	setName( const QString& name) {     m_pNameWidget->setText( name );        }
+	const QString& getName() {      return m_pNameWidget->text();        }
 
 	float	getPan();
 	void	setPan(float value);
@@ -192,8 +192,8 @@ public:
 	void	setPeak_R( float peak );
 	float	getPeak_R();
 
-	void	setName(QString name) {     m_pNameWidget->setText( name );        }
-	QString getName() {      return m_pNameWidget->text();        }
+	void	setName( const QString& name ) {     m_pNameWidget->setText( name );        }
+	const QString& getName() {      return m_pNameWidget->text();        }
 
 	int		getComponentID(){ return m_nComponentID; }
 
@@ -297,7 +297,7 @@ public:
 		
 	void	setPeaks( float fPeak_L, float fPeak_R );
 	void	getPeaks( float *fPeak_L, float *fPeak_R );
-	void	setName( QString name );
+	void	setName( const QString& name );
 		
 	float	getVolume();
 	void	setVolume( float value );

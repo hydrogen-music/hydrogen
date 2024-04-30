@@ -101,18 +101,18 @@ public:
 	 */
 	Button(
 		   QWidget *pParent,
-		   QSize size = QSize(),
-		   Type type = Type::Toggle,
+		   const QSize& size = QSize(),
+		   const Type& type = Type::Toggle,
 		   const QString& sIcon = "",
 		   const QString& sText = "",
 		   bool bUseRedBackground = false,
-		   QSize iconSize = QSize( 0, 0 ),
-		   QString sBaseTooltip = "",
+		   const QSize& iconSize = QSize( 0, 0 ),
+		   const QString& sBaseTooltip = "",
 		   bool bColorful = false,
 		   bool bModifyOnChange = false,
 		   int nBorderRadius = -1
 		   );
-	virtual ~Button();
+	~Button();
 	
 	Button(const Button&) = delete;
 	Button& operator=( const Button& rhs ) = delete;
@@ -122,10 +122,10 @@ public:
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
-	Type getType() const;
-	void setType( Type type );
+	const Type& getType() const;
+	void setType( const Type& type );
 
-	void setSize( QSize size );
+	void setSize( const QSize& size );
 	/**  Overwrites the automatically set value. If @a nPixelSize is
 		 negative, the automatically set value will be used instead.*/
 	void setFixedFontSize( int nPixelSize );
@@ -138,7 +138,7 @@ public:
 	int getBorderRadius() const;
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 private slots:
 	void onClick();
@@ -188,7 +188,7 @@ inline int Button::getFixedFontSize() const {
 inline bool Button::getUseRedBackground() const {
 	return m_bUseRedBackground;
 }
-inline Button::Type Button::getType() const {
+inline const Button::Type& Button::getType() const {
 	return m_type;
 }
 

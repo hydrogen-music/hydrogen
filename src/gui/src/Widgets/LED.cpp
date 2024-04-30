@@ -29,7 +29,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 
-LED::LED( QWidget *pParent, QSize size )
+LED::LED( QWidget *pParent, const QSize& size )
  : QWidget( pParent )
  , m_bActivated( false )
 {
@@ -81,7 +81,7 @@ void LED::paintEvent( QPaintEvent* ev )
 
 //////////////////////////////////////////////////////////////////////
 
-MetronomeLED::MetronomeLED( QWidget *pParent, QSize size )
+MetronomeLED::MetronomeLED( QWidget *pParent, const QSize& size )
 	: LED( pParent, size )
 	, m_bFirstBar( false )
 	, m_activityTimeout( 250 )

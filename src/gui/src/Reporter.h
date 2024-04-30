@@ -61,7 +61,7 @@ class Reporter : public QObject
 	static QString m_sPrefix;
 	QString m_sContext;
 
-	void addLine( QString s );
+	void addLine( const QString& s );
 
 	void waitForFinished();
 

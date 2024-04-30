@@ -34,7 +34,10 @@
 #    include <sys/time.h>
 #endif
 
-WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax, bool bModifyOnChange )
+WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
+								  const QString& sBaseTooltip, int nScrollSpeed,
+								  int nScrollSpeedFast, float fMin, float fMax,
+								  bool bModifyOnChange )
 	: QWidget( parent )
 	, m_bUseIntSteps( bUseIntSteps )
 	, m_sBaseTooltip( sBaseTooltip )

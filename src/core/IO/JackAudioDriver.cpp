@@ -342,7 +342,7 @@ void JackAudioDriver::relocateUsingBBT()
 			// Checking how many of Hydrogen's patterns are covered by the
 			// bar provided by Jack.
 			auto pPatternGroup = pSong->getPatternGroupVector();
-			for ( const PatternList* ppPatternList : *pPatternGroup ) {
+			for ( const auto& ppPatternList : *pPatternGroup ) {
 				nMinimumPatternLength = nLargeNumber;
 
 				// If there are multiple patterns at a single bar (in
@@ -896,7 +896,7 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 	std::shared_ptr<InstrumentComponent> pInstrumentComponent;
 	for ( int n = 0; n <= nInstruments - 1; n++ ) {
 		pInstrument = pInstrumentList->get( n );
-		for ( auto& pInstrumentComponent : *pInstrument->get_components() ) {
+		for ( const auto& pInstrumentComponent : *pInstrument->get_components() ) {
 			setTrackOutput( nTrackCount, pInstrument, pInstrumentComponent, pSong);
 			m_trackMap[pInstrument->get_id()][pInstrumentComponent->get_drumkit_componentID()] = 
 				nTrackCount;

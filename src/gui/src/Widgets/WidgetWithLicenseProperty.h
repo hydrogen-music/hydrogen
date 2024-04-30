@@ -24,7 +24,7 @@
 #define WIDGET_WITH_LICENSE_PROPERTY_H
 
 #include <QString>
-#include <QObject>
+#include <QComboBox>
 #include <core/License.h>
 
 /** Widget is affected by the "Font size" settings in the

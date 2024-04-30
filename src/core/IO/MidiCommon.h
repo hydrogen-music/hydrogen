@@ -78,11 +78,17 @@ public:
 		MmcRecordExit,
 		MmcRecordReady
 	};
-	static QString EventToQString( Event event );
+	static QString EventToQString( const Event& event );
 	static Event QStringToEvent( const QString& sEvent );
 	/** Retrieve the string representation for all available
 	 * #Event. */
 	static QStringList getEventList();
+
+		/** When recording notes using MIDI NOTE_ON events this offset will be
+		 * applied to the provided pitch in order to map it to an instrument
+		 * number in the current drmmkit. It corresponds to the electric bass
+		 * drum in the General MIDI notation. */
+		static constexpr int instrumentOffset = 36;
 
 	MidiMessageType m_type;
 	int m_nData1;

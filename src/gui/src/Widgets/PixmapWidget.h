@@ -36,7 +36,7 @@ class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 		PixmapWidget( QWidget *pParent );
 		~PixmapWidget();
 
-		void setPixmap( QString sPixmapPath, bool expand_horiz = false );
+		void setPixmap( const QString& sPixmapPath, bool expand_horiz = false );
 		void setColor( const QColor& color );
 
 	protected:

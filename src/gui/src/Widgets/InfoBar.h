@@ -54,7 +54,7 @@ class InfoBar : public QWidget, public H2Core::Object<InfoBar>
 	void reset();
 
 public slots:
-	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 
 	private:

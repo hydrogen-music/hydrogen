@@ -128,7 +128,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * properly initialized and can causes crashes (in the
 		 * #H2Core::AudioEngine) when used directly. Please use getEmptySong()
 		 * instead. */
-		Song( QString sName = "",
+		Song( const QString& sName = "",
 			  const QString& sAuthor = "hydrogen",
 			  float fBpm = 120,
 			  float fVolume = 0.5 );
@@ -215,12 +215,12 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		const QString&		getFilename() const;
 		void			setFilename( const QString& sFilename );
 							
-		LoopMode		getLoopMode() const;
-		void			setLoopMode( LoopMode loopMode );
+		const LoopMode&	getLoopMode() const;
+		void			setLoopMode( const LoopMode& loopMode );
 		bool			isLoopEnabled() const;
 							
-		PatternMode		getPatternMode() const;
-		void			setPatternMode( PatternMode patternMode );
+		const PatternMode& getPatternMode() const;
+		void			setPatternMode( const PatternMode& patternMode );
 							
 		float			getHumanizeTimeValue() const;
 		void			setHumanizeTimeValue( float fValue );
@@ -231,26 +231,28 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float			getSwingFactor() const;
 		void			setSwingFactor( float fFactor );
 
-		Mode			getMode() const;
-		void			setMode( Mode mode );
+		const Mode&		getMode() const;
+		void			setMode( const Mode& mode );
 							
 		bool			getIsModified() const;
 		void			setIsModified( bool bIsModified);
 
-		AutomationPath *	getVelocityAutomationPath() const;
+		AutomationPath*	getVelocityAutomationPath() const;
 
 		void			loadTempPatternList( const QString& sFilename );
-		bool			saveTempPatternList( const QString& sFilename );
+		bool			saveTempPatternList( const QString& sFilename ) const;
 							
-		QString			copyInstrumentLineToString( int selectedInstrument );
-		bool			pasteInstrumentLineFromString( const QString& sSerialized, int nSelectedInstrument, std::list<Pattern *>& patterns );
+		QString			copyInstrumentLineToString( int selectedInstrument ) const;
+		bool			pasteInstrumentLineFromString( const QString& sSerialized,
+													   int nSelectedInstrument,
+													   std::list<Pattern *>& patterns ) const;
 							
-		int			getLatestRoundRobin( float fStartVelocity );
+		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFilename */
 		const QString&		getPlaybackTrackFilename() const;
 		/** \param sFilename Sets #m_sPlaybackTrackFilename. */
-		void			setPlaybackTrackFilename( const QString sFilename );
+		void			setPlaybackTrackFilename( const QString& sFilename );
 							
 		/** \return #m_bPlaybackTrackEnabled */
 		bool			getPlaybackTrackEnabled() const;
@@ -264,11 +266,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
 
-	PlaybackTrack getPlaybackTrackState() const;
+		PlaybackTrack getPlaybackTrackState() const;
 
 	
-		ActionMode		getActionMode() const;
-		void			setActionMode( const ActionMode actionMode );
+		const ActionMode& getActionMode() const;
+		void			setActionMode( const ActionMode& actionMode );
 
 		/** Song was incompletely loaded from file (missing samples)
 		 */
@@ -300,13 +302,15 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	
 private:
 
-	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, const QString& sFilename, bool bSilent = false );
-	void saveTo( XMLNode* pNode, bool bLegacy, bool bSilent = false );
+	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
+										   const QString& sFilename,
+										   bool bSilent = false );
+	void saveTo( XMLNode& pNode, bool bLegacy, bool bSilent = false ) const;
 
-	void loadVirtualPatternsFrom( XMLNode* pNode, bool bSilent = false );
-	void loadPatternGroupVectorFrom( XMLNode* pNode, bool bSilent = false );
-	void saveVirtualPatternsTo( XMLNode* pNode, bool bSilent = false );
-	void savePatternGroupVectorTo( XMLNode* pNode, bool bSilent = false );
+	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
+	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
+	void saveVirtualPatternsTo( XMLNode& pNode, bool bSilent = false ) const;
+	void savePatternGroupVectorTo( XMLNode& pNode, bool bSilent = false ) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
@@ -600,20 +604,20 @@ inline bool Song::isLoopEnabled() const
 		m_loopMode == LoopMode::Finishing;
 }
 
-inline Song::LoopMode Song::getLoopMode() const
+inline const Song::LoopMode& Song::getLoopMode() const
 {
 	return m_loopMode;
 }
-inline void Song::setLoopMode( Song::LoopMode loopMode )
+inline void Song::setLoopMode( const Song::LoopMode& loopMode )
 {
 	m_loopMode = loopMode;
 }
 
-inline Song::PatternMode Song::getPatternMode() const
+inline const Song::PatternMode& Song::getPatternMode() const
 {
 	return m_patternMode;
 }
-inline void Song::setPatternMode( Song::PatternMode patternMode )
+inline void Song::setPatternMode( const Song::PatternMode& patternMode )
 {
 	m_patternMode = patternMode;
 }
@@ -643,12 +647,12 @@ inline float Song::getSwingFactor() const
 	return m_fSwingFactor;
 }
 
-inline Song::Mode Song::getMode() const
+inline const Song::Mode& Song::getMode() const
 {
 	return m_mode;
 }
 
-inline void Song::setMode( Song::Mode mode )
+inline void Song::setMode( const Song::Mode& mode )
 {
 	m_mode = mode;
 }
@@ -658,12 +662,12 @@ inline AutomationPath* Song::getVelocityAutomationPath() const
 	return m_pVelocityAutomationPath;
 }
 
-inline int Song::getLatestRoundRobin( float fStartVelocity )
+inline int Song::getLatestRoundRobin( float fStartVelocity ) const
 {
 	if ( m_latestRoundRobins.find( fStartVelocity ) == m_latestRoundRobins.end() ) {
 		return 0;
 	} else {
-		return m_latestRoundRobins[ fStartVelocity ];
+		return m_latestRoundRobins.at( fStartVelocity );
 	}
 }
 
@@ -677,7 +681,7 @@ inline const QString& Song::getPlaybackTrackFilename() const
 	return m_sPlaybackTrackFilename;
 }
 
-inline void Song::setPlaybackTrackFilename( const QString sFilename )
+inline void Song::setPlaybackTrackFilename( const QString& sFilename )
 {
 	m_sPlaybackTrackFilename = sFilename;
 }
@@ -703,17 +707,17 @@ inline void Song::setPlaybackTrackVolume( const float fVolume )
 }
 inline Song::PlaybackTrack Song::getPlaybackTrackState() const {
 	if ( m_sPlaybackTrackFilename.isEmpty() ) {
-		return PlaybackTrack::Unavailable;
+		return std::move( PlaybackTrack::Unavailable );
 	}
 
 	if ( ! m_bPlaybackTrackEnabled ) {
-		return PlaybackTrack::Muted;
+		return std::move( PlaybackTrack::Muted );
 	}
 
-	return PlaybackTrack::Enabled;
+	return std::move( PlaybackTrack::Enabled );
 }
 
-inline Song::ActionMode Song::getActionMode() const {
+inline const Song::ActionMode& Song::getActionMode() const {
 	return m_actionMode;
 }
 

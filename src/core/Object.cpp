@@ -125,7 +125,7 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 int Base::getAliveObjectCount() {
 #ifdef H2CORE_HAVE_DEBUG
 	int nCount = 0;
-	for (auto const& ii : __objects_map ) {
+	for (const auto& ii : __objects_map ) {
 		if (!strcmp(ii.first, "Object")) {
 			return ii.second->constructed - ii.second->destructed;
 		}
@@ -150,14 +150,14 @@ object_map_t Base::getObjectMap() {
 	return mapCopy;
 }
 
-void Base::printObjectMapDiff( object_map_t mapSnapshot ) {
+void Base::printObjectMapDiff( const object_map_t& mapSnapshot ) {
 	object_map_t mapDiff;
 	obj_cpt_t diff;
 
 	// Since key value pairs are only inserted but not erased while
 	// Hydrogen is running it is save to assume for mapSnapshot to be
 	// a subset of the current object map.
-	for ( auto const& ii : __objects_map ) {
+	for ( const auto& ii : __objects_map ) {
 		auto it = mapSnapshot.find( ii.first );
 		if ( it != mapSnapshot.end() ) {
 			diff.constructed = ii.second->constructed - it->second.constructed;

@@ -42,7 +42,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
-	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont fontButtons( H2Core::Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -97,11 +97,11 @@ InstrumentRack::~InstrumentRack()
 	INFOLOG( "DESTROY" );
 }
 
-void InstrumentRack::onPreferencesChanged(  H2Core::Preferences::Changes changes ) {
+void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont fontButtons( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
 	}

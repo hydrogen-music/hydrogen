@@ -31,7 +31,8 @@
 
 #include <core/Globals.h>
 
-Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
+Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
+				bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
 					   sBaseTooltip,
@@ -106,12 +107,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorArcCenterSet;
 	QColor colorArcCenterUnset;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
 		colorArc = Qt::red;
 		colorArcCenterSet = Qt::green;
 		colorArcCenterUnset = Qt::gray;
 	} else {
-		colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
 		colorArc = Qt::darkGray;
 		colorArcCenterSet = Qt::darkGray;
 		colorArcCenterUnset = Qt::lightGray;
@@ -275,7 +276,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		QRectF leftTextRec( 2, 16, 7, 7 );
 		QRectF rightTextRec( 34, 16, 9, 7 );
 
-		QFont font( H2Core::Preferences::get_instance()->getApplicationFontFamily() );
+		QFont font( H2Core::Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily );
 		painter.setPen( QPen( colorFont, 3 ) );
 		if ( std::fmod( m_fMin, 1 ) == 0 && std::fabs( m_fMin ) < 10 ) {
 			font.setPixelSize( 7 );
@@ -298,7 +299,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {	
+void Rotary::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}

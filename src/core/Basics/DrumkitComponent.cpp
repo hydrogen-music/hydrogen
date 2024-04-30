@@ -75,23 +75,23 @@ void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
 	this->set_volume( component->get_volume() );
 }
 
-std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( XMLNode* node )
+std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( const XMLNode& node )
 {
-	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
+	int id = node.read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
 	auto pDrumkitComponent =
-		std::make_shared<DrumkitComponent>( id, node->read_string( "name", "", false, false ) );
-	pDrumkitComponent->set_volume( node->read_float( "volume", 1.0f, true, false ) );
+		std::make_shared<DrumkitComponent>( id, node.read_string( "name", "", false, false ) );
+	pDrumkitComponent->set_volume( node.read_float( "volume", 1.0f, true, false ) );
 
 	return pDrumkitComponent;
 }
 
-void DrumkitComponent::save_to( XMLNode* node )
+void DrumkitComponent::save_to( XMLNode& node )
 {
-	XMLNode ComponentNode = node->createNode( "drumkitComponent" );
+	XMLNode ComponentNode = node.createNode( "drumkitComponent" );
 	ComponentNode.write_int( "id", __id );
 	ComponentNode.write_string( "name", __name );
 	ComponentNode.write_float( "volume", __volume );

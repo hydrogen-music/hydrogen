@@ -156,7 +156,7 @@ void DrumkitExportDialog::on_exportBtn_clicked()
 							  sTargetName );
 }
 
-void DrumkitExportDialog::on_drumkitPathTxt_textChanged( QString str )
+void DrumkitExportDialog::on_drumkitPathTxt_textChanged( const QString& str )
 {
 	QString path = drumkitPathTxt->text();
 	if (path.isEmpty()) {

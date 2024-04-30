@@ -39,8 +39,10 @@ class AutomationPathSerializer : private Object<AutomationPathSerializer>
 public:
 	AutomationPathSerializer();
 
-	void read_automation_path(const QDomNode &node, AutomationPath &path);
-	void write_automation_path(QDomNode &node, const AutomationPath &path);
+	void read_automation_path(const QDomNode &node,
+							  AutomationPath &path) const;
+	void write_automation_path(QDomNode &node,
+							   const AutomationPath &path) const;
 
 };
 

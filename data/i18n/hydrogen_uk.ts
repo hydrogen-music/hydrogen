@@ -145,10 +145,6 @@
         <translation>Семплер</translation>
     </message>
     <message>
-        <source>Synth</source>
-        <translation>Синтезатор</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Секвенсер</translation>
     </message>
@@ -1022,6 +1018,48 @@ Are you sure?</source>
         <source>Unable to export drumkit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to save playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
+        <translation>змінено</translation>
+    </message>
+    <message>
+        <source>Do you want to save the changes?</source>
+        <translation>Бажаєте зберегти їх перед виходом?</translation>
+    </message>
+    <message>
+        <source>Use &apos;Save as&apos; to enable autosave.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found</source>
+        <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
+        <translation>Файл не знайдено</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
+        <translation>&amp;Дії</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo &amp;History</source>
+        <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo history</source>
+        <extracomment>Window title of the dialog showing the undo history.</extracomment>
+        <translation>Історія дій</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1654,6 +1692,10 @@ Overwrite the existing file?</source>
         <source>Tag</source>
         <translation>Мітка</translation>
     </message>
+    <message>
+        <source>Edit tags</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1670,10 +1712,6 @@ Overwrite the existing file?</source>
         <translation>Мікшер</translation>
     </message>
     <message>
-        <source>modified</source>
-        <translation>змінено</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>Помилка при завантаженні композиції.</translation>
     </message>
@@ -1683,11 +1721,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Preferences loaded.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Song is read-only.
-Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1711,7 +1744,43 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Error loading playlist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist is read-only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
+        <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playlist: Set song No. %1</source>
+        <translation>Список відтворення: Задати номер композиції %1</translation>
+    </message>
+    <message>
+        <source>New Song</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Playlist</source>
+        <extracomment>Object containing unsaved changes.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2313,10 +2382,6 @@ MIDI = %2</translation>
         <translation>Відкрити патерн</translation>
     </message>
     <message>
-        <source>Playlist: Set song No. %1</source>
-        <translation>Список відтворення: Задати номер композиції %1</translation>
-    </message>
-    <message>
         <source>Playlist: Song No. %1</source>
         <translation>Список відтворення: композиція №%1</translation>
     </message>
@@ -2325,27 +2390,9 @@ MIDI = %2</translation>
         <translation>Не вдалось експортувати патерн.</translation>
     </message>
     <message>
-        <source>
-The document contains unsaved changes.
-Do you want to save the changes?
-</source>
-        <translation>
-Деякі зміни в композиції не були збережені.
-Бажаєте зберегти їх перед виходом?
-</translation>
-    </message>
-    <message>
         <source></source>
         <comment>Info|About</comment>
         <translation></translation>
-    </message>
-    <message>
-        <source>Undo history</source>
-        <translation>Історія дій</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation>&amp;Дії</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
@@ -2354,16 +2401,6 @@ Do you want to save the changes?
     <message>
         <source>Export LilyPond file</source>
         <translation>Експорт у файл LilyPond</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Поточний список відтворення містить не збережені зміни.
-Бажаєте відмовитись від змін?
-</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
@@ -2439,14 +2476,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Undo &amp;History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3467,86 +3496,30 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PlaylistDialog</name>
+    <name>PlaylistEditor</name>
     <message>
-        <source>Song list</source>
-        <translation>Список композицій</translation>
+        <source>Playlist Browser</source>
+        <translation>Оглядач списку відтворення</translation>
     </message>
     <message>
-        <source>Script</source>
-        <translation>Сценарій</translation>
+        <source>Rewind</source>
+        <translation>Назад</translation>
     </message>
     <message>
-        <source>exec Script</source>
-        <translation>Виконати сценарій</translation>
+        <source>Play/ Pause/ Load selected song</source>
+        <translation>Відтворити/ Зупинити/ Завантажити вибрану композицію</translation>
     </message>
     <message>
-        <source>Add Song to PlayList</source>
-        <translation>Додати композицію в список</translation>
+        <source>Stop</source>
+        <translation>Зупинити</translation>
     </message>
     <message>
-        <source>No Song selected!</source>
-        <translation>Не вибрано жодної композиції!</translation>
-    </message>
-    <message>
-        <source>Load Playlist</source>
-        <translation>Завантажити список</translation>
-    </message>
-    <message>
-        <source>Save Playlist</source>
-        <translation>Зберегти список</translation>
-    </message>
-    <message>
-        <source>No Song in List or no Song selected!</source>
-        <translation>Немає вибраних композицій!</translation>
-    </message>
-    <message>
-        <source>Hydrogen Playlist (*.sh)</source>
-        <translation>Список відтворення Hydrogen (*.sh)</translation>
-    </message>
-    <message>
-        <source>Add Script to selected Song</source>
-        <translation>Додати сценарій у вибрану композицію</translation>
-    </message>
-    <message>
-        <source>No Script in use!</source>
-        <translation>Немає використовуваного сценарію!</translation>
-    </message>
-    <message>
-        <source>No Default Editor Set. Please set your Default Editor
-Do not use a console based Editor
-Sorry, but this will not work for the moment.</source>
-        <translation>Не задано типового редактора. Задайте типовий редактор.
-Не використовуйте редактор на базі консолі.
-На жаль, наразі це не працює.</translation>
-    </message>
-    <message>
-        <source>Set your Default Editor</source>
-        <translation>Задайте типовий редактор</translation>
-    </message>
-    <message>
-        <source>No Script selected!</source>
-        <translation>Не вибрано жодного сценарію!</translation>
+        <source>Fast Forward</source>
+        <translation>Вперед</translation>
     </message>
     <message>
         <source>sort</source>
         <translation>упорядкувати</translation>
-    </message>
-    <message>
-        <source>New Script</source>
-        <translation>Створити сценарій</translation>
-    </message>
-    <message>
-        <source>No Script!</source>
-        <translation>Немає сценарію!</translation>
-    </message>
-    <message>
-        <source>Script name or path to the script contains whitespaces.
-IMPORTANT
-The path to the script and the scriptname must without whitespaces.</source>
-        <translation>Назва сценарію або шлях до нього містить пропуски.
-ВАЖЛИВО
-Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
@@ -3563,6 +3536,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
         <translation>&amp;Вилучити поточну композицію зі списку</translation>
+    </message>
+    <message>
+        <source>&amp;New Playlist</source>
+        <translation>&amp;Створити список</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
@@ -3597,66 +3574,16 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;Створити новий сценарій</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Назад</translation>
-    </message>
-    <message>
-        <source>Play/ Pause/ Load selected song</source>
-        <translation>Відтворити/ Зупинити/ Завантажити вибрану композицію</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Зупинити</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Вперед</translation>
-    </message>
-    <message>
         <source>Please save your song first</source>
         <translation>Спочатку збережіть композицію</translation>
     </message>
     <message>
-        <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>УВАГА, новий файл містить біт виконання його власником!</translation>
+        <source>Load Playlist</source>
+        <translation>Завантажити список</translation>
     </message>
     <message>
-        <source>Pause.</source>
-        <translation>Призупинено.</translation>
-    </message>
-    <message>
-        <source>Playlist Browser</source>
-        <translation>Оглядач списку відтворення</translation>
-    </message>
-    <message>
-        <source>Playlist: set song no. %1</source>
-        <translation>Список відтворення: Задати номер композиції %1</translation>
-    </message>
-    <message>
-        <source>no Script</source>
-        <translation>немає сценарію</translation>
-    </message>
-    <message>
-        <source>&amp;New Playlist</source>
-        <translation>&amp;Створити список</translation>
-    </message>
-    <message>
-        <source>File not found: </source>
-        <translation>Файл не знайдено: </translation>
-    </message>
-    <message>
-        <source>No valid song selected!</source>
-        <translation>Не вибрано коректної композиції!</translation>
-    </message>
-    <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-</source>
-        <translation>
-Поточний список відтворення містить не збережені зміни.
-Бажаєте відмовитись від змін?
-</translation>
+        <source>New Script</source>
+        <translation>Створити сценарій</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
@@ -3666,16 +3593,99 @@ The path to the script and the scriptname must be without whitespaces.</source>
 ВАЖЛИВО
 Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
+    <message>
+        <source>No Default Editor Set. Please set your Default Editor
+Do not use a console based Editor
+Sorry, but this will not work for the moment.</source>
+        <translation>Не задано типового редактора. Задайте типовий редактор.
+Не використовуйте редактор на базі консолі.
+На жаль, наразі це не працює.</translation>
+    </message>
+    <message>
+        <source>Set your Default Editor</source>
+        <translation>Задайте типовий редактор</translation>
+    </message>
+    <message>
+        <source>Save Playlist</source>
+        <translation>Зберегти список</translation>
+    </message>
+    <message>
+        <source>Hydrogen Playlist (*.sh)</source>
+        <translation>Список відтворення Hydrogen (*.sh)</translation>
+    </message>
+    <message>
+        <source>Add Script to selected Song</source>
+        <translation>Додати сценарій у вибрану композицію</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must without whitespaces.</source>
+        <translation>Назва сценарію або шлях до нього містить пропуски.
+ВАЖЛИВО
+Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
+    </message>
+    <message>
+        <source>No Script selected!</source>
+        <translation>Не вибрано жодного сценарію!</translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation>Не вибрано коректної композиції!</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Призупинено.</translation>
+    </message>
+    <message>
+        <source>Add Songs to PlayList</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open selected file with write access</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The new file is executable by the owner of the file!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>PlaylistDialog_UI</name>
+    <name>PlaylistEditor_UI</name>
     <message>
         <source>PlayList Browser</source>
         <translation>Оглядач списку відтворення</translation>
     </message>
+</context>
+<context>
+    <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
         <translation>Список композицій</translation>
+    </message>
+    <message>
+        <source>Script</source>
+        <translation>Сценарій</translation>
+    </message>
+    <message>
+        <source>exec Script</source>
+        <translation>Виконати сценарій</translation>
+    </message>
+    <message>
+        <source>no Script</source>
+        <translation>немає сценарію</translation>
     </message>
 </context>
 <context>
@@ -4026,6 +4036,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Virtual Row</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Theme couldn&apos;t be imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4175,10 +4189,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>&amp;Загальні</translation>
     </message>
     <message>
-        <source>Alt+R</source>
-        <translation>Alt+З</translation>
-    </message>
-    <message>
         <source>Audio &amp;System</source>
         <translation>З&amp;вукова система</translation>
     </message>
@@ -4320,14 +4330,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Language / Γλώσσα / Язык / 言語</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reopen last used &amp;playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4736,6 +4738,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add song to playlist</source>
+        <translation>Додати композицію в список</translation>
+    </message>
+    <message>
+        <source>Remove song to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5622,7 +5636,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати композицію в список</translation>
     </message>
     <message>
         <source>Add current song to Playlist</source>

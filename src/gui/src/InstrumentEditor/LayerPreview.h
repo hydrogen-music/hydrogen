@@ -58,7 +58,7 @@ class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 	void setSelectedLayer( int nSelectedLayer );
 
 public slots:
-		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	
 	private:
 		static const int		m_nLayerHeight = 10;

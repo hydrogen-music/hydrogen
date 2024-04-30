@@ -69,7 +69,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	sAuthors += "<b>" + tr( "Active translators" ) + ":</b>";
 	sAuthors += "<ul>";
 
-	for ( auto tt : translatorList ) {
+	for ( const auto& tt : translatorList ) {
 		sAuthors += "<li><p>";
 		sAuthors += tt.m_sName + " (<i>" + tt.m_sEmail + "</i>): " + tt.m_sInfo;
 		sAuthors += "</p></li>";

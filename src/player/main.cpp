@@ -82,6 +82,10 @@ int main(int argc, char** argv){
 	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	// Tell the core that we are done initializing the most basic parts.
+	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
@@ -90,9 +94,7 @@ int main(int argc, char** argv){
 		exit(2);
 	}
 
-	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();
-	hydrogen->setSong(pSong);
-
+	pHydrogen->setSong(pSong);
 
 	cout << "Press b for rewind from beginning" << endl;
 	cout << "Press p for play" << endl;
@@ -107,10 +109,10 @@ int main(int argc, char** argv){
 		switch( pippo ) {
 			case 'q':
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
-				hydrogen->sequencerStop();
+				pHydrogen->sequencerStop();
 
 				pSong = nullptr;
-				delete hydrogen;
+				delete pHydrogen;
 				delete H2Core::EventQueue::get_instance();
 				preferences->savePreferences();
 				delete preferences;
@@ -123,19 +125,19 @@ int main(int argc, char** argv){
 				break;
 
 			case 'p':
-				hydrogen->sequencerPlay();
+				pHydrogen->sequencerPlay();
 				break;
 
 			case 's':
-				hydrogen->sequencerStop();
+				pHydrogen->sequencerStop();
 				break;
 
 			case 'b':
-				hydrogen->getCoreActionController()->locateToColumn( 0 );
+				H2Core::CoreActionController::locateToColumn( 0 );
 				break;
 
 			case 'f':
-				cout << "Frame = " << hydrogen->getAudioEngine()->
+				cout << "Frame = " << pHydrogen->getAudioEngine()->
 					getTransportPosition()->getFrame() << endl;
 				break;
 

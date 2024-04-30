@@ -31,6 +31,7 @@ namespace H2Core
 
 Timeline::Timeline() : Object( )
 					 , m_fDefaultBpm( 120 ) {
+	updateTempoMarkers();
 }
 
 Timeline::~Timeline() {
@@ -44,7 +45,43 @@ void Timeline::activate() {
 
 void Timeline::deactivate() {
 }
-	
+
+void Timeline::addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& tempoMarkers) {
+	// Sanity checks
+	for ( auto& mmarker : tempoMarkers ) {
+		if ( hasColumnTag( mmarker->nColumn ) ) {
+			ERRORLOG( QString( "There is already a tag present in column %1. Please remove it first." )
+					  .arg( mmarker->nColumn ) );
+			return;
+		}
+
+		for ( const auto& ootherMarker : tempoMarkers ) {
+			if ( ootherMarker != mmarker && ootherMarker->nColumn == mmarker->nColumn ) {
+				ERRORLOG( QString( "Supplied tempoMarkers [%1] and [%2] share the same column" )
+						  .arg( mmarker->toQString() )
+						  .arg( ootherMarker->toQString() ) );
+				return;
+			}
+		}
+
+		if ( mmarker->fBpm < MIN_BPM ) {
+			mmarker->fBpm = MIN_BPM;
+			WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+						.arg( mmarker->fBpm ).arg( MIN_BPM ) );
+		} else if ( mmarker->fBpm > MAX_BPM ) {
+			mmarker->fBpm = MAX_BPM;
+			WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+						.arg( mmarker->fBpm ).arg( MAX_BPM ) );
+		}
+
+	}
+
+	for ( const auto& mmarker : tempoMarkers ) {
+		m_tempoMarkers.push_back( mmarker );
+	}
+	updateTempoMarkers();
+}
+
 void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 	if ( fBpm < MIN_BPM ) {
 		fBpm = MIN_BPM;
@@ -62,12 +99,8 @@ void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 		return;
 	}
 
-	std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
-	pTempoMarker->nColumn = nColumn;
-	pTempoMarker->fBpm = fBpm;
-
-	m_tempoMarkers.push_back( pTempoMarker );
-	sortTempoMarkers();
+	m_tempoMarkers.push_back( std::make_shared<TempoMarker>(nColumn, fBpm) );
+	updateTempoMarkers();
 }
 
 void Timeline::deleteTempoMarker( int nColumn ) {
@@ -80,7 +113,7 @@ void Timeline::deleteTempoMarker( int nColumn ) {
 		}
 	}
 
-	sortTempoMarkers();
+	updateTempoMarkers();
 }
 
 float Timeline::getTempoAtColumn( int nColumn ) const {
@@ -129,9 +162,8 @@ bool Timeline::hasColumnTempoMarker( int nColumn ) const {
 std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( int nColumn ) const {
 	if ( isFirstTempoMarkerSpecial() && nColumn == 0 ) {
 
-		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
-		pTempoMarker->nColumn = 0;
-		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>(
+			0, Hydrogen::get_instance()->getSong()->getBpm() );
 		return pTempoMarker;
 	}
 	
@@ -143,29 +175,31 @@ std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( i
 	return nullptr;
 }
 
-const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
+void Timeline::updateTempoMarkers() {
 	if ( isFirstTempoMarkerSpecial() ) {
 		
-		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
-		pTempoMarker->nColumn = 0;
-		pTempoMarker->fBpm = m_fDefaultBpm;
+		std::shared_ptr<TempoMarker> pTempoMarker =
+			std::make_shared<TempoMarker>( 0, m_fDefaultBpm );
 
-		int nNumberOfTempoMarkers = m_tempoMarkers.size();
-		std::vector<std::shared_ptr<const TempoMarker>> tmpVector;
-		tmpVector.resize( nNumberOfTempoMarkers + 1 );
-		tmpVector[ 0 ] = pTempoMarker;
+		const int nNumberOfTempoMarkers = m_tempoMarkers.size();
+
+		m_allTempoMarkers.clear();
+		m_allTempoMarkers.resize( nNumberOfTempoMarkers + 1 );
+		m_allTempoMarkers[ 0 ] = pTempoMarker;
 
 		if ( nNumberOfTempoMarkers != 0 ) {
 			for ( int ii = 0; ii < nNumberOfTempoMarkers; ++ii ) {
 				// Since the returned vector is const, there is no
 				// need to make a deep copy.
-				tmpVector[ ii + 1 ] = m_tempoMarkers[ ii ];
+				m_allTempoMarkers[ ii + 1 ] = m_tempoMarkers[ ii ];
 			}
 		}
-		return tmpVector;
+	}
+	else {
+		m_allTempoMarkers = m_tempoMarkers;
 	}
 
-	return m_tempoMarkers;
+	sortTempoMarkers();
 }
 		
 void Timeline::sortTempoMarkers() {
@@ -173,7 +207,33 @@ void Timeline::sortTempoMarkers() {
 		  TempoMarkerComparator() );
 }
 
-void Timeline::addTag( int nColumn, QString sTag ) {
+void Timeline::addTags( const std::vector<std::shared_ptr<Tag>>& tags) {
+	// Sanity checks
+	for ( const auto& ttag : tags ) {
+		if ( hasColumnTag( ttag->nColumn ) ) {
+			ERRORLOG( QString( "There is already a tag present in column %1. Please remove it first." )
+					  .arg( ttag->nColumn ) );
+			return;
+		}
+
+		for ( const auto& ootherTag : tags ) {
+			if ( ootherTag != ttag && ootherTag->nColumn == ttag->nColumn ) {
+				ERRORLOG( QString( "Supplied tags [%1] and [%2] share the same column" )
+						  .arg( ttag->toQString() )
+						  .arg( ootherTag->toQString() ) );
+				return;
+			}
+		}
+	}
+
+	for ( const auto& ttag : tags ) {
+		m_tags.push_back( ttag );
+	}
+
+	sortTags();
+}
+
+void Timeline::addTag( int nColumn, const QString& sTag ) {
 		
 	if ( hasColumnTag( nColumn ) ) {
 		ERRORLOG( QString( "There is already a tag present in column %1. Please remove it first." )
@@ -181,11 +241,7 @@ void Timeline::addTag( int nColumn, QString sTag ) {
 		return;
 	}
 	
-	std::shared_ptr<Tag> pTag( new Tag );
-	pTag->nColumn = nColumn;
-	pTag->sTag = sTag;
-
-	m_tags.push_back( std::move( pTag ) );
+	m_tags.push_back( std::make_shared<Tag>(nColumn, sTag) );
 	sortTags();
 }
 
@@ -239,13 +295,20 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_fDefaultBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fDefaultBpm ) )
 			.append( QString( "%1%2m_tempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto const& tt : m_tempoMarkers ) {
+		for ( const auto& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( "%1[column: %2 , bpm: %3]\n" ).arg( sPrefix + s + s ).arg( tt->nColumn ).arg( tt->fBpm ) );
 			}
 		}
+		sOutput.append( QString( "%1%2m_allTempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& tt : m_allTempoMarkers ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( "%1[column: %2 , bpm: %3]\n" )
+								.arg( sPrefix + s + s ).arg( tt->nColumn ).arg( tt->fBpm ) );
+			}
+		}
 		sOutput.append( QString( "%1%2m_tags:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto const& tt : m_tags ) {
+		for ( const auto& tt : m_tags ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( "%1[column: %2 , tag: %3]\n" ).arg( sPrefix + s + s ).arg( tt->nColumn ).arg( tt->sTag ) );
 			}
@@ -255,13 +318,20 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
 			.append( QString( "m_fDefaultBpm: %1, " ).arg( m_fDefaultBpm ) )
 			.append( QString( "m_tempoMarkers: [" ) );
-		for ( auto const& tt : m_tempoMarkers ) {
+		for ( const auto& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( " [column: %1 , bpm: %2]" ).arg( tt->nColumn ).arg( tt->fBpm ) );
 			}
 		}
+		sOutput.append( QString( "], m_allTempoMarkers: [" ) );
+		for ( const auto& tt : m_allTempoMarkers ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( " [column: %1 , bpm: %2]" )
+								.arg( tt->nColumn ).arg( tt->fBpm ) );
+			}
+		}
 		sOutput.append( QString( "], m_tags: [" ) );
-		for ( auto const& tt : m_tags ) {
+		for ( const auto& tt : m_tags ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( " [column: %1 , tag: %2]" ).arg( tt->nColumn ).arg( tt->sTag ) );
 			}
@@ -279,9 +349,7 @@ QString Timeline::TempoMarker::getPrettyString( int nDecimals ) const {
 		nPrec = std::min( nDecimals + ( fBpm >= 100 ? 3 : 2 ),
 						  7 );
 	}
-	QString sOut = QString::number( fBpm, 'g', nPrec );
-
-	return std::move( sOut );
+	return QString::number( fBpm, 'g', nPrec );
 }
 
 QString Timeline::TempoMarker::toQString( const QString& sPrefix, bool bShort ) const {

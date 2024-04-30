@@ -101,10 +101,11 @@ void signal_handler ( int signum )
 void show_playlist (uint active )
 {
 	/* Display playlist members */
-	Playlist* pPlaylist = Playlist::get_instance();
+	auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
-			std::cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
+			std::cout << ( i + 1 ) << "." <<
+				pPlaylist->get( i )->getSongPath().toLocal8Bit().constData();
 			if ( i == active ) {
 				std::cout << " *";
 			}
@@ -327,60 +328,65 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+		// Tell the core that we are done initializing the most basic parts.
+		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+
 		std::shared_ptr<Song> pSong = nullptr;
-		Playlist *pPlaylist = nullptr;
+		std::shared_ptr<Playlist> pPlaylist = nullptr;
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load ( playlistFilename, preferences->isPlaylistUsingRelativeFilenames() );
-			if ( ! pPlaylist ) {
+			pPlaylist = Playlist::load( playlistFilename );
+			if ( pPlaylist == nullptr ) {
 				___ERRORLOG( "Error loading the playlist" );
-				return 0;
+				return 1;
+			}
+
+			if ( ! CoreActionController::setPlaylist( pPlaylist ) ) {
+				___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
+							 .arg( playlistFilename ) );
+				return 1;
 			}
 
 			/* Load first song */
-			preferences->setLastPlaylistFilename( playlistFilename );
-			
-			QString FirstSongFilename;
-			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
-			pSong = Song::load( FirstSongFilename );
-			
-			if( pSong ){
-				pHydrogen->setSong( pSong );
-				preferences->setLastSongFilename( songFilename );
-				
-				pPlaylist->activateSong( 0 );
+			auto sSongPath = pPlaylist->getSongFilenameByNumber( 0 );
+			pSong = CoreActionController::loadSong( sSongPath );
+
+			if ( pSong != nullptr && CoreActionController::setSong( pSong ) ) {
+				CoreActionController::activatePlaylistSong( 0 );
 			}
-			
+
 			show_playlist( pPlaylist->getActiveSongNumber() );
 		}
 
 		// Load song - if wasn't already loaded with playlist
-		if ( ! pSong ) {
+		if ( pSong == nullptr ) {
 			if ( !songFilename.isEmpty() ) {
-				pSong = Song::load( songFilename );
-			} else {
+				pSong = CoreActionController::loadSong( songFilename, "" );
+			}
+			else {
 				/* Try load last song */
-				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
-				QString filename = preferences->getLastSongFilename();
-				if ( restoreLastSong && ( !filename.isEmpty() )) {
-					pSong = Song::load( filename );
+				const QString sSongPath = preferences->getLastSongFilename();
+				if ( ! sSongPath.isEmpty() ) {
+					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}
 			}
 
 			/* Still not loaded */
-			if (! pSong) {
-				___INFOLOG("Starting with empty song");
+			if ( pSong == nullptr ) {
+				___INFOLOG( "Starting with empty song" );
 				pSong = Song::getEmptySong();
-			} else {
-				preferences->setLastSongFilename( songFilename );
+				// We avoid setting LastSongFilename in the Preferences
+				pHydrogen->setSong( pSong );
 			}
-
-			pHydrogen->setSong( pSong );
+			else {
+				CoreActionController::setSong( pSong );
+			}
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			pHydrogen->getCoreActionController()->setDrumkit( drumkitToLoad, true );
+			CoreActionController::setDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -420,11 +426,9 @@ int main(int argc, char *argv[])
 			ExportMode = true;
 		}
 
-		auto pCoreActionController = pHydrogen->getCoreActionController();
-
 		if ( bValidateDrumkit ) {
-			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate,
-					 bValidateLegacyKits ) ) {
+			if ( ! H2Core::CoreActionController::validateDrumkit(
+					 sDrumkitToValidate, bValidateLegacyKits ) ) {
 				nReturnCode = 1;
 
 				std::cout << "Provided drumkit [" <<
@@ -436,8 +440,8 @@ int main(int argc, char *argv[])
 			}
 
 		} else if ( bExtractDrumkit ) {
-			if ( ! pCoreActionController->extractDrumkit( sDrumkitToExtract,
-														  sTarget ) ) {
+			if ( ! H2Core::CoreActionController::extractDrumkit(
+					 sDrumkitToExtract, sTarget ) ) {
 				nReturnCode = 1;
 
 				if ( sTarget.isEmpty() ) {
@@ -463,8 +467,8 @@ int main(int argc, char *argv[])
 			}
 
 		} else if ( bUpgradeDrumkit ) {
-			if ( ! pCoreActionController->upgradeDrumkit( sDrumkitToUpgrade,
-														  sTarget ) ) {
+			if ( ! H2Core::CoreActionController::upgradeDrumkit(
+					 sDrumkitToUpgrade, sTarget ) ) {
 				nReturnCode = 1;
 
 				std::cout << "Unable to upgrade provided drumkit [" <<
@@ -507,20 +511,6 @@ int main(int argc, char *argv[])
 						quit = true;
 					}
 					break;
-				case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
-					if( pPlaylist ){
-						QString FirstSongFilename;
-						pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
-						pSong = Song::load( FirstSongFilename );
-					
-						if( pSong ) {
-							pHydrogen->setSong( pSong );
-							preferences->setLastSongFilename( songFilename );
-						
-							pPlaylist->activateSong( event.value );
-						}
-					}
-					break;
 				case EVENT_NONE: /* Sleep if there is no more events */
 					Sleeper::msleep ( 100 );
 					break;
@@ -541,7 +531,6 @@ int main(int argc, char *argv[])
 		}
 
 		pSong = nullptr;
-		delete Playlist::get_instance();
 
 		preferences->savePreferences();
 		delete pHydrogen;

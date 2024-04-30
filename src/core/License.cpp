@@ -32,16 +32,7 @@ License::License( const QString& sLicenseString, const QString& sCopyrightHolder
 	parse( sLicenseString );
 }
 
-License::License( const License* pOther ) :
-	m_license( pOther->m_license ),
-	m_sLicenseString( pOther->m_sLicenseString ),
-	m_sCopyrightHolder( pOther->m_sCopyrightHolder ) {
-}
-
-License::~License() {
-}
-
-void License::setType( LicenseType license ) {
+void License::setType( const LicenseType& license ) {
 	m_license = license;
 	m_sLicenseString = LicenseTypeToQString( license );
 }

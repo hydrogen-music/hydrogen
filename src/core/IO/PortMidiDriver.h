@@ -54,7 +54,7 @@ public:
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
 
-	static QString translatePmError( PmError err );
+	static QString translatePmError( const PmError& err );
 	/**
 	 * Appends the content of @a msg to #MidiMessage::m_sysexData of
 	 * @a pMidiMessage till 247 (EOX - end of exclusion) is
@@ -64,7 +64,7 @@ public:
 	 *   pMidiMessage can be considered complete or `false` if there
 	 *   is still pending data.
 	 */
-	static bool appendSysExData( MidiMessage* pMidiMessage, PmMessage msg );
+	static bool appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg );
 
 private:
 	int m_nVirtualInputDeviceId;

@@ -28,7 +28,7 @@
 class EventListener
 {
 	public:
-	virtual void stateChangedEvent( H2Core::AudioEngine::State state) { UNUSED( state ); }
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
 	virtual void playingPatternsChangedEvent() {}
 	virtual void nextPatternsChangedEvent(){}
 		virtual void patternModifiedEvent() {}
@@ -43,7 +43,7 @@ class EventListener
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
-		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
+		virtual void playlistLoadSongEvent(){}
 		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
@@ -68,6 +68,7 @@ class EventListener
 	virtual void soundLibraryChangedEvent(){}
 	virtual void nextShotEvent(){}
 	virtual void midiMapChangedEvent(){}
+	virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

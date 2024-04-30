@@ -58,7 +58,7 @@ void PatternEditorPanel::updateDrumkitLabel( )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont font( Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
@@ -82,7 +82,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	Preferences *pPref = Preferences::get_instance();
 	
-	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
@@ -1255,14 +1255,14 @@ int PatternEditorPanel::moveCursorRight( int n )
 	return m_nCursorPosition;
 }
 
-void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		boldFont.setBold( true );
 		m_pDrumkitLabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
@@ -1280,8 +1280,8 @@ void PatternEditorPanel::updateStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 	int nFactorTop = 112;
 	
-	QColor topColorLight = pPref->getColorTheme()->m_midColor.lighter( nFactorTop );
-	QColor topColorDark = pPref->getColorTheme()->m_midColor.darker( nFactorTop );
+	QColor topColorLight = pPref->getTheme().m_color.m_midColor.lighter( nFactorTop );
+	QColor topColorDark = pPref->getTheme().m_color.m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
 QWidget#editor1 {\
@@ -1300,7 +1300,7 @@ QWidget#sizeResol {\
 QWidget#pRec {\
     background-color: %1;\
 }" )
-		.arg( pPref->getColorTheme()->m_midLightColor.name() );
+		.arg( pPref->getTheme().m_color.m_midLightColor.name() );
 
 	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
 	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );

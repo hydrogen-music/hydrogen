@@ -67,41 +67,6 @@ namespace H2Core
 		return fileInfo.absoluteFilePath();
 	}
 
-	QString Files::savePlaylist( SaveMode mode, const QString& fileName, Playlist* playlist, bool relativePaths )
-	{
-		QFileInfo fileInfo;
-
-		switch ( mode ) {
-			case SAVE_NEW:
-			case SAVE_OVERWRITE:
-				fileInfo = Filesystem::playlist_path( fileName );
-				break;
-			case SAVE_PATH:
-				fileInfo = fileName;
-				break;
-			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file_path( fileName );
-				break;
-			default:
-				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
-				return nullptr;
-				break;
-		}
-
-		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), false ) ) {
-			return nullptr;
-		}
-
-		if ( !Filesystem::path_usable( fileInfo.path(), true, false ) ) {
-			return nullptr;
-		}
-
-		if ( !playlist->save_file( fileInfo.absoluteFilePath(), fileInfo.fileName(), true, relativePaths) ) {
-			return nullptr;
-		}
-
-		return fileInfo.absoluteFilePath();
-	}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */
