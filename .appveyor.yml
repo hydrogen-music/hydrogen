@@ -65,7 +65,7 @@ environment:
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       PACKAGE_PREFIX: 'mingw-w64-x86_64'
       BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON"
       appveyor_build_worker_image: Visual Studio 2019
       LIBSSL: libssl-3-x64.dll
       LIBCRYPTO: libcrypto-3-x64.dll
@@ -76,7 +76,7 @@ environment:
       MSYS_REPO: 'mingw32/mingw-w64-i686'
       PACKAGE_PREFIX: 'mingw-w64-i686'
       BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF -DWANT_JACK=OFF"
       appveyor_build_worker_image: Visual Studio 2019
       LIBSSL: libssl-3.dll
       LIBCRYPTO: libcrypto-3.dll
@@ -258,7 +258,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_fresh # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_fresh_2 # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -583,16 +583,19 @@ for:
           cmake --version
           g++ --version
 
+          REM *** Update pacman cache ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -y
+
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libsndfile
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-cppunit
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
-          REM *** As of 2022-20-09 the package database refresh (-y) is required to get the newest qt package and to avoid a critical bug in less recent ones. In addition, the refresh _must_ take place _after_ installing libwinpthread (which otherwise fails). ***
-          c:\msys64\usr\bin\pacman --noconfirm -S -y -q %MSYS_REPO%-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-winpthreads-git
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
+          REM *** The jack2 package does not seem to be available for 32bit Windows anymore ***
+          if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
           c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
