@@ -102,7 +102,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nTimebaseTracking( -1 ),
+	  m_timebaseTracking( TimebaseTracking::None ),
 	  m_timebaseState( Timebase::None ),
 	  m_fLastTimebaseBpm( 120 )
 {
@@ -389,14 +389,10 @@ bool JackAudioDriver::relocateUsingBBT()
 					( fNextIncrement - 1 );
 			}
 
-			// std::cout << "[relocateUsingBBT] "
-			// 		  << "nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
-			// 		  << ", fAdditionalTicks: " << fAdditionalTicks
-			// 		  << ", nBarJack: " << nBarJack
-			// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-			// 		  << ", fBarConversion: " << fBarConversion
-			// 		  << ", barTicks: " << barTicks
-			// 		  << std::endl;
+			// DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, nBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
+			// 		  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
+			//  		  .arg( nBarJack ).arg( fNumberOfBarsPassed )
+			//  		  .arg( fBarConversion ).arg( barTicks ) );
 		} else {
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
@@ -490,7 +486,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		// 		  .arg( nNewTick ));
 		return false;
 	}
-		
+
 	return true;
 }
 
@@ -543,66 +539,89 @@ bool JackAudioDriver::updateTransportPosition()
 		return false;
 	}
 
-	if ( bTimebaseEnabled ) {
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
 		m_fLastTimebaseBpm =
 			static_cast<float>(m_JackTransportPos.beats_per_minute );
 	}
 
-	// When stopping transport (pause + move to start) the JACK server does for
-	// some reason looses the BBT capability for a single process cycle. We have
-	// guard against this or else we have some spurious state changes.
-	if ( bTimebaseEnabled &&
-		 ! ( m_JackTransportState == JackTransportStopped &&
-			 m_JackTransportPos.valid == 0 &&
-			 m_JackTransportPos.frame == 0 ) ) {
+	if ( bTimebaseEnabled ) {
 		// Update the status regrading JACK timebase master.
-		if ( m_JackTransportState != JackTransportStopped ) {
-			if ( m_nTimebaseTracking > 1 ) {
-				m_nTimebaseTracking--;
-			} else if ( m_nTimebaseTracking == 1 ) {
-				// JackTimebaseCallback not called anymore -> timebase client
-				m_nTimebaseTracking = 0;
-				m_timebaseState = Timebase::Slave;
-				EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-														static_cast<int>(Timebase::Slave) );
+		if ( m_timebaseState == Timebase::Master ) {
+			if ( m_JackTransportState != JackTransportStopped ) {
+				if ( m_timebaseTracking == TimebaseTracking::Valid ) {
+					m_timebaseTracking = TimebaseTracking::OnHold;
+				}
+				else {
+					// JackTimebaseCallback not called anymore -> timebase
+					// listener/normal client
+					m_timebaseTracking = TimebaseTracking::Valid;
+					if ( m_JackTransportPos.valid & JackPositionBBT ) {
+						m_timebaseState = Timebase::Slave;
+					}
+					else {
+						m_timebaseState = Timebase::None;
+					}
+					EventQueue::get_instance()->push_event(
+						EVENT_JACK_TIMEBASE_STATE_CHANGED,
+						static_cast<int>(m_timebaseState) );
+				}
 			}
 		}
-		if ( m_nTimebaseTracking == 0 && 
-			 !( m_JackTransportPos.valid & JackPositionBBT ) ) {
-			// No external timebase master anymore -> regular client
-			m_nTimebaseTracking = -1;
-			m_timebaseState = Timebase::None;
-			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-													static_cast<int>(Timebase::None) );
-		} else if ( m_nTimebaseTracking < 0 && 
-					( m_JackTransportPos.valid & JackPositionBBT ) ) {
-			// External timebase master detected -> timebase client
-			m_nTimebaseTracking = 0;
-			m_timebaseState = Timebase::Slave;
-			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-													static_cast<int>(Timebase::Slave) );
+		else {
+			// Update state with respect to an external Timebase master
+			if ( m_JackTransportPos.valid & JackPositionBBT ) {
+				// There is an external master
+				if ( m_timebaseState != Timebase::Slave ) {
+					m_timebaseState = Timebase::Slave;
+					EventQueue::get_instance()->push_event(
+						EVENT_JACK_TIMEBASE_STATE_CHANGED,
+						static_cast<int>(m_timebaseState) );
+				}
+				if ( m_timebaseTracking != TimebaseTracking::Valid ) {
+					m_timebaseTracking = TimebaseTracking::Valid;
+				}
+			}
+			else {
+				if ( m_timebaseState == Timebase::Slave &&
+					 m_timebaseTracking == TimebaseTracking::Valid ) {
+					// There might have been a relocation by another listener (or
+					// us). We wait till the next processing cycle in order to
+					// decide whether to drop the BBT support or not.
+					m_timebaseTracking = TimebaseTracking::OnHold;
+				}
+				else {
+					m_timebaseTracking = TimebaseTracking::Valid;
+					m_timebaseState = Timebase::None;
+					EventQueue::get_instance()->push_event(
+						EVENT_JACK_TIMEBASE_STATE_CHANGED,
+						static_cast<int>(m_timebaseState) );
+				}
+			}
 		}
 	}
-	
+
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
 		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
 		 m_JackTransportPos.frame ) {
-		
-		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
+
+		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, timebase mode: %4" )
 		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
 		// 		 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
-		// 		 .arg( m_JackTransportPos.frame ) );
-		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ||
-			 m_JackTransportPos.frame == 0 ) {
-			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
-		} else {
+		// 		 .arg( m_JackTransportPos.frame )
+		// 		 .arg( TimebaseToQString( m_timebaseState ) ) );
+
+		if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave &&
+			 m_JackTransportPos.frame != 0 &&
+			 ( m_JackTransportPos.valid & JackPositionBBT ) ) {
 			if ( ! relocateUsingBBT() ) {
 			   return false;
 			}
+		}
+		else {
+			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 		}
 	}
 
@@ -614,6 +633,11 @@ bool JackAudioDriver::updateTransportPosition()
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
 		if ( !compareAdjacentBBT() ) {
+
+			// DEBUGLOG( QString( "comparison failed, bpm int: %1, bpm ext: %2" )
+			// 		  .arg( pAudioEngine->getTransportPosition()->getBpm() )
+			// 		  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
+
 			if ( ! relocateUsingBBT() ) {
 			   return false;
 			}
@@ -1080,12 +1104,14 @@ void JackAudioDriver::initTimebaseMaster()
 						.arg( nReturnValue ) );
 		}
 		else {
-			m_nTimebaseTracking = 2;
+			m_timebaseTracking = TimebaseTracking::Valid;
 			m_timebaseState = Timebase::Master;
-			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-													static_cast<int>(Timebase::Master) );
+			EventQueue::get_instance()->push_event(
+				EVENT_JACK_TIMEBASE_STATE_CHANGED,
+				static_cast<int>(m_timebaseState) );
 		}
-	} else {
+	}
+	else {
 	    releaseTimebaseMaster();
 	}
 }
@@ -1103,18 +1129,17 @@ void JackAudioDriver::releaseTimebaseMaster()
 	}
 	
 	jack_release_timebase( m_pClient );
-	
+
+	m_timebaseTracking = TimebaseTracking::Valid;
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
-		m_nTimebaseTracking = 0;
 		m_timebaseState = Timebase::Slave;
-		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-												static_cast<int>(Timebase::Slave) );
-	} else {
-		m_nTimebaseTracking = -1;
-		m_timebaseState = Timebase::None;
-		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-												static_cast<int>(Timebase::None) );
 	}
+	else {
+		m_timebaseState = Timebase::None;
+	}
+	EventQueue::get_instance()->push_event(
+		EVENT_JACK_TIMEBASE_STATE_CHANGED,
+		static_cast<int>(m_timebaseState) );
 }
 
 void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
@@ -1188,10 +1213,10 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 				
 	}
 
-	DEBUGLOG( JackAudioDriver::JackTransportPosToQString( pJackPosition ) );
-    
+	// DEBUGLOG( JackAudioDriver::JackTransportPosToQString( pJackPosition ) );
+
 	// Tell Hydrogen it is still timebase master.
-	pDriver->m_nTimebaseTracking = 2;
+	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
 }
 
 	
@@ -1201,6 +1226,7 @@ JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 	}
 	return Timebase::None;
 }
+
 float JackAudioDriver::getMasterBpm() const {
 	if ( m_timebaseState != Timebase::Slave ) {
 		return std::nan("no tempo, no masters");
@@ -1208,7 +1234,6 @@ float JackAudioDriver::getMasterBpm() const {
 	
 	return m_fLastTimebaseBpm;
 }
-
 
 int JackAudioDriver::getXRuns() const {
 	return JackAudioDriver::jackServerXRuns;
@@ -1266,6 +1291,19 @@ QString JackAudioDriver::TransportStateToQString( const jack_transport_state_t& 
 			return QString( "Unknown JackTransportState [%1]" )
 				.arg( static_cast<int>(t) );
 
+	}
+}
+
+QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t ) {
+	switch( t ) {
+		case TimebaseTracking::Valid:
+			return "Valid";
+		case TimebaseTracking::OnHold:
+			return "OnHold";
+		case TimebaseTracking::None:
+			return "None";
+		default:
+			return "Unknown";
 	}
 }
 };
