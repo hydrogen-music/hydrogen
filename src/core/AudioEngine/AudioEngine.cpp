@@ -323,7 +323,8 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
+		 pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Master ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( 0 );
@@ -371,7 +372,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// is up to the server to relocate to a different position. It
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
+		 pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Master ) {
 
 		double fNewTick = fTick;
 		// As the tick mismatch is lost when converting a sought location from
