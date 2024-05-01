@@ -1606,10 +1606,19 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		TransportPosition::computeTickFromFrame( pPos->getFrame() );
 	
 	if ( abs( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick() ) > 1e-9 ||
-		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ||
-		 nCheckFrame != pPos->getFrame() ) {
+		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%8] [tick or frame mismatch]. original position: [%1], nCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			QString( "[checkTransportPosition] [%8] [tick mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
+			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
+			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
+			.arg( fCheckTickMismatch - pPos->m_fTickMismatch, 0, 'E' )
+			.arg( nCheckFrame - pPos->getFrame() ).arg( sContext ) );
+	}
+
+	if ( nCheckFrame != pPos->getFrame() ) {
+		AudioEngineTests::throwException(
+			QString( "[checkTransportPosition] [%8] [frame mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
 			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
 			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
@@ -1622,14 +1631,24 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		pPos->getTick(), pSong->isLoopEnabled(), &nCheckPatternStartTick );
 	const long nTicksSinceSongStart = static_cast<long>(std::floor(
 		std::fmod( pPos->getDoubleTick(), pAE->m_fSongSizeInTicks ) ));
-	
+
 	if ( pHydrogen->getMode() == Song::Mode::Song && pPos->getColumn() != -1 &&
-		 ( nCheckColumn != pPos->getColumn() ||
-		   ( nCheckPatternStartTick != pPos->getPatternStartTick() ) ||
+		 ( nCheckColumn != pPos->getColumn() ) ) {
+		AudioEngineTests::throwException(
+			QString( "[checkTransportPosition] [%7] [column mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
+			.arg( nCheckPatternStartTick )
+			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
+			.arg( nTicksSinceSongStart ).arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+			.arg( sContext ) );
+	}
+
+	if ( pHydrogen->getMode() == Song::Mode::Song && pPos->getColumn() != -1 &&
+		 ( ( nCheckPatternStartTick != pPos->getPatternStartTick() ) ||
 		   ( nTicksSinceSongStart - nCheckPatternStartTick !=
 			 pPos->getPatternTickPosition() ) ) ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%7] [column or pattern tick mismatch]. current position: [%1], nCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			QString( "[checkTransportPosition] [%7] [pattern tick mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
 			.arg( nCheckPatternStartTick )
 			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
@@ -2002,11 +2021,16 @@ void AudioEngineTests::testTransportProcessingJack() {
 	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
 		pHydrogen->getAudioOutput())->getTimebaseState();
 
-	startJackAudioDriver();
-
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
 	pCoreActionController->activateLoopMode( false );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+	pAE->unlock();
+
+	startJackAudioDriver();
 
 	// In case the reference Hydrogen is JACK Timebase master, Timeline of this
 	// instance is deactivated and we are listening to tempo changes broadcasted
@@ -2074,17 +2098,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
 		pHydrogen->getAudioOutput())->getTimebaseState();
 
-	startJackAudioDriver();
-	auto pDriver = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput());
-	if ( pDriver == nullptr ) {
-		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
-	}
-
-    std::random_device randomSeed;
-    std::default_random_engine randomEngine( randomSeed() );
-    std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
-
 	pAE->lock( RIGHT_HERE );
 	pAE->stop();
 	if ( pAE->getState() == AudioEngine::State::Playing ) {
@@ -2096,6 +2109,17 @@ void AudioEngineTests::testTransportRelocationJack() {
 	pAE->reset( true );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
+
+	startJackAudioDriver();
+	auto pDriver = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput());
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+	}
+
+    std::random_device randomSeed;
+    std::default_random_engine randomEngine( randomSeed() );
+    std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
 
 	// Check consistency of updated frames and ticks while relocating
 	// transport.
@@ -2111,7 +2135,8 @@ void AudioEngineTests::testTransportRelocationJack() {
 		// We send the tick value to and received it back from the JACK server
 		// via rountines in the libjack2 library. We have to relaxed about the
 		// precision we can expect from relocating.
-		while ( ! ( nFrame != -1 && pTransportPos->getFrame() == nFrame ) &&
+		while ( ! ( nFrame != -1 &&	nFrame == pTransportPos->getFrame() -
+					pTransportPos->getFrameOffsetTempo() ) &&
 				! ( fTick != -1 &&
 					abs( pTransportPos->getDoubleTick() - fTick ) < 1e-1 ) ) {
 
@@ -2187,9 +2212,14 @@ void AudioEngineTests::testTransportRelocationJack() {
 		pDriver->locateTransport( nNewFrame );
 
 		waitForRelocation( -1, nNewFrame );
-		if ( pTransportPos->getFrame() != nNewFrame ) {
-			throwException( QString( "[testTransportRelocationJack] failed to relocate to frame. [%1] != [%2]" )
-							.arg( pTransportPos->getFrame() ).arg( nNewFrame ) );
+		if ( nNewFrame != pTransportPos->getFrame() -
+			 pTransportPos->getFrameOffsetTempo() ) {
+			throwException( QString( "[testTransportRelocationJack] failed to relocate to frame. [%1] != [%4=%2 - %3]" )
+							.arg( nNewFrame )
+							.arg( pTransportPos->getFrame() -
+								  pTransportPos->getFrameOffsetTempo() )
+							.arg( pTransportPos->getFrame() )
+							.arg( pTransportPos->getFrameOffsetTempo() ) );
 		}
 
 		AudioEngineTests::checkTransportPosition(
@@ -2216,7 +2246,7 @@ void AudioEngineTests::startJackAudioDriver() {
 	auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
 		pHydrogen->getAudioOutput())->getTimebaseState();
 	auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->m_nTimebaseTracking;
+		pHydrogen->getAudioOutput())->m_timebaseTracking;
 
 	pAudioEngine->stopAudioDrivers();
 
@@ -2227,7 +2257,7 @@ void AudioEngineTests::startJackAudioDriver() {
 	}
 #ifdef H2CORE_HAVE_JACK
 	pDriver->m_timebaseState = previousTimebaseState;
-	pDriver->m_nTimebaseTracking = nPreviousTimebaseTracking;
+	pDriver->m_timebaseTracking = nPreviousTimebaseTracking;
 
 	// Suppress default audio output
 	pDriver->setConnectDefaults( false );
