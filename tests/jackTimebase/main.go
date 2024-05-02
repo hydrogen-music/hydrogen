@@ -182,11 +182,11 @@ func nextTest(ctx context.Context) {
         go runTimebaseMasterTestSuite()
 
     case 2:
-        go startTestBinary(ctx, "timebase-not-master")
+        go startTestBinary(ctx, "timebase-listener")
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
 
-        go runTimebaseNotMasterTestSuite()
+        go runTimebaseListenerTestSuite()
 
     default:
         log.Println("[nextTest] No test left. Exiting...")
@@ -210,9 +210,9 @@ func runNonTimebaseTestSuite() {
     sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))
 }
 
-func runTimebaseNotMasterTestSuite() {
+func runTimebaseListenerTestSuite() {
     log.Println("")
-    log.Println("[nextTest] Running Timebase test suite not as master.")
+    log.Println("[nextTest] Running Timebase test suite as listener.")
     log.Println("[nextTest] Test binary is run next to Hydrogen and the latter is registered as JACK Timebase master.")
     log.Println("")
 

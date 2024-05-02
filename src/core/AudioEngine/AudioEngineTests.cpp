@@ -2078,7 +2078,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave &&
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
 		 ! bTempoChangeEncountered ) {
 		throwException( "[testTransportProcessingJack] no tempo changes received from JACK Timebase master" );
 	}

@@ -248,7 +248,7 @@ private:
 	 *
 	 * 3. Both #Song and #Timeline tempo are superseded by the BPM
 	 * broadcasted by the JACK timebase master application once
-	 * Hydrogen acts as timebase slave. The corresponding value
+	 * Hydrogen acts as timebase listener. The corresponding value
 	 * depends entirely on the external application and will not be
 	 * stored by Hydrogen.
 	 */

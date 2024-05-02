@@ -430,10 +430,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 				m_pJackMasterBtn->setChecked( true );
 			}
 			else if ( m_pHydrogen->getJackTimebaseState() ==
-					  JackAudioDriver::Timebase::Slave ) {
+					  JackAudioDriver::Timebase::Listener ) {
 				m_pJackMasterBtn->setChecked( true );
 				m_pJackMasterBtn->setUseRedBackground( true );
-				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMSlaveTooltip() );
+				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMListenerTooltip() );
 			}
 			else {
 				m_pJackMasterBtn->setChecked( false );
@@ -1168,15 +1168,15 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 		sMessage.append( "master" );
 		break;
 
-	case JackAudioDriver::Timebase::Slave:
+	case JackAudioDriver::Timebase::Listener:
 
 		if ( ! m_pJackMasterBtn->isDown() ) {
 			m_pJackMasterBtn->setChecked( true );
 		}
 		m_pJackMasterBtn->setUseRedBackground( true );
-		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMSlaveTooltip() );
+		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMListenerTooltip() );
 		
-		sMessage.append( "slave" );
+		sMessage.append( "Listener" );
 		break;
 
 	default:

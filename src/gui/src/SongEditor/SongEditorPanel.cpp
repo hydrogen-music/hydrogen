@@ -82,8 +82,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
 	connect( m_pTimelineBtn, SIGNAL( clicked() ), this, SLOT( timelineBtnClicked() ) );
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledTimebaseListener() );
 		m_pTimelineBtn->setIsActive( false );
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
@@ -1058,9 +1059,10 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 void SongEditorPanel::jackTimebaseStateChangedEvent() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
 		setTimelineEnabled( false );
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledTimebaseListener() );
 	} else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
@@ -1074,7 +1076,7 @@ void SongEditorPanel::songModeActivationEvent() {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
 
-	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 		

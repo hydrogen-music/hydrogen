@@ -128,7 +128,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
 	const QString& getJackTBMMasterTooltip() const { return m_sJackTBMMasterTooltip; }
-	const QString& getJackTBMSlaveTooltip() const { return m_sJackTBMSlaveTooltip; }
+	const QString& getJackTBMListenerTooltip() const { return m_sJackTBMListenerTooltip; }
 	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
@@ -147,7 +147,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		
 	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
 	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
-	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
+	const QString& getTimelineDisabledTimebaseListener() const { return m_sTimelineDisabledTimebaseListener; }
 	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
@@ -265,7 +265,7 @@ private:
 	QString m_sAudioDriverNotPresent;
 
 	QString m_sJackTBMMasterTooltip;
-	QString m_sJackTBMSlaveTooltip;
+	QString m_sJackTBMListenerTooltip;
 	QString m_sJackMasterDisabledTooltip;
 	
 	QString m_sMidiSenseWindowTitle;
@@ -283,7 +283,7 @@ private:
 	QString m_sStatusDisabled;
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
-	QString m_sTimelineDisabledTimebaseSlave;
+	QString m_sTimelineDisabledTimebaseListener;
 	QString m_sPatternEditorLocked;
 	
 	QString m_sPreferencesNotCompiled;
