@@ -110,6 +110,8 @@ public:
 		 * #H2Core::JackAudioDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );
 
+	static void startJackAudioDriver();
+
 	static JackAudioDriver::Timebase m_referenceTimebase;
 private:
 	static int processTransport( const QString& sContext,
@@ -160,7 +162,6 @@ private:
 	static void resetSampler( const QString& sContext );
 	static void throwException( const QString& sMsg );
 
-	static void startJackAudioDriver();
 	static void stopJackAudioDriver();
 };
 };

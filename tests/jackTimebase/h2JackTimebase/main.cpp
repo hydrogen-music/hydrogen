@@ -46,6 +46,7 @@
 #include <core/Basics/Song.h>
 #include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
@@ -106,6 +107,19 @@ void tearDown() {
 
 	___INFOLOG( "Quitting..." );
 	delete Logger::get_instance();
+}
+
+void startTestJackDriver( lo_arg **argv, int argc ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	pCoreActionController->activateLoopMode( false );
+	pCoreActionController->locateToTick( 0 );
+
+	AudioEngineTests::startJackAudioDriver();
+
+	// This binary runs indefinitely. It is either stopped by an assertion or by
+	// the teardown of the parent process.
 }
 
 void runTransportTests( lo_arg **argv, int argc ) {
@@ -261,6 +275,8 @@ int main(int argc, char *argv[])
 
 		auto pCoreActionController = pHydrogen->getCoreActionController();
 		auto pOscServer = OscServer::get_instance();
+		pOscServer->getServerThread()->add_method(
+			"/h2JackTimebase/StartTestJackDriver", "", startTestJackDriver );
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
 		pOscServer->getServerThread()->add_method(
