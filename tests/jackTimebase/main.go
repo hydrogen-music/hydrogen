@@ -3,6 +3,7 @@ package main
 import (
     "context"
     "log"
+    "os"
     "os/exec"
     "path"
     "strconv"
@@ -40,6 +41,7 @@ var hydrogenFailedChan chan bool
 var testBinaryFailedChan chan bool
 // nextTestChan is used by startTestBinary() to indicate it exited.
 var nextTestChan chan bool
+var finishTestChan chan bool
 
 var hydrogenPath = path.Join(
     "..", "..", "build", "src", "gui", "hydrogen")
@@ -51,6 +53,8 @@ var testBinaryClient *osc.Client
 var testBinaryListenerClient *osc.Client
 
 var testNumber int
+
+var returnCode int
 
 // Integration test checking for errors/crashes when closing Hydrogen while
 // using the JACK driver (on Linux).
@@ -71,9 +75,12 @@ func main() {
     hydrogenFailedChan = make(chan bool, 1)
     testBinaryFailedChan = make(chan bool, 1)
     nextTestChan = make(chan bool, 1)
+    finishTestChan = make(chan bool, 1)
+
     // Trigger first test
     nextTestChan <- true
     testNumber = 0
+    returnCode = 0
 
     testContext, testContextCancel := context.WithCancel(context.Background())
 
@@ -98,6 +105,8 @@ func main() {
     testContextCancel()
 
     time.Sleep(100 * time.Millisecond)
+
+    os.Exit( returnCode )
  }
 
 func mainLoop(ctx context.Context) {
@@ -105,13 +114,21 @@ func mainLoop(ctx context.Context) {
         select {
         case <-hydrogenFailedChan:
             // Hydrogen exited
+            log.Println("hydrogenFailedChan")
+            returnCode = 1
             return
         case <-testBinaryFailedChan:
             // Test binary exits
+            log.Println("testBinaryFailedChan")
+            returnCode = 1
             return
         case <-nextTestChan:
             // Integration test succeeded
             nextTest(ctx)
+
+        case <-finishTestChan:
+            // Done
+            return
 
         default:
             time.Sleep(100 * time.Millisecond)
@@ -208,7 +225,7 @@ func nextTest(ctx context.Context) {
 
     default:
         log.Println("[nextTest] No test left. Exiting...")
-        testBinaryFailedChan <- true
+        finishTestChan <- true
     }
 
     testNumber += 1
