@@ -13,6 +13,7 @@ import (
 
 const oscHydrogenPort = 9099
 const oscTestBinaryPort = 8099
+const oscTestBinaryListenerPort = 8100
 
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
@@ -47,6 +48,7 @@ var testBinaryPath = path.Join(
 
 var hydrogenClient *osc.Client
 var testBinaryClient *osc.Client
+var testBinaryListenerClient *osc.Client
 
 var testNumber int
 
@@ -77,6 +79,7 @@ func main() {
 
     hydrogenClient = osc.NewClient("localhost", oscHydrogenPort)
     testBinaryClient = osc.NewClient("localhost", oscTestBinaryPort)
+    testBinaryListenerClient = osc.NewClient("localhost", oscTestBinaryListenerPort)
 
     go startHydrogen(testContext)
 
@@ -87,6 +90,7 @@ func main() {
     // Teardown
     sendMsg(hydrogenClient, osc.NewMessage("/Hydrogen/QUIT"))
     sendMsg(testBinaryClient, osc.NewMessage("/Hydrogen/QUIT"))
+    sendMsg(testBinaryListenerClient, osc.NewMessage("/Hydrogen/QUIT"))
 
     // Give both applications time to shut down gracefully
     time.Sleep(hydrogenTearDownTime * time.Millisecond)
@@ -138,19 +142,18 @@ func startHydrogen(ctx context.Context) {
         log.Printf("[startHydrogen] ERROR: [%v] exited with error: %v",
             cmd.String(), err)
         log.Printf("[startTestBinary] stdout/stderr: %v", string(output))
+        hydrogenFailedChan <- true
     }
-
-    hydrogenFailedChan <- true
 }
 
-func startTestBinary(ctx context.Context, logFileSuffix string) {
+func startTestBinary(ctx context.Context, logFileSuffix string, oscPort int64) {
 
     log.Println("[nextTest] Starting test binary...")
 
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
         "-s", hydrogenTestSongPath,
-        "-O", strconv.FormatInt(oscTestBinaryPort, 10), "-V", "Debug")
+        "-O", strconv.FormatInt(oscPort, 10), "-V", "Debug")
     output, err := cmd.CombinedOutput()
     if err == nil {
         log.Println("[startTestBinary] SUCCESS!")
@@ -168,25 +171,40 @@ func startTestBinary(ctx context.Context, logFileSuffix string) {
 func nextTest(ctx context.Context) {
     switch(testNumber) {
     case 0:
-        go startTestBinary(ctx, "non-timebase")
+        go startTestBinary(ctx, "non-timebase", oscTestBinaryPort)
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
 
         go runNonTimebaseTestSuite()
 
     case 1:
-        go startTestBinary(ctx, "timebase-master")
+        go startTestBinary(ctx, "timebase-master", oscTestBinaryPort)
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
 
         go runTimebaseMasterTestSuite()
 
     case 2:
-        go startTestBinary(ctx, "timebase-listener")
+        go startTestBinary(ctx, "timebase-listener", oscTestBinaryPort)
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
 
         go runTimebaseListenerTestSuite()
+
+    case 3:
+        // Start a dedicated test binary instead of the main application. We
+        // want to test whether relocations happening within the master or
+        // properly handled when received by the listener. For this we need two
+        // applications with patched JACK process callback.
+        sendMsg(hydrogenClient, osc.NewMessage("/Hydrogen/QUIT"))
+
+        go startTestBinary(ctx, "bbt-relocation-listener",
+            oscTestBinaryListenerPort)
+        go startTestBinary(ctx, "bbt-relocation-master", oscTestBinaryPort)
+        // Wait for the test binary to be ready.
+        time.Sleep(hydrogenStartupTime * time.Millisecond)
+
+        go runBBTRelocationTestSuite()
 
     default:
         log.Println("[nextTest] No test left. Exiting...")
@@ -233,6 +251,22 @@ func runTimebaseMasterTestSuite() {
     // run transport tests without JACK Timebase
     sendMsg(hydrogenClient,
         osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(0)))
+    sendMsg(testBinaryClient,
+        osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(1)))
+    sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))
+}
+
+func runBBTRelocationTestSuite() {
+    log.Println("")
+    log.Println("[nextTest] Running Timebase test suite as both Master and Listener.")
+    log.Println("[nextTest] Test whether relocation in the Timebase master are handled properly in the listener.")
+    log.Println("")
+
+    // run transport tests without JACK Timebase
+    sendMsg(testBinaryListenerClient,
+        osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(0)))
+    sendMsg(testBinaryListenerClient,
+        osc.NewMessage("/Hydrogen/StartTestJackDriver"))
     sendMsg(testBinaryClient,
         osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(1)))
     sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))

@@ -43,6 +43,7 @@
 #include <core/Basics/Song.h>
 #include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
@@ -119,6 +120,15 @@ void tearDown() {
 }
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
+void startTestJackDriver( lo_arg **argv, int argc ) {
+	CoreActionController::activateLoopMode( false );
+	CoreActionController::locateToTick( 0 );
+
+	AudioEngineTests::startJackAudioDriver();
+
+	// This binary runs indefinitely. It is either stopped by an assertion or by
+	// the teardown of the parent process.
+}
 
 void runTransportTests( lo_arg **argv, int argc ) {
 	___INFOLOG( "\n\n\nstart tests\n\n\n" );
@@ -276,6 +286,8 @@ int main(int argc, char *argv[])
 		signal(SIGINT, signal_handler);
 
 		auto pOscServer = OscServer::get_instance();
+		pOscServer->getServerThread()->add_method(
+			"/h2JackTimebase/StartTestJackDriver", "", startTestJackDriver );
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
 		pOscServer->getServerThread()->add_method(
