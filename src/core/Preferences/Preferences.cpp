@@ -1003,7 +1003,7 @@ bool Preferences::savePreferences() const
 			jackDriverNode.write_string( "jack_port_name_1", m_sJackPortName1 );	// jack port name 1
 			jackDriverNode.write_string( "jack_port_name_2", m_sJackPortName2 );	// jack port name 2
 
-			// jack transport slave
+			// jack transport client
 			QString sMode;
 			if ( m_bJackTransportMode == NO_JACK_TRANSPORT ) {
 				sMode = "NO_JACK_TRANSPORT";

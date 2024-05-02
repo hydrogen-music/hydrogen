@@ -1072,7 +1072,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	float fBpm = pAudioEngine->getTransportPosition()->getBpm();
 
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave &&
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
 		 pHydrogen->getMode() == Song::Mode::Song ) {
 		// Hydrogen is using the BPM broadcasted by the JACK
 		// server. This one does solely depend on external

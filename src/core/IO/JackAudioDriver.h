@@ -104,8 +104,11 @@ public:
 		Master = 1,
 		/** An external program is timebase master and Hydrogen will
          * disregard all tempo markers on the Timeline and, instead,
-         * only use the BPM provided by JACK.*/
-		Slave = 0,
+         * only use the BPM provided by JACK.
+         *
+         * Note: the JACK standard is using a different term we do not want to
+         * repeat or spread. */
+		Listener = 0,
 		/** Only normal clients registered */
 		None = -1
 	};
@@ -581,12 +584,12 @@ private:
 
 		/** Stores the last tempo sent by an external Timebase master.
 		 *
-		 * In case of #Timebase::Slave and #TimebaseTracking::OnHold - a
+		 * In case of #Timebase::Listener and #TimebaseTracking::OnHold - a
 		 * relocation was done by a client other than the current master - the
 		 * JACK server does not have any BBT information to share for at least
 		 * one cycle. We have guard against this or else we have some spurious
 		 * state changes. If such a thing happens, it is very likely that the
-		 * master will still be master and we will still be slave once transport
+		 * master will still be master and we will still be listener once transport
 		 * is starting again. Therefore, we pretend to still be in this state
 		 * instead of dropping Timebase state too and offer the last tempo to
 		 * the remainder of Hydrogen. */
@@ -612,8 +615,11 @@ public:
 		Master = 1,
 		/** An external program is timebase master and Hydrogen will
          * disregard all tempo marker on the Timeline and, instead,
-         * only use the BPM provided by JACK.*/
-		Slave = 0,
+         * only use the BPM provided by JACK.
+		 *
+         * Note: the JACK standard is using a different term we do not want to
+         * repeat or spread. */
+		Listener = 0,
 		/** Only normal clients registered */
 		None = -1
 	};

@@ -1196,7 +1196,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 bool Hydrogen::isTimelineEnabled() const {
 	if ( m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
 	}
 
@@ -1294,7 +1294,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
-		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
 			return Tempo::Jack;
 		} else if ( getSong()->getIsTimelineActivated() ) {
 			return Tempo::Timeline;
