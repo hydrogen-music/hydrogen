@@ -737,17 +737,8 @@ bool CoreActionController::savePreferences() {
 bool CoreActionController::quit() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
-	} else {
-		// TODO: Close Hydrogen with no GUI present.
-		
-		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
-		return false;
-		
-	}
-	
 	return true;
 }
 

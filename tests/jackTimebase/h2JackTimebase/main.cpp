@@ -298,6 +298,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
+		pSong = nullptr;
 		tearDown();
 	}
 	catch ( const H2Exception& ex ) {
