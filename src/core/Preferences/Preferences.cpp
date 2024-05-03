@@ -290,10 +290,16 @@ Preferences::~Preferences()
 	__instance = nullptr;
 }
 
-
-
-
-
+QString Preferences::JackBBTSyncMethodToQString( const JackBBTSyncMethod& j ){
+	switch( j ) {
+		case JackBBTSyncMethod::constMeasure:
+			return "constMeasure";
+		case JackBBTSyncMethod::identicalBars:
+			return "identicalBars";
+		default:
+			return "Unknown";
+	}
+}
 
 ///
 /// Load the preferences file
