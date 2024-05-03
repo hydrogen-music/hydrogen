@@ -37,6 +37,7 @@ using namespace H2Core;
 
 void TransportTestsTimebase::testTransportProcessingJack() {
 	___INFOLOG( "\n\n" );
+#ifdef H2CORE_HAVE_JACK
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
@@ -57,12 +58,16 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 	}
 
 	perform( &AudioEngineTests::testTransportProcessingJack );
+#else
+	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+#endif
 
 	___INFOLOG( "\npassed\n" );
 }
 
 void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\n\n" );
+#ifdef H2CORE_HAVE_JACK
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
@@ -83,6 +88,9 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 	}
 
 	perform( &AudioEngineTests::testTransportRelocationJack );
+#else
+	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+#endif
 
 	___INFOLOG( "\npassed\n" );
 }

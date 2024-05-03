@@ -95,6 +95,7 @@ public:
 	 * that humanization works as expected.
 	 */
 	static void testHumanization();
+#ifdef H2CORE_HAVE_JACK
 	/**
 	 * Unit test checking the incremental update of the transport position in
 	 * audioEngine_process() using the JACK audio driver.
@@ -113,6 +114,8 @@ public:
 	static void startJackAudioDriver();
 
 	static JackAudioDriver::Timebase m_referenceTimebase;
+#endif
+
 private:
 	static int processTransport( const QString& sContext,
 								 int nFrames,
@@ -162,7 +165,9 @@ private:
 	static void resetSampler( const QString& sContext );
 	static void throwException( const QString& sMsg );
 
+#ifdef H2CORE_HAVE_JACK
 	static void stopJackAudioDriver();
+#endif
 };
 };
 

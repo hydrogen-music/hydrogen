@@ -44,8 +44,10 @@
 namespace H2Core
 {
 
+#ifdef H2CORE_HAVE_JACK
 JackAudioDriver::Timebase AudioEngineTests::m_referenceTimebase =
 	JackAudioDriver::Timebase::None;
+#endif
 
 void AudioEngineTests::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2010,6 +2012,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 }
 
+#ifdef H2CORE_HAVE_JACK
 void AudioEngineTests::testTransportProcessingJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -2465,6 +2468,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 	return 0;
 }
+#endif // H2CORE_HAVE_JACK
 
 void AudioEngineTests::throwException( const QString& sMsg ) {
 	auto pHydrogen = Hydrogen::get_instance();
