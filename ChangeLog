@@ -16,6 +16,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			- `-L`/`--log-file` to provide a path to an alternative log file.
 			- `-T`/`--log-timestamps` to add timestamps to all log messages.
 	* Changed
+		- Brazilian translation updated.
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.
 		- Virtual keyboard strokes are now mapped exactly as incoming MIDI `NOTE_ON`
@@ -36,6 +37,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix segfault when using MIDI sense button in table of Preferences > MIDI
 			after removing rows above it from the table.
 		- Fix synchronization problems while using JACK Timebase support (#1953).
+	* Removed
+		- Dropped `JACK` support in provided Windows 32 binaries (as the upstream
+			jack2 MSYS package was dropped)
 
 2024-01-12 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.3

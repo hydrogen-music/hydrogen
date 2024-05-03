@@ -38,3 +38,6 @@ tests/jackTearDown/jackTearDown
 tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
 tests/jackTimebase/test*.log
+
+# Ignore cache folder of clangd used in LSP editor support.
+.cache/
