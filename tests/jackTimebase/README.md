@@ -1,5 +1,10 @@
-Integration test for the AudioEngine in presence of a JACK Timebase master
-(another instance of Hydrogen itself).
+Integration test checking whether transport and relocation works using the JACK
+audio driver in a real life environment.
+
+These tests are basically a reduced version of the audio engine tests suited to
+test interaction with the JACK server and other JACK clients. Two instances of
+Hydrogen are run and do interact with eachother with at least one of them using
+a patch process callback for the JACK driver doing consistency checks.
 
 ## Requirements
 

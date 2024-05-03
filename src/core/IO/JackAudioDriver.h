@@ -72,19 +72,18 @@ class InstrumentComponent;
  *
  * __Timebase Master__:
  *
- * The timebase master is responsible for providing additional
- * transport information to the JACK server apart from the transport
- * position in frames, like current beat, bar, tick, tick size, speed
- * etc. Of all these information Hydrogen does only use the provided
- * tempo (and overrides all internal ones). Therefore, unlike many
- * other application, it does _not_ respond to changes in measure
- * (since these would have to be mapped to the length of the current
- * pattern). Every client can be registered as timebase master by
- * supplying a callback (for Hydrogen this would be
- * JackTimebaseCallback()) but there can be at most one timebase
- * master at a time. Having none at all is perfectly fine too. Apart
- * from this additional responsibility, the registered client has no
- * other rights compared to others.
+ * The timebase master is responsible for providing additional transport
+ * information to the JACK server apart from the transport position in frames,
+ * like current beat, bar, tick, tick size, speed etc. Unlike many other
+ * application, Hydrogen does _not_ respond to changes in measure since these
+ * would have to be mapped to the length of the current pattern (Instead,
+ * #Preferences::JackBBTSyncMethod can be used to fine tune synchronization or
+ * Timebae synchronization can be turned off entirely using
+ * #Preferences::m_bJackTimebaseEnabled). Every client can be registered as
+ * timebase master by supplying a callback (for Hydrogen this would be
+ * JackTimebaseCallback()) but there can be at most one timebase master at a
+ * time. Having none at all is perfectly fine too. Apart from this additional
+ * responsibility, the registered client has no other rights compared to others.
  *
  * After the status of the JACK transport has changed from
  * _JackTransportStarting_ to _JackTransportRolling_, the timebase
