@@ -156,20 +156,21 @@ is the recommended way if you are actively developing new
 features or bug fixes for Hydrogen (all characters in squared brackets
 are optional and do not have to be included in the command).
 
-| Command    | Functionality                                                     |
-|------------|-------------------------------------------------------------------|
-| `r[m]`     | Remove all build, temporary, and cached files.                    |
-| `c[lean]`  | Remove all cached files.                                          |
-| `m[ake]`   | Launch the build process.                                         |
-| `mm`       | Launch the build process using `ccache`.                          |
-| `d[oc]`    | Build the documentation of Hydrogen.                              |
-| `g[raph]`  | Draw the dependency graphs of the Hydrogen code using `graphviz`. |
-| `h[elp]`   | Show all supported build options.                                 |
-| `[e]x[ec]` | Execute the Hydrogen binary.                                      |
-| `t[est]`   | Run the unit tests.                                               |
-| `p[kg]`    | Build a source package.                                           |
-| `appimage` | Build an AppImage.                                                |
-| `z`        | Build Hydrogen using `ccache` and execute the resulting binary.   |
+| Command          | Functionality                                                     |
+|------------------|-------------------------------------------------------------------|
+| `r[m]`           | Remove all build, temporary, and cached files.                    |
+| `c[lean]`        | Remove all cached files.                                          |
+| `m[ake]`         | Launch the build process.                                         |
+| `mm`             | Launch the build process using `ccache`.                          |
+| `d[oc]`          | Build the documentation of Hydrogen.                              |
+| `g[raph]`        | Draw the dependency graphs of the Hydrogen code using `graphviz`. |
+| `h[elp]`         | Show all supported build options.                                 |
+| `[e]x[ec]`       | Execute the Hydrogen binary.                                      |
+| `t[est]`         | Run the unit tests.                                               |
+| `p[kg]`          | Build a source package.                                           |
+| `i[integration]` | Execute integration tests.                                        |
+| `appimage`       | Build an AppImage.                                                |
+| `z`              | Build Hydrogen using `ccache` and execute the resulting binary.   |
 
 Using `ccache` to build Hydrogen, `./build.sh mm`, will result in a
 compilation, which takes a little longer than the one with the usual
@@ -181,6 +182,9 @@ _build_ folder required for `clangd` to work properly as [LSP (language
 server)](https://clangd.llvm.org/installation). Opening your IDE spawning
 `clangd` _after_ building Hydrogen for the first time should give you modern C++
 code editting features.
+
+Note: if you want to run the integration tests, you need to have both `JACK`
+server and `Go` installed.
 
 ### Additional Build Features and Uninstall
 
