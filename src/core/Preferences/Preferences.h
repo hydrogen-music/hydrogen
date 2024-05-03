@@ -381,6 +381,7 @@ public:
 			the pattern position of Hydrogen and the bar information
 			provided by JACK can be assumed to be identical.*/
 		identicalBars = 1 };
+		static QString JackBBTSyncMethodToQString( const JackBBTSyncMethod& j );
 	/**
 	 * Since Hydrogen uses both fixed pattern lengths and recalculates
 	 * the tick size each time it encounters an alternative tempo, its
