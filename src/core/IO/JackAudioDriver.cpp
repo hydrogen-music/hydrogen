@@ -53,6 +53,8 @@
 #include <core/Lash/LashClient.h>
 #endif
 
+#define JACK_DEBUG 0
+
 namespace H2Core {
 
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
@@ -76,7 +78,7 @@ int JackAudioDriver::jackDriverBufferSize( jack_nframes_t nframes, void* param )
 	JackAudioDriver::jackServerBufferSize = nframes;
 	return 0;
 }
-	
+
 void JackAudioDriver::jackDriverShutdown( void* arg )
 {
 	UNUSED( arg );
@@ -107,18 +109,18 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_fLastTimebaseBpm( 120 )
 {
 	auto pPreferences = Preferences::get_instance();
-	
+
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
 
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	
+
 	// Destination ports the output of Hydrogen will be connected
 	// to.
 	m_sOutputPortName1 = pPreferences->m_sJackPortName1;
 	m_sOutputPortName2 = pPreferences->m_sJackPortName2;
-	
+
 	memset( m_pTrackOutputPortsL, 0, sizeof(m_pTrackOutputPortsL) );
 	memset( m_pTrackOutputPortsR, 0, sizeof(m_pTrackOutputPortsR) );
 
@@ -216,11 +218,11 @@ void JackAudioDriver::disconnect()
 	INFOLOG( "disconnect" );
 
 	deactivate();
-	
+
 	jack_client_t* pOldClient = m_pClient;
-	
+
 	m_pClient = nullptr;
-	
+
 	if ( pOldClient != nullptr ) {
 		int nReturnCode = jack_client_close( pOldClient );
 		if ( nReturnCode != 0 ) {
@@ -258,7 +260,7 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	if ( m_pClient != nullptr &&
 		 Preferences::get_instance()->m_bJackTrackOuts ) {
 		float* pBuffer;
-		
+
 		for ( int ii = 0; ii < m_nTrackPortCount; ++ii ) {
 			pBuffer = getTrackOut_L( ii );
 			if ( pBuffer != nullptr ) {
@@ -312,7 +314,9 @@ bool JackAudioDriver::relocateUsingBBT()
 	if ( pSong == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-		// DEBUGLOG( "No song set." );
+#ifdef JACK_DEBUG
+		DEBUGLOG( "No song set." );
+#endif
 		return false;
 	}
 
@@ -322,7 +326,7 @@ bool JackAudioDriver::relocateUsingBBT()
 	float fAdditionalTicks = 0;
 	float fNumberOfBarsPassed = 0;
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
- 
+
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
 			barTicks = pHydrogen->getTickForColumn( m_JackTransportPos.bar - 1 );
@@ -358,7 +362,7 @@ bool JackAudioDriver::relocateUsingBBT()
 						nMinimumPatternLength = ppPatternList->get( ii )->get_length();
 					}
 				}
-			
+
 				if ( nMinimumPatternLength == nLargeNumber ){
 					fNextIncrement = 0;
 				} else {
@@ -366,11 +370,11 @@ bool JackAudioDriver::relocateUsingBBT()
 						static_cast<float>(nMinimumPatternLength) /
 						fBarConversion;
 				}
-			
+
 				if ( static_cast<float>(nBarJack) < ( fNumberOfBarsPassed + fNextIncrement ) ) {
 					break;
 				}
-			
+
 				fNumberOfBarsPassed += fNextIncrement;
 				++nNumberOfPatternsPassed;
 			}
@@ -389,10 +393,12 @@ bool JackAudioDriver::relocateUsingBBT()
 					( fNextIncrement - 1 );
 			}
 
-			// DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, nBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
-			// 		  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
-			//  		  .arg( nBarJack ).arg( fNumberOfBarsPassed )
-			//  		  .arg( fBarConversion ).arg( barTicks ) );
+#ifdef JACK_DEBUG
+			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, nBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
+					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
+			 		  .arg( nBarJack ).arg( fNumberOfBarsPassed )
+			 		  .arg( fBarConversion ).arg( barTicks ) );
+#endif
 		} else {
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
@@ -402,6 +408,10 @@ bool JackAudioDriver::relocateUsingBBT()
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
 		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
+
+#ifdef JACK_DEBUG
+	DEBUGLOG( QString( "Locate to [%1]" ).arg( fNewTick ) );
+#endif
 
 	pAudioEngine->locate( fNewTick, false );
 
@@ -413,12 +423,15 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
 	}
-	
+
 	if ( m_JackTransportPos.beats_per_minute !=
 		 m_previousJackTransportPos.beats_per_minute ) {
-		// DEBUGLOG( QString( "Change in tempo from [%1] to [%2]" )
-		// 		  .arg( m_previousJackTransportPos.beats_per_minute )
-		// 		  .arg( m_JackTransportPos.beats_per_minute ) );
+#ifdef JACK_DEBUG
+			DEBUGLOG( QString( "Change in tempo from [%1] to [%2]" )
+				  .arg( m_previousJackTransportPos.beats_per_minute )
+				  .arg( m_JackTransportPos.beats_per_minute ) );
+#endif
+
 		return false;
 	}
 
@@ -427,7 +440,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		m_JackTransportPos.beats_per_minute *
 		m_JackTransportPos.ticks_per_beat /
 		m_JackTransportPos.frame_rate / 60;
-	
+
 	int32_t nNewTick = m_previousJackTransportPos.tick +
 		floor( expectedTickUpdate );
 
@@ -443,11 +456,13 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			if ( m_JackTransportPos.bar !=
 				m_previousJackTransportPos.bar + 1 ||
 				m_JackTransportPos.beat != 1 ) {
-				// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
-				// 		  .arg( m_previousJackTransportPos.bar )
-				// 		  .arg( m_previousJackTransportPos.beat )
-				// 		  .arg( m_JackTransportPos.bar )
-				// 		  .arg( m_JackTransportPos.beat ) );
+#ifdef JACK_DEBUG
+				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
+						  .arg( m_previousJackTransportPos.bar )
+						  .arg( m_previousJackTransportPos.beat )
+						  .arg( m_JackTransportPos.bar )
+						  .arg( m_JackTransportPos.beat ) );
+#endif
 				return false;
 			}
 		} else {
@@ -455,11 +470,13 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat + 1 ) {
-				// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
-				// 		  .arg( m_previousJackTransportPos.bar )
-				// 		  .arg( m_previousJackTransportPos.beat )
-				// 		  .arg( m_JackTransportPos.bar )
-				// 		  .arg( m_JackTransportPos.beat ) );
+#ifdef JACK_DEBUG
+				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
+						  .arg( m_previousJackTransportPos.bar )
+						  .arg( m_previousJackTransportPos.beat )
+						  .arg( m_JackTransportPos.bar )
+						  .arg( m_JackTransportPos.beat ) );
+#endif
 				return false;
 			}
 		}
@@ -467,11 +484,13 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat ) {
-		// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
-		// 		  .arg( m_previousJackTransportPos.bar )
-		// 		  .arg( m_previousJackTransportPos.beat )
-		// 		  .arg( m_JackTransportPos.bar )
-		// 		  .arg( m_JackTransportPos.beat ) );
+#ifdef JACK_DEBUG
+		DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
+				  .arg( m_previousJackTransportPos.bar )
+				  .arg( m_previousJackTransportPos.beat )
+				  .arg( m_JackTransportPos.bar )
+				  .arg( m_JackTransportPos.beat ) );
+#endif
 		return false;
 	}
 
@@ -480,10 +499,12 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
 		 abs( m_JackTransportPos.tick +
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
-		// DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
-		// 		  .arg( m_previousJackTransportPos.tick )
-		// 		  .arg( m_JackTransportPos.tick )
-		// 		  .arg( nNewTick ));
+#ifdef JACK_DEBUG
+		DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
+				  .arg( m_previousJackTransportPos.tick )
+				  .arg( m_JackTransportPos.tick )
+				  .arg( nNewTick ));
+#endif
 		return false;
 	}
 
@@ -501,7 +522,7 @@ bool JackAudioDriver::updateTransportPosition()
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	const bool bTimebaseEnabled = Preferences::get_instance()->m_bJackTimebaseEnabled;
-	
+
 	// jack_transport_query() (jack/transport.h) queries the
 	// current transport state and position. If called from the
 	// process thread, the second argument, which is a pointer to
@@ -517,7 +538,7 @@ bool JackAudioDriver::updateTransportPosition()
 	case JackTransportStopped: // Transport is halted
 		pAudioEngine->setNextState( AudioEngine::State::Ready );
 		break;
-		
+
 	case JackTransportRolling: // Transport is playing
 		pAudioEngine->setNextState( AudioEngine::State::Playing );
 		break;
@@ -527,15 +548,17 @@ bool JackAudioDriver::updateTransportPosition()
 		// this can take more than one cycle.
 		pAudioEngine->setNextState( AudioEngine::State::Ready );
 		break;
-		
+
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
-	
+
 	if ( pHydrogen->getSong() == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-		// DEBUGLOG( "No song set." );
+#ifdef JACK_DEBUG
+		DEBUGLOG( "No song set." );
+#endif
 		return false;
 	}
 
@@ -543,6 +566,17 @@ bool JackAudioDriver::updateTransportPosition()
 		m_fLastTimebaseBpm =
 			static_cast<float>(m_JackTransportPos.beats_per_minute );
 	}
+
+#ifdef JACK_DEBUG
+	DEBUGLOG( QString( "JACK state: %1, pos: %2, sync method: %3" )
+			  .arg( JackTransportStateToQString( m_JackTransportState ) )
+			  .arg( JackTransportPosToQString( m_JackTransportPos ) )
+			  .arg( Preferences::JackBBTSyncMethodToQString(
+						Preferences::get_instance()->m_JackBBTSync ) ) );
+	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
+			  .arg( TimebaseToQString( m_timebaseState ) )
+			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
+#endif
 
 	if ( bTimebaseEnabled ) {
 		// Update the status regrading JACK timebase master.
@@ -600,6 +634,12 @@ bool JackAudioDriver::updateTransportPosition()
 		}
 	}
 
+#ifdef JACK_DEBUG
+	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
+			  .arg( TimebaseToQString( m_timebaseState ) )
+			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
+#endif
+
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
@@ -607,11 +647,13 @@ bool JackAudioDriver::updateTransportPosition()
 		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
 		 m_JackTransportPos.frame ) {
 
-		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, timebase mode: %4" )
-		// 		 .arg( pAudioEngine->getTransportPosition()->getFrame() )
-		// 		 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
-		// 		 .arg( m_JackTransportPos.frame )
-		// 		 .arg( TimebaseToQString( m_timebaseState ) ) );
+#ifdef JACK_DEBUG
+		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, timebase mode: %4" )
+				 .arg( pAudioEngine->getTransportPosition()->getFrame() )
+				 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
+				 .arg( m_JackTransportPos.frame )
+				 .arg( TimebaseToQString( m_timebaseState ) ) );
+#endif
 
 		if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
 			 m_JackTransportPos.frame != 0 &&
@@ -628,15 +670,17 @@ bool JackAudioDriver::updateTransportPosition()
 	if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
 		 ( m_JackTransportPos.valid & JackPositionBBT ) ) {
 		m_previousJackTransportPos = m_JackTransportPos;
-		
+
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
 		if ( !compareAdjacentBBT() ) {
 
-			// DEBUGLOG( QString( "comparison failed, bpm int: %1, bpm ext: %2" )
-			// 		  .arg( pAudioEngine->getTransportPosition()->getBpm() )
-			// 		  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
+#ifdef JACK_DEBUG
+			DEBUGLOG( QString( "comparison failed, bpm int: %1, bpm ext: %2" )
+					  .arg( pAudioEngine->getTransportPosition()->getBpm() )
+					  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
+#endif
 
 			if ( ! relocateUsingBBT() ) {
 			   return false;
@@ -672,7 +716,7 @@ float* JackAudioDriver::getTrackOut_L( unsigned nTrack )
 	if ( nTrack > static_cast<unsigned>(m_nTrackPortCount) ) {
 		return nullptr;
 	}
-	
+
 	jack_port_t* pPort = m_pTrackOutputPortsL[nTrack];
 	jack_default_audio_sample_t* out = nullptr;
 	if( pPort ) {
@@ -686,7 +730,7 @@ float* JackAudioDriver::getTrackOut_R( unsigned nTrack )
 	if( nTrack > static_cast<unsigned>(m_nTrackPortCount) ) {
 		return nullptr;
 	}
-	
+
 	jack_port_t* pPort = m_pTrackOutputPortsR[nTrack];
 	jack_default_audio_sample_t* out = nullptr;
 	if( pPort ) {
@@ -725,7 +769,7 @@ float* JackAudioDriver::getTrackOut_R( std::shared_ptr<Instrument> instr, std::s
 int JackAudioDriver::init( unsigned bufferSize )
 {
 	auto pPreferences = Preferences::get_instance();
-	
+
 	QString sClientName = "Hydrogen";
 
 #ifdef H2CORE_HAVE_OSC
@@ -865,7 +909,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	// objects used for moving data of any type in or out of the
 	// client. Ports may be connected in various ways. The
 	// function `jack_port_register' (jack/jack.h) is called like
-	// jack_port_register( jack_client_t *client, 
+	// jack_port_register( jack_client_t *client,
 	//                     const char *port_name,
 	//                     const char *port_type,
 	//                     unsigned long flags,
@@ -914,7 +958,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
 	}
-	
+
 	return 0;
 }
 
@@ -945,7 +989,7 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 		pInstrument = pInstrumentList->get( n );
 		for ( const auto& pInstrumentComponent : *pInstrument->get_components() ) {
 			setTrackOutput( nTrackCount, pInstrument, pInstrumentComponent, pSong);
-			m_trackMap[pInstrument->get_id()][pInstrumentComponent->get_drumkit_componentID()] = 
+			m_trackMap[pInstrument->get_id()][pInstrumentComponent->get_drumkit_componentID()] =
 				nTrackCount;
 			nTrackCount++;
 		}
@@ -1044,7 +1088,7 @@ void JackAudioDriver::stopTransport()
 void JackAudioDriver::locateTransport( long long nFrame )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	
+
 	if ( m_pClient != nullptr ) {
 		// jack_transport_locate() (jack/transport.h )
 		// re-positions the transport to a new frame number. May
@@ -1060,7 +1104,7 @@ void JackAudioDriver::initTimebaseMaster()
 	if ( m_pClient == nullptr ) {
 		return;
 	}
-	
+
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
 		return;
@@ -1086,11 +1130,11 @@ void JackAudioDriver::initTimebaseMaster()
 		//
 		// @param client the JACK client structure.
 		// @param conditional non-zero for a conditional
-		// request. 
+		// request.
 		// @param timebase_callback is a realtime function
 		// that returns position information.
 		// @param arg an argument for the @a timebase_callback
-		// function. 
+		// function.
 		// @return
 		//   - 0 on success;
 		//   - EBUSY if a conditional request fails because
@@ -1104,6 +1148,9 @@ void JackAudioDriver::initTimebaseMaster()
 						.arg( nReturnValue ) );
 		}
 		else {
+#ifdef JACK_DEBUG
+		DEBUGLOG( "Registered as master" );
+#endif
 			m_timebaseTracking = TimebaseTracking::Valid;
 			m_timebaseState = Timebase::Master;
 			EventQueue::get_instance()->push_event(
@@ -1127,7 +1174,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
 		return;
 	}
-	
+
 	jack_release_timebase( m_pClient );
 
 	m_timebaseTracking = TimebaseTracking::Valid;
@@ -1140,6 +1187,9 @@ void JackAudioDriver::releaseTimebaseMaster()
 	EventQueue::get_instance()->push_event(
 		EVENT_JACK_TIMEBASE_STATE_CHANGED,
 		static_cast<int>(m_timebaseState) );
+#ifdef JACK_DEBUG
+	DEBUGLOG( TimebaseToQString( m_timebaseState ) );
+#endif
 }
 
 void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
@@ -1157,7 +1207,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
 	if ( pSong == nullptr ) {
-		// DEBUGLOG( "No song set." );
+#ifdef JACK_DEBUG
+		DEBUGLOG( "No song set." );
+#endif
 		return;
 	}
 
@@ -1210,16 +1262,21 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 		// Counting ticks starts at 0.
 		pJackPosition->tick = pPos->getPatternTickPosition();
-				
+
 	}
 
-	// DEBUGLOG( JackAudioDriver::JackTransportPosToQString( pJackPosition ) );
+#ifdef JACK_DEBUG
+	DEBUGLOG( QString( "Audio engine transport pos: %1" )
+			  .arg( pPos->toQString() ) );
+	DEBUGLOG( QString( "JACK pos: %1" )
+			  .arg( JackTransportPosToQString( *pJackPosition ) ) );
+#endif
 
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
 }
 
-	
+
 JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 	if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		return m_timebaseState;
@@ -1231,7 +1288,7 @@ float JackAudioDriver::getMasterBpm() const {
 	if ( m_timebaseState != Timebase::Listener ) {
 		return std::nan("no tempo, no masters");
 	}
-	
+
 	return m_fLastTimebaseBpm;
 }
 
@@ -1242,24 +1299,24 @@ int JackAudioDriver::getXRuns() const {
 void JackAudioDriver::printState() const {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	
+
 	DEBUGLOG( QString( "m_JackTransportState: %1,\n m_JackTransportPos: %2,\nm_timebaseState: %3, current pattern column: %4" )
 			  .arg( m_JackTransportState )
-			  .arg( JackTransportPosToQString( &m_JackTransportPos ) )
+			  .arg( JackTransportPosToQString( m_JackTransportPos ) )
 			  .arg( static_cast<int>(m_timebaseState) )
 			  .arg( pHydrogen->getAudioEngine()->getTransportPosition()->
 					getColumn() ) );
 }
 
-QString JackAudioDriver::JackTransportPosToQString( const jack_position_t* pPos ) {
+QString JackAudioDriver::JackTransportPosToQString( const jack_position_t& pos ) {
 	return QString( "frame: %1, frame_rate: %2, valid: %3, bar: %4, beat: %5, tick: %6, bar_start_tick: %7, beats_per_bar: %8, beat_type: %9, ticks_per_beat: %10, beats_per_minute: %11, frame_time: %12, next_time: %13" )
-		.arg( pPos->frame ).arg( pPos->frame_rate )
-		.arg( pPos->valid, 8, 16, QLatin1Char( '0' ) ) // hex value
-		.arg( pPos->bar ).arg( pPos->beat ).arg( pPos->tick )
-		.arg( pPos->bar_start_tick ).arg( pPos->beats_per_bar )
-		.arg( pPos->beat_type ).arg( pPos->ticks_per_beat )
-		.arg( pPos->beats_per_minute ).arg( pPos->frame_time )
-		.arg( pPos->next_time );
+		.arg( pos.frame ).arg( pos.frame_rate )
+		.arg( pos.valid, 8, 16, QLatin1Char( '0' ) ) // hex value
+		.arg( pos.bar ).arg( pos.beat ).arg( pos.tick )
+		.arg( pos.bar_start_tick ).arg( pos.beats_per_bar )
+		.arg( pos.beat_type ).arg( pos.ticks_per_beat )
+		.arg( pos.beats_per_minute ).arg( pos.frame_time )
+		.arg( pos.next_time );
 }
 
 QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t ) {
@@ -1274,7 +1331,7 @@ QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t )
 			return "Unknown";
 	}
 }
-QString JackAudioDriver::TransportStateToQString( const jack_transport_state_t& t ) {
+QString JackAudioDriver::JackTransportStateToQString( const jack_transport_state_t& t ) {
 	switch( t ) {
 		case JackTransportStopped:
 			return "Stopped";
