@@ -454,8 +454,8 @@ private:
 	 */	
 	static void jackDriverShutdown( void* arg );
 
-	static QString JackTransportPosToQString( const jack_position_t* pPos );
-	static QString TransportStateToQString( const jack_transport_state_t& pPos );
+	static QString JackTransportPosToQString( const jack_position_t& pPos );
+	static QString JackTransportStateToQString( const jack_transport_state_t& pPos );
 
 	/** Show debugging information.*/
 	void printState() const;
