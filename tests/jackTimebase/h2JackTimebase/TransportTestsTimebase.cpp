@@ -38,6 +38,23 @@ using namespace H2Core;
 void TransportTestsTimebase::testTransportProcessingJack() {
 	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+
+	// In case we are testing Timebase support we have to checkout both provided
+	// types of synchronization.
+	if ( pHydrogen->getJackTimebaseState() !=
+		 JackAudioDriver::Timebase::None ) {
+
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
+						pPref->m_JackBBTSync ) );
+
+		perform( &AudioEngineTests::testTransportProcessingJack );
+
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
+						pPref->m_JackBBTSync ) );
+	}
 
 	perform( &AudioEngineTests::testTransportProcessingJack );
 
@@ -47,10 +64,25 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\n\n" );
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+
+	// In case we are testing Timebase support we have to checkout both provided
+	// types of synchronization.
+	if ( pHydrogen->getJackTimebaseState() !=
+		 JackAudioDriver::Timebase::None ) {
+
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
+						pPref->m_JackBBTSync ) );
+
+		perform( &AudioEngineTests::testTransportRelocationJack );
+
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
+						pPref->m_JackBBTSync ) );
+	}
 
 	perform( &AudioEngineTests::testTransportRelocationJack );
-
-	CoreActionController::activateTimeline( false );
 
 	___INFOLOG( "\npassed\n" );
 }
