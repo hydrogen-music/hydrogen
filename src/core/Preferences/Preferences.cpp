@@ -1348,7 +1348,7 @@ bool Preferences::checkJackSupport() {
 	bool bJackSupport = false;
 
 	// Classic JACK
-	const QString sCapture = checkExecutable( "jackd", "--version" );
+	QString sCapture = checkExecutable( "jackd", "--version" );
 	if ( ! sCapture.isEmpty() ) {
 		bJackSupport = true;
 		if ( bUseLogger ) {
