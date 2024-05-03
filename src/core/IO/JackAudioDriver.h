@@ -622,6 +622,7 @@ public:
 		/** Only normal clients registered */
 		None = -1
 	};
+	static QString TimebaseToQString( const Timebase& t ) { return "Not supported"; };
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration
@@ -632,8 +633,8 @@ public:
 
 	// Required since these functions are a friend of AudioEngine which
 	// need to be build even if no JACK support is desired.
-	void updateTransportPosition() {}
-	void relocateUsingBBT() {}
+	bool updateTransportPosition() {return true;}
+	bool relocateUsingBBT() {return true;}
 };
 
 }; // H2Core namespace
