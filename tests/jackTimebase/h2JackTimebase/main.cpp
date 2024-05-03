@@ -203,8 +203,10 @@ int main(int argc, char *argv[])
 		const QString sSongFilename = parser.value( songFileOption );
 		const QString sVerbosityString = parser.value( verboseOption );
 		const QString sLogFile = parser.value( logFileOption );
-		const QString sOscPort = parser.value( oscPortOption );
+
 		int nOscPort = -1;
+#ifdef H2CORE_HAVE_OSC
+		const QString sOscPort = parser.value( oscPortOption );
 		if ( ! sOscPort.isEmpty() ) {
 			bool bOk;
 			nOscPort = parser.value( oscPortOption ).toInt( &bOk );
@@ -214,6 +216,7 @@ int main(int argc, char *argv[])
 				exit( 1 );
 			}
 		}
+#endif
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if ( parser.isSet( verboseOption ) ){
