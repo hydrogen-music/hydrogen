@@ -260,8 +260,10 @@ int main(int argc, char *argv[])
 				<< std::endl;
 			exit( 1 );
 		}
-		const QString sOscPort = parser.value( oscPortOption );
+
 		int nOscPort = -1;
+#ifdef H2CORE_HAVE_OSC
+		const QString sOscPort = parser.value( oscPortOption );
 		if ( ! sOscPort.isEmpty() ) {
 			nOscPort = parser.value( oscPortOption ).toInt( &bOk );
 			if ( ! bOk ) {
@@ -270,6 +272,7 @@ int main(int argc, char *argv[])
 				exit( 1 );
 			}
 		}
+#endif
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if ( parser.isSet( verboseOption ) ){
