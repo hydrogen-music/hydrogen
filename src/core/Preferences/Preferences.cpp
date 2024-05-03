@@ -1364,15 +1364,15 @@ bool Preferences::checkJackSupport() {
 		process.waitForFinished( -1 );
 
 		if ( process.exitCode() != 0 ) {
-			return "";
+			return QString( "" );
 		}
 
 		QString sStdout = process.readAllStandardOutput();
 		if ( sStdout.isEmpty() ) {
-			return "No output";
+			return QString( "No output" );
 		}
 
-		return sStdout.trimmed();
+		return QString( sStdout.trimmed() );
 	};
 
 
