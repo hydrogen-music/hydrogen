@@ -39,6 +39,7 @@ GTAGS
 
 # Test artifacts
 tests/jackTearDown/jackTearDown
+tests/jackTearDown/h2cli.log
 tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
 tests/jackTimebase/test*.log

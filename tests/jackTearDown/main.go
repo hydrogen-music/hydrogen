@@ -5,6 +5,8 @@ import (
     "fmt"
     "log"
     "os/exec"
+    "path"
+    "strconv"
     "time"
 
     "github.com/hypebeast/go-osc/osc"
@@ -12,7 +14,7 @@ import (
 
 // How many times the test should be repeated.
 const numberOfTestRuns = 100
-const oscHydrogenPort = 9000
+const oscHydrogenPort = 7777
 
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
@@ -21,6 +23,9 @@ const hydrogenStartupTime = 3700
 // killHydrogen() to send a quit OSC signal, for Hydrogen to receive it and
 // finish its tear down.
 const hydrogenTearDownTime = 5000
+
+var hydrogenPath = path.Join(
+    "..", "..", "build", "src", "cli", "h2cli")
 
 // hydrogenStartupChan is used by startHydrogen() to indicate that Hydrogen was
 // started.
@@ -31,9 +36,9 @@ var hydrogenStartupChan chan bool
 func main() {
     var err error
 
-    _, err = exec.LookPath("hydrogen")
+    _, err = exec.LookPath(hydrogenPath)
     if err != nil {
-        log.Fatalf("[hydrogen] executable could not be found: %v", err.Error())
+        log.Fatalf("[h2cli] executable could not be found: %v", err.Error())
     }
 
     oscClient := osc.NewClient("localhost", oscHydrogenPort)
@@ -63,7 +68,8 @@ func startHydrogen() error {
     // in a zombie process.
     ctx, _ := context.WithTimeout(context.Background(),
         (hydrogenTearDownTime + hydrogenStartupTime) * time.Millisecond)
-    cmd := exec.CommandContext(ctx, "hydrogen", "--driver", "jack", "--nosplash")
+    cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack",
+        "-O", strconv.FormatInt(oscHydrogenPort, 10), "-T", "-L", "./h2cli.log")
 
     hydrogenStartupChan <- true
 
