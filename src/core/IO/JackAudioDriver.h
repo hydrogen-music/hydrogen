@@ -409,6 +409,8 @@ private:
 	 * #m_previousJackTransportPos.
 	 */
 	bool compareAdjacentBBT() const;
+		static bool isBBTValid( const jack_position_t& pos );
+		static double bbtToTick( const jack_position_t& pos );
 	
 	/**
 	 * Callback function for the JACK server to supply additional
