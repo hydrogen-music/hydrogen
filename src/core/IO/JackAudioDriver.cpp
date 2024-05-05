@@ -116,7 +116,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pOutputPort2( nullptr ),
 	  m_timebaseTracking( TimebaseTracking::None ),
 	  m_timebaseState( Timebase::None ),
-	  m_fLastTimebaseBpm( 120 )
+	  m_fLastTimebaseBpm( 120 ),
+	  m_nTimebaseFrameOffset( 0 )
 {
 	auto pPreferences = Preferences::get_instance();
 
@@ -284,6 +285,14 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
+bool JackAudioDriver::checkBBTPos() const {
+	if ( ! ( m_JackTransportPos.valid & JackPositionBBT ) ) {
+		return true;
+	}
+
+	return isBBTValid( m_JackTransportPos );
+}
+
 bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
 	if ( ! ( pos.valid & JackPositionBBT ) ) {
 		// No BBT information
@@ -415,15 +424,15 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	return fNewTick;
 }
 
-bool JackAudioDriver::relocateUsingBBT()
+void JackAudioDriver::relocateUsingBBT()
 {
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
-		return false;
+		return;
 	}
 	if ( m_timebaseState != Timebase::Listener ) {
 		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
-		return false;
+		return;
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -436,19 +445,25 @@ bool JackAudioDriver::relocateUsingBBT()
 #ifdef JACK_DEBUG
 		DEBUGLOG( "No song set." );
 #endif
-		return false;
+		return;
 	}
 
 
 	const double fNewTick = bbtToTick( m_JackTransportPos );
+#ifdef JACK_DEBUG
+				INFOLOG( "[end of song reached]" );
+#endif
 
 #ifdef JACK_DEBUG
 	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
 #endif
 
+	const auto nOldFrame = pAudioEngine->getTransportPosition()->getFrame();
 	pAudioEngine->locate( fNewTick, false );
+	m_nTimebaseFrameOffset =
+		pAudioEngine->getTransportPosition()->getFrame() - nOldFrame;
 
-	return true;
+	return;
 }
 
 bool JackAudioDriver::compareAdjacentBBT() const
@@ -545,11 +560,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	return true;
 }
 
-bool JackAudioDriver::updateTransportPosition()
+void JackAudioDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
-		return false;
+		return;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -593,7 +608,7 @@ bool JackAudioDriver::updateTransportPosition()
 #ifdef JACK_DEBUG
 		DEBUGLOG( "No song set." );
 #endif
-		return false;
+		return;
 	}
 
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
@@ -679,32 +694,34 @@ bool JackAudioDriver::updateTransportPosition()
 	// timeline) or by a different JACK client.
 	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
 		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
+		 m_JackTransportPos.frame ||
+		 ( pAudioEngine->getTransportPosition()->getFrame() -
+		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
+		   m_nTimebaseFrameOffset ) !=
 		 m_JackTransportPos.frame ) {
 
 #ifdef JACK_DEBUG
-		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, timebase mode: %4" )
-				 .arg( pAudioEngine->getTransportPosition()->getFrame() )
-				 .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
-				 .arg( m_JackTransportPos.frame )
-				 .arg( TimebaseToQString( m_timebaseState ) ) );
+		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
+				  .arg( pAudioEngine->getTransportPosition()->getFrame() )
+				  .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
+				  .arg( m_JackTransportPos.frame )
+				  .arg( m_nTimebaseFrameOffset )
+				  .arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
 
 		if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
 			 m_JackTransportPos.frame != 0 && isBBTValid( m_JackTransportPos ) ) {
-			if ( ! relocateUsingBBT() ) {
-#ifdef JACK_DEBUG
-		ERRORLOG( "[relocation failed]" );
-#endif
-			   return false;
-			}
+			relocateUsingBBT();
 		}
 		else {
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
+			m_nTimebaseFrameOffset = 0;
 		}
 #ifdef JACK_DEBUG
 		DEBUGLOG( QString( "[relocation done] %1" )
 				 .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
+		return;
 	}
 
 	if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
@@ -722,12 +739,8 @@ bool JackAudioDriver::updateTransportPosition()
 					  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
 #endif
 
-			if ( ! relocateUsingBBT() ) {
-#ifdef JACK_DEBUG
-				ERRORLOG( "[relocation failed]" );
-#endif
-				return false;
-			}
+			relocateUsingBBT();
+
 #ifdef JACK_DEBUG
 			DEBUGLOG( QString( "[relocation done] %1" )
 					  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
@@ -735,7 +748,7 @@ bool JackAudioDriver::updateTransportPosition()
 		}
 	}
 
-	return true;
+	return;
 }
 
 float* JackAudioDriver::getOut_L()

@@ -289,11 +289,8 @@ public:
 	 * information from the JACK server, writes them to
 	 * #m_JackTransportPos and in #m_JackTransportState, and updates
 	 * the AudioEngine in case of a mismatch.
-	 *
-	 * @return false in case something went wrong (important for consistency
-	 * checks during unit testing).
 	 */
-	bool updateTransportPosition();
+	void updateTransportPosition();
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -362,10 +359,11 @@ public:
 	 *
 	 * This type of operation is triggered whenever the transport
 	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master.
-	 *
-	 * @return false on failure. */
-	bool relocateUsingBBT();
+	 * the presence of an external timebase master. */
+	void relocateUsingBBT();
+		/** Used within the unit tests and checks whether the last JACK
+		 * transport position retrieved has valid BBT information. */
+		bool checkBBTPos() const;
 
 		friend class AudioEngineTests;
 private:
@@ -595,6 +593,8 @@ private:
 		 * instead of dropping Timebase state too and offer the last tempo to
 		 * the remainder of Hydrogen. */
 		float m_fLastTimebaseBpm;
+
+		long long m_nTimebaseFrameOffset;
 };
 
 }; // H2Core namespace
@@ -635,8 +635,8 @@ public:
 
 	// Required since these functions are a friend of AudioEngine which
 	// need to be build even if no JACK support is desired.
-	bool updateTransportPosition() {return true;}
-	bool relocateUsingBBT() {return true;}
+	void updateTransportPosition() {}
+	void relocateUsingBBT() {}
 };
 
 }; // H2Core namespace

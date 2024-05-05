@@ -2378,10 +2378,10 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
-		if ( ! pDriver->updateTransportPosition() ) {
+		pDriver->updateTransportPosition();
+		if ( ! pDriver->checkBBTPos() ) {
 				AudioEngineTests::throwException(
-					QString( "[jackTestProcessCallback] [%1] Error while update JACK transport position" )
-					.arg( sDrivers ) );
+					"[jackTestProcessCallback] Inconsistent JACK BBT information" );
 		}
 	}
 	else {
