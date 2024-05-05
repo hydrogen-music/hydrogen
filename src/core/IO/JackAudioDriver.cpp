@@ -335,6 +335,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	const double fTicksPerBeat =
 		static_cast<double>( pSong->getResolution() / pos.beat_type * 4 );
 
+	bool bEndOfSongReached = false;
 	long barTicks = 0;
 	double fAdditionalTicks = 0;
 	double fNumberOfBarsPassed = 0;
@@ -346,6 +347,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 			if ( barTicks < 0 ) {
 				barTicks = 0;
+				bEndOfSongReached = true;
 			}
 		}
 		else if ( Preferences::get_instance()->m_JackBBTSync ==
@@ -387,6 +389,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 			barTicks = pHydrogen->getTickForColumn( nNumberOfPatternsPassed );
 			if ( barTicks < 0 ) {
 				barTicks = 0;
+				bEndOfSongReached = true;
 			}
 			else if ( fNextIncrement > 1 &&
 						fNumberOfBarsPassed != fBarJack ) {
@@ -396,13 +399,18 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 				// in the pattern.
 				fAdditionalTicks = fTicksPerBeat * 4 *
 					( fNextIncrement - 1 );
+
+				if ( barTicks + fAdditionalTicks > pSong->lengthInTicks() ) {
+					bEndOfSongReached = true;
+				}
 			}
 
 #ifdef JACK_DEBUG
-			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, fBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
+			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, fBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6, bEndOfSongReached: %7, pSong->lengthInTicks(): %8" )
 					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
 			 		  .arg( fBarJack ).arg( fNumberOfBarsPassed )
-			 		  .arg( fBarConversion ).arg( barTicks ) );
+			 		  .arg( fBarConversion ).arg( barTicks )
+					  .arg( bEndOfSongReached ).arg( pSong->lengthInTicks() ) );
 #endif
 		} else {
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
@@ -410,15 +418,25 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		}
 	}
 
-	const double fNewTick = static_cast<double>(barTicks) + fAdditionalTicks +
-		( pos.beat - 1 ) * fTicksPerBeat +
-		pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
+	double fNewTick;
+	if ( bEndOfSongReached ) {
+		fNewTick = 0;
+#ifdef JACK_DEBUG
+		DEBUGLOG( "[end of song reached]" );
+#endif
+	}
+	else {
+		fNewTick = static_cast<double>(barTicks) + fAdditionalTicks +
+			( pos.beat - 1 ) * fTicksPerBeat +
+			pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
+	}
 
 #ifdef JACK_DEBUG
-	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, fAdditionalTicks: %4, pos.beat: %5, fTicksPerBeat: %6, pos.tick: %7, pos.ticks_per_beat: %8" )
+	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, fAdditionalTicks: %4, pos.beat: %5, fTicksPerBeat: %6, pos.tick: %7, pos.ticks_per_beat: %8, bEndOfSongReached: %9" )
 			  .arg( fNewTick ).arg( pos.bar ).arg( barTicks )
 			  .arg( fAdditionalTicks ).arg( pos.beat ).arg( fTicksPerBeat )
-			  .arg( pos.tick ).arg( pos.ticks_per_beat ) );
+			  .arg( pos.tick ).arg( pos.ticks_per_beat )
+			  .arg( bEndOfSongReached ) );
 #endif
 
 	return fNewTick;
@@ -450,9 +468,6 @@ void JackAudioDriver::relocateUsingBBT()
 
 
 	const double fNewTick = bbtToTick( m_JackTransportPos );
-#ifdef JACK_DEBUG
-				INFOLOG( "[end of song reached]" );
-#endif
 
 #ifdef JACK_DEBUG
 	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
