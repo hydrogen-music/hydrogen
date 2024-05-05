@@ -82,12 +82,22 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 {
 	UNUSED( arg );
 
+#ifdef JACK_DEBUG
+	___INFOLOG( "" );
+#endif
+
 	JackAudioDriver::pJackDriverInstance->m_pClient = nullptr;
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 int JackAudioDriver::jackXRunCallback( void *arg ) {
 	UNUSED( arg );
 	++JackAudioDriver::jackServerXRuns;
+
+#ifdef JACK_DEBUG
+	___INFOLOG( QString( "New XRun. [%1] in total" )
+			   .arg( JackAudioDriver::jackServerXRuns ) );
+#endif
+
 	EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
 	return 0;
 }
@@ -273,6 +283,137 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
+bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
+	if ( ! ( pos.valid & JackPositionBBT ) ) {
+		// No BBT information
+		return false;
+	}
+
+	// Sometime the JACK server does send seemingly random nuisance.
+	if ( pos.beat_type < 1 ||
+		 pos.bar < 1 ||
+		 pos.beat < 1 ||
+		 pos.beat > pos.beats_per_bar ||
+		 pos.beats_per_bar < 1 ||
+		 pos.beats_per_minute < MIN_BPM ||
+		 pos.beats_per_minute > MAX_BPM ||
+		 pos.tick < 0 ||
+		 pos.tick >= pos.ticks_per_beat ||
+		 pos.ticks_per_beat < 1 ) {
+#ifdef JACK_DEBUG
+		DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
+				  .arg( pos.beat_type ).arg( pos.bar ).arg( pos.beat )
+				  .arg( pos.tick ).arg( pos.beats_per_bar )
+				  .arg( pos.beats_per_minute ).arg( pos.ticks_per_beat ) );
+#endif
+		ERRORLOG( "Invalid timebase information. Hydrogen falls back to frame-based relocation. In case you encounter this error frequently, you might considering to disabling JACK timebase support in the Preferences in order to avoid glitches." );
+		return false;
+	}
+
+	return true;
+}
+
+double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return 0;
+	}
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	const double fTicksPerBeat =
+		static_cast<double>( pSong->getResolution() / pos.beat_type * 4 );
+
+	long barTicks = 0;
+	double fAdditionalTicks = 0;
+	double fNumberOfBarsPassed = 0;
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+
+		if ( Preferences::get_instance()->m_JackBBTSync ==
+			 Preferences::JackBBTSyncMethod::identicalBars ) {
+			barTicks = pHydrogen->getTickForColumn( pos.bar - 1 );
+
+			if ( barTicks < 0 ) {
+				barTicks = 0;
+			}
+		}
+		else if ( Preferences::get_instance()->m_JackBBTSync ==
+					Preferences::JackBBTSyncMethod::constMeasure ) {
+			// Length of a pattern * fBarConversion provides the number of
+			// bars in Jack's point of view a Hydrogen pattern does cover.
+			const double fBarConversion =
+				static_cast<double>(pSong->getResolution()) * 4 *
+				static_cast<double>(pos.beats_per_bar) /
+				static_cast<double>(pos.beat_type);
+			double fNextIncrement = 0;
+			const double fBarJack = pos.bar - 1;
+			const int nLargeNumber = 100000;
+			int nMinimumPatternLength = nLargeNumber;
+			int nNumberOfPatternsPassed = 0;
+
+			// Checking how many of Hydrogen's patterns are covered by the
+			// bar provided by Jack.
+			auto pPatternGroup = pSong->getPatternGroupVector();
+			for ( const PatternList* ppPatternList : *pPatternGroup ) {
+				if ( ppPatternList->size() == 0 ){
+					fNumberOfBarsPassed++;
+					continue;
+				}
+
+				fNextIncrement = static_cast<double>(
+					ppPatternList->longest_pattern_length( true )) /
+					fBarConversion;
+
+				if ( fBarJack < ( fNumberOfBarsPassed + fNextIncrement ) ) {
+					break;
+				}
+
+				fNumberOfBarsPassed += fNextIncrement;
+				++nNumberOfPatternsPassed;
+			}
+
+			// Position of the resulting pattern in ticks.
+			barTicks = pHydrogen->getTickForColumn( nNumberOfPatternsPassed );
+			if ( barTicks < 0 ) {
+				barTicks = 0;
+			}
+			else if ( fNextIncrement > 1 &&
+						fNumberOfBarsPassed != fBarJack ) {
+				// If pattern is longer than what is considered a bar in
+				// Jack's point of view, some additional ticks have to be
+				// added whenever transport passes the first bar contained
+				// in the pattern.
+				fAdditionalTicks = fTicksPerBeat * 4 *
+					( fNextIncrement - 1 );
+			}
+
+#ifdef JACK_DEBUG
+			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, fBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
+					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
+			 		  .arg( fBarJack ).arg( fNumberOfBarsPassed )
+			 		  .arg( fBarConversion ).arg( barTicks ) );
+#endif
+		} else {
+			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
+					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
+		}
+	}
+
+	const double fNewTick = static_cast<double>(barTicks) + fAdditionalTicks +
+		( pos.beat - 1 ) * fTicksPerBeat +
+		pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
+
+#ifdef JACK_DEBUG
+	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, fAdditionalTicks: %4, pos.beat: %5, fTicksPerBeat: %6, pos.tick: %7, pos.ticks_per_beat: %8" )
+			  .arg( fNewTick ).arg( pos.bar ).arg( barTicks )
+			  .arg( fAdditionalTicks ).arg( pos.beat ).arg( fTicksPerBeat )
+			  .arg( pos.tick ).arg( pos.ticks_per_beat ) );
+#endif
+
+	return fNewTick;
+}
+
 bool JackAudioDriver::relocateUsingBBT()
 {
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
@@ -281,28 +422,6 @@ bool JackAudioDriver::relocateUsingBBT()
 	}
 	if ( m_timebaseState != Timebase::Listener ) {
 		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
-		return false;
-	}
-
-	// Sometime the JACK server does send seemingly random nuisance.
-	if ( m_JackTransportPos.beat_type < 1 ||
-		 m_JackTransportPos.bar < 1 ||
-		 m_JackTransportPos.beat < 1 ||
-		 m_JackTransportPos.beat > m_JackTransportPos.beats_per_bar ||
-		 m_JackTransportPos.beats_per_bar < 1 ||
-		 m_JackTransportPos.beats_per_minute < MIN_BPM ||
-		 m_JackTransportPos.beats_per_minute > MAX_BPM ||
-		 m_JackTransportPos.tick < 0 ||
-		 m_JackTransportPos.tick >= m_JackTransportPos.ticks_per_beat ||
-		 m_JackTransportPos.ticks_per_beat < 1 ) {
-		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
-				  .arg( m_JackTransportPos.beat_type )
-				  .arg( m_JackTransportPos.bar )
-				  .arg( m_JackTransportPos.beat )
-				  .arg( m_JackTransportPos.tick )
-				  .arg( m_JackTransportPos.beats_per_bar )
-				  .arg( m_JackTransportPos.beats_per_minute )
-				  .arg( m_JackTransportPos.ticks_per_beat ) );
 		return false;
 	}
 
@@ -319,97 +438,10 @@ bool JackAudioDriver::relocateUsingBBT()
 		return false;
 	}
 
-	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
-
-	long barTicks = 0;
-	float fAdditionalTicks = 0;
-	float fNumberOfBarsPassed = 0;
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-
-		if ( Preferences::get_instance()->m_JackBBTSync ==
-			 Preferences::JackBBTSyncMethod::identicalBars ) {
-			barTicks = pHydrogen->getTickForColumn( m_JackTransportPos.bar - 1 );
-
-			if ( barTicks < 0 ) {
-				barTicks = 0;
-			}
-		} else if ( Preferences::get_instance()->m_JackBBTSync ==
-					Preferences::JackBBTSyncMethod::constMeasure ) {
-			// Length of a pattern * fBarConversion provides the number of
-			// bars in Jack's point of view a Hydrogen pattern does cover.
-			float fBarConversion = pSong->getResolution() * 4 *
-				m_JackTransportPos.beats_per_bar /
-				m_JackTransportPos.beat_type;
-			float fNextIncrement = 0;
-			int nBarJack = m_JackTransportPos.bar - 1;
-			int nLargeNumber = 100000;
-			int nMinimumPatternLength = nLargeNumber;
-			int nNumberOfPatternsPassed = 0;
-
-			// Checking how many of Hydrogen's patterns are covered by the
-			// bar provided by Jack.
-			auto pPatternGroup = pSong->getPatternGroupVector();
-			for ( const PatternList* ppPatternList : *pPatternGroup ) {
-				nMinimumPatternLength = nLargeNumber;
-
-				// If there are multiple patterns at a single bar (in
-				// Hydrogen) the length of the shortest one used for
-				// playback.
-				for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
-					if ( ppPatternList->get( ii )->get_length() <
-						 nMinimumPatternLength ) {
-						nMinimumPatternLength = ppPatternList->get( ii )->get_length();
-					}
-				}
-
-				if ( nMinimumPatternLength == nLargeNumber ){
-					fNextIncrement = 0;
-				} else {
-					fNextIncrement =
-						static_cast<float>(nMinimumPatternLength) /
-						fBarConversion;
-				}
-
-				if ( static_cast<float>(nBarJack) < ( fNumberOfBarsPassed + fNextIncrement ) ) {
-					break;
-				}
-
-				fNumberOfBarsPassed += fNextIncrement;
-				++nNumberOfPatternsPassed;
-			}
-
-			// Position of the resulting pattern in ticks.
-			barTicks = pHydrogen->getTickForColumn( nNumberOfPatternsPassed );
-			if ( barTicks < 0 ) {
-				barTicks = 0;
-			} else if ( fNextIncrement > 1 &&
-						fNumberOfBarsPassed != nBarJack ) {
-				// If pattern is longer than what is considered a bar in
-				// Jack's point of view, some additional ticks have to be
-				// added whenever transport passes the first bar contained
-				// in the pattern.
-				fAdditionalTicks = fTicksPerBeat * 4 *
-					( fNextIncrement - 1 );
-			}
+	const double fNewTick = bbtToTick( m_JackTransportPos );
 
 #ifdef JACK_DEBUG
-			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, nBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6" )
-					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
-			 		  .arg( nBarJack ).arg( fNumberOfBarsPassed )
-			 		  .arg( fBarConversion ).arg( barTicks ) );
-#endif
-		} else {
-			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
-					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
-		}
-	}
-
-	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
-		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
-		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
-
-#ifdef JACK_DEBUG
-	DEBUGLOG( QString( "Locate to [%1]" ).arg( fNewTick ) );
+	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
 #endif
 
 	pAudioEngine->locate( fNewTick, false );
@@ -434,7 +466,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		return false;
 	}
 
-	double expectedTickUpdate =
+	const double expectedTickUpdate =
 		( m_JackTransportPos.frame - m_previousJackTransportPos.frame ) *
 		m_JackTransportPos.beats_per_minute *
 		m_JackTransportPos.ticks_per_beat /
@@ -499,10 +531,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		 abs( m_JackTransportPos.tick +
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
 #ifdef JACK_DEBUG
-		DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
+		DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]. expectedTickUpdate: %4, pos.ticks_per_beat: %5" )
 				  .arg( m_previousJackTransportPos.tick )
 				  .arg( m_JackTransportPos.tick )
-				  .arg( nNewTick ));
+				  .arg( nNewTick ).arg( expectedTickUpdate )
+				  .arg( m_JackTransportPos.ticks_per_beat ) );
 #endif
 		return false;
 	}
@@ -655,15 +688,21 @@ bool JackAudioDriver::updateTransportPosition()
 #endif
 
 		if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
-			 m_JackTransportPos.frame != 0 &&
-			 ( m_JackTransportPos.valid & JackPositionBBT ) ) {
+			 m_JackTransportPos.frame != 0 && isBBTValid( m_JackTransportPos ) ) {
 			if ( ! relocateUsingBBT() ) {
+#ifdef JACK_DEBUG
+		ERRORLOG( "[relocation failed]" );
+#endif
 			   return false;
 			}
 		}
 		else {
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 		}
+#ifdef JACK_DEBUG
+		DEBUGLOG( QString( "[relocation done] %1" )
+				 .arg( pAudioEngine->getTransportPosition()->toQString() ) );
+#endif
 	}
 
 	if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
@@ -673,17 +712,24 @@ bool JackAudioDriver::updateTransportPosition()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( !compareAdjacentBBT() ) {
+		if ( isBBTValid( m_JackTransportPos ) && ! compareAdjacentBBT() ) {
 
 #ifdef JACK_DEBUG
-			DEBUGLOG( QString( "comparison failed, bpm int: %1, bpm ext: %2" )
+			DEBUGLOG( QString( "[comparison failed] bpm int: %1, bpm ext: %2" )
 					  .arg( pAudioEngine->getTransportPosition()->getBpm() )
 					  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
 #endif
 
 			if ( ! relocateUsingBBT() ) {
-			   return false;
+#ifdef JACK_DEBUG
+				ERRORLOG( "[relocation failed]" );
+#endif
+				return false;
 			}
+#ifdef JACK_DEBUG
+			DEBUGLOG( QString( "[relocation done] %1" )
+					  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
+#endif
 		}
 	}
 
