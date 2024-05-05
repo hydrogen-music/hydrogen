@@ -1302,14 +1302,19 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	pJackPosition->beat_type = fDenumerator;
 	pJackPosition->beats_per_minute = static_cast<double>(pPos->getBpm());
 
-	if ( pPos->getFrame() < 1 ) {
+	if ( pPos->getFrame() < 1 || pPos->getColumn() == -1 ) {
+		// We have to be careful about column == -1. In song mode with loop mode
+		// disabled Hydrogen will just stop transport and set column to -1 while
+		// still holding the former tick and frame values. (This is important to
+		// properly rendering fade outs and realtime event).
 		pJackPosition->bar = 1;
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
 		pJackPosition->bar_start_tick = 0;
-	} else {
+	}
+	else {
 		// +1 since the counting bars starts at 1.
-		pJackPosition->bar = std::max( 0, pPos->getColumn() ) + 1;
+		pJackPosition->bar = pPos->getColumn() + 1;
 
 		// Number of ticks that have elapsed between frame 0 and the
 		// first beat of the next measure.
