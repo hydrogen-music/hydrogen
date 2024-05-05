@@ -2201,9 +2201,16 @@ void AudioEngineTests::testTransportRelocationJack() {
 			nNewFrame = 2174246;
 		}
 
-		pDriver->locateTransport( nNewFrame );
+		if ( m_referenceTimebase == JackAudioDriver::Timebase::Master ) {
+			pAE->lock( RIGHT_HERE );
+			pAE->locateToFrame( nNewFrame );
+			pAE->unlock();
+		}
+		else {
+			pDriver->locateTransport( nNewFrame );
+			waitForRelocation( -1, nNewFrame );
+		}
 
-		waitForRelocation( -1, nNewFrame );
 		if ( nNewFrame != pTransportPos->getFrame() -
 			 pTransportPos->getFrameOffsetTempo() ) {
 			throwException( QString( "[testTransportRelocationJack] failed to relocate to frame. [%1] != [%4=%2 - %3]" )
