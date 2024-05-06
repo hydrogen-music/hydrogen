@@ -1260,7 +1260,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pPos = pAE->getTransportPosition();
 	if ( pSong == nullptr ) {
 #if JACK_DEBUG
 		DEBUGLOG( "No song set." );
@@ -1268,22 +1269,33 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		return;
 	}
 
-	// Current pattern
-	Pattern* pPattern;
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	int nPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( nPatternNumber != -1 &&
-		 nPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nPatternNumber );
+	pAE->lock( RIGHT_HERE );
+
+	// We use the longest playing pattern as reference.
+	Pattern* pPattern = nullptr;
+	int nPatternLength = 0;
+	auto pPatternList = pPos->getPlayingPatterns();
+	for ( const auto& ppPattern : *pPatternList ) {
+		if ( ppPattern->get_length() > nPatternLength ) {
+			nPatternLength = ppPattern->get_length();
+			pPattern = ppPattern;
+		}
+
+		for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
+			if ( ppVirtualPattern->get_length() > nPatternLength ) {
+				nPatternLength = ppVirtualPattern->get_length();
+				pPattern = ppVirtualPattern;
+			}
+		}
 	}
 
 	float fNumerator, fDenumerator, fTicksPerBar;
 	if ( pPattern != nullptr ) {
-		fNumerator = pPattern->get_length() *
-			pPattern->get_denominator() / MAX_NOTES;
+		fNumerator = nPatternLength * pPattern->get_denominator() / MAX_NOTES;
 		fDenumerator = pPattern->get_denominator();
-		fTicksPerBar = pPattern->get_length();
-	} else {
+		fTicksPerBar = nPatternLength;
+	}
+	else {
 		fNumerator = 4;
 		fDenumerator = 4;
 		fTicksPerBar = MAX_NOTES;
@@ -1325,6 +1337,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	}
 
+	// Tell Hydrogen it is still timebase master.
+	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
+
 #if JACK_DEBUG
 	DEBUGLOG( QString( "Audio engine transport pos: %1" )
 			  .arg( pPos->toQString() ) );
@@ -1332,8 +1347,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			  .arg( JackTransportPosToQString( *pJackPosition ) ) );
 #endif
 
-	// Tell Hydrogen it is still timebase master.
-	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
+	pAE->unlock();
 }
 
 

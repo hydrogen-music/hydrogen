@@ -27,6 +27,7 @@
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/IO/JackAudioDriver.h>
 
 namespace H2Core
 {
@@ -133,6 +134,7 @@ public:
 
 	friend class AudioEngine;
 	friend class AudioEngineTests;
+	friend class JackAudioDriver;
 
 private:
 	/**
