@@ -2253,10 +2253,12 @@ void AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-	auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
+#ifdef H2CORE_HAVE_JACK
+	const auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
 		pHydrogen->getAudioOutput())->getTimebaseState();
-	auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
+	const auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
 		pHydrogen->getAudioOutput())->m_timebaseTracking;
+#endif
 
 	pAudioEngine->stopAudioDrivers();
 
@@ -2307,8 +2309,26 @@ void AudioEngineTests::stopJackAudioDriver() {
 		throwException( "[stopJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
+#ifdef H2CORE_HAVE_JACK
+	const auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->getTimebaseState();
+	const auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
+		pHydrogen->getAudioOutput())->m_timebaseTracking;
+#endif
+
 	// We rely on the driver set via the Preferences (most probably FakeDriver).
 	pAudioEngine->restartAudioDrivers();
+
+#ifdef H2CORE_HAVE_JACK
+	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);
+	if ( pDriver == nullptr ) {
+		AudioEngineTests::throwException(
+			"[stopJackAudioDriver] No JACK driver after restart!" );
+	}
+
+	pDriver->m_timebaseState = previousTimebaseState;
+	pDriver->m_timebaseTracking = nPreviousTimebaseTracking;
+#endif
 }
 
 int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
@@ -2404,7 +2424,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 	// Check whether the Timebase state is still the same.
 	if ( pDriver->getTimebaseState() != AudioEngineTests::m_referenceTimebase ) {
 		AudioEngineTests::throwException(
-			QString( "[jackTestProcessCallback] Timebase state changed from [%1] -> [%2]" )
+			QString( "[jackTestProcessCallback] Timebase state changed. Current: [%1], reference: [%2]" )
 			.arg( JackAudioDriver::TimebaseToQString( pDriver->getTimebaseState() ) )
 			.arg( JackAudioDriver::TimebaseToQString(
 					  AudioEngineTests::m_referenceTimebase ) ) );
