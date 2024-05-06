@@ -82,7 +82,7 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 {
 	UNUSED( arg );
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	___INFOLOG( "" );
 #endif
 
@@ -93,7 +93,7 @@ int JackAudioDriver::jackXRunCallback( void *arg ) {
 	UNUSED( arg );
 	++JackAudioDriver::jackServerXRuns;
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	___INFOLOG( QString( "New XRun. [%1] in total" )
 			   .arg( JackAudioDriver::jackServerXRuns ) );
 #endif
@@ -309,7 +309,7 @@ bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
 		 pos.tick < 0 ||
 		 pos.tick >= pos.ticks_per_beat ||
 		 pos.ticks_per_beat < 1 ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
 				  .arg( pos.beat_type ).arg( pos.bar ).arg( pos.beat )
 				  .arg( pos.tick ).arg( pos.beats_per_bar )
@@ -404,7 +404,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 				}
 			}
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, fBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6, bEndOfSongReached: %7, pSong->lengthInTicks(): %8" )
 					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
 			 		  .arg( fBarJack ).arg( fNumberOfBarsPassed )
@@ -420,7 +420,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	double fNewTick;
 	if ( bEndOfSongReached ) {
 		fNewTick = 0;
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( "[end of song reached]" );
 #endif
 	}
@@ -430,7 +430,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 			pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
 	}
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, fAdditionalTicks: %4, pos.beat: %5, fTicksPerBeat: %6, pos.tick: %7, pos.ticks_per_beat: %8, bEndOfSongReached: %9" )
 			  .arg( fNewTick ).arg( pos.bar ).arg( barTicks )
 			  .arg( fAdditionalTicks ).arg( pos.beat ).arg( fTicksPerBeat )
@@ -459,7 +459,7 @@ void JackAudioDriver::relocateUsingBBT()
 	if ( pSong == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( "No song set." );
 #endif
 		return;
@@ -467,7 +467,7 @@ void JackAudioDriver::relocateUsingBBT()
 
 	const double fNewTick = bbtToTick( m_JackTransportPos );
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
 #endif
 
@@ -487,7 +487,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 
 	if ( m_JackTransportPos.beats_per_minute !=
 		 m_previousJackTransportPos.beats_per_minute ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 			DEBUGLOG( QString( "Change in tempo from [%1] to [%2]" )
 				  .arg( m_previousJackTransportPos.beats_per_minute )
 				  .arg( m_JackTransportPos.beats_per_minute ) );
@@ -517,7 +517,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			if ( m_JackTransportPos.bar !=
 				m_previousJackTransportPos.bar + 1 ||
 				m_JackTransportPos.beat != 1 ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
 						  .arg( m_previousJackTransportPos.bar )
 						  .arg( m_previousJackTransportPos.beat )
@@ -531,7 +531,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat + 1 ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
 						  .arg( m_previousJackTransportPos.bar )
 						  .arg( m_previousJackTransportPos.beat )
@@ -545,7 +545,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
 				  .arg( m_previousJackTransportPos.bar )
 				  .arg( m_previousJackTransportPos.beat )
@@ -560,7 +560,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
 		 abs( m_JackTransportPos.tick +
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]. expectedTickUpdate: %4, pos.ticks_per_beat: %5" )
 				  .arg( m_previousJackTransportPos.tick )
 				  .arg( m_JackTransportPos.tick )
@@ -618,7 +618,7 @@ void JackAudioDriver::updateTransportPosition()
 	if ( pHydrogen->getSong() == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( "No song set." );
 #endif
 		return;
@@ -629,7 +629,7 @@ void JackAudioDriver::updateTransportPosition()
 			static_cast<float>(m_JackTransportPos.beats_per_minute );
 	}
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( QString( "JACK state: %1, pos: %2, sync method: %3" )
 			  .arg( JackTransportStateToQString( m_JackTransportState ) )
 			  .arg( JackTransportPosToQString( m_JackTransportPos ) )
@@ -696,7 +696,7 @@ void JackAudioDriver::updateTransportPosition()
 		}
 	}
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
 			  .arg( TimebaseToQString( m_timebaseState ) )
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
@@ -713,7 +713,7 @@ void JackAudioDriver::updateTransportPosition()
 		   m_nTimebaseFrameOffset ) !=
 		 m_JackTransportPos.frame ) {
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
 				  .arg( pAudioEngine->getTransportPosition()->getFrame() )
 				  .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
@@ -730,7 +730,7 @@ void JackAudioDriver::updateTransportPosition()
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 			m_nTimebaseFrameOffset = 0;
 		}
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( QString( "[relocation done] %1" )
 				 .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
@@ -746,7 +746,7 @@ void JackAudioDriver::updateTransportPosition()
 		// use the former instead.
 		if ( isBBTValid( m_JackTransportPos ) && ! compareAdjacentBBT() ) {
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 			DEBUGLOG( QString( "[comparison failed] bpm int: %1, bpm ext: %2" )
 					  .arg( pAudioEngine->getTransportPosition()->getBpm() )
 					  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
@@ -754,7 +754,7 @@ void JackAudioDriver::updateTransportPosition()
 
 			relocateUsingBBT();
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 			DEBUGLOG( QString( "[relocation done] %1" )
 					  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
@@ -1203,7 +1203,7 @@ void JackAudioDriver::initTimebaseMaster()
 						.arg( nReturnValue ) );
 		}
 		else {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( "Registered as master" );
 #endif
 			m_timebaseTracking = TimebaseTracking::Valid;
@@ -1242,7 +1242,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 	EventQueue::get_instance()->push_event(
 		EVENT_JACK_TIMEBASE_STATE_CHANGED,
 		static_cast<int>(m_timebaseState) );
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( TimebaseToQString( m_timebaseState ) );
 #endif
 }
@@ -1262,7 +1262,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pPos = pHydrogen->getAudioEngine()->getTransportPosition();
 	if ( pSong == nullptr ) {
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 		DEBUGLOG( "No song set." );
 #endif
 		return;
@@ -1325,7 +1325,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	}
 
-#ifdef JACK_DEBUG
+#if JACK_DEBUG
 	DEBUGLOG( QString( "Audio engine transport pos: %1" )
 			  .arg( pPos->toQString() ) );
 	DEBUGLOG( QString( "JACK pos: %1" )
