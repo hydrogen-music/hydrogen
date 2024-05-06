@@ -44,7 +44,7 @@ var nextTestChan chan bool
 var finishTestChan chan bool
 
 var hydrogenPath = path.Join(
-    "..", "..", "build", "src", "gui", "hydrogen")
+    "..", "..", "build", "src", "cli", "h2cli")
 var testBinaryPath = path.Join(
     "..", "..", "build", "tests", "jackTimebase", "h2JackTimebase", "h2JackTimebase")
 
@@ -149,7 +149,7 @@ func sendMsg(c *osc.Client, m *osc.Message) {
 }
 
 func startHydrogen(ctx context.Context) {
-    cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack", "--nosplash",
+    cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack",
         "-s", hydrogenTestSongPath, "-O", strconv.FormatInt(oscHydrogenPort, 10),
         "-L", hydrogenLogFile, "-T", "-V", "Debug")
     output, err := cmd.CombinedOutput()
