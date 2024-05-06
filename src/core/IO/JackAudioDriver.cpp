@@ -640,27 +640,25 @@ void JackAudioDriver::updateTransportPosition()
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
 #endif
 
-	if ( bTimebaseEnabled ) {
+	if ( bTimebaseEnabled && m_JackTransportState != JackTransportStopped ) {
 		// Update the status regrading JACK timebase master.
 		if ( m_timebaseState == Timebase::Master ) {
-			if ( m_JackTransportState != JackTransportStopped ) {
-				if ( m_timebaseTracking == TimebaseTracking::Valid ) {
-					m_timebaseTracking = TimebaseTracking::OnHold;
+			if ( m_timebaseTracking == TimebaseTracking::Valid ) {
+				m_timebaseTracking = TimebaseTracking::OnHold;
+			}
+			else {
+				// JackTimebaseCallback not called anymore -> timebase
+				// listener/normal client
+				m_timebaseTracking = TimebaseTracking::Valid;
+				if ( m_JackTransportPos.valid & JackPositionBBT ) {
+					m_timebaseState = Timebase::Listener;
 				}
 				else {
-					// JackTimebaseCallback not called anymore -> timebase
-					// listener/normal client
-					m_timebaseTracking = TimebaseTracking::Valid;
-					if ( m_JackTransportPos.valid & JackPositionBBT ) {
-						m_timebaseState = Timebase::Listener;
-					}
-					else {
-						m_timebaseState = Timebase::None;
-					}
-					EventQueue::get_instance()->push_event(
-						EVENT_JACK_TIMEBASE_STATE_CHANGED,
-						static_cast<int>(m_timebaseState) );
+					m_timebaseState = Timebase::None;
 				}
+				EventQueue::get_instance()->push_event(
+					EVENT_JACK_TIMEBASE_STATE_CHANGED,
+					static_cast<int>(m_timebaseState) );
 			}
 		}
 		else {
