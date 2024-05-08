@@ -477,7 +477,6 @@ void JackAudioDriver::relocateUsingBBT()
 	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
 #endif
 
-	const auto nOldFrame = pAudioEngine->getTransportPosition()->getFrame();
 	if ( fNewTick == -1 ) {
 		// End of song reached.
 		if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
@@ -491,8 +490,8 @@ void JackAudioDriver::relocateUsingBBT()
 		pAudioEngine->locate( fNewTick, false );
 	}
 
-	m_nTimebaseFrameOffset =
-		pAudioEngine->getTransportPosition()->getFrame() - nOldFrame;
+	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
+		m_JackTransportPos.frame;
 
 	return;
 }
@@ -721,13 +720,13 @@ void JackAudioDriver::updateTransportPosition()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( ( pAudioEngine->getTransportPosition()->getFrame() -
-		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) !=
-		 m_JackTransportPos.frame ||
-		 ( pAudioEngine->getTransportPosition()->getFrame() -
-		   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
-		   m_nTimebaseFrameOffset ) !=
-		 m_JackTransportPos.frame ) {
+	if ( ! ( ( pAudioEngine->getTransportPosition()->getFrame() -
+			   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) ==
+			 m_JackTransportPos.frame ||
+			 ( pAudioEngine->getTransportPosition()->getFrame() -
+			   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
+			   m_nTimebaseFrameOffset ) ==
+			 m_JackTransportPos.frame ) ) {
 
 #if JACK_DEBUG
 		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
