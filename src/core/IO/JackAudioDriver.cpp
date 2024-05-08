@@ -1356,6 +1356,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
 
 	// Tell Hydrogen it is still timebase master.
+	pDriver->m_timebaseState = Timebase::Master;
 	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
 
 #if JACK_DEBUG
