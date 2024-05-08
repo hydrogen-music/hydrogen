@@ -351,41 +351,43 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		}
 		else if ( Preferences::get_instance()->m_JackBBTSync ==
 					Preferences::JackBBTSyncMethod::constMeasure ) {
-			// Length of a pattern * fBarConversion provides the number of
-			// bars in Jack's point of view a Hydrogen pattern does cover.
-			const double fBarConversion =
-				static_cast<double>(pSong->getResolution()) * 4 *
-				static_cast<double>(pos.beats_per_bar) /
-				static_cast<double>(pos.beat_type);
+			// Length of a pattern (measured in ticks) * fTickPerBar provides
+			// the number of bars in Jack's point of view a Hydrogen pattern
+			// does cover.
+			const double fTicksPerBar = fTicksPerBeat *
+				static_cast<double>(pos.beats_per_bar);
 			double fNextIncrement = 0;
 			const double fBarJack = pos.bar - 1;
-			const int nLargeNumber = 100000;
-			int nMinimumPatternLength = nLargeNumber;
-			int nNumberOfPatternsPassed = 0;
+			// We start with one as we will locate to the pattern after the last
+			// one we passed.
+			int nNumberOfColumnsPassed = 1;
 
 			// Checking how many of Hydrogen's patterns are covered by the
 			// bar provided by Jack.
 			auto pPatternGroup = pSong->getPatternGroupVector();
 			for ( const PatternList* ppPatternList : *pPatternGroup ) {
 				if ( ppPatternList->size() == 0 ){
-					fNumberOfBarsPassed++;
-					continue;
+					// Empty columns have a fixed width in ticks within
+					// Hydrogen.
+					fNextIncrement =
+						static_cast<double>(MAX_NOTES) / fTicksPerBar;
 				}
-
-				fNextIncrement = static_cast<double>(
-					ppPatternList->longest_pattern_length( true )) /
-					fBarConversion;
+				else {
+					fNextIncrement = static_cast<double>(
+						ppPatternList->longest_pattern_length( true )) /
+						fTicksPerBar;
+				}
 
 				if ( fBarJack < ( fNumberOfBarsPassed + fNextIncrement ) ) {
 					break;
 				}
 
 				fNumberOfBarsPassed += fNextIncrement;
-				++nNumberOfPatternsPassed;
+				++nNumberOfColumnsPassed;
 			}
 
 			// Position of the resulting pattern in ticks.
-			barTicks = pHydrogen->getTickForColumn( nNumberOfPatternsPassed );
+			barTicks = pHydrogen->getTickForColumn( nNumberOfColumnsPassed );
 			if ( barTicks < 0 ) {
 				barTicks = 0;
 				bEndOfSongReached = true;
@@ -405,10 +407,12 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 			}
 
 #if JACK_DEBUG
-			DEBUGLOG( QString( "nNumberOfPatternsPassed: %1, fAdditionalTicks: %2, fBarJack: %3, fNumberOfBarsPassed: %4, fBarConversion: %5, barTicks: %6, bEndOfSongReached: %7, pSong->lengthInTicks(): %8" )
-					  .arg( nNumberOfPatternsPassed ).arg( fAdditionalTicks )
+			DEBUGLOG( QString( "nNumberOfColumnsPassed: %1, columns in song: %2, fAdditionalTicks: %3, fBarJack: %4, fNumberOfBarsPassed: %5, fTicksPerBar: %6, barTicks: %7, bEndOfSongReached: %8, pSong->lengthInTicks(): %8" )
+					  .arg( nNumberOfColumnsPassed )
+					  .arg( pSong->getPatternGroupVector()->size() )
+					  .arg( fAdditionalTicks )
 			 		  .arg( fBarJack ).arg( fNumberOfBarsPassed )
-			 		  .arg( fBarConversion ).arg( barTicks )
+			 		  .arg( fTicksPerBar ).arg( barTicks )
 					  .arg( bEndOfSongReached ).arg( pSong->lengthInTicks() ) );
 #endif
 		} else {
@@ -419,7 +423,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 	double fNewTick;
 	if ( bEndOfSongReached ) {
-		fNewTick = 0;
+		fNewTick = -1;
 #if JACK_DEBUG
 		DEBUGLOG( "[end of song reached]" );
 #endif
@@ -472,7 +476,19 @@ void JackAudioDriver::relocateUsingBBT()
 #endif
 
 	const auto nOldFrame = pAudioEngine->getTransportPosition()->getFrame();
-	pAudioEngine->locate( fNewTick, false );
+	if ( fNewTick == -1 ) {
+		// End of song reached.
+		if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
+			pAudioEngine->stop();
+			pAudioEngine->stopPlayback();
+		}
+
+		pAudioEngine->locate( pSong->lengthInTicks(), false );
+	}
+	else {
+		pAudioEngine->locate( fNewTick, false );
+	}
+
 	m_nTimebaseFrameOffset =
 		pAudioEngine->getTransportPosition()->getFrame() - nOldFrame;
 
@@ -721,7 +737,7 @@ void JackAudioDriver::updateTransportPosition()
 #endif
 
 		if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
-			 m_JackTransportPos.frame != 0 && isBBTValid( m_JackTransportPos ) ) {
+			 isBBTValid( m_JackTransportPos ) ) {
 			relocateUsingBBT();
 		}
 		else {
