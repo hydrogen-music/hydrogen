@@ -564,6 +564,10 @@ private:
 	 */
 	jack_position_t			m_previousJackTransportPos;
 
+	/** Use for relocation if Hydrogen is Timebase master (and needs to provide
+	 * valid BBT information in addition to just a frame). */
+	jack_position_t			m_nextJackTransportPos;
+
 	/**
 	 * Specifies whether the default left and right (master) audio
 	 * JACK ports will be automatically connected to the system's sink
@@ -594,6 +598,14 @@ private:
 		 * the remainder of Hydrogen. */
 		float m_fLastTimebaseBpm;
 
+		/** Stores an intended deviation of our transport position from the one
+		 * hold by the JACK server.
+		 *
+		 * In case we act as listener we will relocate based on the provided BBT
+		 * information. This is done by converting them into a tick and
+		 * calculating the corresponding frame. That resultant frame does not
+		 * have necessarily have to coincide with the one broadcasted by the
+		 * JACK server. But this is no problems as BBT takes precedeence. */
 		long long m_nTimebaseFrameOffset;
 };
 
