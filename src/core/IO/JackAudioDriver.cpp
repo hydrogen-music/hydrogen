@@ -489,7 +489,7 @@ void JackAudioDriver::relocateUsingBBT()
 	}
 
 	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
-		m_JackTransportPos.frame;
+		m_JackTransportPos.frame + m_nTimebaseFrameOffset;
 
 	return;
 }
@@ -671,6 +671,7 @@ void JackAudioDriver::updateTransportPosition()
 				else {
 					m_timebaseState = Timebase::None;
 				}
+				m_nTimebaseFrameOffset = 0;
 				EventQueue::get_instance()->push_event(
 					EVENT_JACK_TIMEBASE_STATE_CHANGED,
 					static_cast<int>(m_timebaseState) );
@@ -682,6 +683,7 @@ void JackAudioDriver::updateTransportPosition()
 				// There is an external master
 				if ( m_timebaseState != Timebase::Listener ) {
 					m_timebaseState = Timebase::Listener;
+					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->push_event(
 						EVENT_JACK_TIMEBASE_STATE_CHANGED,
 						static_cast<int>(m_timebaseState) );
@@ -701,6 +703,7 @@ void JackAudioDriver::updateTransportPosition()
 				else {
 					m_timebaseTracking = TimebaseTracking::Valid;
 					m_timebaseState = Timebase::None;
+					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->push_event(
 						EVENT_JACK_TIMEBASE_STATE_CHANGED,
 						static_cast<int>(m_timebaseState) );
@@ -744,8 +747,9 @@ void JackAudioDriver::updateTransportPosition()
 			m_nTimebaseFrameOffset = 0;
 		}
 #if JACK_DEBUG
-		DEBUGLOG( QString( "[relocation done] %1" )
-				 .arg( pAudioEngine->getTransportPosition()->toQString() ) );
+		DEBUGLOG( QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2" )
+				  .arg( m_nTimebaseFrameOffset )
+				  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
 		return;
 	}
@@ -1158,10 +1162,39 @@ void JackAudioDriver::locateTransport( long long nFrame )
 	auto pHydrogen = Hydrogen::get_instance();
 
 	if ( m_pClient != nullptr ) {
-		// jack_transport_locate() (jack/transport.h )
-		// re-positions the transport to a new frame number. May
-		// be called at any time by any client.
-		jack_transport_locate( m_pClient, nFrame );
+		if ( m_timebaseState == Timebase::Master ) {
+			// We have to provided all BBT information as well when relocating
+			// as timebase master.
+			m_nextJackTransportPos.frame = nFrame;
+			JackTimebaseCallback( m_JackTransportState, 0,
+								  &m_nextJackTransportPos, nFrame, nullptr );
+#if JACK_DEBUG
+			DEBUGLOG( QString( "Relocate to position: %1" )
+					  .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) );
+#endif
+
+			const int nRet = jack_transport_reposition( m_pClient,
+														&m_nextJackTransportPos );
+			if ( nRet != 0 ) {
+				ERRORLOG( QString( "Position rejected [%1]: %2" )
+						  .arg( JackTransportPosToQString( m_nextJackTransportPos ) )
+						  .arg( nRet ) );
+			}
+		}
+		else {
+#if JACK_DEBUG
+			DEBUGLOG( QString( "Relocate to nFrame: %1" ).arg( nFrame ) );
+#endif
+
+			// jack_transport_locate() (jack/transport.h )
+			// re-positions the transport to a new frame number. May
+			// be called at any time by any client.
+			const int nRet = jack_transport_locate( m_pClient, nFrame );
+			if ( nRet != 0 ) {
+				ERRORLOG( QString( "Invalid relocation request to frame [%1]: %2" )
+						  .arg( nFrame ).arg( nRet ) );
+			}
+		}
 	} else {
 		ERRORLOG( "No client registered" );
 	}
@@ -1258,6 +1291,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 #if JACK_DEBUG
 	DEBUGLOG( TimebaseToQString( m_timebaseState ) );
 #endif
+
 }
 
 void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,

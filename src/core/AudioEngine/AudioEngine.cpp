@@ -374,8 +374,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// is up to the server to relocate to a different position. It
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
-		 pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Master ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 
 		double fNewTick = fTick;
 		// As the tick mismatch is lost when converting a sought location from
