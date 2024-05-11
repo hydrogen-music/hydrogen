@@ -476,6 +476,8 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 		fTicksPerBar = MAX_NOTES;
 	}
 
+	pJackPosition->frame_rate =
+		Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
 	pJackPosition->ticks_per_beat = fTicksPerBar;
 	pJackPosition->valid = JackPositionBBT;
 	// Time signature "numerator"
