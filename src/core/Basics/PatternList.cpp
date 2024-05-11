@@ -372,6 +372,15 @@ std::vector<Pattern*>::iterator PatternList::begin() {
 std::vector<Pattern*>::iterator PatternList::end() {
 	return __patterns.end();
 }
+
+std::vector<Pattern*>::const_iterator PatternList::cbegin() const {
+	assertAudioEngineLocked();
+	return __patterns.begin();
+}
+
+std::vector<Pattern*>::const_iterator PatternList::cend() const {
+	return __patterns.end();
+}
  
 }
 
