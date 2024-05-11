@@ -98,7 +98,7 @@ public:
 	void	setSoloClicked(bool isClicked);
 
 	float	getVolume();
-	void	setVolume(float value);
+	void	setVolume( float value );
 
 	void	setPeak_L( float peak );
 	float	getPeak_L();

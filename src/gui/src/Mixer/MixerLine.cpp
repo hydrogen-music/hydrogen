@@ -201,20 +201,17 @@ void MixerLine::updateMixerLine()
 }
 
 void MixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->setIsModified( true );
 	emit muteBtnClicked(this);
 }
 
 void MixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->setIsModified( true );
 	emit soloBtnClicked(this);
 }
 
 void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
-	
-	Hydrogen::get_instance()->setIsModified( true );
+
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
@@ -495,8 +492,7 @@ void ComponentMixerLine::soloBtnClicked() {
 void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
-	
-	Hydrogen::get_instance()->setIsModified( true );
+
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
@@ -683,8 +679,6 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 	m_pMasterFader->setValue( pFader->getValue() );
 
 	emit volumeChanged(this);
-
-	Hydrogen::get_instance()->setIsModified( true );
 
 	double value = (double) pFader->getValue();
 	( HydrogenApp::get_instance() )->

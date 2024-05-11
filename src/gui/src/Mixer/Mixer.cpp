@@ -232,20 +232,26 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 	bool isMuteClicked = ref->isMuteClicked();
 
 	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
-
-	pCompo->set_muted( isMuteClicked );
-	Hydrogen::get_instance()->setIsModified( true );
+	if ( isMuteClicked != pCompo->is_muted() ) {
+		pCompo->set_muted( isMuteClicked );
+		Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isSoloClicked = ref->isSoloClicked();
 	int nLine = findCompoMixerLineByRef(ref);
 	
 	ComponentMixerLine* pComponentMixerLine = m_pComponentMixerLine[nLine];
-	
-	pComponentMixerLine->setSoloClicked( isSoloClicked );
-	Hydrogen::get_instance()->setIsModified( true );
+	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
+
+	if ( isSoloClicked != pCompo->is_soloed() ) {
+		pCompo->set_soloed( isSoloClicked );
+		pComponentMixerLine->setSoloClicked( isSoloClicked );
+		Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
@@ -255,8 +261,10 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 
 	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
 
-	pCompo->set_volume( newVolume );
-	Hydrogen::get_instance()->setIsModified( true );
+	if ( newVolume != pCompo->get_volume() ) {
+		pCompo->set_volume( newVolume );
+		Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void Mixer::soloClicked(MixerLine* ref)
@@ -737,9 +745,14 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 		ERRORLOG( "No instrument selected" );
 		return;
 	}
+	float fLevel = ref->getFXLevel(nKnob);
 
-	pSelectedInstrument->set_fx_level( ref->getFXLevel(nKnob), nKnob );
-	
+	if ( pSelectedInstrument->get_fx_level( nKnob) != fLevel ) {
+		pSelectedInstrument->set_fx_level( fLevel, nKnob );
+
+		pHydrogen->setIsModified( true );
+	}
+
 	QString sMessage = tr( "Set FX %1 level [%2] of instrument" )
 		.arg( nKnob )
 		.arg( ref->getFXLevel(nKnob), 0, 'f', 2 );
@@ -751,7 +764,6 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	( HydrogenApp::get_instance() )->
 		showStatusBarMessage( sMessage, sCaller );
 
-	pHydrogen->setIsModified( true );
 }
 
 
@@ -847,7 +859,11 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
 			if ( pFX != nullptr ) {
-				pFX->setVolume( ref->getVolume() );
+				float fVolume = ref->getVolume();
+				if ( pFX->getVolume() != fVolume ) {
+					pFX->setVolume( fVolume );
+					Hydrogen::get_instance()->setIsModified( true );
+				}
 
 				QString sMessage = tr( "Set volume [%1] of FX" )
 					.arg( ref->getVolume(), 0, 'f', 2 );
@@ -858,7 +874,6 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 				HydrogenApp::get_instance()->
 					showStatusBarMessage( sMessage, sCaller );
 
-				Hydrogen::get_instance()->setIsModified( true );
 			}
 		}
 	}
