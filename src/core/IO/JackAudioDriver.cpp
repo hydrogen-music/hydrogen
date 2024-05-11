@@ -974,20 +974,31 @@ int JackAudioDriver::init( unsigned bufferSize )
 	/* tell the JACK server to call `process()' whenever
 	   there is work to be done.
 	*/
-	jack_set_process_callback( m_pClient, this->m_processCallback, nullptr );
+	if ( jack_set_process_callback(
+			 m_pClient, this->m_processCallback, nullptr ) != 0 ) {
+		ERRORLOG( "Unable to set process callback" );
+	}
 
 	/* tell the JACK server to call `srate()' whenever
 	   the sample rate of the system changes.
 	*/
-	jack_set_sample_rate_callback( m_pClient, jackDriverSampleRate, this );
+	if ( jack_set_sample_rate_callback(
+			 m_pClient, jackDriverSampleRate, this ) != 0 ) {
+		ERRORLOG( "Unable to set sample rate callback" );
+	}
 
 	/* tell JACK server to update us if the buffer size
 	   (frames per process cycle) changes.
 	*/
-	jack_set_buffer_size_callback( m_pClient, jackDriverBufferSize, this );
+	if ( jack_set_buffer_size_callback(
+			 m_pClient, jackDriverBufferSize, this ) != 0 ) {
+		ERRORLOG( "Unable to set buffersize callback" );
+	}
 
 	/* display an XRun event in the GUI.*/
-	jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr );
+	if ( jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr ) != 0 ) {
+		ERRORLOG( "Unable to set buffersize callback" );
+	}
 
 	/* tell the JACK server to call `jack_shutdown()' if
 	   it ever shuts down, either entirely, or if it
@@ -1011,12 +1022,18 @@ int JackAudioDriver::init( unsigned bufferSize )
 	// It returns a _jack_port_t_ pointer on success, otherwise NULL.
 	m_pOutputPort1 = jack_port_register( m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
-	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort1 ),
-					   JACK_METADATA_PRETTY_NAME, "Main Output L", "text/plain" );
+	if ( jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort1 ),
+							JACK_METADATA_PRETTY_NAME, "Main Output L",
+							"text/plain" ) != 0 ) {
+		ERRORLOG( "Unable to set pretty name of left main output" );
+	}
 	m_pOutputPort2 = jack_port_register( m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
-	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
-					   JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain" );
+	if ( jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
+							JACK_METADATA_PRETTY_NAME, "Main Output R",
+							"text/plain" ) != 0 ) {
+		ERRORLOG( "Unable to set pretty name of left main output" );
+	}
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
 		pHydrogen->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
@@ -1089,9 +1106,13 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 		pPortL = m_pTrackOutputPortsL[n];
 		pPortR = m_pTrackOutputPortsR[n];
 		m_pTrackOutputPortsL[n] = nullptr;
-		jack_port_unregister( m_pClient, pPortL );
+		if ( jack_port_unregister( m_pClient, pPortL ) != 0 ) {
+			ERRORLOG( QString( "Unable to unregister left port [%1]" ).arg( n ) );
+		}
 		m_pTrackOutputPortsR[n] = nullptr;
-		jack_port_unregister( m_pClient, pPortR );
+		if ( jack_port_unregister( m_pClient, pPortR ) != 0 ) {
+			ERRORLOG( QString( "Unable to unregister right port [%1]" ).arg( n ) );
+		}
 	}
 
 	m_nTrackPortCount = nTrackCount;
@@ -1131,11 +1152,27 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 	// This differs from jack_port_set_name() by triggering
 	// PortRename notifications to clients that have registered a
 	// port rename handler.
-	jack_port_rename( m_pClient, m_pTrackOutputPortsL[n], ( sComponentName + "L" ).toLocal8Bit() );
-	jack_port_rename( m_pClient, m_pTrackOutputPortsR[n], ( sComponentName + "R" ).toLocal8Bit() );
+	if ( jack_port_rename( m_pClient, m_pTrackOutputPortsL[n],
+						   ( sComponentName + "L" ).toLocal8Bit() ) != 0 ) {
+		ERRORLOG( QString( "Unable to rename left port of track [%1] to [%2]" )
+				  .arg( n ).arg( sComponentName + "L" ) );
+	}
+	if ( jack_port_rename( m_pClient, m_pTrackOutputPortsR[n],
+					  ( sComponentName + "R" ).toLocal8Bit() ) != 0 ) {
+		ERRORLOG( QString( "Unable to rename right port of track [%1] to [%2]" )
+				  .arg( n ).arg( sComponentName + "R" ) );
+	}
 #else
-	jack_port_set_name( m_pTrackOutputPortsL[n], ( sComponentName + "L" ).toLocal8Bit() );
-	jack_port_set_name( m_pTrackOutputPortsR[n], ( sComponentName + "R" ).toLocal8Bit() );
+	if ( jack_port_set_name( m_pTrackOutputPortsL[n],
+							 ( sComponentName + "L" ).toLocal8Bit() ) != 0 ) {
+		ERRORLOG( QString( "Unable to set name of left port of track [%1] to [%2]" )
+				  .arg( n ).arg( sComponentName + "R" ) );
+	}
+	if ( jack_port_set_name( m_pTrackOutputPortsR[n],
+							 ( sComponentName + "R" ).toLocal8Bit() ) != 0 ) {
+		ERRORLOG( QString( "Unable to set name of right port of track [%1] to [%2]" )
+				  .arg( n ).arg( sComponentName + "R" ) );
+	}
 #endif
 }
 
@@ -1173,12 +1210,10 @@ void JackAudioDriver::locateTransport( long long nFrame )
 					  .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) );
 #endif
 
-			const int nRet = jack_transport_reposition( m_pClient,
-														&m_nextJackTransportPos );
-			if ( nRet != 0 ) {
-				ERRORLOG( QString( "Position rejected [%1]: %2" )
-						  .arg( JackTransportPosToQString( m_nextJackTransportPos ) )
-						  .arg( nRet ) );
+			if ( jack_transport_reposition( m_pClient,
+											&m_nextJackTransportPos ) != 0 ) {
+				ERRORLOG( QString( "Position rejected [%1]" )
+						  .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) );
 			}
 		}
 		else {
@@ -1189,10 +1224,9 @@ void JackAudioDriver::locateTransport( long long nFrame )
 			// jack_transport_locate() (jack/transport.h )
 			// re-positions the transport to a new frame number. May
 			// be called at any time by any client.
-			const int nRet = jack_transport_locate( m_pClient, nFrame );
-			if ( nRet != 0 ) {
-				ERRORLOG( QString( "Invalid relocation request to frame [%1]: %2" )
-						  .arg( nFrame ).arg( nRet ) );
+			if ( jack_transport_locate( m_pClient, nFrame ) != 0 ) {
+				ERRORLOG( QString( "Invalid relocation request to frame [%1]" )
+						  .arg( nFrame ) );
 			}
 		}
 	} else {
@@ -1276,7 +1310,9 @@ void JackAudioDriver::releaseTimebaseMaster()
 		return;
 	}
 
-	jack_release_timebase( m_pClient );
+	if ( jack_release_timebase( m_pClient ) ) {
+		ERRORLOG( "Unable to release timebase master state" );
+	}
 
 	m_timebaseTracking = TimebaseTracking::Valid;
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
