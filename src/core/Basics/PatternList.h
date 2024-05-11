@@ -192,6 +192,8 @@ class XMLNode;
 		/** Iteration */
 		std::vector<Pattern*>::iterator begin();
 		std::vector<Pattern*>::iterator end();
+		std::vector<Pattern*>::const_iterator cbegin() const;
+		std::vector<Pattern*>::const_iterator cend() const;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
