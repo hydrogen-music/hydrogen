@@ -285,12 +285,8 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
-bool JackAudioDriver::checkBBTPos() const {
-	if ( ! ( m_JackTransportPos.valid & JackPositionBBT ) ) {
-		return true;
-	}
-
-	return isBBTValid( m_JackTransportPos );
+const jack_position_t& JackAudioDriver::getJackPosition() const {
+	return m_JackTransportPos;
 }
 
 bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
@@ -408,7 +404,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 			}
 
 #if JACK_DEBUG
-			DEBUGLOG( QString( "nNumberOfColumnsPassed: %1, columns in song: %2, fAdditionalTicks: %3, fBarJack: %4, fNumberOfBarsPassed: %5, fTicksPerBar: %6, barTicks: %7, bEndOfSongReached: %8, pSong->lengthInTicks(): %8" )
+			DEBUGLOG( QString( "nNumberOfColumnsPassed: %1, columns in song: %2, fAdditionalTicks: %3, fBarJack: %4, fNumberOfBarsPassed: %5, fTicksPerBar: %6, barTicks: %7, bEndOfSongReached: %8, pSong->lengthInTicks(): %9" )
 					  .arg( nNumberOfColumnsPassed )
 					  .arg( pSong->getPatternGroupVector()->size() )
 					  .arg( fAdditionalTicks )
@@ -444,6 +440,77 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 #endif
 
 	return fNewTick;
+}
+
+void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
+									  jack_position_t* pJackPosition ) {
+
+	// We use the longest playing pattern as reference.
+	Pattern* pPattern = nullptr;
+	int nPatternLength = 0;
+	auto pPatternList = transportPos.getPlayingPatterns();
+	for ( std::vector<Pattern*>::const_iterator ppPattern = pPatternList->cbegin();
+		  ppPattern < pPatternList ->cend(); ppPattern++ ) {
+		if ( (*ppPattern)->get_length() > nPatternLength ) {
+			nPatternLength = (*ppPattern)->get_length();
+			pPattern = *ppPattern;
+		}
+
+		for ( const auto& ppVirtualPattern : *(*ppPattern)->get_flattened_virtual_patterns() ) {
+			if ( ppVirtualPattern->get_length() > nPatternLength ) {
+				nPatternLength = ppVirtualPattern->get_length();
+				pPattern = ppVirtualPattern;
+			}
+		}
+	}
+
+	float fNumerator, fDenumerator, fTicksPerBar;
+	if ( pPattern != nullptr ) {
+		fNumerator = nPatternLength * pPattern->get_denominator() / MAX_NOTES;
+		fDenumerator = pPattern->get_denominator();
+		fTicksPerBar = nPatternLength;
+	}
+	else {
+		fNumerator = 4;
+		fDenumerator = 4;
+		fTicksPerBar = MAX_NOTES;
+	}
+
+	pJackPosition->ticks_per_beat = fTicksPerBar;
+	pJackPosition->valid = JackPositionBBT;
+	// Time signature "numerator"
+	pJackPosition->beats_per_bar = fNumerator;
+	// Time signature "denominator"
+	pJackPosition->beat_type = fDenumerator;
+	pJackPosition->beats_per_minute = static_cast<double>(transportPos.getBpm());
+
+	if ( transportPos.getFrame() < 1 || transportPos.getColumn() == -1 ) {
+		// We have to be careful about column == -1. In song mode with loop mode
+		// disabled Hydrogen will just stop transport and set column to -1 while
+		// still holding the former tick and frame values. (This is important to
+		// properly rendering fade outs and realtime event).
+		pJackPosition->bar = 1;
+		pJackPosition->beat = 1;
+		pJackPosition->tick = 0;
+		pJackPosition->bar_start_tick = 0;
+	}
+	else {
+		// +1 since the counting bars starts at 1.
+		pJackPosition->bar = transportPos.getColumn() + 1;
+
+		// Number of ticks that have elapsed between frame 0 and the
+		// first beat of the next measure.
+		pJackPosition->bar_start_tick = transportPos.getPatternStartTick();
+
+		pJackPosition->beat = transportPos.getPatternTickPosition() /
+			pJackPosition->ticks_per_beat;
+		// +1 since the counting beats starts at 1.
+		pJackPosition->beat++;
+
+		// Counting ticks starts at 0.
+		pJackPosition->tick = transportPos.getPatternTickPosition();
+
+	}
 }
 
 void JackAudioDriver::relocateUsingBBT()
@@ -1205,15 +1272,15 @@ void JackAudioDriver::stopTransport()
 
 void JackAudioDriver::locateTransport( long long nFrame )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	if ( m_pClient != nullptr ) {
 		if ( m_timebaseState == Timebase::Master ) {
 			// We have to provided all BBT information as well when relocating
 			// as timebase master.
 			m_nextJackTransportPos.frame = nFrame;
-			JackTimebaseCallback( m_JackTransportState, 0,
-								  &m_nextJackTransportPos, nFrame, nullptr );
+			transportToBBT( *pAudioEngine->getTransportPosition(),
+							&m_nextJackTransportPos );
 #if JACK_DEBUG
 			DEBUGLOG( QString( "Relocate to position: %1" )
 					  .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) );
@@ -1349,85 +1416,11 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	if ( pDriver == nullptr ){
 		return;
 	}
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	const auto pPos = pAudioEngine->getTransportPosition();
+	pAudioEngine->lock( RIGHT_HERE );
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pAE = pHydrogen->getAudioEngine();
-	auto pPos = pAE->getTransportPosition();
-	if ( pSong == nullptr ) {
-#if JACK_DEBUG
-		DEBUGLOG( "No song set." );
-#endif
-		return;
-	}
-
-	pAE->lock( RIGHT_HERE );
-
-	// We use the longest playing pattern as reference.
-	Pattern* pPattern = nullptr;
-	int nPatternLength = 0;
-	auto pPatternList = pPos->getPlayingPatterns();
-	for ( const auto& ppPattern : *pPatternList ) {
-		if ( ppPattern->get_length() > nPatternLength ) {
-			nPatternLength = ppPattern->get_length();
-			pPattern = ppPattern;
-		}
-
-		for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
-			if ( ppVirtualPattern->get_length() > nPatternLength ) {
-				nPatternLength = ppVirtualPattern->get_length();
-				pPattern = ppVirtualPattern;
-			}
-		}
-	}
-
-	float fNumerator, fDenumerator, fTicksPerBar;
-	if ( pPattern != nullptr ) {
-		fNumerator = nPatternLength * pPattern->get_denominator() / MAX_NOTES;
-		fDenumerator = pPattern->get_denominator();
-		fTicksPerBar = nPatternLength;
-	}
-	else {
-		fNumerator = 4;
-		fDenumerator = 4;
-		fTicksPerBar = MAX_NOTES;
-	}
-
-	pJackPosition->ticks_per_beat = fTicksPerBar;
-	pJackPosition->valid = JackPositionBBT;
-	// Time signature "numerator"
-	pJackPosition->beats_per_bar = fNumerator;
-	// Time signature "denominator"
-	pJackPosition->beat_type = fDenumerator;
-	pJackPosition->beats_per_minute = static_cast<double>(pPos->getBpm());
-
-	if ( pPos->getFrame() < 1 || pPos->getColumn() == -1 ) {
-		// We have to be careful about column == -1. In song mode with loop mode
-		// disabled Hydrogen will just stop transport and set column to -1 while
-		// still holding the former tick and frame values. (This is important to
-		// properly rendering fade outs and realtime event).
-		pJackPosition->bar = 1;
-		pJackPosition->beat = 1;
-		pJackPosition->tick = 0;
-		pJackPosition->bar_start_tick = 0;
-	}
-	else {
-		// +1 since the counting bars starts at 1.
-		pJackPosition->bar = pPos->getColumn() + 1;
-
-		// Number of ticks that have elapsed between frame 0 and the
-		// first beat of the next measure.
-		pJackPosition->bar_start_tick = pPos->getPatternStartTick();
-
-		pJackPosition->beat = pPos->getPatternTickPosition() /
-			pJackPosition->ticks_per_beat;
-		// +1 since the counting beats starts at 1.
-		pJackPosition->beat++;
-
-		// Counting ticks starts at 0.
-		pJackPosition->tick = pPos->getPatternTickPosition();
-
-	}
+	transportToBBT( *pPos, pJackPosition );
 
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_timebaseState = Timebase::Master;
@@ -1440,7 +1433,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			  .arg( JackTransportPosToQString( *pJackPosition ) ) );
 #endif
 
-	pAE->unlock();
+	pAudioEngine->unlock();
 }
 
 

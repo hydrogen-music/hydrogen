@@ -2399,9 +2399,35 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		pDriver->updateTransportPosition();
-		if ( ! pDriver->checkBBTPos() ) {
-				AudioEngineTests::throwException(
-					"[jackTestProcessCallback] Inconsistent JACK BBT information" );
+
+		// Check consistency of current JACK position.
+		const auto jackPos = pDriver->getJackPosition();
+		if ( ( jackPos.valid & JackPositionBBT ) &&
+			 ! JackAudioDriver::isBBTValid( jackPos ) ) {
+			AudioEngineTests::throwException(
+				"[jackTestProcessCallback] Inconsistent JACK BBT information" );
+		}
+
+		// Check consistency of BBT conversion functions
+		const auto pTransportPos = pAudioEngine->getTransportPosition();
+		jack_position_t testPos;
+		testPos.frame = pTransportPos->getFrame();
+		testPos.tick = pTransportPos->getDoubleTick();
+		JackAudioDriver::transportToBBT( *pTransportPos, &testPos );
+
+		if ( ! JackAudioDriver::isBBTValid( testPos ) ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback::transportToBBT] Invalid transport position: %1" )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) ) );
+		}
+
+		const auto fTick = JackAudioDriver::bbtToTick( testPos );
+		if ( std::abs( fTick - pTransportPos->getDoubleTick() ) > 1e-5 ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback] Mismatching ticks after BBT conversion: fTick: %1\nJACK pos: %2\nTransport pos: %3" )
+				.arg( fTick )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
 		}
 	}
 	else {
