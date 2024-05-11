@@ -46,6 +46,7 @@ namespace H2Core
 class Song;
 class Instrument;
 class InstrumentComponent;
+class TransportPosition;
 
 /**
  * JACK (Jack Audio Connection Kit) server driver.
@@ -365,6 +366,14 @@ public:
 		 * transport position retrieved has valid BBT information. */
 		bool checkBBTPos() const;
 
+		const jack_position_t& getJackPosition() const;
+
+		static bool isBBTValid( const jack_position_t& pos );
+		static double bbtToTick( const jack_position_t& pos );
+		static void transportToBBT( const TransportPosition& transportPos,
+									jack_position_t* pPos );
+		static QString JackTransportPosToQString( const jack_position_t& pPos );
+
 		friend class AudioEngineTests;
 private:
 
@@ -407,9 +416,7 @@ private:
 	 * #m_previousJackTransportPos.
 	 */
 	bool compareAdjacentBBT() const;
-		static bool isBBTValid( const jack_position_t& pos );
-		static double bbtToTick( const jack_position_t& pos );
-	
+
 	/**
 	 * Callback function for the JACK server to supply additional
 	 * timebase information.
@@ -454,7 +461,6 @@ private:
 	 */	
 	static void jackDriverShutdown( void* arg );
 
-	static QString JackTransportPosToQString( const jack_position_t& pPos );
 	static QString JackTransportStateToQString( const jack_transport_state_t& pPos );
 
 	/** Show debugging information.*/
