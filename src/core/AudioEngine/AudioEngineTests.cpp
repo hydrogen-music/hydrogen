@@ -2411,21 +2411,39 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 		// Check consistency of BBT conversion functions
 		const auto pTransportPos = pAudioEngine->getTransportPosition();
 		jack_position_t testPos;
-		testPos.frame = pTransportPos->getFrame();
-		testPos.tick = pTransportPos->getDoubleTick();
+		if ( pTransportPos->getDoubleTick() >=
+			 pAudioEngine->m_fSongSizeInTicks ) {
+			testPos.frame = 0;
+			testPos.tick = 0;
+		} else {
+			testPos.frame = pTransportPos->getFrame();
+			testPos.tick = pTransportPos->getDoubleTick();
+		}
 		JackAudioDriver::transportToBBT( *pTransportPos, &testPos );
 
 		if ( ! JackAudioDriver::isBBTValid( testPos ) ) {
 			AudioEngineTests::throwException( QString(
-				"[jackTestProcessCallback::transportToBBT] Invalid transport position: %1" )
-				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) ) );
+				"[jackTestProcessCallback::transportToBBT] Invalid JACK position: %1,\ntransport pos: %2" )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
 		}
 
 		const auto fTick = JackAudioDriver::bbtToTick( testPos );
-		if ( std::abs( fTick - pTransportPos->getDoubleTick() ) > 1e-5 ) {
+		if ( pTransportPos->getDoubleTick() <
+			 pAudioEngine->m_fSongSizeInTicks &&
+			 std::abs( fTick - pTransportPos->getTick() ) > 1e-5 ) {
 			AudioEngineTests::throwException( QString(
-				"[jackTestProcessCallback] Mismatching ticks after BBT conversion: fTick: %1\nJACK pos: %2\nTransport pos: %3" )
-				.arg( fTick )
+				"[jackTestProcessCallback] Mismatching ticks after BBT conversion: diff: %1, fTick: %2, pAE->m_fSongSizeInTicks: %3\nJACK pos: %4\nTransport pos: %5" )
+				.arg( std::abs( fTick - pTransportPos->getTick() ), 0, 'f' )
+				.arg( fTick ).arg( pAudioEngine->m_fSongSizeInTicks )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
+		}
+		else if ( pTransportPos->getDoubleTick() >=
+			 pAudioEngine->m_fSongSizeInTicks && fTick != 0 ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback] Mismatching ticks after BBT conversion at end of song: fTick: %1, pAE->m_fSongSizeInTicks: %2\nJACK pos: %3\nTransport pos: %4" )
+				.arg( fTick ).arg( pAudioEngine->m_fSongSizeInTicks )
 				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
 				.arg( pTransportPos->toQString() ) );
 		}
