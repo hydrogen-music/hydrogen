@@ -347,71 +347,13 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		}
 		else if ( Preferences::get_instance()->m_JackBBTSync ==
 					Preferences::JackBBTSyncMethod::constMeasure ) {
-			// Length of a pattern (measured in ticks) * fTickPerBar provides
-			// the number of bars in Jack's point of view a Hydrogen pattern
-			// does cover.
-			const double fTicksPerBar = fTicksPerBeat *
-				static_cast<double>(pos.beats_per_bar);
-			double fNextIncrement = 0;
-			const double fBarJack = pos.bar - 1;
-			// We start with one as we will locate to the pattern after the last
-			// one we passed.
-			int nNumberOfColumnsPassed = 1;
-
-			// Checking how many of Hydrogen's patterns are covered by the
-			// bar provided by Jack.
-			auto pPatternGroup = pSong->getPatternGroupVector();
-			for ( const PatternList* ppPatternList : *pPatternGroup ) {
-				if ( ppPatternList->size() == 0 ){
-					// Empty columns have a fixed width in ticks within
-					// Hydrogen.
-					fNextIncrement =
-						static_cast<double>(MAX_NOTES) / fTicksPerBar;
-				}
-				else {
-					fNextIncrement = static_cast<double>(
-						ppPatternList->longest_pattern_length( true )) /
-						fTicksPerBar;
-				}
-
-				if ( fBarJack < ( fNumberOfBarsPassed + fNextIncrement ) ) {
-					break;
-				}
-
-				fNumberOfBarsPassed += fNextIncrement;
-				++nNumberOfColumnsPassed;
-			}
-
-			// Position of the resulting pattern in ticks.
-			barTicks = pHydrogen->getTickForColumn( nNumberOfColumnsPassed );
-			if ( barTicks < 0 ) {
-				barTicks = 0;
-				bEndOfSongReached = true;
-			}
-			else if ( fNextIncrement > 1 &&
-						fNumberOfBarsPassed != fBarJack ) {
-				// If pattern is longer than what is considered a bar in
-				// Jack's point of view, some additional ticks have to be
-				// added whenever transport passes the first bar contained
-				// in the pattern.
-				fAdditionalTicks = fTicksPerBeat * 4 *
-					( fNextIncrement - 1 );
-
-				if ( barTicks + fAdditionalTicks > pSong->lengthInTicks() ) {
-					bEndOfSongReached = true;
-				}
-			}
-
-#if JACK_DEBUG
-			DEBUGLOG( QString( "nNumberOfColumnsPassed: %1, columns in song: %2, fAdditionalTicks: %3, fBarJack: %4, fNumberOfBarsPassed: %5, fTicksPerBar: %6, barTicks: %7, bEndOfSongReached: %8, pSong->lengthInTicks(): %9" )
-					  .arg( nNumberOfColumnsPassed )
-					  .arg( pSong->getPatternGroupVector()->size() )
-					  .arg( fAdditionalTicks )
-			 		  .arg( fBarJack ).arg( fNumberOfBarsPassed )
-			 		  .arg( fTicksPerBar ).arg( barTicks )
-					  .arg( bEndOfSongReached ).arg( pSong->lengthInTicks() ) );
-#endif
-		} else {
+			// We disregard any relation between patterns/columns in Hydrogen
+			// and the bar information provided by JACK. Instead, we assume a
+			// constant measure for the whole song relocate to the tick encoded
+			// in BBT information.
+			barTicks = pos.bar_start_tick;
+		}
+		else {
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
 		}
@@ -443,6 +385,11 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 									  jack_position_t* pJackPosition ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set" );
+		return;
+	}
 
 	// We use the longest playing pattern as reference.
 	Pattern* pPattern = nullptr;
@@ -463,21 +410,21 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 		}
 	}
 
-	float fNumerator, fDenumerator, fTicksPerBar;
+	float fNumerator, fDenumerator;
 	if ( pPattern != nullptr ) {
 		fNumerator = nPatternLength * pPattern->get_denominator() / MAX_NOTES;
 		fDenumerator = pPattern->get_denominator();
-		fTicksPerBar = nPatternLength;
 	}
 	else {
 		fNumerator = 4;
 		fDenumerator = 4;
-		fTicksPerBar = MAX_NOTES;
 	}
+	const float fTicksPerBeat =
+		static_cast<float>(pSong->getResolution()) * 4 / fDenumerator;
 
 	pJackPosition->frame_rate =
 		Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
-	pJackPosition->ticks_per_beat = fTicksPerBar;
+	pJackPosition->ticks_per_beat = fTicksPerBeat;
 	pJackPosition->valid = JackPositionBBT;
 	// Time signature "numerator"
 	pJackPosition->beats_per_bar = fNumerator;
@@ -503,14 +450,16 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 		// first beat of the next measure.
 		pJackPosition->bar_start_tick = transportPos.getPatternStartTick();
 
-		pJackPosition->beat = transportPos.getPatternTickPosition() /
-			pJackPosition->ticks_per_beat;
+		pJackPosition->beat = static_cast<int>(std::floor(
+			static_cast<float>(transportPos.getPatternTickPosition()) /
+			static_cast<float>(pJackPosition->ticks_per_beat)));
 		// +1 since the counting beats starts at 1.
 		pJackPosition->beat++;
 
 		// Counting ticks starts at 0.
-		pJackPosition->tick = transportPos.getPatternTickPosition();
-
+		pJackPosition->tick = std::fmod(
+			static_cast<double>(transportPos.getPatternTickPosition()),
+			pJackPosition->ticks_per_beat );
 	}
 }
 
