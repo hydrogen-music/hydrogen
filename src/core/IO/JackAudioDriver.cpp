@@ -322,14 +322,19 @@ bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
 double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
+
+	int nResolution;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
-		return 0;
+		nResolution = Song::nDefaultResolution;
+	} else {
+		nResolution = pSong->getResolution();
 	}
+
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	const double fTicksPerBeat =
-		static_cast<double>( pSong->getResolution() / pos.beat_type * 4 );
+		static_cast<double>( nResolution / pos.beat_type * 4 );
 
 	bool bEndOfSongReached = false;
 	long barTicks = 0;
