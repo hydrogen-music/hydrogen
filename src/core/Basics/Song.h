@@ -132,6 +132,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
 	bool 			save( const QString& sFilename, bool bSilent = false );
 
+		static constexpr int nDefaultResolution = 48;
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
 	
