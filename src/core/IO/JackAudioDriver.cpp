@@ -351,7 +351,10 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 			// and the bar information provided by JACK. Instead, we assume a
 			// constant measure for the whole song relocate to the tick encoded
 			// in BBT information.
-			barTicks = pos.bar_start_tick;
+			//
+			// We also have to convert between the tick size used within
+			// Hydrogen and the one used by the current timebase master.
+			barTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
 		}
 		else {
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
