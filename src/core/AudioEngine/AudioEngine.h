@@ -46,6 +46,7 @@
 #include <chrono>
 #include <deque>
 #include <queue>
+#include <QString>
 
 /** \def RIGHT_HERE
  * Macro intended to be used for the logging of the locking of the
@@ -247,7 +248,8 @@ public:
 	 * Assert that the calling thread is the current holder of the
 	 * AudioEngine lock.
 	 */
-	void			assertLocked( );
+	void			assertLocked( const QString& sClass, const char* sFunction,
+								  const QString& sMsg );
 	void			noteOn( Note *note );
 
 	/**
@@ -692,6 +694,11 @@ private:
 	int m_nLoopsDone;
 };
 
+#ifdef H2CORE_HAVE_DEBUG
+  #define ASSERT_AUDIO_ENGINE_LOCKED(x) assertAudioEngineLocked( _class_name(), __FUNCTION__, QString( "%1" ).arg( x ) );
+#else
+  #define ASSERT_AUDIO_ENGINE_LOCKED(x)
+#endif
 
 /**
  * This is a base class for data structures which should only be modified or
@@ -712,7 +719,9 @@ protected:
 	/**
 	 *  Assert that the AudioEngine lock is held if needed.
 	 */
-	void assertAudioEngineLocked() const;
+	void assertAudioEngineLocked( const QString& sClass,
+								  const char* sFunction,
+								  const QString& sMsg ) const;
 
 
 public:
@@ -730,13 +739,6 @@ public:
 		m_bNeedsLock = false;
 	}
 };
-
-
-inline void AudioEngine::assertLocked( ) {
-#ifndef NDEBUG
-	assert( m_LockingThread == std::this_thread::get_id() );
-#endif
-}
 
 inline void	AudioEngine::setMasterPeak_L( float value ) {
 	m_fMasterPeak_L = value;
