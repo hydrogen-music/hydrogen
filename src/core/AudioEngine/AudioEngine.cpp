@@ -2822,11 +2822,28 @@ QString AudioEngine::getDriverNames() const {
 	return std::move( res );
 }
 
-void AudioEngineLocking::assertAudioEngineLocked() const 
+
+void AudioEngine::assertLocked( const QString& sClass, const char* sFunction,
+								const QString& sMsg ) {
+#ifndef NDEBUG
+		ERRORLOG( QString( "[%1::%2] %3" ).arg( sClass ).arg( sFunction )
+				  .arg( sMsg ) );
+	if ( m_LockingThread != std::this_thread::get_id() ) {
+		// Is there a more convenient way to convert the thread id to QSTring?
+		__logger->flush();
+		assert( false );
+	}
+#endif
+}
+
+void AudioEngineLocking::assertAudioEngineLocked( const QString& sClass,
+												  const char* sFunction,
+												  const QString& sMsg ) const
 {
 #ifndef NDEBUG
 		if ( m_bNeedsLock ) {
-			H2Core::Hydrogen::get_instance()->getAudioEngine()->assertLocked();
+			H2Core::Hydrogen::get_instance()->getAudioEngine()->
+				assertLocked( sClass, sFunction, sMsg );
 		}
 #endif
 }
