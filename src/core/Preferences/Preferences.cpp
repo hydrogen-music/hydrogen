@@ -216,7 +216,6 @@ Preferences::Preferences()
 	m_bJackTimebaseEnabled = false;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 
 	// OSC configuration
 	m_bOscServerEnabled = false;
@@ -285,17 +284,6 @@ Preferences::~Preferences()
 {
 	INFOLOG( "DESTROY" );
 	__instance = nullptr;
-}
-
-QString Preferences::JackBBTSyncMethodToQString( const JackBBTSyncMethod& j ){
-	switch( j ) {
-		case JackBBTSyncMethod::constMeasure:
-			return "constMeasure";
-		case JackBBTSyncMethod::identicalBars:
-			return "identicalBars";
-		default:
-			return "Unknown";
-	}
 }
 
 ///
@@ -508,17 +496,6 @@ bool Preferences::loadPreferences( bool bGlobal )
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
 					} else if ( tmMode == "USE_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = USE_JACK_TIME_MASTER;
-					}
-
-					int nBBTSync = jackDriverNode.read_int( "jack_bbt_sync", 0, false, false );
-					if ( nBBTSync == 0 ){
-						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
-					} else if ( nBBTSync == 1 ) {
-						m_JackBBTSync = JackBBTSyncMethod::identicalBars;
-					} else {
-						WARNINGLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
-									.arg( nBBTSync ) );
-						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 					}
 					// ~ jack time master
 
@@ -1007,15 +984,6 @@ bool Preferences::savePreferences()
 				tmMode = "USE_JACK_TIME_MASTER";
 			}
 			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
-
-			int nBBTSync = 0;
-			if ( m_JackBBTSync == JackBBTSyncMethod::constMeasure ) {
-				nBBTSync = 0;
-			} else if ( m_JackBBTSync == JackBBTSyncMethod::identicalBars ) {
-				nBBTSync = 1;
-			}
-			jackDriverNode.write_int( "jack_bbt_sync", nBBTSync );
-			
 			// ~ jack time master
 
 			// jack default connection

@@ -308,19 +308,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
 				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
 	}
-
-	jackBBTSyncComboBox->setSize( audioTabWidgetSizeTop );
-	switch ( pPref->m_JackBBTSync ) {
-	case Preferences::JackBBTSyncMethod::constMeasure:
-		jackBBTSyncComboBox->setCurrentIndex( 0 );
-		break;
-	case Preferences::JackBBTSyncMethod::identicalBars:
-		jackBBTSyncComboBox->setCurrentIndex( 1 );
-		break;
-	default:
-		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
-				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
-	}
 	// Audio tab - ~JACK
 
 	// Audio tab - metronome volume
@@ -772,23 +759,6 @@ void PreferencesDialog::updateDriverPreferences() {
 	default:
 		ERRORLOG( QString( "Unexpected track output value" ) );
 	}
-
-	switch ( jackBBTSyncComboBox->currentIndex() ) {
-	case 0:
-		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::constMeasure ) {
-			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
-			bAudioOptionAltered = true;
-		}
-		break;
-	case 1:
-		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::identicalBars ) {
-			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
-			bAudioOptionAltered = true;
-		}
-		break;
-	default:
-		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
-	}
 	// ~ JACK
 
 	if ( pPref->m_nBufferSize != bufferSizeSpinBox->value() ) {
@@ -1210,10 +1180,6 @@ void PreferencesDialog::updateDriverInfo()
 			connectDefaultsCheckBox->hide();
 			enableTimebaseCheckBox->setEnabled( false );
 			enableTimebaseCheckBox->hide();
-			jackBBTSyncComboBox->setIsActive( false );
-			jackBBTSyncLbl->setEnabled( false );
-			jackBBTSyncComboBox->hide();
-			jackBBTSyncLbl->hide();
 			portaudioHostAPIComboBox->hide();
 			portaudioHostAPILabel->hide();
 			latencyTargetLabel->hide();
@@ -1368,8 +1334,6 @@ void PreferencesDialog::setDriverInfoOss() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1393,8 +1357,6 @@ void PreferencesDialog::setDriverInfoAlsa() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1417,15 +1379,11 @@ void PreferencesDialog::setDriverInfoJack() {
 	connectDefaultsCheckBox->setEnabled( true );
 	enableTimebaseCheckBox->setEnabled( true );
 	trackOutsCheckBox->setEnabled( true );
-	jackBBTSyncComboBox->setIsActive( true );
-	jackBBTSyncLbl->setEnabled( true );
 	trackOutputComboBox->show();
 	trackOutputLbl->show();
 	connectDefaultsCheckBox->show();
 	enableTimebaseCheckBox->show();
 	trackOutsCheckBox->show();
-	jackBBTSyncComboBox->show();
-	jackBBTSyncLbl->show();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1449,8 +1407,6 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1474,8 +1430,6 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->show();
 	portaudioHostAPILabel->show();
 	latencyTargetLabel->show();
@@ -1509,8 +1463,6 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();

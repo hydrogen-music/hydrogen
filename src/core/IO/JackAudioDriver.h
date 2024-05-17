@@ -77,14 +77,14 @@ class TransportPosition;
  * information to the JACK server apart from the transport position in frames,
  * like current beat, bar, tick, tick size, speed etc. Unlike many other
  * application, Hydrogen does _not_ respond to changes in measure since these
- * would have to be mapped to the length of the current pattern (Instead,
- * #Preferences::JackBBTSyncMethod can be used to fine tune synchronization or
- * Timebae synchronization can be turned off entirely using
- * #Preferences::m_bJackTimebaseEnabled). Every client can be registered as
- * timebase master by supplying a callback (for Hydrogen this would be
- * JackTimebaseCallback()) but there can be at most one timebase master at a
- * time. Having none at all is perfectly fine too. Apart from this additional
- * responsibility, the registered client has no other rights compared to others.
+ * would have to be mapped to the length of the current pattern (In case this
+ * leads to repeated glitches or unwanted behavior Timebae synchronization can
+ * be turned off entirely using #Preferences::m_bJackTimebaseEnabled). Every
+ * client can be registered as timebase master by supplying a callback (for
+ * Hydrogen this would be JackTimebaseCallback()) but there can be at most one
+ * timebase master at a time. Having none at all is perfectly fine too. Apart
+ * from this additional responsibility, the registered client has no other
+ * rights compared to others.
  *
  * After the status of the JACK transport has changed from
  * _JackTransportStarting_ to _JackTransportRolling_, the timebase
@@ -408,15 +408,6 @@ private:
 		};
 		static QString TimebaseTrackingToQString( const TimebaseTracking& t );
 
-	/** Compares the BBT information stored in #m_JackTransportPos and
-	 * #m_previousJackTransportPos with respect to the tempo and the
-	 * transport position in bars, beats, and ticks.
-	 *
-	 * @return true If #m_JackTransportPos is expected to follow
-	 * #m_previousJackTransportPos.
-	 */
-	bool compareAdjacentBBT() const;
-
 	/**
 	 * Callback function for the JACK server to supply additional
 	 * timebase information.
@@ -578,11 +569,6 @@ private:
 	 *   video frame
 	 */
 	jack_position_t			m_JackTransportPos;
-	/** Used for detecting changes in the BBT transport information
-	 * with external timebase master application, which do not
-	 * propagate these changes on time.
-	 */
-	jack_position_t			m_previousJackTransportPos;
 
 	/** Use for relocation if Hydrogen is Timebase master (and needs to provide
 	 * valid BBT information in addition to just a frame). */
