@@ -1565,8 +1565,6 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	
 	AE_INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
 	
-	this->lock( RIGHT_HERE );
-
 	if ( getState() != State::Prepared ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
@@ -1592,13 +1590,9 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	pHydrogen->getTimeline()->activate();
 
 	updateSongSize();
-
-	this->unlock();
 }
 
 void AudioEngine::prepare() {
-	this->lock( RIGHT_HERE );
-
 	if ( getState() == State::Playing ) {
 		stop();
 		this->stopPlayback();
@@ -1607,7 +1601,6 @@ void AudioEngine::prepare() {
 	if ( getState() != State::Ready ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
-		this->unlock();
 		return;
 	}
 
@@ -1615,7 +1608,6 @@ void AudioEngine::prepare() {
 	reset();
 
 	setState( State::Prepared );
-	this->unlock();
 }
 
 void AudioEngine::updateSongSize() {

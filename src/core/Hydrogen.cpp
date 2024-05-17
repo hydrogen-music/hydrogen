@@ -165,9 +165,11 @@ Hydrogen::~Hydrogen()
 		delete pOscServer;
 	}
 #endif
-	
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->prepare();
-	
+	m_pAudioEngine->unlock();
+
 	killInstruments();
 
 	delete m_pAudioEngine;
@@ -283,8 +285,10 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		return;
 	}
 
+	m_pAudioEngine->lock( RIGHT_HERE );
+
 	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
+	setSelectedPatternNumber( 0, false );
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
@@ -321,6 +325,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// load new playback track information
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+
+	m_pAudioEngine->unlock();
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
