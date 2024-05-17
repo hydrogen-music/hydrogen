@@ -30,6 +30,8 @@
 #    include <sys/time.h>
 #endif
 
+#include <sstream>
+
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Basics/Song.h>
@@ -189,8 +191,13 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 {
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
+		// Is there a more convenient way to convert the thread id to QSTring?
+		std::stringstream tmpStream;
+		tmpStream << std::this_thread::get_id();
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+					   QString( "by [thread id: %1] : %2 : [line: %3] : %4" )
+					   .arg( QString::fromStdString( tmpStream.str() ) )
+					   .arg( function ).arg( line ).arg( file ) );
 	}
 	#endif
 
@@ -204,9 +211,16 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 bool AudioEngine::tryLock( const char* file, unsigned int line, const char* function )
 {
 	#ifdef H2CORE_HAVE_DEBUG
+	QString sThreadId;
 	if ( __logger->should_log( Logger::Locks ) ) {
+		// Is there a more convenient way to convert the thread id to QSTring?
+		std::stringstream tmpStream;
+		tmpStream << std::this_thread::get_id();
+		sThreadId = QString::fromStdString( tmpStream.str() );
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+					   QString( "by [thread id: %1] : %2 : [line: %3] : %4" )
+					   .arg( sThreadId ) .arg( function ).arg( line )
+					   .arg( file ) );
 	}
 	#endif
 	bool res = m_EngineMutex.try_lock();
@@ -220,7 +234,8 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_LockingThread = std::this_thread::get_id();
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
-		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "[thread id: %1] locked" ).arg( sThreadId ) );
 	}
 	#endif
 	return true;
@@ -2826,10 +2841,13 @@ QString AudioEngine::getDriverNames() const {
 void AudioEngine::assertLocked( const QString& sClass, const char* sFunction,
 								const QString& sMsg ) {
 #ifndef NDEBUG
-		ERRORLOG( QString( "[%1::%2] %3" ).arg( sClass ).arg( sFunction )
-				  .arg( sMsg ) );
 	if ( m_LockingThread != std::this_thread::get_id() ) {
 		// Is there a more convenient way to convert the thread id to QSTring?
+		std::stringstream tmpStream;
+		tmpStream << std::this_thread::get_id();
+		ERRORLOG( QString( "[thread id: %1] [%2::%3] %4" )
+				  .arg( QString::fromStdString( tmpStream.str() ) )
+				  .arg( sClass ).arg( sFunction ).arg( sMsg ) );
 		__logger->flush();
 		assert( false );
 	}
