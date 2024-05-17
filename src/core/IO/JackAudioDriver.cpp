@@ -338,34 +338,16 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 	bool bEndOfSongReached = false;
 	long barTicks = 0;
-	double fAdditionalTicks = 0;
-	double fNumberOfBarsPassed = 0;
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
-		if ( Preferences::get_instance()->m_JackBBTSync ==
-			 Preferences::JackBBTSyncMethod::identicalBars ) {
-			barTicks = pHydrogen->getTickForColumn( pos.bar - 1 );
-
-			if ( barTicks < 0 ) {
-				barTicks = 0;
-				bEndOfSongReached = true;
-			}
-		}
-		else if ( Preferences::get_instance()->m_JackBBTSync ==
-					Preferences::JackBBTSyncMethod::constMeasure ) {
-			// We disregard any relation between patterns/columns in Hydrogen
-			// and the bar information provided by JACK. Instead, we assume a
-			// constant measure for the whole song relocate to the tick encoded
-			// in BBT information.
-			//
-			// We also have to convert between the tick size used within
-			// Hydrogen and the one used by the current timebase master.
-			barTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
-		}
-		else {
-			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
-					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
-		}
+		// We disregard any relation between patterns/columns in Hydrogen
+		// and the bar information provided by JACK. Instead, we assume a
+		// constant measure for the whole song relocate to the tick encoded
+		// in BBT information.
+		//
+		// We also have to convert between the tick size used within
+		// Hydrogen and the one used by the current timebase master.
+		barTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
 	}
 
 	double fNewTick;
@@ -376,15 +358,15 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 #endif
 	}
 	else {
-		fNewTick = static_cast<double>(barTicks) + fAdditionalTicks +
+		fNewTick = static_cast<double>(barTicks) +
 			( pos.beat - 1 ) * fTicksPerBeat +
 			pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, fAdditionalTicks: %4, pos.beat: %5, fTicksPerBeat: %6, pos.tick: %7, pos.ticks_per_beat: %8, bEndOfSongReached: %9" )
+	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, pos.beat: %4, fTicksPerBeat: %5, pos.tick: %6, pos.ticks_per_beat: %7, bEndOfSongReached: %8" )
 			  .arg( fNewTick ).arg( pos.bar ).arg( barTicks )
-			  .arg( fAdditionalTicks ).arg( pos.beat ).arg( fTicksPerBeat )
+			  .arg( pos.beat ).arg( fTicksPerBeat )
 			  .arg( pos.tick ).arg( pos.ticks_per_beat )
 			  .arg( bEndOfSongReached ) );
 #endif
@@ -522,100 +504,6 @@ void JackAudioDriver::relocateUsingBBT()
 	return;
 }
 
-bool JackAudioDriver::compareAdjacentBBT() const
-{
-	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
-		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
-	}
-
-	if ( m_JackTransportPos.beats_per_minute !=
-		 m_previousJackTransportPos.beats_per_minute ) {
-#if JACK_DEBUG
-			DEBUGLOG( QString( "Change in tempo from [%1] to [%2]" )
-				  .arg( m_previousJackTransportPos.beats_per_minute )
-				  .arg( m_JackTransportPos.beats_per_minute ) );
-#endif
-
-		return false;
-	}
-
-	const double expectedTickUpdate =
-		( m_JackTransportPos.frame - m_previousJackTransportPos.frame ) *
-		m_JackTransportPos.beats_per_minute *
-		m_JackTransportPos.ticks_per_beat /
-		m_JackTransportPos.frame_rate / 60;
-
-	int32_t nNewTick = m_previousJackTransportPos.tick +
-		floor( expectedTickUpdate );
-
-	// The rounding is the task of the external timebase master. So,
-	// we need to be a little generous in here to be sure to match its
-	// decision.
-	if ( m_JackTransportPos.tick != nNewTick &&
-		 nNewTick + 1 >= m_JackTransportPos.ticks_per_beat ) {
-		nNewTick = remainder( nNewTick, m_JackTransportPos.ticks_per_beat );
-
-		if ( m_previousJackTransportPos.beat + 1 >
-			 m_previousJackTransportPos.beats_per_bar ) {
-			if ( m_JackTransportPos.bar !=
-				m_previousJackTransportPos.bar + 1 ||
-				m_JackTransportPos.beat != 1 ) {
-#if JACK_DEBUG
-				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
-						  .arg( m_previousJackTransportPos.bar )
-						  .arg( m_previousJackTransportPos.beat )
-						  .arg( m_JackTransportPos.bar )
-						  .arg( m_JackTransportPos.beat ) );
-#endif
-				return false;
-			}
-		} else {
-			if ( m_JackTransportPos.bar !=
-				m_previousJackTransportPos.bar ||
-				m_JackTransportPos.beat !=
-				m_previousJackTransportPos.beat + 1 ) {
-#if JACK_DEBUG
-				DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
-						  .arg( m_previousJackTransportPos.bar )
-						  .arg( m_previousJackTransportPos.beat )
-						  .arg( m_JackTransportPos.bar )
-						  .arg( m_JackTransportPos.beat ) );
-#endif
-				return false;
-			}
-		}
-	} else if ( m_JackTransportPos.bar !=
-				m_previousJackTransportPos.bar ||
-				m_JackTransportPos.beat !=
-				m_previousJackTransportPos.beat ) {
-#if JACK_DEBUG
-		DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
-				  .arg( m_previousJackTransportPos.bar )
-				  .arg( m_previousJackTransportPos.beat )
-				  .arg( m_JackTransportPos.bar )
-				  .arg( m_JackTransportPos.beat ) );
-#endif
-		return false;
-	}
-
-	if ( abs( m_JackTransportPos.tick - nNewTick ) > 1 &&
-		 abs( m_JackTransportPos.tick -
-			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
-		 abs( m_JackTransportPos.tick +
-			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
-#if JACK_DEBUG
-		DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]. expectedTickUpdate: %4, pos.ticks_per_beat: %5" )
-				  .arg( m_previousJackTransportPos.tick )
-				  .arg( m_JackTransportPos.tick )
-				  .arg( nNewTick ).arg( expectedTickUpdate )
-				  .arg( m_JackTransportPos.ticks_per_beat ) );
-#endif
-		return false;
-	}
-
-	return true;
-}
-
 void JackAudioDriver::updateTransportPosition()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
@@ -673,11 +561,9 @@ void JackAudioDriver::updateTransportPosition()
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "JACK state: %1, pos: %2, sync method: %3" )
+	DEBUGLOG( QString( "JACK state: %1, pos: %2" )
 			  .arg( JackTransportStateToQString( m_JackTransportState ) )
-			  .arg( JackTransportPosToQString( m_JackTransportPos ) )
-			  .arg( Preferences::JackBBTSyncMethodToQString(
-						Preferences::get_instance()->m_JackBBTSync ) ) );
+			  .arg( JackTransportPosToQString( m_JackTransportPos ) ) );
 	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
 			  .arg( TimebaseToQString( m_timebaseState ) )
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
@@ -779,31 +665,6 @@ void JackAudioDriver::updateTransportPosition()
 				  .arg( m_nTimebaseFrameOffset )
 				  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
-		return;
-	}
-
-	if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
-		 ( m_JackTransportPos.valid & JackPositionBBT ) ) {
-		m_previousJackTransportPos = m_JackTransportPos;
-
-		// There is a JACK timebase master and it's not us. If it
-		// provides a tempo that differs from the local one, we will
-		// use the former instead.
-		if ( isBBTValid( m_JackTransportPos ) && ! compareAdjacentBBT() ) {
-
-#if JACK_DEBUG
-			DEBUGLOG( QString( "[comparison failed] bpm int: %1, bpm ext: %2" )
-					  .arg( pAudioEngine->getTransportPosition()->getBpm() )
-					  .arg( static_cast<float>(m_JackTransportPos.beats_per_minute ) ) );
-#endif
-
-			relocateUsingBBT();
-
-#if JACK_DEBUG
-			DEBUGLOG( QString( "[relocation done] %1" )
-					  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
-#endif
-		}
 	}
 
 	return;

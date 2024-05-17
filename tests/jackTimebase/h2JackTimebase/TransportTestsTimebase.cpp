@@ -41,22 +41,6 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
-	// In case we are testing Timebase support we have to checkout both provided
-	// types of synchronization.
-	if ( pHydrogen->getJackTimebaseState() !=
-		 JackAudioDriver::Timebase::None ) {
-
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
-		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
-						pPref->m_JackBBTSync ) );
-
-		perform( &AudioEngineTests::testTransportProcessingJack );
-
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
-		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
-						pPref->m_JackBBTSync ) );
-	}
-
 	perform( &AudioEngineTests::testTransportProcessingJack );
 #else
 	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
@@ -70,22 +54,6 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 #ifdef H2CORE_HAVE_JACK
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
-
-	// In case we are testing Timebase support we have to checkout both provided
-	// types of synchronization.
-	if ( pHydrogen->getJackTimebaseState() !=
-		 JackAudioDriver::Timebase::None ) {
-
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
-		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
-						pPref->m_JackBBTSync ) );
-
-		perform( &AudioEngineTests::testTransportRelocationJack );
-
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
-		___INFOLOG( Preferences::JackBBTSyncMethodToQString(
-						pPref->m_JackBBTSync ) );
-	}
 
 	perform( &AudioEngineTests::testTransportRelocationJack );
 #else
