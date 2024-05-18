@@ -322,12 +322,18 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	int nResolution;
+	int nResolution = Song::nDefaultResolution;
+	Song::LoopMode loopMode = Song::LoopMode::Enabled;
+	long nSongSizeInTicks = 0;
 	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		nResolution = Song::nDefaultResolution;
-	} else {
+	if ( pSong != nullptr ) {
 		nResolution = pSong->getResolution();
+		loopMode = pSong->getLoopMode();
+		nSongSizeInTicks = pSong->lengthInTicks();
+#if JACK_DEBUG
+	} else {
+		WARNINGLOG( "No song set" );
+#endif
 	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -336,7 +342,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		static_cast<double>( nResolution / pos.beat_type * 4 );
 
 	bool bEndOfSongReached = false;
-	long barTicks = 0;
+	long nBarTicks = 0;
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
 		// We disregard any relation between patterns/columns in Hydrogen
@@ -346,7 +352,14 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		//
 		// We also have to convert between the tick size used within
 		// Hydrogen and the one used by the current timebase master.
-		barTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
+		nBarTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
+
+		// Check whether the resulting ticks exceeds the end of the song.
+		if ( ( loopMode == Song::LoopMode::Disabled ||
+			   loopMode == Song::LoopMode::Finishing ) &&
+			 nBarTicks >= nSongSizeInTicks ) {
+			bEndOfSongReached = true;
+		}
 	}
 
 	double fNewTick;
@@ -357,14 +370,14 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 #endif
 	}
 	else {
-		fNewTick = static_cast<double>(barTicks) +
+		fNewTick = static_cast<double>(nBarTicks) +
 			( pos.beat - 1 ) * fTicksPerBeat +
 			pos.tick * ( fTicksPerBeat / pos.ticks_per_beat );
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, barTicks: %3, pos.beat: %4, fTicksPerBeat: %5, pos.tick: %6, pos.ticks_per_beat: %7, bEndOfSongReached: %8" )
-			  .arg( fNewTick ).arg( pos.bar ).arg( barTicks )
+	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, nBarTicks: %3, pos.beat: %4, fTicksPerBeat: %5, pos.tick: %6, pos.ticks_per_beat: %7, bEndOfSongReached: %8" )
+			  .arg( fNewTick ).arg( pos.bar ).arg( nBarTicks )
 			  .arg( pos.beat ).arg( fTicksPerBeat )
 			  .arg( pos.tick ).arg( pos.ticks_per_beat )
 			  .arg( bEndOfSongReached ) );
@@ -479,10 +492,6 @@ void JackAudioDriver::relocateUsingBBT()
 
 	const double fNewTick = bbtToTick( m_JackTransportPos );
 
-#if JACK_DEBUG
-	DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
-#endif
-
 	if ( fNewTick == -1 ) {
 		// End of song reached.
 		if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
@@ -490,11 +499,30 @@ void JackAudioDriver::relocateUsingBBT()
 			pAudioEngine->stopPlayback();
 		}
 
-		pAudioEngine->locate( pSong->lengthInTicks(), false );
+#if JACK_DEBUG
+		DEBUGLOG( "Exceeding length of song. Locating back to start." );
+#endif
+
+		// It is important to relocate to the beginning of the song. If we would
+		// stay at the end or beyond, Hydrogen would stop every attempt to start
+		// playback again. And it's most probably not obvious to the user why it
+		// does so.
+		pAudioEngine->locate( 0, false );
+
+		// Reset the offset as we loose information in truncating the transport
+		// position.
+		m_nTimebaseFrameOffset = 0;
 	}
 	else {
+
+#if JACK_DEBUG
+		DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
+#endif
+
 		pAudioEngine->locate( fNewTick, false );
 	}
+
+	EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
 
 	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
 		m_JackTransportPos.frame + m_nTimebaseFrameOffset;
