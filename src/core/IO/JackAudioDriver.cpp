@@ -389,10 +389,14 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 									  jack_position_t* pJackPosition ) {
+	int nResolution = Song::nDefaultResolution;
 	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set" );
-		return;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+#if JACK_DEBUG
+	} else {
+		WARNINGLOG( "No song set" );
+#endif
 	}
 
 	// We use the longest playing pattern as reference.
@@ -424,7 +428,7 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 		fDenumerator = 4;
 	}
 	const float fTicksPerBeat =
-		static_cast<float>(pSong->getResolution()) * 4 / fDenumerator;
+		static_cast<float>(nResolution) * 4 / fDenumerator;
 
 	pJackPosition->frame_rate =
 		Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
