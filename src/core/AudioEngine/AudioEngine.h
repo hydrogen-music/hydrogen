@@ -432,6 +432,7 @@ public:
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
 	void			prepare();
+	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -531,7 +532,6 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 	void			updateTransportPosition( double fTick, long long nFrame,
 											 std::shared_ptr<TransportPosition> pPos );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
