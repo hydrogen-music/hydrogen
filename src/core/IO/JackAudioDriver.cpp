@@ -1275,8 +1275,20 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	transportToBBT( *pPos, pJackPosition );
 
 	// Tell Hydrogen it is still timebase master.
-	pDriver->m_timebaseState = Timebase::Master;
-	pDriver->m_timebaseTracking = TimebaseTracking::Valid;
+	if ( pDriver->m_timebaseTracking != TimebaseTracking::Valid ) {
+		pDriver->m_timebaseTracking = TimebaseTracking::Valid;
+	}
+	if ( pDriver->m_timebaseState != Timebase::Master ) {
+		pDriver->m_timebaseState = Timebase::Master;
+
+		EventQueue::get_instance()->push_event(
+			EVENT_JACK_TIMEBASE_STATE_CHANGED,
+			static_cast<int>(pDriver->m_timebaseState) );
+#if JACK_DEBUG
+		DEBUGLOG( QString( "Switching timebase state to: %1" )
+				  .arg( TimebaseToQString( pDriver->m_timebaseState ) ) );
+#endif
+	}
 
 #if JACK_DEBUG
 	DEBUGLOG( QString( "Audio engine transport pos: %1" )
