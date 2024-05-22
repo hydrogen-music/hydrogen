@@ -591,8 +591,9 @@ void JackAudioDriver::updateTransportPosition()
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "JACK state: %1, pos: %2" )
+	DEBUGLOG( QString( "JACK state: %1, TimebaseFrameOffset: %2, pos: %3" )
 			  .arg( JackTransportStateToQString( m_JackTransportState ) )
+			  .arg( m_nTimebaseFrameOffset )
 			  .arg( JackTransportPosToQString( m_JackTransportPos ) ) );
 	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
 			  .arg( TimebaseToQString( m_timebaseState ) )
