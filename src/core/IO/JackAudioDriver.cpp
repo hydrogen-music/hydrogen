@@ -599,7 +599,10 @@ void JackAudioDriver::updateTransportPosition()
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
 #endif
 
-	if ( bTimebaseEnabled && m_JackTransportState != JackTransportStopped ) {
+	// We rely on the JackTimebaseCallback to give us a thumbs up every time it
+	// is called. But since this is not happening while transport is stopped or
+	// starting, we have to omit those cases.
+	if ( bTimebaseEnabled && m_JackTransportState == JackTransportRolling ) {
 		// Update the status regrading JACK timebase master.
 		if ( m_timebaseState == Timebase::Master ) {
 			if ( m_timebaseTracking == TimebaseTracking::Valid ) {
