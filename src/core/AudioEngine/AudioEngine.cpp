@@ -382,10 +382,6 @@ float AudioEngine::getElapsedTime() const {
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 
-#if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "fTick: %1" ).arg( fTick ) );
-#endif
-
 #ifdef H2CORE_HAVE_JACK
 	// In case Hydrogen is using the JACK server to sync transport, it
 	// is up to the server to relocate to a different position. It
@@ -407,7 +403,14 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 		double fTickMismatch;
 		const long long nNewFrame =	TransportPosition::computeFrameFromTick(
 			fNewTick, &fTickMismatch );
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
+
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( QString( "[Locate via JACK server] fTick: %1, fNewTick: %2, nNewFrame: %3" )
+					 .arg( fTick ).arg( fNewTick ).arg( nNewFrame ) );
+#endif
+
+		static_cast<JackAudioDriver*>( m_pAudioDriver )->
+			locateTransport( nNewFrame );
 		return;
 	}
 #endif
@@ -416,6 +419,11 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	m_fLastTickEnd = fTick;
 	const long long nNewFrame = TransportPosition::computeFrameFromTick(
 		fTick, &m_pTransportPosition->m_fTickMismatch );
+
+#if AUDIO_ENGINE_DEBUG
+	AE_DEBUGLOG( QString( "fTick: %1, nNewFrame: %2" )
+				 .arg( fTick ).arg( nNewFrame ) );
+#endif
 
 	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition );
 	m_pQueuingPosition->set( m_pTransportPosition );
