@@ -33,6 +33,10 @@
 
 #define TRANSPORT_POSITION_DEBUG 0
 
+#define TP_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
+		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+					   QString( "%1" ).arg( x ), "\033[33;1m" ); }
+
 namespace H2Core {
 
 TransportPosition::TransportPosition( const QString& sLabel )
@@ -325,7 +329,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				}
 
 #if TRANSPORT_POSITION_DEBUG
-				DEBUGLOG( QString( "[::computeFrameFromTick mismatch : 2] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
+				TP_DEBUGLOG( QString( "[::computeFrameFromTick mismatch : 2] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
 						  .arg( fPassedTicks + fRemainingTicks - fNextTick )
 						  .arg( ( fFinalFrame - static_cast<double>(nNewFrame) ) / fNextTickSize )
 						  .arg( nNewFrame )
@@ -342,7 +346,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 			}
 
 #if TRANSPORT_POSITION_DEBUG
-			DEBUGLOG( QString( "[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
+			TP_DEBUGLOG( QString( "[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
 					  .arg( fTick, 0, 'f' )
 					  .arg( fNewFrame, 0, 'g', 30 )
 					  .arg( fNextTick, 0, 'f' )
@@ -383,7 +387,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 					fNewFrame += ( fNextTick - fPassedTicks ) * fNextTickSize;
 
 #if TRANSPORT_POSITION_DEBUG
-					DEBUGLOG( QString( "[segment] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, tick increment (fNextTick - fPassedTicks): %9, frame increment (fRemainingTicks * fNextTickSize): %10" )
+					TP_DEBUGLOG( QString( "[segment] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, tick increment (fNextTick - fPassedTicks): %9, frame increment (fRemainingTicks * fNextTickSize): %10" )
 							  .arg( fTick, 0, 'f' )
 							  .arg( fNewFrame, 0, 'g', 30 )
 							  .arg( fNextTick, 0, 'f' )
@@ -421,7 +425,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				fPassedTicks = 0;
 
 #if TRANSPORT_POSITION_DEBUG
-				DEBUGLOG( QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: %3, fRemainingTicks: %4, nRepetitions: %5, fSongSizeInTicks: %6, fSongSizeInFrames: %7" )
+				TP_DEBUGLOG( QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: %3, fRemainingTicks: %4, nRepetitions: %5, fSongSizeInTicks: %6, fSongSizeInFrames: %7" )
 						  .arg( fTick, 0, 'g',30 )
 						  .arg( fNewFrame, 0, 'g', 30 )
 						  .arg( fNewTick, 0, 'g', 30 )
@@ -474,7 +478,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 			fTickSize;
 
 #if TRANSPORT_POSITION_DEBUG
-		DEBUGLOG(QString("[no-timeline] nNewFrame: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
+		TP_DEBUGLOG(QString("[no-timeline] nNewFrame: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
 				 .arg( nNewFrame ).arg( fTick, 0, 'f' ).arg( fTickSize, 0, 'f' )
 				 .arg( *fTickMismatch, 0, 'g', 30 ));
 #endif
@@ -567,7 +571,7 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 									 fPassedFrames ) ) {
 
 #if TRANSPORT_POSITION_DEBUG
-					DEBUGLOG(QString( "[segment] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
+					TP_DEBUGLOG(QString( "[segment] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
 							 .arg( nFrame )
 							 .arg( fTick, 0, 'f' )
 							 .arg( nSampleRate )
@@ -598,7 +602,7 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 					fTick += fNewTick;
 
 #if TRANSPORT_POSITION_DEBUG
-					DEBUGLOG(QString( "[end] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
+					TP_DEBUGLOG(QString( "[end] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
 							 .arg( nFrame )
 							 .arg( fTick, 0, 'f' )
 							 .arg( nSampleRate )
@@ -638,7 +642,7 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 				fPassedTicks = 0;
 
 #if TRANSPORT_POSITION_DEBUG
-				DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5, fSongSizeInTicks: %6" )
+				TP_DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5, fSongSizeInTicks: %6" )
 						  .arg( fPassedFrames, 0, 'g', 30 )
 						  .arg( fTargetFrame - fPassedFrames, 0, 'g', 30 )
 						  .arg( fTick, 0, 'g', 30 )
@@ -665,7 +669,7 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		fTick = static_cast<double>(nFrame) / fTickSize;
 
 #if TRANSPORT_POSITION_DEBUG
-		DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
+		TP_DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
 				 .arg( nFrame ).arg( nSampleRate ).arg( fTickSize, 0, 'f' ) );
 #endif
 

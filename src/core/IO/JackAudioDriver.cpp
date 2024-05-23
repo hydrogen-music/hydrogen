@@ -55,6 +55,10 @@
 
 #define JACK_DEBUG 0
 
+#define J_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
+		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+					   QString( "%1" ).arg( x ), "\033[37m" ); }
+
 namespace H2Core {
 
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
@@ -307,7 +311,7 @@ bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
 		 pos.tick >= pos.ticks_per_beat ||
 		 pos.ticks_per_beat < 1 ) {
 #if JACK_DEBUG
-		DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
+		J_DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
 				  .arg( pos.beat_type ).arg( pos.bar ).arg( pos.beat )
 				  .arg( pos.tick ).arg( pos.beats_per_bar )
 				  .arg( pos.beats_per_minute ).arg( pos.ticks_per_beat ) );
@@ -367,7 +371,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	if ( bEndOfSongReached ) {
 		fNewTick = -1;
 #if JACK_DEBUG
-		DEBUGLOG( "[end of song reached]" );
+		J_DEBUGLOG( "[end of song reached]" );
 #endif
 	}
 	else {
@@ -377,7 +381,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, nBarTicks: %3, pos.beat: %4, fTicksPerBeat: %5, pos.tick: %6, pos.ticks_per_beat: %7, bEndOfSongReached: %8" )
+	J_DEBUGLOG( QString( "Calculated tick [%1] from pos.bar: %2, nBarTicks: %3, pos.beat: %4, fTicksPerBeat: %5, pos.tick: %6, pos.ticks_per_beat: %7, bEndOfSongReached: %8" )
 			  .arg( fNewTick ).arg( pos.bar ).arg( nBarTicks )
 			  .arg( pos.beat ).arg( fTicksPerBeat )
 			  .arg( pos.tick ).arg( pos.ticks_per_beat )
@@ -490,7 +494,7 @@ void JackAudioDriver::relocateUsingBBT()
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
 #if JACK_DEBUG
-		DEBUGLOG( "No song set." );
+		J_DEBUGLOG( "No song set." );
 #endif
 		return;
 	}
@@ -506,7 +510,7 @@ void JackAudioDriver::relocateUsingBBT()
 		}
 
 #if JACK_DEBUG
-		DEBUGLOG( "Exceeding length of song. Locating back to start." );
+		J_DEBUGLOG( "Exceeding length of song. Locating back to start." );
 #endif
 
 		// It is important to relocate to the beginning of the song. If we would
@@ -522,7 +526,7 @@ void JackAudioDriver::relocateUsingBBT()
 	else {
 
 #if JACK_DEBUG
-		DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
+		J_DEBUGLOG( QString( "Locate to tick [%1]" ).arg( fNewTick ) );
 #endif
 
 		pAudioEngine->locate( fNewTick, false );
@@ -582,7 +586,7 @@ void JackAudioDriver::updateTransportPosition()
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
 #if JACK_DEBUG
-		DEBUGLOG( "No song set." );
+		J_DEBUGLOG( "No song set." );
 #endif
 		return;
 	}
@@ -593,11 +597,11 @@ void JackAudioDriver::updateTransportPosition()
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "JACK state: %1, TimebaseFrameOffset: %2, pos: %3" )
+	J_DEBUGLOG( QString( "JACK state: %1, TimebaseFrameOffset: %2, pos: %3" )
 			  .arg( JackTransportStateToQString( m_JackTransportState ) )
 			  .arg( m_nTimebaseFrameOffset )
 			  .arg( JackTransportPosToQString( m_JackTransportPos ) ) );
-	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
+	J_DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
 			  .arg( TimebaseToQString( m_timebaseState ) )
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
 #endif
@@ -663,7 +667,7 @@ void JackAudioDriver::updateTransportPosition()
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
+	J_DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
 			  .arg( TimebaseToQString( m_timebaseState ) )
 			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
 #endif
@@ -680,7 +684,7 @@ void JackAudioDriver::updateTransportPosition()
 			 m_JackTransportPos.frame ) ) {
 
 #if JACK_DEBUG
-		DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
+		J_DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
 				  .arg( pAudioEngine->getTransportPosition()->getFrame() )
 				  .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
 				  .arg( m_JackTransportPos.frame )
@@ -697,7 +701,7 @@ void JackAudioDriver::updateTransportPosition()
 			m_nTimebaseFrameOffset = 0;
 		}
 #if JACK_DEBUG
-		DEBUGLOG( QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2" )
+		J_DEBUGLOG( QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2" )
 				  .arg( m_nTimebaseFrameOffset )
 				  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
@@ -1138,7 +1142,7 @@ void JackAudioDriver::locateTransport( long long nFrame )
 			transportToBBT( *pAudioEngine->getTransportPosition(),
 							&m_nextJackTransportPos );
 #if JACK_DEBUG
-			DEBUGLOG( QString( "Relocate to position: %1" )
+			J_DEBUGLOG( QString( "Relocate to position: %1" )
 					  .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) );
 #endif
 
@@ -1150,7 +1154,10 @@ void JackAudioDriver::locateTransport( long long nFrame )
 		}
 		else {
 #if JACK_DEBUG
-			DEBUGLOG( QString( "Relocate to nFrame: %1" ).arg( nFrame ) );
+			J_DEBUGLOG( QString( "Relocate to nFrame: %1, nNewFrame: %2, m_nTimebaseFrameOffset: %3, timebase state: %4" )
+					  .arg( nFrame ).arg( nNewFrame )
+					  .arg( m_nTimebaseFrameOffset )
+					  .arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
 
 			// jack_transport_locate() (jack/transport.h )
@@ -1216,7 +1223,7 @@ void JackAudioDriver::initTimebaseMaster()
 		}
 		else {
 #if JACK_DEBUG
-		DEBUGLOG( "Registered as master" );
+		J_DEBUGLOG( "Registered as master" );
 #endif
 			m_timebaseTracking = TimebaseTracking::Valid;
 			m_timebaseState = Timebase::Master;
@@ -1257,7 +1264,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 		EVENT_JACK_TIMEBASE_STATE_CHANGED,
 		static_cast<int>(m_timebaseState) );
 #if JACK_DEBUG
-	DEBUGLOG( TimebaseToQString( m_timebaseState ) );
+	J_DEBUGLOG( TimebaseToQString( m_timebaseState ) );
 #endif
 
 }
@@ -1289,15 +1296,15 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			EVENT_JACK_TIMEBASE_STATE_CHANGED,
 			static_cast<int>(pDriver->m_timebaseState) );
 #if JACK_DEBUG
-		DEBUGLOG( QString( "Switching timebase state to: %1" )
+		J_DEBUGLOG( QString( "Switching timebase state to: %1" )
 				  .arg( TimebaseToQString( pDriver->m_timebaseState ) ) );
 #endif
 	}
 
 #if JACK_DEBUG
-	DEBUGLOG( QString( "Audio engine transport pos: %1" )
+	J_DEBUGLOG( QString( "Audio engine transport pos: %1" )
 			  .arg( pPos->toQString() ) );
-	DEBUGLOG( QString( "JACK pos: %1" )
+	J_DEBUGLOG( QString( "JACK pos: %1" )
 			  .arg( JackTransportPosToQString( *pJackPosition ) ) );
 #endif
 
@@ -1328,7 +1335,7 @@ void JackAudioDriver::printState() const {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	DEBUGLOG( QString( "m_JackTransportState: %1,\n m_JackTransportPos: %2,\nm_timebaseState: %3, current pattern column: %4" )
+	J_DEBUGLOG( QString( "m_JackTransportState: %1,\n m_JackTransportPos: %2,\nm_timebaseState: %3, current pattern column: %4" )
 			  .arg( m_JackTransportState )
 			  .arg( JackTransportPosToQString( m_JackTransportPos ) )
 			  .arg( static_cast<int>(m_timebaseState) )

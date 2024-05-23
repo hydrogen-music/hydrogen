@@ -120,11 +120,14 @@ class Logger {
 		/**
 		 * the log function
 		 * \param level used to output the corresponding level string
-		 * \param class_name the name of the calling class
+		 * \param sClassName the name of the calling class
 		 * \param func_name the name of the calling function/method
-		 * \param msg the message to log
+		 * \param sMsg the message to log
+		 * \param sColor alternate color
 		 */
-		void log( unsigned level, const QString& class_name, const char* func_name, const QString& msg );
+		void log( unsigned level, const QString& sClassName,
+				  const char* func_name, const QString& sMsg,
+				  const QString& sColor = "" );
 		/**
 		 * needed for being able to access logger internal
 		 * \param param is a pointer to the logger instance
