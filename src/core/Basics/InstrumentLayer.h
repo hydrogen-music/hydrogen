@@ -148,11 +148,6 @@ namespace H2Core
 		return __gain;
 	}
 
-	inline void InstrumentLayer::set_pitch( float pitch )
-	{
-		__pitch = pitch;
-	}
-
 	inline float InstrumentLayer::get_pitch() const
 	{
 		return __pitch;

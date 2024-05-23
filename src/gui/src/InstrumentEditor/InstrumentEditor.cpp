@@ -140,9 +140,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 									  pCommonStrings->getPitchLabel() );
 	m_pPitchLbl->move( 25, 235 );
 	
-
+	const float fFinePitch = 0.5;
 	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center,
-									   tr( "Pitch offset (Coarse)" ), true, -24, 24 );
+									   tr( "Pitch offset (Coarse)" ), true,
+									   Instrument::fPitchMin + fFinePitch,
+									   Instrument::fPitchMax - fFinePitch );
 	m_pPitchCoarseRotary->move( 84, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
@@ -152,7 +154,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchCoarseLbl->move( 82, 235 );
 
 	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center,
-									 tr( "Pitch offset (Fine)" ), false, -0.5, 0.5 );
+									 tr( "Pitch offset (Fine)" ), false,
+									 -fFinePitch, fFinePitch );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 138, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
@@ -413,7 +416,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchLbl->move( 17, 412 );
 
 	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::Type::Center,
-											tr( "Layer pitch (Coarse)" ), true, -24.0, 24.0 );
+											tr( "Layer pitch (Coarse)" ), true,
+											Instrument::fPitchMin + fFinePitch,
+											Instrument::fPitchMax - fFinePitch );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pLayerPitchCoarseLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ),
@@ -526,23 +531,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
 		// ~ filter
 
-		// pitch offset
-		char tmp[7];
-		sprintf( tmp, "%#.2f", m_pInstrument->get_pitch_offset() );
-		m_pPitchLCD->setText( tmp );
-		
-		/* fCoarsePitch is the closest integer to pitch_offset (represents the pitch shift interval in half steps)
-		while it is an integer number, it's defined float to be used in next lines */
-		float fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
+		setInstrumentPitch();
 
-		//fFinePitch represents the fine adjustment (between -0.5 and +0.5) if pitch_offset has decimal part
-		float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
-
-		m_pPitchCoarseRotary->setValue( fCoarsePitch );
-		m_pPitchFineRotary->setValue( fFinePitch );
-		
 		// pitch random
 		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor() );
+
 
 		//Stop Note
 		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
@@ -551,6 +544,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
 
 		// instr gain
+		char tmp[7];
 		sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
 		m_pInstrumentGainLCD->setText( tmp );
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
@@ -658,11 +652,18 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 				m_pNameLbl->setText( m_pInstrument->get_name() );
 			}
 
-			// filter
-			m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-			m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
-			m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-			// ~ filter
+			if ( m_pFilterBypassBtn->isChecked() !=
+				 !m_pInstrument->is_filter_active() ) {
+				m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+			}
+			if ( m_pCutoffRotary->getValue() != m_pInstrument->get_filter_cutoff() ) {
+				m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+			}
+			if ( m_pResonanceRotary->getValue() !=
+				 m_pInstrument->get_filter_resonance() ) {
+				m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+			}
+			setInstrumentPitch();
 		}
 		// In case nInstrumentNumber does not belong to the currently
 		// selected instrument we don't have to do anything.
@@ -676,10 +677,56 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 	selectLayer( m_nSelectedLayer );
 }
 
+void InstrumentEditor::setInstrumentPitch() {
+	const QString sNewPitch = QString( "%1" )
+		.arg( m_pInstrument->get_pitch_offset(), -2, 'f', 2, '0' );
+
+	if ( m_pPitchLCD->text() != sNewPitch ) {
+		m_pPitchLCD->setText( sNewPitch );
+	}
+
+		// pitch offset
+
+	/* fCoarsePitch is the closest integer to pitch_offset (represents the pitch
+	   shift interval in half steps) while it is an integer number, it's defined
+	   float to be used in next lines */
+	float fCoarsePitch;
+
+	// Since the 'fine' rotary covers values from -0.5 to 0.5 e.g. 1.5 can be
+	// represented by both coarse: 2, fine: -0.5 and coarse: 1, fine: 0.5. We
+	// need some extra logic to avoid unexpected jumping of the rotaries.
+	if ( m_pPitchFineRotary->getValue() == 0.5 &&
+		 m_pInstrument->get_pitch_offset() -
+		 trunc( m_pInstrument->get_pitch_offset() ) == 0.5 ) {
+		fCoarsePitch = trunc( m_pInstrument->get_pitch_offset() );
+	}
+	else if ( m_pPitchFineRotary->getValue() == -0.5 &&
+			    trunc( m_pInstrument->get_pitch_offset() ) -
+					 m_pInstrument->get_pitch_offset() == 0.5 ) {
+		fCoarsePitch = ceil( m_pInstrument->get_pitch_offset() );
+	}
+	else {
+		fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
+	}
+
+	// fFinePitch represents the fine adjustment (between -0.5 and +0.5) if
+	// pitch_offset has decimal part
+	const float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
+
+	if ( m_pPitchCoarseRotary->getValue() != fCoarsePitch ) {
+		m_pPitchCoarseRotary->setValue( fCoarsePitch );
+	}
+	if ( m_pPitchFineRotary->getValue() != fFinePitch ) {
+		m_pPitchFineRotary->setValue( fFinePitch );
+	}
+}
+
 void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 {
 	assert( ref );
 	Rotary* pRotary = static_cast<Rotary*>( ref );
+	auto pCoreActionController =
+		Hydrogen::get_instance()->getCoreActionController();
 	
 	float fVal = pRotary->getValue();
 
@@ -689,18 +736,14 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		}
 		else if ( pRotary == m_pPitchCoarseRotary ) {
 			//round fVal, since Coarse is the integer number of half steps
-			float newPitch = round( fVal ) + m_pPitchFineRotary->getValue();
-			m_pInstrument->set_pitch_offset( newPitch );
-			char tmp[7];
-			sprintf( tmp, "%#.2f", newPitch);
-			m_pPitchLCD->setText( tmp );
+			float fNewPitch = round( fVal ) + m_pPitchFineRotary->getValue();
+			pCoreActionController->setInstrumentPitch(
+				m_pInstrument->get_id(), fNewPitch );
 		}
 		else if ( pRotary == m_pPitchFineRotary ) {
-			float newPitch = round( m_pPitchCoarseRotary->getValue() ) + fVal;
- 			m_pInstrument->set_pitch_offset( newPitch );
-			char tmp[7];
- 			sprintf( tmp, "%#.2f", newPitch);
- 			m_pPitchLCD->setText( tmp );
+			float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) + fVal;
+			pCoreActionController->setInstrumentPitch(
+				m_pInstrument->get_id(), fNewPitch );
 		}
 		else if ( pRotary == m_pCutoffRotary ) {
 			m_pInstrument->set_filter_cutoff( fVal );
