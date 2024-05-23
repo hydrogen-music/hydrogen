@@ -80,8 +80,9 @@ namespace H2Core
 	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
 #define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
 	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
-#define AE_DEBUGLOG(x) DEBUGLOG( QString( "[%1] %2" ) \
-	.arg( Hydrogen::get_instance()->getAudioEngine()->getDriverNames() ).arg( x ) );
+#define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
+		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
 
 /** Gets the current time.
  * \return Current time obtained by gettimeofday()*/

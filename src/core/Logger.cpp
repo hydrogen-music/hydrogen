@@ -156,7 +156,8 @@ Logger::~Logger() {
 	pthread_join( loggerThread, nullptr );
 }
 
-void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {
+void Logger::log( unsigned level, const QString& sClassName, const char* func_name,
+				  const QString& sMsg, const QString& sColor ) {
 
 	if( level == None ){
 		return;
@@ -193,9 +194,11 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
 	}
 
-	QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
-		.arg( m_colorList[i] ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
-		.arg( class_name ).arg( func_name ).arg( msg );
+	const QString sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+
+	const QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
+		.arg( sClassName ).arg( func_name ).arg( sMsg );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );
