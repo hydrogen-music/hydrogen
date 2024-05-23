@@ -2159,7 +2159,9 @@ void AudioEngineTests::testTransportRelocationJack() {
 					pAE->unlock();
 				}
 				else {
+					pAE->lock( RIGHT_HERE );
 					pDriver->locateTransport( nFrame );
+					pAE->unlock();
 				}
 			}
 
@@ -2212,15 +2214,11 @@ void AudioEngineTests::testTransportRelocationJack() {
 			nNewFrame = 2174246;
 		}
 
-		if ( m_referenceTimebase == JackAudioDriver::Timebase::Master ) {
-			pAE->lock( RIGHT_HERE );
-			pAE->locateToFrame( nNewFrame );
-			pAE->unlock();
-		}
-		else {
-			pDriver->locateTransport( nNewFrame );
-			waitForRelocation( -1, nNewFrame );
-		}
+		pAE->lock( RIGHT_HERE );
+		pDriver->locateTransport( nNewFrame );
+		pAE->unlock();
+
+		waitForRelocation( -1, nNewFrame );
 
 		if ( nNewFrame != pTransportPos->getFrame() -
 			 pTransportPos->getFrameOffsetTempo() ) {
