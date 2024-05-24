@@ -111,7 +111,7 @@ public:
 		 * #H2Core::JackAudioDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );
 
-	static void startJackAudioDriver();
+	static JackAudioDriver* startJackAudioDriver();
 
 	static JackAudioDriver::Timebase m_referenceTimebase;
 #endif

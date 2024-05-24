@@ -182,6 +182,10 @@ int main(int argc, char *argv[])
 		QCommandLineOption logFileOption(
 			QStringList() << "L" << "log-file",
 			"Alternative log file path", "Path" );
+		QCommandLineOption timebaseStateOption(
+			QStringList() << "timebase-state",
+			"Initial JACK timebase base (1 - master, 0 - listener, -1 - none)",
+			"int", "-1" );
 #ifdef H2CORE_HAVE_OSC
 		QCommandLineOption oscPortOption(
 			QStringList() << "O" << "osc-port",
@@ -192,6 +196,7 @@ int main(int argc, char *argv[])
 #ifdef H2CORE_HAVE_OSC
 		parser.addOption( oscPortOption );
 #endif
+		parser.addOption( timebaseStateOption );
 		parser.addOption( verboseOption );
 		parser.addOption( logFileOption );
 		parser.addHelpOption();
@@ -217,6 +222,18 @@ int main(int argc, char *argv[])
 			}
 		}
 #endif
+		bool bOk;
+		const int nTimebaseStateOption =
+			parser.value( timebaseStateOption ).toInt( &bOk );
+		if ( ! bOk || ( nTimebaseStateOption != 0 && nTimebaseStateOption != 1 &&
+			 nTimebaseStateOption != -1 ) ) {
+			std::cerr << "Unable to parse 'timebase-state' option. Please provide an integer value between [-1,1]"
+						  << std::endl;
+				exit( 1 );
+		}
+		const auto timebaseState =
+			static_cast<JackAudioDriver::Timebase>(nTimebaseStateOption);
+		AudioEngineTests::m_referenceTimebase = timebaseState;
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if ( parser.isSet( verboseOption ) ){
@@ -239,6 +256,11 @@ int main(int argc, char *argv[])
 		preferences->setOscServerEnabled( true );
 		if ( nOscPort != -1 ) {
 			preferences->m_nOscTemporaryPort = nOscPort;
+		}
+		if ( timebaseState == JackAudioDriver::Timebase::Master ) {
+			preferences->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+		} else {
+			preferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		}
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
