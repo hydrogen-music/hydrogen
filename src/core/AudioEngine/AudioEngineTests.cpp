@@ -2177,6 +2177,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
+		INFOLOG( QString( "relocate to tick [%1]" ).arg( fNewTick ) );
 		pAE->locate( fNewTick, true );
 		pAE->unlock();
 
@@ -2204,6 +2205,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
+		INFOLOG( QString( "relocate to frame [%1]" ).arg( nNewFrame ) );
 		pDriver->locateTransport( nNewFrame );
 		pAE->unlock();
 
@@ -2232,6 +2234,8 @@ void AudioEngineTests::testTransportRelocationJack() {
 }
 
 void AudioEngineTests::startJackAudioDriver() {
+	INFOLOG( "Starting custom JACK audio driver..." );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPref = Preferences::get_instance();
@@ -2286,9 +2290,14 @@ void AudioEngineTests::startJackAudioDriver() {
 	if ( pHydrogen->getSong() != nullptr ) {
 		pAudioEngine->handleDriverChange();
 	}
+
+	INFOLOG( "DONE Starting custom JACK audio driver." );
+
 }
 
 void AudioEngineTests::stopJackAudioDriver() {
+	INFOLOG( "Stopping custom JACK audio driver..." );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -2316,6 +2325,8 @@ void AudioEngineTests::stopJackAudioDriver() {
 	pDriver->m_timebaseState = previousTimebaseState;
 	pDriver->m_timebaseTracking = nPreviousTimebaseTracking;
 #endif
+
+	INFOLOG( "DONE Stopping custom JACK audio driver." );
 }
 
 int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
