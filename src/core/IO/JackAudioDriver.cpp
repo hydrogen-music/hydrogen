@@ -121,7 +121,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_timebaseTracking( TimebaseTracking::None ),
 	  m_timebaseState( Timebase::None ),
 	  m_fLastTimebaseBpm( 120 ),
-	  m_nTimebaseFrameOffset( 0 )
+	  m_nTimebaseFrameOffset( 0 ),
+	  m_nRelocationsDetected( 0 )
 {
 	auto pPreferences = Preferences::get_instance();
 
@@ -700,6 +701,11 @@ void JackAudioDriver::updateTransportPosition()
 			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 			m_nTimebaseFrameOffset = 0;
 		}
+
+		// Used to check whether we can find the proper position right away
+		// during the integration tests.
+		m_nRelocationsDetected++;
+
 #if JACK_DEBUG
 		J_DEBUGLOG( QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2" )
 				  .arg( m_nTimebaseFrameOffset )
