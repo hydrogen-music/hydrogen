@@ -665,7 +665,10 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		pPos->setColumn( nNewColumn );
 
 		updatePlayingPatternsPos( pPos );
-		handleSelectedPattern();
+
+		if ( pPos == m_pTransportPosition ) {
+			handleSelectedPattern();
+		}
 	}
 
 #if AUDIO_ENGINE_DEBUG
@@ -694,7 +697,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	const float fNewBpm = getBpmAtColumn( pPos->getColumn() );
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
-		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, 0 );
+		if ( pPos == m_pTransportPosition ) {
+			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, 0 );
+		}
 	}
 
 	const float fOldTickSize = pPos->getTickSize();
@@ -788,7 +793,9 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 		pPos->setFrame( nNewFrame );
 	}
 
-	handleTempoChange();
+	if ( pPos = m_pTransportPosition ) {
+		handleTempoChange();
+	}
 }
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
@@ -1924,7 +1931,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		if ( pSong->getPatternGroupVector()->size() == 0 ) {
 			// No patterns in current song.
-			if ( nPrevPatternNumber > 0 ) {
+			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 ) {
 				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 			}
 			return;
@@ -1933,7 +1940,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		auto nColumn = std::max( pPos->getColumn(), 0 );
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
 			AE_ERRORLOG( QString( "Provided column [%1] exceeds allowed range [0,%2]. Using 0 as fallback." )
-					  .arg( nColumn ).arg( pSong->getPatternGroupVector()->size() - 1 ) );
+					  .arg( nColumn )
+						 .arg( pSong->getPatternGroupVector()->size() - 1 ) );
 			nColumn = 0;
 		}
 
