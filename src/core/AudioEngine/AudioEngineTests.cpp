@@ -2009,11 +2009,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 
-	// The Timebase state must remain the same (as we do not change it on
-	// purpose).
-	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->getTimebaseState();
-
 	// Check whether all frames are covered when running playback in song mode
 	// without looping.
 	CoreActionController::activateLoopMode( false );
@@ -2023,7 +2018,10 @@ void AudioEngineTests::testTransportProcessingJack() {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
-	startJackAudioDriver();
+	auto pDriver = startJackAudioDriver();
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+	}
 
 	// In case the reference Hydrogen is JACK Timebase master, Timeline of this
 	// instance is deactivated and we are listening to tempo changes broadcasted
@@ -2085,11 +2083,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 
-	// The Timebase state must remain the same (as we do not change it on
-	// purpose).
-	m_referenceTimebase = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->getTimebaseState();
-
 	pAE->lock( RIGHT_HERE );
 	pAE->stop();
 	if ( pAE->getState() == AudioEngine::State::Playing ) {
@@ -2102,9 +2095,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
-	startJackAudioDriver();
-	auto pDriver = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput());
+	auto pDriver = startJackAudioDriver();
 	if ( pDriver == nullptr ) {
 		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
 	}
@@ -2233,7 +2224,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 	stopJackAudioDriver();
 }
 
-void AudioEngineTests::startJackAudioDriver() {
+JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 	INFOLOG( "Starting custom JACK audio driver..." );
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2244,13 +2235,6 @@ void AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-#ifdef H2CORE_HAVE_JACK
-	const auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->getTimebaseState();
-	const auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->m_timebaseTracking;
-#endif
-
 	pAudioEngine->stopAudioDrivers();
 
 	// Start a modified version of the JACK audio driver.
@@ -2259,21 +2243,34 @@ void AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Unable to create JackAudioDriver" );
 	}
 #ifdef H2CORE_HAVE_JACK
-	pDriver->m_timebaseState = previousTimebaseState;
-	pDriver->m_timebaseTracking = nPreviousTimebaseTracking;
 
 	// Suppress default audio output
 	pDriver->setConnectDefaults( false );
 #else
 	throwException( "[startJackAudioDriver] This function should not be run without JACK support" );
 #endif
+	pAudioEngine->lock( RIGHT_HERE );
 
 	if ( pDriver->init( pPref->m_nBufferSize ) != 0 ) {
 		delete pDriver;
+		pAudioEngine->unlock();
 		throwException( "[startJackAudioDriver] Unable to initialize driver" );
 	}
 
-	pAudioEngine->lock( RIGHT_HERE );
+	// Driver needs to be initialized in order to properly set its timebase
+	// state.
+	if ( pDriver->m_timebaseState == JackAudioDriver::Timebase::Master &&
+		 m_referenceTimebase != JackAudioDriver::Timebase::Master ) {
+		INFOLOG( "Releasing test binary as Timebase master" );
+		pDriver->releaseTimebaseMaster();
+	}
+	else if ( pDriver->m_timebaseState != JackAudioDriver::Timebase::Master &&
+		 m_referenceTimebase == JackAudioDriver::Timebase::Master ) {
+		INFOLOG( "Register test binary as Timebase master" );
+		pDriver->initTimebaseMaster();
+	}
+	pDriver->m_timebaseState = m_referenceTimebase;
+	pDriver->m_timebaseTracking = JackAudioDriver::TimebaseTracking::Valid;
 	pAudioEngine->m_MutexOutputPointer.lock();
 
 	pAudioEngine->m_pAudioDriver = pDriver;
@@ -2293,6 +2290,7 @@ void AudioEngineTests::startJackAudioDriver() {
 
 	INFOLOG( "DONE Starting custom JACK audio driver." );
 
+	return pDriver;
 }
 
 void AudioEngineTests::stopJackAudioDriver() {
@@ -2305,13 +2303,6 @@ void AudioEngineTests::stopJackAudioDriver() {
 		throwException( "[stopJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-#ifdef H2CORE_HAVE_JACK
-	const auto previousTimebaseState = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->getTimebaseState();
-	const auto nPreviousTimebaseTracking = dynamic_cast<JackAudioDriver*>(
-		pHydrogen->getAudioOutput())->m_timebaseTracking;
-#endif
-
 	// We rely on the driver set via the Preferences (most probably FakeDriver).
 	pAudioEngine->restartAudioDrivers();
 
@@ -2322,8 +2313,8 @@ void AudioEngineTests::stopJackAudioDriver() {
 			"[stopJackAudioDriver] No JACK driver after restart!" );
 	}
 
-	pDriver->m_timebaseState = previousTimebaseState;
-	pDriver->m_timebaseTracking = nPreviousTimebaseTracking;
+	pDriver->m_timebaseState = m_referenceTimebase;
+	pDriver->m_timebaseTracking = JackAudioDriver::TimebaseTracking::Valid;
 #endif
 
 	INFOLOG( "DONE Stopping custom JACK audio driver." );
