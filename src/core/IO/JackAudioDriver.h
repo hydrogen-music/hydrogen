@@ -610,9 +610,13 @@ private:
 		 * In case we act as listener we will relocate based on the provided BBT
 		 * information. This is done by converting them into a tick and
 		 * calculating the corresponding frame. That resultant frame does not
-		 * have necessarily have to coincide with the one broadcasted by the
-		 * JACK server. But this is no problems as BBT takes precedeence. */
+		 * necessarily have to coincide with the one broadcasted by the JACK
+		 * server. But this is no problems as BBT takes precedeence. */
 		long long m_nTimebaseFrameOffset;
+
+		/** Keeps track of how often the driver encounters a relocation. Solely
+		 * used during integration tests. */
+		int m_nRelocationsDetected;
 };
 
 }; // H2Core namespace

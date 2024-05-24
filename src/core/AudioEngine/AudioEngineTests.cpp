@@ -2040,6 +2040,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 	float fBpm;
 
 	pAE->lock( RIGHT_HERE );
+	pDriver->m_nRelocationsDetected = 0;
 	fBpm = pAE->getBpmAtColumn( 0 );
 
 	// The callback function registered to the JACK server will take care of
@@ -2078,6 +2079,17 @@ void AudioEngineTests::testTransportProcessingJack() {
 	pAE->reset( true );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
+
+	// CHECKING this unfortunately is not possible since each XRun encountered
+	// during playback will result in a lost cycle and thus a relocation. This
+	// would make the test only feasible in high-performance environments.
+	//
+	// We should have encountered no relocation expect for moving back to the
+	// start again after being done.
+	// if ( pDriver->m_nRelocationsDetected != 1 ) {
+	// 	throwException( QString( "[testTransportProcessingJack] [%1] instead of [1] relocations during playback" )
+	// 					.arg( pDriver->m_nRelocationsDetected ) );
+	// }
 
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
 		 ! bTempoChangeEncountered ) {
@@ -2179,6 +2191,12 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
+		pDriver->m_nRelocationsDetected = 0;
+
+		while ( std::abs( fNewTick - pTransportPos->getDoubleTick() ) < 1 ) {
+			fNewTick = tickDist( randomEngine );
+		}
+
 		INFOLOG( QString( "relocate to tick [%1]" ).arg( fNewTick ) );
 		pAE->locate( fNewTick, true );
 		pAE->unlock();
@@ -2189,12 +2207,20 @@ void AudioEngineTests::testTransportRelocationJack() {
 		// via rountines in the libjack2 library. We have to relaxed about the
 		// precision we can expect from relocating.
 		if ( abs( pTransportPos->getDoubleTick() - fNewTick ) > 1e-1 ) {
-			throwException( QString( "[testTransportRelocationJack] failed to relocate to tick. [%1] != [%2]" )
+			throwException( QString( "[testTransportRelocationJack::tick] failed to relocate to tick. [%1] != [%2]" )
 							.arg( pTransportPos->getDoubleTick() ).arg( fNewTick ) );
 		}
 
+		// In case there is an issue with the BBT <-> transport position
+		// conversion or the m_nTimebaseFrameOffset, the driver will detect
+		// multiple relocations (maybe one in each cycle).
+		if ( pDriver->m_nRelocationsDetected != 1 ) {
+			throwException( QString( "[testTransportRelocationJack::tick] relocated in [%1] instead of [1] attempt" )
+							.arg( pDriver->m_nRelocationsDetected ) );
+		}
+
 		AudioEngineTests::checkTransportPosition(
-			pTransportPos, "[testTransportRelocationJack] mismatch tick-based" );
+			pTransportPos, "[testTransportRelocationJack::tick] mismatch tick-based" );
 
 		// Frame-based relocation
 		// We sample ticks and convert them since we are using tempo markers.
@@ -2207,6 +2233,13 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
+		pDriver->m_nRelocationsDetected = 0;
+
+		while ( nNewFrame == pTransportPos->getFrame() ) {
+			nNewFrame = TransportPosition::computeFrameFromTick(
+				tickDist( randomEngine ), &fTickMismatch );
+		}
+
 		INFOLOG( QString( "relocate to frame [%1]" ).arg( nNewFrame ) );
 		pDriver->locateTransport( nNewFrame );
 		pAE->unlock();
@@ -2215,7 +2248,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 
 		if ( nNewFrame != pTransportPos->getFrame() -
 			 pTransportPos->getFrameOffsetTempo() ) {
-			throwException( QString( "[testTransportRelocationJack] failed to relocate to frame. [%1] != [%4=%2 - %3]" )
+			throwException( QString( "[testTransportRelocationJack::frame] failed to relocate to frame. [%1] != [%4=%2 - %3]" )
 							.arg( nNewFrame )
 							.arg( pTransportPos->getFrame() -
 								  pTransportPos->getFrameOffsetTempo() )
@@ -2223,8 +2256,16 @@ void AudioEngineTests::testTransportRelocationJack() {
 							.arg( pTransportPos->getFrameOffsetTempo() ) );
 		}
 
+		// In case there is an issue with the BBT <-> transport position
+		// conversion or the m_nTimebaseFrameOffset, the driver will detect
+		// multiple relocations (maybe one in each cycle).
+		if ( pDriver->m_nRelocationsDetected != 1 ) {
+			throwException( QString( "[testTransportRelocationJack::frame] relocated in [%1] instead of [1] attempt" )
+							.arg( pDriver->m_nRelocationsDetected ) );
+		}
+
 		AudioEngineTests::checkTransportPosition(
-			pTransportPos, "[testTransportRelocationJack] mismatch frame-based" );
+			pTransportPos, "[testTransportRelocationJack::frame] mismatch frame-based" );
 	}
 
 	pAE->lock( RIGHT_HERE );
