@@ -2634,11 +2634,20 @@ void AudioEngine::stop() {
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
+
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( "Stopping engine via JACK server" );
+#endif
+
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->stopTransport();
 		return;
 	}
+#endif
+
+#if AUDIO_ENGINE_DEBUG
+	AE_DEBUGLOG( "Mark audio engine to be stop" );
 #endif
 	
 	setNextState( State::Ready );

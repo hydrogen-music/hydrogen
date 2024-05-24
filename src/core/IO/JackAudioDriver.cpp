@@ -1103,8 +1103,11 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 #endif
 }
 
-void JackAudioDriver::startTransport()
-{
+void JackAudioDriver::startTransport() {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
 	if ( m_pClient != nullptr ) {
 		jack_transport_start( m_pClient );
 	} else {
@@ -1112,8 +1115,11 @@ void JackAudioDriver::startTransport()
 	}
 }
 
-void JackAudioDriver::stopTransport()
-{
+void JackAudioDriver::stopTransport() {
+#if JACK_DEBUG
+	J_DEBUGLOG( "" );
+#endif
+
 	if ( m_pClient != nullptr ) {
 		jack_transport_stop( m_pClient );
 	} else {
@@ -1167,6 +1173,7 @@ void JackAudioDriver::locateTransport( long long nFrame )
 void JackAudioDriver::initTimebaseMaster()
 {
 	if ( m_pClient == nullptr ) {
+		ERRORLOG( "No client yet" );
 		return;
 	}
 
@@ -1214,7 +1221,7 @@ void JackAudioDriver::initTimebaseMaster()
 		}
 		else {
 #if JACK_DEBUG
-		J_DEBUGLOG( "Registered as master" );
+			J_DEBUGLOG( "Registered as master" );
 #endif
 			m_timebaseTracking = TimebaseTracking::Valid;
 			m_timebaseState = Timebase::Master;
@@ -1224,6 +1231,7 @@ void JackAudioDriver::initTimebaseMaster()
 		}
 	}
 	else {
+		WARNINGLOG( "Timebase master usage is disabled in the Preferences" );
 	    releaseTimebaseMaster();
 	}
 }
