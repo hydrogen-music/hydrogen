@@ -1289,8 +1289,29 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		return;
 	}
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	const auto pPos = pAudioEngine->getTransportPosition();
+	std::shared_ptr<TransportPosition> pPos = nullptr;
+	const QString sLabel = "JackTimebaseCallback";
+
 	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pJackPosition->frame ==
+		 pAudioEngine->getTransportPosition()->getFrame() ) {
+		// Requested transport position coincides with the current one of the
+		// Audio Engine. We can reuse it.
+		pPos = pAudioEngine->getTransportPosition();
+	}
+	else {
+#if JACK_DEBUG
+		J_DEBUGLOG( QString( "PRE Audio engine transport pos: %1" )
+					.arg( pAudioEngine->getTransportPosition()->toQString() ) );
+#endif
+
+		pPos = std::make_shared<TransportPosition>( sLabel );
+		const long long nFrame = pJackPosition->frame;
+		const auto fTick = TransportPosition::computeTickFromFrame(
+			nFrame );
+		pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
+	}
 
 	transportToBBT( *pPos, pJackPosition );
 
