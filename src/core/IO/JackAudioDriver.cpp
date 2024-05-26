@@ -1165,6 +1165,10 @@ void JackAudioDriver::locateTransport( long long nFrame )
 			}
 		}
 		else {
+			long long nNewFrame = nFrame;
+			if ( m_timebaseState == Timebase::Listener ) {
+				nNewFrame -= m_nTimebaseFrameOffset;
+			}
 #if JACK_DEBUG
 			J_DEBUGLOG( QString( "Relocate to nFrame: %1, nNewFrame: %2, m_nTimebaseFrameOffset: %3, timebase state: %4" )
 					  .arg( nFrame ).arg( nNewFrame )
@@ -1175,9 +1179,9 @@ void JackAudioDriver::locateTransport( long long nFrame )
 			// jack_transport_locate() (jack/transport.h )
 			// re-positions the transport to a new frame number. May
 			// be called at any time by any client.
-			if ( jack_transport_locate( m_pClient, nFrame ) != 0 ) {
+			if ( jack_transport_locate( m_pClient, nNewFrame ) != 0 ) {
 				ERRORLOG( QString( "Invalid relocation request to frame [%1]" )
-						  .arg( nFrame ) );
+						  .arg( nNewFrame ) );
 			}
 		}
 	} else {
