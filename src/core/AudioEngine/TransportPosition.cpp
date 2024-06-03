@@ -51,7 +51,11 @@ TransportPosition::TransportPosition( const QString& sLabel )
 }
 
 TransportPosition::~TransportPosition() {
+	// We just hold copies of current patterns. We do not want to discard them.
+	m_pPlayingPatterns->clear();
 	delete m_pPlayingPatterns;
+
+	m_pNextPatterns->clear();
 	delete m_pNextPatterns;
 }
 
