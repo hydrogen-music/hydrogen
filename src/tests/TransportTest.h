@@ -43,6 +43,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST( testNoteEnqueuingTimeline );
 	CPPUNIT_TEST( testHumanization );
+	CPPUNIT_TEST( testUpdateTransportPosition );
 	CPPUNIT_TEST_SUITE_END();
 private:
 	void perform( std::function<void()> func );
@@ -72,4 +73,5 @@ public:
 	 */
 	void testNoteEnqueuingTimeline();
 	void testHumanization();
+		void testUpdateTransportPosition();
 };

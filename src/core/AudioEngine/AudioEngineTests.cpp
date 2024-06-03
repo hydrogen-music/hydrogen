@@ -2012,6 +2012,23 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 }
 
+void AudioEngineTests::testUpdateTransportPosition() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+	const long long nFrame = 3521;
+	const auto fTick = TransportPosition::computeTickFromFrame( nFrame );
+	pHydrogen->setSong( nullptr );
+
+	pAE->lock( RIGHT_HERE );
+	auto pNullPos = std::make_shared<TransportPosition>( "null" );
+	pAE->updateTransportPosition( fTick, nFrame, pNullPos );
+	pAE->unlock();
+
+	pHydrogen->setSong( pSong );
+}
+
 #ifdef H2CORE_HAVE_JACK
 void AudioEngineTests::testTransportProcessingJack() {
 	auto pHydrogen = Hydrogen::get_instance();
