@@ -107,6 +107,11 @@ public:
 	 */
 	static void testTransportRelocationJack();
 
+		/**
+		 * Checks is reproducible and works even without any song set.
+		 */
+		static void testUpdateTransportPosition();
+
 		/** Process callback for the testing instance of the
 		 * #H2Core::JackAudioDriver */
 		static int jackTestProcessCallback( uint32_t nFrames, void* args );

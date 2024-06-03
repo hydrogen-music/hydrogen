@@ -211,7 +211,9 @@ void Hydrogen::initBeatcounter()
 void Hydrogen::sequencerPlay()
 {
 	std::shared_ptr<Song> pSong = getSong();
-	pSong->getPatternList()->set_to_old();
+	if ( pSong != nullptr ) {
+		pSong->getPatternList()->set_to_old();
+	}
 	m_pAudioEngine->play();
 }
 
@@ -278,7 +280,9 @@ void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
-	assert ( pSong );
+	if ( pSong == nullptr ) {
+		WARNINGLOG( "setting nullptr!" );
+	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
@@ -298,7 +302,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
-				pSong->setFilename( pCurrentSong->getFilename() );
+				if ( pSong != nullptr ) {
+					pSong->setFilename( pCurrentSong->getFilename() );
+				}
 			}
 #endif
 		}
@@ -315,7 +321,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= m_pSong->getDrumkit()->getInstruments()->size() ) {
+	if ( pSong != nullptr && m_nSelectedInstrumentNumber >=
+		 m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
 	}
@@ -695,6 +702,10 @@ void Hydrogen::stopExportSession()
 {
 	DEBUGLOG( "" );
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	pSong->setMode( m_oldEngineMode );
 	if ( m_bOldLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
@@ -826,6 +837,7 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	CoreActionController::setBpm( fBPM );
 #endif
+
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1013,7 +1025,7 @@ bool Hydrogen::handleBeatCounter()
 					/ 100;
 			
 			CoreActionController::setBpm( fBeatCountBpm );
-			
+
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
@@ -1200,7 +1212,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( m_pSong->getIsTimelineActivated() &&
+	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
@@ -1265,7 +1277,7 @@ void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 }
 
 Song::PatternMode Hydrogen::getPatternMode() const {
-	if ( getMode() == Song::Mode::Pattern ) {
+	if ( m_pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		return m_pSong->getPatternMode();
 	}
 	return Song::PatternMode::None;
@@ -1302,7 +1314,8 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
 		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
 			return Tempo::Jack;
-		} else if ( getSong()->getIsTimelineActivated() ) {
+		}
+		else if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() ) {
 			return Tempo::Timeline;
 		}
 	}
@@ -1394,7 +1407,15 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {
 	std::shared_ptr<Song> pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		const int nPatternSize = MAX_NOTES;
+		const int nColumn = static_cast<int>(
+			std::floor( static_cast<float>( nTick ) /
+						static_cast<float>( nPatternSize ) ) );
+		*pPatternStartTick = static_cast<long>(nColumn * nPatternSize);
+		return nColumn;
+	}
 
 	long nTotalTick = 0;
 
@@ -1463,7 +1484,10 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 long Hydrogen::getTickForColumn( int nColumn ) const
 {
 	auto pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		return static_cast<long>(nColumn * MAX_NOTES);
+	}
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {

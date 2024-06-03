@@ -477,12 +477,6 @@ void AudioEngine::resetOffsets() {
 }
 
 void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
-
-	if ( pSong == nullptr ) {
-		return;
-	}	
-
 	const long long nNewFrame = m_pTransportPosition->getFrame() + nFrames;
 	const double fNewTick = TransportPosition::computeTickFromFrame( nNewFrame );
 	m_pTransportPosition->m_fTickMismatch = 0;
@@ -505,7 +499,7 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 
 bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const {
 	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getMode() == Song::Mode::Song &&
+	if ( pSong != nullptr && pSong->getMode() == Song::Mode::Song &&
 		 ( pSong->getLoopMode() == Song::LoopMode::Disabled &&
 		   pPos->getDoubleTick() >= m_fSongSizeInTicks ||
 		   pSong->getLoopMode() == Song::LoopMode::Finishing &&
@@ -520,9 +514,6 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pSong = pHydrogen->getSong();
-
-	assert( pSong );
 
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "[Before] fTick: %1, nFrame: %2, pos: %3" )
@@ -636,7 +627,7 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	}
 
 	int nNewColumn;
-	if ( pSong->getPatternGroupVector()->size() == 0 ) {
+	if ( pSong == nullptr || pSong->getPatternGroupVector()->size() == 0 ) {
 		// There are no patterns in song.
 		pPos->setPatternStartTick( 0 );
 		pPos->setPatternTickPosition( 0 );
@@ -702,10 +693,18 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 		}
 	}
 
+	int nResolution;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+	} else {
+		nResolution = Song::nDefaultResolution;
+	}
+
 	const float fOldTickSize = pPos->getTickSize();
-	const float fNewTickSize =
-		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
-									  fNewBpm, pSong->getResolution() );
+	const float fNewTickSize = AudioEngine::computeTickSize(
+		static_cast<float>(m_pAudioDriver->getSampleRate()), fNewBpm,
+		nResolution );
+
 	// Nothing changed - avoid recomputing
 #if defined(WIN32) and !defined(WIN64)
 	// For some reason two identical numbers (according to their
@@ -1093,7 +1092,8 @@ void AudioEngine::restartAudioDrivers()
 
 void AudioEngine::handleLoopModeChanged() {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getLoopMode() == Song::LoopMode::Finishing ) {
+	if ( pSong != nullptr &&
+		 pSong->getLoopMode() == Song::LoopMode::Finishing ) {
 		m_nLoopsDone = static_cast<int>(std::floor(
 			m_pTransportPosition->getDoubleTick() / m_fSongSizeInTicks ));
 	}
@@ -1192,7 +1192,7 @@ void AudioEngine::handleSelectedPattern() {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	
-	if ( pHydrogen->isPatternEditorLocked() ) {
+	if ( pSong != nullptr && pHydrogen->isPatternEditorLocked() ) {
 
 		// Default value is used to deselect the current pattern in
 		// case none was found.
@@ -1238,6 +1238,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	long long nFrame;
 	if ( getState() == State::Playing || getState() == State::Testing ) {
@@ -1397,10 +1400,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		assert( pSong );
-	}
 
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
@@ -1513,6 +1512,9 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 void AudioEngine::processAudio( uint32_t nFrames ) {
 
 	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	processPlayNotes( nFrames );
 
@@ -1601,7 +1603,8 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	AE_INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
+	AE_INFOLOG( QString( "Set song: %1" )
+				.arg( pNewSong != nullptr ? pNewSong->getName() : "nullptr" ) );
 	
 	if ( getState() != State::Prepared ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
@@ -1615,8 +1618,14 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Reset (among other things) the transport position. This causes
 	// the locate() call below to update the playing patterns.
 	reset( false );
-	setNextBpm( pNewSong->getBpm() );
-	m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
+	if ( pNewSong != nullptr ) {
+		setNextBpm( pNewSong->getBpm() );
+		m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
+	}
+	else {
+		setNextBpm( MIN_BPM );
+		m_fSongSizeInTicks = MAX_NOTES;
+	}
 
 	pHydrogen->renameJackPorts( pNewSong );
 
@@ -1624,8 +1633,13 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
-	pHydrogen->setTimeline( pNewSong->getTimeline() );
-	pHydrogen->getTimeline()->activate();
+	if ( pNewSong != nullptr ) {
+		pHydrogen->setTimeline( pNewSong->getTimeline() );
+		pHydrogen->getTimeline()->activate();
+	}
+	else {
+		pHydrogen->setTimeline( nullptr );
+	}
 
 	updateSongSize();
 }
@@ -1923,6 +1937,12 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	AE_DEBUGLOG( QString( "pre: %1" ).arg( pPos->toQString() ) );
 #endif
 
+	if ( pSong == nullptr ) {
+		pPlayingPatterns->clear();
+		pPos->setPatternSize( MAX_NOTES );
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
 		const auto nPrevPatternNumber = pPlayingPatterns->size();
@@ -1931,6 +1951,9 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 		if ( pSong->getPatternGroupVector()->size() == 0 ) {
 			// No patterns in current song.
+
+			pPos->setPatternSize( MAX_NOTES );
+
 			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 ) {
 				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 			}
@@ -2024,6 +2047,9 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 void AudioEngine::toggleNextPattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pPatternList = pSong->getPatternList();
 	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
@@ -2046,6 +2072,9 @@ void AudioEngine::clearNextPatterns() {
 void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pPatternList = pSong->getPatternList();
 
 	bool bAlreadyPlaying = false;
@@ -2237,7 +2266,6 @@ void AudioEngine::handleSongSizeChange() {
 long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
-	const auto pTimeline = pHydrogen->getTimeline();
 	auto pPos = m_pTransportPosition;
 
 	long long nFrameStart, nFrameEnd;
@@ -2345,6 +2373,9 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	double fTickStartComp, fTickEndComp;
 

@@ -235,21 +235,22 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioOutput();
 
-	if ( pSong == nullptr || pTimeline == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		*fTickMismatch = 0;
-		return 0;
-	}
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		*fTickMismatch = 0;
 		return 0;
 	}
 
+	int nResolution;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+	} else {
+		nResolution = Song::nDefaultResolution;
+	}
+
 	if ( nSampleRate == 0 ) {
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
-	const int nResolution = pSong->getResolution();
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
 	
 	if ( nSampleRate == 0 || nResolution == 0 ) {
@@ -262,17 +263,25 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		*fTickMismatch = 0;
 		return 0;
 	}
-		
-	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
+
+	std::vector<std::shared_ptr<const Timeline::TempoMarker>> tempoMarkers;
+	bool bSpecialFirstMarker = false;
+	if ( pTimeline != nullptr ) {
+		tempoMarkers = pTimeline->getAllTempoMarkers();
+		bSpecialFirstMarker = pTimeline->isFirstTempoMarkerSpecial();
+	}
+
+	int nColumns = 0;
+	if ( pSong != nullptr ) {
+		nColumns = pSong->getPatternGroupVector()->size();
+	}
 
 	// If there are no patterns in the current, we treat song mode
 	// like pattern mode.
 	long long nNewFrame = 0;
 	if ( pHydrogen->isTimelineEnabled() &&
-		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) &&
-		 pHydrogen->getMode() == Song::Mode::Song &&
-		 pSong->getPatternGroupVector()->size() > 0 )  {
+		 ! ( tempoMarkers.size() == 1 && bSpecialFirstMarker ) &&
+		 pHydrogen->getMode() == Song::Mode::Song && nColumns > 0 ) {
 
 		double fNewTick = fTick;
 		double fRemainingTicks = fTick;
@@ -281,8 +290,6 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		double fNewFrame = 0;
 		int ii;
 
-		const int nColumns = pSong->getPatternGroupVector()->size();
-		
 		auto handleEnd = [&]() {
 			// The next frame is within this segment.
 			fNewFrame += fRemainingTicks * fNextTickSize;
@@ -458,7 +465,9 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				}
 			}
 		}
-	} else {
+	}
+	else {
+		// There may be neither Timeline nor Song.
 
 		// As the timeline is not activate, the column passed is of no
 		// importance. But we harness the ability of getBpmAtColumn()
@@ -502,10 +511,6 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioOutput();
 
-	if ( pSong == nullptr || pTimeline == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		return 0;
-	}
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return 0;
@@ -514,7 +519,14 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	if ( nSampleRate == 0 ) {
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
-	const int nResolution = pSong->getResolution();
+
+	int nResolution;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+	} else {
+		nResolution = Song::nDefaultResolution;
+	}
+
 	double fTick = 0;
 
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
@@ -528,15 +540,23 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		return fTick;
 	}
 		
-	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
-	
+	std::vector<std::shared_ptr<const Timeline::TempoMarker>> tempoMarkers;
+	bool bSpecialFirstMarker = false;
+	if ( pTimeline != nullptr ) {
+		tempoMarkers = pTimeline->getAllTempoMarkers();
+		bSpecialFirstMarker = pTimeline->isFirstTempoMarkerSpecial();
+	}
+
+	int nColumns = 0;
+	if ( pSong != nullptr ) {
+		nColumns = pSong->getPatternGroupVector()->size();
+	}
+
 	// If there are no patterns in the current, we treat song mode
 	// like pattern mode.
 	if ( pHydrogen->isTimelineEnabled() &&
-		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) &&
-		 pHydrogen->getMode() == Song::Mode::Song &&
-		 pSong->getPatternGroupVector()->size() ) {
+		 ! ( tempoMarkers.size() == 1 && bSpecialFirstMarker ) &&
+		 pHydrogen->getMode() == Song::Mode::Song && nColumns > 0 ) {
 
 		// We are using double precision in here to avoid rounding
 		// errors.
@@ -656,6 +676,8 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		}
 	}
 	else {
+		// There may be neither Timeline nor Song.
+
 		// As the timeline is not activate, the column passed is of no
 		// importance. But we harness the ability of getBpmAtColumn()
 		// to collect and choose between tempo information gathered
