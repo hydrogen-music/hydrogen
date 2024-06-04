@@ -947,12 +947,14 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	if ( pSong != nullptr && pHydrogen->hasJackAudioDriver() ) {
 		pHydrogen->renameJackPorts( pSong );
 	}
-		
+
+	lock( RIGHT_HERE );
 	setupLadspaFX();
 
 	if ( pSong != nullptr ) {
 		handleDriverChange();
 	}
+	unlock();
 
 	EventQueue::get_instance()->push_event( EVENT_DRIVER_CHANGED, 0 );
 
