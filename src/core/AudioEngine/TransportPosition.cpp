@@ -710,6 +710,99 @@ double TransportPosition::computeTick( long long nFrame, float fTickSize ) {
 	return nFrame / fTickSize;
 }
 
+bool operator==( std::shared_ptr<TransportPosition> pLhs,
+				 std::shared_ptr<TransportPosition> pRhs ) {
+	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
+		   pRhs->m_pPlayingPatterns == nullptr ) ||
+		 ( pLhs->m_pPlayingPatterns == nullptr &&
+		   pRhs->m_pPlayingPatterns != nullptr ) ) {
+		return false;
+	}
+	else if ( pLhs->m_pPlayingPatterns != nullptr &&
+			  pRhs->m_pPlayingPatterns != nullptr &&
+			  *pLhs->m_pPlayingPatterns != *pRhs->m_pPlayingPatterns ) {
+		return false;
+	}
+
+	if ( ( pLhs->m_pNextPatterns != nullptr &&
+		   pRhs->m_pNextPatterns == nullptr ) ||
+		 ( pLhs->m_pNextPatterns == nullptr &&
+		   pRhs->m_pNextPatterns != nullptr ) ) {
+		return false;
+	}
+	else if ( pLhs->m_pNextPatterns != nullptr &&
+			  pRhs->m_pNextPatterns != nullptr &&
+			  *pLhs->m_pNextPatterns != *pRhs->m_pNextPatterns ) {
+		return false;
+	}
+
+	return (
+		pLhs->m_nFrame == pRhs->m_nFrame &&
+		std::abs( pLhs->m_fTick - pRhs->m_fTick ) < 1E-5 &&
+		std::abs( pLhs->m_fTickSize - pRhs->m_fTickSize ) < 1E-2 &&
+		std::abs( pLhs->m_fBpm - pRhs->m_fBpm ) < 1E-2 &&
+		pLhs->m_nPatternStartTick == pRhs->m_nPatternStartTick &&
+		pLhs->m_nPatternTickPosition == pRhs->m_nPatternTickPosition &&
+		pLhs->m_nColumn == pRhs->m_nColumn &&
+		std::abs( pLhs->m_fTickMismatch - pRhs->m_fTickMismatch ) < 1E-5 &&
+		pLhs->m_nFrameOffsetTempo == pRhs->m_nFrameOffsetTempo &&
+		std::abs( pLhs->m_fTickOffsetQueuing -
+				  pRhs->m_fTickOffsetQueuing ) < 1E-5 &&
+		std::abs( pLhs->m_fTickOffsetSongSize -
+				  pRhs->m_fTickOffsetSongSize ) < 1E-5 &&
+		pLhs->m_nPatternSize == pRhs->m_nPatternSize &&
+		pLhs->m_nLastLeadLagFactor == pRhs->m_nLastLeadLagFactor &&
+		pLhs->m_nBar == pRhs->m_nBar &&
+		pLhs->m_nBeat == pRhs->m_nBeat );
+}
+
+bool operator!=( std::shared_ptr<TransportPosition> pLhs,
+				 std::shared_ptr<TransportPosition> pRhs ) {
+	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
+		   pRhs->m_pPlayingPatterns == nullptr ) ||
+		 ( pLhs->m_pPlayingPatterns == nullptr &&
+		   pRhs->m_pPlayingPatterns != nullptr ) ) {
+		return true;
+	}
+	else if ( pLhs->m_pPlayingPatterns != nullptr &&
+			  pRhs->m_pPlayingPatterns != nullptr &&
+			  *pLhs->m_pPlayingPatterns != *pRhs->m_pPlayingPatterns ) {
+		return true;
+	}
+
+	if ( ( pLhs->m_pNextPatterns != nullptr &&
+		   pRhs->m_pNextPatterns == nullptr ) ||
+		 ( pLhs->m_pNextPatterns == nullptr &&
+		   pRhs->m_pNextPatterns != nullptr ) ) {
+		return true;
+	}
+	else if ( pLhs->m_pNextPatterns != nullptr &&
+			  pRhs->m_pNextPatterns != nullptr &&
+			  *pLhs->m_pNextPatterns != *pRhs->m_pNextPatterns ) {
+		return true;
+	}
+
+
+	return (
+		pLhs->m_nFrame != pRhs->m_nFrame ||
+		std::abs( pLhs->m_fTick - pRhs->m_fTick ) > 1E-5 ||
+		std::abs( pLhs->m_fTickSize - pRhs->m_fTickSize ) > 1E-2 ||
+		std::abs( pLhs->m_fBpm - pRhs->m_fBpm ) > 1E-2 ||
+		pLhs->m_nPatternStartTick != pRhs->m_nPatternStartTick ||
+		pLhs->m_nPatternTickPosition != pRhs->m_nPatternTickPosition ||
+		pLhs->m_nColumn != pRhs->m_nColumn ||
+		std::abs( pLhs->m_fTickMismatch - pRhs->m_fTickMismatch ) > 1E-5 ||
+		pLhs->m_nFrameOffsetTempo != pRhs->m_nFrameOffsetTempo ||
+		std::abs( pLhs->m_fTickOffsetQueuing -
+				  pRhs->m_fTickOffsetQueuing ) > 1E-5 ||
+		std::abs( pLhs->m_fTickOffsetSongSize -
+				  pRhs->m_fTickOffsetSongSize ) > 1E-5 ||
+		pLhs->m_nPatternSize != pRhs->m_nPatternSize ||
+		pLhs->m_nLastLeadLagFactor != pRhs->m_nLastLeadLagFactor ||
+		pLhs->m_nBar != pRhs->m_nBar ||
+		pLhs->m_nBeat != pRhs->m_nBeat );
+}
+
 QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

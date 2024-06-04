@@ -122,6 +122,11 @@ public:
 	 * @return frame
 	 */
 	static long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 );
+
+	friend bool operator==( std::shared_ptr<TransportPosition> lhs,
+							 std::shared_ptr<TransportPosition> rhs );
+	friend bool operator!=( std::shared_ptr<TransportPosition> lhs,
+							 std::shared_ptr<TransportPosition> rhs );
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
