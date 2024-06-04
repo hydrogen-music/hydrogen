@@ -347,6 +347,34 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	return nMax;
 }
 
+bool operator==( const PatternList& pLhs, const PatternList& pRhs ) {
+	if ( pLhs.size() != pRhs.size() ) {
+		return false;
+	}
+
+	for ( int ii = 0; ii < pLhs.size(); ii++ ) {
+		if ( pLhs.get( ii ) != pRhs.get( ii ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool operator!=( const PatternList& pLhs, const PatternList& pRhs ) {
+	if ( pLhs.size() != pRhs.size() ) {
+		return true;
+	}
+
+	for ( int ii = 0; ii < pLhs.size(); ii++ ) {
+		if ( pLhs.get( ii ) != pRhs.get( ii ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
