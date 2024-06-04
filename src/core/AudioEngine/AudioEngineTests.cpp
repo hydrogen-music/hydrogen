@@ -2006,8 +2006,45 @@ void AudioEngineTests::testUpdateTransportPosition() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
+
+	pAE->lock( RIGHT_HERE );
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+
+	// Check whether the transport positions in the audio engine are untouched
+	// by updateTransportPosition.
+	pAE->locate( 42 );
+	auto pTransportOld =
+		std::make_shared<TransportPosition>( pAE->getTransportPosition() );
+	auto pQueuingOld =
+		std::make_shared<TransportPosition>( pAE->m_pQueuingPosition );
+
+	auto pTestPos = std::make_shared<TransportPosition>( "test" );
 	const long long nFrame = 3521;
 	const auto fTick = TransportPosition::computeTickFromFrame( nFrame );
+	pAE->updateTransportPosition( fTick, nFrame, pTestPos );
+
+	if ( pAE->getTransportPosition() != pTransportOld ) {
+		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pTransportPosition:\nOld: %1\nNew: %2" )
+						.arg( pTransportOld->toQString() )
+						.arg( pAE->getTransportPosition()->toQString() ) );
+	}
+	if ( pAE->m_pQueuingPosition != pQueuingOld ) {
+		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pQueuingPosition:\nOld: %1\nNew: %2" )
+						.arg( pQueuingOld->toQString() )
+						.arg( pAE->m_pQueuingPosition->toQString() ) );
+	}
+
+	if ( pTransportOld == pTestPos ) {
+		throwException( "[testUpdateTransportPosition] Test position shouldn't coincide with pAE->m_pTransportPosition" );
+	}
+
+	pAE->unlock();
+
+	// Verify that Hydrogen won't explode in case updateTransportPosition is
+	// called with no song set (as it is used in
+	// JackAudioEngine::JackTimebaseCallback which will be called as long as the
+	// driver is running).
 	pHydrogen->setSong( nullptr );
 
 	pAE->lock( RIGHT_HERE );
