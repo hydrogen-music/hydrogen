@@ -51,6 +51,7 @@ class TransportPosition : public H2Core::Object<TransportPosition>
 public:
 
 	TransportPosition( const QString sLabel = "" );
+	TransportPosition( std::shared_ptr<TransportPosition> pOther );
 	~TransportPosition();
 
 	const QString getLabel() const;

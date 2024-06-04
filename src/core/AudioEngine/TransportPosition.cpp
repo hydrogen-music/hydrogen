@@ -49,6 +49,15 @@ TransportPosition::TransportPosition( const QString sLabel )
 	reset();
 }
 
+TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther ) {
+	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns->setNeedsLock( true );
+	m_pNextPatterns = new PatternList();
+	m_pNextPatterns->setNeedsLock( true );
+
+	set( pOther );
+}
+
 TransportPosition::~TransportPosition() {
 	// We just hold copies of current patterns. We do not want to discard them.
 	m_pPlayingPatterns->clear();
