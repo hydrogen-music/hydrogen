@@ -110,6 +110,7 @@ void tearDown() {
 }
 
 void startTestJackDriver( lo_arg **argv, int argc ) {
+	___INFOLOG("");
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 

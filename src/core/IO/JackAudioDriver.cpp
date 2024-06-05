@@ -112,16 +112,19 @@ jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput(),
-	  m_nTrackPortCount( 0 ),
-	  m_pClient( nullptr ),
-	  m_pOutputPort1( nullptr ),
-	  m_pOutputPort2( nullptr ),
-	  m_timebaseTracking( TimebaseTracking::None ),
-	  m_timebaseState( Timebase::None ),
-	  m_fLastTimebaseBpm( 120 ),
-	  m_nTimebaseFrameOffset( 0 ),
-	  m_nRelocationsDetected( 0 )
+	: AudioOutput()
+	, m_nTrackPortCount( 0 )
+	, m_pClient( nullptr )
+	, m_pOutputPort1( nullptr )
+	, m_pOutputPort2( nullptr )
+	, m_timebaseTracking( TimebaseTracking::None )
+	, m_timebaseState( Timebase::None )
+	, m_fLastTimebaseBpm( 120 )
+	, m_nTimebaseFrameOffset( 0 )
+#ifdef HAVE_INTEGRATION_TESTS
+	, m_nIntegrationLastRelocationFrame( -1 )
+	, m_bIntegrationRelocationLoop( false )
+#endif
 {
 	auto pPreferences = Preferences::get_instance();
 
@@ -534,7 +537,7 @@ void JackAudioDriver::relocateUsingBBT()
 	EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
 
 	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
-		m_JackTransportPos.frame + m_nTimebaseFrameOffset;
+		m_JackTransportPos.frame;
 
 	return;
 }
@@ -700,14 +703,23 @@ void JackAudioDriver::updateTransportPosition()
 			m_nTimebaseFrameOffset = 0;
 		}
 
+#ifdef HAVE_INTEGRATION_TESTS
 		// Used to check whether we can find the proper position right away
-		// during the integration tests.
-		m_nRelocationsDetected++;
+		// during the integration tests. If e.g. an offset is off, we get
+		// trapped in a relocation loop.
+		if ( m_nIntegrationLastRelocationFrame != m_JackTransportPos.frame ) {
+			m_nIntegrationLastRelocationFrame = m_JackTransportPos.frame;
+		} else {
+			ERRORLOG( QString( "Relocation Loop! [%1] is detected as relocation a second time." )
+					  .arg( m_JackTransportPos.frame ) );
+			m_bIntegrationRelocationLoop = true;
+		}
+#endif
 
 #if JACK_DEBUG
 		J_DEBUGLOG( QString( "[relocation done] m_nTimebaseFrameOffset: %1, new pos: %2" )
-				  .arg( m_nTimebaseFrameOffset )
-				  .arg( pAudioEngine->getTransportPosition()->toQString() ) );
+					.arg( m_nTimebaseFrameOffset )
+					.arg( pAudioEngine->getTransportPosition()->toQString() ) );
 #endif
 	}
 
