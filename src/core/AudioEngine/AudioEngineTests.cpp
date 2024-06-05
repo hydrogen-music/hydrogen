@@ -2083,7 +2083,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 	float fBpm;
 
 	pAE->lock( RIGHT_HERE );
-	pDriver->m_nRelocationsDetected = 0;
 	fBpm = pAE->getBpmAtColumn( 0 );
 
 	// The callback function registered to the JACK server will take care of
@@ -2122,17 +2121,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 	pAE->reset( true );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
-
-	// CHECKING this unfortunately is not possible since each XRun encountered
-	// during playback will result in a lost cycle and thus a relocation. This
-	// would make the test only feasible in high-performance environments.
-	//
-	// We should have encountered no relocation expect for moving back to the
-	// start again after being done.
-	// if ( pDriver->m_nRelocationsDetected != 1 ) {
-	// 	throwException( QString( "[testTransportProcessingJack] [%1] instead of [1] relocations during playback" )
-	// 					.arg( pDriver->m_nRelocationsDetected ) );
-	// }
 
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
 		 ! bTempoChangeEncountered ) {
@@ -2233,7 +2221,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
-		pDriver->m_nRelocationsDetected = 0;
 
 		while ( std::abs( fNewTick - pTransportPos->getDoubleTick() ) < 1 ) {
 			fNewTick = tickDist( randomEngine );
@@ -2253,13 +2240,14 @@ void AudioEngineTests::testTransportRelocationJack() {
 							.arg( pTransportPos->getDoubleTick() ).arg( fNewTick ) );
 		}
 
+#ifdef HAVE_INTEGRATION_TESTS
 		// In case there is an issue with the BBT <-> transport position
 		// conversion or the m_nTimebaseFrameOffset, the driver will detect
 		// multiple relocations (maybe one in each cycle).
-		if ( pDriver->m_nRelocationsDetected != 1 ) {
-			throwException( QString( "[testTransportRelocationJack::tick] relocated in [%1] instead of [1] attempt" )
-							.arg( pDriver->m_nRelocationsDetected ) );
+		if ( pDriver->m_bIntegrationRelocationLoop ) {
+			throwException( "[testTransportRelocationJack::frame] relocation loop detected" );
 		}
+#endif
 
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocationJack::tick] mismatch tick-based" );
@@ -2275,7 +2263,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 
 		pAE->lock( RIGHT_HERE );
-		pDriver->m_nRelocationsDetected = 0;
 
 		while ( nNewFrame == pTransportPos->getFrame() ) {
 			nNewFrame = TransportPosition::computeFrameFromTick(
@@ -2298,13 +2285,14 @@ void AudioEngineTests::testTransportRelocationJack() {
 							.arg( pTransportPos->getFrameOffsetTempo() ) );
 		}
 
+#ifdef HAVE_INTEGRATION_TESTS
 		// In case there is an issue with the BBT <-> transport position
 		// conversion or the m_nTimebaseFrameOffset, the driver will detect
 		// multiple relocations (maybe one in each cycle).
-		if ( pDriver->m_nRelocationsDetected != 1 ) {
-			throwException( QString( "[testTransportRelocationJack::frame] relocated in [%1] instead of [1] attempt" )
-							.arg( pDriver->m_nRelocationsDetected ) );
+		if ( pDriver->m_bIntegrationRelocationLoop ) {
+			throwException( "[testTransportRelocationJack::frame] relocation loop detected" );
 		}
+#endif
 
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocationJack::frame] mismatch frame-based" );
@@ -2493,6 +2481,13 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		pDriver->updateTransportPosition();
+
+#ifdef HAVE_INTEGRATION_TESTS
+		if ( pDriver->m_bIntegrationRelocationLoop ) {
+			AudioEngineTests::throwException(
+				"[jackTestProcessCallback] Relocation loop detected!" );
+		}
+#endif
 
 		// Check consistency of current JACK position.
 		const auto jackPos = pDriver->getJackPosition();

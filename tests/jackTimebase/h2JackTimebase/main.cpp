@@ -109,6 +109,8 @@ void tearDown() {
 }
 
 void startTestJackDriver( lo_arg **argv, int argc ) {
+	___INFOLOG("");
+
 	CoreActionController::activateLoopMode( false );
 	CoreActionController::locateToTick( 0 );
 

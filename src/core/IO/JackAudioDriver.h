@@ -600,9 +600,14 @@ private:
 		 * server. But this is no problems as BBT takes precedeence. */
 		long long m_nTimebaseFrameOffset;
 
-		/** Keeps track of how often the driver encounters a relocation. Solely
-		 * used during integration tests. */
-		int m_nRelocationsDetected;
+#ifdef HAVE_INTEGRATION_TESTS
+		/** Remember the last location we relocate to in order to detect
+		 * relocation loops during the integration tests.*/
+		long m_nIntegrationLastRelocationFrame;
+		/** Whether a relocation loop took place (the same position is
+		 * considered a relocation over and over again.)*/
+		bool m_bIntegrationRelocationLoop;
+#endif
 };
 
 }; // H2Core namespace

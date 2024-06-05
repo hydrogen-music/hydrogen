@@ -317,11 +317,14 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	// are activated, m_pSong has to be set prior to the call of
 	// AudioEngine::setSong().
 	m_pSong = pSong;
-	pSong->getDrumkit()->loadSamples();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		pSong->getDrumkit()->loadSamples();
+	}
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( pSong != nullptr && m_nSelectedInstrumentNumber >=
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 m_nSelectedInstrumentNumber >=
 		 m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
