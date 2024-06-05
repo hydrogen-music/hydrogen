@@ -95,6 +95,11 @@ public:
 	 * that humanization works as expected.
 	 */
 	static void testHumanization();
+
+		/**
+		 * Checks is reproducible and works even without any song set.
+		 */
+		static void testUpdateTransportPosition();
 #ifdef H2CORE_HAVE_JACK
 	/**
 	 * Unit test checking the incremental update of the transport position in
@@ -106,11 +111,6 @@ public:
 	 * audioEngine_process() using the JACK audio driver.
 	 */
 	static void testTransportRelocationJack();
-
-		/**
-		 * Checks is reproducible and works even without any song set.
-		 */
-		static void testUpdateTransportPosition();
 
 		/** Process callback for the testing instance of the
 		 * #H2Core::JackAudioDriver */
