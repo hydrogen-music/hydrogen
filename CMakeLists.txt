@@ -171,9 +171,9 @@ else()
 endif()
 
 if(WANT_DEBUG)
-	set(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O0")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 else()
-	set(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O3 -ffast-math")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math")
 endif()
 
 if(WANT_APPIMAGE)
