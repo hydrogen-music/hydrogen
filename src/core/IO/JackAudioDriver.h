@@ -617,10 +617,11 @@ private:
 #ifdef HAVE_INTEGRATION_TESTS
 		/** Remember the last location we relocate to in order to detect
 		 * relocation loops during the integration tests.*/
-		long m_nIntegrationLastRelocationFrame;
+		static long m_nIntegrationLastRelocationFrame;
 		/** Whether a relocation loop took place (the same position is
 		 * considered a relocation over and over again.)*/
 		bool m_bIntegrationRelocationLoop;
+		bool m_bIntegrationCheckRelocationLoop;
 #endif
 };
 
