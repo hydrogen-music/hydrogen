@@ -1319,32 +1319,44 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	if ( pDriver == nullptr ){
 		return;
 	}
+
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	std::shared_ptr<TransportPosition> pPos = nullptr;
-	const QString sLabel = "JackTimebaseCallback";
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	if ( pJackPosition->frame ==
-		 pAudioEngine->getTransportPosition()->getFrame() ) {
-		// Requested transport position coincides with the current one of the
-		// Audio Engine. We can reuse it.
-		pPos = pAudioEngine->getTransportPosition();
-	}
-	else {
-#if JACK_DEBUG
-		J_DEBUGLOG( QString( "PRE Audio engine transport pos: %1" )
-					.arg( pAudioEngine->getTransportPosition()->toQString() ) );
-#endif
+	const long long nInitialFrame = pJackPosition->frame;
 
-		pPos = std::make_shared<TransportPosition>( sLabel );
-		const long long nFrame = pJackPosition->frame;
-		const auto fTick = TransportPosition::computeTickFromFrame(
-			nFrame );
-		pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
-	}
+	const auto posFromFrame = [&]( long long nFrame,
+								   jack_position_t* pJackPosition ) {
+		if ( nFrame == pAudioEngine->getTransportPosition()->getFrame() ) {
+			// Requested transport position coincides with the current one of the
+			// Audio Engine. We can reuse it.
+			pPos = pAudioEngine->getTransportPosition();
+		}
+		else {
+			pPos = std::make_shared<TransportPosition>( "JackTimebaseCallback" );
+			const auto fTick = TransportPosition::computeTickFromFrame(
+				nFrame );
+			pAudioEngine->updateTransportPosition( fTick, nFrame, pPos );
+		}
 
-	transportToBBT( *pPos, pJackPosition );
+		transportToBBT( *pPos, pJackPosition );
+	};
+
+	// In the face of heavy load - can be triggered by enabling JackAudioDriver,
+	// TransportPosition, and AudioEngine debug logs - XRuns occur and the frame
+	// information provided by the JACK server glitches(!!!!). So, it just
+	// changes under the hood in the pointer passed to this callback. The very
+	// quantity we should calculate BBT information based on. Well we try a
+	// second time in order to avoid glitches.
+	posFromFrame( nInitialFrame, pJackPosition );
+
+	if ( nInitialFrame != pJackPosition->frame ) {
+		ERRORLOG( QString( "Provided frame glitched! Tring again using new one..." ) );
+		const long long nSecondFrame = pJackPosition->frame;
+		posFromFrame( nSecondFrame, pJackPosition );
+	}
 
 	// Tell Hydrogen it is still timebase master.
 	if ( pDriver->m_timebaseTracking != TimebaseTracking::Valid ) {
@@ -1363,7 +1375,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
 
 #if JACK_DEBUG
-	J_DEBUGLOG( QString( "Audio engine transport pos: %1" )
+	J_DEBUGLOG( QString( "Interal transport pos: %1" )
 			  .arg( pPos->toQString() ) );
 	J_DEBUGLOG( QString( "JACK pos: %1" )
 			  .arg( JackTransportPosToQString( *pJackPosition ) ) );
