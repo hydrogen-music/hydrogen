@@ -192,40 +192,46 @@ Synth* AudioEngine::getSynth() const
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
-	#ifdef H2CORE_HAVE_DEBUG
-	if ( __logger->should_log( Logger::Locks ) ) {
-		// Is there a more convenient way to convert the thread id to QSTring?
-		std::stringstream tmpStream;
-		tmpStream << std::this_thread::get_id();
+#ifdef H2CORE_HAVE_DEBUG
+	// Is there a more convenient way to convert the thread id to QSTring?
+	std::stringstream tmpStream;
+	tmpStream << std::this_thread::get_id();
+	if (__logger->should_log(Logger::Locks)) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "by [thread id: %1] : %2 : [line: %3] : %4" )
+					   QString( "[thread id: %1] : %2 : [line: %3] : %4" )
 					   .arg( QString::fromStdString( tmpStream.str() ) )
 					   .arg( function ).arg( line ).arg( file ) );
 	}
-	#endif
+#endif
 
 	m_EngineMutex.lock();
 	m_pLocker.file = file;
 	m_pLocker.line = line;
 	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
+
+#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "[thread id: %1] locked" )
+					   .arg( QString::fromStdString( tmpStream.str() ) ) );
+	}
+#endif
 }
 
 bool AudioEngine::tryLock( const char* file, unsigned int line, const char* function )
 {
-	#ifdef H2CORE_HAVE_DEBUG
-	QString sThreadId;
+#ifdef H2CORE_HAVE_DEBUG
+	// Is there a more convenient way to convert the thread id to QSTring?
+	std::stringstream tmpStream;
+	tmpStream << std::this_thread::get_id();
 	if ( __logger->should_log( Logger::Locks ) ) {
-		// Is there a more convenient way to convert the thread id to QSTring?
-		std::stringstream tmpStream;
-		tmpStream << std::this_thread::get_id();
-		sThreadId = QString::fromStdString( tmpStream.str() );
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "by [thread id: %1] : %2 : [line: %3] : %4" )
-					   .arg( sThreadId ) .arg( function ).arg( line )
-					   .arg( file ) );
+					   QString( "[thread id: %1] : %2 : [line: %3] : %4" )
+					   .arg( QString::fromStdString( tmpStream.str() ) )
+					   .arg( function ).arg( line ).arg( file ) );
 	}
-	#endif
+#endif
 	bool res = m_EngineMutex.try_lock();
 	if ( !res ) {
 		// Lock not obtained
@@ -235,29 +241,39 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	m_pLocker.line = line;
 	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
-	#ifdef H2CORE_HAVE_DEBUG
+
+#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "[thread id: %1] locked" ).arg( sThreadId ) );
+					   QString( "[thread id: %1] locked" )
+					   .arg( QString::fromStdString( tmpStream.str() ) ) );
 	}
-	#endif
+#endif
+
 	return true;
 }
 
 bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
 {
-	#ifdef H2CORE_HAVE_DEBUG
+#ifdef H2CORE_HAVE_DEBUG
+	std::stringstream tmpStream;
+	tmpStream << std::this_thread::get_id();
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
-					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+					   QString( "[thread id: %1] : %2 : [line: %3] : %4" )
+					   .arg( QString::fromStdString( tmpStream.str() ) )
+					   .arg( function ).arg( line ).arg( file ) );
 	}
-	#endif
+#endif
+
 	bool res = m_EngineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
-		AE_WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
-					.arg( file ).arg( function ).arg( line )
-					.arg( m_pLocker.file ).arg( m_pLocker.function ).arg( m_pLocker.line ));
+		AE_WARNINGLOG( QString( "[thread id: %1] : Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
+					   .arg( QString::fromStdString( tmpStream.str() ) )
+					   .arg( file ).arg( function ).arg( line )
+					   .arg( m_pLocker.file ).arg( m_pLocker.function )
+					   .arg( m_pLocker.line ));
 		return false;
 	}
 	m_pLocker.file = file;
@@ -265,11 +281,14 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
 	
-	#ifdef H2CORE_HAVE_DEBUG
+#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
-		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "[thread id: %1] locked" )
+					   .arg( QString::fromStdString( tmpStream.str() ) ) );
 	}
-	#endif
+#endif
+
 	return true;
 }
 
@@ -278,11 +297,16 @@ void AudioEngine::unlock()
 	// Leave "__locker" dirty.
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
-	#ifdef H2CORE_HAVE_DEBUG
+
+#ifdef H2CORE_HAVE_DEBUG
+	std::stringstream tmpStream;
+	tmpStream << std::this_thread::get_id();
 	if ( __logger->should_log( Logger::Locks ) ) {
-		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "" ) );
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "[thread id: %1]" )
+					   .arg( QString::fromStdString( tmpStream.str() ) ) );
 	}
-	#endif
+#endif
 }
 
 void AudioEngine::startPlayback()
