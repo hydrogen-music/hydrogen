@@ -103,6 +103,12 @@ int JackAudioDriver::jackXRunCallback( void *arg ) {
 			   .arg( JackAudioDriver::jackServerXRuns ) );
 #endif
 
+#ifdef HAVE_INTEGRATION_TESTS
+	// Xruns do mess up the current transport position and we might get the same
+	// frame two times in a row while the audio engine is already at a new
+	// position.
+	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+#endif
 	EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
 	return 0;
 }
@@ -110,6 +116,7 @@ int JackAudioDriver::jackXRunCallback( void *arg ) {
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 int JackAudioDriver::jackServerXRuns = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
+long JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
@@ -123,8 +130,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	, m_fLastTimebaseBpm( 120 )
 	, m_nTimebaseFrameOffset( 0 )
 #ifdef HAVE_INTEGRATION_TESTS
-	, m_nIntegrationLastRelocationFrame( -1 )
 	, m_bIntegrationRelocationLoop( false )
+	, m_bIntegrationCheckRelocationLoop( false )
 #endif
 {
 	auto pPreferences = Preferences::get_instance();
@@ -556,6 +563,10 @@ void JackAudioDriver::updateTransportPosition()
 
 	const bool bTimebaseEnabled = Preferences::get_instance()->m_bJackTimebaseEnabled;
 
+#ifdef HAVE_INTEGRATION_TESTS
+	const int nPreviousXruns = JackAudioDriver::jackServerXRuns;
+#endif
+
 	// jack_transport_query() (jack/transport.h) queries the
 	// current transport state and position. If called from the
 	// process thread, the second argument, which is a pointer to
@@ -709,12 +720,20 @@ void JackAudioDriver::updateTransportPosition()
 		// Used to check whether we can find the proper position right away
 		// during the integration tests. If e.g. an offset is off, we get
 		// trapped in a relocation loop.
-		if ( m_nIntegrationLastRelocationFrame != m_JackTransportPos.frame ) {
-			m_nIntegrationLastRelocationFrame = m_JackTransportPos.frame;
-		} else {
-			ERRORLOG( QString( "Relocation Loop! [%1] is detected as relocation a second time." )
-					  .arg( m_JackTransportPos.frame ) );
-			m_bIntegrationRelocationLoop = true;
+		//
+		// We only perform the check in case no XRun occurred over the course of
+		// this function. They would mess things up.
+		if ( m_bIntegrationCheckRelocationLoop &&
+			 nPreviousXruns == JackAudioDriver::jackServerXRuns ) {
+			if ( JackAudioDriver::m_nIntegrationLastRelocationFrame !=
+				 m_JackTransportPos.frame ) {
+				JackAudioDriver::m_nIntegrationLastRelocationFrame =
+					m_JackTransportPos.frame;
+			} else {
+				ERRORLOG( QString( "Relocation Loop! [%1] is detected as relocation a second time." )
+						  .arg( m_JackTransportPos.frame ) );
+				m_bIntegrationRelocationLoop = true;
+			}
 		}
 #endif
 

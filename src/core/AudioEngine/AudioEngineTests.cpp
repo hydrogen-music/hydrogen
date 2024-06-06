@@ -2153,6 +2153,11 @@ void AudioEngineTests::testTransportRelocationJack() {
 		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
 	}
 
+	pAE->lock( RIGHT_HERE );
+	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+	pDriver->m_bIntegrationCheckRelocationLoop = true;
+	pAE->unlock();
+
     std::random_device randomSeed;
     std::default_random_engine randomEngine( randomSeed() );
     std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
@@ -2299,6 +2304,8 @@ void AudioEngineTests::testTransportRelocationJack() {
 	}
 
 	pAE->lock( RIGHT_HERE );
+	pDriver->m_bIntegrationCheckRelocationLoop = false;
+	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 	pAE->reset( true );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
