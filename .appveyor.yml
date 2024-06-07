@@ -185,7 +185,7 @@ for:
     build_script: |-
       git submodule init && git submodule update
 
-      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+      export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
@@ -334,7 +334,7 @@ for:
 
       export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
       export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
-      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+      export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
