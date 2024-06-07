@@ -1198,7 +1198,12 @@ void JackAudioDriver::locateTransport( long long nFrame )
 		else {
 			long long nNewFrame = nFrame;
 			if ( m_timebaseState == Timebase::Listener ) {
-				nNewFrame -= m_nTimebaseFrameOffset;
+				// We have to guard against negative values which themselves are
+				// nothing bad. They just tell that time was rescaled by a
+				// measure change in the master in such a way, Hydrogen expects
+				// the origin of transport beyond 0.
+				nNewFrame = std::max( static_cast<long long>(0),
+									  nFrame - m_nTimebaseFrameOffset );
 			}
 #if JACK_DEBUG
 			J_DEBUGLOG( QString( "Relocate to nFrame: %1, nNewFrame: %2, m_nTimebaseFrameOffset: %3, timebase state: %4" )
