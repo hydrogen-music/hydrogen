@@ -2154,8 +2154,10 @@ void AudioEngineTests::testTransportRelocationJack() {
 	}
 
 	pAE->lock( RIGHT_HERE );
+#ifdef HAVE_INTEGRATION_TESTS
 	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 	pDriver->m_bIntegrationCheckRelocationLoop = true;
+#endif
 	pAE->unlock();
 
     std::random_device randomSeed;
@@ -2304,8 +2306,10 @@ void AudioEngineTests::testTransportRelocationJack() {
 	}
 
 	pAE->lock( RIGHT_HERE );
+#ifdef HAVE_INTEGRATION_TESTS
 	pDriver->m_bIntegrationCheckRelocationLoop = false;
 	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+#endif
 	pAE->reset( true );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
