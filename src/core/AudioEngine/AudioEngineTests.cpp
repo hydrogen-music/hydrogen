@@ -2225,6 +2225,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 				else {
 					pAE->lock( RIGHT_HERE );
 
+#ifdef HAVE_INTEGRATION_TESTS
 					if ( pHydrogen->getJackTimebaseState() ==
 						 JackAudioDriver::Timebase::Listener ) {
 						// We are listener
@@ -2235,6 +2236,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 						pDriver->m_nTimebaseFrameOffset = 0;
 						JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 					}
+#endif
 
 					pDriver->locateTransport( nFrame );
 					pAE->unlock();
@@ -2318,6 +2320,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 				tickDist( randomEngine ), &fTickMismatch );
 		}
 
+#ifdef HAVE_INTEGRATION_TESTS
 		if ( pHydrogen->getJackTimebaseState() ==
 				 JackAudioDriver::Timebase::Listener ) {
 			// We are listener
@@ -2327,6 +2330,7 @@ void AudioEngineTests::testTransportRelocationJack() {
 			pDriver->m_nTimebaseFrameOffset = 0;
 			JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 		}
+#endif
 
 		INFOLOG( QString( "relocate to frame [%1]" ).arg( nNewFrame ) );
 		pDriver->locateTransport( nNewFrame );
