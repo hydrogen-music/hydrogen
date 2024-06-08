@@ -614,6 +614,22 @@ private:
 		 * server. But this is no problems as BBT takes precedeence. */
 		long long m_nTimebaseFrameOffset;
 
+		/** Remembers the BBT capability bit received in a JACK process cycle.
+		 *
+		 * In case a regular client triggeres a relocation, the transport bit
+		 * will be 0 and we rely on just the frame position to relocate
+		 * internally. However, in the next process cycle the JACK timebase
+		 * master will have added additional BBT information to that location.
+		 * Since we want to use its tempo, we also have to use the remainder of
+		 * the BBT information and trigger a relocation (although the overall
+		 * frame might not even have changed). In additionn, the Timebase master
+		 * could alter its capabilities.
+		 *
+		 * The behavior above has the negativ side effect that we might not
+		 * relocate to the exact frame we requested ourselves. But AFAICS this
+		 * is a bug in the JACK API. */
+		int m_lastTransportBits;
+
 #ifdef HAVE_INTEGRATION_TESTS
 		/** Remember the last location we relocate to in order to detect
 		 * relocation loops during the integration tests.*/
