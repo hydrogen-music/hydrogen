@@ -115,7 +115,9 @@ int JackAudioDriver::jackXRunCallback( void *arg ) {
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 int JackAudioDriver::jackServerXRuns = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
+#ifdef HAVE_INTEGRATION_TESTS
 long JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+#endif
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
