@@ -129,6 +129,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	, m_timebaseState( Timebase::None )
 	, m_fLastTimebaseBpm( 120 )
 	, m_nTimebaseFrameOffset( 0 )
+	, m_lastTransportBits( 0 )
 #ifdef HAVE_INTEGRATION_TESTS
 	, m_bIntegrationRelocationLoop( false )
 	, m_bIntegrationCheckRelocationLoop( false )
@@ -690,21 +691,25 @@ void JackAudioDriver::updateTransportPosition()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( ! ( ( pAudioEngine->getTransportPosition()->getFrame() -
-			   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() ) ==
-			 m_JackTransportPos.frame ||
-			 ( pAudioEngine->getTransportPosition()->getFrame() -
-			   pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
-			   m_nTimebaseFrameOffset ) ==
-			 m_JackTransportPos.frame ) ) {
+	const bool bRelocation =
+		( pAudioEngine->getTransportPosition()->getFrame() -
+		  pAudioEngine->getTransportPosition()->getFrameOffsetTempo() -
+		  m_nTimebaseFrameOffset ) != m_JackTransportPos.frame;
+	if ( bRelocation || ( m_lastTransportBits != m_JackTransportPos.valid &&
+						  isBBTValid( m_JackTransportPos ) ) ) {
 
 #if JACK_DEBUG
-		J_DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
-				  .arg( pAudioEngine->getTransportPosition()->getFrame() )
-				  .arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
-				  .arg( m_JackTransportPos.frame )
-				  .arg( m_nTimebaseFrameOffset )
-				  .arg( TimebaseToQString( m_timebaseState ) ) );
+		if ( bRelocation ) {
+			J_DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3, m_nTimebaseFrameOffset: %4, timebase mode: %5" )
+						.arg( pAudioEngine->getTransportPosition()->getFrame() )
+						.arg( pAudioEngine->getTransportPosition()->getFrameOffsetTempo() )
+						.arg( m_JackTransportPos.frame )
+						.arg( m_nTimebaseFrameOffset )
+						.arg( TimebaseToQString( m_timebaseState ) ) );
+		}
+		else {
+			J_DEBUGLOG( QString( "[BBT info available] update transport" ) );
+		}
 #endif
 
 		if ( bTimebaseEnabled && m_timebaseState == Timebase::Listener &&
@@ -716,6 +721,8 @@ void JackAudioDriver::updateTransportPosition()
 			m_nTimebaseFrameOffset = 0;
 		}
 
+		m_lastTransportBits = m_JackTransportPos.valid;
+
 #ifdef HAVE_INTEGRATION_TESTS
 		// Used to check whether we can find the proper position right away
 		// during the integration tests. If e.g. an offset is off, we get
@@ -723,7 +730,7 @@ void JackAudioDriver::updateTransportPosition()
 		//
 		// We only perform the check in case no XRun occurred over the course of
 		// this function. They would mess things up.
-		if ( m_bIntegrationCheckRelocationLoop &&
+		if ( m_bIntegrationCheckRelocationLoop && bRelocation &&
 			 nPreviousXruns == JackAudioDriver::jackServerXRuns ) {
 			if ( JackAudioDriver::m_nIntegrationLastRelocationFrame !=
 				 m_JackTransportPos.frame ) {
