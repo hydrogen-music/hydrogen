@@ -430,12 +430,16 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 			fNewTick, &fTickMismatch );
 
 #if AUDIO_ENGINE_DEBUG
-		AE_DEBUGLOG( QString( "[Locate via JACK server] fTick: %1, fNewTick: %2, nNewFrame: %3" )
-					 .arg( fTick ).arg( fNewTick ).arg( nNewFrame ) );
+		AE_DEBUGLOG( QString( "[Locate via JACK server] fTick: %1, fNewTick: %2, resulting frame: %3, nNewFrame: %4, FrameOffsetTempo: %5" )
+					 .arg( fTick ).arg( fNewTick )
+					 .arg( nNewFrame - m_pTransportPosition->getFrameOffsetTempo() )
+					 .arg( nNewFrame )
+					 .arg( m_pTransportPosition->getFrameOffsetTempo() ) );
 #endif
 
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->
-			locateTransport( nNewFrame );
+			locateTransport( nNewFrame -
+							 m_pTransportPosition->getFrameOffsetTempo() );
 		return;
 	}
 #endif
