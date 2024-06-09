@@ -255,9 +255,9 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 
 bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
 {
-#ifdef H2CORE_HAVE_DEBUG
 	std::stringstream tmpStream;
 	tmpStream << std::this_thread::get_id();
+#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
 		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
 					   QString( "[thread id: %1] : %2 : [line: %3] : %4" )
