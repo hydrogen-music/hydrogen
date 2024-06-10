@@ -1365,13 +1365,12 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getMode() == Song::Mode::Song ) {
-		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
-			return Tempo::Jack;
-		}
-		else if ( __song != nullptr && __song->getIsTimelineActivated() ) {
-			return Tempo::Timeline;
-		}
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+		return Tempo::Jack;
+	}
+	else if ( getMode() == Song::Mode::Song &&
+			  __song != nullptr && __song->getIsTimelineActivated() ) {
+		return Tempo::Timeline;
 	}
 
 	return Tempo::Song;
