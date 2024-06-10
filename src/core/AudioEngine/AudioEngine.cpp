@@ -1162,7 +1162,10 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		if ( ! std::isnan( fJackMasterBpm ) ) {
 			if ( fBpm != fJackMasterBpm ) {
 				fBpm = fJackMasterBpm;
-				// AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+#if AUDIO_ENGINE_DEBUG
+				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]")
+							 .arg( fJackMasterBpm ) );
+#endif
 			}
 		} else {
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
@@ -1173,7 +1176,10 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
-			// AE_DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "Set tempo to timeline value [%1]")
+						 .arg( fTimelineBpm ) );
+#endif
 			fBpm = fTimelineBpm;
 		}
 	}
@@ -1181,8 +1187,10 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// Change in speed due to user interaction with the BPM widget
 		// or corresponding MIDI or OSC events.
 		if ( pAudioEngine->getNextBpm() != fBpm ) {
-			// AE_DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
-			// 		  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
+					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+#endif
 			fBpm = pAudioEngine->getNextBpm();
 		}
 	}
