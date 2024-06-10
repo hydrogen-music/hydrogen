@@ -367,8 +367,7 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	updatePlayingPatterns();
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
-		 pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Master ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( 0 );
