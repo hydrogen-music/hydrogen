@@ -67,7 +67,7 @@ namespace H2Core
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
-	, m_resolution( 48 )
+	, m_resolution( nDefaultResolution )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
 	, m_sAuthor( sAuthor )

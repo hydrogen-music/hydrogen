@@ -30,6 +30,12 @@
 #include <core/Timeline.h>
 #include <core/config.h>
 
+#define TRANSPORT_POSITION_DEBUG 0
+
+#define TP_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
+		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+					   QString( "%1" ).arg( x ), "\033[33;1m" ); }
+
 namespace H2Core {
 
 TransportPosition::TransportPosition( const QString sLabel )
@@ -43,8 +49,21 @@ TransportPosition::TransportPosition( const QString sLabel )
 	reset();
 }
 
+TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther ) {
+	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns->setNeedsLock( true );
+	m_pNextPatterns = new PatternList();
+	m_pNextPatterns->setNeedsLock( true );
+
+	set( pOther );
+}
+
 TransportPosition::~TransportPosition() {
+	// We just hold copies of current patterns. We do not want to discard them.
+	m_pPlayingPatterns->clear();
 	delete m_pPlayingPatterns;
+
+	m_pNextPatterns->clear();
 	delete m_pNextPatterns;
 }
 
@@ -218,21 +237,22 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioOutput();
 
-	if ( pSong == nullptr || pTimeline == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		*fTickMismatch = 0;
-		return 0;
-	}
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		*fTickMismatch = 0;
 		return 0;
 	}
 
+	int nResolution;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+	} else {
+		nResolution = Song::nDefaultResolution;
+	}
+
 	if ( nSampleRate == 0 ) {
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
-	const int nResolution = pSong->getResolution();
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
 	
 	if ( nSampleRate == 0 || nResolution == 0 ) {
@@ -245,17 +265,25 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		*fTickMismatch = 0;
 		return 0;
 	}
-		
-	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
+
+	std::vector<std::shared_ptr<const Timeline::TempoMarker>> tempoMarkers;
+	bool bSpecialFirstMarker = false;
+	if ( pTimeline != nullptr ) {
+		tempoMarkers = pTimeline->getAllTempoMarkers();
+		bSpecialFirstMarker = pTimeline->isFirstTempoMarkerSpecial();
+	}
+
+	int nColumns = 0;
+	if ( pSong != nullptr ) {
+		nColumns = pSong->getPatternGroupVector()->size();
+	}
 
 	// If there are no patterns in the current, we treat song mode
 	// like pattern mode.
 	long long nNewFrame = 0;
 	if ( pHydrogen->isTimelineEnabled() &&
-		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) &&
-		 pHydrogen->getMode() == Song::Mode::Song &&
-		 pSong->getPatternGroupVector()->size() > 0 )  {
+		 ! ( tempoMarkers.size() == 1 && bSpecialFirstMarker ) &&
+		 pHydrogen->getMode() == Song::Mode::Song && nColumns > 0 ) {
 
 		double fNewTick = fTick;
 		double fRemainingTicks = fTick;
@@ -264,8 +292,6 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		double fNewFrame = 0;
 		int ii;
 
-		const int nColumns = pSong->getPatternGroupVector()->size();
-		
 		auto handleEnd = [&]() {
 			// The next frame is within this segment.
 			fNewFrame += fRemainingTicks * fNextTickSize;
@@ -311,35 +337,39 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 						nSampleRate, tempoMarkers[ 0 ]->fBpm, nResolution );
 				}
 
-				// DEBUGLOG( QString( "[::computeFrameFromTick mismatch : 2] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
-				// 		  .arg( fPassedTicks + fRemainingTicks - fNextTick )
-				// 		  .arg( ( fFinalFrame - static_cast<double>(nNewFrame) ) / fNextTickSize )
-				// 		  .arg( nNewFrame )
-				// 		  .arg( fNewFrame, 0, 'f' )
-				// 		  .arg( fFinalFrame, 0, 'f' )
-				// 		  .arg( fNextTickSize, 0, 'f' )
-				// 		  .arg( fPassedTicks, 0, 'f' )
-				// 		  .arg( fRemainingTicks, 0, 'f' )
-				// 		  .arg( fFinalTickSize, 0, 'f' ));
-						
+#if TRANSPORT_POSITION_DEBUG
+				TP_DEBUGLOG( QString( "[::computeFrameFromTick mismatch : 2] fTickMismatch: [%1 + %2], static_cast<double>(nNewFrame): %3, fNewFrame: %4, fFinalFrame: %5, fNextTickSize: %6, fPassedTicks: %7, fRemainingTicks: %8, fFinalTickSize: %9" )
+						  .arg( fPassedTicks + fRemainingTicks - fNextTick )
+						  .arg( ( fFinalFrame - static_cast<double>(nNewFrame) ) / fNextTickSize )
+						  .arg( nNewFrame )
+						  .arg( fNewFrame, 0, 'f' )
+						  .arg( fFinalFrame, 0, 'f' )
+						  .arg( fNextTickSize, 0, 'f' )
+						  .arg( fPassedTicks, 0, 'f' )
+						  .arg( fRemainingTicks, 0, 'f' )
+						  .arg( fFinalTickSize, 0, 'f' ));
+#endif
+
 				*fTickMismatch += ( fFinalFrame - static_cast<double>(nNewFrame) ) /
 					fFinalTickSize;
 			}
 
-			// DEBUGLOG( QString( "[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
-			// 		  .arg( fTick, 0, 'f' )
-			// 		  .arg( fNewFrame, 0, 'g', 30 )
-			// 		  .arg( fNextTick, 0, 'f' )
-			// 		  .arg( fRemainingTicks, 0, 'f' )
-			// 		  .arg( fPassedTicks, 0, 'f' )
-			// 		  .arg( fNextTickSize, 0, 'f' )
-			// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
-			// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
-			// 		  .arg( nNewFrame )
-			// 		  .arg( *fTickMismatch, 0, 'g', 30 )
-			// 		  .arg( fRemainingTicks * fNextTickSize, 0, 'g', 30 )
-			// 		  .arg( fRoundingErrorInTicks, 0, 'f' )
-			// 	);
+#if TRANSPORT_POSITION_DEBUG
+			TP_DEBUGLOG( QString( "[::computeFrameFromTick end] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, nNewFrame: %9, fTickMismatch: %10, frame increment (fRemainingTicks * fNextTickSize): %11, fRoundingErrorInTicks: %12" )
+					  .arg( fTick, 0, 'f' )
+					  .arg( fNewFrame, 0, 'g', 30 )
+					  .arg( fNextTick, 0, 'f' )
+					  .arg( fRemainingTicks, 0, 'f' )
+					  .arg( fPassedTicks, 0, 'f' )
+					  .arg( fNextTickSize, 0, 'f' )
+					  .arg( tempoMarkers[ ii - 1 ]->nColumn )
+					  .arg( tempoMarkers[ ii - 1 ]->fBpm )
+					  .arg( nNewFrame )
+					  .arg( *fTickMismatch, 0, 'g', 30 )
+					  .arg( fRemainingTicks * fNextTickSize, 0, 'g', 30 )
+					  .arg( fRoundingErrorInTicks, 0, 'f' )
+				);
+#endif
 
 			fRemainingTicks -= fNewTick - fPassedTicks;
 		};
@@ -365,19 +395,21 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 					// marker ii is left of the current transport position.
 					fNewFrame += ( fNextTick - fPassedTicks ) * fNextTickSize;
 
-					// DEBUGLOG( QString( "[segment] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, tick increment (fNextTick - fPassedTicks): %9, frame increment (fRemainingTicks * fNextTickSize): %10" )
-					// 		  .arg( fTick, 0, 'f' )
-					// 		  .arg( fNewFrame, 0, 'g', 30 )
-					// 		  .arg( fNextTick, 0, 'f' )
-					// 		  .arg( fRemainingTicks, 0, 'f' )
-					// 		  .arg( fPassedTicks, 0, 'f' )
-					// 		  .arg( fNextTickSize, 0, 'f' )
-					// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
-					// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
-					// 		  .arg( fNextTick - fPassedTicks, 0, 'f' )
-					// 		  .arg( ( fNextTick - fPassedTicks ) * fNextTickSize, 0, 'g', 30 )
-					// 		  );
-					
+#if TRANSPORT_POSITION_DEBUG
+					TP_DEBUGLOG( QString( "[segment] fTick: %1, fNewFrame: %2, fNextTick: %3, fRemainingTicks: %4, fPassedTicks: %5, fNextTickSize: %6, tempoMarkers[ ii - 1 ]->nColumn: %7, tempoMarkers[ ii - 1 ]->fBpm: %8, tick increment (fNextTick - fPassedTicks): %9, frame increment (fRemainingTicks * fNextTickSize): %10" )
+							  .arg( fTick, 0, 'f' )
+							  .arg( fNewFrame, 0, 'g', 30 )
+							  .arg( fNextTick, 0, 'f' )
+							  .arg( fRemainingTicks, 0, 'f' )
+							  .arg( fPassedTicks, 0, 'f' )
+							  .arg( fNextTickSize, 0, 'f' )
+							  .arg( tempoMarkers[ ii - 1 ]->nColumn )
+							  .arg( tempoMarkers[ ii - 1 ]->fBpm )
+							  .arg( fNextTick - fPassedTicks, 0, 'f' )
+							  .arg( ( fNextTick - fPassedTicks ) * fNextTickSize, 0, 'g', 30 )
+							  );
+#endif
+
 					fRemainingTicks -= fNextTick - fPassedTicks;
 					
 					fPassedTicks = fNextTick;
@@ -401,15 +433,17 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				fRemainingTicks = fNewTick;
 				fPassedTicks = 0;
 
-				// DEBUGLOG( QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: %3, fRemainingTicks: %4, nRepetitions: %5, fSongSizeInTicks: %6, fSongSizeInFrames: %7" )
-				// 		  .arg( fTick, 0, 'g',30 )
-				// 		  .arg( fNewFrame, 0, 'g', 30 )
-				// 		  .arg( fNewTick, 0, 'g', 30 )
-				// 		  .arg( fRemainingTicks, 0, 'g', 30 )
-				// 		  .arg( nRepetitions )
-				// 		  .arg( fSongSizeInTicks, 0, 'g', 30 )
-				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
-				// 		  );
+#if TRANSPORT_POSITION_DEBUG
+				TP_DEBUGLOG( QString( "[repeat] fTick: %1, fNewFrames: %2, fNewTick: %3, fRemainingTicks: %4, nRepetitions: %5, fSongSizeInTicks: %6, fSongSizeInFrames: %7" )
+						  .arg( fTick, 0, 'g',30 )
+						  .arg( fNewFrame, 0, 'g', 30 )
+						  .arg( fNewTick, 0, 'g', 30 )
+						  .arg( fRemainingTicks, 0, 'g', 30 )
+						  .arg( nRepetitions )
+						  .arg( fSongSizeInTicks, 0, 'g', 30 )
+						  .arg( fSongSizeInFrames, 0, 'g', 30 )
+						  );
+#endif
 
 				if ( std::isinf( fNewFrame ) ||
 					 static_cast<long long>(fNewFrame) >
@@ -433,7 +467,9 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				}
 			}
 		}
-	} else {
+	}
+	else {
+		// There may be neither Timeline nor Song.
 
 		// As the timeline is not activate, the column passed is of no
 		// importance. But we harness the ability of getBpmAtColumn()
@@ -452,9 +488,11 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		*fTickMismatch = ( fNewFrame - static_cast<double>(nNewFrame ) ) /
 			fTickSize;
 
-		// DEBUGLOG(QString("[no-timeline] nNewFrame: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
-		// 		 .arg( nNewFrame ).arg( fTick, 0, 'f' ).arg( fTickSize, 0, 'f' )
-		// 		 .arg( *fTickMismatch, 0, 'g', 30 ));
+#if TRANSPORT_POSITION_DEBUG
+		TP_DEBUGLOG(QString("[no-timeline] nNewFrame: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
+				 .arg( nNewFrame ).arg( fTick, 0, 'f' ).arg( fTickSize, 0, 'f' )
+				 .arg( *fTickMismatch, 0, 'g', 30 ));
+#endif
 		
 	}
 	
@@ -475,10 +513,6 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	const auto pAudioEngine = pHydrogen->getAudioEngine();
 	const auto pAudioDriver = pHydrogen->getAudioOutput();
 
-	if ( pSong == nullptr || pTimeline == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		return 0;
-	}
 	if ( pAudioDriver == nullptr ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return 0;
@@ -487,7 +521,14 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 	if ( nSampleRate == 0 ) {
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
-	const int nResolution = pSong->getResolution();
+
+	int nResolution;
+	if ( pSong != nullptr ) {
+		nResolution = pSong->getResolution();
+	} else {
+		nResolution = Song::nDefaultResolution;
+	}
+
 	double fTick = 0;
 
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
@@ -501,15 +542,23 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		return fTick;
 	}
 		
-	const auto tempoMarkers = pTimeline->getAllTempoMarkers();
-	
+	std::vector<std::shared_ptr<const Timeline::TempoMarker>> tempoMarkers;
+	bool bSpecialFirstMarker = false;
+	if ( pTimeline != nullptr ) {
+		tempoMarkers = pTimeline->getAllTempoMarkers();
+		bSpecialFirstMarker = pTimeline->isFirstTempoMarkerSpecial();
+	}
+
+	int nColumns = 0;
+	if ( pSong != nullptr ) {
+		nColumns = pSong->getPatternGroupVector()->size();
+	}
+
 	// If there are no patterns in the current, we treat song mode
 	// like pattern mode.
 	if ( pHydrogen->isTimelineEnabled() &&
-		 ! ( tempoMarkers.size() == 1 &&
-			 pTimeline->isFirstTempoMarkerSpecial() ) &&
-		 pHydrogen->getMode() == Song::Mode::Song &&
-		 pSong->getPatternGroupVector()->size() ) {
+		 ! ( tempoMarkers.size() == 1 && bSpecialFirstMarker ) &&
+		 pHydrogen->getMode() == Song::Mode::Song && nColumns > 0 ) {
 
 		// We are using double precision in here to avoid rounding
 		// errors.
@@ -542,21 +591,23 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		
 				if ( fNextFrame < ( fTargetFrame -
 									 fPassedFrames ) ) {
-				   
-					// DEBUGLOG(QString( "[segment] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
-					// 		 .arg( nFrame )
-					// 		 .arg( fTick, 0, 'f' )
-					// 		 .arg( nSampleRate )
-					// 		 .arg( fNextTickSize, 0, 'f' )
-					// 		 .arg( fNextTicks, 0, 'f' )
-					// 		 .arg( fNextFrame, 0, 'f' )
-					// 		 .arg( tempoMarkers[ ii -1 ]->nColumn )
-					// 		 .arg( tempoMarkers[ ii -1 ]->fBpm )
-					// 		 .arg( fPassedTicks, 0, 'f' )
-					// 		 .arg( fPassedFrames, 0, 'f' )
-					// 		 .arg( fNextTicks - fPassedTicks, 0, 'f' )
-					// 		 .arg( (fNextTicks - fPassedTicks) * fNextTickSize, 0, 'g', 30 )
-					// 		 );
+
+#if TRANSPORT_POSITION_DEBUG
+					TP_DEBUGLOG(QString( "[segment] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
+							 .arg( nFrame )
+							 .arg( fTick, 0, 'f' )
+							 .arg( nSampleRate )
+							 .arg( fNextTickSize, 0, 'f' )
+							 .arg( fNextTicks, 0, 'f' )
+							 .arg( fNextFrame, 0, 'f' )
+							 .arg( tempoMarkers[ ii -1 ]->nColumn )
+							 .arg( tempoMarkers[ ii -1 ]->fBpm )
+							 .arg( fPassedTicks, 0, 'f' )
+							 .arg( fPassedFrames, 0, 'f' )
+							 .arg( fNextTicks - fPassedTicks, 0, 'f' )
+							 .arg( (fNextTicks - fPassedTicks) * fNextTickSize, 0, 'g', 30 )
+							 );
+#endif
 					
 					// The whole segment of the timeline covered by tempo
 					// marker ii is left of the transport position.
@@ -571,21 +622,23 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 						fNextTickSize;
 
 					fTick += fNewTick;
-					
-					// DEBUGLOG(QString( "[end] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
-					// 		 .arg( nFrame )
-					// 		 .arg( fTick, 0, 'f' )
-					// 		 .arg( nSampleRate )
-					// 		 .arg( fNextTickSize, 0, 'f' )
-					// 		 .arg( fNextTicks, 0, 'f' )
-					// 		 .arg( fNextFrame, 0, 'f' )
-					// 		 .arg( tempoMarkers[ ii -1 ]->nColumn )
-					// 		 .arg( tempoMarkers[ ii -1 ]->fBpm )
-					// 		 .arg( fPassedTicks, 0, 'f' )
-					// 		 .arg( fPassedFrames, 0, 'f' )
-					// 		 .arg( fNewTick, 0, 'f' )
-					// 		 .arg( fNewTick * fNextTickSize, 0, 'g', 30 )
-					// 		 );
+
+#if TRANSPORT_POSITION_DEBUG
+					TP_DEBUGLOG(QString( "[end] nFrame: %1, fTick: %2, nSampleRate: %3, fNextTickSize: %4, fNextTicks: %5, fNextFrame: %6, tempoMarkers[ ii -1 ]->nColumn: %7, tempoMarkers[ ii -1 ]->fBpm: %8, fPassedTicks: %9, fPassedFrames: %10, fNewTick (tick increment): %11, fNewTick * fNextTickSize (frame increment): %12" )
+							 .arg( nFrame )
+							 .arg( fTick, 0, 'f' )
+							 .arg( nSampleRate )
+							 .arg( fNextTickSize, 0, 'f' )
+							 .arg( fNextTicks, 0, 'f' )
+							 .arg( fNextFrame, 0, 'f' )
+							 .arg( tempoMarkers[ ii -1 ]->nColumn )
+							 .arg( tempoMarkers[ ii -1 ]->fBpm )
+							 .arg( fPassedTicks, 0, 'f' )
+							 .arg( fPassedFrames, 0, 'f' )
+							 .arg( fNewTick, 0, 'f' )
+							 .arg( fNewTick * fNextTickSize, 0, 'g', 30 )
+							 );
+#endif
 											
 					fPassedFrames = fTargetFrame;
 					
@@ -610,19 +663,23 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 					fSongSizeInFrames;
 				fPassedTicks = 0;
 
-				// DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5, fSongSizeInTicks: %6" )
-				// 		  .arg( fPassedFrames, 0, 'g', 30 )
-				// 		  .arg( fTargetFrame - fPassedFrames, 0, 'g', 30 )
-				// 		  .arg( fTick, 0, 'g', 30 )
-				// 		  .arg( nRepetitions )
-				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
-				// 		  .arg( fSongSizeInTicks, 0, 'g', 30 )
-				// 		  );
+#if TRANSPORT_POSITION_DEBUG
+				TP_DEBUGLOG( QString( "[repeat] frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5, fSongSizeInTicks: %6" )
+						  .arg( fPassedFrames, 0, 'g', 30 )
+						  .arg( fTargetFrame - fPassedFrames, 0, 'g', 30 )
+						  .arg( fTick, 0, 'g', 30 )
+						  .arg( nRepetitions )
+						  .arg( fSongSizeInFrames, 0, 'g', 30 )
+						  .arg( fSongSizeInTicks, 0, 'g', 30 )
+						  );
+#endif
 				
 			}
 		}
 	}
 	else {
+		// There may be neither Timeline nor Song.
+
 		// As the timeline is not activate, the column passed is of no
 		// importance. But we harness the ability of getBpmAtColumn()
 		// to collect and choose between tempo information gathered
@@ -635,8 +692,10 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		// Single tempo for the whole song.
 		fTick = static_cast<double>(nFrame) / fTickSize;
 
-		// DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
-		// 		 .arg( nFrame ).arg( nSampleRate ).arg( fTickSize, 0, 'f' ) );
+#if TRANSPORT_POSITION_DEBUG
+		TP_DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
+				 .arg( nFrame ).arg( nSampleRate ).arg( fTickSize, 0, 'f' ) );
+#endif
 
 	}
 	
@@ -649,6 +708,99 @@ long long TransportPosition::computeFrame( double fTick, float fTickSize ) {
 
 double TransportPosition::computeTick( long long nFrame, float fTickSize ) {
 	return nFrame / fTickSize;
+}
+
+bool operator==( std::shared_ptr<TransportPosition> pLhs,
+				 std::shared_ptr<TransportPosition> pRhs ) {
+	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
+		   pRhs->m_pPlayingPatterns == nullptr ) ||
+		 ( pLhs->m_pPlayingPatterns == nullptr &&
+		   pRhs->m_pPlayingPatterns != nullptr ) ) {
+		return false;
+	}
+	else if ( pLhs->m_pPlayingPatterns != nullptr &&
+			  pRhs->m_pPlayingPatterns != nullptr &&
+			  *pLhs->m_pPlayingPatterns != *pRhs->m_pPlayingPatterns ) {
+		return false;
+	}
+
+	if ( ( pLhs->m_pNextPatterns != nullptr &&
+		   pRhs->m_pNextPatterns == nullptr ) ||
+		 ( pLhs->m_pNextPatterns == nullptr &&
+		   pRhs->m_pNextPatterns != nullptr ) ) {
+		return false;
+	}
+	else if ( pLhs->m_pNextPatterns != nullptr &&
+			  pRhs->m_pNextPatterns != nullptr &&
+			  *pLhs->m_pNextPatterns != *pRhs->m_pNextPatterns ) {
+		return false;
+	}
+
+	return (
+		pLhs->m_nFrame == pRhs->m_nFrame &&
+		std::abs( pLhs->m_fTick - pRhs->m_fTick ) < 1E-5 &&
+		std::abs( pLhs->m_fTickSize - pRhs->m_fTickSize ) < 1E-2 &&
+		std::abs( pLhs->m_fBpm - pRhs->m_fBpm ) < 1E-2 &&
+		pLhs->m_nPatternStartTick == pRhs->m_nPatternStartTick &&
+		pLhs->m_nPatternTickPosition == pRhs->m_nPatternTickPosition &&
+		pLhs->m_nColumn == pRhs->m_nColumn &&
+		std::abs( pLhs->m_fTickMismatch - pRhs->m_fTickMismatch ) < 1E-5 &&
+		pLhs->m_nFrameOffsetTempo == pRhs->m_nFrameOffsetTempo &&
+		std::abs( pLhs->m_fTickOffsetQueuing -
+				  pRhs->m_fTickOffsetQueuing ) < 1E-5 &&
+		std::abs( pLhs->m_fTickOffsetSongSize -
+				  pRhs->m_fTickOffsetSongSize ) < 1E-5 &&
+		pLhs->m_nPatternSize == pRhs->m_nPatternSize &&
+		pLhs->m_nLastLeadLagFactor == pRhs->m_nLastLeadLagFactor &&
+		pLhs->m_nBar == pRhs->m_nBar &&
+		pLhs->m_nBeat == pRhs->m_nBeat );
+}
+
+bool operator!=( std::shared_ptr<TransportPosition> pLhs,
+				 std::shared_ptr<TransportPosition> pRhs ) {
+	if ( ( pLhs->m_pPlayingPatterns != nullptr &&
+		   pRhs->m_pPlayingPatterns == nullptr ) ||
+		 ( pLhs->m_pPlayingPatterns == nullptr &&
+		   pRhs->m_pPlayingPatterns != nullptr ) ) {
+		return true;
+	}
+	else if ( pLhs->m_pPlayingPatterns != nullptr &&
+			  pRhs->m_pPlayingPatterns != nullptr &&
+			  *pLhs->m_pPlayingPatterns != *pRhs->m_pPlayingPatterns ) {
+		return true;
+	}
+
+	if ( ( pLhs->m_pNextPatterns != nullptr &&
+		   pRhs->m_pNextPatterns == nullptr ) ||
+		 ( pLhs->m_pNextPatterns == nullptr &&
+		   pRhs->m_pNextPatterns != nullptr ) ) {
+		return true;
+	}
+	else if ( pLhs->m_pNextPatterns != nullptr &&
+			  pRhs->m_pNextPatterns != nullptr &&
+			  *pLhs->m_pNextPatterns != *pRhs->m_pNextPatterns ) {
+		return true;
+	}
+
+
+	return (
+		pLhs->m_nFrame != pRhs->m_nFrame ||
+		std::abs( pLhs->m_fTick - pRhs->m_fTick ) > 1E-5 ||
+		std::abs( pLhs->m_fTickSize - pRhs->m_fTickSize ) > 1E-2 ||
+		std::abs( pLhs->m_fBpm - pRhs->m_fBpm ) > 1E-2 ||
+		pLhs->m_nPatternStartTick != pRhs->m_nPatternStartTick ||
+		pLhs->m_nPatternTickPosition != pRhs->m_nPatternTickPosition ||
+		pLhs->m_nColumn != pRhs->m_nColumn ||
+		std::abs( pLhs->m_fTickMismatch - pRhs->m_fTickMismatch ) > 1E-5 ||
+		pLhs->m_nFrameOffsetTempo != pRhs->m_nFrameOffsetTempo ||
+		std::abs( pLhs->m_fTickOffsetQueuing -
+				  pRhs->m_fTickOffsetQueuing ) > 1E-5 ||
+		std::abs( pLhs->m_fTickOffsetSongSize -
+				  pRhs->m_fTickOffsetSongSize ) > 1E-5 ||
+		pLhs->m_nPatternSize != pRhs->m_nPatternSize ||
+		pLhs->m_nLastLeadLagFactor != pRhs->m_nLastLeadLagFactor ||
+		pLhs->m_nBar != pRhs->m_nBar ||
+		pLhs->m_nBeat != pRhs->m_nBeat );
 }
 
 QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) const {

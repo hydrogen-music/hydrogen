@@ -179,6 +179,11 @@ class XMLNode;
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
+
+		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
+		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );
+
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -192,6 +197,8 @@ class XMLNode;
 		/** Iteration */
 		std::vector<Pattern*>::iterator begin();
 		std::vector<Pattern*>::iterator end();
+		std::vector<Pattern*>::const_iterator cbegin() const;
+		std::vector<Pattern*>::const_iterator cend() const;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns

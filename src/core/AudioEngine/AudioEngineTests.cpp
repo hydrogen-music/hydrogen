@@ -22,6 +22,8 @@
 #include <random>
 #include <stdexcept>
 
+#include <QTest>
+
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -41,6 +43,11 @@
 
 namespace H2Core
 {
+
+#ifdef H2CORE_HAVE_JACK
+JackAudioDriver::Timebase AudioEngineTests::m_referenceTimebase =
+	JackAudioDriver::Timebase::None;
+#endif
 
 void AudioEngineTests::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1601,10 +1608,19 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		TransportPosition::computeTickFromFrame( pPos->getFrame() );
 	
 	if ( abs( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick() ) > 1e-9 ||
-		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ||
-		 nCheckFrame != pPos->getFrame() ) {
+		 abs( fCheckTickMismatch - pPos->m_fTickMismatch ) > 1e-9 ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%8] [tick or frame mismatch]. original position: [%1], nCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			QString( "[checkTransportPosition] [%8] [tick mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
+			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
+			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
+			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
+			.arg( fCheckTickMismatch - pPos->m_fTickMismatch, 0, 'E' )
+			.arg( nCheckFrame - pPos->getFrame() ).arg( sContext ) );
+	}
+
+	if ( nCheckFrame != pPos->getFrame() ) {
+		AudioEngineTests::throwException(
+			QString( "[checkTransportPosition] [%8] [frame mismatch]. original position: [%1],\nnCheckFrame: %2, fCheckTick: %3, fCheckTickMismatch: %4, fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(): %5, fCheckTickMismatch - pPos->m_fTickMismatch: %6, nCheckFrame - pPos->getFrame(): %7" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckFrame )
 			.arg( fCheckTick, 0 , 'f', 9 ).arg( fCheckTickMismatch, 0 , 'f', 9 )
 			.arg( fCheckTick + fCheckTickMismatch - pPos->getDoubleTick(), 0, 'E' )
@@ -1617,14 +1633,24 @@ void AudioEngineTests::checkTransportPosition( std::shared_ptr<TransportPosition
 		pPos->getTick(), pSong->isLoopEnabled(), &nCheckPatternStartTick );
 	const long nTicksSinceSongStart = static_cast<long>(std::floor(
 		std::fmod( pPos->getDoubleTick(), pAE->m_fSongSizeInTicks ) ));
-	
+
 	if ( pHydrogen->getMode() == Song::Mode::Song && pPos->getColumn() != -1 &&
-		 ( nCheckColumn != pPos->getColumn() ||
-		   ( nCheckPatternStartTick != pPos->getPatternStartTick() ) ||
+		 ( nCheckColumn != pPos->getColumn() ) ) {
+		AudioEngineTests::throwException(
+			QString( "[checkTransportPosition] [%7] [column mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
+			.arg( nCheckPatternStartTick )
+			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
+			.arg( nTicksSinceSongStart ).arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+			.arg( sContext ) );
+	}
+
+	if ( pHydrogen->getMode() == Song::Mode::Song && pPos->getColumn() != -1 &&
+		 ( ( nCheckPatternStartTick != pPos->getPatternStartTick() ) ||
 		   ( nTicksSinceSongStart - nCheckPatternStartTick !=
 			 pPos->getPatternTickPosition() ) ) ) {
 		AudioEngineTests::throwException(
-			QString( "[checkTransportPosition] [%7] [column or pattern tick mismatch]. current position: [%1], nCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
+			QString( "[checkTransportPosition] [%7] [pattern tick mismatch]. current position: [%1],\nnCheckColumn: %2, nCheckPatternStartTick: %3, nCheckPatternTickPosition: %4, nTicksSinceSongStart: %5, pAE->m_fSongSizeInTicks: %6" )
 			.arg( pPos->toQString( "", true ) ).arg( nCheckColumn )
 			.arg( nCheckPatternStartTick )
 			.arg( nTicksSinceSongStart - nCheckPatternStartTick )
@@ -1985,6 +2011,702 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	pAE->reset( false );
 	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 }
+
+void AudioEngineTests::testUpdateTransportPosition() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+
+	pAE->lock( RIGHT_HERE );
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+
+	// Check whether the transport positions in the audio engine are untouched
+	// by updateTransportPosition.
+	pAE->locate( 42 );
+	auto pTransportOld =
+		std::make_shared<TransportPosition>( pAE->getTransportPosition() );
+	auto pQueuingOld =
+		std::make_shared<TransportPosition>( pAE->m_pQueuingPosition );
+
+	auto pTestPos = std::make_shared<TransportPosition>( "test" );
+	const long long nFrame = 3521;
+	const auto fTick = TransportPosition::computeTickFromFrame( nFrame );
+	pAE->updateTransportPosition( fTick, nFrame, pTestPos );
+
+	if ( pAE->getTransportPosition() != pTransportOld ) {
+		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pTransportPosition:\nOld: %1\nNew: %2" )
+						.arg( pTransportOld->toQString() )
+						.arg( pAE->getTransportPosition()->toQString() ) );
+	}
+	if ( pAE->m_pQueuingPosition != pQueuingOld ) {
+		throwException( QString( "[testUpdateTransportPosition] Glitch in pAE->m_pQueuingPosition:\nOld: %1\nNew: %2" )
+						.arg( pQueuingOld->toQString() )
+						.arg( pAE->m_pQueuingPosition->toQString() ) );
+	}
+
+	if ( pTransportOld == pTestPos ) {
+		throwException( "[testUpdateTransportPosition] Test position shouldn't coincide with pAE->m_pTransportPosition" );
+	}
+
+	pAE->unlock();
+
+	// Verify that Hydrogen won't explode in case updateTransportPosition is
+	// called with no song set (as it is used in
+	// JackAudioEngine::JackTimebaseCallback which will be called as long as the
+	// driver is running).
+	pHydrogen->setSong( nullptr );
+
+	pAE->lock( RIGHT_HERE );
+	auto pNullPos = std::make_shared<TransportPosition>( "null" );
+	pAE->updateTransportPosition( fTick, nFrame, pNullPos );
+	pAE->unlock();
+
+	pHydrogen->setSong( pSong );
+}
+
+#ifdef H2CORE_HAVE_JACK
+void AudioEngineTests::testTransportProcessingJack() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+
+	// Check whether all frames are covered when running playback in song mode
+	// without looping.
+	pCoreActionController->activateLoopMode( false );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+	pAE->unlock();
+
+	auto pDriver = startJackAudioDriver();
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+	}
+
+	// In case the reference Hydrogen is JACK Timebase master, Timeline of this
+	// instance is deactivated and we are listening to tempo changes broadcasted
+	// by the JACK server. We need to verify we actually receive them.
+	bool bTempoChangeEncountered;
+	float fBpm;
+
+	pAE->lock( RIGHT_HERE );
+	fBpm = pAE->getBpmAtColumn( 0 );
+
+	// The callback function registered to the JACK server will take care of
+	// consistency checking. In here we just start playback and wait till it's
+	// done.
+	pAE->play();
+	pAE->unlock();
+
+	// Transport is started via the JACK server. We have to give it some time to
+	// communicate transport start back to us.
+	QTest::qSleep( 400 );
+
+	const int nMaxMilliSeconds = 11500;
+	int nMilliSeconds = 0;
+	const int nIncrement = 100;
+	while ( pAE->getState() == AudioEngine::State::Playing ||
+			pAE->getNextState() == AudioEngine::State::Playing ) {
+		if ( ! bTempoChangeEncountered && fBpm != pAE->getBpmAtColumn( 0 ) ) {
+			bTempoChangeEncountered = true;
+		}
+
+		if ( nMilliSeconds >= nMaxMilliSeconds ) {
+			AudioEngineTests::throwException(
+				QString( "[testTransportProcessingJack] playback takes too long" ) );
+		}
+
+		QTest::qSleep( nIncrement );
+		nMilliSeconds += nIncrement;
+	}
+
+	pAE->lock( RIGHT_HERE );
+	pAE->stop();
+	if ( pAE->getState() == AudioEngine::State::Playing ) {
+		pAE->stopPlayback();
+	}
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+	pAE->unlock();
+
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
+		 ! bTempoChangeEncountered ) {
+		throwException( "[testTransportProcessingJack] no tempo changes received from JACK Timebase master" );
+	}
+
+	stopJackAudioDriver();
+}
+
+void AudioEngineTests::testTransportRelocationJack() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPref = Preferences::get_instance();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
+
+	pAE->lock( RIGHT_HERE );
+	pAE->stop();
+	if ( pAE->getState() == AudioEngine::State::Playing ) {
+		pAE->stopPlayback();
+	}
+
+	// For this call the AudioEngine still needs to be in state
+	// Playing or Ready.
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+	pAE->unlock();
+
+	auto pDriver = startJackAudioDriver();
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+	}
+
+	pAE->lock( RIGHT_HERE );
+#ifdef HAVE_INTEGRATION_TESTS
+	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+	pDriver->m_bIntegrationCheckRelocationLoop = true;
+#endif
+	pAE->unlock();
+
+    std::random_device randomSeed;
+    std::default_random_engine randomEngine( randomSeed() );
+    std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
+
+	// Check consistency of updated frames and ticks while relocating
+	// transport.
+	double fNewTick;
+	long long nNewFrame;
+
+	auto waitForRelocation = [=]( double fTick, long long nFrame ) {
+		const int nMaxMilliSeconds = 5000;
+		const int nSecondTryMilliSeconds = 1000;
+		int nMilliSeconds = 0;
+		const int nIncrement = 100;
+
+		// We send the tick value to and received it back from the JACK server
+		// via rountines in the libjack2 library. We have to relaxed about the
+		// precision we can expect from relocating.
+		while( true ) {
+
+			long long nCurrentFrame;
+			if ( pHydrogen->getJackTimebaseState() ==
+				 JackAudioDriver::Timebase::Listener ) {
+				nCurrentFrame = pDriver->m_JackTransportPos.frame;
+			}
+			else {
+				nCurrentFrame = pTransportPos->getFrame() -
+					pTransportPos->getFrameOffsetTempo();
+			}
+
+			if ( ( nFrame != -1 && nFrame == nCurrentFrame ) ||
+				 ( fTick != -1 &&
+					 abs( pTransportPos->getDoubleTick() - fTick ) < 1e-1 ) ) {
+				return;
+			}
+
+			if ( nMilliSeconds >= nMaxMilliSeconds ) {
+				QString sTarget;
+				if ( nFrame != -1 ) {
+					sTarget = QString( "frame [%1]" ).arg( nFrame );
+				} else {
+					sTarget = QString( "tick [%1]" ).arg( fTick );
+				}
+				AudioEngineTests::throwException(
+					QString( "[testTransportRelocationJack::waitForRelocation] playback takes too long to reach %1" )
+					.arg( sTarget ) );
+			}
+			else if ( nMilliSeconds == nSecondTryMilliSeconds ) {
+
+				WARNINGLOG( QString( "[testTransportRelocationJack::waitForRelocation] Performing seconds attempt after [%1]ms")
+							.arg( nMilliSeconds ) );
+
+				// Occassionally the JACK server seems to drop our relocation
+				// attempt silently. This is not good but acceptable since we
+				// are firing them in rapid succession. That's not the usual
+				// use-case. In order to not make this behavior break our test,
+				// we do a second attempt to be sure.
+				if ( fTick != -1 ) {
+					pAE->lock( RIGHT_HERE );
+					pAE->locate( fTick, true );
+					pAE->unlock();
+				}
+				else {
+					pAE->lock( RIGHT_HERE );
+
+#ifdef HAVE_INTEGRATION_TESTS
+					if ( pHydrogen->getJackTimebaseState() ==
+						 JackAudioDriver::Timebase::Listener ) {
+						// We are listener
+						//
+						// Discard the previous offset or we do not end up at
+						// the frame we provided to locateTransport and the
+						// comparison fails.
+						pDriver->m_nTimebaseFrameOffset = 0;
+						JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+					}
+#endif
+
+					pDriver->locateTransport( nFrame );
+					pAE->unlock();
+				}
+			}
+
+			QTest::qSleep( nIncrement );
+			nMilliSeconds += nIncrement;
+		}
+	};
+
+	double fTickMismatch;
+	const int nProcessCycles = 100;
+	for ( int nn = 0; nn < nProcessCycles; ++nn ) {
+
+		//  When being listener we have no way to properly check the resulting
+		//  tick as our ground truth is just the frame information provided by
+		//  the JACK server.
+		if ( pHydrogen->getJackTimebaseState() !=
+				 JackAudioDriver::Timebase::Listener ) {
+			if ( nn < nProcessCycles - 2 ) {
+				fNewTick = tickDist( randomEngine );
+			}
+			else if ( nn < nProcessCycles - 1 ) {
+				// Resulted in an unfortunate rounding error due to the
+				// song end at 2112.
+				fNewTick = 2111.928009209;
+			}
+			else {
+				// There was a rounding error at this particular tick.
+				fNewTick = 960;
+			}
+
+			pAE->lock( RIGHT_HERE );
+
+			while ( std::abs( fNewTick - pTransportPos->getDoubleTick() ) < 1 ) {
+				fNewTick = tickDist( randomEngine );
+			}
+
+			INFOLOG( QString( "relocate to tick [%1]" ).arg( fNewTick ) );
+			pAE->locate( fNewTick, true );
+			pAE->unlock();
+
+
+			waitForRelocation( fNewTick, -1 );
+			// We send the tick value to and received it back from the JACK
+			// server via rountines in the libjack2 library. We have to relaxed
+			// about the precision we can expect from relocating.
+			if ( abs( pTransportPos->getDoubleTick() - fNewTick ) > 1e-1 ) {
+				throwException( QString( "[testTransportRelocationJack::tick] failed to relocate to tick. [%1] != [%2]" )
+								.arg( pTransportPos->getDoubleTick() ).arg( fNewTick ) );
+			}
+
+#ifdef HAVE_INTEGRATION_TESTS
+			// In case there is an issue with the BBT <-> transport position
+			// conversion or the m_nTimebaseFrameOffset, the driver will detect
+			// multiple relocations (maybe one in each cycle).
+			if ( pDriver->m_bIntegrationRelocationLoop ) {
+				throwException( "[testTransportRelocationJack::frame] relocation loop detected" );
+			}
+#endif
+
+			AudioEngineTests::checkTransportPosition(
+				pTransportPos, "[testTransportRelocationJack::tick] mismatch tick-based" );
+		}
+
+		// Frame-based relocation
+		// We sample ticks and convert them since we are using tempo markers.
+		if ( nn < nProcessCycles - 1 ) {
+			nNewFrame = TransportPosition::computeFrameFromTick(
+				tickDist( randomEngine ), &fTickMismatch );
+		} else {
+			// With this one there were rounding mishaps in v1.2.3
+			nNewFrame = 2174246;
+		}
+
+		pAE->lock( RIGHT_HERE );
+
+		while ( nNewFrame == pTransportPos->getFrame() ) {
+			nNewFrame = TransportPosition::computeFrameFromTick(
+				tickDist( randomEngine ), &fTickMismatch );
+		}
+
+#ifdef HAVE_INTEGRATION_TESTS
+		if ( pHydrogen->getJackTimebaseState() ==
+				 JackAudioDriver::Timebase::Listener ) {
+			// We are listener
+			//
+			// Discard the previous offset or we do not end up at the frame we
+			// provided to locateTransport and the comparison fails.
+			pDriver->m_nTimebaseFrameOffset = 0;
+			JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+		}
+#endif
+
+		INFOLOG( QString( "relocate to frame [%1]" ).arg( nNewFrame ) );
+		pDriver->locateTransport( nNewFrame );
+		pAE->unlock();
+
+		waitForRelocation( -1, nNewFrame );
+
+		long long nCurrentFrame;
+		if ( pHydrogen->getJackTimebaseState() ==
+			 JackAudioDriver::Timebase::Listener ) {
+			nCurrentFrame = pDriver->m_JackTransportPos.frame;
+		}
+		else {
+			nCurrentFrame = pTransportPos->getFrame() -
+				pTransportPos->getFrameOffsetTempo();
+		}
+
+		if ( nNewFrame != nCurrentFrame ) {
+			throwException( QString( "[testTransportRelocationJack::frame] failed to relocate to frame. timebase state: [%1], nNewFrame [%2] != nCurrentFrame [%3], pPos->getFrame(): [%4], pPos->getFrameOffsetTempo: [%5]" )
+							.arg( JackAudioDriver::TimebaseToQString(
+									  pDriver->getTimebaseState() ) )
+							.arg( nNewFrame )
+							.arg( nCurrentFrame )
+							.arg( pTransportPos->getFrame() )
+							.arg( pTransportPos->getFrameOffsetTempo() ) );
+		}
+
+#ifdef HAVE_INTEGRATION_TESTS
+		// In case there is an issue with the BBT <-> transport position
+		// conversion or the m_nTimebaseFrameOffset, the driver will detect
+		// multiple relocations (maybe one in each cycle).
+		if ( pDriver->m_bIntegrationRelocationLoop ) {
+			throwException( "[testTransportRelocationJack::frame] relocation loop detected" );
+		}
+#endif
+
+		AudioEngineTests::checkTransportPosition(
+			pTransportPos, "[testTransportRelocationJack::frame] mismatch frame-based" );
+	}
+
+	pAE->lock( RIGHT_HERE );
+#ifdef HAVE_INTEGRATION_TESTS
+	pDriver->m_bIntegrationCheckRelocationLoop = false;
+	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
+#endif
+	pAE->reset( true );
+	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
+	pAE->unlock();
+
+	stopJackAudioDriver();
+}
+
+JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
+	INFOLOG( "Starting custom JACK audio driver..." );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPref = Preferences::get_instance();
+
+	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
+		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
+	}
+
+	pAudioEngine->stopAudioDrivers();
+
+	// Start a modified version of the JACK audio driver.
+	auto pDriver = new JackAudioDriver( jackTestProcessCallback );
+	if ( pDriver == nullptr ) {
+		throwException( "[startJackAudioDriver] Unable to create JackAudioDriver" );
+	}
+#ifdef H2CORE_HAVE_JACK
+
+	// Suppress default audio output
+	pDriver->setConnectDefaults( false );
+#else
+	throwException( "[startJackAudioDriver] This function should not be run without JACK support" );
+#endif
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pDriver->init( pPref->m_nBufferSize ) != 0 ) {
+		delete pDriver;
+		pAudioEngine->unlock();
+		throwException( "[startJackAudioDriver] Unable to initialize driver" );
+	}
+
+	// Driver needs to be initialized in order to properly set its timebase
+	// state.
+	if ( pDriver->m_timebaseState == JackAudioDriver::Timebase::Master &&
+		 m_referenceTimebase != JackAudioDriver::Timebase::Master ) {
+		INFOLOG( "Releasing test binary as Timebase master" );
+		pDriver->releaseTimebaseMaster();
+	}
+	else if ( pDriver->m_timebaseState != JackAudioDriver::Timebase::Master &&
+		 m_referenceTimebase == JackAudioDriver::Timebase::Master ) {
+		INFOLOG( "Register test binary as Timebase master" );
+		pDriver->initTimebaseMaster();
+	}
+	pDriver->m_timebaseState = m_referenceTimebase;
+	pDriver->m_timebaseTracking = JackAudioDriver::TimebaseTracking::Valid;
+	pAudioEngine->m_MutexOutputPointer.lock();
+
+	pAudioEngine->m_pAudioDriver = pDriver;
+	pAudioEngine->setState( AudioEngine::State::Ready );
+
+	pAudioEngine->m_MutexOutputPointer.unlock();
+	pAudioEngine->unlock();
+
+	if ( pDriver->connect() != 0 ) {
+		pAudioEngine->restartAudioDrivers();
+		throwException( "[startJackAudioDriver] Unable to connect driver" );
+	}
+
+	if ( pHydrogen->getSong() != nullptr ) {
+		pAudioEngine->handleDriverChange();
+	}
+
+	INFOLOG( "DONE Starting custom JACK audio driver." );
+
+	return pDriver;
+}
+
+void AudioEngineTests::stopJackAudioDriver() {
+	INFOLOG( "Stopping custom JACK audio driver..." );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
+		throwException( "[stopJackAudioDriver] Engine must not be locked and in state testing yet!" );
+	}
+
+	// We rely on the driver set via the Preferences (most probably FakeDriver).
+	pAudioEngine->restartAudioDrivers();
+
+#ifdef H2CORE_HAVE_JACK
+	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);
+	if ( pDriver == nullptr ) {
+		AudioEngineTests::throwException(
+			"[stopJackAudioDriver] No JACK driver after restart!" );
+	}
+
+	pDriver->m_timebaseState = m_referenceTimebase;
+	pDriver->m_timebaseTracking = JackAudioDriver::TimebaseTracking::Valid;
+#endif
+
+	INFOLOG( "DONE Stopping custom JACK audio driver." );
+}
+
+int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
+
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);
+	if ( pDriver == nullptr ) {
+		AudioEngineTests::throwException(
+			"[jackTestProcessCallback] No JACK driver!" );
+	}
+
+	// For the JACK driver it is very important (#1867) to not do anything while
+	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
+	// locking or message logging.
+	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
+		return 0;
+	}
+	const auto sDrivers = pAudioEngine->getDriverNames();
+
+	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
+		AudioEngineTests::throwException(
+			QString( "[jackTestProcessCallback] [%1] engine must not be in state Testing" )
+			.arg( sDrivers ) );
+	}
+
+	pAudioEngine->clearAudioBuffers( nframes );
+
+	// Calculate maximum time to wait for audio engine lock. Using the
+	// last calculated processing time as an estimate of the expected
+	// processing time for this frame.
+	float sampleRate = static_cast<float>(pDriver->getSampleRate());
+	pAudioEngine->m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
+	float fSlackTime = pAudioEngine->m_fMaxProcessTime - pAudioEngine->m_fProcessTime;
+
+	// If we expect to take longer than the available time to process,
+	// require immediate locking or not at all: we're bound to drop a
+	// buffer anyway.
+	if ( fSlackTime < 0.0 ) {
+		fSlackTime = 0.0;
+	}
+
+	/*
+	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
+	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
+	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
+	 * audio processing. Returning the special return value "2" enables the disk
+	 * writer driver to repeat the processing of the current data.
+	 */
+	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
+							  RIGHT_HERE ) ) {
+		___ERRORLOG( QString( "[%1] Failed to lock audioEngine in allowed %2 ms, missed buffer" )
+					 .arg( sDrivers ).arg( fSlackTime ) );
+		return 0;
+	}
+
+	// Now that the engine is locked we properly check its state.
+	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
+		pAudioEngine->unlock();
+		return 0;
+	}
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		AudioEngineTests::throwException(
+			QString( "[jackTestProcessCallback] [%1] no song set yet" )
+			.arg( sDrivers ) );
+	}
+
+	AudioEngineTests::checkTransportPosition(
+			pAudioEngine->getTransportPosition(),
+			QString( "[jackTestProcessCallback] [%1] : pre updated" )
+			.arg( sDrivers ) );
+
+	// Sync transport with server (in case the current audio driver is
+	// designed that way)
+#ifdef H2CORE_HAVE_JACK
+	if ( Hydrogen::get_instance()->hasJackTransport() ) {
+		pDriver->updateTransportPosition();
+
+#ifdef HAVE_INTEGRATION_TESTS
+		if ( pDriver->m_bIntegrationRelocationLoop ) {
+			AudioEngineTests::throwException(
+				"[jackTestProcessCallback] Relocation loop detected!" );
+		}
+#endif
+
+		// Check consistency of current JACK position.
+		const auto jackPos = pDriver->getJackPosition();
+		if ( ( jackPos.valid & JackPositionBBT ) &&
+			 ! JackAudioDriver::isBBTValid( jackPos ) ) {
+			AudioEngineTests::throwException(
+				"[jackTestProcessCallback] Inconsistent JACK BBT information" );
+		}
+
+		// Check consistency of BBT conversion functions
+		const auto pTransportPos = pAudioEngine->getTransportPosition();
+		jack_position_t testPos;
+		if ( pTransportPos->getDoubleTick() >=
+			 pAudioEngine->m_fSongSizeInTicks ) {
+			testPos.frame = 0;
+			testPos.tick = 0;
+		} else {
+			testPos.frame = pTransportPos->getFrame();
+			testPos.tick = pTransportPos->getDoubleTick();
+		}
+		JackAudioDriver::transportToBBT( *pTransportPos, &testPos );
+
+		if ( ! JackAudioDriver::isBBTValid( testPos ) ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback::transportToBBT] Invalid JACK position: %1,\ntransport pos: %2" )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
+		}
+
+		const auto fTick = JackAudioDriver::bbtToTick( testPos );
+		if ( pTransportPos->getDoubleTick() <
+			 pAudioEngine->m_fSongSizeInTicks &&
+			 std::abs( fTick - pTransportPos->getTick() ) > 1e-5 ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback] Mismatching ticks after BBT conversion: diff: %1, fTick: %2, pAE->m_fSongSizeInTicks: %3\nJACK pos: %4\nTransport pos: %5" )
+				.arg( std::abs( fTick - pTransportPos->getTick() ), 0, 'f' )
+				.arg( fTick ).arg( pAudioEngine->m_fSongSizeInTicks )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
+		}
+		else if ( pTransportPos->getDoubleTick() >=
+			 pAudioEngine->m_fSongSizeInTicks && fTick != 0 ) {
+			AudioEngineTests::throwException( QString(
+				"[jackTestProcessCallback] Mismatching ticks after BBT conversion at end of song: fTick: %1, pAE->m_fSongSizeInTicks: %2\nJACK pos: %3\nTransport pos: %4" )
+				.arg( fTick ).arg( pAudioEngine->m_fSongSizeInTicks )
+				.arg( JackAudioDriver::JackTransportPosToQString( testPos ) )
+				.arg( pTransportPos->toQString() ) );
+		}
+	}
+	else {
+		AudioEngineTests::throwException(
+			QString( "[jackTestProcessCallback] [%1] callback should only be used with JACK driver!" )
+			.arg( sDrivers ) );
+	}
+#endif
+	// Check whether the Timebase state is still the same.
+	if ( pDriver->getTimebaseState() != AudioEngineTests::m_referenceTimebase ) {
+		AudioEngineTests::throwException(
+			QString( "[jackTestProcessCallback] Timebase state changed. Current: [%1], reference: [%2]" )
+			.arg( JackAudioDriver::TimebaseToQString( pDriver->getTimebaseState() ) )
+			.arg( JackAudioDriver::TimebaseToQString(
+					  AudioEngineTests::m_referenceTimebase ) ) );
+	}
+
+	// Check whether the tempo was changed.
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pTransportPosition );
+	pAudioEngine->updateBpmAndTickSize( pAudioEngine->m_pQueuingPosition );
+
+	AudioEngineTests::checkTransportPosition(
+			pAudioEngine->getTransportPosition(),
+			QString( "[jackTestProcessCallback] [%1] : post JACK" )
+			.arg( sDrivers ) );
+
+	// Update the state of the audio engine depending on whether it
+	// was started or stopped by the user.
+	if ( pAudioEngine->getNextState() == AudioEngine::State::Playing ) {
+		if ( pAudioEngine->getState() == AudioEngine::State::Ready ) {
+			pAudioEngine->startPlayback();
+		}
+
+		pAudioEngine->setRealtimeFrame( pAudioEngine->m_pTransportPosition->getFrame() );
+	} else {
+		if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
+			pAudioEngine->stopPlayback();
+		}
+
+		// go ahead and increment the realtimeframes by nFrames
+		// to support our realtime keyboard and midi event timing
+		pAudioEngine->setRealtimeFrame( pAudioEngine->getRealtimeFrame() +
+										 static_cast<long long>(nframes) );
+	}
+
+	// always update note queue.. could come from pattern or realtime input
+	// (midi, keyboard)
+	pAudioEngine->updateNoteQueue( nframes );
+
+	pAudioEngine->processAudio( nframes );
+
+	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
+
+		// Check whether the end of the song has been reached.
+		if ( pAudioEngine->isEndOfSongReached(
+				 pAudioEngine->m_pTransportPosition ) ) {
+
+			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
+
+			if ( pHydrogen->getMidiOutput() != nullptr ) {
+				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
+			}
+
+			pAudioEngine->stop();
+			pAudioEngine->stopPlayback();
+			pAudioEngine->locate( 0 );
+		}
+		else {
+			// We are not at the end of the song, keep rolling.
+			pAudioEngine->incrementTransportPosition( nframes );
+		}
+	}
+
+	AudioEngineTests::checkTransportPosition(
+			pAudioEngine->getTransportPosition(),
+			QString( "[jackTestProcessCallback] [%1] : post update" )
+			.arg( sDrivers ) );
+
+	pAudioEngine->unlock();
+
+	return 0;
+}
+#endif // H2CORE_HAVE_JACK
 
 void AudioEngineTests::throwException( const QString& sMsg ) {
 	auto pHydrogen = Hydrogen::get_instance();

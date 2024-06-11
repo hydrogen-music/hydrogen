@@ -167,8 +167,10 @@ Hydrogen::~Hydrogen()
 		delete pOscServer;
 	}
 #endif
-	
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 	removeSong();
+	m_pAudioEngine->unlock();
 	
 	__kill_instruments();
 
@@ -219,7 +221,9 @@ void Hydrogen::initBeatcounter()
 void Hydrogen::sequencer_play()
 {
 	std::shared_ptr<Song> pSong = getSong();
-	pSong->getPatternList()->set_to_old();
+	if ( pSong != nullptr ) {
+		pSong->getPatternList()->set_to_old();
+	}
 	m_pAudioEngine->play();
 }
 
@@ -288,15 +292,19 @@ void Hydrogen::loadPlaybackTrack( QString sFilename )
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 {
-	assert ( pSong );
-
-	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
+	if ( pSong == nullptr ) {
+		WARNINGLOG( "setting nullptr!" );
+	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
 		return;
 	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+
+	// Move to the beginning.
+	setSelectedPatternNumber( 0, false );
 
 	if ( pCurrentSong != nullptr ) {
 		/* NOTE: 
@@ -308,7 +316,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 			// When under session management Hydrogen is only allowed
 			// to replace the content of the session song but not to
 			// write to a different location.
-			pSong->setFilename( pCurrentSong->getFilename() );
+			if ( pSong != nullptr ) {
+				pSong->setFilename( pCurrentSong->getFilename() );
+			}
 		}
 		removeSong();
 	}
@@ -321,7 +331,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= __song->getInstrumentList()->size() ) {
+	if ( pSong != nullptr &&
+		 m_nSelectedInstrumentNumber >= __song->getInstrumentList()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( __song->getInstrumentList()->size() - 1, 0 );
 	}
@@ -331,6 +342,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong, bool bRelinking )
 
 	// load new playback track information
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+
+	m_pAudioEngine->unlock();
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -657,8 +670,8 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	 */
 	pAudioEngine->stopAudioDrivers();
 
-	AudioOutput* pDriver =
-		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
+	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
+		Preferences::AudioDriver::Disk );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
@@ -701,6 +714,10 @@ void Hydrogen::stopExportSong()
 void Hydrogen::stopExportSession()
 {
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	pSong->setMode( m_oldEngineMode );
 	if ( m_bOldLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
@@ -738,6 +755,10 @@ MidiOutput* Hydrogen::getMidiOutput() const
 bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
 	PatternList* pPatternList = pSong->getPatternList();
 
 	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern )
@@ -803,10 +824,8 @@ void Hydrogen::onTapTempoAccelEvent()
 #endif
 }
 
-void Hydrogen::setTapTempo( float fInterval )
-{
+void Hydrogen::setTapTempo( float fInterval ) {
 
-	//	infoLog( "set tap tempo" );
 	static float fOldBpm1 = -1;
 	static float fOldBpm2 = -1;
 	static float fOldBpm3 = -1;
@@ -858,7 +877,9 @@ void Hydrogen::setTapTempo( float fInterval )
 	m_pAudioEngine->unlock();
 	
 	// Store it's value in the .h2song file.
-	getSong()->setBpm( fBPM );
+	if ( __song != nullptr ) {
+		__song->setBpm( fBPM );
+	}
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
@@ -1051,8 +1072,10 @@ bool Hydrogen::handleBeatCounter()
 			m_pAudioEngine->lock( RIGHT_HERE );
 			m_pAudioEngine->setNextBpm( fBeatCountBpm );
 			m_pAudioEngine->unlock();
-			
-			getSong()->setBpm( fBeatCountBpm );
+
+			if ( __song != nullptr ) {
+				__song->setBpm( fBeatCountBpm );
+			}
 	
 			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 			
@@ -1201,13 +1224,16 @@ float Hydrogen::getMasterBpm() const {
 	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
 	  } else {
-		  return std::nan("No JACK driver");
+		  ERRORLOG("No JACK driver");
+		  return std::nan("");
 	  }
   } else {
-	  return std::nan("No audio driver");
+	  ERRORLOG("No audio driver");
+	  return std::nan("");
   }
 #else
-  return std::nan("No JACK support");
+  ERRORLOG("No JACK support");
+  return std::nan("");
 #endif
 }
 
@@ -1240,9 +1266,9 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( __song->getIsTimelineActivated() &&
+	if ( __song != nullptr && __song->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
 	}
 
@@ -1305,7 +1331,7 @@ void Hydrogen::setActionMode( Song::ActionMode mode ) {
 }
 
 Song::PatternMode Hydrogen::getPatternMode() const {
-	if ( getMode() == Song::Mode::Pattern ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		return __song->getPatternMode();
 	}
 	return Song::PatternMode::None;
@@ -1339,12 +1365,12 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getMode() == Song::Mode::Song ) {
-		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-			return Tempo::Jack;
-		} else if ( getSong()->getIsTimelineActivated() ) {
-			return Tempo::Timeline;
-		}
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+		return Tempo::Jack;
+	}
+	else if ( getMode() == Song::Mode::Song &&
+			  __song != nullptr && __song->getIsTimelineActivated() ) {
+		return Tempo::Timeline;
 	}
 
 	return Tempo::Song;
@@ -1506,7 +1532,15 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {
 	std::shared_ptr<Song> pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		const int nPatternSize = MAX_NOTES;
+		const int nColumn = static_cast<int>(
+			std::floor( static_cast<float>( nTick ) /
+						static_cast<float>( nPatternSize ) ) );
+		*pPatternStartTick = static_cast<long>(nColumn * nPatternSize);
+		return nColumn;
+	}
 
 	long nTotalTick = 0;
 
@@ -1575,7 +1609,10 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 long Hydrogen::getTickForColumn( int nColumn ) const
 {
 	auto pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		return static_cast<long>(nColumn * MAX_NOTES);
+	}
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {

@@ -264,47 +264,27 @@
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </item>
          <item>
-          <layout class="QGridLayout" columnstretch="1,2">
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_6">
+          <layout class="QGridLayout" columnstretch="1,0">
+           <item row="4" column="0">
+            <widget class="QLabel" name="portaudioHostAPILabel">
              <property name="text">
-              <string>Audio System</string>
+              <string>Host API</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="LCDCombo" name="driverComboBox"/>
-           </item>
-           <item row="4" column="1">
-            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
-           </item>
-           <item row="9" column="1">
-            <widget class="LCDCombo" name="trackOutputComboBox">
-             <property name="currentIndex">
-              <number>0</number>
+           <item row="6" column="1">
+            <widget class="LCDSpinBox" name="bufferSizeSpinBox">
+             <property name="minimum">
+              <double>16.000000000000000</double>
              </property>
-             <item>
-              <property name="text">
-               <string>Post-Fader</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Pre-Fader</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+             <property name="maximum">
+              <double>5000.000000000000000</double>
              </property>
-             <property name="editable">
-              <bool>true</bool>
+             <property name="singleStep">
+              <double>100.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>1024.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -321,60 +301,54 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="portaudioHostAPILabel">
-             <property name="text">
-              <string>Host API</string>
-             </property>
-            </widget>
+           <item row="4" column="1">
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
            </item>
-           <item row="10" column="0">
-            <widget class="QLabel" name="jackBBTSyncLbl">
+           <item row="7" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="LCDSpinBox" name="latencyTargetSpinBox">
+               <property name="maximum">
+                <double>48000.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>100.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="latencyValueLabel">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="sampleRateLbl">
              <property name="minimumSize">
               <size>
                <width>0</width>
                <height>22</height>
               </size>
              </property>
-             <property name="toolTip">
-              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-             </property>
              <property name="text">
-              <string>BBT sync method</string>
+              <string>Sample rate</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
-            <widget class="LCDSpinBox" name="bufferSizeSpinBox">
-             <property name="minimum">
-              <number>16</number>
+           <item row="5" column="1">
+            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="maximum">
-              <number>5000</number>
+             <property name="editable">
+              <bool>true</bool>
              </property>
-             <property name="singleStep">
-              <number>100</number>
-             </property>
-             <property name="value">
-              <number>1024</number>
-             </property>
-            </widget>
-           </item>
-           <item row="10" column="1">
-            <widget class="LCDCombo" name="jackBBTSyncComboBox">
-             <property name="toolTip">
-              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>constant measure</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>matching bars</string>
-              </property>
-             </item>
             </widget>
            </item>
            <item row="5" column="0">
@@ -382,6 +356,30 @@
              <property name="text">
               <string>Device</string>
              </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Audio System</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="LCDCombo" name="trackOutputComboBox">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>Post-Fader</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Pre-Fader</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="7" column="0">
@@ -431,39 +429,8 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="sampleRateLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Sample rate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <widget class="LCDSpinBox" name="latencyTargetSpinBox">
-               <property name="maximum">
-                <number>48000</number>
-               </property>
-               <property name="value">
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="latencyValueLabel">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
+           <item row="3" column="1">
+            <widget class="LCDCombo" name="driverComboBox"/>
            </item>
           </layout>
          </item>

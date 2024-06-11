@@ -20,27 +20,31 @@
  *
  */
 
-#ifndef H2C_VERSION_H
-#define H2C_VERSION_H
+#ifndef ASSERTIONS_AUDIOFILE_H
+#define ASSERTIONS_AUDIOFILE_H
 
-#include <string>
+#include <cppunit/extensions/HelperMacros.h>
 #include <QString>
 
-namespace H2Core {
+namespace H2Test {
+	
+	void checkAudioFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine);
+	void checkAudioFilesDataEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine);
 
-/// Returns the current Hydrogen version string
-std::string get_version();
+}
 
 /**
- * return true of the current version is older than the given values
- */
-bool version_older_than( int major, int minor, int patch );
+ * \brief Assert that two files' contents are the same
+ **/
+#define H2TEST_ASSERT_AUDIO_FILES_EQUAL(expected, actual) \
+	H2Test::checkAudioFilesEqual(expected, actual, CPPUNIT_SOURCELINE())
 
-	QString getAboutText();
+/**
+ * \brief Assert that two files' contents are the same expect for
+ * tailing 0s in @a actual
+ **/
+#define H2TEST_ASSERT_AUDIO_FILES_DATA_EQUAL(expected, actual) \
+	H2Test::checkAudioFilesDataEqual(expected, actual, CPPUNIT_SOURCELINE())
 
-};
+#endif
 
-#endif // H2C_VERSION
-
-
-/* vim: set softtabstop=4 noexpandtab: */

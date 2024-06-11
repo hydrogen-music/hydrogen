@@ -48,14 +48,15 @@
 /** \ingroup docGUI docConfiguration*/
 class DeviceComboBox : public LCDCombo {
 
-	QString m_sDriver;
+	H2Core::Preferences::AudioDriver m_driver;
 	QString m_sHostAPI;
 
 public:
 	DeviceComboBox( QWidget *pParent );
 
 	/// Set the driver name to use
-	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
+	void setDriver( const H2Core::Preferences::AudioDriver& driver ) {
+		m_driver = driver; }
 	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
 
 	virtual void showPopup();

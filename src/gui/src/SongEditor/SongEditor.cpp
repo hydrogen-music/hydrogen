@@ -3269,36 +3269,54 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 
 void SongEditorPositionRuler::updatePosition()
 {
-	auto pTimeline = m_pHydrogen->getTimeline();
-	auto pPref = Preferences::get_instance();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+	const auto pTimeline = m_pHydrogen->getTimeline();
+	const auto pPref = Preferences::get_instance();
+	const auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = std::max( m_pAudioEngine->getTransportPosition()->getColumn(), 0 );
+	const auto pTransportPos = m_pAudioEngine->getTransportPosition();
+	const auto pPatternGroupVector =
+		m_pHydrogen->getSong()->getPatternGroupVector();
+	const auto m_nColumn = std::max( pTransportPos->getColumn(), 0 );
 
 	float fTick = static_cast<float>(m_nColumn);
-
-	if ( pPatternGroupVector->size() > m_nColumn &&
-		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
-		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
-		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
-			(float)nLength;
-	} else {
-		// Empty column. Use the default length.
-		fTick += (float)m_pAudioEngine->getTransportPosition()->getPatternTickPosition() /
-			(float)MAX_NOTES;
-	}
 
 	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		fTick = -1;
 	}
-	else if ( fTick < 0 ) {
-		// As some variables of the audio engine are initialized as or
-		// reset to -1 we ensure this does not affect the position of
-		// the playhead in the SongEditor.
-		fTick = 0;
+	else {
+		// Song mode
+		if ( pTransportPos->getColumn() == -1 ) {
+			// Transport reached end of song. This can mean we switched from
+			// Pattern Mode and transport wasn't started yet -> playhead at
+			// beginning or we reached the end during playback -> playhead stays
+			// at the end.
+			if ( m_pAudioEngine->isEndOfSongReached( pTransportPos ) ) {
+				fTick = pPatternGroupVector->size();
+			}
+			else {
+				fTick = 0;
+			}
+		}
+		else if ( pPatternGroupVector->size() > m_nColumn &&
+				  pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
+			int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
+			fTick += (float)pTransportPos->getPatternTickPosition() /
+				(float)nLength;
+		}
+		else {
+			// Empty column. Use the default length.
+			fTick += (float)pTransportPos->getPatternTickPosition() /
+				(float)MAX_NOTES;
+		}
+
+		if ( fTick < 0 ) {
+			// As some variables of the audio engine are initialized as or
+			// reset to -1 we ensure this does not affect the position of
+			// the playhead in the SongEditor.
+			fTick = 0;
+		}
 	}
 
 	m_pAudioEngine->unlock();

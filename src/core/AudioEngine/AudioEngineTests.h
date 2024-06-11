@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Note.h>
+#include <core/IO/JackAudioDriver.h>
 
 #include <memory>
 #include <vector>
@@ -94,7 +95,32 @@ public:
 	 * that humanization works as expected.
 	 */
 	static void testHumanization();
-	
+
+		/**
+		 * Checks is reproducible and works even without any song set.
+		 */
+		static void testUpdateTransportPosition();
+#ifdef H2CORE_HAVE_JACK
+	/**
+	 * Unit test checking the incremental update of the transport position in
+	 * audioEngine_process() using the JACK audio driver.
+	 */
+	static void testTransportProcessingJack();
+	/**
+	 * Unit test checking the relocation of the transport position in
+	 * audioEngine_process() using the JACK audio driver.
+	 */
+	static void testTransportRelocationJack();
+
+		/** Process callback for the testing instance of the
+		 * #H2Core::JackAudioDriver */
+		static int jackTestProcessCallback( uint32_t nFrames, void* args );
+
+	static JackAudioDriver* startJackAudioDriver();
+
+	static JackAudioDriver::Timebase m_referenceTimebase;
+#endif
+
 private:
 	static int processTransport( const QString& sContext,
 								 int nFrames,
@@ -143,6 +169,10 @@ private:
 							 std::vector<Note*> newNotes );
 	static void resetSampler( const QString& sContext );
 	static void throwException( const QString& sMsg );
+
+#ifdef H2CORE_HAVE_JACK
+	static void stopJackAudioDriver();
+#endif
 };
 };
 

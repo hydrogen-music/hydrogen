@@ -27,6 +27,7 @@
 #include <chrono>
 #include <thread>
 #include <QtCore/QDir>
+#include <QDateTime>
 
 #ifdef WIN32
 #include <windows.h>
@@ -52,13 +53,11 @@ void* loggerThread_func( void* param ) {
 #  endif
 #endif
 	FILE* log_file = nullptr;
-	if ( logger->__use_file ) {
-		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
-		if ( ! log_file ) {
-			fprintf( stderr, "%s",
-					 QString( "Error: can't open log file [%1] for writing...\n" )
-					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
-		}
+	log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
+	if ( ! log_file ) {
+		fprintf( stderr, "%s",
+				 QString( "Error: can't open log file [%1] for writing...\n" )
+				 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
 	}
 	Logger::queue_t* queue = &logger->__msg_queue;
 	Logger::queue_t::iterator it, last;
@@ -99,22 +98,33 @@ void* loggerThread_func( void* param ) {
 	return nullptr;
 }
 
-Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath, bool bUseStdout ) {
+Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
+						   bool bUseStdout, bool bLogTimestamps ) {
 	Logger::set_bit_mask( msk );
-	return Logger::create_instance( sLogFilePath, bUseStdout );
+	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
 }
 
-Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout ) {
-	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout );
+Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
+								 bool bLogTimestamps ) {
+	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout,
+														  bLogTimestamps );
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
-	__use_file( true ),
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps ) :
 	__running( true ),
 	m_sLogFilePath( sLogFilePath ),
-	m_bUseStdout( bUseStdout ) {
+	m_bUseStdout( bUseStdout ),
+	m_bLogTimestamps( bLogTimestamps ) {
 	__instance = this;
+
+	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
+#ifdef WIN32
+	m_colorList << "" << "" << "" << "" << "" << "" << "";
+#else
+	m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
+				<< "\033[35;1m" << "\033[35;1m";
+#endif
 
 	// Sanity checks.
 	QFileInfo fiLogFile( m_sLogFilePath );
@@ -127,12 +137,17 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
 	if ( m_sLogFilePath.isEmpty() ) {
 		m_sLogFilePath = Filesystem::log_file_path();
 	}
-	
+
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
 	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
+
+	if ( should_log( Info ) ) {
+		log( Info, "Logger", "Logger", QString( "Using log file [%1]" )
+			 .arg( m_sLogFilePath ) );
+	}
 }
 
 Logger::~Logger() {
@@ -141,18 +156,12 @@ Logger::~Logger() {
 	pthread_join( loggerThread, nullptr );
 }
 
-void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {
+void Logger::log( unsigned level, const QString& sClassName, const char* func_name,
+				  const QString& sMsg, const QString& sColor ) {
 
 	if( level == None ){
 		return;
 	}
-
-	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C)", "(L) " };
-#ifdef WIN32
-	const char* color[] = { "", "", "", "", "", "", "" };
-#else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35;1m", "\033[35;1m" };
-#endif // WIN32
 
 	int i;
 	switch( level ) {
@@ -179,12 +188,17 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		break;
 	}
 
-	QString tmp = QString( "%1%2%3::%4 %5\033[0m\n" )
-				  .arg( color[i] )
-				  .arg( prefix[i] )
-				  .arg( class_name )
-				  .arg( func_name )
-				  .arg( msg );
+	QString sTimestampPrefix;
+	if ( m_bLogTimestamps ) {
+		sTimestampPrefix = QString( "[%1] " )
+			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
+	}
+
+	const QString sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+
+	const QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
+		.arg( sClassName ).arg( func_name ).arg( sMsg );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );

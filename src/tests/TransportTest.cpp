@@ -303,6 +303,14 @@ void TransportTest::testHumanization() {
 	___INFOLOG( "passed" );
 }
 
+void TransportTest::testUpdateTransportPosition() {
+	___INFOLOG( "" );
+
+	perform( &AudioEngineTests::testUpdateTransportPosition );
+
+	___INFOLOG( "passed" );
+}
+
 void TransportTest::perform( std::function<void()> func ) {
 	try {
 		func();

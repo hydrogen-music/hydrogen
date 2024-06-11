@@ -447,7 +447,6 @@ void Sampler::handleTimelineOrTempoChange() {
 			 ppNote->getUsedTickSize() != -1 ) {
 
 			double fTickMismatch;
-			const auto pSong = Hydrogen::get_instance()->getSong();
 
 			// Do so for all layers of all components current processed.
 			for ( auto& [ nnCompo, ppLayer ] : ppNote->get_layers_selected() ) {

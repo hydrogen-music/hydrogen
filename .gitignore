@@ -33,5 +33,12 @@ GTAGS
 # Ignore compiled (binary) translation artifacts of `msgfmt`.
 *.mo
 
+# Test artifacts
+tests/jackTearDown/jackTearDown
+tests/jackTearDown/h2cli.log
+tests/jackTimebase/jackTimebase
+tests/jackTimebase/hydrogen.log
+tests/jackTimebase/test*.log
+
 # Ignore cache folder of clangd used in LSP editor support.
 .cache/
