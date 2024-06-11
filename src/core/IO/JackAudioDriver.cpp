@@ -30,7 +30,6 @@
 #include <algorithm>
 #include <cmath>
 #include <jack/metadata.h>
-#include <QProcess>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -1223,61 +1222,6 @@ void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
 			  << ", frame_time: " << pPos->frame_time
 			  << ", next_time: " << pPos->next_time
 			  << "\033[0m" << std::endl;
-}
-
-bool JackAudioDriver::checkSupport() {
-
-	bool bJackFound;
-
-	// Classic JACK
-	QString sCapture = checkExecutable( "jackd", "--version" );
-	if ( ! sCapture.isEmpty() ) {
-		bJackFound = true;
-		INFOLOG( QString( "'jackd' of version [%1] found." )
-				 .arg( sCapture ) );
-	}
-
-	// JACK compiled with DBus support (maybe this one is packaged but
-	// the classical one isn't).
-	//
-	// `jackdbus` is supposed to be run by the DBus message daemon and
-	// does not have proper CLI options. But it does not fail by
-	// passing a `-h` either and this will serve for checking its
-	// presence.
-	sCapture = checkExecutable( "jackdbus", "-h" );
-	if ( ! sCapture.isEmpty() ) {
-		bJackFound = true;
-		INFOLOG( "'jackdbus' found." );
-	}
-
-	// Pipewire JACK interface
-	//
-	// `pw-jack` has no version query CLI option (yet). But showing
-	// the help will serve for checking its presence.
-	sCapture = checkExecutable( "pw-jack", "-h" );
-	if ( ! sCapture.isEmpty() ) {
-		bJackFound = true;
-		INFOLOG( "'pw-jack' found." );
-	}
-
-	return bJackFound;
-}
-
-QString JackAudioDriver::checkExecutable( const QString& sExecutable, const QString& sOption ) {
-	QProcess process;
-	process.start( sExecutable, QStringList( sOption ) );
-	process.waitForFinished( -1 );
-
-	if ( process.exitCode() != 0 ) {
-		return "";
-	}
-
-	QString sStdout = process.readAllStandardOutput();
-	if ( sStdout.isEmpty() ) {
-		return "No output";
-	}
-
-	return sStdout.trimmed();
 }
 };
 

@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
 
-		preferences->m_sAudioDriver = "JACK";
+		preferences->m_audioDriver = Preferences::AudioDriver::Jack;
 
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -255,7 +255,6 @@ int main(int argc, char *argv[])
 
 		signal(SIGINT, signal_handler);
 
-		auto pCoreActionController = pHydrogen->getCoreActionController();
 		auto pOscServer = OscServer::get_instance();
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
@@ -282,11 +281,10 @@ int main(int argc, char *argv[])
 
 		if ( pHydrogen->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
-			pHydrogen->sequencer_stop();
+			pHydrogen->sequencerStop();
 		}
 
 		pSong = nullptr;
-		delete Playlist::get_instance();
 
 		delete pHydrogen;
 		delete pQueue;

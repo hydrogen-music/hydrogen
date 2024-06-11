@@ -85,6 +85,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Virtual keyboard strokes are now mapped exactly as incoming MIDI `NOTE_ON`
 			events (respecting both "Use output note as input note" and hihat pressure
 			groups). But do not trigger associated actions (#1770).
+		- CLI option `-d` understand driver names regardless of capitalization.
 	* Fixed
 		- Fix potential segfault on ill-formated notes in .h2song files.
 		- Fix buzzing sound during startup when using Port Audio (#1932).

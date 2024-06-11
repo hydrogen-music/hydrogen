@@ -637,8 +637,8 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	pAudioEngine->stopAudioDrivers();
 	DEBUGLOG( "post stopAudioDrivers" );
 
-	AudioOutput* pDriver =
-		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
+	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
+		Preferences::AudioDriver::Disk );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {

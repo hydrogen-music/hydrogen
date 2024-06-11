@@ -227,25 +227,11 @@ int main(int argc, char *argv[])
 		parser.setApplicationDescription( aboutText );
 
 		QStringList availableAudioDrivers;
-#ifdef H2CORE_HAVE_JACK
-		availableAudioDrivers << "jack";
-#endif
-#ifdef H2CORE_HAVE_ALSA
-		availableAudioDrivers << "alsa";
-#endif
-#ifdef H2CORE_HAVE_OSS
-		availableAudioDrivers << "oss";
-#endif
-#ifdef H2CORE_HAVE_PULSEAUDIO
-		availableAudioDrivers << "pulseaudio";
-#endif
-#ifdef H2CORE_HAVE_PORTAUDIO
-		availableAudioDrivers << "portaudio";
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-		availableAudioDrivers << "coreaudio";
-#endif
-		availableAudioDrivers << "auto";
+		for ( const auto& ddriver : H2Core::Preferences::getSupportedAudioDrivers() ) {
+			availableAudioDrivers << H2Core::Preferences::audioDriverToQString( ddriver );
+		}
+		availableAudioDrivers << H2Core::Preferences::audioDriverToQString(
+			H2Core::Preferences::AudioDriver::Auto );
 		
 		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver",
 											  QString( "Use the selected audio driver (%1)" )
@@ -414,27 +400,11 @@ int main(int argc, char *argv[])
 			H2Core::Drumkit::install( sDrumkitName );
 			exit(0);
 		}
-		
-		if ( sSelectedDriver == "auto" ) {
-			pPref->m_sAudioDriver = "Auto";
-		} else if ( sSelectedDriver == "jack" ) {
-			pPref->m_sAudioDriver = "JACK";
-		} else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "OSS";
-		} else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "ALSA";
-		} else if ( sSelectedDriver == "pulseaudio" ) {
-			pPref->m_sAudioDriver = "PulseAudio";
-		} else if ( sSelectedDriver == "coreaudio" ) {
-			pPref->m_sAudioDriver = "CoreAudio";
-		} else if ( sSelectedDriver == "portaudio" ) {
-			pPref->m_sAudioDriver = "PortAudio";
-		} else if ( ! sSelectedDriver.isEmpty() ) {
-			___WARNINGLOG( QString( "Unknown driver [%1]. The 'auto' driver will be used instead" )
-						.arg( sSelectedDriver ) );
-			pPref->m_sAudioDriver = "Auto";
+
+		if ( ! sSelectedDriver.isEmpty() ) {
+			pPref->m_audioDriver =
+				H2Core::Preferences::parseAudioDriver( sSelectedDriver );
 		}
-				
 
 		// Bootstrap is complete, start GUI
 		delete pBootStrApp;

@@ -134,49 +134,6 @@ AudioEngine::AudioEngine()
 	
 	m_AudioProcessCallback = &audioEngine_process;
 
-	// Has to be done before assigning the supported audio drivers.
-	checkJackSupport();
-
-	// The order of the assigned drivers is important as Hydrogen uses
-	// it when trying different drivers in case "Auto" was selected.
-#if defined(WIN32)
-  #ifdef H2CORE_HAVE_PORTAUDIO
-	m_supportedAudioDrivers << "PortAudio";
-  #endif
-	if ( m_bJackSupported ) {
-		m_supportedAudioDrivers << "JACK";
-	}
-#elif defined(__APPLE__)
-  #ifdef H2CORE_HAVE_COREAUDIO
-	m_supportedAudioDrivers << "CoreAudio";
-  #endif
-	if ( m_bJackSupported ) {
-		m_supportedAudioDrivers << "JACK";
-	}
-  #ifdef H2CORE_HAVE_PULSEAUDIO
-	m_supportedAudioDrivers << "PulseAudio";
-  #endif
-  #ifdef H2CORE_HAVE_PORTAUDIO
-	m_supportedAudioDrivers << "PortAudio";
-  #endif
-#else /* Linux */
-	if ( m_bJackSupported ) {
-		m_supportedAudioDrivers << "JACK";
-	}
-  #ifdef H2CORE_HAVE_PULSEAUDIO
-	m_supportedAudioDrivers << "PulseAudio";
-  #endif
-  #ifdef H2CORE_HAVE_ALSA
-	m_supportedAudioDrivers << "ALSA";
-  #endif
-  #ifdef H2CORE_HAVE_OSS
-	m_supportedAudioDrivers << "OSS";
-  #endif
-  #ifdef H2CORE_HAVE_PORTAUDIO
-	m_supportedAudioDrivers << "PortAudio";
-  #endif
-#endif
-
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
@@ -832,18 +789,20 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
+AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver )
 {
-	AE_INFOLOG( QString( "Creating driver [%1]" ).arg( sDriver ) );
+	AE_INFOLOG( QString( "Creating driver [%1]" )
+				.arg( Preferences::audioDriverToQString( driver ) ) );
 
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	AudioOutput *pAudioDriver = nullptr;
 
-	if ( sDriver == "OSS" ) {
+	if ( driver == Preferences::AudioDriver::Oss ) {
 		pAudioDriver = new OssDriver( m_AudioProcessCallback );
-	} else if ( sDriver == "JACK" ) {
+	}
+	else if ( driver == Preferences::AudioDriver::Jack ) {
 		pAudioDriver = new JackAudioDriver( m_AudioProcessCallback );
 #ifdef H2CORE_HAVE_JACK
 		if ( auto pJackDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver ) ) {
@@ -853,36 +812,38 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 		}
 #endif
 	}
-	else if ( sDriver == "ALSA" ) {
+	else if ( driver == Preferences::AudioDriver::Alsa ) {
 		pAudioDriver = new AlsaAudioDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "PortAudio" ) {
+	else if ( driver == Preferences::AudioDriver::PortAudio ) {
 		pAudioDriver = new PortAudioDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "CoreAudio" ) {
+	else if ( driver == Preferences::AudioDriver::CoreAudio ) {
 		pAudioDriver = new CoreAudioDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "PulseAudio" ) {
+	else if ( driver == Preferences::AudioDriver::PulseAudio ) {
 		pAudioDriver = new PulseAudioDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "Fake" ) {
+	else if ( driver == Preferences::AudioDriver::Fake ) {
 		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
 		pAudioDriver = new FakeDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "DiskWriterDriver" ) {
+	else if ( driver == Preferences::AudioDriver::Disk ) {
 		pAudioDriver = new DiskWriterDriver( m_AudioProcessCallback );
 	}
-	else if ( sDriver == "NullDriver" ) {
+	else if ( driver == Preferences::AudioDriver::Null ) {
 		pAudioDriver = new NullDriver( m_AudioProcessCallback );
 	}
 	else {
-		AE_ERRORLOG( QString( "Unknown driver [%1]" ).arg( sDriver ) );
+		AE_ERRORLOG( QString( "Unknown driver [%1]" )
+				.arg( Preferences::audioDriverToQString( driver ) ) );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
 		return nullptr;
 	}
 
 	if ( pAudioDriver == nullptr ) {
-		AE_INFOLOG( QString( "Unable to create driver [%1]" ).arg( sDriver ) );
+		AE_INFOLOG( QString( "Unable to create driver [%1]" )
+				.arg( Preferences::audioDriverToQString( driver ) ) );
 		return nullptr;
 	}
 
@@ -890,7 +851,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	int nRes = pAudioDriver->init( pPref->m_nBufferSize );
 	if ( nRes != 0 ) {
 		AE_ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
-				  .arg( sDriver ).arg( nRes ) );
+				.arg( Preferences::audioDriverToQString( driver ) ).arg( nRes ) );
 		delete pAudioDriver;
 		return nullptr;
 	}
@@ -917,7 +878,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	if ( nRes != 0 ) {
 		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
 		AE_ERRORLOG( QString( "Error code [%2] while connecting audio driver [%1]." )
-				  .arg( sDriver ).arg( nRes ) );
+				.arg( Preferences::audioDriverToQString( driver ) ).arg( nRes ) );
 
 		this->lock( RIGHT_HERE );
 		m_MutexOutputPointer.lock();
@@ -964,15 +925,15 @@ void AudioEngine::startAudioDrivers()
 		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
-	QString sAudioDriver = pPref->m_sAudioDriver;
+	const auto audioDriver = pPref->m_audioDriver;
 
-	if ( sAudioDriver != "Auto" ) {
-		createAudioDriver( sAudioDriver );
+	if ( audioDriver != Preferences::AudioDriver::Auto ) {
+		createAudioDriver( audioDriver );
 	}
 	else {
 		AudioOutput* pAudioDriver;
-		for ( const auto& sDriver : getSupportedAudioDrivers() ) {
-			if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
+		for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
+			if ( ( pAudioDriver = createAudioDriver( ddriver ) ) != nullptr ) {
 				break;
 			}
 		}
@@ -980,8 +941,8 @@ void AudioEngine::startAudioDrivers()
 
 	if ( m_pAudioDriver == nullptr ) {
 		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
-				  .arg( sAudioDriver ) );
-		createAudioDriver( "NullDriver" );
+				  .arg( Preferences::audioDriverToQString( audioDriver ) ) );
+		createAudioDriver( Preferences::AudioDriver::Null );
 	}
 
 	this->lock( RIGHT_HERE );
@@ -2618,37 +2579,6 @@ const PatternList* AudioEngine::getNextPatterns() const {
 	return nullptr;
 }
 
-void AudioEngine::checkJackSupport() {
-#ifdef H2CORE_HAVE_JACK
-  #ifdef H2CORE_HAVE_DYNAMIC_JACK_CHECK
-	// As this function is only executed during startup, we can
-	// override the dynamic JACK support check by either setting the
-	// audio driver to "Jack" in the hydrogen.conf file manually (or
-	// importing the file) or by passing the `-d jack` CLI option.
-	if ( Preferences::get_instance()->m_sAudioDriver != "JACK" ) {
-		if ( ! JackAudioDriver::checkSupport() ) {
-			WARNINGLOG( "JACK support disabled." );
-			m_bJackSupported = false;
-			return;
-		}
-
-		INFOLOG( "JACK support enabled." );
-	}
-	else {
-		INFOLOG( "Dynamic JACK support skipped. JACK support enabled." );
-	}
-  #endif
-
-	m_bJackSupported = true;
-	return;
-
-#else
-	INFOLOG( "Hydrogen was compiled without JACK support." );
-	m_bJackSupported = false;
-	return;
-#endif
-}
-
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 
@@ -2798,30 +2728,39 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 QString AudioEngine::getDriverNames() const {
-	QString sAudioDriver( "unknown" );
+	Preferences::AudioDriver audioDriver = Preferences::AudioDriver::Null;
 	QString sMidiInputDriver( "unknown" );
 	QString sMidiOutputDriver( "unknown" );
 
 	if ( m_pAudioDriver == nullptr ) {
-		sAudioDriver = "nullptr";
-	} else if ( dynamic_cast<JackAudioDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "JACK";
-	} else if ( dynamic_cast<PortAudioDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "PortAudio";
-	} else if ( dynamic_cast<CoreAudioDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "CoreAudio";
-	} else if ( dynamic_cast<PulseAudioDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "PulseAudio";
-	} else if ( dynamic_cast<OssDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "OSS";
-	} else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "ALSA";
-	} else if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "Fake";
-	} else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "NULL";
-	} else if ( dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) != nullptr ) {
-		sAudioDriver = "Disk";
+		audioDriver = Preferences::AudioDriver::None;
+	}
+	else if ( dynamic_cast<JackAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Jack;
+	}
+	else if ( dynamic_cast<PortAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::PortAudio;
+	}
+	else if ( dynamic_cast<CoreAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::CoreAudio;
+	}
+	else if ( dynamic_cast<PulseAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::PulseAudio;
+	}
+	else if ( dynamic_cast<OssDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Oss;
+	}
+	else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Alsa;
+	}
+	else if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Fake;
+	}
+	else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Null;
+	}
+	else if ( dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) != nullptr ) {
+		audioDriver = Preferences::AudioDriver::Disk;
 	}
 	
 	if ( m_pMidiDriver == nullptr ) {
@@ -2864,7 +2803,8 @@ QString AudioEngine::getDriverNames() const {
 #endif
 	}
 	
-	auto res = QString( "%1|" ).arg( sAudioDriver );
+	auto res = QString( "%1|" )
+		.arg( Preferences::audioDriverToQString( audioDriver ) );
 	if ( sMidiInputDriver == sMidiOutputDriver ) {
 		res.append( QString( "%1" ).arg( sMidiInputDriver ) );
 	} else {

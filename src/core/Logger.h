@@ -83,6 +83,12 @@ class Logger {
 		/** destructor */
 		~Logger();
 
+		/** Checks whether the Logger instances was already created and can be
+		 * used by other parts of Hydrogen.*/
+		static bool isAvailable() {
+			return __instance == nullptr ? false : true;
+		}
+
 		/**
 		 * return true if the level is set in the bitmask
 		 * \param lvl the level to check

@@ -31,6 +31,7 @@
 #include <core/Sampler/Sampler.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
+#include <core/Preferences/Preferences.h>
 
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -289,15 +290,14 @@ public:
 	 * trigger their initialization.
 	 *
 	 * For a listing of all possible choices, please see
-	 * Preferences::m_sAudioDriver.
+	 * #H2Core::Preferences::AudioDriver.
 	 *
-	 * \param sDriver String specifying which audio driver should be
-	 * created.
+	 * \param driver Specific audio driver.
 	 * \return Pointer to the freshly created audio driver. If the
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput*	createAudioDriver( const QString& sDriver );
+	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver );
 					
 	void			restartAudioDrivers();
 					
@@ -426,13 +426,11 @@ public:
 	 */
 	int getEnqueuedNotesNumber() const;
 
-	const QStringList& getSupportedAudioDrivers() const;
-
-		/** Stops all playback, transport, and note rendering and set the engine
+	/** Stops all playback, transport, and note rendering and set the engine
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
 	void			prepare();
-	
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -689,20 +687,6 @@ private:
 	double m_fLastTickEnd;
 	bool m_bLookaheadApplied;
 
-	/**
-	 * Attempts to dynamically load the JACK 2 shared library
-	 * and stores the result in #m_bJackSupported.
-	 */
-	void checkJackSupport();
-
-	/**
-	 * Whether or not the shared library of the JACK server could be
-	 * found on the system at runtime.
-	 */
-	bool m_bJackSupported;
-
-	QStringList m_supportedAudioDrivers;
-
 	/** Indicates how many loops the transport already did when the user presses
 	 * the Loop button again. */
 	int m_nLoopsDone;
@@ -819,9 +803,6 @@ inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 }
 inline int AudioEngine::getEnqueuedNotesNumber() const {
 	return m_songNoteQueue.size();
-}
-inline const QStringList& AudioEngine::getSupportedAudioDrivers() const {
-	return m_supportedAudioDrivers;
 }
 };
 

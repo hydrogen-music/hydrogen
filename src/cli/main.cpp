@@ -303,23 +303,9 @@ int main(int argc, char *argv[])
 			exit(0);
 		}
 
-		if (sSelectedDriver == "auto") {
-			preferences->m_sAudioDriver = "Auto";
-		}
-		else if (sSelectedDriver == "jack") {
-			preferences->m_sAudioDriver = "JACK";
-		}
-		else if ( sSelectedDriver == "oss" ) {
-			preferences->m_sAudioDriver = "OSS";
-		}
-		else if ( sSelectedDriver == "alsa" ) {
-			preferences->m_sAudioDriver = "ALSA";
-		}
-		else if (sSelectedDriver == "CoreAudio") {
-			preferences->m_sAudioDriver = "CoreAudio";
-		}
-		else if (sSelectedDriver == "PulseAudio") {
-			preferences->m_sAudioDriver = "PulseAudio";
+		if ( ! sSelectedDriver.isEmpty() ) {
+			preferences->m_audioDriver =
+				Preferences::parseAudioDriver( sSelectedDriver );
 		}
 
 #ifdef H2CORE_HAVE_LASH
@@ -594,27 +580,13 @@ void showInfo()
 void showUsage()
 {
 	QStringList availableAudioDrivers;
-#ifdef H2CORE_HAVE_JACK
-	availableAudioDrivers << "jack";
-#endif
-#ifdef H2CORE_HAVE_ALSA
-	availableAudioDrivers << "alsa";
-#endif
-#ifdef H2CORE_HAVE_OSS
-	availableAudioDrivers << "oss";
-#endif
-#ifdef H2CORE_HAVE_PULSEAUDIO
-	availableAudioDrivers << "pulseaudio";
-#endif
-#ifdef H2CORE_HAVE_PORTAUDIO
-	availableAudioDrivers << "portaudio";
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-	availableAudioDrivers << "coreaudio";
-#endif
-	availableAudioDrivers << "auto";
+	for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
+		availableAudioDrivers << Preferences::audioDriverToQString( ddriver );
+	}
+	availableAudioDrivers << Preferences::audioDriverToQString(
+		Preferences::AudioDriver::Auto );
 
-		
+
 	std::cout << "Usage: h2cli OPTION [ARGS]" << std::endl;
 	std::cout << std::endl;
 	std::cout << "The CLI of Hydrogen can be used in two different ways. Either" << std::endl;
