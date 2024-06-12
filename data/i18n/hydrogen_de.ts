@@ -4337,22 +4337,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <source>BBT sync method</source>
-        <translation>BBT Sync. Methode</translation>
-    </message>
-    <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Spezifiziert die Größe, welche über den gesamten Verlauf eine Liedes gleich bleiben muss, um das Funktionen der Synchronization mittels Jack durch einen externen timebase master zu gewährleisten</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>konstanter Takt</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>Übereinstimmende Takte</translation>
-    </message>
-    <message>
         <source>High-resolution display scaling</source>
         <translation>Hochauflösende Bildschirmskalierung</translation>
     </message>

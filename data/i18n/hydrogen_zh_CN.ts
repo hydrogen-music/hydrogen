@@ -4346,22 +4346,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>使用 &amp;LASH</translation>
     </message>
     <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>指定变量。存在另一个 JACK Timebase Master 时，该变量必须保持恒定以保证工作同步和重定位。</translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation>BBT 同步方式</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>常数度量</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>区配小节</translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation>音频系统</translation>
     </message>

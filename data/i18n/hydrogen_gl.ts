@@ -4345,22 +4345,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation type="unfinished"></translation>
     </message>

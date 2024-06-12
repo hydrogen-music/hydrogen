@@ -410,7 +410,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
         <source>B
 C</source>
         <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-		<translation>B
+        <translation>B
 C</translation>
     </message>
     <message>
@@ -418,7 +418,7 @@ C</translation>
 U
 B</source>
         <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
-		<translation>R
+        <translation>R
 U
 B</translation>
     </message>
@@ -823,13 +823,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation>Tocar &amp;amostra original</translation>
     </message>
     <message>
-        <source>Unsaved changes left. These changes will be lost.
-Are you sure?</source>
-        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
-&apos; character introduces a linebreak and must not be translated</extracomment>
-        <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
-    </message>
-    <message>
         <source>Don&apos;t show this message again</source>
         <translation>Não mostrar essa mensagem novamente</translation>
     </message>
@@ -849,11 +842,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>You used drumkit samples holding a &lt;b&gt;copyleft license&lt;/b&gt;. Be aware that &lt;b&gt;you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.&lt;/b&gt;</source>
-		<translation>Você usou amostras de drumkits que usam uma &lt;b&gt;licença copyleft&lt;b;&gt;; Esteja avisado que você &lt;b&gt;é legalmente obrigado a fazer uma cópia disponível publicamente e não pode impedir sua redistribuição para outros.&lt;b&gt;</translation>
+        <translation>Você usou amostras de drumkits que usam uma &lt;b&gt;licença copyleft&lt;b;&gt;; Esteja avisado que você &lt;b&gt;é legalmente obrigado a fazer uma cópia disponível publicamente e não pode impedir sua redistribuição para outros.&lt;b&gt;</translation>
     </message>
     <message>
         <source>All license containing the letters &apos;CC BY&apos; &lt;b&gt;require you to give an attribution&lt;/b&gt; by naming drumkit, author, as well as the license itself.</source>
-		<translation>Toda licença contendo as letras &apos;CC BY&apos; &lt;b&gt; requer que você atribua&lt;/b&gt; nomeando drumkit e autor(a), assim como a licença.</translation>
+        <translation>Toda licença contendo as letras &apos;CC BY&apos; &lt;b&gt; requer que você atribua&lt;/b&gt; nomeando drumkit e autor(a), assim como a licença.</translation>
     </message>
     <message>
         <source>License Warning</source>
@@ -1062,6 +1055,13 @@ Are you sure?</source>
         <source>Undo history</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
         <translation>Desfazer histórico</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translated</extracomment>
+        <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
     </message>
 </context>
 <context>
@@ -1299,7 +1299,7 @@ Are you sure?</source>
         <translation>Diretório %1 não existe</translation>
     </message>
     <message>
-        <source>The file %1 exists.
+        <source>The file %1 exists. 
 Overwrite the existing file?</source>
         <translation>O arquivo %1 já existe.
 Sobrescrever o arquivo existente?</translation>
@@ -1351,12 +1351,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Exportar música</translation>
     </message>
     <message>
-        <source>The file %1 exists.
-Overwrite the existing file?</source>
-        <translation>O arquivo %1 já existe.
-Sobrescrever o arquivo existente?</translation>
-    </message>
-    <message>
         <source>Export to a single track</source>
         <translation>Exportar para uma única faixa</translation>
     </message>
@@ -1383,6 +1377,12 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Certifique-se que você satisfaz todas as condições da licença e dê as atribuições necessárias.</translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation>O arquivo %1 já existe.
+Sobrescrever o arquivo existente?</translation>
     </message>
 </context>
 <context>
@@ -1880,7 +1880,7 @@ Sobrescrever o arquivo existente?</translation>
         <source>Length of Attack phase.
 
 Value</source>
-		<translation>Tamanho da fase de Ataque.
+        <translation>Tamanho da fase de Ataque.
 
 Valor</translation>
     </message>
@@ -1888,7 +1888,7 @@ Valor</translation>
         <source>Length of Decay phase.
 
 Value</source>
-		<translation>Tamanho da fase de Decaímento.
+        <translation>Tamanho da fase de Decaímento.
 
 Valor</translation>
     </message>
@@ -1896,7 +1896,7 @@ Valor</translation>
         <source>Sample volume in Sustain phase.
 
 Value</source>
-		<translation>Volume da amostra na fase de Sustentação.
+        <translation>Volume da amostra na fase de Sustentação.
 
 Valor</translation>
     </message>
@@ -1904,7 +1904,7 @@ Valor</translation>
         <source>Length of Release phase.
 
 Value</source>
-		<translation>Tamanho da fase de Repouso (Release).
+        <translation>Tamanho da fase de Repouso (Release).
 
 Valor</translation>
     </message>
@@ -2470,19 +2470,19 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-		<translation>Exportar &amp;Arquivo MIDI</translation>
+        <translation>Exportar &amp;Arquivo MIDI</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-		<translation>&amp;Exportar Canção</translation>
+        <translation>&amp;Exportar Canção</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-		<translation>Exportar &amp;Arquivo LilyPond</translation>
+        <translation>Exportar &amp;Arquivo LilyPond</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
-		<translation>&amp;Propriedades</translation>
+        <translation>&amp;Propriedades</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -2490,7 +2490,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Import</source>
-		<translation>&amp;Importar</translation>
+        <translation>&amp;Importar</translation>
     </message>
     <message>
         <source>On&amp;line Import</source>
@@ -2510,7 +2510,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Director</source>
-		<translation>&amp;Diretor</translation>
+        <translation>&amp;Diretor</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
@@ -2615,7 +2615,7 @@ MIDI = %2</translation>
     <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
 Are you sure you want to save?</source>
-		<translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
+        <translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
 Você tem certeza que quer salvar?</translation>
     </message>
     <message>
@@ -2637,16 +2637,6 @@ Você tem certeza que quer salvar?</translation>
     <message>
         <source>Could not write to temporary directory %1.</source>
         <translation>Não é possível escrever no diretório temporário %1.</translation>
-    </message>
-    <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
-		</source>
-		<translation>
-A exportação para LilyPond é uma feature experimental.
-Deveria funcionar corretamente dado que você usou o GMRockKit e que você não está usando tercinas.
-		</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
@@ -2719,6 +2709,16 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Save &amp;To Session</source>
         <translation>Salvar &amp;Para Sessão</translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
+</source>
+        <translation>
+A exportação para LilyPond é uma feature experimental.
+Deveria funcionar corretamente dado que você usou o GMRockKit e que você não está usando tercinas.
+    </translation>
     </message>
 </context>
 <context>
@@ -3224,7 +3224,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
-		<translation>Você pode usar o &apos;/&apos; dentro dos campos de tamanho do padrão para alternar. </translation>
+        <translation>Você pode usar o &apos;/&apos; dentro dos campos de tamanho do padrão para alternar. </translation>
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
@@ -3454,7 +3454,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>JACK transport on/off</source>
         <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
-		<translation>Transporte JACK Lig./Des.</translation>
+        <translation>Transporte JACK Lig./Des.</translation>
     </message>
     <message>
         <source>JACK transport will work only with JACK driver.</source>
@@ -3502,7 +3502,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
-		<translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
+        <translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
     </message>
     <message>
         <source>JACK Timebase mode</source>
@@ -3748,7 +3748,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Simple audio driver [/dev/dsp]</source>
-		<translation>Simple audio driver [/dev/dsp]</translation>
+        <translation>Simple audio driver [/dev/dsp]</translation>
     </message>
     <message>
         <source>JACK Audio Connection Kit Driver</source>
@@ -4345,7 +4345,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-		<translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
+        <translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
@@ -4354,22 +4354,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Maximum number of layers (requires restart of Hydrogen)</source>
         <translation>Número máximo de camadas (requer a reinicialização de Hydrogen)</translation>
-    </message>
-    <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Especifica a variavable, que deve ser constante para garantir uma sincronização e relocação na presenção de outro Jack Timebase principal.</translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation>Método de sincronização BBT</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>medida constante</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>compassos iguais</translation>
     </message>
     <message>
         <source>Audio System</source>
@@ -4381,7 +4365,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-		<translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
+        <translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
     </message>
     <message>
         <source>Enable JACK &amp;timebase master support</source>
@@ -4473,7 +4457,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-		<translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -4640,11 +4624,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Load/drag pattern</source>
-		<translation>Carregar/arrastar padrão</translation>
+        <translation>Carregar/arrastar padrão</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
-		<translation>Preencher/remover intervalo do padrão</translation>
+        <translation>Preencher/remover intervalo do padrão</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -5154,11 +5138,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Start/Pause playback</source>
-		<translation>Iniciar/Pausar playback</translation>
+        <translation>Iniciar/Pausar playback</translation>
     </message>
     <message>
         <source>Start/Stop playback</source>
-		<translation>Iniciar/Parar playback</translation>
+        <translation>Iniciar/Parar playback</translation>
     </message>
     <message>
         <source>Start playback at keyboard cursor</source>
@@ -5190,7 +5174,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Mute toggling of master output</source>
-		<translation>Ativar/desativar master output</translation>
+        <translation>Ativar/desativar master output</translation>
     </message>
     <message>
         <source>Increase volume of master output</source>
@@ -5262,7 +5246,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Toggle song/pattern mode</source>
-		<translation>Alternar modo canção/padrão</translation>
+        <translation>Alternar modo canção/padrão</translation>
     </message>
     <message>
         <source>Toggle loop mode</source>
@@ -5922,18 +5906,12 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>The pattern-file exists.
-Overwrite the existing pattern?</source>
-        <translation>O padrão-arquivo existe.
-Sobrescrever o padrão existente?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exportar Padrão</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
-		<translation>Preencher/Limpar...</translation>
+        <translation>Preencher/Limpar...</translation>
     </message>
     <message>
         <source>Could not save pattern to temporary directory.</source>
@@ -5954,6 +5932,12 @@ Sobrescrever o padrão existente?</translation>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Padrão para Substituir</translation>
+    </message>
+    <message>
+        <source>The pattern-file exists. 
+Overwrite the existing pattern?</source>
+        <translation>O padrão-arquivo existe.
+Sobrescrever o padrão existente?</translation>
     </message>
 </context>
 <context>
@@ -6198,12 +6182,12 @@ Você gostaria de manter ou descartar os instrumentos e anotações restantes?
         <translation>é um kit de apenas leitura e não pode ser removido.</translation>
     </message>
     <message>
-        <source>It is not possible to delete drumkit:
+        <source>It is not possible to delete drumkit: 
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-		<translation>Não foi possível deletar o drumkit:
-			[%1]
-	Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
+        <translation>Não foi possível deletar o drumkit:
+  [%1]
+Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
     </message>
 </context>
 <context>

@@ -4350,22 +4350,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Langue / Γλώσσα / Язык / 言語</translation>
     </message>
     <message>
-        <source>BBT sync method</source>
-        <translation>Méthode de synchronisation BBT</translation>
-    </message>
-    <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Spécifie la variable, qui doit rester constante afin de garantir une synchronisation et un déplacement fonctionnels en présence d&apos;un autre maître de la base de temps JACK.</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>mesure constante</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>mesures de correspondance</translation>
-    </message>
-    <message>
         <source>High-resolution display scaling</source>
         <translation>Adaptation de l&apos;affichage haute résolution</translation>
     </message>
