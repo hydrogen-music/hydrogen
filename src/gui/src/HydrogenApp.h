@@ -203,6 +203,10 @@ private slots:
 		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
 #endif
 
+		/** Used for accessibility reasons to show scroll bars in case Hydrogen
+		 * has to be shrunk below its minimum size - magnified using the Qt
+		 * scale factor so its efficitive size is below the minimum one. */
+		QScrollArea*				m_pMainScrollArea;
 		MainForm *					m_pMainForm;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;

@@ -104,7 +104,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	setObjectName( "MainForm" );
-	setMinimumSize( QSize( 1000, 500 ) );
+	// setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd)) {
