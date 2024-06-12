@@ -69,6 +69,7 @@ func startHydrogen() error {
     ctx, _ := context.WithTimeout(context.Background(),
         (hydrogenTearDownTime + hydrogenStartupTime) * time.Millisecond)
     cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack",
+        "-V", "Constructors",
         "-O", strconv.FormatInt(oscHydrogenPort, 10), "-T", "-L", "./h2cli.log")
 
     hydrogenStartupChan <- true
