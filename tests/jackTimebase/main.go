@@ -6,6 +6,7 @@ import (
     "os"
     "os/exec"
     "path"
+    "path/filepath"
     "strconv"
     "time"
 
@@ -33,9 +34,11 @@ var testBinaryLogFileBase = "./test"
 
 // hydrogenTestSongPath points to the song opened by the Hydrogen binary used as
 // counterpart to our dedicated test binary.
-var hydrogenTestSongPath = "jackTimebaseTest.h2song"
-// var hydrogenTestSongListenerPath = "jackTimebaseTest_listener.h2song"
-var hydrogenTestSongListenerPath = "jackTimebaseTest.h2song"
+var hydrogenTestSongPath, _ = filepath.Abs("./jackTimebaseTest.h2song")
+// var hydrogenTestSongListenerPath, _ =
+//     filepath.Abs("./jackTimebaseTest_listener.h2song")
+var hydrogenTestSongListenerPath, _ =
+    filepath.Abs("./jackTimebaseTest.h2song")
 
 // hydrogenFailedChan is used by startHydrogen() to indicate that Hydrogen exited.
 var hydrogenFailedChan chan bool
