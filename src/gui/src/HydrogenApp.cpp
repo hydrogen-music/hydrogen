@@ -79,6 +79,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pDirector( nullptr )
  , m_nPreferencesUpdateTimeout( 100 )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
+ , m_pMainScrollArea( new QScrollArea )
 {
 	m_pInstance = this;
 
@@ -245,11 +246,11 @@ void HydrogenApp::setupSinglePanedInterface()
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
 	setWindowProperties( m_pMainForm, mainFormProp, SetDefault & ~SetVisible );
 
-	m_pSplitter = new QSplitter( nullptr );
+	m_pSplitter = new QSplitter( m_pMainScrollArea );
 	m_pSplitter->setOrientation( Qt::Vertical );
 	m_pSplitter->setOpaqueResize( true );
 
-	m_pTab = new QTabWidget( nullptr );
+	m_pTab = new QTabWidget( m_pMainScrollArea );
 	m_pTab->setObjectName( "TabbedInterface" );
 
 	// SONG EDITOR
@@ -302,7 +303,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pPlayerControl = new PlayerControl( nullptr );
 
 
-	QWidget *mainArea = new QWidget( m_pMainForm );	// this is the main widget
+	QWidget *mainArea = new QWidget();	// this is the main widget
 	m_pMainForm->setCentralWidget( mainArea );
 
 	// LAYOUT!!
@@ -322,8 +323,15 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	mainArea->setLayout( m_pMainVBox );
 
+	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+	mainArea->setMinimumSize( QSize( 1000, 500 ) );
 
+								m_pMainScrollArea->setMinimumSize( QSize( 100, 50 ) );
+	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+	m_pMainScrollArea->setWidget( mainArea );
 
+	m_pMainForm->setCentralWidget( m_pMainScrollArea );
 
 	// MIXER
 	m_pMixer = new Mixer(nullptr);
