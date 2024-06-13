@@ -4318,22 +4318,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation type="unfinished"></translation>
     </message>

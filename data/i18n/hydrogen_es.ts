@@ -4362,22 +4362,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Utilizar &amp;LASH</translation>
     </message>
     <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Especifica la variable, que debe permanecer constante para garantizar una sincronización funcional y reubicación en la presencia de otro Timebase maestro de JACK.</translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation>Método de sincronización BBT</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>medida constante</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>compases iguales</translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation>Sistema de Audio</translation>
     </message>

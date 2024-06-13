@@ -60,6 +60,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
 #include <core/Logger.h>
+#include <core/Version.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -220,32 +221,14 @@ int main(int argc, char *argv[])
 		
 		QCommandLineParser parser;
 		
-		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team" ) +
-		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
-		
-		parser.setApplicationDescription( aboutText );
+		parser.setApplicationDescription( H2Core::getAboutText() );
 
 		QStringList availableAudioDrivers;
-#ifdef H2CORE_HAVE_JACK
-		availableAudioDrivers << "jack";
-#endif
-#ifdef H2CORE_HAVE_ALSA
-		availableAudioDrivers << "alsa";
-#endif
-#ifdef H2CORE_HAVE_OSS
-		availableAudioDrivers << "oss";
-#endif
-#ifdef H2CORE_HAVE_PULSEAUDIO
-		availableAudioDrivers << "pulseaudio";
-#endif
-#ifdef H2CORE_HAVE_PORTAUDIO
-		availableAudioDrivers << "portaudio";
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-		availableAudioDrivers << "coreaudio";
-#endif
-		availableAudioDrivers << "auto";
+		for ( const auto& ddriver : H2Core::Preferences::getSupportedAudioDrivers() ) {
+			availableAudioDrivers << H2Core::Preferences::audioDriverToQString( ddriver );
+		}
+		availableAudioDrivers << H2Core::Preferences::audioDriverToQString(
+			H2Core::Preferences::AudioDriver::Auto );
 		
 		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver",
 											  QString( "Use the selected audio driver (%1)" )
@@ -258,9 +241,18 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
+		QCommandLineOption logFileOption( QStringList() << "L" << "log-file",
+										  "Alternative log file path", "Path" );
+		QCommandLineOption logTimestampsOption(
+			QStringList() << "T" << "log-timestamps",
+			"Add timestamps to all log messages" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
+#ifdef H2CORE_HAVE_OSC
+		QCommandLineOption oscPortOption( QStringList() << "O" << "osc-port",
+										  "Custom port for OSC connections", "int" );
+#endif
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -272,9 +264,14 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
+		parser.addOption( logFileOption );
+		parser.addOption( logTimestampsOption );
 		parser.addOption( shotListOption );
 		parser.addOption( uiLayoutOption );
 		parser.addOption( noReporterOption );
+#ifdef H2CORE_HAVE_OSC
+		parser.addOption( oscPortOption );
+#endif
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		// Evaluate the options
@@ -289,7 +286,9 @@ int main(int argc, char *argv[])
 		QString sVerbosityString = parser.value( verboseOption );
 		QString sShotList = parser.value( shotListOption );
 		QString sUiLayout = parser.value( uiLayoutOption );
-		
+		QString sLogFile = parser.value( logFileOption );
+		bool bLogTimestamps = parser.isSet( logTimestampsOption );
+
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
 			if( !sVerbosityString.isEmpty() )
@@ -299,6 +298,20 @@ int main(int argc, char *argv[])
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
 			}
 		}
+
+		int nOscPort = -1;
+#ifdef H2CORE_HAVE_OSC
+		QString sOscPort = parser.value( oscPortOption );
+		if ( ! sOscPort.isEmpty() ) {
+			bool bOk;
+			nOscPort = sOscPort.toInt( &bOk, 10 );
+			if ( ! bOk ) {
+				std::cerr << "Unable to parse 'osc-port' option. Please provide an integer value"
+						  << std::endl;
+				exit( 1 );
+			}
+		}
+#endif
 
 		// Operating system GUIs typically pass documents to open as
 		// simple positional arguments to the process command
@@ -317,16 +330,15 @@ int main(int argc, char *argv[])
 			}
 		}
 		
-		std::cout << aboutText.toStdString();
+		std::cout << H2Core::getAboutText().toStdString();
 		
 		setup_unix_signal_handlers();
 		QString sInitialisingCrashContext( "Initialising Hydrogen" );
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
-		H2Core::Logger::create_instance();
-		H2Core::Logger::set_bit_mask( logLevelOpt );
-		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile,
+												  true, bLogTimestamps );
 		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {
@@ -373,6 +385,10 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		if ( nOscPort != -1 ) {
+			pPref->m_nOscTemporaryPort = nOscPort;
+		}
+
 #ifdef H2CORE_HAVE_LASH
 
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
@@ -383,27 +399,11 @@ int main(int argc, char *argv[])
 			H2Core::Drumkit::install( sDrumkitName );
 			exit(0);
 		}
-		
-		if ( sSelectedDriver == "auto" ) {
-			pPref->m_sAudioDriver = "Auto";
-		} else if ( sSelectedDriver == "jack" ) {
-			pPref->m_sAudioDriver = "JACK";
-		} else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "OSS";
-		} else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "ALSA";
-		} else if ( sSelectedDriver == "pulseaudio" ) {
-			pPref->m_sAudioDriver = "PulseAudio";
-		} else if ( sSelectedDriver == "coreaudio" ) {
-			pPref->m_sAudioDriver = "CoreAudio";
-		} else if ( sSelectedDriver == "portaudio" ) {
-			pPref->m_sAudioDriver = "PortAudio";
-		} else if ( ! sSelectedDriver.isEmpty() ) {
-			___WARNINGLOG( QString( "Unknown driver [%1]. The 'auto' driver will be used instead" )
-						.arg( sSelectedDriver ) );
-			pPref->m_sAudioDriver = "Auto";
+
+		if ( ! sSelectedDriver.isEmpty() ) {
+			pPref->m_audioDriver =
+				H2Core::Preferences::parseAudioDriver( sSelectedDriver );
 		}
-				
 
 		// Bootstrap is complete, start GUI
 		delete pBootStrApp;

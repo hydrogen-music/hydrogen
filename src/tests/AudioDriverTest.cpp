@@ -23,12 +23,11 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
 
 void AudioDriverTest::setUp() {
 	auto pPref = H2Core::Preferences::get_instance();
 	m_nPrevBufferSize = pPref->m_nBufferSize;
-	m_sPrevAudioDriver = pPref->m_sAudioDriver;
+	m_prevAudioDriver = pPref->m_audioDriver;
 }
 
 void AudioDriverTest::testDriverSwitching() {
@@ -40,23 +39,32 @@ void AudioDriverTest::testDriverSwitching() {
 	for ( int ii = 0; ii < 10; ++ii ) {
 		std::cout << ii << std::endl;
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "ALSA" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Alsa );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "OSS" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Oss );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "JACK" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Jack );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "PortAudio" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::PortAudio );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "CoreAudio" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::CoreAudio );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "PulseAudio" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::PulseAudio );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Disk );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "NullDriver" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Null );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver( "Fake" );
+		pAudioEngine->createAudioDriver(
+			H2Core::Preferences::AudioDriver::Fake );
 	}
 
 	___INFOLOG("done");
@@ -68,8 +76,9 @@ void AudioDriverTest::tearDown() {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	pPref->m_nBufferSize = m_nPrevBufferSize;
-	pPref->m_sAudioDriver = m_sPrevAudioDriver;
+	pPref->m_audioDriver = m_prevAudioDriver;
 
 	pAudioEngine->stopAudioDrivers();
-	pAudioEngine->createAudioDriver( "Fake" );
+	pAudioEngine->createAudioDriver(
+		H2Core::Preferences::AudioDriver::Fake );
 }

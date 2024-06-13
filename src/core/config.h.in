@@ -91,5 +91,8 @@
 #ifndef H2CORE_HAVE_RUBBERBAND
 #cmakedefine H2CORE_HAVE_RUBBERBAND
 #endif
+#ifndef HAVE_INTEGRATION_TESTS
+#cmakedefine HAVE_INTEGRATION_TESTS
+#endif
 
 #endif

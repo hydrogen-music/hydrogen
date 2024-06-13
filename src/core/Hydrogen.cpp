@@ -165,9 +165,11 @@ Hydrogen::~Hydrogen()
 		delete pOscServer;
 	}
 #endif
-	
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->prepare();
-	
+	m_pAudioEngine->unlock();
+
 	killInstruments();
 
 	delete m_pAudioEngine;
@@ -209,7 +211,9 @@ void Hydrogen::initBeatcounter()
 void Hydrogen::sequencerPlay()
 {
 	std::shared_ptr<Song> pSong = getSong();
-	pSong->getPatternList()->set_to_old();
+	if ( pSong != nullptr ) {
+		pSong->getPatternList()->set_to_old();
+	}
 	m_pAudioEngine->play();
 }
 
@@ -276,15 +280,19 @@ void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
-	assert ( pSong );
+	if ( pSong == nullptr ) {
+		WARNINGLOG( "setting nullptr!" );
+	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
 		return;
 	}
 
+	m_pAudioEngine->lock( RIGHT_HERE );
+
 	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
+	setSelectedPatternNumber( 0, false );
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
@@ -294,7 +302,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
-				pSong->setFilename( pCurrentSong->getFilename() );
+				if ( pSong != nullptr ) {
+					pSong->setFilename( pCurrentSong->getFilename() );
+				}
 			}
 #endif
 		}
@@ -307,11 +317,15 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	// are activated, m_pSong has to be set prior to the call of
 	// AudioEngine::setSong().
 	m_pSong = pSong;
-	pSong->getDrumkit()->loadSamples();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		pSong->getDrumkit()->loadSamples();
+	}
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= m_pSong->getDrumkit()->getInstruments()->size() ) {
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 m_nSelectedInstrumentNumber >=
+		 m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
 	}
@@ -321,6 +335,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// load new playback track information
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+
+	m_pAudioEngine->unlock();
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -637,8 +653,8 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	pAudioEngine->stopAudioDrivers();
 	DEBUGLOG( "post stopAudioDrivers" );
 
-	AudioOutput* pDriver =
-		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
+	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
+		Preferences::AudioDriver::Disk );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
@@ -689,6 +705,10 @@ void Hydrogen::stopExportSession()
 {
 	DEBUGLOG( "" );
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	pSong->setMode( m_oldEngineMode );
 	if ( m_bOldLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
@@ -820,6 +840,7 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	CoreActionController::setBpm( fBPM );
 #endif
+
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1007,7 +1028,7 @@ bool Hydrogen::handleBeatCounter()
 					/ 100;
 			
 			CoreActionController::setBpm( fBeatCountBpm );
-			
+
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
@@ -1152,13 +1173,16 @@ float Hydrogen::getMasterBpm() const {
 	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
 	  } else {
-		  return std::nan("No JACK driver");
+		  ERRORLOG("No JACK driver");
+		  return std::nan("");
 	  }
   } else {
-	  return std::nan("No audio driver");
+	  ERRORLOG("No audio driver");
+	  return std::nan("");
   }
 #else
-  return std::nan("No JACK support");
+  ERRORLOG("No JACK support");
+  return std::nan("");
 #endif
 }
 
@@ -1191,9 +1215,9 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( m_pSong->getIsTimelineActivated() &&
+	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
 	}
 
@@ -1256,7 +1280,7 @@ void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 }
 
 Song::PatternMode Hydrogen::getPatternMode() const {
-	if ( getMode() == Song::Mode::Pattern ) {
+	if ( m_pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		return m_pSong->getPatternMode();
 	}
 	return Song::PatternMode::None;
@@ -1290,12 +1314,12 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getMode() == Song::Mode::Song ) {
-		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-			return Tempo::Jack;
-		} else if ( getSong()->getIsTimelineActivated() ) {
-			return Tempo::Timeline;
-		}
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+		return Tempo::Jack;
+	}
+	else if ( getMode() == Song::Mode::Song &&
+			  m_pSong != nullptr && m_pSong->getIsTimelineActivated() ) {
+		return Tempo::Timeline;
 	}
 
 	return Tempo::Song;
@@ -1385,7 +1409,15 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {
 	std::shared_ptr<Song> pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		const int nPatternSize = MAX_NOTES;
+		const int nColumn = static_cast<int>(
+			std::floor( static_cast<float>( nTick ) /
+						static_cast<float>( nPatternSize ) ) );
+		*pPatternStartTick = static_cast<long>(nColumn * nPatternSize);
+		return nColumn;
+	}
 
 	long nTotalTick = 0;
 
@@ -1454,7 +1486,10 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 long Hydrogen::getTickForColumn( int nColumn ) const
 {
 	auto pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		return static_cast<long>(nColumn * MAX_NOTES);
+	}
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {

@@ -737,17 +737,8 @@ bool CoreActionController::savePreferences() {
 bool CoreActionController::quit() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
-	} else {
-		// TODO: Close Hydrogen with no GUI present.
-		
-		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
-		return false;
-		
-	}
-	
 	return true;
 }
 
@@ -774,7 +765,8 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 
 	pHydrogen->setIsTimelineActivated( bActivate );
 	
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+	if ( pHydrogen->getJackTimebaseState() ==
+		 JackAudioDriver::Timebase::Listener ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {

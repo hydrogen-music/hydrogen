@@ -28,6 +28,7 @@
 #include <pthread.h>
 #include <memory>
 #include <QtCore/QString>
+#include <QStringList>
 
 #include <core/config.h>
 
@@ -59,14 +60,20 @@ class Logger {
 		 * create the logger instance if not exists, set the log level and return the instance
 		 * \param msk the logging level bitmask
 		 */
-	static Logger* bootstrap( unsigned msk, const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	static Logger* bootstrap( unsigned msk,
+							  const QString& sLogFilePath = QString(),
+							  bool bUseStdout = true,
+							  bool bLogTimestamps = false );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */
-	static Logger* create_instance( const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	static Logger* create_instance( const QString& sLogFilePath = QString(),
+									bool bUseStdout = true,
+									bool bLogTimestamps = false );
+
 		/**
 		 * Returns a pointer to the current H2Core::Logger
 		 * singleton stored in #__instance.
@@ -75,6 +82,12 @@ class Logger {
 
 		/** destructor */
 		~Logger();
+
+		/** Checks whether the Logger instances was already created and can be
+		 * used by other parts of Hydrogen.*/
+		static bool isAvailable() {
+			return __instance == nullptr ? false : true;
+		}
 
 		/**
 		 * return true if the level is set in the bitmask
@@ -88,13 +101,6 @@ class Logger {
 		static void set_bit_mask( unsigned msk )    { __bit_msk = msk; }
 		/** return the current log level bit mask */
 		static unsigned bit_mask()                  { return __bit_msk; }
-		/**
-		 * set use file flag
-		 * \param use the flag status
-		 */
-		void set_use_file( bool use )               { __use_file = use; }
-		/** return __use_file */
-		bool use_file() const                       { return __use_file; }
 
 	/**
 	 * Waits till the logger thread poped all remaining messages from
@@ -114,11 +120,14 @@ class Logger {
 		/**
 		 * the log function
 		 * \param level used to output the corresponding level string
-		 * \param class_name the name of the calling class
+		 * \param sClassName the name of the calling class
 		 * \param func_name the name of the calling function/method
-		 * \param msg the message to log
+		 * \param sMsg the message to log
+		 * \param sColor alternate color
 		 */
-		void log( unsigned level, const QString& class_name, const char* func_name, const QString& msg );
+		void log( unsigned level, const QString& sClassName,
+				  const char* func_name, const QString& sMsg,
+				  const QString& sColor = "" );
 		/**
 		 * needed for being able to access logger internal
 		 * \param param is a pointer to the logger instance
@@ -154,7 +163,6 @@ class Logger {
 		 * get_instance().
 		 */
 		static Logger* __instance;
-		bool __use_file;                ///< write log to file if set to true
 		bool __running;                 ///< set to true when the logger thread is running
 		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
 		queue_t __msg_queue;            ///< the message queue
@@ -162,12 +170,18 @@ class Logger {
 		static const char* __levels[];  ///< levels strings
 		pthread_cond_t __messages_available;
 	QString m_sLogFilePath;
+
+		QStringList m_prefixList;
+		QStringList m_colorList;
+
 	bool m_bUseStdout;
+		bool m_bLogTimestamps;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
-	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true );
+	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true,
+			bool bLogTimestamps = false );
 
 #ifndef HAVE_SSCANF
 		/**

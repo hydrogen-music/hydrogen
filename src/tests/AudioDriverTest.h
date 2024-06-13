@@ -24,7 +24,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <QString>
+#include <core/Preferences/Preferences.h>
 
 class AudioDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AudioDriverTest );
@@ -40,7 +40,7 @@ class AudioDriverTest : public CppUnit::TestCase {
 
 	private:
 		int m_nPrevBufferSize;
-		QString m_sPrevAudioDriver;
+		H2Core::Preferences::AudioDriver m_prevAudioDriver;
 };
 
 #endif

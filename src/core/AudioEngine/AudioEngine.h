@@ -31,6 +31,7 @@
 #include <core/Sampler/Sampler.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
+#include <core/Preferences/Preferences.h>
 
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -45,6 +46,7 @@
 #include <chrono>
 #include <deque>
 #include <queue>
+#include <QString>
 
 /** \def RIGHT_HERE
  * Macro intended to be used for the logging of the locking of the
@@ -246,7 +248,8 @@ public:
 	 * Assert that the calling thread is the current holder of the
 	 * AudioEngine lock.
 	 */
-	void			assertLocked( );
+	void			assertLocked( const QString& sClass, const char* sFunction,
+								  const QString& sMsg );
 	void			noteOn( Note *note );
 
 	/**
@@ -289,15 +292,14 @@ public:
 	 * trigger their initialization.
 	 *
 	 * For a listing of all possible choices, please see
-	 * Preferences::m_sAudioDriver.
+	 * #H2Core::Preferences::AudioDriver.
 	 *
-	 * \param sDriver String specifying which audio driver should be
-	 * created.
+	 * \param driver Specific audio driver.
 	 * \return Pointer to the freshly created audio driver. If the
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput*	createAudioDriver( const QString& sDriver );
+	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver );
 					
 	void			restartAudioDrivers();
 					
@@ -426,13 +428,12 @@ public:
 	 */
 	int getEnqueuedNotesNumber() const;
 
-	const QStringList& getSupportedAudioDrivers() const;
-
-		/** Stops all playback, transport, and note rendering and set the engine
+	/** Stops all playback, transport, and note rendering and set the engine
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
 	void			prepare();
-	
+	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -461,9 +462,9 @@ public:
 	friend bool CoreActionController::activateLoopMode( bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	friend void JackAudioDriver::updateTransportPosition();
-	friend void JackAudioDriver::relocateUsingBBT();
+
 	friend class AudioEngineTests;
+		friend class JackAudioDriver;
 private:
 
 	/**
@@ -531,7 +532,6 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 	void			updateTransportPosition( double fTick, long long nFrame,
 											 std::shared_ptr<TransportPosition> pPos );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
@@ -689,25 +689,16 @@ private:
 	double m_fLastTickEnd;
 	bool m_bLookaheadApplied;
 
-	/**
-	 * Attempts to dynamically load the JACK 2 shared library
-	 * and stores the result in #m_bJackSupported.
-	 */
-	void checkJackSupport();
-
-	/**
-	 * Whether or not the shared library of the JACK server could be
-	 * found on the system at runtime.
-	 */
-	bool m_bJackSupported;
-
-	QStringList m_supportedAudioDrivers;
-
 	/** Indicates how many loops the transport already did when the user presses
 	 * the Loop button again. */
 	int m_nLoopsDone;
 };
 
+#ifdef H2CORE_HAVE_DEBUG
+  #define ASSERT_AUDIO_ENGINE_LOCKED(x) assertAudioEngineLocked( _class_name(), __FUNCTION__, QString( "%1" ).arg( x ) );
+#else
+  #define ASSERT_AUDIO_ENGINE_LOCKED(x)
+#endif
 
 /**
  * This is a base class for data structures which should only be modified or
@@ -728,7 +719,9 @@ protected:
 	/**
 	 *  Assert that the AudioEngine lock is held if needed.
 	 */
-	void assertAudioEngineLocked() const;
+	void assertAudioEngineLocked( const QString& sClass,
+								  const char* sFunction,
+								  const QString& sMsg ) const;
 
 
 public:
@@ -746,13 +739,6 @@ public:
 		m_bNeedsLock = false;
 	}
 };
-
-
-inline void AudioEngine::assertLocked( ) {
-#ifndef NDEBUG
-	assert( m_LockingThread == std::this_thread::get_id() );
-#endif
-}
 
 inline void	AudioEngine::setMasterPeak_L( float value ) {
 	m_fMasterPeak_L = value;
@@ -819,9 +805,6 @@ inline std::shared_ptr<Instrument> AudioEngine::getMetronomeInstrument() const {
 }
 inline int AudioEngine::getEnqueuedNotesNumber() const {
 	return m_songNoteQueue.size();
-}
-inline const QStringList& AudioEngine::getSupportedAudioDrivers() const {
-	return m_supportedAudioDrivers;
 }
 };
 

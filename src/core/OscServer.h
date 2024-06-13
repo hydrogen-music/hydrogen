@@ -254,6 +254,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		void handleAction(std::shared_ptr<Action> pAction);
 
+		/** Should be only used within the integration tests! */
+	lo::ServerThread* getServerThread() const;
+
 		/**
 		 * Creates an Action of type @b PLAY and passes its
 		 * references to MidiActionManager::handleAction().
@@ -931,6 +934,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		std::list<lo_address> m_pClientRegistry;
 };
+
+inline lo::ServerThread* OscServer::getServerThread() const {
+	return m_pServerThread;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 
