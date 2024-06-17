@@ -416,5 +416,6 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
  **/
 void AutomationPathView::autoResize()
 {
-	resize( SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth, 64 );
+	resize( SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth,
+			m_nMinimumHeight );
 }

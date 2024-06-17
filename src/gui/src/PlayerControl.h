@@ -73,6 +73,8 @@ public:
 	virtual void loopModeActivationEvent() override;
 	virtual void driverChangedEvent() override;
 
+		static constexpr int m_nMinimumHeight = 43;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void activateSongMode( bool bActivate );
