@@ -103,9 +103,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_nCursorColumn = 0;
 
 	int nInitialWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
-	int nInitialHeight = 10;
 
-	this->resize( QSize( nInitialWidth, nInitialHeight ) );
+	this->resize( QSize( nInitialWidth, m_nMinimumHeight ) );
 
 	createBackground();	// create m_backgroundPixmap pixmap
 
@@ -1129,8 +1128,10 @@ void SongEditor::createBackground()
 
 	if (nOldHeight != nNewHeight) {
 		// cambiamento di dimensioni...
-		if (nNewHeight == 0) {
-			nNewHeight = 1;	// the pixmap should not be empty
+		if ( nNewHeight < m_nMinimumHeight ) {
+			WARNINGLOG( QString( "nNewHeight [%1] below minimum one [%2]" )
+						.arg( nNewHeight ).arg( m_nMinimumHeight ) );
+			nNewHeight = m_nMinimumHeight;	// the pixmap should not be empty
 		}
 		if ( m_pBackgroundPixmap ) {
 			delete m_pBackgroundPixmap;
@@ -2451,11 +2452,11 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	
 	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
 
-	resize( nInitialWidth, m_nHeight );
-	setFixedHeight( m_nHeight );
+	resize( nInitialWidth, m_nMinimumHeight );
+	setFixedHeight( m_nMinimumHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nMinimumHeight * pixelRatio );	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	createBackground();	// create m_backgroundPixmap pixmap

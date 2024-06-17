@@ -38,7 +38,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	resize( 290, 405 );
+	resize( 290, m_nMinimumHeight );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 

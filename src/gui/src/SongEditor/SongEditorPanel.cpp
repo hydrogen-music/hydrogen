@@ -56,9 +56,6 @@ using namespace H2Core;
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  {
-	m_nInitialWidth = 600;
-	m_nInitialHeight = 250;
-	
 	Preferences *pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -72,7 +69,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
 	pBackPanel->setObjectName( "SongEditorBackPanel" );
-	pBackPanel->setFixedSize( 196, 49 );
+	pBackPanel->setFixedSize( 196, m_nMinimumHeight );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// time line toggle button
@@ -319,7 +316,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// POSITION RULER
 	m_pWidgetStack = new QStackedWidget( nullptr );
-	m_pWidgetStack->setFixedHeight( 50 );
+	m_pWidgetStack->setFixedHeight( m_nMinimumHeight );
 	
 	m_pPositionRulerScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
@@ -329,7 +326,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRuler->setObjectName( "SongEditorPositionRuler" );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
-	m_pPositionRulerScrollView->setFixedHeight( 50 );
+	m_pPositionRulerScrollView->setFixedHeight( m_nMinimumHeight );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPositionRuler, &SongEditorPositionRuler::onPreferencesChanged );
 
@@ -346,11 +343,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
 	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
-	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , 50);
+	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , m_nMinimumHeight);
 	m_pPlaybackTrackWaveDisplay->setAcceptDrops( true );
 	
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
-	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
+	m_pPlaybackTrackScrollView->setFixedHeight( m_nMinimumHeight );
 	
 	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
@@ -359,7 +356,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
 	m_pAutomationPathView->setObjectName( "SongEditorAutomationPathView" );
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
-	m_pAutomationPathScrollView->setFixedHeight( 64 );
+	m_pAutomationPathScrollView->setFixedHeight(
+		AutomationPathView::m_nMinimumHeight );
 	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );

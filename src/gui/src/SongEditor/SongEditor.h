@@ -104,6 +104,9 @@ class SongEditor : public QWidget
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
 	static constexpr int nMargin = 10;
+		/** Default value of Preferences::m_nSongEditorGridHeight * 5
+		 * (patterns)*/
+		static constexpr int m_nMinimumHeight = 90;
 
 	public slots:
 
@@ -314,7 +317,7 @@ class SongEditorPatternList :  public QWidget
 		H2Core::AudioEngine* 	m_pAudioEngine;
 		uint 				m_nGridHeight;
 		uint 				m_nWidth;
-		static const uint 	m_nInitialHeight = 10;
+		static constexpr uint 	m_nInitialHeight = 10;
 		int m_nRowClicked;
 
 		QPixmap *			m_pBackgroundPixmap;
@@ -384,6 +387,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	virtual void jackTimebaseStateChangedEvent() override;
 
 	static int tickToColumn( float fTick, uint nGridWidth );
+		static constexpr int m_nMinimumHeight = 50;
 
 	public slots:
 		void updatePosition();
@@ -398,7 +402,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
-		static constexpr uint	m_nHeight = 50;
 
 	int m_nActiveBpmWidgetColumn;
 	int m_nHoveredColumn;
