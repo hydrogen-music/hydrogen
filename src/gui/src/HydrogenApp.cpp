@@ -56,6 +56,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
 
+#include "Widgets/AutomationPathView.h"
 #include "Widgets/InfoBar.h"
 
 #include <QtGui>
@@ -302,8 +303,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// PLayer control
 	m_pPlayerControl = new PlayerControl( nullptr );
 
-
-	QWidget *mainArea = new QWidget();	// this is the main widget
+	QWidget *mainArea = new QWidget( m_pMainForm );	// this is the main widget
 	m_pMainForm->setCentralWidget( mainArea );
 
 	// LAYOUT!!
@@ -318,18 +318,24 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMainVBox->addWidget( m_pSplitter );
 	} else {
 		m_pMainVBox->addWidget( m_pTab );
-
 	}
 
 	mainArea->setLayout( m_pMainVBox );
 
 	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-	mainArea->setMinimumSize( QSize( 1000, 500 ) );
+	mainArea->setMinimumSize( 1000,
+							  140 + // menu bar, margins etc.
+							  PlayerControl::m_nMinimumHeight +
+							  SongEditorPanel::m_nMinimumHeight +
+							  InstrumentRack::m_nMinimumHeight +
+							  SongEditorPositionRuler::m_nMinimumHeight +
+							  SongEditor::m_nMinimumHeight +
+							  AutomationPathView::m_nMinimumHeight );
 
-								m_pMainScrollArea->setMinimumSize( QSize( 100, 50 ) );
-	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pMainScrollArea->setWidget( mainArea );
+	m_pMainScrollArea->setWidgetResizable( true );
 
 	m_pMainForm->setCentralWidget( m_pMainScrollArea );
 
