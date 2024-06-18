@@ -60,7 +60,7 @@ void* loggerThread_func( void* param ) {
 	QTextStream stdoutStream( stdout );
 	QTextStream stderrStream( stderr );
 
-	bool bUseLogFile = pLogger->__use_file;
+	bool bUseLogFile = true;
 	QFile logFile( pLogger->m_sLogFilePath );
 	QTextStream logFileStream = QTextStream();
 	if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
