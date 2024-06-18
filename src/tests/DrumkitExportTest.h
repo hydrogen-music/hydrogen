@@ -33,17 +33,20 @@ class DrumkitExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( DrumkitExportTest );
 #ifdef H2CORE_HAVE_LIBARCHIVE
 	CPPUNIT_TEST( testDrumkitExportAndImport );
+	CPPUNIT_TEST( testDrumkitExportAndImportUtf8 );
 #endif
 	CPPUNIT_TEST_SUITE_END();
 
 	private:
 		QString m_sTestKitName;
+		QString m_sTestKitNameUtf8;
 
 	public:
 	virtual void setUp();
 	virtual void tearDown();
 	
 	void testDrumkitExportAndImport();
+	void testDrumkitExportAndImportUtf8();
 };
 
 #endif
