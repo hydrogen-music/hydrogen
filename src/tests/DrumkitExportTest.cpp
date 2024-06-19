@@ -146,22 +146,22 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	// This is not supposed to work yet. There is an issue with libarchive UTF8
 	// support that needs to be addressed upstream first. But if for some reason
 	// it miraculously starts to work, we want the test to inform us .
-	CPPUNIT_ASSERT( ! pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
-	// const QString sExportPath = QString( "%1%2%3" )
-	// 	.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameUtf8 )
-	// 	.arg( Filesystem::drumkit_ext );
-	// QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
-	// exportValidation.setAutoRemove( false );
-	// CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
-	// 					sExportPath, exportValidation.path() ) );
+	const QString sExportPath = QString( "%1%2%3" )
+		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameUtf8 )
+		.arg( Filesystem::drumkit_ext );
+	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+	exportValidation.setAutoRemove( false );
+	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
+						sExportPath, exportValidation.path() ) );
 
-	// H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
 
-	// // Cleanup
-	// H2Core::Filesystem::rm( exportValidation.path(), true, true );
+	// Cleanup
+	H2Core::Filesystem::rm( exportValidation.path(), true, true );
 
 	___INFOLOG( "passed" );
 }
