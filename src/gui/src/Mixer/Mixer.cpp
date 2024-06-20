@@ -64,7 +64,6 @@ Mixer::Mixer( QWidget* pParent )
 
 	m_pFaderPanel = new QWidget( nullptr );
 	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, height() );
-
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
 	m_pFaderScrollArea = new QScrollArea( nullptr );
@@ -154,7 +153,20 @@ Mixer::Mixer( QWidget* pParent )
 	pLayout->addWidget( m_pFaderScrollArea );
 	pLayout->addWidget( m_pFXFrame );
 	pLayout->addWidget( m_pMasterLine );
-	this->setLayout( pLayout );
+
+	QWidget* pMainWidget = new QWidget();
+	pMainWidget->setLayout( pLayout );
+
+	auto pMainScrollArea = new QScrollArea();
+	pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	pMainScrollArea->setWidget( pMainWidget );
+
+	auto pMainLayout = new QHBoxLayout();
+	pMainLayout->setSpacing( 0 );
+	pMainLayout->setMargin( 0 );
+	pMainLayout->addWidget( pMainScrollArea );
+	setLayout( pMainLayout );
 
 
 	m_pUpdateTimer = new QTimer( this );
