@@ -50,7 +50,13 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
  : QDialog( pParent )
 {
 	setupUi( this );
-	
+
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
+
 	setWindowTitle( tr( "Sound Library import" ) );
 
 	QStringList headers;
@@ -68,9 +74,6 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 
 
 	updateRepositoryCombo();
-
-	adjustSize();
-	setFixedSize( width(), height() );
 }
 
 
