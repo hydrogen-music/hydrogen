@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>919</height>
+    <width>757</width>
+    <height>925</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,6 +19,42 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
+  <layout class="QVBoxLayout" name="overallLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaContent">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>752</width>
+        <height>923</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>752</width>
+        <height>919</height>
+       </size>
+      </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetDefaultConstraint</enum>
@@ -444,6 +480,10 @@
       </widget>
      </item>
     </layout>
+    </item>
+    </layout>
+    </widget>
+    </widget>
    </item>
   </layout>
  </widget>
