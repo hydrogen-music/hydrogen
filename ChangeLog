@@ -100,6 +100,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix segfault when using MIDI sense button in table of Preferences > MIDI
 			after removing rows above it from the table.
 		- Fix synchronization problems while using JACK Timebase support (#1953).
+		- Fix compilation error on macOS with case-sensitive filesystem (#1938).
 	* Removed
 		- Dropped `JACK` support in provided Windows 32 binaries (as the upstream
 			jack2 MSYS package was dropped)
