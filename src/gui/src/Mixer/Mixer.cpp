@@ -44,22 +44,19 @@ using namespace H2Core;
 
 #include <cassert>
 
-#define MIXER_STRIP_WIDTH	56
-#define MASTERMIXER_STRIP_WIDTH	126
-
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 {
 	setWindowTitle( tr( "Mixer" ) );
 
-	const int nMinimumFaderPanelWidth = MIXER_STRIP_WIDTH * 4;
+	const int nMinimumFaderPanelWidth = MixerLine::nWidth * 4;
 	const int nFXFrameWidth = 213;
-	const int nMasterMixerLineWidth = 126;
+	const int nFixedHeight = MasterMixerLine::nHeight;
 
 	setMinimumSize( nMinimumFaderPanelWidth +
-					nFXFrameWidth + nMasterMixerLineWidth +
+					nFXFrameWidth + MasterMixerLine::nWidth +
 					8, // Small margin for scrollbar
-					288 );
+					nFixedHeight + 6 );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -67,10 +64,10 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderHBox->setMargin( 0 );
 
 	m_pFaderPanel = new QWidget( nullptr );
-	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, 284 );
+	m_pFaderPanel->resize( MixerLine::nWidth * MAX_INSTRUMENTS, nFixedHeight );
 	m_pFaderPanel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	m_pFaderPanel->setMinimumSize( nMinimumFaderPanelWidth, 284 );
-	m_pFaderPanel->setMaximumSize( 16777215, 284 );
+	m_pFaderPanel->setMinimumSize( nMinimumFaderPanelWidth, nFixedHeight );
+	m_pFaderPanel->setMaximumSize( 16777215, nFixedHeight );
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
 	m_pFaderScrollArea = new QScrollArea( nullptr );
@@ -92,7 +89,7 @@ Mixer::Mixer( QWidget* pParent )
 #endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setObjectName( "MixerFXRack" );
-	m_pFXFrame->setFixedSize( nFXFrameWidth, height() );
+	m_pFXFrame->setFixedSize( nFXFrameWidth, nFixedHeight );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
@@ -163,8 +160,8 @@ Mixer::Mixer( QWidget* pParent )
 	pMainWidget->setLayout( pLayout );
 	pMainWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	pMainWidget->setMinimumSize( nMinimumFaderPanelWidth +
-								 nFXFrameWidth + nMasterMixerLineWidth, 284 );
-	pMainWidget->setMaximumSize( 16777215, 284 );
+								 nFXFrameWidth + MasterMixerLine::nWidth, nFixedHeight );
+	pMainWidget->setMaximumSize( 16777215, nFixedHeight );
 
 	auto pMainScrollArea = new QScrollArea();
 	pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
@@ -457,7 +454,7 @@ void Mixer::updateMixer()
 				delete m_pMixerLine[ nInstr ];
 				m_pMixerLine[ nInstr ] = nullptr;
 
-				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+				int newWidth = MixerLine::nWidth * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -470,7 +467,7 @@ void Mixer::updateMixer()
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
 				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
 
-				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+				int newWidth = MixerLine::nWidth * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -556,7 +553,7 @@ void Mixer::updateMixer()
 			m_pComponentMixerLine[ pDrumkitComponent->get_id() ] = createComponentMixerLine( pDrumkitComponent->get_id() );
 			m_pFaderHBox->addWidget( m_pComponentMixerLine[ pDrumkitComponent->get_id() ] );
 
-			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+			int newWidth = MixerLine::nWidth * ( nInstruments + nCompo );
 			if ( m_pFaderPanel->width() != newWidth ) {
 				m_pFaderPanel->resize( newWidth, height() );
 			}
@@ -631,7 +628,7 @@ void Mixer::updateMixer()
 			delete m_pComponentMixerLine[nCompoID];
 			m_pComponentMixerLine.erase( nCompoID );
 
-			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+			int newWidth = MixerLine::nWidth * ( nInstruments + nCompo );
 			if ( m_pFaderPanel->width() != newWidth ) {
 				m_pFaderPanel->resize( newWidth, height() );
 			}
