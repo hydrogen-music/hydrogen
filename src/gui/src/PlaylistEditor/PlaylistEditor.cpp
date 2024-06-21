@@ -67,6 +67,12 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// not working within table widgets, which spans most parts).
 	setFocusPolicy( Qt::StrongFocus );
 
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
+
 	const QString sWindowTitleBase = tr( "Playlist Browser" );
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
