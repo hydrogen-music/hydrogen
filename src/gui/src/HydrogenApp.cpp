@@ -324,7 +324,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 	mainArea->setMinimumSize( 1000,
-							  140 + // menu bar, margins etc.
+							  180 + // menu bar, margins etc.
 							  PlayerControl::m_nMinimumHeight +
 							  SongEditorPanel::m_nMinimumHeight +
 							  InstrumentRack::m_nMinimumHeight +
