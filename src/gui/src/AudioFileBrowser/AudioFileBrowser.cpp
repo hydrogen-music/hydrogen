@@ -48,10 +48,14 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 		, m_sFilename( sFilename )
 {
 	setupUi ( this );
+
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 	
 	setWindowTitle ( tr ( "Audio File Browser" ) );
-	adjustSize();
-	setFixedSize ( width(), height() );
 
 	if ( sDefaultPath.isEmpty() ) {
 		sDefaultPath = QDir::homePath();
@@ -73,9 +77,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_pStopBtn->setEnabled( false );
 	openBTN->setEnabled( false );
 
-	m_pTree = new QTreeView( treeView );
 	m_pTree->setModel( m_pDirModel );
-	m_pTree->resize( 799, 310 );
 	m_pTree->header()->resizeSection( 0, 405 );
 	m_pTree->setAlternatingRowColors( true );
 	m_pTree->setRootIndex( m_pDirModel->index( sDefaultPath ) );
