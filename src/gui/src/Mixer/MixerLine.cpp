@@ -44,22 +44,12 @@ using namespace H2Core;
 
 #include "MixerLine.h"
 
-#define MIXERLINE_WIDTH			56
-#define MIXERLINE_HEIGHT		254
-#define MASTERMIXERLINE_WIDTH	126
-#define MASTERMIXERLINE_HEIGHT	284
-#define MIXERLINE_LABEL_H		115
-#define MASTERMIXERLINE_FADER_H	75
-
 using namespace H2Core;
 
 MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent )
 {
-//	
 
-	m_nWidth = MIXERLINE_WIDTH;
-	m_nHeight = MIXERLINE_HEIGHT;
 	m_fMaxPeak = 0.0;
 	m_nActivity = 0;
 	m_bIsSelected = false;
@@ -67,8 +57,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	std::shared_ptr<Action> pAction;
 
-	resize( m_nWidth, m_nHeight );
-	setFixedSize( m_nWidth, m_nHeight );
+	resize( nWidth, nHeight );
+	setFixedSize( nWidth, nHeight );
 
 	setPixmap( "/mixerPanel/mixerline_background.png" );
 
@@ -400,15 +390,13 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 
 	m_nComponentID = CompoID;
 
-	m_nWidth = MIXERLINE_WIDTH;
-	m_nHeight = MIXERLINE_HEIGHT;
 	m_fMaxPeak = 0.0;
 	m_nActivity = 0;
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
 
-	resize( m_nWidth, m_nHeight );
-	setFixedSize( m_nWidth, m_nHeight );
+	resize( nWidth, nHeight );
+	setFixedSize( nWidth, nHeight );
 
 	setPixmap( "/mixerPanel/componentmixerline_background.png" );
 
@@ -598,14 +586,12 @@ float ComponentMixerLine::getPeak_R() {
 MasterMixerLine::MasterMixerLine(QWidget* parent)
  : PixmapWidget( parent )
 {
-	m_nWidth = MASTERMIXERLINE_WIDTH;
-	m_nHeight = MASTERMIXERLINE_HEIGHT;
 	m_fMaxPeak = 0.0f;
 	m_nPeakTimer = 0;
 
-	setMinimumSize( m_nWidth, m_nHeight );
-	setMaximumSize( m_nWidth, m_nHeight );
-	resize( m_nWidth, m_nHeight );
+	setMinimumSize( nWidth, nHeight );
+	setMaximumSize( nWidth, nHeight );
+	resize( nWidth, nHeight );
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
@@ -620,7 +606,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_nFalloff = (int)fFalloffTemp;
 
 	m_pMasterFader = new Fader( this, Fader::Type::Master, tr( "Master volume" ), false, false, 0.0, 1.5 );
-	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
+	m_pMasterFader->move( 24, 75 );
 	connect( m_pMasterFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
