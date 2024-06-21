@@ -62,7 +62,12 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 {
 
 	setupUi ( this );
-	
+
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	auto pPref = H2Core::Preferences::get_instance();
 	

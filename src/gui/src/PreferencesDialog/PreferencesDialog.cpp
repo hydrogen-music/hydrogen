@@ -146,8 +146,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( tr( "Preferences" ) );
-
-	setMinimumSize( width(), height() );
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
