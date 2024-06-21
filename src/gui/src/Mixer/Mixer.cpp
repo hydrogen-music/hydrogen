@@ -51,9 +51,9 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 {
 	setWindowTitle( tr( "Mixer" ) );
-	setMaximumHeight( 284 );
-	setMinimumHeight( 284 );
-	setFixedHeight( 284 );
+	setMaximumHeight( 288 );
+	setMinimumHeight( 288 );
+	setFixedHeight( 288 );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -154,6 +154,9 @@ Mixer::Mixer( QWidget* pParent )
 
 	QWidget* pMainWidget = new QWidget();
 	pMainWidget->setLayout( pLayout );
+	pMainWidget->setMaximumHeight( 284 );
+	pMainWidget->setMinimumHeight( 284 );
+	pMainWidget->setFixedHeight( 284 );
 
 	auto pMainScrollArea = new QScrollArea();
 	pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
