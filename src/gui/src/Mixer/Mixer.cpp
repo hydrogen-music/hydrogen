@@ -51,9 +51,15 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 {
 	setWindowTitle( tr( "Mixer" ) );
-	setMaximumHeight( 288 );
-	setMinimumHeight( 288 );
-	setFixedHeight( 288 );
+
+	const int nMinimumFaderPanelWidth = MIXER_STRIP_WIDTH * 4;
+	const int nFXFrameWidth = 213;
+	const int nMasterMixerLineWidth = 126;
+
+	setMinimumSize( nMinimumFaderPanelWidth +
+					nFXFrameWidth + nMasterMixerLineWidth +
+					8, // Small margin for scrollbar
+					288 );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -61,14 +67,16 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderHBox->setMargin( 0 );
 
 	m_pFaderPanel = new QWidget( nullptr );
-	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, height() );
+	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, 284 );
+	m_pFaderPanel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	m_pFaderPanel->setMinimumSize( nMinimumFaderPanelWidth, 284 );
+	m_pFaderPanel->setMaximumSize( 16777215, 284 );
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
 	m_pFaderScrollArea = new QScrollArea( nullptr );
 	m_pFaderScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pFaderScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pFaderScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-	m_pFaderScrollArea->setMinimumWidth( MIXER_STRIP_WIDTH * 4 );
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
 
 	for ( uint i = 0; i < MAX_INSTRUMENTS; ++i ) {
@@ -84,7 +92,7 @@ Mixer::Mixer( QWidget* pParent )
 #endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setObjectName( "MixerFXRack" );
-	m_pFXFrame->setFixedSize( 213, height() );
+	m_pFXFrame->setFixedSize( nFXFrameWidth, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
@@ -115,7 +123,6 @@ Mixer::Mixer( QWidget* pParent )
 // Master frame
 	m_pMasterLine = new MasterMixerLine( nullptr );
 	m_pMasterLine->setObjectName( "MasterMixerLine" );
-	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
 	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "", false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
@@ -154,14 +161,16 @@ Mixer::Mixer( QWidget* pParent )
 
 	QWidget* pMainWidget = new QWidget();
 	pMainWidget->setLayout( pLayout );
-	pMainWidget->setMaximumHeight( 284 );
-	pMainWidget->setMinimumHeight( 284 );
-	pMainWidget->setFixedHeight( 284 );
+	pMainWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	pMainWidget->setMinimumSize( nMinimumFaderPanelWidth +
+								 nFXFrameWidth + nMasterMixerLineWidth, 284 );
+	pMainWidget->setMaximumSize( 16777215, 284 );
 
 	auto pMainScrollArea = new QScrollArea();
 	pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	pMainScrollArea->setWidget( pMainWidget );
+	pMainScrollArea->setWidgetResizable( true );
 
 	auto pMainLayout = new QHBoxLayout();
 	pMainLayout->setSpacing( 0 );
