@@ -93,7 +93,7 @@
           <attribute name="title">
            <string>A&amp;bout</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="horizontalLayout_tab1">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -137,7 +137,7 @@
           <attribute name="title">
            <string>&amp;Authors</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="horizontalLayout_tab2">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -173,7 +173,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <attribute name="title">
            <string>&amp;License</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="horizontalLayout_tab3">
            <property name="spacing">
             <number>0</number>
            </property>
