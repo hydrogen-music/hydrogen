@@ -45,8 +45,8 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>921</width>
-        <height>703</height>
+        <width>403</width>
+        <height>353</height>
        </size>
       </property>
       <layout class="QVBoxLayout" name="scrollAreaLayout">
