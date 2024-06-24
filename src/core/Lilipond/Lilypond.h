@@ -24,10 +24,12 @@
 #define LILYPOND_H
 
 #include <QString>
+#include <QTextStream>
 
-#include <fstream>
 #include <utility>
 #include <vector>
+
+#include <core/Object.h>
 
 namespace H2Core {
 
@@ -37,7 +39,8 @@ class Song;
 
 /// A class to convert a Hydrogen song to LilyPond format
 /** \ingroup docCore*/
-class LilyPond {
+class LilyPond : public H2Core::Object<LilyPond>{
+	H2_OBJECT(LilyPond)
 public:
 	LilyPond();
 
@@ -78,13 +81,13 @@ private:
 	static void addPattern( const Pattern &pattern, notes_t &notes );
 
 	/// Write measures in LilyPond format to stream
-	void writeMeasures( std::ofstream &stream ) const;
+	void writeMeasures( QTextStream &stream ) const;
 
 	/// Write upper voice of given measure to stream
-	void writeUpper( std::ofstream &stream, unsigned nMeasure ) const;
+	void writeUpper( QTextStream &stream, unsigned nMeasure ) const;
 
 	/// Write lower voice of given measure to stream
-	void writeLower( std::ofstream &stream, unsigned nMeasure ) const;
+	void writeLower( QTextStream &stream, unsigned nMeasure ) const;
 
 	/*
 	 * Write voice of given measure to stream, ignore certain notes
@@ -92,7 +95,7 @@ private:
 	 * @param nMeasure  the measure to write
 	 * @param whiteList the list of notes to consider, the other are ignored
 	 */
-	void writeVoice( std::ofstream &stream,
+	void writeVoice( QTextStream &stream,
 	                 unsigned nMeasure,
 	                 const std::vector<int> &whiteList ) const;
 

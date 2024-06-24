@@ -20,48 +20,35 @@
  *
  */
 
-#ifndef TEST_HELPER_H
-#define TEST_HELPER_H
+#ifndef DRUMKIT_EXPORT_TEST_H
+#define DRUMKIT_EXPORT_TEST_H
 
 #include <QString>
-#include <cassert>
+#include <cppunit/extensions/HelperMacros.h>
 
-class TestHelper {
-	static TestHelper*	m_pInstance;
-	QString m_sDataDir;
-	QString m_sTestDataDir;
-	
+class DrumkitExportTest : public CppUnit::TestCase {
+
+// Otherwise either export won't work or a command line zip is used, which is
+// bound to produce slightly different results.
+	CPPUNIT_TEST_SUITE( DrumkitExportTest );
+#ifdef H2CORE_HAVE_LIBARCHIVE
+		CPPUNIT_TEST( testDrumkitExportAndImport );
+		// Do not activate unless proper UTF-8 support is introduced via
+		// `libarchive`.
+		// CPPUNIT_TEST( testDrumkitExportAndImportUtf8 );
+#endif
+	CPPUNIT_TEST_SUITE_END();
+
+	private:
+		QString m_sTestKitName;
+		QString m_sTestKitNameUtf8;
+
 	public:
-		TestHelper();
+	virtual void setUp();
+	virtual void tearDown();
 	
-		QString getDataDir() const;
-		QString getTestDataDir() const;
-		QString getTestFile(const QString& file) const;
-
-	static void			createInstance();
-	static TestHelper*	get_instance();
+	void testDrumkitExportAndImport();
+	void testDrumkitExportAndImportUtf8();
 };
-
-inline TestHelper*	TestHelper::get_instance() 
-{ 
-	assert(m_pInstance); return m_pInstance; 
-}
-
-inline QString TestHelper::getDataDir() const 
-{ 
-	return m_sDataDir; 
-}
-
-inline QString TestHelper::getTestDataDir() const 
-{ 
-	return m_sTestDataDir;
-}
-
-inline QString TestHelper::getTestFile(const QString& file) const
-{
-	return m_sTestDataDir + file; 
-}
-
-#define H2TEST_FILE(name) TestHelper::get_instance()->getTestFile(name)
 
 #endif

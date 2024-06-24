@@ -20,18 +20,21 @@
  *
  */
 
+#include <QFile>
+#include <QDataStream>
+
 #include <core/Basics/Drumkit.h>
 #include <core/config.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
 #else
-#ifndef WIN32
+  #ifndef WIN32
 #include <fcntl.h>
 #include <errno.h>
 #include <zlib.h>
 #include <libtar.h>
-#endif
+  #endif
 #endif
 
 #include <core/Basics/Sample.h>
@@ -562,11 +565,12 @@ bool Drumkit::remove( const QString& sDrumkitDir )
 	return true;
 }
 	
-bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
+bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
+					   bool bSilent )
 {
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
-			_INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
+			INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
 		}
 		
 	} else {
@@ -575,88 +579,136 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 		}
 		
 		if ( ! bSilent ) {		
-			_INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
+			INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
 					  .arg( sSourcePath ).arg( sTargetPath ) );
 		}
 	}
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
-	int r;
-	struct archive* arch;
+	int nRet;
+	struct archive* a;
 	struct archive_entry* entry;
 
-	arch = archive_read_new();
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Importing using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
 
-#if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_support_compression_all( arch );
-#else
-	archive_read_support_filter_all( arch );
-#endif
-
-	archive_read_support_format_all( arch );
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-	if ( archive_read_open_file( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#else
-	if ( archive_read_open_filename( arch, sSourcePath.toLocal8Bit(), 10240 ) ) {
-#endif
-		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" )
-				   .arg( archive_errno( arch ) )
-				   .arg( archive_error_string( arch ) ) );
-		archive_read_close( arch );
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_read_finish( arch );
-#else
-		archive_read_free( arch );
-#endif
-
+	a = archive_read_new();
+	if ( a == nullptr ) {
+		ERRORLOG( "Unable to create new archive" );
 		return false;
 	}
-	bool ret = true;
-
-	QString dk_dir;
-	if ( ! sTargetPath.isEmpty() ) {
-		dk_dir = sTargetPath + "/";
-	} else {
-		dk_dir = Filesystem::usr_drumkits_dir() + "/";
-	}
-		
-	while ( ( r = archive_read_next_header( arch, &entry ) ) != ARCHIVE_EOF ) {
-		if ( r != ARCHIVE_OK ) {
-			_ERRORLOG( QString( "archive_read_next_header() [%1] %2" )
-					   .arg( archive_errno( arch ) )
-					   .arg( archive_error_string( arch ) ) );
-			ret = false;
-			break;
-		}
-		QString np = dk_dir + archive_entry_pathname( entry );
-
-		QByteArray newpath = np.toLocal8Bit();
-
-		archive_entry_set_pathname( entry, newpath.data() );
-		r = archive_read_extract( arch, entry, 0 );
-		if ( r == ARCHIVE_WARN ) {
-			_WARNINGLOG( QString( "archive_read_extract() [%1] %2" )
-						 .arg( archive_errno( arch ) )
-						 .arg( archive_error_string( arch ) ) );
-		} else if ( r != ARCHIVE_OK ) {
-			_ERRORLOG( QString( "archive_read_extract() [%1] %2" )
-					   .arg( archive_errno( arch ) )
-					   .arg( archive_error_string( arch ) ) );
-			ret = false;
-			break;
-		}
-	}
-	archive_read_close( arch );
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_finish( arch );
+	archive_read_support_compression_all( a );
 #else
-	archive_read_free( arch );
+	nRet = archive_read_support_filter_all( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't add support for all filters: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
 #endif
 
-	return ret;
+	nRet = archive_read_support_format_all( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't add support for all formats: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
+
+	// Shutdown version used on error. Therefore, contained commands are not
+	// checked for errors themselves.
+	auto tearDown = [&]() {
+		archive_read_close( a );
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_read_finish( a );
+#else
+		archive_read_free( a );
+#endif
+	};
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	nRet = archive_read_open_file( a, sSourcePath.toUtf8().constData(), 10240 );
+#else
+  #ifdef WIN32
+	QString sSourcePathPadded = sSourcePath;
+	sSourcePathPadded.append( '\0' );
+	auto sourcePathW = sSourcePathPadded.toStdWString();
+	nRet = archive_read_open_filename_w( a, sourcePathW.c_str(), 10240 );
+  #else
+	nRet = archive_read_open_filename( a, sSourcePath.toUtf8().constData(),
+									   10240 );
+  #endif
+#endif
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString( "Unable to open archive [%1] for reading: %2" )
+				   .arg( sSourcePath )
+				   .arg( archive_error_string( a ) ) );
+		tearDown();
+		return false;
+	}
+
+	QString sDrumkitDir;
+	if ( ! sTargetPath.isEmpty() ) {
+		sDrumkitDir = sTargetPath + "/";
+	} else {
+		sDrumkitDir = Filesystem::usr_drumkits_dir() + "/";
+	}
+		
+	while ( ( nRet = archive_read_next_header( a, &entry ) ) != ARCHIVE_EOF ) {
+		if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString( "Unable to read next archive header: %1" )
+					   .arg( archive_error_string( a ) ) );
+			tearDown();
+			return false;
+		}
+		if ( entry == nullptr ) {
+			ERRORLOG( "Couldn't read in next archive entry" );
+			return false;
+		}
+
+		QString sNewPath = QString::fromUtf8( archive_entry_pathname_utf8( entry ) );
+		if ( sNewPath.isEmpty() ) {
+			sNewPath = QString( archive_entry_pathname( entry ) );
+		}
+		sNewPath.prepend( sDrumkitDir );
+
+		QByteArray newpath = sNewPath.toUtf8();
+
+		archive_entry_set_pathname( entry, newpath.data() );
+		nRet = archive_read_extract( a, entry, 0 );
+		if ( nRet == ARCHIVE_WARN ) {
+			WARNINGLOG( QString( "While extracting content of [%1] from archive: %2" )
+						 .arg( sNewPath )
+						 .arg( archive_error_string( a ) ) );
+		}
+		else if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString( "Unable to extract content of [%1] from archive: %2" )
+					   .arg( sNewPath )
+					   .arg( archive_error_string( a ) ) );
+			tearDown();
+			return false;
+		}
+	}
+	nRet = archive_read_close( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't close archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+		return false;
+	}
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_finish( a );
+#else
+	nRet = archive_read_free( a );
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't free memory associated with archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
+#endif
+
+	return true;
 #else // H2CORE_HAVE_LIBARCHIVE
 #ifndef WIN32
 	// GUNZIP
@@ -881,27 +933,59 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Exporting using `libarchive` version [%1]" )
+				 .arg( ARCHIVE_VERSION_STRING ) );
+	}
+
 	struct archive *a;
 	struct archive_entry *entry;
 	struct stat st;
-	char buff[8192];
-	int len;
-	FILE *f;
+	const int nBufferSize = 8192;
+	char buff[ nBufferSize ];
+	int nBytesRead, nRet;
 
 	a = archive_write_new();
+	if ( a == nullptr ) {
+		ERRORLOG( "Unable to create new archive" );
+		set_name( sOldDrumkitName );
+		return false;
+	}
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_write_set_compression_gzip(a);
-	#else
-		archive_write_add_filter_gzip(a);
-	#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_write_set_compression_gzip( a );
+#else
+	nRet = archive_write_add_filter_gzip( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't add GZIP filter: %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
+#endif
 
-	archive_write_set_format_pax_restricted(a);
-	
-	int ret = archive_write_open_filename(a, sTargetName.toUtf8().constData());
-	if ( ret != ARCHIVE_OK ) {
-		ERRORLOG( QString("Couldn't create archive [%0]" )
-			.arg( sTargetName ) );
+	nRet = archive_write_set_format_pax_restricted( a );
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't set archive format to 'pax restricted': %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
+
+
+#ifdef WIN32
+	QString sTargetNamePadded = QString( sTargetName );
+	sTargetNamePadded.append( '\0' );
+	const auto targetPath = sTargetNamePadded.toStdWString();
+	nRet = archive_write_open_filename_w( a, targetPath.c_str() );
+#else
+	const auto targetPath = sTargetName.toUtf8().constData();
+	nRet = archive_write_open_filename( a, targetPath );
+#endif
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't create archive [%1]: %2" )
+				  .arg( targetPath )
+				  .arg( archive_error_string( a ) ) );
 		set_name( sOldDrumkitName );
 		return false;
 	}
@@ -923,27 +1007,72 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
+		if ( entry == nullptr ) {
+			ERRORLOG( "Unable to create new archive entry" );
+			set_name( sOldDrumkitName );
+			return false;
+		}
+		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
+		// This leads to segfaults in some libarchive versions, like 3.7.2 and
+		// 3.6.2.
 		archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
-		archive_write_header(a, entry);
-		f = fopen( sFilename.toUtf8().constData(), "rb" );
-		len = fread(buff, sizeof(char), sizeof(buff), f);
-		while ( len > 0 ) {
-				archive_write_data(a, buff, len);
-				len = fread(buff, sizeof(char), sizeof(buff), f);
+		nRet = archive_write_header(a, entry);
+		if ( nRet != ARCHIVE_OK ) {
+			ERRORLOG( QString("Couldn't write entry for [%1] to archive header: %2" )
+					  .arg( sFilename )
+					  .arg( archive_error_string( a ) ) );
+			set_name( sOldDrumkitName );
+			return false;
 		}
-		fclose(f);
+
+		QFile file( sFilename );
+		if ( ! file.open( QIODevice::ReadOnly ) ) {
+			ERRORLOG( QString( "Unable to open file [%1] for reading" )
+				  .arg( sFilename ) );
+			archive_entry_free( entry );
+			continue;
+		}
+
+		QDataStream stream( &file );
+		nBytesRead = stream.readRawData( buff, nBufferSize );
+		while ( nBytesRead > 0 ) {
+			nRet = archive_write_data( a, buff, nBytesRead );
+			if ( nRet < 0 ) {
+				ERRORLOG( QString( "Error while writing data to entry of [%1]: %2" )
+						  .arg( sFilename ).arg( archive_error_string( a ) ) );
+				break;
+			}
+			else if ( nRet != nBytesRead ) {
+				WARNINGLOG( QString( "Only [%1/%2] bytes written to archive entry of [%3]" )
+							.arg( nRet ).arg( nBytesRead ).arg( sFilename ) );
+			}
+
+			nBytesRead = stream.readRawData( buff, nBufferSize );
+		}
+		file.close();
 		archive_entry_free(entry);
 	}
-	archive_write_close(a);
+	nRet = archive_write_close(a);
+	if ( nRet != ARCHIVE_OK ) {
+		ERRORLOG( QString("Couldn't close archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+		set_name( sOldDrumkitName );
+		return false;
+	}
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_write_finish(a);
-	#else
-		archive_write_free(a);
-	#endif
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_write_finish(a);
+#else
+	nRet = archive_write_free(a);
+	if ( nRet != ARCHIVE_OK ) {
+		WARNINGLOG( QString("Couldn't free memory associated with archive: %1" )
+				  .arg( archive_error_string( a ) ) );
+	}
+#endif
 
 	sourceFilesList.clear();
 

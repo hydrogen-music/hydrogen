@@ -120,8 +120,8 @@ public slots:
 	 * this function serves both the "save as" functionality (with
 	 * sNewFilename being non-empty) and the "save" one.
 	 */
-		void action_file_save( const QString& sNewFilename );
-	void action_file_save();
+		bool action_file_save( const QString& sNewFilename );
+	bool action_file_save();
 		
 		/**
 		 * Project > Save As / Export from Session handling function.
@@ -134,7 +134,7 @@ public slots:
 		 * name provided by the NSM server must be used or the restart
 		 * of the session fails.
 		 */
-		void action_file_save_as();
+		bool action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as( int nPatternRow = -1 );
 		bool action_file_exit();

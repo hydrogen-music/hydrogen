@@ -423,6 +423,11 @@ CommonStrings::CommonStrings(){
 	/*: Suffix appended to a drumkit that are loaded non-persistently
 	 *  into the current Hydrogen session. */
 	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Displayed in a warning message in case the user tries to read
+	 * or write data to a file/path Hydrogen can not handle in the
+	 * current encoding.*/
+	m_sEncodingError = tr( "The provided filename can not be handled by your current encoding" );
 }
 
 CommonStrings::~CommonStrings(){
