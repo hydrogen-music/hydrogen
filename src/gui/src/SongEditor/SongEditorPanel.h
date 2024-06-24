@@ -83,6 +83,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
+
+		static constexpr int m_nMinimumHeight = 50;
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
@@ -146,9 +148,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		uint						m_nInitialWidth;
-		uint						m_nInitialHeight;
-									
 		static const int			m_nPatternListWidth = 200;
 									
 		QScrollArea*				m_pEditorScrollView;

@@ -56,6 +56,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
 
+#include "Widgets/AutomationPathView.h"
 #include "Widgets/InfoBar.h"
 
 #include <QtGui>
@@ -79,6 +80,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pDirector( nullptr )
  , m_nPreferencesUpdateTimeout( 100 )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
+ , m_pMainScrollArea( new QScrollArea )
 {
 	m_pInstance = this;
 
@@ -245,11 +247,11 @@ void HydrogenApp::setupSinglePanedInterface()
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
 	setWindowProperties( m_pMainForm, mainFormProp, SetDefault & ~SetVisible );
 
-	m_pSplitter = new QSplitter( nullptr );
+	m_pSplitter = new QSplitter( m_pMainScrollArea );
 	m_pSplitter->setOrientation( Qt::Vertical );
 	m_pSplitter->setOpaqueResize( true );
 
-	m_pTab = new QTabWidget( nullptr );
+	m_pTab = new QTabWidget( m_pMainScrollArea );
 	m_pTab->setObjectName( "TabbedInterface" );
 
 	// SONG EDITOR
@@ -301,7 +303,6 @@ void HydrogenApp::setupSinglePanedInterface()
 	// PLayer control
 	m_pPlayerControl = new PlayerControl( nullptr );
 
-
 	QWidget *mainArea = new QWidget( m_pMainForm );	// this is the main widget
 	m_pMainForm->setCentralWidget( mainArea );
 
@@ -317,13 +318,26 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMainVBox->addWidget( m_pSplitter );
 	} else {
 		m_pMainVBox->addWidget( m_pTab );
-
 	}
 
 	mainArea->setLayout( m_pMainVBox );
 
+	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+	mainArea->setMinimumSize( 1000,
+							  180 + // menu bar, margins etc.
+							  PlayerControl::m_nMinimumHeight +
+							  SongEditorPanel::m_nMinimumHeight +
+							  InstrumentRack::m_nMinimumHeight +
+							  SongEditorPositionRuler::m_nMinimumHeight +
+							  SongEditor::m_nMinimumHeight +
+							  AutomationPathView::m_nMinimumHeight );
 
+	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pMainScrollArea->setWidget( mainArea );
+	m_pMainScrollArea->setWidgetResizable( true );
 
+	m_pMainForm->setCentralWidget( m_pMainScrollArea );
 
 	// MIXER
 	m_pMixer = new Mixer(nullptr);

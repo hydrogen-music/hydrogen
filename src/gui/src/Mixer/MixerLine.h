@@ -122,6 +122,9 @@ public:
 
 	void	setSelected( bool bIsSelected );
 
+		static constexpr int nWidth = 56;
+		static constexpr int nHeight = 254;
+
 signals:
 	void	muteBtnClicked(MixerLine *ref);
 	void	soloBtnClicked(MixerLine *ref);
@@ -197,6 +200,9 @@ public:
 
 	int		getComponentID(){ return m_nComponentID; }
 
+		static constexpr int nWidth = 56;
+		static constexpr int nHeight = 254;
+
 signals:
 	void	muteBtnClicked(ComponentMixerLine *ref);
 	void	soloBtnClicked(ComponentMixerLine *ref);
@@ -247,6 +253,9 @@ public:
 
 	void	setPeak_R(float peak);
 	float	getPeak_R();
+
+		static constexpr int nWidth = 126;
+		static constexpr int nHeight = 284;
 
 
 signals:

@@ -56,7 +56,12 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 		, Object ()
 {
 	setupUi ( this );
-	
+
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));
@@ -112,9 +117,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	__rubberband.divider = 1.0;
 	openDisplays();
 	getAllFrameInfos();
-
-	adjustSize();
-	setFixedSize ( width(), height() );
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {

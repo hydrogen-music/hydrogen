@@ -47,12 +47,16 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, st
 	
 	setupUi( this );
 
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
+
 	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	setWindowTitle( tr( "SoundLibrary Properties" ) );
-	adjustSize();
-	setMinimumSize( width(), height() );
 
 	setupLicenseComboBox( licenseComboBox );
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),

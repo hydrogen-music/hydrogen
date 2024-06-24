@@ -81,7 +81,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
-	pControlsPanel->setFixedSize( 344, 43 );
+	pControlsPanel->setFixedSize( 344, m_nMinimumHeight );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
 	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
