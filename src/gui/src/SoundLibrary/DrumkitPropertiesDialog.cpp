@@ -29,7 +29,6 @@
 #include "../UndoActions.h"
 
 #include "DrumkitPropertiesDialog.h"
-#include "../InstrumentRack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
@@ -375,23 +374,10 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 	int nnCell = 0;
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 
-		const std::vector<DrumkitMap::Type> types =
-			map.getTypes( ppInstrument->get_id() );
+		const auto sType = map.getType( ppInstrument->get_id() );
 
-		if ( types.size() > 0 ) {
-			// Mapping for instrument found
-			for ( const auto& ssType : types ) {
-				insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
-						   ssType, nnCell );
-				++nnCell;
-			}
-		}
-		else {
-			// No mapping found for instrument
-			insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
-					   "", nnCell );
-			++nnCell;
-		}
+		insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
+				   sType, nnCell );
 	}
 
 	// In case there was some garbage data or duplicates in the mapping file, we
