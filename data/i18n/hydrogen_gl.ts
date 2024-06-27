@@ -1268,10 +1268,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Licenses</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1282,6 +1278,10 @@ Are you sure?</source>
     <message>
         <source>Cancel</source>
         <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>Types</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1667,6 +1667,10 @@ Sobrescribir o ficheiro existente?</translation>
     </message>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

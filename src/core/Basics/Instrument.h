@@ -28,6 +28,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 
@@ -303,6 +304,9 @@ class Instrument : public H2Core::Object<Instrument>
 	 * sample */
 	bool hasSamples() const;
 
+		DrumkitMap::Type getType() const;
+		void setType( DrumkitMap::Type type );
+
 		/** Maximum support pitch value */
 		static constexpr float fPitchMax = 24.5;
 		/** Minimum support pitch value */
@@ -378,6 +382,7 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
+		DrumkitMap::Type m_type;
 };
 
 // DEFINITIONS
@@ -723,6 +728,14 @@ inline bool Instrument::is_currently_exported() const
 inline void Instrument::set_currently_exported( bool isCurrentlyExported )
 {
 	__current_instr_for_export = isCurrentlyExported;
+}
+
+inline DrumkitMap::Type Instrument::getType() const {
+	return m_type;
+}
+
+inline void Instrument::setType( DrumkitMap::Type type ) {
+	m_type = type;
 }
 
 };

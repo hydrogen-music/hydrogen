@@ -20,6 +20,7 @@
  *
  */
 
+#include <set>
 #include <QtGui>
 #include <QtWidgets>
 
@@ -198,16 +199,16 @@ QTextEdit { \
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
 	imageBrowsePushButton->setType( Button::Type::Push );
 	
-	mappingTable->setColumnCount( 3 );
-	mappingTable->setHorizontalHeaderLabels(
+	typesTable->setColumnCount( 3 );
+	typesTable->setHorizontalHeaderLabels(
 		QStringList() <<
 		pCommonStrings->getInstrumentId() <<
 		pCommonStrings->getInstrumentButton() <<
 		pCommonStrings->getInstrumentType() );
-	mappingTable->setColumnWidth( 0, 55 );
-	mappingTable->setColumnWidth( 1, 220 );
-	mappingTable->verticalHeader()->hide();
-	mappingTable->horizontalHeader()->setStretchLastSection( true );
+	typesTable->setColumnWidth( 0, 55 );
+	typesTable->setColumnWidth( 1, 220 );
+	typesTable->verticalHeader()->hide();
+	typesTable->horizontalHeader()->setStretchLastSection( true );
 
 	licensesTable->setColumnCount( 4 );
 	licensesTable->setHorizontalHeaderLabels(
@@ -225,7 +226,7 @@ QTextEdit { \
 	licensesTable->setColumnWidth( 2, 210 );
 
 	updateLicensesTable();
-	updateMappingTable();
+	updateTypesTable();
 }
 
 
@@ -313,7 +314,7 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 	}
 }
 
-void DrumkitPropertiesDialog::updateMappingTable() {
+void DrumkitPropertiesDialog::updateTypesTable() {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
@@ -324,22 +325,15 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 		return;
 	}
 
-	const auto map = m_pDrumkit->getDrumkitMap();
 	const auto pInstrumentList = m_pDrumkit->getInstruments();
 
-	mappingTable->clearContents();
-	mappingTable->setRowCount( std::max( map.size(),
-										 pInstrumentList->size() ) );
+	typesTable->clearContents();
+	typesTable->setRowCount( pInstrumentList->size() );
 
 	QMenu* pTypesMenu = new QMenu( this );
 	for ( const auto& ssType : pDatabase->getAllTypes() ) {
 		pTypesMenu->addAction( ssType );
 	}
-
-	// Coloring of highlighted rows
-	const QString sHighlight = QString( "color: %1; background-color: %2" )
-		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
 
 	auto insertRow = [=]( int nInstrumentId,
 						  const QString& sTextName,
@@ -366,23 +360,17 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 		pInstrumentType->setEditable( true );
 		pInstrumentType->setCurrentText( sTextType );
 
-		mappingTable->setCellWidget( nCell, 0, pInstrumentId );
-		mappingTable->setCellWidget( nCell, 1, pInstrumentName );
-		mappingTable->setCellWidget( nCell, 2, pInstrumentType );
+		typesTable->setCellWidget( nCell, 0, pInstrumentId );
+		typesTable->setCellWidget( nCell, 1, pInstrumentName );
+		typesTable->setCellWidget( nCell, 2, pInstrumentType );
 	};
 
 	int nnCell = 0;
 	for ( const auto& ppInstrument : *pInstrumentList ) {
-
-		const auto sType = map.getType( ppInstrument->get_id() );
-
 		insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
-				   sType, nnCell );
+				   ppInstrument->getType(), nnCell );
+		nnCell++;
 	}
-
-	// In case there was some garbage data or duplicates in the mapping file, we
-	// ensure to only show the elements we just added.
-	mappingTable->setRowCount( nnCell );
 }
 
 void DrumkitPropertiesDialog::licenseComboBoxChanged( int ) {
@@ -538,6 +526,24 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		return;
 	}
 
+	// Types have to be unique.
+	std::set<QString> types;
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppItemType =
+			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppItemType != nullptr ) {
+			const auto [ _, bSuccess ] =
+				types.insert( ppItemType->currentText() );
+			if ( ! bSuccess ) {
+				QMessageBox::warning( this, "Hydrogen",
+									  tr( "Instrument types must be unique!" ) );
+				highlightDuplicates();
+				return;
+			}
+		}
+	}
+
+
 	QString sNewLicenseString( licenseStringTxt->text() );
 	if ( licenseComboBox->currentIndex() ==
 		 static_cast<int>(License::Unspecified) ) {
@@ -605,8 +611,37 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkit->setImageLicense( newImageLicense );
 	}
 	
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppItemId =
+			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 0 ));
+		auto ppItemName =
+			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 1 ));
+		auto ppItemType =
+			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
 
-	saveDrumkitMap();
+		if ( ppItemId != nullptr && ppItemType != nullptr ) {
+			const auto ppInstrument = m_pDrumkit->getInstruments()->
+				find( ppItemId->text().toInt() );
+
+			if ( ppInstrument != nullptr ) {
+				ppInstrument->setType( ppItemType->currentText() );
+			}
+			else {
+				if ( ppItemName != nullptr ) {
+					ERRORLOG( QString( "Unable to find instrument [%1] (name: [%2], type: [%3])" )
+							  .arg( ppItemId->text() )
+							  .arg( ppItemName->text() )
+							  .arg( ppItemType->currentText() ) );
+				} else {
+					ERRORLOG( QString( "Unable to find instrument [%1] (type: [%2])" )
+							  .arg( ppItemId->text() )
+							  .arg( ppItemType->currentText() ) );
+				}
+			}
+		} else {
+			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii  ) );
+		}
+	}
 
 	bool bOldImageDeleted = false;
 	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
@@ -726,21 +761,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 }
 
-void DrumkitPropertiesDialog::saveDrumkitMap() {
-	auto pMap = std::make_shared<DrumkitMap>();
+void DrumkitPropertiesDialog::highlightDuplicates() {
 
-	for ( int ii = 0; ii < mappingTable->rowCount(); ++ii ) {
-		auto ppItemId = dynamic_cast<LCDDisplay*>(mappingTable->cellWidget( ii, 0 ));
-		auto ppItemMapping = dynamic_cast<LCDCombo*>(mappingTable->cellWidget( ii, 2 ));
-
-		if ( ppItemId != nullptr && ppItemMapping != nullptr ) {
-			pMap->addMapping( ppItemId->text().toInt(),
-							  ppItemMapping->currentText() );
-		} else {
-			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii  ) );
-		}
-	}
-
-	m_pDrumkit->setDrumkitMap( pMap );
 }
+
 }

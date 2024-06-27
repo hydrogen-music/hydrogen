@@ -70,9 +70,6 @@ Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 	m_sPath = usrDrumkitPath.filePath( m_sName );
 	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	m_pInstruments = std::make_shared<InstrumentList>();
-
-	m_pDrumkitMap = std::make_shared<DrumkitMap>();
-	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
@@ -93,9 +90,6 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	for ( const auto& pComponent : *other->getComponents() ) {
 		m_pComponents->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
-
-	m_pDrumkitMap = std::make_shared<DrumkitMap>( other->m_pDrumkitMap );
-	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>( other->m_pDrumkitMapFallback );
 }
 
 Drumkit::~Drumkit()
@@ -169,33 +163,44 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	pDrumkit->setType( DetermineType( pDrumkit->getPath() ) );
 
-	// Load drumkit maps corresponding to this kit.
-	//
-	// Order of precedeence:
-	// 1. USER_DATA_DIR/drumkit_maps/KIT_NAME.h2map
-	// 2. *.h2map file in drumkit folder itself
-	// 3. SYS_DATA_DIR/drumkit_maps/KIT_NAME.h2map
-	//
-	// If both 1. and another map file is present, 1. will be assigned to m_pDrumkitMap
-	// and the other one to m_pDrumkitMapFallback. In case all there variants are
-	// present, only 2. is assigned to m_pDrumkitMapFallback.
-	const QString sUserMapFile =
-		Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), true );
-
-	QString sMapFile = Filesystem::getDrumkitMapFromKit( sDrumkitPath );
-	if ( sMapFile.isEmpty() ){
-		sMapFile = Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), false );
-	}
-
-	if ( ! sUserMapFile.isEmpty() ) {
-		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sUserMapFile );
-
-		if ( ! sMapFile.isEmpty() ) {
-			pDrumkit->m_pDrumkitMapFallback = DrumkitMap::load( sMapFile );
+	// TODO In case no instrument types are defined in the loaded drumkit, we
+	// check whether there is .h2map file in the shipped with the installation
+	// corresponding to the name of the kit.
+	bool bMissingType = false;
+	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {
+			bMissingType = true;
+			break;
 		}
 	}
-	else if ( ! sMapFile.isEmpty() ) {
-		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sMapFile );
+
+	if ( bMissingType ) {
+		const QString sMapFile =
+			Filesystem::getDrumkitMap( pDrumkit->getExportName(), bSilent );
+
+		if ( ! sMapFile.isEmpty() ) {
+			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
+			if ( pDrumkitMap != nullptr ) {
+				// We do not replace any type but only set those not defined
+				// yet.
+				for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+					if ( ppInstrument != nullptr &&
+						 ppInstrument->getType().isEmpty() &&
+						 ! pDrumkitMap->getType( ppInstrument->get_id() ).isEmpty() ) {
+						ppInstrument->setType(
+							pDrumkitMap->getType( ppInstrument->get_id() ) );
+					}
+				}
+			}
+			else {
+				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types of instruments for drumkit [%2]" )
+						  .arg( sMapFile ).arg( sDrumkitFile ) );
+			}
+		}
+		else if ( ! bSilent ) {
+			INFOLOG( QString( "There are missing Types for instruments in drumkit [%1] and no corresponding .h2map file found." )
+					 .arg( sDrumkitFile ) );
+		}
 	}
 
 	if ( ! bReadingSuccessful && bUpgrade ) {
@@ -379,17 +384,6 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
 	if ( ! saveImage( sDrumkitFolder, bSilent ) ) {
 		ERRORLOG( QString( "Unable to save image of drumkit [%1] to [%2]. Abort." )
 				  .arg( m_sName ).arg( sDrumkitFolder ) );
-		return false;
-	}
-
-	// Save drumkit map (primary one)
-		const QString sDrumkitMapPath = QString( "%1/%2%3" )
-			.arg( Filesystem::usr_drumkit_maps_dir() )
-			.arg( getExportName() )
-			.arg( Filesystem::drumkit_map_ext );
-        if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
-			ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
-				  .arg( sDrumkitMapPath ) );
 		return false;
 	}
 
@@ -1277,13 +1271,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		}
 	}
 
-	// Store a copy of the current drumkit map and add it to the included files.
-	QString sTmpMapPath = tmpFolder.filePath( QString( "%1%2" )
-									 .arg( sDrumkitName )
-									 .arg( Filesystem::drumkit_map_ext ) );
-	m_pDrumkitMap->save( sTmpMapPath );
-	filesUsed << sTmpMapPath;
-
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
 	if ( ! bSilent ) {
@@ -1641,6 +1628,12 @@ QString Drumkit::TypeToString( const Type& type ) {
 	}
 }
 
+std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
+	std::set<DrumkitMap::Type> set;
+
+	return set;
+}
+
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -1663,10 +1656,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_pDrumkitMap: %3" ).arg( sPrefix ).arg( s )
-						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_pDrumkitMapFallback: %3" ).arg( sPrefix ).arg( s )
-						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) );
+		sOutput.append( QString( "%1%2]\n" ).arg( sPrefix ).arg( s ) );
 
 	} else {
 		
@@ -1687,11 +1677,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}
 		}
-		sOutput.append( QString( ", [m_pDrumkitMap: %1]" )
-						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", [m_pDrumkitMapFallback: %1]" )
-						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) )
-			.append( "]\n" );
+		sOutput.append( "]\n" );
 	}
 	
 	return sOutput;

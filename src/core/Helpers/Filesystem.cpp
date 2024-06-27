@@ -459,10 +459,9 @@ bool Filesystem::check_sys_paths()
 bool Filesystem::check_usr_paths() {
 	QStringList pathsUsable = { tmp_dir(),			__usr_data_path,
 								cache_dir(),		repositories_cache_dir(),
-								usr_drumkits_dir(), usr_drumkit_maps_dir(),
-								patterns_dir(),		playlists_dir(),
-								plugins_dir(),		scripts_dir(),
-								songs_dir(),		usr_theme_dir() };
+								usr_drumkits_dir(), patterns_dir(),
+								playlists_dir(),    plugins_dir(),
+								scripts_dir(), songs_dir(),	usr_theme_dir() };
 
 	QStringList filesWritable = { usr_config_path() };
 	
@@ -662,10 +661,6 @@ QString Filesystem::usr_drumkits_dir()
 QString Filesystem::sys_drumkit_maps_dir()
 {
 	return __sys_data_path + DRUMKIT_MAPS;
-}
-QString Filesystem::usr_drumkit_maps_dir()
-{
-	return __usr_data_path + DRUMKIT_MAPS;
 }
 QString Filesystem::playlists_dir()
 {
@@ -1099,57 +1094,12 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 #endif
 }
 
-QString Filesystem::getDrumkitMapFromKit( const QString& sDrumkitPath ) {
-
-	if ( sDrumkitPath.isEmpty() ) {
-		// We have to be careful to not create a QDir with an empty
-		// string as this would represent the current working
-		// directory.
-		ERRORLOG( "Empty drumkit path" );
-		return QString();
-	}
-
-	QDir drumkitDir( sDrumkitPath );
-	if ( ! dir_readable( sDrumkitPath ) ) {
-		ERRORLOG( QString( "Unable to access drumkit folder [%1]" )
-					  .arg( sDrumkitPath ) );
-		return QString();
-	}
-
-	// Search for a .h2map within the drumkit folder.
-	QStringList mapFiles =
-		drumkitDir.entryList( { QString( "*%1" ).arg( drumkit_map_ext ) } );
-
-	if ( mapFiles.size() == 0 ) {
-		DEBUGLOG( QString( "No drumkit map file found in kit folder [%1]" )
-					  .arg( sDrumkitPath ) );
-		return QString();
-	}
-
-	if ( mapFiles.size() > 1 ) {
-		WARNINGLOG( QString( "More than one drumkit map file detected in "
-							 "drumkit folder [%1]: [%2]. Using [%3]" )
-						.arg( sDrumkitPath )
-						.arg( mapFiles.join( "," ) )
-						.arg( mapFiles[0] ) );
-	}
-
-	DEBUGLOG( QString( "Using drumkit map file [%1] for kit [%2]" )
-				  .arg( drumkitDir.filePath( mapFiles[0] ) )
-				  .arg( sDrumkitPath ) );
-	return drumkitDir.filePath( mapFiles[0] );
-}
-
-QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser ) {
-	QString sMapDir;
-	if ( bUser ) {
-		sMapDir = usr_drumkit_maps_dir();
-	} else {
-		sMapDir = sys_drumkit_maps_dir();
-	}
+QString Filesystem::getDrumkitMap( const QString& sDrumkitName,
+								   bool bSilent ) {
+	const QString sMapDir = sys_drumkit_maps_dir();
 
 	if ( ! dir_readable( sMapDir ) ) {
-		ERRORLOG( QString( "Unable to access drumkit map folder [%1]" )
+		ERRORLOG( QString( "Unable to access system drumkit map folder [%1]" )
 					  .arg( sMapDir ) );
 		return QString();
 	}
@@ -1159,15 +1109,17 @@ QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUse
 	
 	QDir mapDir( sMapDir );
 	// The mapping file must exactly match drumkit name.
-	if ( mapDir.exists( sTarget ) ) {
-		DEBUGLOG(
-			QString( "Found map file [%1] for kit [%2]" )
-				.arg( mapDir.filePath( sTarget ) )
-				.arg( sDrumkitName ) );
-		return mapDir.filePath( sTarget );
+	if ( ! mapDir.exists( sTarget ) ) {
+		if ( bSilent ) {
+			WARNINGLOG( QString( "No .h2map fallback file for kit [%1] found. Please add types in the kit's Properties dialog yourself" )
+						.arg( sDrumkitName ) );
+		}
+		return QString();
 	}
 
-	return QString();
+	DEBUGLOG(QString( "Found map file [%1] for kit [%2]" )
+			 .arg( mapDir.filePath( sTarget ) ).arg( sDrumkitName ) );
+	return mapDir.filePath( sTarget );
 }
 
 QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
