@@ -385,7 +385,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabMapping">
+     <widget class="QWidget" name="tabTypes">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -393,9 +393,9 @@
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>Mapping</string>
+       <string>Types</string>
       </attribute>
-      <layout class="QVBoxLayout" name="tabMappingLayout">
+      <layout class="QVBoxLayout" name="tabTypesLayout">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -412,7 +412,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="MappingTable" name="mappingTable">
+        <widget class="TypesTable" name="typesTable">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -513,9 +513,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>MappingTable</class>
+   <class>TypesTable</class>
    <extends>QTableWidget</extends>
-   <header location="global">../src/SoundLibrary/MappingTable.h</header>
+   <header location="global">../src/SoundLibrary/TypesTable.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

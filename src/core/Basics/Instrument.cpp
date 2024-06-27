@@ -76,6 +76,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples( false )
+	  , m_type( "" )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
@@ -129,6 +130,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, m_bHasMissingSamples(other->has_missing_samples())
 	, __drumkit_path( other->get_drumkit_path() )
 	, __drumkit_name( other->__drumkit_name )
+	  , m_type( other->m_type )
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );
@@ -352,6 +354,8 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 													 true, true, bSilent ), i );
 	}
 
+	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
+
 	// This license will be applied to all samples contained in this
 	// instrument.
 	License instrumentLicense;
@@ -542,6 +546,8 @@ void Instrument::save_to( XMLNode& node,
 		InstrumentNode.write_float( QString( "FX%1Level" )
 									.arg( i+1 ), __fx_level[i] );
 	}
+
+	InstrumentNode.write_string( "type", m_type );
 	
 	for ( const auto& pComponent : *__components ) {
 		if ( component_id == -1 ||
@@ -639,6 +645,8 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __apply_velocity ) )
 			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
 			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_type ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
@@ -685,6 +693,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", apply_velocity: %1" ).arg( __apply_velocity ) )
 			.append( QString( ", current_instr_for_export: %1" ).arg( __current_instr_for_export ) )
 			.append( QString( ", m_bHasMissingSamples: %1" ).arg( m_bHasMissingSamples ) )
+			.append( QString( ", m_type: %1" ).arg( m_type ) )
 			.append( QString( ", components: [" ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {

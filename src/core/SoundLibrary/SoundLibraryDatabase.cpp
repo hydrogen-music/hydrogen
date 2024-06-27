@@ -274,8 +274,7 @@ std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 	std::multiset<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
-			allTypes.merge( ppDrumkit->getDrumkitMap().getAllTypes() );
-			allTypes.merge( ppDrumkit->getDrumkitMapFallback().getAllTypes() );
+			allTypes.merge( ppDrumkit->getAllTypes() );
 		}
 	}
 

@@ -39,86 +39,86 @@ PatchBay::PatchBay( QWidget* pParent,
 	, m_nFixedRowHeight( 30 )
 {
 	// We use a local version of the drumkit maps and only save them to the kits
-	// if requested by the user.
-	m_pSourceDrumkitMap =
-		std::make_shared<H2Core::DrumkitMap>(pSourceDrumkit->getDrumkitMap());
-	m_pTargetDrumkitMap =
-		std::make_shared<H2Core::DrumkitMap>(pTargetDrumkit->getDrumkitMap());
+	// // if requested by the user.
+	// m_pSourceDrumkitMap =
+	// 	std::make_shared<H2Core::DrumkitMap>(pSourceDrumkit->getDrumkitMap());
+	// m_pTargetDrumkitMap =
+	// 	std::make_shared<H2Core::DrumkitMap>(pTargetDrumkit->getDrumkitMap());
 
-	// General layout structure
-	QHBoxLayout* pHBoxLayout = new QHBoxLayout( this );
-	setLayout( pHBoxLayout );
-	setMinimumWidth( 750 );
+	// // General layout structure
+	// QHBoxLayout* pHBoxLayout = new QHBoxLayout( this );
+	// setLayout( pHBoxLayout );
+	// setMinimumWidth( 750 );
 
-	m_pLeftColumn = new QWidget( this );
-	m_pLeftColumnLayout = new QVBoxLayout();
-	m_pLeftColumn->setLayout( m_pLeftColumnLayout );
-	m_pLeftColumn->setStyleSheet( "background-color: #123F; " );
-	pHBoxLayout->addWidget( m_pLeftColumn );
+	// m_pLeftColumn = new QWidget( this );
+	// m_pLeftColumnLayout = new QVBoxLayout();
+	// m_pLeftColumn->setLayout( m_pLeftColumnLayout );
+	// m_pLeftColumn->setStyleSheet( "background-color: #123F; " );
+	// pHBoxLayout->addWidget( m_pLeftColumn );
 
-	m_pLeftConnections = new QWidget( this );
-	m_pLeftConnections->setFixedWidth( 30 );
-	m_pLeftConnections->setStyleSheet( "background-color: #FFFF" );
-	pHBoxLayout->addWidget( m_pLeftConnections );
+	// m_pLeftConnections = new QWidget( this );
+	// m_pLeftConnections->setFixedWidth( 30 );
+	// m_pLeftConnections->setStyleSheet( "background-color: #FFFF" );
+	// pHBoxLayout->addWidget( m_pLeftConnections );
 
-	m_pMiddleColumn = new QWidget( this );
-	m_pMiddleColumnLayout = new QVBoxLayout();
-	m_pMiddleColumn->setLayout( m_pMiddleColumnLayout );
-	pHBoxLayout->addWidget( m_pMiddleColumn );
+	// m_pMiddleColumn = new QWidget( this );
+	// m_pMiddleColumnLayout = new QVBoxLayout();
+	// m_pMiddleColumn->setLayout( m_pMiddleColumnLayout );
+	// pHBoxLayout->addWidget( m_pMiddleColumn );
 
-	m_pRightConnections = new QWidget( this );
-	m_pRightConnections->setFixedWidth( 30 );
-	m_pRightConnections->setStyleSheet( "background-color: #FFFF" );
-	pHBoxLayout->addWidget( m_pRightConnections );
+	// m_pRightConnections = new QWidget( this );
+	// m_pRightConnections->setFixedWidth( 30 );
+	// m_pRightConnections->setStyleSheet( "background-color: #FFFF" );
+	// pHBoxLayout->addWidget( m_pRightConnections );
 
-	m_pRightColumn = new QWidget( this );
-	m_pRightColumnLayout = new QVBoxLayout();
-	m_pRightColumn->setLayout( m_pRightColumnLayout );
-	m_pRightColumn->setStyleSheet( "background-color: #123F;" );
-	pHBoxLayout->addWidget( m_pRightColumn );
+	// m_pRightColumn = new QWidget( this );
+	// m_pRightColumnLayout = new QVBoxLayout();
+	// m_pRightColumn->setLayout( m_pRightColumnLayout );
+	// m_pRightColumn->setStyleSheet( "background-color: #123F;" );
+	// pHBoxLayout->addWidget( m_pRightColumn );
 
-	m_types = QStringList();
+	// m_types = QStringList();
 
-	// Fill left and right columns
-	for ( const auto& ppInstr : *pSourceDrumkit->getInstruments() ) {
-		addLeft( ppInstr );
-	}
-	m_pLeftColumnLayout->addStretch( 1 );
-	for ( const auto& ppInstr : *pTargetDrumkit->getInstruments() ) {
-		addRight( ppInstr );
-	}
-	m_pMiddleColumnLayout->addStretch( 1 );
-	m_pRightColumnLayout->addStretch( 1 );
+	// // Fill left and right columns
+	// for ( const auto& ppInstr : *pSourceDrumkit->getInstruments() ) {
+	// 	addLeft( ppInstr );
+	// }
+	// m_pLeftColumnLayout->addStretch( 1 );
+	// for ( const auto& ppInstr : *pTargetDrumkit->getInstruments() ) {
+	// 	addRight( ppInstr );
+	// }
+	// m_pMiddleColumnLayout->addStretch( 1 );
+	// m_pRightColumnLayout->addStretch( 1 );
 
-	// Fill middle column.
-	const auto sourceTypes = m_pSourceDrumkitMap->getAllTypes();
-	for ( const auto& ssType : sourceTypes ) {
-		m_types << ssType;
-	}
-	for ( const auto& ssType : m_pTargetDrumkitMap->getAllTypes() ) {
-		if ( auto search = sourceTypes.find( ssType );
-			 // Only add items not already present
-			 search == sourceTypes.end() ) {
-			m_types << ssType;
-		}
-	}
-	for ( const auto& ssType : m_types ) {
-		DEBUGLOG( QString( "adding %1" ).arg( ssType ) );
-		auto pType = createElement( ssType );
-		m_pMiddleColumnLayout->addWidget( pType );
-		m_midColumn[ ssType ] = pType;
-	}
+	// // Fill middle column.
+	// const auto sourceTypes = m_pSourceDrumkitMap->getAllTypes();
+	// for ( const auto& ssType : sourceTypes ) {
+	// 	m_types << ssType;
+	// }
+	// for ( const auto& ssType : m_pTargetDrumkitMap->getAllTypes() ) {
+	// 	if ( auto search = sourceTypes.find( ssType );
+	// 		 // Only add items not already present
+	// 		 search == sourceTypes.end() ) {
+	// 		m_types << ssType;
+	// 	}
+	// }
+	// for ( const auto& ssType : m_types ) {
+	// 	DEBUGLOG( QString( "adding %1" ).arg( ssType ) );
+	// 	auto pType = createElement( ssType );
+	// 	m_pMiddleColumnLayout->addWidget( pType );
+	// 	m_midColumn[ ssType ] = pType;
+	// }
 
-	// m_pNewTypeButton = new QPushButton( nullptr );
-	// m_pNewTypeButton->setIcon( QIcon( Skin::getSvgImagePath() +
-	// 								  "/icons/black/plus.svg" ) );
-	// m_pNewTypeButton->setCheckable( false );
-	m_pNewTypeButton = new Button( nullptr, QSize( 0, 0 ), Button::Type::Push,
-								   "plus.svg", "", false );
-	m_pNewTypeButton->setFixedHeight( m_nFixedRowHeight );
-	m_pNewTypeButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	connect( m_pNewTypeButton, SIGNAL( clicked() ), this, SLOT( newType() ) );
-	m_pMiddleColumnLayout->addWidget( m_pNewTypeButton );
+	// // m_pNewTypeButton = new QPushButton( nullptr );
+	// // m_pNewTypeButton->setIcon( QIcon( Skin::getSvgImagePath() +
+	// // 								  "/icons/black/plus.svg" ) );
+	// // m_pNewTypeButton->setCheckable( false );
+	// m_pNewTypeButton = new Button( nullptr, QSize( 0, 0 ), Button::Type::Push,
+	// 							   "plus.svg", "", false );
+	// m_pNewTypeButton->setFixedHeight( m_nFixedRowHeight );
+	// m_pNewTypeButton->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	// connect( m_pNewTypeButton, SIGNAL( clicked() ), this, SLOT( newType() ) );
+	// m_pMiddleColumnLayout->addWidget( m_pNewTypeButton );
 }
 
 PatchBay::~PatchBay() {}

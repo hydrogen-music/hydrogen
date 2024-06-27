@@ -19,23 +19,23 @@
  *
  */
 
-#ifndef MAPPINGTABLE_H_
-#define MAPPINGTABLE_H_
+#ifndef TYPESTABLE_H_
+#define TYPESTABLE_H_
 
 #include <core/Object.h>
 #include <QTableWidget>
 #include <QKeyEvent>
 
-/** Custom QTableWidget class for the mapping table in the
- * #DrumkitPropertiesDialog in order to navigation between the individual
+/** Custom QTableWidget class for the table in the #DrumkitPropertiesDialog
+ * exposing all instrument types in order to navigation between the individual
  * type combo boxes using the tab key. */
-class MappingTable : public QTableWidget, public H2Core::Object<MappingTable> {
-	H2_OBJECT( MappingTable )
+class TypesTable : public QTableWidget, public H2Core::Object<TypesTable> {
+	H2_OBJECT( TypesTable )
 	Q_OBJECT
 
 public:
-	MappingTable( QWidget* pParent ) : QTableWidget( pParent ){};
-	~MappingTable(){};
+	TypesTable( QWidget* pParent ) : QTableWidget( pParent ){};
+	~TypesTable(){};
 
 private:
 	virtual void keyPressEvent( QKeyEvent* pEvent ) override {
@@ -57,4 +57,4 @@ private:
 	};
 };
 
-#endif // MAPPINGTABLE_H_
+#endif // TYPESTABLE_H_
