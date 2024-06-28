@@ -169,6 +169,8 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 									node.read_float( "Sustain", 1.0f, true, false, bSilent ),
 									node.read_int( "Release", 1000, true, false, bSilent ) ) );
 
+	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
+
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
 	if ( bSongKit ) {
 
@@ -354,8 +356,6 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 													 true, true, bSilent ), i );
 	}
 
-	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
-
 	// This license will be applied to all samples contained in this
 	// instrument.
 	License instrumentLicense;
@@ -487,6 +487,8 @@ void Instrument::save_to( XMLNode& node,
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 
+	InstrumentNode.write_string( "type", m_type );
+
 	if ( bSongKit ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
 		InstrumentNode.write_string( "drumkit", __drumkit_name );
@@ -547,8 +549,6 @@ void Instrument::save_to( XMLNode& node,
 									.arg( i+1 ), __fx_level[i] );
 	}
 
-	InstrumentNode.write_string( "type", m_type );
-	
 	for ( const auto& pComponent : *__components ) {
 		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
