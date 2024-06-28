@@ -425,6 +425,28 @@ void XmlTest::testPattern()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitMap()
+{
+	___INFOLOG( "" );
+
+	// Test resilience against loading duplicate type and key. They should both
+	// be dropped.
+	const QString sRefFile = H2TEST_FILE( "/drumkit_map/ref.h2map" );
+	const auto pDrumkitMapRef = H2Core::DrumkitMap::load( sRefFile );
+	CPPUNIT_ASSERT( pDrumkitMapRef != nullptr );
+	const auto pDrumkitMapDuplicates = H2Core::DrumkitMap::load(
+		H2TEST_FILE( "/drumkit_map/ref-duplicates.h2map" ) );
+	CPPUNIT_ASSERT( pDrumkitMapDuplicates != nullptr );
+
+	const QString sTmpFile = H2Core::Filesystem::tmp_dir() + "ref-saved.h2map";
+
+	CPPUNIT_ASSERT( pDrumkitMapDuplicates->save( sTmpFile, false ) );
+	H2TEST_ASSERT_XML_FILES_EQUAL( sRefFile, sTmpFile );
+
+	H2Core::Filesystem::rm( sTmpFile );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
