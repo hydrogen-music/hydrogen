@@ -267,43 +267,23 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	return drumkitFolders;
 }
 
-std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
-	std::vector<DrumkitMap::Type> results;
+QStringList SoundLibraryDatabase::getAllTypes() const {
+	QStringList results;
 
 	// All types available
-	std::multiset<DrumkitMap::Type> allTypes;
+	std::set<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
 			allTypes.merge( ppDrumkit->getAllTypes() );
 		}
 	}
 
-	// Count number of occurrences of types
-	std::multimap<int, DrumkitMap::Type> typesCounted;
-	DrumkitMap::Type sLastType;
-	for ( const auto& ssType : allTypes ) {
-		if ( sLastType != ssType ) {
-			typesCounted.insert( {
-				static_cast<int>(allTypes.count( ssType )),
-				ssType } );
-			sLastType = ssType;
-		}
-	}
-
-	// Create sorted list of types (sorting is done by map internally as we used
-	// the number of occurrences as keys).
-	results.resize( typesCounted.size() );
-	// Reverse insertion order to have highest key (most occurrences) first in
-	// resulting vector.
-	int ii = static_cast<int>(typesCounted.size()) - 1;
- 	for ( const auto& [ _, ssType ] : typesCounted ) {
-		if ( ii < 0 ) {
-			ERRORLOG( "Unexpected index" );
-			break;
-		}
-		 results[ ii ] = ssType;
-		 --ii;
+ 	for ( const auto& ssType : allTypes ) {
+		results << ssType;
 	 }
+
+	// Sort them alphabetically in ascending order.
+	results.sort();
 
 	return results;
 }
