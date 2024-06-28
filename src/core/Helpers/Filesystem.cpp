@@ -992,11 +992,12 @@ void Filesystem::info()
 	INFOLOG( QString( "Default config             : %1" ).arg( sys_config_path() ) );
 	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
 	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
-	// new_tutorial
 	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
-	INFOLOG( QString( "drumkit pattern XSD        : %1" ).arg( pattern_xsd_path() ) );
-	INFOLOG( QString( "drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
-	INFOLOG( QString( "drumkit XSD                : %1" ).arg( playlist_xsd_path() ) );
+	INFOLOG( QString( "Pattern XSD                : %1" ).arg( pattern_xsd_path() ) );
+	INFOLOG( QString( "Drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
+	INFOLOG( QString( "Playlist XSD               : %1" ).arg( playlist_xsd_path() ) );
+	INFOLOG( QString( "Drumkit Map XSD            : %1" )
+			 .arg( drumkit_map_xsd_path() ) );
 	// USR
 	INFOLOG( QString( "User config                : %1" ).arg( usr_config_path() ) );			// FIXME
 	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file_path() ) );
