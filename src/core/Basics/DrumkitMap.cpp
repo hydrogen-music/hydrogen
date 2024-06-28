@@ -80,21 +80,15 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSil
 		const QString sType =
 			mappingNode.read_string( "type", "", false, false, false );
 
-		DEBUGLOG( QString( "stype: %1, nInstrumetnID: %2" ).arg( sType ).arg( nInstrumentID ) );
 		if ( ! sType.isEmpty() && nInstrumentID != -1 ) {
-			const auto [ _, bSuccess ] = map.emplace(
-				std::pair( nInstrumentID, static_cast<Type>( sType ) ) );
-			if ( ! bSuccess ) {
-				ERRORLOG( QString( "Unable to add mapping for instrument id [%1] and type [%2]" )
-						  .arg( nInstrumentID ).arg( sType ) );
-			}
+			// Ensure types to be unique and takes care of error logging.
+			pDrumkitMap->addMapping( nInstrumentID, static_cast<Type>( sType ) );
 		}
 
 		// Move on to the next entry until there is none left.
 		mappingNode = mappingNode.nextSiblingElement( "mapping" );
 	}
 
-	pDrumkitMap->m_mapping = map;
 	return pDrumkitMap;
 }
 
@@ -126,13 +120,27 @@ void DrumkitMap::saveTo( XMLNode& node, bool bSilent ) const {
 }
 
 bool DrumkitMap::addMapping( int nId, const DrumkitMap::Type& sType ) {
+	// Since .h2map files are intended to be read-only and shipped by us, we
+	// just fill them carefully and do not support modification.
 	if ( m_mapping.find( nId ) != m_mapping.end() ) {
-		ERRORLOG( QString( "Unable to assign type [%1]. Key [%2] is already present: %3" )
+		ERRORLOG( QString( "Unable to assign type [%1]. There is already one present for instrument [%2]: %3" )
 				  .arg( sType ).arg( nId ).arg( m_mapping[ nId ] ) );
 		return false;
 	}
 
-	const auto [ _, bSuccess] = m_mapping.insert( { nId, sType } );
+	// Ensure uniqueness of type
+	std::set<Type> types;
+	for ( const auto& [ _, ssType ] : m_mapping ) {
+		types.insert( ssType );
+	}
+	const auto [ _, bUnique ] = types.insert( sType );
+	if ( ! bUnique ) {
+		ERRORLOG( QString( "Type [%1] is already present and those have to be unique!" )
+				  .arg( sType ) );
+		return false;
+	}
+
+	const auto [ __, bSuccess] = m_mapping.insert( { nId, sType } );
 	return bSuccess;
 }
 
