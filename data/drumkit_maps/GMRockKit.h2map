@@ -2,79 +2,79 @@
 <drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			       xmlns="http://www.hydrogen-music.org/drumkit_map">
   <mapping>
-	  <type>Bass Drum</type>
 	  <instrumentID>0</instrumentID>
+	  <type>Bass Drum</type>
   </mapping>
   <mapping>
-	  <type>Stick</type>
 	  <instrumentID>1</instrumentID>
+	  <type>Stick</type>
   </mapping>
   <mapping>
-	  <type>Snare</type>
 	  <instrumentID>2</instrumentID>
+	  <type>Snare</type>
   </mapping>
   <mapping>
-	  <type>Hand Clap</type>
 	  <instrumentID>3</instrumentID>
+	  <type>Hand Clap</type>
   </mapping>
   <mapping>
-	  <type>Snare Rimshot</type>
 	  <instrumentID>4</instrumentID>
+	  <type>Snare Rimshot</type>
   </mapping>
   <mapping>
-	  <type>Tom Floor</type>
 	  <instrumentID>5</instrumentID>
+	  <type>Tom Floor</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Closed</type>
 	  <instrumentID>6</instrumentID>
+	  <type>Hi-hat Closed</type>
   </mapping>
   <mapping>
+	  <instrumentID>7</instrumentID>
 	  <type>Tom Low</type>
-	  <instrumentID>7</instrumentID>
   </mapping>
   <mapping>
+	  <instrumentID>7</instrumentID>
 	  <type>Tom Mid</type>
-	  <instrumentID>7</instrumentID>
   </mapping>
   <mapping>
-	  <type>Hi-hat Pedal</type>
 	  <instrumentID>8</instrumentID>
+	  <type>Hi-hat Pedal</type>
   </mapping>
   <mapping>
-	  <type>Tom High</type>
 	  <instrumentID>9</instrumentID>
+	  <type>Tom High</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Open</type>
 	  <instrumentID>10</instrumentID>
+	  <type>Hi-hat Open</type>
   </mapping>
   <mapping>
-	  <type>Cowbell</type>
 	  <instrumentID>11</instrumentID>
+	  <type>Cowbell</type>
   </mapping>
   <mapping>
-	  <type>Ride</type>
 	  <instrumentID>12</instrumentID>
+	  <type>Ride</type>
   </mapping>
   <mapping>
-	  <type>Crash</type>
 	  <instrumentID>13</instrumentID>
+	  <type>Crash</type>
   </mapping>
   <mapping>
-	  <type>Ride 2</type>
 	  <instrumentID>14</instrumentID>
+	  <type>Ride 2</type>
   </mapping>
   <mapping>
-	  <type>Splash</type>
 	  <instrumentID>15</instrumentID>
+	  <type>Splash</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Semi-Open</type>
 	  <instrumentID>16</instrumentID>
+	  <type>Hi-hat Semi-Open</type>
   </mapping>
   <mapping>
-	  <type>Ride Bell</type>
 	  <instrumentID>17</instrumentID>
+	  <type>Ride Bell</type>
   </mapping>
 </drumkit_map>

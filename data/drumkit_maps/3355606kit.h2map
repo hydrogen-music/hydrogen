@@ -2,67 +2,67 @@
 <drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			       xmlns="http://www.hydrogen-music.org/drumkit_map">
   <mapping>
-	  <type>Bass Drum</type>
 	  <instrumentID>0</instrumentID>
+	  <type>Bass Drum</type>
   </mapping>
   <mapping>
-	  <type>Bass Drum 2</type>
 	  <instrumentID>1</instrumentID>
+	  <type>Bass Drum 2</type>
   </mapping>
   <mapping>
-	  <type>Snare</type>
 	  <instrumentID>2</instrumentID>
+	  <type>Snare</type>
   </mapping>
   <mapping>
-	  <type>Snare 2</type>
 	  <instrumentID>3</instrumentID>
+	  <type>Snare 2</type>
   </mapping>
   <mapping>
-	  <type>Snare 3</type>
 	  <instrumentID>4</instrumentID>
+	  <type>Snare 3</type>
   </mapping>
   <mapping>
-	  <type>Snare Rimshot</type>
 	  <instrumentID>5</instrumentID>
+	  <type>Snare Rimshot</type>
   </mapping>
   <mapping>
-	  <type>Tom Low</type>
 	  <instrumentID>6</instrumentID>
+	  <type>Tom Low</type>
   </mapping>
   <mapping>
-	  <type>Tom High</type>
 	  <instrumentID>7</instrumentID>
+	  <type>Tom High</type>
   </mapping>
   <mapping>
-	  <type>Tom Mid</type>
 	  <instrumentID>8</instrumentID>
+	  <type>Tom Mid</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Closed</type>
 	  <instrumentID>9</instrumentID>
+	  <type>Hi-hat Closed</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Closed 2</type>
 	  <instrumentID>10</instrumentID>
+	  <type>Hi-hat Closed 2</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Closed 3</type>
 	  <instrumentID>11</instrumentID>
+	  <type>Hi-hat Closed 3</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Open</type>
 	  <instrumentID>12</instrumentID>
+	  <type>Hi-hat Open</type>
   </mapping>
   <mapping>
-	  <type>Hi-hat Open 2</type>
 	  <instrumentID>13</instrumentID>
+	  <type>Hi-hat Open 2</type>
   </mapping>
   <mapping>
-	  <type>Crash</type>
 	  <instrumentID>14</instrumentID>
+	  <type>Crash</type>
   </mapping>
   <mapping>
-	  <type>Cowbell</type>
 	  <instrumentID>15</instrumentID>
+	  <type>Cowbell</type>
   </mapping>
 </drumkit_map>
