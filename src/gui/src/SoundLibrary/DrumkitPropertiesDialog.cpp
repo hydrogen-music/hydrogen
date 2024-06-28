@@ -330,8 +330,10 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	typesTable->clearContents();
 	typesTable->setRowCount( pInstrumentList->size() );
 
+	const auto types = pDatabase->getAllTypes();
+
 	QMenu* pTypesMenu = new QMenu( this );
-	for ( const auto& ssType : pDatabase->getAllTypes() ) {
+	for ( const auto& ssType : types ) {
 		pTypesMenu->addAction( ssType );
 	}
 
@@ -356,7 +358,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		int nIndex = -1;
 		int nnType = 0;
 		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
-		for ( const auto& ssType : pDatabase->getAllTypes() ) {
+		for ( const auto& ssType : types ) {
 			pInstrumentType->addItem( ssType );
 
 			if ( ssType == sTextType ) {
@@ -392,6 +394,8 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 				   ppInstrument->getType(), nnCell );
 		nnCell++;
 	}
+
+	highlightDuplicates();
 }
 
 void DrumkitPropertiesDialog::licenseComboBoxChanged( int ) {
@@ -556,9 +560,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			const auto [ _, bSuccess ] =
 				types.insert( ppItemType->currentText() );
 			if ( ! bSuccess ) {
+				highlightDuplicates();
 				QMessageBox::warning( this, "Hydrogen",
 									  tr( "Instrument types must be unique!" ) );
-				highlightDuplicates();
 				return;
 			}
 		}
@@ -783,7 +787,37 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 }
 
 void DrumkitPropertiesDialog::highlightDuplicates() {
+	auto pPref = Preferences::get_instance();
+	QStringList duplicates;
 
+	const QString sHighlight = QString( "color: %1; background-color: %2" )
+		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
+		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
+
+	// Compile a list of all duplicated types.
+	std::set<QString> types;
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppType = dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppType != nullptr ) {
+			const auto [ _, bSuccess ] = types.insert( ppType->currentText() );
+			if ( ! bSuccess ) {
+				duplicates << ppType->currentText();
+			}
+		}
+	}
+
+	// Highlight the corresponding combo boxes
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppType = dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppType != nullptr ) {
+			if ( duplicates.contains( ppType->currentText() ) ) {
+				ppType->setStyleSheet( sHighlight );
+			}
+			else {
+				ppType->setStyleSheet( "" );
+			}
+		}
+	}
 }
 
 }
