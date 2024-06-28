@@ -91,6 +91,8 @@ order to make a release has several, easy-to-forget steps.  They are:
         [linux/hydrogen.1](linux/hydrogen.1)
 
      d. Update the `TARGET_VERSION` variable in [.appveyor.yml](.appveyor.yml)
+ 
+     e. In default config file [data/hydrogen.default.conf](data/hydrogen.default.conf)
 
   2. Run `src/gui/src/about_dialog_contributor_list_update.sh
      GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
