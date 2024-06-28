@@ -255,7 +255,7 @@ Preferences::Preferences()
 	songEditorProperties.set(10, 10, 600, 250, true);
 	instrumentRackProperties.set(500, 20, 526, 437, true);
 	audioEngineInfoProperties.set(720, 120, 0, 0, false);
-	m_playlistDialogProperties.set(200, 300, 961, 397, false);
+	m_playlistDialogProperties.set(200, 300, 921, 703, false);
 	m_directorProperties.set(200, 300, 423, 377, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
@@ -619,6 +619,9 @@ bool Preferences::loadPreferences( bool bGlobal )
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
 				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
+				// In order to be backward compatible we still call the XML node
+				// "playlistDialog". For some time we had playlistEditor and
+				// playlistDialog coexisting.
 				setPlaylistDialogProperties( readWindowProperties( guiNode, "playlistDialog_properties", m_playlistDialogProperties ) );
 				setDirectorProperties( readWindowProperties( guiNode, "director_properties", m_directorProperties ) );
 
