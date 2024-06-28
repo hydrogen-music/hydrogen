@@ -497,7 +497,8 @@ namespace H2Core
 			/** If @a sUniqueFilePath contains a prefix introduced by
 			 * addUniquePrefix(), this function removes it and restores the
 			 * original base name of the file.*/
-			static QString removeUniquePrefix( const QString& sUniqueFilePath );
+			static QString removeUniquePrefix( const QString& sUniqueFilePath,
+											   bool bSilent = false );
 
 			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
 

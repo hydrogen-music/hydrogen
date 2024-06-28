@@ -426,7 +426,7 @@ void Drumkit::saveTo( XMLNode& node,
 		// Other routines take care of copying the image into the (top level of
 		// the) selected drumkit folder. We can thus just store the file name of
 		// the image.
-		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage ) )
+		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage, true ) )
 			.fileName();
 	}
 	node.write_string( "image", sImage );
