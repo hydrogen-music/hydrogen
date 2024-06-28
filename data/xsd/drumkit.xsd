@@ -107,6 +107,7 @@
 		<xsd:sequence>
 			<xsd:element name="id"					type="xsd:integer"/>
 			<xsd:element name="name"				type="xsd:string"/>
+			<xsd:element name="type"				type="xsd:string"	minOccurs="0"/>
 			<xsd:element name="drumkitPath"			type="xsd:string" minOccurs="0"/>
 			<xsd:element name="drumkit"				type="xsd:string" minOccurs="0"/>
 			<xsd:element name="volume"				type="xsd:decimal"/>
@@ -142,7 +143,6 @@
 			<xsd:element name="FX2Level"			type="xsd:decimal"	minOccurs="0"/>
 			<xsd:element name="FX3Level"			type="xsd:decimal"	minOccurs="0"/>
 			<xsd:element name="FX4Level"			type="xsd:decimal"	minOccurs="0"/>
-			<xsd:element name="type"				type="xsd:string"	minOccurs="0"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
