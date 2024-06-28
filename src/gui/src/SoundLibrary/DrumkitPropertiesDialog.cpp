@@ -226,7 +226,7 @@ QTextEdit { \
 	licensesTable->setColumnWidth( 2, 210 );
 
 	updateLicensesTable();
-	updateTypesTable();
+	updateTypesTable( bDrumkitWritable );
 }
 
 
@@ -314,7 +314,7 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 	}
 }
 
-void DrumkitPropertiesDialog::updateTypesTable() {
+void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
@@ -353,12 +353,33 @@ void DrumkitPropertiesDialog::updateTypesTable() {
 										QSizePolicy::Expanding );
 		pInstrumentName->setToolTip( sTextName );
 
+		int nIndex = -1;
+		int nnType = 0;
 		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
 		for ( const auto& ssType : pDatabase->getAllTypes() ) {
 			pInstrumentType->addItem( ssType );
+
+			if ( ssType == sTextType ) {
+				nIndex = nnType;
+			}
+			nnType++;
 		}
-		pInstrumentType->setEditable( true );
-		pInstrumentType->setCurrentText( sTextType );
+
+		if ( nIndex == -1 && ! sTextType.isEmpty() ) {
+			ERRORLOG( QString( "Provided type [%1] could not be found in database" )
+					  .arg( sTextType ) );
+		}
+
+		if ( bDrumkitWritable ) {
+			pInstrumentType->setIsActive( true );
+			pInstrumentType->setEditable( true );
+			pInstrumentType->setCurrentText( sTextType );
+		} else {
+			pInstrumentType->setIsActive( false );
+			if ( nIndex != -1 ) {
+				pInstrumentType->setCurrentIndex( nIndex );
+			}
+		}
 
 		typesTable->setCellWidget( nCell, 0, pInstrumentId );
 		typesTable->setCellWidget( nCell, 1, pInstrumentName );

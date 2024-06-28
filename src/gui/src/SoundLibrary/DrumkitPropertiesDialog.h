@@ -57,7 +57,7 @@ class DrumkitPropertiesDialog :  public QDialog,
 	void imageLicenseComboBoxChanged( int );
 
   private:
-	void updateTypesTable();
+	void updateTypesTable( bool bDrumkitWritable );
 	void updateLicensesTable();
 		void highlightDuplicates();
 	void updateImage( const QString& sFilePath );
