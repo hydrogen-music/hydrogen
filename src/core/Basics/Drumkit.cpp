@@ -1629,9 +1629,21 @@ QString Drumkit::TypeToString( const Type& type ) {
 }
 
 std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
-	std::set<DrumkitMap::Type> set;
+	std::set<DrumkitMap::Type> types;
 
-	return set;
+	for ( const auto ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
+			if ( ! bSuccess ) {
+				WARNINGLOG( QString( "Instrument types must be unique! Type [%1] of instrument (id: %2, name: %3) will be omitted." )
+							.arg( ppInstrument->getType() )
+							.arg( ppInstrument->get_id() )
+							.arg( ppInstrument->get_name() ) );
+			}
+		}
+	}
+
+	return types;
 }
 
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
