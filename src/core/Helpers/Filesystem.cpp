@@ -1149,7 +1149,8 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 	return std::move( sUniquePath );
 }
 
-QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
+QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
+										bool bSilent ) {
 	QRegExp prefix( "tmp-[\\w]{6}-+" );
 
 	if ( sUniqueFilePath.contains( prefix ) ) {
@@ -1159,8 +1160,10 @@ QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
 			absoluteFilePath( info.fileName().remove( prefix ) );
 	}
 	else {
-		WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
-					.arg( sUniqueFilePath ) );
+		if ( ! bSilent ) {
+			WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
+						.arg( sUniqueFilePath ) );
+		}
 		return sUniqueFilePath;
 	}
 }
