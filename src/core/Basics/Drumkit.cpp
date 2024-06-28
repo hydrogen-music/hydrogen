@@ -203,6 +203,24 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		}
 	}
 
+	// Sanity checks
+	//
+	// Check for duplicates in instrument types
+	std::set<DrumkitMap::Type> types;
+	QStringList duplicates;
+	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
+			if ( ! bSuccess ) {
+				duplicates << ppInstrument->getType();
+			}
+		}
+	}
+	if ( duplicates.size() > 0 ) {
+		ERRORLOG( QString( "Instrument type [%1] has been used more than once!" )
+				  .arg( duplicates.join( ", " ) ) );
+	}
+
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
 	}
