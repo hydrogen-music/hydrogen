@@ -75,10 +75,10 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSil
 	XMLNode mappingNode = node.firstChildElement( "mapping" );
 
 	while ( !mappingNode.isNull() ) {
-		const QString sType =
-			mappingNode.read_string( "type", "", false, false, false );
 		const int nInstrumentID =
 			mappingNode.read_int( "instrumentID", -1, false, false, false );
+		const QString sType =
+			mappingNode.read_string( "type", "", false, false, false );
 
 		DEBUGLOG( QString( "stype: %1, nInstrumetnID: %2" ).arg( sType ).arg( nInstrumentID ) );
 		if ( ! sType.isEmpty() && nInstrumentID != -1 ) {
