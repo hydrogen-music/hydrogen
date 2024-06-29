@@ -92,6 +92,14 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSil
 	return pDrumkitMap;
 }
 
+XMLDoc DrumkitMap::toXml( bool bSilent ) const {
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
+	saveTo( root, bSilent );
+
+	return std::move( doc );
+}
+
 bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 	if ( ! Filesystem::dir_readable( QFileInfo( sPath ).dir().absolutePath(), false ) ) {
@@ -102,7 +110,6 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 	INFOLOG( QString( "Saving drumkit mappings in [%1]" ).arg( sPath ) );
 
-	// Save drumkit.xml
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
 	

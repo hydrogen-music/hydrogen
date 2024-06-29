@@ -32,6 +32,7 @@
 namespace H2Core
 {
 
+class XMLDoc;
 class XMLNode;
 
 /**
@@ -78,6 +79,7 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	static std::shared_ptr<DrumkitMap> loadFrom( const XMLNode& node,
 												 bool bSilent = false );
 
+		XMLDoc toXml( bool bSilent = false ) const;
 	/**
 	 * Save a #H2Core::DrumkitMap to disk (as a .h2map).
 	 *
