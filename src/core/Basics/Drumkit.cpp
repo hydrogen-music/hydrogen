@@ -174,6 +174,26 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		}
 	}
 
+	// Sanity checks
+	//
+	// Check for duplicates in instrument types. If we found one, we replace
+	// every but the first occurrence by an empty string.
+	std::set<DrumkitMap::Type> types;
+	QStringList duplicates;
+	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
+			if ( ! bSuccess ) {
+				duplicates << ppInstrument->getType();
+				ppInstrument->setType( "" );
+			}
+		}
+	}
+	if ( duplicates.size() > 0 ) {
+		ERRORLOG( QString( "Instrument type [%1] has been used more than once!" )
+				  .arg( duplicates.join( ", " ) ) );
+	}
+
 	if ( bMissingType ) {
 		const QString sMapFile =
 			Filesystem::getDrumkitMap( pDrumkit->getExportName(), bSilent );
@@ -201,24 +221,6 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 			INFOLOG( QString( "There are missing Types for instruments in drumkit [%1] and no corresponding .h2map file found." )
 					 .arg( sDrumkitFile ) );
 		}
-	}
-
-	// Sanity checks
-	//
-	// Check for duplicates in instrument types
-	std::set<DrumkitMap::Type> types;
-	QStringList duplicates;
-	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
-		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
-			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
-			if ( ! bSuccess ) {
-				duplicates << ppInstrument->getType();
-			}
-		}
-	}
-	if ( duplicates.size() > 0 ) {
-		ERRORLOG( QString( "Instrument type [%1] has been used more than once!" )
-				  .arg( duplicates.join( ", " ) ) );
 	}
 
 	if ( ! bReadingSuccessful && bUpgrade ) {
