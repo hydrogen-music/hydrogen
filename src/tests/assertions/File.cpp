@@ -156,7 +156,7 @@ void H2Test::checkFileArgs( const QString& sExpected, const QString& sActual,
 void H2Test::checkDirsEqual( const QString& sDirExpected, const QString& sDirActual, CppUnit::SourceLine sourceLine ) {
 
 	QDir dirExpected( sDirExpected );
-	QDir dirActual( sDirExpected );
+	QDir dirActual( sDirActual );
 
 	QStringList contentExpected =
 		dirExpected.entryList( QDir::Files | QDir::NoDotAndDotDot );
