@@ -83,20 +83,7 @@ bool checkRootDir(const QString &dir)
 }
 
 
-/**
- * \brief Try to find Hydrogen source dir
- * \throws std::runtime_error when source dir cannot be find
- *
- * This function tries to find Hydrogen source dir in order to
- * find data files required by tests. First, environment
- * variable H2_HOME is examined. If it's not set or doesn't point
- * to valid directory, this function tries to run "git rev-parse --show-toplevel"
- * to get root directory of git repository. If that fails,
- * current directory is examined. If it doesn't point to
- * source dir, std::runtime_error is thrown.
- **/
-QString findRootDir()
-{
+QString TestHelper::findRootDir() {
 	/* Get root dir from H2_HOME env variable */
 	auto env_root_dir = QProcessEnvironment::systemEnvironment().value("H2_HOME", "");
 	if (env_root_dir != "") {

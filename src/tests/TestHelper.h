@@ -34,7 +34,20 @@ class TestHelper {
 	
 	public:
 		TestHelper();
-	
+
+		/**
+		 * \brief Try to find Hydrogen source dir
+		 * \throws std::runtime_error when source dir cannot be find
+		 *
+		 * This function tries to find Hydrogen source dir in order to find data
+		 * files required by tests. First, environment variable H2_HOME is
+		 * examined. If it's not set or doesn't point to valid directory, this
+		 * function tries to run "git rev-parse --show-toplevel" to get root
+		 * directory of git repository. If that fails, current directory is
+		 * examined. If it doesn't point to source dir, std::runtime_error is
+		 * thrown.
+		 */
+		static QString findRootDir();
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
