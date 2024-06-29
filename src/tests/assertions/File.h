@@ -25,28 +25,36 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <QString>
+#include <QFile>
 
 namespace H2Test {
 	
 	void checkFilesEqual( const QString& sExpected, const QString& sActual,
-						  CppUnit::SourceLine sourceLine );
+						  bool bEquality, CppUnit::SourceLine sourceLine );
 	void checkXmlFilesEqual( const QString& sExpected, const QString& sActual,
-							 CppUnit::SourceLine sourceLine );
+							 bool bEquality, CppUnit::SourceLine sourceLine );
 	void checkDirsEqual( const QString& sDirExpected, const QString& sDirActual,
-						 CppUnit::SourceLine sourceLine );
+						 bool bEquality, CppUnit::SourceLine sourceLine );
 
-	void checkFileArgs( const QString& sExpected,
-						const QString& sActual, CppUnit::SourceLine sourceLine );
+	void checkFileArgs( const QString& sExpected, QFile& f1,
+						const QString& sActual, QFile& f2,
+						bool bEquality, CppUnit::SourceLine sourceLine );
 }
 
 /**
  * \brief Assert that two files' contents are the same
  **/
 #define H2TEST_ASSERT_FILES_EQUAL( sExpected, sActual ) \
-	H2Test::checkFilesEqual( sExpected, sActual, CPPUNIT_SOURCELINE() )
+	H2Test::checkFilesEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_FILES_UNEQUAL( sExpected, sActual ) \
+	H2Test::checkFilesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_XML_FILES_EQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_XML_FILES_UNEQUAL( sExpected, sActual ) \
+	H2Test::checkXmlFilesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_EQUAL( sExpected, sActual ) \
-	H2Test::checkDirsEqual( sExpected, sActual, CPPUNIT_SOURCELINE() )
+	H2Test::checkDirsEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_DIRS_UNEQUAL( sExpected, sActual ) \
+	H2Test::checkDirsEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 
 #endif
