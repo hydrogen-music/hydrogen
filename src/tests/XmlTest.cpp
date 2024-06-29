@@ -425,17 +425,50 @@ void XmlTest::testPattern()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitInstrumentTypeUniqueness()
+{
+	___INFOLOG( "" );
+
+	// Test resilience against loading duplicate type and key. They should both
+	// be dropped.
+	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
+	const QString sDuplicateFolder =
+		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
+	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder );
+	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
+	const auto pDrumkitDuplicates = H2Core::Drumkit::load( sDuplicateFolder );
+	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
+
+	H2TEST_ASSERT_XML_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
+								   sDuplicateFolder + "/drumkit.xml" );
+
+	const QString sTmpRef = H2Core::Filesystem::tmp_dir() + "ref-saved";
+	const QString sTmpDuplicate =
+		H2Core::Filesystem::tmp_dir() + "duplicate-saved";
+
+	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
+	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTmpRef + "/drumkit.xml",
+								   sTmpDuplicate + "/drumkit.xml" );
+	H2TEST_ASSERT_DIRS_EQUAL( sTmpRef, sTmpDuplicate );
+
+	H2Core::Filesystem::rm( sTmpRef, true );
+	H2Core::Filesystem::rm( sTmpDuplicate, true );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testDrumkitMap()
 {
 	___INFOLOG( "" );
 
 	// Test resilience against loading duplicate type and key. They should both
 	// be dropped.
-	const QString sRefFile = H2TEST_FILE( "/drumkit_map/ref.h2map" );
+	const QString sRefFile = H2TEST_FILE( "drumkit_map/ref.h2map" );
 	const auto pDrumkitMapRef = H2Core::DrumkitMap::load( sRefFile );
 	CPPUNIT_ASSERT( pDrumkitMapRef != nullptr );
 	const auto pDrumkitMapDuplicates = H2Core::DrumkitMap::load(
-		H2TEST_FILE( "/drumkit_map/ref-duplicates.h2map" ) );
+		H2TEST_FILE( "drumkit_map/ref-duplicates.h2map" ) );
 	CPPUNIT_ASSERT( pDrumkitMapDuplicates != nullptr );
 
 	const QString sTmpFile = H2Core::Filesystem::tmp_dir() + "ref-saved.h2map";
