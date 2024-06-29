@@ -1666,6 +1666,25 @@ std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
 	return types;
 }
 
+std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
+	auto pMap = std::make_shared<DrumkitMap>();
+
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			if ( ! pMap->addMapping( ppInstrument->get_id(),
+									 ppInstrument->getType() ) ) {
+				ERRORLOG( QString( "Unable to add type [%1] for instrument (id: %2, name: %3)" )
+						  .arg( ppInstrument->getType() )
+						  .arg( ppInstrument->get_id() )
+						  .arg( ppInstrument->get_name() ) );
+			}
+		}
+	}
+
+	return pMap;
+}
+
+
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

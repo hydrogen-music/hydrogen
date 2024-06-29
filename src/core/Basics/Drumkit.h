@@ -331,6 +331,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Returns all types of the contained instruments. */
 		std::set<DrumkitMap::Type> getAllTypes() const;
 
+		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
