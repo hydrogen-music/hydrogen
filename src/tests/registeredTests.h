@@ -28,6 +28,7 @@
 #include "AudioDriverTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
+#include "CliTest.h"
 #include "CoreActionControllerTest.h"
 #include "EventQueueTest.cpp"
 #include "DrumkitExportTest.h"
@@ -54,6 +55,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
