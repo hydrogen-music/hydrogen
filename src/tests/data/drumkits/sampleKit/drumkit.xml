@@ -35,6 +35,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>18</id>
    <name>Sample</name>
+   <type>LongSample</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
