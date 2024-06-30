@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
+
 add_definitions()
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/core/include            # core headers
