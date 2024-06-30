@@ -439,11 +439,13 @@ void MemoryLeakageTest::testLoading() {
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ) );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
 			H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 													 H2Core::Filesystem::Lookup::system,
 													 true ) );
+		CPPUNIT_ASSERT( pDrumkit2 != nullptr );
 		pDrumkit2->loadSamples();
 	
 		H2Core::CoreActionController::setDrumkit( pDrumkit );
