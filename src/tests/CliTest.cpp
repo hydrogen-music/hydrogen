@@ -27,13 +27,15 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
+#include <core/config.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 
 void CliTest::setUp() {
 	___INFOLOG( "" );
-	m_sCliPath = TestHelper::findRootDir() + "/build/src/cli/h2cli";
+	m_sCliPath = QString( "%1/%2" ).arg( CMAKE_BINARY_DIR )
+		.arg( "/src/cli/h2cli" );
 
 	CPPUNIT_ASSERT( QFileInfo::exists( m_sCliPath ) );
 	___INFOLOG( "passed" );
