@@ -413,15 +413,60 @@ void XmlTest::testPattern()
 
 	// Check whether the constructor produces valid patterns.
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternNew->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
 
+	// Cleanup
+	H2Core::Filesystem::rm( sPatternPath );
 	delete pPatternReloaded;
 	delete pPatternLoaded;
 	delete pPatternCopied;
 	delete pPatternNew;
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testPatternInstrumentTypes()
+{
+	___INFOLOG( "" );
+
+	const QString sTmpNoTypes =
+		H2Core::Filesystem::tmp_dir() + "pat-no-types.h2pattern";
+	const QString sTmpMismatch =
+		H2Core::Filesystem::tmp_dir() + "pat-mismatch.h2pattern";
+
+	// Check whether the reference pattern is valid.
+	const auto pPatternRef = H2Core::Pattern::load_file(
+		H2TEST_FILE( "pattern/pat-with-types.h2pattern"), nullptr );
+	CPPUNIT_ASSERT( pPatternRef != nullptr );
+
+	// The version of the reference without any type information should be
+	// filled with those obtained from the shipped .h2map file.
+	const auto pPatternNoTypes = H2Core::Pattern::load_file(
+		H2TEST_FILE( "pattern/pat.h2pattern"), nullptr );
+	CPPUNIT_ASSERT( pPatternNoTypes != nullptr );
+	CPPUNIT_ASSERT( pPatternNoTypes->save_file(
+						"", "", H2Core::License(), sTmpNoTypes ) );
+	// H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pat.h2pattern" ),
+	// 							   sTmpNoTypes );
+
+	// In this file an instrument id is off. But it should heal itself as the
+	// instrument type takes precedence.
+	const auto pPatternMismatch = H2Core::Pattern::load_file(
+		H2TEST_FILE( "pattern/pat-with-mismatch.h2pattern"), nullptr );
+	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
+	CPPUNIT_ASSERT( pPatternMismatch->save_file(
+						"", "", H2Core::License(), sTmpMismatch ) );
+	// H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pat.h2pattern" ),
+	// 							   sTmpMismatch );
+
+	delete pPatternRef;
+	delete pPatternNoTypes;
+	delete pPatternMismatch;
+
+	H2Core::Filesystem::rm( sTmpNoTypes );
+	H2Core::Filesystem::rm( sTmpMismatch );
 	___INFOLOG( "passed" );
 }
 
@@ -485,6 +530,8 @@ void XmlTest::checkTestPatterns()
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
 	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
+							  H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat-with-types.h2pattern" ),
 							  H2Core::Filesystem::pattern_xsd_path() ) );
 	___INFOLOG( "passed" );
 }
