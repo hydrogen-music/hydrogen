@@ -45,6 +45,7 @@ const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af
 Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
 	: __instrument( pInstrument ),
 	  __instrument_id( 0 ),
+	  m_sType( "" ),
 	  __specific_compo_id( -1 ),
 	  __position( nPosition ),
 	  __velocity( fVelocity ),
@@ -72,6 +73,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	if ( pInstrument != nullptr ) {
 		__adsr = pInstrument->copy_adsr();
 		__instrument_id = pInstrument->get_id();
+		m_sType = pInstrument->getType();
 
 		for ( const auto& pCompo : *pInstrument->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
@@ -90,6 +92,7 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	: Object( *other ),
 	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
+	  m_sType( other->getType() ),
 	  __specific_compo_id( -1 ),
 	  __position( other->get_position() ),
 	  __velocity( other->get_velocity() ),
@@ -494,7 +497,8 @@ void Note::save_to( XMLNode& node ) const
 	node.write_float( "pitch", __pitch );
 	node.write_string( "key", key_to_string() );
 	node.write_int( "length", __length );
-	node.write_int( "instrument", get_instrument()->get_id() );
+	node.write_int( "instrument", __instrument_id );
+	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", __note_off );
 	node.write_float( "probability", __probability );
 }
@@ -528,6 +532,7 @@ Note* Note::load_from( const XMLNode& node,
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
+	note->setType( node.read_string( "type", "", false, false, bSilent ) );
 	note->map_instrument( instruments );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
@@ -540,6 +545,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
 			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
+			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sType ) )
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
 			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
 			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nNoteStart ) )
@@ -596,6 +603,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 
 		sOutput = QString( "[Note]" )
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
+			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
 			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
