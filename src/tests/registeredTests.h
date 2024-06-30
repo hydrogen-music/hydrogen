@@ -55,7 +55,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
+#if not defined(WIN32) and not defined (__APPLE__)
+  // For now h2cli is just part of our Linux package.
+  CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
+#endif
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
