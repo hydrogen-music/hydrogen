@@ -61,7 +61,7 @@ void CliTest::testKitToDrumkitMap() {
 		<< "-o" << sTmpRefFile;
 	auto pProcessRefFile = new QProcess();
 	pProcessRefFile->start( m_sCliPath, argsRefFile );
-	pProcessRefFile->waitForFinished();
+	CPPUNIT_ASSERT( pProcessRefFile->waitForFinished() );
 	CPPUNIT_ASSERT( pProcessRefFile->exitCode() == 0 );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL(
@@ -84,7 +84,7 @@ void CliTest::testKitToDrumkitMap() {
 		<< "-o" << sTmpNoTypesFile;
 	auto pProcessNoTypesFile = new QProcess();
 	pProcessNoTypesFile->start( m_sCliPath, argsNoTypesFile );
-	pProcessNoTypesFile->waitForFinished();
+	CPPUNIT_ASSERT( pProcessNoTypesFile->waitForFinished() );
 	CPPUNIT_ASSERT( pProcessNoTypesFile->exitCode() == 0 );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL(
