@@ -34,10 +34,6 @@
 	  <type>Tom Low</type>
   </mapping>
   <mapping>
-	  <instrumentID>7</instrumentID>
-	  <type>Tom Mid</type>
-  </mapping>
-  <mapping>
 	  <instrumentID>8</instrumentID>
 	  <type>Hi-hat Pedal</type>
   </mapping>
