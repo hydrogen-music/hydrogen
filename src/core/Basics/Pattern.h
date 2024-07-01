@@ -106,6 +106,12 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const;
 
+		void setDrumkitName( const QString& sDrumkitName );
+		const QString& getDrumkitName() const;
+		void setAuthor( const QString& sAuthor );
+		const QString& getAuthor() const;
+		void setLicense( const License& sLicense );
+		const License& getLicense() const;
 		///< set the name of the pattern
 		void set_name( const QString& name );
 		///< get the name of the pattern
@@ -242,6 +248,13 @@ class Pattern : public H2Core::Object<Pattern>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		/** Name of the kit using which the pattern was written. This is mainly
+		 * used for backward compatibility. */
+		QString m_sDrumkitName;
+
+		QString m_sAuthor;
+		License m_license;
+
 	/**
 	 * Determines the accessible range or notes within the
 	 * pattern.
@@ -306,7 +319,24 @@ class Pattern : public H2Core::Object<Pattern>
 	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
 
 // DEFINITIONS
-
+inline void Pattern::setDrumkitName( const QString& sDrumkitName ) {
+	m_sDrumkitName = sDrumkitName;
+}
+inline const QString& Pattern::getDrumkitName() const {
+	return m_sDrumkitName;
+}
+inline void Pattern::setAuthor( const QString& sAuthor ) {
+	m_sAuthor = sAuthor;
+}
+inline const QString& Pattern::getAuthor() const {
+	return m_sAuthor;
+}
+inline void Pattern::setLicense( const License& license ) {
+	m_license = license;
+}
+inline const License& Pattern::getLicense() const {
+	return m_license;
+}
 inline void Pattern::set_name( const QString& name )
 {
 	__name = name;

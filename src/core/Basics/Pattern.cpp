@@ -41,6 +41,9 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 	, __name( name )
 	, __info( info )
 	, __category( category )
+	  , m_sDrumkitName( "" )
+	  , m_sAuthor( "" )
+	  , m_license( License() )
 {
 }
 
@@ -50,6 +53,9 @@ Pattern::Pattern( Pattern* other )
 	, __name( other->get_name() )
 	, __info( other->get_info() )
 	, __category( other->get_category() )
+	, m_sDrumkitName( other->m_sDrumkitName )
+	, m_sAuthor( other->m_sAuthor )
+	, m_license( other->m_license )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
 		__notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
@@ -129,6 +135,14 @@ Pattern* Pattern::load_from( const XMLNode& node,
 	    node.read_int( "size", -1, false, false ),
 	    node.read_int( "denominator", 4, false, false )
 	);
+
+	pPattern->setDrumkitName(
+		node.read_string( "drumkit_name", "", false, false, bSilent ) );
+	pPattern->setAuthor(
+		node.read_string( "author", "", false, false, bSilent ) );
+	License license(
+		node.read_string( "license", "undefined license", false, false, bSilent ) );
+	pPattern->setLicense( license );
 
 	if ( pInstrumentList == nullptr ) {
 		ERRORLOG( "Invalid instrument list provided" );
