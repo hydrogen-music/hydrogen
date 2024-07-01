@@ -54,6 +54,9 @@ PatternList::~PatternList()
 }
 
 PatternList* PatternList::load_from( const XMLNode& node,
+									 const QString& sDrumkitName,
+									 const QString& sAuthor,
+									 const License& license,
 									 std::shared_ptr<InstrumentList> pInstrumentList,
 									 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
@@ -68,7 +71,9 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern = Pattern::load_from( patternNode, pInstrumentList, bSilent );
+		Pattern* pPattern =
+			Pattern::load_from( patternNode, sDrumkitName, sAuthor, license,
+								pInstrumentList, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}

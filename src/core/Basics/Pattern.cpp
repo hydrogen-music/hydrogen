@@ -120,11 +120,20 @@ Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<Instru
 	}
 
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	const QString sDrumkitName =
+		root.read_string( "drumkit_name", "", false, false, false );
+	const QString sAuthor =
+		root.read_string( "author", "", false, false, false );
+	const License license(
+		root.read_string( "license", "undefined license", false, false, false ) );
+;
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return load_from( pattern_node, pInstrumentList );
+	return load_from( pattern_node, sDrumkitName, sAuthor, license,
+					  pInstrumentList );
 }
 
-Pattern* Pattern::load_from( const XMLNode& node,
+Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
+							 const QString& sAuthor, const License& license,
 							 std::shared_ptr<InstrumentList> pInstrumentList,
 							 bool bSilent )
 {
@@ -136,12 +145,8 @@ Pattern* Pattern::load_from( const XMLNode& node,
 	    node.read_int( "denominator", 4, false, false )
 	);
 
-	pPattern->setDrumkitName(
-		node.read_string( "drumkit_name", "", false, false, bSilent ) );
-	pPattern->setAuthor(
-		node.read_string( "author", "", false, false, bSilent ) );
-	License license(
-		node.read_string( "license", "undefined license", false, false, bSilent ) );
+	pPattern->setDrumkitName( sDrumkitName );
+	pPattern->setAuthor( sAuthor );
 	pPattern->setLicense( license );
 
 	if ( pInstrumentList == nullptr ) {
@@ -161,7 +166,52 @@ Pattern* Pattern::load_from( const XMLNode& node,
 			note_node = note_node.nextSiblingElement( "note" );
 		}
 	}
-	
+
+	// Sanity checks
+	//
+	// In case no instrument type is assigned to any of the notes contained, we
+	// check whether there is a .h2map file shipped with the application
+	// corresponding to the name of the kit contained in the pattern. Via
+	// instrument id -> instrument type mapping in there we can use it as a
+	// fallback to obtain types.
+	bool bMissingType = false;
+	for ( const auto& [ _ , ppNote ] : pPattern->__notes ) {
+		if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
+			bMissingType = true;
+			break;
+		}
+	}
+
+	if ( bMissingType ) {
+		const QString sMapFile =
+			Filesystem::getDrumkitMap( pPattern->getDrumkitName(), bSilent );
+
+		if ( ! sMapFile.isEmpty() ) {
+			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
+			if ( pDrumkitMap != nullptr ) {
+				// We do not replace any type but only set those not defined
+				// yet.
+				for ( const auto& [ _, ppNote ] : pPattern->__notes ) {
+					if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
+						 ! pDrumkitMap->getType(
+							 ppNote->get_instrument_id() ).isEmpty() ) {
+						ppNote->setType(
+							pDrumkitMap->getType( ppNote->get_instrument_id() ) );
+					}
+				}
+			}
+			else {
+				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
+						  .arg( sMapFile ).arg( pPattern->get_name() ) );
+			}
+		}
+		else if ( ! bSilent ) {
+			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registerd drumkit [%2]." )
+					 .arg( pPattern->get_name() )
+					 .arg( pPattern->getDrumkitName() ) );
+		}
+	}
+
 	return pPattern;
 }
 

@@ -236,10 +236,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	float fBpm = rootNode.read_float( "bpm", 120, false, false, bSilent );
 	float fVolume = rootNode.read_float( "volume", 0.5, false, false, bSilent );
-	QString sName( rootNode.read_string( "name", "Untitled Song",
-										   false, false, bSilent ) );
-	QString sAuthor( rootNode.read_string( "author", "Unknown Author",
-											 false, false, bSilent ) );
+	const QString sName( rootNode.read_string( "name", "Untitled Song",
+											   false, false, bSilent ) );
+	const QString sAuthor( rootNode.read_string( "author", "Unknown Author",
+												 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 
@@ -248,8 +248,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	pSong->setMetronomeVolume( rootNode.read_float( "metronomeVolume", 0.5,
 													  false, false, bSilent ) );
 	pSong->setNotes( rootNode.read_string( "notes", "...", false, false, bSilent ) );
-	pSong->setLicense( License( rootNode.read_string( "license", "",
-														false, false, bSilent ), sAuthor ) );
+	const License license =
+		License( rootNode.read_string( "license", "",
+									   false, false, bSilent ), sAuthor );
+	pSong->setLicense( license );
 	if ( rootNode.read_bool( "loopEnabled", false, false, false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
@@ -400,9 +402,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 								bSilent ) );
 
 	// Pattern list
-	pSong->setPatternList( PatternList::load_from( rootNode,
-												   pSong->getDrumkit()->getInstruments(),
-												   bSilent ) );
+	pSong->setPatternList( PatternList::load_from(
+							   rootNode, pDrumkit->getExportName(), sAuthor,
+							   license, pSong->getDrumkit()->getInstruments(),
+							   bSilent ) );
 
 	// Virtual Patterns
 	pSong->loadVirtualPatternsFrom( rootNode, bSilent );

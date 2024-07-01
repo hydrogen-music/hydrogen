@@ -86,6 +86,10 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
+		 * \param sDrumkitName kit the pattern was created for (only used as
+		 *   fallback).
+		 * \param sAuthor who created the kit.
+		 * \param license under which license.
 		 * \param instruments the current instrument list to search
 		 * instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
@@ -93,6 +97,9 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \return a new Pattern instance
 		 */
 	static Pattern* load_from( const XMLNode& node,
+							   const QString& sDrumkitName,
+							   const QString& sAuthor,
+							   const License& license,
 							   std::shared_ptr<InstrumentList> instruments,
 							   bool bSilent = false );
 		/**

@@ -56,12 +56,19 @@ class XMLNode;
 		/**
 		 * load a #PatternList from an XMLNode
 		 * \param pNode the XMLDode to read from
+		 * \param sDrumkitName kit the pattern was created for (only used as
+		 *   fallback).
+		 * \param sAuthor who created the kit.
+		 * \param license under which license.
 		 * \param pInstrumentList the current instrument list to search instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static PatternList* load_from( const XMLNode& pNode,
+								   const QString& sDrumkitName,
+								   const QString& sAuthor,
+								   const License& license,
 								   std::shared_ptr<InstrumentList> pInstrumentList,
 								   bool bSilent = false );
 	void save_to( XMLNode& pNode,
