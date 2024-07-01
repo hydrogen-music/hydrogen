@@ -587,6 +587,8 @@ int main(int argc, char *argv[])
 		if ( ! sKitToDrumkitMap.isEmpty() ) {
 			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFilename ) ) {
 				nReturnCode = 1;
+			} else {
+				nReturnCode = 0;
 			}
 		}
 
