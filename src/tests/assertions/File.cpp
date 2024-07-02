@@ -132,6 +132,15 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 						.arg( expectedLines.size() ).arg( actualLines.size() );
 					break;
 				}
+
+				// Sometimes the attributes in the root element are written in a
+				// different order. This is totally ok for with respect to the
+				// XML standard but messes up file comparison.
+				if ( expectedLines.at( ii ).contains( "xmlns:xsi" ) &&
+					 actualLines.at( ii ).contains( "xmlns:xsi" ) ) {
+					continue;
+				}
+
 				if ( expectedLines.at( ii ) != actualLines.at( ii ) ) {
 					sMsgPart = QString( "at line [%1]:\n\texpected: %2\n\tactual  : %3" )
 						.arg( ii ).arg( expectedLines.at( ii ) )
@@ -140,11 +149,13 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				}
 			}
 
-			CppUnit::Message msg(
-				std::string( "XML files differ " ) + sMsgPart.toStdString(),
-				std::string( "Expected: " ) + sExpected.toStdString(),
-				std::string( "Actual  : " ) + sActual.toStdString() );
-			throw CppUnit::Exception( msg, sourceLine );
+			if ( ! sMsgPart.isEmpty() ) {
+				CppUnit::Message msg(
+					std::string( "XML files differ " ) + sMsgPart.toStdString(),
+					std::string( "Expected: " ) + sExpected.toStdString(),
+					std::string( "Actual  : " ) + sActual.toStdString() );
+				throw CppUnit::Exception( msg, sourceLine );
+			}
 		}
 		else {
 			return;
