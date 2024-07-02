@@ -578,15 +578,47 @@ void XmlTest::checkTestPatterns()
 void XmlTest::testPlaylist()
 {
 	___INFOLOG( "" );
-	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
+	const QString sTmpPath = H2Core::Filesystem::tmp_dir() +
+		"playlist.h2playlist";
+	const QString sTmpPathEmpty = H2Core::Filesystem::tmp_dir() +
+		"empty.h2playlist";
 
-	auto pPlaylist = std::make_shared<H2Core::Playlist>();
+	// Test constructor
+	auto pPlaylist = H2Core::Playlist::load(
+		H2TEST_FILE( "playlist/test.h2playlist" ) );
 	H2Core::XMLDoc doc;
 
-	CPPUNIT_ASSERT( pPlaylist->saveAs( sPath ) );
-	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
-	auto pPlaylistLoaded = H2Core::Playlist::load( sPath );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath ) );
+	CPPUNIT_ASSERT( doc.read( sTmpPath,
+							  H2Core::Filesystem::playlist_xsd_path() ) );
+	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
+
+	// TODO Fails since it does not seem to be clear what relative does actually
+	// mean? Relative to the playlist user dir? To the playlist itself?
+	//
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	sTmpPath, H2TEST_FILE( "playlist/test.h2playlist" ));
+
+	// Test constructor
+	auto pPlaylistEmpty = std::make_shared<H2Core::Playlist>();
+	H2Core::XMLDoc docEmpty;
+
+	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty ) );
+	CPPUNIT_ASSERT( docEmpty.read( sTmpPathEmpty,
+							  H2Core::Filesystem::playlist_xsd_path() ) );
+	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty );
+	CPPUNIT_ASSERT( pPlaylistEmptyLoaded != nullptr );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL(
+		sTmpPathEmpty, H2TEST_FILE( "playlist/empty.h2playlist" ));
+
+	// Cleanup
+	H2Core::Filesystem::rm( sTmpPath );
+	H2Core::Filesystem::rm( sTmpPathEmpty );
+
+	___INFOLOG( "passed" );
+}
 
 	___INFOLOG( "passed" );
 }
