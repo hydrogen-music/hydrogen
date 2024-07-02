@@ -369,7 +369,8 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Pattern::load_file( H2TEST_FILE( "pattern/pat.h2pattern" ), pInstrumentList );
+		auto pPattern = H2Core::Pattern::load_file(
+			H2TEST_FILE( "pattern/pattern.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
 		pInstrumentList = nullptr;
@@ -430,7 +431,8 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Legacy::load_drumkit_pattern( H2TEST_FILE( "pattern/legacy_pattern.h2pattern" ), pInstrumentList );
+		auto pPattern = H2Core::Legacy::load_drumkit_pattern(
+			H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ), pInstrumentList );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
 		pInstrumentList = nullptr;

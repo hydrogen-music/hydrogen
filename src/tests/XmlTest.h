@@ -33,6 +33,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
 	CPPUNIT_TEST(testDrumkitMap);
 	CPPUNIT_TEST(testPattern);
+	CPPUNIT_TEST(testPatternLegacy);
 	CPPUNIT_TEST(testPatternInstrumentTypes);
 	CPPUNIT_TEST(testPlaylist);
 	CPPUNIT_TEST(testShippedDrumkits);
@@ -49,6 +50,7 @@ class XmlTest : public CppUnit::TestCase {
 		void testDrumkitInstrumentTypeUniqueness();
 		void testDrumkitMap();
 		void testPattern();
+		void testPatternLegacy();
 		void testPatternInstrumentTypes();
 		void testPlaylist();
 		// Check whether the drumkits provided alongside this repo can

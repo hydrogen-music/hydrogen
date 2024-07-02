@@ -2,7 +2,7 @@
 <drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  <drumkit_name>GMRockKit</drumkit_name>
  <author>Hydrogen dev team</author>
- <license>Public Domain</license>
+ <license>CC0</license>
  <pattern>
   <name>pat</name>
   <info></info>
@@ -14,13 +14,11 @@
     <position>0</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Bass Drum</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -28,13 +26,11 @@
     <position>0</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>0</instrument>
-	<type>Stick</type>
+    <instrument>1</instrument>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -42,13 +38,11 @@
     <position>24</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>3</instrument>
-	<type>Hand Clap</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -56,13 +50,11 @@
     <position>24</position>
     <leadlag>0</leadlag>
     <velocity>0.98</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>2</instrument>
-	<type>Snare</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -70,13 +62,11 @@
     <position>36</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>3</instrument>
-	<type>Hand Clap</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -84,13 +74,11 @@
     <position>36</position>
     <leadlag>0</leadlag>
     <velocity>0.42</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Bass Drum</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -98,13 +86,11 @@
     <position>48</position>
     <leadlag>0</leadlag>
     <velocity>0.54</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Bass Drum</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -112,13 +98,11 @@
     <position>72</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>1</instrument>
-	<type>Stick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -126,13 +110,11 @@
     <position>72</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>1</instrument>
-	<type>Stick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -140,13 +122,11 @@
     <position>72</position>
     <leadlag>0</leadlag>
     <velocity>0.68</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>2</instrument>
-	<type>Snare</type>
     <note_off>true</note_off>
     <probability>1</probability>
    </note>
@@ -154,13 +134,11 @@
     <position>84</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Bass Drum</type>
     <note_off>true</note_off>
     <probability>1</probability>
    </note>
@@ -168,13 +146,11 @@
     <position>96</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Bass Drum</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -182,13 +158,11 @@
     <position>96</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>2</instrument>
-	<type>Snare</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -196,13 +170,11 @@
     <position>108</position>
     <leadlag>0</leadlag>
     <velocity>0.5</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>3</instrument>
-	<type>Hand Clap</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -210,13 +182,11 @@
     <position>120</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>3</instrument>
-	<type>Hand Clap</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -224,13 +194,11 @@
     <position>132</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>2</instrument>
-	<type>Snare</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -238,13 +206,11 @@
     <position>132</position>
     <leadlag>0</leadlag>
     <velocity>0.54</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>1</instrument>
-	<type>Stick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -252,13 +218,11 @@
     <position>144</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>1</instrument>
-	<type>Stick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -266,13 +230,11 @@
     <position>156</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-	<type>Snare</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -280,13 +242,11 @@
     <position>168</position>
     <leadlag>0</leadlag>
     <velocity>0.8</velocity>
-    <pan_L>0.5</pan_L>
-    <pan_R>0.5</pan_R>
+    <pan>0</pan>
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
     <instrument>3</instrument>
-	<type>Hand Clap</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>

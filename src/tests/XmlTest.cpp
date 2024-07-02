@@ -381,10 +381,10 @@ void XmlTest::testDrumkitUpgrade() {
 void XmlTest::testPattern()
 {
 	___INFOLOG( "" );
-	QString sPatternPath = H2Core::Filesystem::tmp_dir()+"pat.h2pattern";
+	QString sPatternPath =
+		H2Core::Filesystem::tmp_dir() + "pattern.h2pattern";
 
 	H2Core::Pattern* pPatternLoaded = nullptr;
-	H2Core::Pattern* pPatternReloaded = nullptr;
 	H2Core::Pattern* pPatternCopied = nullptr;
 	H2Core::Pattern* pPatternNew = nullptr;
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
@@ -396,34 +396,58 @@ void XmlTest::testPattern()
 	pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
-	pPatternLoaded = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), pInstrumentList );
+	pPatternLoaded = H2Core::Pattern::load_file(
+		H2TEST_FILE( "/pattern/pattern.h2pattern" ), pInstrumentList );
 	CPPUNIT_ASSERT( pPatternLoaded );
 
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
+	H2Core::License license{};
+	license.setType( H2Core::License::LicenseType::CC_0 );
+
+	CPPUNIT_ASSERT( pPatternLoaded->save_file(
+						"GMRockKit", "Hydrogen dev team", license, sPatternPath,
+						true ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
+								   sPatternPath );
 
 	// Check for double freeing when destructing both copy and original.
 	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
 
-	// Is stored pattern valid?
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
-	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
-	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
-
-	delete pPatternReloaded;
-
 	// Check whether the constructor produces valid patterns.
+	QString sEmptyPatternPath =
+		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternNew->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
-	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
-	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
+	CPPUNIT_ASSERT( pPatternNew->save_file(
+						"GMRockKit", "Hydrogen dev team", license, sPatternPath,
+						true ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath,
+							  H2Core::Filesystem::pattern_xsd_path() ) );
+	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
+								   sPatternPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( sPatternPath );
-	delete pPatternReloaded;
+	H2Core::Filesystem::rm( sEmptyPatternPath );
 	delete pPatternLoaded;
 	delete pPatternCopied;
 	delete pPatternNew;
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testPatternLegacy() {
+	___INFOLOG( "" );
+
+	QStringList legacyPatterns;
+	legacyPatterns << H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
+				   << H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" );
+
+	H2Core::Pattern* pPattern;
+	for ( const auto& ssPattern : legacyPatterns ) {
+		pPattern = H2Core::Pattern::load_file( ssPattern, nullptr );
+		CPPUNIT_ASSERT( pPattern );
+	}
+	delete pPattern;
+
 	___INFOLOG( "passed" );
 }
 
@@ -431,41 +455,50 @@ void XmlTest::testPatternInstrumentTypes()
 {
 	___INFOLOG( "" );
 
-	const QString sTmpNoTypes =
-		H2Core::Filesystem::tmp_dir() + "pat-no-types.h2pattern";
+	const QString sTmpWithoutTypes =
+		H2Core::Filesystem::tmp_dir() + "pattern-without-types.h2pattern";
 	const QString sTmpMismatch =
-		H2Core::Filesystem::tmp_dir() + "pat-mismatch.h2pattern";
+		H2Core::Filesystem::tmp_dir() + "pattern-with-mismatch.h2pattern";
+	// Be sure to remove past artifacts or saving the patterns will fail.
+	if ( H2Core::Filesystem::file_exists( sTmpWithoutTypes, true ) ) {
+		H2Core::Filesystem::rm( sTmpWithoutTypes );
+	}
+	if ( H2Core::Filesystem::file_exists( sTmpMismatch, true ) ) {
+		H2Core::Filesystem::rm( sTmpMismatch );
+	}
 
 	// Check whether the reference pattern is valid.
 	const auto pPatternRef = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pat-with-types.h2pattern"), nullptr );
+		H2TEST_FILE( "pattern/pattern.h2pattern"), nullptr );
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
-	const auto pPatternNoTypes = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pat.h2pattern"), nullptr );
-	CPPUNIT_ASSERT( pPatternNoTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternNoTypes->save_file(
-						"", "", H2Core::License(), sTmpNoTypes ) );
-	// H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pat.h2pattern" ),
-	// 							   sTmpNoTypes );
+	const auto pPatternWithoutTypes = H2Core::Pattern::load_file(
+		H2TEST_FILE( "pattern/pattern-without-types.h2pattern"), nullptr );
+	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
+	CPPUNIT_ASSERT( pPatternWithoutTypes->save_file(
+						"", "", H2Core::License(), sTmpWithoutTypes ) );
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
-	// In this file an instrument id is off. But it should heal itself as the
-	// instrument type takes precedence.
+	// In this file an instrument id is off. But this should heal itself when
+	// switching to another kit and back (as only instrument types are used
+	// during switching and the ids are reassigned).
 	const auto pPatternMismatch = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pat-with-mismatch.h2pattern"), nullptr );
+		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern"), nullptr );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
+	// TODO switch back and forth
 	CPPUNIT_ASSERT( pPatternMismatch->save_file(
 						"", "", H2Core::License(), sTmpMismatch ) );
-	// H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pat.h2pattern" ),
-	// 							   sTmpMismatch );
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
 
 	delete pPatternRef;
-	delete pPatternNoTypes;
+	delete pPatternWithoutTypes;
 	delete pPatternMismatch;
 
-	H2Core::Filesystem::rm( sTmpNoTypes );
+	H2Core::Filesystem::rm( sTmpWithoutTypes );
 	H2Core::Filesystem::rm( sTmpMismatch );
 	___INFOLOG( "passed" );
 }
@@ -529,10 +562,16 @@ void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/empty.h2pattern" ),
 							  H2Core::Filesystem::pattern_xsd_path() ) );
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat-with-types.h2pattern" ),
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pattern.h2pattern" ),
 							  H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read(
+						H2TEST_FILE( "/pattern/pattern-with-mismatch.h2pattern" ),
+						H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read(
+						H2TEST_FILE( "/pattern/pattern-without-types.h2pattern" ),
+						H2Core::Filesystem::pattern_xsd_path() ) );
 	___INFOLOG( "passed" );
 }
 
