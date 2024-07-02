@@ -572,6 +572,7 @@ void XmlTest::checkTestPatterns()
 	CPPUNIT_ASSERT( doc.read(
 						H2TEST_FILE( "/pattern/pattern-without-types.h2pattern" ),
 						H2Core::Filesystem::pattern_xsd_path() ) );
+
 	___INFOLOG( "passed" );
 }
 
@@ -620,23 +621,67 @@ void XmlTest::testPlaylist()
 	___INFOLOG( "passed" );
 }
 
+
+void XmlTest::testSong()
+{
+	___INFOLOG( "" );
+	const QString sTmpPath = H2Core::Filesystem::tmp_dir() +
+		"song.h2song";
+	const QString sTmpPathEmpty = H2Core::Filesystem::tmp_dir() +
+		"empty.h2song";
+	const QString sTmpPathConstructor = H2Core::Filesystem::tmp_dir() +
+		"constructor.h2song";
+
+	// Test constructor
+	const auto pSong = H2Core::Song::load( H2TEST_FILE( "song/current.h2song" ) );
+	CPPUNIT_ASSERT( pSong->save( sTmpPath ) );
+	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPath ) != nullptr );
+
+	// TODO these still have to be made portable
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	sTmpPath, H2TEST_FILE( "song/current.h2song" ));
+
+	// Test constructor
+	const auto pSongConstructor = std::make_shared<H2Core::Song>();
+	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor ) );
+	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor ) != nullptr );
+
+	// TODO these still have to be made portable
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
+
+
+	// Test empty song (which is using the default kit)
+	const auto pSongEmpty = H2Core::Song::getEmptySong();
+	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty ) );
+	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty ) != nullptr );
+
+	// TODO these still have to be made portable
+	// H2TEST_ASSERT_XML_FILES_EQUAL(
+	// 	sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
+
+	// Cleanup
+	H2Core::Filesystem::rm( sTmpPath );
+	H2Core::Filesystem::rm( sTmpPathEmpty );
+	H2Core::Filesystem::rm( sTmpPathConstructor );
+
 	___INFOLOG( "passed" );
 }
 
-void XmlTest::testCompatibility() {
+void XmlTest::testSongLegacy() {
 	___INFOLOG( "" );
 	QStringList testSongs;
-	testSongs << H2TEST_FILE( "/song/test_song_1.2.2.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.2.1.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.2.0.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.2.0-beta1.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.1.1.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.1.0.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.1.0-beta1.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.0.2.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.0.1.h2song" )
-			  << H2TEST_FILE( "/song/test_song_1.0.0.h2song" )
-			  << H2TEST_FILE( "/song/test_song_0.9.7.h2song" );
+	testSongs << H2TEST_FILE( "song/legacy/test_song_1.2.2.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.2.0-beta1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.1.0-beta1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.2.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.1.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_1.0.0.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_0.9.7.h2song" );
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);
@@ -648,8 +693,8 @@ void XmlTest::testCompatibility() {
 	// Check that invalid paths and drumkit names could indeed result in missing
 	// samples.
 	testSongs.clear();
-	testSongs << H2TEST_FILE( "/song/test_song_invalid_drumkit_name.h2song" )
-			  << H2TEST_FILE( "/song/test_song_invalid_sample_path.h2song" );
+	testSongs << H2TEST_FILE( "song/legacy/test_song_invalid_drumkit_name.h2song" )
+			  << H2TEST_FILE( "song/legacy/test_song_invalid_sample_path.h2song" );
 
 	for ( const auto& ssSong : testSongs ) {
 		___INFOLOG(ssSong);

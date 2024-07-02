@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.2.0-beta1</version>
+ <version>1.2.0-'c92f20469'</version>
  <bpm>120</bpm>
  <volume>0.5</volume>
  <metronomeVolume>0.5</metronomeVolume>
@@ -121,8 +121,8 @@
     </layer>
     <layer>
      <filename>Kick-Hard.wav</filename>
-     <min>0.731884</min>
-     <max>0.865942</max>
+     <min>0.56705</min>
+     <max>0.716475</max>
      <gain>1</gain>
      <pitch>0</pitch>
      <ismodified>false</ismodified>
@@ -138,71 +138,16 @@
     </layer>
     <layer>
      <filename>Kick-Hardest.wav</filename>
-     <min>0.865942</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>18</id>
-   <name>Snare 2</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit</drumkitPath>
-   <drumkit>TR808EmulationKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>999</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>40</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
-    <gain>1</gain>
-    <layer>
-     <filename>808_Snare_2.flac</filename>
-     <min>0</min>
+     <min>0.704981</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
      <ismodified>true</ismodified>
-     <smode>forward</smode>
+     <smode>pingpong</smode>
      <startframe>0</startframe>
-     <loopframe>686</loopframe>
+     <loopframe>0</loopframe>
      <loops>5</loops>
-     <endframe>1640</endframe>
+     <endframe>5912</endframe>
      <userubber>0</userubber>
      <rubberdivider>1</rubberdivider>
      <rubberCsettings>4</rubberCsettings>
@@ -224,8 +169,63 @@
       <pan-value>45</pan-value>
      </pan>
     </layer>
+   </instrumentComponent>
+  </instrument>
+  <instrument>
+   <id>18</id>
+   <name>Cymbal</name>
+   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit</drumkitPath>
+   <drumkit>TR808EmulationKit</drumkit>
+   <volume>0.82</volume>
+   <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
+   <randomPitchFactor>0</randomPitchFactor>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>999</Release>
+   <muteGroup>-1</muteGroup>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>49</midiOutNote>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <instrumentComponent>
+    <component_id>0</component_id>
+    <gain>1</gain>
     <layer>
-     <filename>../drumkits/baseKit/hh.wav</filename>
+     <filename>808_Cymbal.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+    </layer>
+    <layer>
+     <filename>../../drumkits/baseKit/hh.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
@@ -280,7 +280,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>../drumkits/baseKit/snare.wav</filename>
+     <filename>../../drumkits/baseKit/kick.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
@@ -301,7 +301,7 @@
   <instrument>
    <id>1</id>
    <name>Stick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/none/existing/path/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
@@ -318,7 +318,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>999</Release>
+   <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>37</midiOutNote>
@@ -441,7 +441,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Release>999</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>38</midiOutNote>
@@ -511,7 +511,7 @@
     <layer>
      <filename>Snare-Hard.wav</filename>
      <min>0.568841</min>
-     <max>0.782609</max>
+     <max>0.659004</max>
      <gain>1</gain>
      <pitch>0</pitch>
      <ismodified>false</ismodified>
@@ -527,7 +527,7 @@
     </layer>
     <layer>
      <filename>Snare-Hardest.wav</filename>
-     <min>0.782609</min>
+     <min>0.655172</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -2343,19 +2343,7 @@
      <probability>1</probability>
     </note>
     <note>
-     <position>24</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>18</instrument>
-     <note_off>false</note_off>
-     <probability>1</probability>
-    </note>
-    <note>
-     <position>72</position>
+     <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
@@ -2367,7 +2355,7 @@
      <probability>1</probability>
     </note>
     <note>
-     <position>84</position>
+     <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
@@ -2379,14 +2367,14 @@
      <probability>1</probability>
     </note>
     <note>
-     <position>144</position>
+     <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan>0</pan>
      <pitch>0</pitch>
      <key>C0</key>
      <length>-1</length>
-     <instrument>1</instrument>
+     <instrument>2</instrument>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>

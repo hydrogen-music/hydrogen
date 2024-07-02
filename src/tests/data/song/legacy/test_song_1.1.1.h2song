@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.1.0-'d16cbf5a2'</version>
+ <version>1.1.1-'c845af2f0'</version>
  <bpm>120</bpm>
- <volume>0.73</volume>
+ <volume>0.5</volume>
  <metronomeVolume>0.5</metronomeVolume>
  <name>Untitled Song</name>
- <author>Unknown</author>
- <notes>Empty song.</notes>
- <license>Unknown license</license>
- <loopEnabled>true</loopEnabled>
+ <author>hydrogen</author>
+ <notes>...</notes>
+ <license>undefined license</license>
+ <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
  <playbackTrackFilename></playbackTrackFilename>
  <playbackTrackEnabled>false</playbackTrackEnabled>
@@ -150,7 +150,7 @@
      <pitch>0</pitch>
     </layer>
     <layer>
-     <filename>../drumkits/baseKit/crash.wav</filename>
+     <filename>../../drumkits/baseKit/crash.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -169,14 +169,14 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>18</id>
-   <name>Kick Short</name>
+   <id>20</id>
+   <name>Tom Hi</name>
    <drumkit>TR808EmulationKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
-   <volume>1</volume>
+   <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
+   <pan_L>0.48</pan_L>
    <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -197,7 +197,7 @@
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>36</midiOutNote>
+   <midiOutNote>48</midiOutNote>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -205,13 +205,13 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>808_Kick_Short.flac</filename>
+     <filename>808_Tom_Hi.flac</filename>
      <ismodified>true</ismodified>
-     <smode>reverse</smode>
+     <smode>forward</smode>
      <startframe>0</startframe>
-     <loopframe>853</loopframe>
-     <loops>7</loops>
-     <endframe>6153</endframe>
+     <loopframe>414</loopframe>
+     <loops>5</loops>
+     <endframe>972</endframe>
      <userubber>0</userubber>
      <rubberdivider>1</rubberdivider>
      <rubberCsettings>4</rubberCsettings>
@@ -240,7 +240,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>19</id>
+   <id>21</id>
    <name>New instrument</name>
    <drumkit></drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -268,7 +268,7 @@
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>55</midiOutNote>
+   <midiOutNote>57</midiOutNote>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -276,7 +276,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>../drumkits/baseKit/hh.wav</filename>
+     <filename>../../drumkits/baseKit/kick.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -295,7 +295,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>1</id>
+   <id>18</id>
    <name>Stick</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -418,7 +418,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>2</id>
+   <id>19</id>
    <name>Snare</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -541,7 +541,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>3</id>
+   <id>1</id>
    <name>Hand Clap</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -596,7 +596,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>4</id>
+   <id>2</id>
    <name>Snare Rimshot</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -719,7 +719,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>5</id>
+   <id>3</id>
    <name>Floor Tom</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -842,7 +842,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>6</id>
+   <id>4</id>
    <name>Hat Closed</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -965,7 +965,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>7</id>
+   <id>5</id>
    <name>Tom 2</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1088,7 +1088,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>8</id>
+   <id>6</id>
    <name>Hat Pedal</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1211,7 +1211,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>9</id>
+   <id>7</id>
    <name>Tom 1</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1334,7 +1334,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>10</id>
+   <id>8</id>
    <name>Hat Open</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1457,7 +1457,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>11</id>
+   <id>9</id>
    <name>Cowbell</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1580,7 +1580,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>12</id>
+   <id>10</id>
    <name>Ride</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1703,7 +1703,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>13</id>
+   <id>11</id>
    <name>Crash</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1826,7 +1826,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>14</id>
+   <id>12</id>
    <name>Ride 2</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -1949,7 +1949,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>15</id>
+   <id>13</id>
    <name>Splash</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -2072,7 +2072,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>16</id>
+   <id>14</id>
    <name>Hat Semi-Open</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -2195,7 +2195,7 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>17</id>
+   <id>15</id>
    <name>Bell</name>
    <drumkit>GMRockKit</drumkit>
    <drumkitLookup>2</drumkitLookup>
@@ -2336,7 +2336,7 @@
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>19</instrument>
+     <instrument>0</instrument>
      <note_off>false</note_off>
     </note>
     <note>
@@ -2353,7 +2353,7 @@
      <note_off>false</note_off>
     </note>
     <note>
-     <position>48</position>
+     <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan_L>0.5</pan_L>
@@ -2362,7 +2362,7 @@
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>18</instrument>
+     <instrument>19</instrument>
      <note_off>false</note_off>
     </note>
     <note>
@@ -2375,11 +2375,11 @@
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>0</instrument>
+     <instrument>18</instrument>
      <note_off>false</note_off>
     </note>
     <note>
-     <position>120</position>
+     <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
      <pan_L>0.5</pan_L>
@@ -2388,7 +2388,7 @@
      <probability>1</probability>
      <key>C0</key>
      <length>-1</length>
-     <instrument>19</instrument>
+     <instrument>1</instrument>
      <note_off>false</note_off>
     </note>
    </noteList>

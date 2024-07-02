@@ -38,7 +38,8 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPlaylist);
 	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(checkTestPatterns);
-	CPPUNIT_TEST(testCompatibility);
+	CPPUNIT_TEST(testSong);
+	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -60,6 +61,7 @@ class XmlTest : public CppUnit::TestCase {
 		// with respect to the shipped XSD file.
 		void checkTestPatterns();
 
+		void testSong();
 		// In the beginning of the 1.X.X series we had a lot of changes
 		// regarding how instruments are stored in a song and how the associated
 		// samples are looked up. Unfortunately, shortcomings of the individual
@@ -67,7 +69,7 @@ class XmlTest : public CppUnit::TestCase {
 		//
 		// This test loads song of various versions and checks whether all
 		// samples could be loaded.
-		void testCompatibility();
+		void testSongLegacy();
 };
 
 
