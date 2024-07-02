@@ -92,6 +92,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 	, m_sLastLoadedDrumkitPath( "" )
+	, m_pDrumkit( std::make_shared<Drumkit>() )
+	, m_pTimeline( std::make_shared<Timeline>() )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -99,8 +101,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
-
-	m_pTimeline = std::make_shared<Timeline>();
 }
 
 Song::~Song()
@@ -685,6 +685,10 @@ void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
 }
 
 void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternList == nullptr ) {
+		return;
+	}
+
 	XMLNode virtualPatternListNode = node.createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
@@ -699,6 +703,10 @@ void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
 }
 
 void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternGroupSequence == nullptr ) {
+		return;
+	}
+
 	XMLNode patternSequenceNode = node.createNode( "patternSequence" );
 	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
 		if ( pPatternList != nullptr ) {
@@ -809,10 +817,10 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
-	m_pPatternList->save_to( rootNode, nullptr );
-
+	if ( m_pPatternList != nullptr ) {
+		m_pPatternList->save_to( rootNode, nullptr );
+	}
 	saveVirtualPatternsTo( rootNode, bSilent );
-
 	savePatternGroupVectorTo( rootNode, bSilent );
 
 	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
