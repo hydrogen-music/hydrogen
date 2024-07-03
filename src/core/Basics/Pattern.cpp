@@ -448,9 +448,16 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2m_sDrumkitName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sDrumkitName ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sAuthor ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2denominator: %3\n" ).arg( sPrefix ).arg( s ).arg( __denominator ) )
-			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
 			.append( QString( "%1%2category: %3\n" ).arg( sPrefix ).arg( s ).arg( __category ) )
 			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
 			.append( QString( "%1%2Notes:\n" ).arg( sPrefix ).arg( s ) );
@@ -474,12 +481,17 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-	} else {
-		
+	}
+	else {
+
 		sOutput = QString( "[Pattern]" )
-			.append( QString( " length: %1" ).arg( __length ) )
+			.append( QString( " name: %1" ).arg( __name ) )
+			.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName ) )
+			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
+			.append( QString( ", m_license: %1" )
+					 .arg( m_license.toQString( sPrefix, bShort ) ) )
+			.append( QString( ", length: %1" ).arg( __length ) )
 			.append( QString( ", denominator: %1" ).arg( __denominator ) )
-			.append( QString( ", name: %1" ).arg( __name ) )
 			.append( QString( ", category: %1" ).arg( __category ) )
 			.append( QString( ", info: %1" ).arg( __info ) )
 			.append( QString( ", [Notes: " ) );
