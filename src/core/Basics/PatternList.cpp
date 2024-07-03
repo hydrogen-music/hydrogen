@@ -24,6 +24,7 @@
 #include <core/Basics/PatternList.h>
 
 #include <core/Helpers/Xml.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 
@@ -57,7 +58,6 @@ PatternList* PatternList::load_from( const XMLNode& node,
 									 const QString& sDrumkitName,
 									 const QString& sAuthor,
 									 const License& license,
-									 std::shared_ptr<InstrumentList> pInstrumentList,
 									 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
@@ -73,7 +73,7 @@ PatternList* PatternList::load_from( const XMLNode& node,
 		nPatternCount++;
 		Pattern* pPattern =
 			Pattern::load_from( patternNode, sDrumkitName, sAuthor, license,
-								pInstrumentList, bSilent );
+								bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -333,6 +333,12 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 		}
 	}
 	return nMax;
+}
+
+void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+	for ( auto& ppPattern : __patterns ) {
+		ppPattern->mapTo( pDrumkit );
+	}
 }
 
 bool operator==( const PatternList& pLhs, const PatternList& pRhs ) {

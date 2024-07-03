@@ -33,6 +33,7 @@
 namespace H2Core
 {
 
+class Drumkit;
 class XMLNode;
 class Instrument;
 class InstrumentList;
@@ -80,9 +81,8 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * load a pattern from a file
 		 * \param pattern_path the path to the file to load the pattern from
-		 * \param instruments the current instrument list to search instrument into
 		 */
-		static Pattern* load_file( const QString& pattern_path, std::shared_ptr<InstrumentList> instruments );
+		static Pattern* load_file( const QString& pattern_path );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -90,8 +90,6 @@ class Pattern : public H2Core::Object<Pattern>
 		 *   fallback).
 		 * \param sAuthor who created the kit.
 		 * \param license under which license.
-		 * \param instruments the current instrument list to search
-		 * instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
@@ -100,7 +98,6 @@ class Pattern : public H2Core::Object<Pattern>
 							   const QString& sDrumkitName,
 							   const QString& sAuthor,
 							   const License& license,
-							   std::shared_ptr<InstrumentList> instruments,
 							   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
@@ -244,6 +241,10 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		void save_to( XMLNode& node,
 					  const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
+
+
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -286,7 +287,8 @@ class Pattern : public H2Core::Object<Pattern>
 	 *
 	 * \return true on success.
 	 */
-	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
+	static bool loadDoc( const QString& sPatternPath, XMLDoc* pDoc,
+						 bool bSilent = false );
 };
 
 /** Iterate over all provided notes in an immutable way. */

@@ -1127,7 +1127,7 @@ void MainForm::action_file_openPattern()
 
 		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->getInstruments() );
+			auto pNewPattern = Pattern::load_file( ssFilename );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {

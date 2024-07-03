@@ -402,10 +402,12 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 								bSilent ) );
 
 	// Pattern list
-	pSong->setPatternList( PatternList::load_from(
-							   rootNode, pDrumkit->getExportName(), sAuthor,
-							   license, pSong->getDrumkit()->getInstruments(),
-							   bSilent ) );
+	auto pPatternList = PatternList::load_from(
+		rootNode, pDrumkit->getExportName(), sAuthor, license, bSilent );
+	if ( pPatternList != nullptr ) {
+		pPatternList->mapTo( pDrumkit );
+	}
+	pSong->setPatternList( pPatternList );
 
 	// Virtual Patterns
 	pSong->loadVirtualPatternsFrom( rootNode, bSilent );
@@ -1165,7 +1167,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
 						XMLNode instrumentText = instrument.firstChild();
 
 						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( noteNode, getDrumkit()->getInstruments() );
+						Note *pNote = Note::load_from( noteNode );
 
 						pat->insert_note( pNote ); // Add note to created pattern
 

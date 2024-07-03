@@ -268,7 +268,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	}
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_ptr<InstrumentList> pInstrumentList ) {
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 	Pattern* pPattern = nullptr;
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
@@ -301,11 +301,6 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 	//default nDenominator = 4 since old patterns have not <denominator> setting
 	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
 
-	if ( pInstrumentList == nullptr ) {
-		ERRORLOG( "invalid instrument list provided" );
-		return pPattern;
-	}
-
 	XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
 
 	if ( ! note_list_node.isNull() ) {
@@ -328,20 +323,12 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			auto instrRef = pInstrumentList->find( instrId );
-			if ( !instrRef ) {
-				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
-				note_node = note_node.nextSiblingElement( "note" );
-				
-				continue;
-			}
-			//assert( instrRef );
 			bool noteoff = false;
 			if ( nNoteOff == "true" ) {
 				noteoff = true;
 			}
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch);
+			pNote = new Note( nullptr, nPosition, fVelocity, fPan, nLength, nPitch);
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );
@@ -366,19 +353,12 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 
 				int nInstrId = noteNode.read_int( "instrument", -1 );
 
-				auto pInstr = pInstrumentList->find( nInstrId );
-				if ( pInstr == nullptr ) {
-					ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-							  .arg( nInstrId ) );
-					continue;
-				}
-
 				// convert to single pan parameter
 				float fPanL = noteNode.read_float( "pan_L", 0.5 );
 				float fPanR = noteNode.read_float( "pan_R", 0.5 );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR );
 
-				Note* pNote = new Note( pInstr,
+				Note* pNote = new Note( nullptr,
 										noteNode.read_int( "position", 0 ),
 										noteNode.read_float( "velocity", 0.8f ),
 										fPan,

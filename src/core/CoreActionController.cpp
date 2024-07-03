@@ -1607,7 +1607,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getDrumkit()->getInstruments() );
+	Pattern* pNewPattern = Pattern::load_file( sPath );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
@@ -1625,12 +1625,16 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
+
+	pPattern->mapTo( pSong->getDrumkit() );
+
+	auto pPatternList = pSong->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
 	if ( !pPatternList->check_name( pPattern->get_name() ) ){

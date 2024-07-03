@@ -23,6 +23,7 @@
 #ifndef H2C_PATTERN_LIST_H
 #define H2C_PATTERN_LIST_H
 
+#include <memory>
 #include <vector>
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -30,6 +31,7 @@
 namespace H2Core
 {
 
+class Drumkit;
 class Pattern;
 class AudioEngineLocking;
 class InstrumentList;
@@ -60,7 +62,6 @@ class XMLNode;
 		 *   fallback).
 		 * \param sAuthor who created the kit.
 		 * \param license under which license.
-		 * \param pInstrumentList the current instrument list to search instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
@@ -69,7 +70,6 @@ class XMLNode;
 								   const QString& sDrumkitName,
 								   const QString& sAuthor,
 								   const License& license,
-								   std::shared_ptr<InstrumentList> pInstrumentList,
 								   bool bSilent = false );
 	void save_to( XMLNode& pNode,
 				  const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
@@ -182,6 +182,8 @@ class XMLNode;
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
+
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
 
 		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
 		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );

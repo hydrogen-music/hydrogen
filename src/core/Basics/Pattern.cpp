@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -69,7 +70,7 @@ Pattern::~Pattern()
 	}
 }
 
-bool Pattern::loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent )
+bool Pattern::loadDoc( const QString& sPatternPath, XMLDoc* pDoc, bool bSilent )
 {
 	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
 		return false;
@@ -109,14 +110,14 @@ bool Pattern::loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentLi
 	return bReadingSuccessful;
 }
 
-Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList )
+Pattern* Pattern::load_file( const QString& sPatternPath )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
 	XMLDoc doc;
-	if ( ! loadDoc( sPatternPath, pInstrumentList, &doc, false ) ) {
+	if ( ! loadDoc( sPatternPath, &doc, false ) ) {
 		// Try former pattern version
-		return Legacy::load_drumkit_pattern( sPatternPath, pInstrumentList );
+		return Legacy::load_drumkit_pattern( sPatternPath );
 	}
 
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
@@ -128,13 +129,11 @@ Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<Instru
 		root.read_string( "license", "undefined license", false, false, false ) );
 ;
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return load_from( pattern_node, sDrumkitName, sAuthor, license,
-					  pInstrumentList );
+	return load_from( pattern_node, sDrumkitName, sAuthor, license );
 }
 
 Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 							 const QString& sAuthor, const License& license,
-							 std::shared_ptr<InstrumentList> pInstrumentList,
 							 bool bSilent )
 {
 	Pattern* pPattern = new Pattern(
@@ -149,16 +148,11 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	pPattern->setAuthor( sAuthor );
 	pPattern->setLicense( license );
 
-	if ( pInstrumentList == nullptr ) {
-		ERRORLOG( "Invalid instrument list provided" );
-		return pPattern;
-	}
-	
 	XMLNode note_list_node = node.firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* pNote = Note::load_from( note_node, pInstrumentList, bSilent );
+			Note* pNote = Note::load_from( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr ) {
 				pPattern->insert_note( pNote );
@@ -433,6 +427,17 @@ int Pattern::longestVirtualPatternLength() const {
 
 bool Pattern::isVirtual() const {
 	return __flattened_virtual_patterns.size() > 0;
+}
+
+void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	for ( auto& [ _, ppNote ] : __notes ) {
+		ppNote->map_instrument( pDrumkit->getInstruments() );
+	}
 }
 
 std::set<Pattern*>::iterator Pattern::begin() {

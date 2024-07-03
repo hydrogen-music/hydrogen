@@ -503,8 +503,7 @@ void Note::save_to( XMLNode& node ) const
 	node.write_float( "probability", __probability );
 }
 
-Note* Note::load_from( const XMLNode& node,
-					   std::shared_ptr<InstrumentList> instruments, bool bSilent )
+Note* Note::load_from( const XMLNode& node, bool bSilent )
 {
 	bool bFound, bFound2;
 	float fPan = node.read_float( "pan", 0.f, &bFound, true, false, true );
@@ -533,7 +532,6 @@ Note* Note::load_from( const XMLNode& node,
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
 	note->setType( node.read_string( "type", "", false, false, bSilent ) );
-	note->map_instrument( instruments );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;

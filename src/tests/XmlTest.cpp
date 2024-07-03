@@ -397,7 +397,7 @@ void XmlTest::testPattern()
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
 	pPatternLoaded = H2Core::Pattern::load_file(
-		H2TEST_FILE( "/pattern/pattern.h2pattern" ), pInstrumentList );
+		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded );
 
 	H2Core::License license{};
@@ -443,7 +443,7 @@ void XmlTest::testPatternLegacy() {
 
 	H2Core::Pattern* pPattern;
 	for ( const auto& ssPattern : legacyPatterns ) {
-		pPattern = H2Core::Pattern::load_file( ssPattern, nullptr );
+		pPattern = H2Core::Pattern::load_file( ssPattern );
 		CPPUNIT_ASSERT( pPattern );
 	}
 	delete pPattern;
@@ -467,30 +467,35 @@ void XmlTest::testPatternInstrumentTypes()
 		H2Core::Filesystem::rm( sTmpMismatch );
 	}
 
+	H2Core::License license{};
+	license.setType( H2Core::License::LicenseType::CC_0 );
+
 	// Check whether the reference pattern is valid.
 	const auto pPatternRef = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pattern.h2pattern"), nullptr );
+		H2TEST_FILE( "pattern/pattern.h2pattern") );
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
 	const auto pPatternWithoutTypes = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pattern-without-types.h2pattern"), nullptr );
+		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
 	CPPUNIT_ASSERT( pPatternWithoutTypes->save_file(
-						"", "", H2Core::License(), sTmpWithoutTypes ) );
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
+						"GMRockKit", "Hydrogen dev team", license,
+						sTmpWithoutTypes ) );
+	H2TEST_ASSERT_XML_FILES_EQUAL(
+		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
 	// In this file an instrument id is off. But this should heal itself when
 	// switching to another kit and back (as only instrument types are used
 	// during switching and the ids are reassigned).
 	const auto pPatternMismatch = H2Core::Pattern::load_file(
-		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern"), nullptr );
+		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
 	// TODO switch back and forth
-	CPPUNIT_ASSERT( pPatternMismatch->save_file(
-						"", "", H2Core::License(), sTmpMismatch ) );
+	// CPPUNIT_ASSERT( pPatternMismatch->save_file(
+	// 					"GMRockKit", "Hydrogen dev team", license,
+	// 					sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
 

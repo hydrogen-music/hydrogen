@@ -72,28 +72,29 @@ class NoteTest : public CppUnit::TestCase {
 	___INFOLOG( "" );
 		QDomDocument doc;
 		QDomElement root = doc.createElement("note");
-		XMLNode node(root);
+		XMLNode node( root );
 
-		auto instruments = std::make_shared<InstrumentList>();
-		auto snare = std::make_shared<Instrument>( 1, "Snare", nullptr );
-		instruments->add( snare );
+		auto pInstruments = std::make_shared<InstrumentList>();
+		auto pSnare = std::make_shared<Instrument>( 1, "Snare", nullptr );
+		pInstruments->add( pSnare );
 
-		Note *in = new Note(snare, 0, 1.0f, 0.5f, 1, 1.0f);
-		in->set_probability(0.67f);
-		in->save_to(node);
+		Note* pIn = new Note( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
+		pIn->set_probability( 0.67f );
+		pIn->save_to( node );
 
-		Note *out = Note::load_from(node, instruments);
+		Note* pOut = Note::load_from( node );
+		pOut->map_instrument( pInstruments );
 
-		CPPUNIT_ASSERT(in->get_instrument() == out->get_instrument());
-		CPPUNIT_ASSERT_EQUAL(in->get_position(), out->get_position());
-		CPPUNIT_ASSERT_EQUAL(in->get_velocity(), out->get_velocity());
-		CPPUNIT_ASSERT_EQUAL( in->getPan(), out->getPan() );
-		CPPUNIT_ASSERT_EQUAL(in->get_length(), out->get_length());
-		CPPUNIT_ASSERT_EQUAL(in->get_pitch(), out->get_pitch());
-		CPPUNIT_ASSERT_EQUAL(in->get_probability(), out->get_probability());
+		CPPUNIT_ASSERT( pIn->get_instrument() == pOut->get_instrument() );
+		CPPUNIT_ASSERT_EQUAL( pIn->get_position(), pOut->get_position() );
+		CPPUNIT_ASSERT_EQUAL( pIn->get_velocity(), pOut->get_velocity() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getPan(), pOut->getPan() );
+		CPPUNIT_ASSERT_EQUAL( pIn->get_length(), pOut->get_length() );
+		CPPUNIT_ASSERT_EQUAL( pIn->get_pitch(), pOut->get_pitch() );
+		CPPUNIT_ASSERT_EQUAL( pIn->get_probability(), pOut->get_probability() );
 
-		delete in;
-		delete out;
+		delete pIn;
+		delete pOut;
 	___INFOLOG( "passed" );
 	}
 };
