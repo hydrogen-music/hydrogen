@@ -151,6 +151,18 @@ bool DrumkitMap::addMapping( int nId, const DrumkitMap::Type& sType ) {
 	return bSuccess;
 }
 
+int DrumkitMap::getId( const Type& sType, bool& bOk ) const {
+	for ( const auto& [ nnId, ssType ] : m_mapping ) {
+		if ( ssType == sType ) {
+			bOk = true;
+			return nnId;
+		}
+	}
+
+	bOk = false;
+	return -1;
+}
+
 DrumkitMap::Type DrumkitMap::getType( int nId ) const {
 	const auto it = m_mapping.find( nId );
 	if ( it == m_mapping.end() ) {

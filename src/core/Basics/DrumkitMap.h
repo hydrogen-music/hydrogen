@@ -102,7 +102,12 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 */
 	void saveTo( XMLNode& node, bool bSilent = false ) const;
 
-	/** Get all types for @a nId */
+		/**
+		 * \param sType for which to get the corresponding id
+		 * \param bOk set to `true` in case @a sType was found.
+		 */
+		int getId( const Type& sType, bool& bOk ) const;
+	/** Get type for @a nId */
 	Type getType( int nId ) const;
 	/** Returns all unique types found #m_mapping */
 	std::set<Type> getAllTypes() const;
