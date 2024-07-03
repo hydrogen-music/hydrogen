@@ -242,7 +242,7 @@ void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrum
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
 			 ( pInstrumentOnly == nullptr ||
-			   pNote->get_instrument()->get_id() == nId ) ) {
+			   pNote->get_instrument_id() == nId ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
 			pNote->save_to( note_node );
 		}
@@ -274,27 +274,49 @@ Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> inst
 	return nullptr;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, bool strict ) const
+Note* Pattern::find_note( int idx_a, int idx_b,
+						  std::shared_ptr<Instrument> pInstrument,
+						  bool strict ) const
 {
+	if ( pInstrument == nullptr ) {
+		return nullptr;
+	}
+
 	notes_cst_it_t it;
-	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->get_instrument() == instrument ) return note;
+	for ( it = __notes.lower_bound( idx_a );
+		  it != __notes.upper_bound( idx_a ); it++ ) {
+		Note* pNote = it->second;
+		assert( pNote );
+		if ( pNote->get_instrument() == pInstrument ) {
+			return pNote;
+		}
 	}
-	if( idx_b==-1 ) return nullptr;
-	for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->get_instrument() == instrument ) return note;
+	if ( idx_b == -1 ) {
+		return nullptr;
 	}
-	if ( strict ) return nullptr;
+	for ( it = __notes.lower_bound( idx_b );
+		  it != __notes.upper_bound( idx_b ); it++ ) {
+		Note* pNote = it->second;
+		assert( pNote );
+		if ( pNote->get_instrument() == pInstrument ) {
+			return pNote;
+		}
+	}
+	if ( strict ) {
+		return nullptr;
+	}
+
 	// TODO maybe not start from 0 but idx_b-X
 	for ( int n=0; n<idx_b; n++ ) {
-		for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
-			Note* note = it->second;
-			assert( note );
-			if ( note->get_instrument() == instrument && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
+		for ( it = __notes.lower_bound( n );
+			  it != __notes.upper_bound( n ); it++ ) {
+			Note* pNote = it->second;
+			assert( pNote );
+			if ( pNote->get_instrument() == pInstrument &&
+				 ( ( idx_b <= pNote->get_position() + pNote->get_length() )
+				   && idx_b >= pNote->get_position() ) ) {
+				return pNote;
+			}
 		}
 	}
 
@@ -312,26 +334,33 @@ void Pattern::remove_note( Note* note )
 	}
 }
 
-bool Pattern::references( std::shared_ptr<Instrument> instr ) const
+bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 {
-	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->get_instrument() == instr ) {
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	for ( const auto& [ _, ppNote ] : __notes ) {
+		if ( ppNote != nullptr && ppNote->get_instrument() == pInstrument ) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequiresLock )
+void Pattern::purge_instrument( std::shared_ptr<Instrument> pInstrument,
+								bool bRequiresLock )
 {
+	if ( pInstrument == nullptr ) {
+		return;
+	}
+
 	bool locked = false;
 	std::list< Note* > slate;
-	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
+	for ( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
 		Note* note = it->second;
 		assert( note );
-		if ( note->get_instrument() == instr ) {
+		if ( note->get_instrument() == pInstrument ) {
 			if ( !locked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				locked = true;
@@ -436,7 +465,7 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
 	}
 
 	for ( auto& [ _, ppNote ] : __notes ) {
-		ppNote->map_instrument( pDrumkit->getInstruments() );
+		ppNote->mapTo( pDrumkit );
 	}
 }
 
@@ -467,9 +496,10 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
 			.append( QString( "%1%2Notes:\n" ).arg( sPrefix ).arg( s ) );
 				 
-		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
-			if ( it->second != nullptr ) {
-				sOutput.append( QString( "%1" ).arg( it->second->toQString( sPrefix + s + s, bShort ) ) );
+		for ( const auto& [ _, ppNote ] : __notes ) {
+			if ( ppNote != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ppNote->toQString(
+					sPrefix + s + s, bShort ) ) );
 			}
 		}
 
@@ -500,11 +530,14 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", category: %1" ).arg( __category ) )
 			.append( QString( ", info: %1" ).arg( __info ) )
 			.append( QString( ", [Notes: " ) );
-		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
-			if ( it->second != nullptr ) {
-				sOutput.append( QString( "[%2, %3] " )
-								.arg( it->second->get_instrument()->get_name() )
-								.arg( it->second->get_position() ) );
+		for ( const auto& [ _, ppNote ] : __notes ) {
+			if ( ppNote != nullptr ) {
+				sOutput.append( QString( "[type: %1, pos: %2, instrument: %3] " )
+								.arg( ppNote->getType() )
+								.arg( ppNote->get_position() )
+								.arg( ppNote->get_instrument() != nullptr ?
+									  ppNote->get_instrument()->get_name() :
+									  "nullptr" ) );
 			}
 		}
 		sOutput.append( "]" );

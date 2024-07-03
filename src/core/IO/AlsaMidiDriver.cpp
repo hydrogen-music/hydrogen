@@ -552,6 +552,10 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
+	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	int channel = pNote->get_instrument()->get_midi_out_channel();
 	if (channel < 0) {

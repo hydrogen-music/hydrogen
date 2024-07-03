@@ -1295,6 +1295,14 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
+		if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+			m_songNoteQueue.pop();
+			if ( pNote != nullptr ) {
+				delete pNote;
+			}
+			continue;
+		}
+
 		const long long nNoteStartInFrames = pNote->getNoteStart();
 
 #if AUDIO_ENGINE_DEBUG
@@ -1367,7 +1375,9 @@ void AudioEngine::clearNoteQueues()
 {
 	// delete all copied notes in the note queues
 	while ( !m_songNoteQueue.empty() ) {
-		m_songNoteQueue.top()->get_instrument()->dequeue();
+		if ( m_songNoteQueue.top()->get_instrument() != nullptr ) {
+			m_songNoteQueue.top()->get_instrument()->dequeue();
+		}
 		delete m_songNoteQueue.top();
 		m_songNoteQueue.pop();
 	}
@@ -2255,7 +2265,9 @@ void AudioEngine::handleSongSizeChange() {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-						  .arg( nnote->get_instrument()->get_name() )
+							 .arg( pNote->get_instrument() != nullptr ?
+								   pNote->get_instrument()->get_name() :
+								   "nullptr" )
 						  .arg( nnote->get_position() )
 						  .arg( std::max( nnote->get_position() + nTickOffset,
 										  static_cast<long>(0) ) )
@@ -2281,7 +2293,9 @@ void AudioEngine::handleSongSizeChange() {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-						  .arg( nnote->get_instrument()->get_name() )
+							 .arg( pNote->get_instrument() != nullptr ?
+								   pNote->get_instrument()->get_name() :
+								   "nullptr" )
 						  .arg( nnote->get_position() )
 						  .arg( std::max( nnote->get_position() + nTickOffset,
 										  static_cast<long>(0) ) )
@@ -2422,16 +2436,25 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	// MIDI events get put into the `m_songNoteQueue` as well.
 	while ( m_midiNoteQueue.size() > 0 ) {
 		Note *pNote = m_midiNoteQueue[0];
-		if ( pNote->get_position() >
-			 static_cast<int>(coarseGrainTick( fTickEndComp )) ) {
-			break;
+		if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+			m_midiNoteQueue.pop_front();
+			if ( pNote != nullptr ) {
+				delete pNote;
+			}
 		}
+		else {
 
-		m_midiNoteQueue.pop_front();
-		pNote->get_instrument()->enqueue();
-		pNote->computeNoteStart();
-		pNote->humanize();
-		m_songNoteQueue.push( pNote );
+			if ( pNote->get_position() >
+				 static_cast<int>(coarseGrainTick( fTickEndComp )) ) {
+				break;
+			}
+
+			m_midiNoteQueue.pop_front();
+			pNote->get_instrument()->enqueue();
+			pNote->computeNoteStart();
+			pNote->humanize();
+			m_songNoteQueue.push( pNote );
+		}
 	}
 
 	if ( getState() != State::Playing && getState() != State::Testing ) {
@@ -2570,7 +2593,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 												 m_pQueuingPosition->getPatternTickPosition(),
 												 pPattern ) {
 					Note *pNote = it->second;
-					if ( pNote != nullptr ) {
+					if ( pNote != nullptr &&
+						 pNote->get_instrument() != nullptr ) {
 						pNote->set_just_recorded( false );
 						
 						Note *pCopiedNote = new Note( pNote );

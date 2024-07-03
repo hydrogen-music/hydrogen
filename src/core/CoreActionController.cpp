@@ -1112,7 +1112,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	// SelectedLayerInfo's are up to date for the current kit.
 	for ( auto& pPattern : *pSong->getPatternList() ) {
 		for ( auto& pNote : *pPattern->get_notes() ) {
-			pNote.second->map_instrument( pNewDrumkit->getInstruments() );
+			pNote.second->mapTo( pNewDrumkit );
 		}
 	}
 

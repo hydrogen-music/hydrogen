@@ -21,9 +21,10 @@
  */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <core/Basics/Note.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
@@ -74,16 +75,18 @@ class NoteTest : public CppUnit::TestCase {
 		QDomElement root = doc.createElement("note");
 		XMLNode node( root );
 
+		auto pDrumkit = std::make_shared<Drumkit>();
 		auto pInstruments = std::make_shared<InstrumentList>();
 		auto pSnare = std::make_shared<Instrument>( 1, "Snare", nullptr );
 		pInstruments->add( pSnare );
+		pDrumkit->setInstruments( pInstruments );
 
 		Note* pIn = new Note( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
 		pIn->set_probability( 0.67f );
 		pIn->save_to( node );
 
 		Note* pOut = Note::load_from( node );
-		pOut->map_instrument( pInstruments );
+		pOut->mapTo( pDrumkit );
 
 		CPPUNIT_ASSERT( pIn->get_instrument() == pOut->get_instrument() );
 		CPPUNIT_ASSERT_EQUAL( pIn->get_position(), pOut->get_position() );

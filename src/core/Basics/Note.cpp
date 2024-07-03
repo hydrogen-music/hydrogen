@@ -29,6 +29,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -168,25 +169,30 @@ void Note::set_humanize_delay( int nValue )
 	}
 }
 
-void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
+void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 {
-	if ( pInstrumentList == nullptr ) {
-		assert( pInstrumentList );
-		ERRORLOG( "Invalid instrument list" );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
-	
-	auto pInstr = pInstrumentList->find( __instrument_id );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Instrument with ID [%1] not found. Using empty instrument." )
-				  .arg( __instrument_id ) );
-		__instrument = std::make_shared<Instrument>();
-	}
-	else {
-		__instrument = pInstr;
-		__adsr = pInstr->copy_adsr();
 
-		for ( const auto& ppCompo : *pInstr->get_components() ) {
+	std::shared_ptr<Instrument> pInstrument;
+	if ( ! m_sType.isEmpty() ) {
+		bool bFound;
+		const int nId = pDrumkit->toDrumkitMap()->getId( m_sType, bFound );
+		if ( bFound ) {
+			pInstrument = pDrumkit->getInstruments()->find( nId );
+		}
+	}
+
+	if ( pInstrument != nullptr ) {
+		DEBUGLOG( QString( "Instrument [%1] was found for type [%2]." )
+				  .arg( pInstrument->get_name() ).arg( m_sType ) );
+		__instrument = pInstrument;
+		__adsr = pInstrument->copy_adsr();
+		__instrument_id = pInstrument->get_id();
+
+		for ( const auto& ppCompo : *pInstrument->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->nSelectedLayer = -1;
 			sampleInfo->fSamplePosition = 0;
@@ -194,6 +200,14 @@ void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 
 			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
 		}
+	}
+	else {
+		DEBUGLOG( QString( "No instrument was found for type [%1]." )
+				  .arg( m_sType ) );
+		__instrument = nullptr;
+		__adsr = nullptr;
+		__instrument_id = -2;
+		__layers_selected.clear();
 	}
 }
 

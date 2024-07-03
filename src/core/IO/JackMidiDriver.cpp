@@ -385,6 +385,10 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 
 void JackMidiDriver::handleQueueNote(Note* pNote)
 {
+	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	uint8_t buffer[4];
 	int channel;

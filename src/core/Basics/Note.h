@@ -144,10 +144,12 @@ class Note : public H2Core::Object<Note>
 	static Note* load_from( const XMLNode& node, bool bSilent = false );
 
 		/**
-		 * find the corresponding instrument and point to it, or an empty instrument
-		 * \param instruments the list of instrument to look into
+		 * Find the instrument corresponding to `m_sType` and assign it as
+		 * `__instrument`.
+		 *
+		 * \param pDrumkit Most likely the currently used kit.
 		 */
-		void map_instrument( std::shared_ptr<InstrumentList> instruments );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
 		/** #__instrument accessor */
 		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */
@@ -690,11 +692,12 @@ inline Note::Octave Note::get_octave() const
 
 inline int Note::get_midi_key() const
 {
-	/* TODO ???
-	if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
-	*/
-	return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key +
-		__instrument->get_midi_out_note() - MidiMessage::instrumentOffset;
+	int nMidiKey = ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key;
+	if ( __instrument != nullptr ) {
+		nMidiKey += __instrument->get_midi_out_note() -
+			MidiMessage::instrumentOffset;
+	}
+	return nMidiKey;
 }
 
 inline int Note::get_midi_velocity() const
@@ -736,21 +739,21 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )
 {
-	/* TODO ???
-	if( !has_instrument() ) {
+	if ( __instrument == nullptr ) {
 		*val_l = 0.0f;
 		*val_r = 0.0f;
 		return;
 	}
-	*/
-	float cut_off = __instrument->get_filter_cutoff();
-	float resonance = __instrument->get_filter_resonance();
-	__bpfb_l  =  resonance * __bpfb_l  + cut_off * ( *val_l - __lpfb_l );
-	__lpfb_l +=  cut_off   * __bpfb_l;
-	__bpfb_r  =  resonance * __bpfb_r  + cut_off * ( *val_r - __lpfb_r );
-	__lpfb_r +=  cut_off   * __bpfb_r;
-	*val_l = __lpfb_l;
-	*val_r = __lpfb_r;
+	else {
+		const float fCutOff = __instrument->get_filter_cutoff();
+		const float fResonance = __instrument->get_filter_resonance();
+		__bpfb_l  =  fResonance * __bpfb_l  + fCutOff * ( *val_l - __lpfb_l );
+		__lpfb_l +=  fCutOff   * __bpfb_l;
+		__bpfb_r  =  fResonance * __bpfb_r  + fCutOff * ( *val_r - __lpfb_r );
+		__lpfb_r +=  fCutOff   * __bpfb_r;
+		*val_l = __lpfb_l;
+		*val_r = __lpfb_r;
+	}
 }
 
 inline long long Note::getNoteStart() const {

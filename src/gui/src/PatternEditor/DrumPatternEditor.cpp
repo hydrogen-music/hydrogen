@@ -407,7 +407,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 				ERRORLOG( "Invalid note" );
 				continue;
 			}
-			if ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id() &&
+			if ( pNote->get_instrument_id() == pSelectedInstrument->get_id() &&
 				 ( ( isNoteOff && pNote->get_note_off() ) ||
 				   ( pNote->get_key() == oldNoteKeyVal &&
 					 pNote->get_octave() == oldOctaveKeyVal &&
@@ -949,7 +949,8 @@ void DrumPatternEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	const auto pDrumkit = Hydrogen::get_instance()->getSong()->getDrumkit();
+	const auto pInstrList = pDrumkit->getInstruments();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaInstrument = 0;
 
@@ -1020,7 +1021,7 @@ void DrumPatternEditor::paste()
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
 			Note *pNote = Note::load_from( n );
-			pNote->map_instrument( pInstrList );
+			pNote->mapTo( pDrumkit );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
 
