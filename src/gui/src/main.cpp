@@ -25,6 +25,7 @@
 #include <QLibraryInfo>
 #include <QProcess>
 #include <QSslSocket>
+#include <QTextCodec>
 
 #include <core/config.h>
 #include <core/Version.h>
@@ -350,6 +351,8 @@ int main(int argc, char *argv[])
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
+		___INFOLOG( QString( "System encoding: [%1]" )
+					.arg( QString( QTextCodec::codecForLocale()->name() ) ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();

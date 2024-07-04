@@ -20,6 +20,8 @@
  *
  */
 
+#include <QTextCodec>
+
 #include "SoundLibraryExportDialog.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
@@ -128,7 +130,22 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 								 sTargetComponent, // Selected component
 								 bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical( this, "Hydrogen", tr("Unable to export drumkit") );
+		QString sError = tr( "Unable to export drumkit" );
+
+		
+		// Check whether encoding might be the problem in here.
+		auto pCodec = QTextCodec::codecForLocale();
+		if ( ! pCodec->canEncode( drumkitPathTxt->text() ) ) {
+			QMessageBox::critical(
+				this, "Hydrogen", QString( "%1\n\n%2\n\n%3: [%4]" )
+				.arg( sError ).arg( drumkitPathTxt->text() )
+				.arg( pCommonStrings->getEncodingError() )
+				.arg( QString( pCodec->name() ) ) );
+		}
+		else {
+			QMessageBox::critical( this, "Hydrogen", sError );
+		}
+		
 		return;
 	}
 
