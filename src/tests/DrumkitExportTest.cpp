@@ -116,28 +116,27 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	___INFOLOG( "" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	const QString sTestKitPath =
 		H2TEST_FILE( QString( "drumkits/%1%2" ).arg( m_sTestKitNameUtf8 )
 					 .arg( Filesystem::drumkit_ext ) );
 
 	// Check validity of test kit
-	CPPUNIT_ASSERT( pCoreActionController->validateDrumkit(
+	CPPUNIT_ASSERT( CoreActionController::validateDrumkit(
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sTestKitPath ) );
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit( sTestKitPath ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
 	const QString sExtractedKit =
 		Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 );
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit, true );
+	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT( pDrumkit->get_name() == m_sTestKitNameUtf8 );
-	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameUtf8 );
+	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
 		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
 	}
 
@@ -155,7 +154,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 		.arg( Filesystem::drumkit_ext );
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
-	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
 	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
