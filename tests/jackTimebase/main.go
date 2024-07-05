@@ -30,6 +30,7 @@ const hydrogenTearDownTime = 3000
 const oscCommandTime = 500
 
 var hydrogenLogFile = "./hydrogen.log"
+var hydrogenConfFile = "./hydrogen.conf"
 var testBinaryLogFileBase = "./test"
 
 // hydrogenTestSongPath points to the song opened by the Hydrogen binary used as
@@ -52,6 +53,7 @@ var hydrogenPath = path.Join(
     "..", "..", "build", "src", "cli", "h2cli")
 var testBinaryPath = path.Join(
     "..", "..", "build", "tests", "jackTimebase", "h2JackTimebase", "h2JackTimebase")
+
 
 var hydrogenClient *osc.Client
 var testBinaryClient *osc.Client
@@ -160,7 +162,7 @@ func sendMsg(c *osc.Client, m *osc.Message) {
 func startHydrogen(ctx context.Context) {
     cmd := exec.CommandContext(ctx, hydrogenPath, "--driver", "jack",
         "-s", hydrogenTestSongPath, "-O", strconv.FormatInt(oscHydrogenPort, 10),
-        "-L", hydrogenLogFile, "-T", "-V", "Debug")
+        "--config", hydrogenConfFile, "-L", hydrogenLogFile, "-T", "-V", "Debug")
     output, err := cmd.CombinedOutput()
     if err == nil {
         log.Printf("[startHydrogen] [%v] exited", cmd.String())
@@ -215,6 +217,7 @@ func nextTest(ctx context.Context) {
         sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))
 
     case 1:
+        log.Println("[nextTest] Test binary as Timebase master")
         // The test binary is registered as JACK Timebase master and the
         // reference application as listener.
 
