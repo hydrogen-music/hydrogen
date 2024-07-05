@@ -269,6 +269,8 @@ int main(int argc, char *argv[])
 
 		preferences->m_bUseMetronome = false;
 		preferences->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;
+		preferences->m_bJackTransportMode =
+			H2Core::Preferences::USE_JACK_TRANSPORT;
 		preferences->m_nBufferSize = 1024;
 
 		Hydrogen::create_instance();
