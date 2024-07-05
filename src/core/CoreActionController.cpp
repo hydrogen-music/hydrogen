@@ -20,6 +20,8 @@
  *
  */
 
+#include <QDir>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
@@ -1832,11 +1834,16 @@ void CoreActionController::insertRecentFile( const QString sFilename ){
 	bool bAlreadyContained = false;
 
 	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	
-	recentFiles.insert( recentFiles.begin(), sFilename );
+
+	// We have to normalize directory separators. Else opening a
+	// song via double click from file browser and from within
+    // Hydrogen will give to distinct entries on Windows.
+    const QString sFilenameCleaned = QDir::cleanPath( sFilename );
+
+    recentFiles.insert( recentFiles.begin(), sFilenameCleaned );
 
 	if ( std::find( recentFiles.begin(), recentFiles.end(),
-					sFilename ) != recentFiles.end() ) {
+					sFilenameCleaned ) != recentFiles.end() ) {
 		// Eliminate all duplicates in the list while keeping the one
 		// inserted at the beginning. Also, in case the file got renamed,
 		// remove it's previous name from the list.
