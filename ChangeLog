@@ -79,6 +79,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			  and `h2cli`.
 			- `-L`/`--log-file` to provide a path to an alternative log file.
 			- `-T`/`--log-timestamps` to add timestamps to all log messages.
+			- `--check` to use a different user-level config file.
 	* Changed
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.
