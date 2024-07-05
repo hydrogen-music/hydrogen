@@ -238,6 +238,8 @@ int main(int argc, char *argv[])
 		QCommandLineOption noSplashScreenOption( QStringList() << "n" << "nosplash", "Hide splash screen" );
 		QCommandLineOption playlistFileNameOption( QStringList() << "p" << "playlist", "Load a playlist (*.h2playlist) at startup", "File" );
 		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
+		QCommandLineOption configFileOption(
+			QStringList() << "config", "Use an alternate config file", "Path" );
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
@@ -261,6 +263,7 @@ int main(int argc, char *argv[])
 		parser.addOption( noSplashScreenOption );
 		parser.addOption( playlistFileNameOption );
 		parser.addOption( systemDataPathOption );
+		parser.addOption( configFileOption );
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
@@ -281,6 +284,7 @@ int main(int argc, char *argv[])
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
 		QString sPlaylistFilename = parser.value( playlistFileNameOption );
 		QString sSysDataPath = parser.value( systemDataPathOption );
+		const QString sConfigFilePath = parser.value( configFileOption );
 		QString sSongFilename = parser.value ( songFileOption );
 		QString sDrumkitToLoad = parser.value( kitOption );
 		QString sVerbosityString = parser.value( verboseOption );
@@ -340,12 +344,8 @@ int main(int argc, char *argv[])
 		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile,
 												  true, bLogTimestamps );
 		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
-		
-		if( sSysDataPath.length() == 0 ) {
-			H2Core::Filesystem::bootstrap( pLogger );
-		} else {
-			H2Core::Filesystem::bootstrap( pLogger, sSysDataPath );
-		}
+
+		H2Core::Filesystem::bootstrap( pLogger, sSysDataPath, sConfigFilePath );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
