@@ -117,7 +117,8 @@ QStringList Filesystem::__ladspa_paths;
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
 /* TODO QCoreApplication is not instantiated */
-bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
+bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
+							const QString& sUserConfigPath )
 {
 	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
@@ -147,7 +148,17 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
-	if( sys_path!=nullptr ) __sys_data_path = sys_path;
+	if ( ! sSysDataPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom system data folder [%1]" )
+				 .arg( sSysDataPath ) );
+		__sys_data_path = sSysDataPath;
+	}
+
+	if ( ! sUserConfigPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom user-level config file [%1]" )
+				 .arg( sUserConfigPath ) );
+		__usr_cfg_path = sUserConfigPath;
+	}
 
 	if( !dir_readable( __sys_data_path ) ) {
 		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );
