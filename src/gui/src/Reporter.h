@@ -60,6 +60,7 @@ class Reporter : public QObject
 
 	static QString m_sPrefix;
 	QString m_sContext;
+	static QString m_sLogFile;
 
 	void addLine( const QString& s );
 
