@@ -37,6 +37,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "PlaylistEditor/PlaylistDialog.h"
+#include "Parser.h"
 #include "Skin.h"
 #include "Reporter.h"
 
@@ -214,126 +215,15 @@ int main(int argc, char *argv[])
 		QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
-		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
-		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
-		pBootStrApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
-
-		
-		QCommandLineParser parser;
-		
-		parser.setApplicationDescription( H2Core::getAboutText() );
-
-		QStringList availableAudioDrivers;
-		for ( const auto& ddriver : H2Core::Preferences::getSupportedAudioDrivers() ) {
-			availableAudioDrivers << H2Core::Preferences::audioDriverToQString( ddriver );
-		}
-		availableAudioDrivers << H2Core::Preferences::audioDriverToQString(
-			H2Core::Preferences::AudioDriver::Auto );
-		
-		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver",
-											  QString( "Use the selected audio driver (%1)" )
-											  .arg( availableAudioDrivers.join( ", " ) ),
-											  "Audiodriver");
-		QCommandLineOption installDrumkitOption( QStringList() << "i" << "install", "Install a drumkit (*.h2drumkit)" , "File");
-		QCommandLineOption noSplashScreenOption( QStringList() << "n" << "nosplash", "Hide splash screen" );
-		QCommandLineOption playlistFileNameOption( QStringList() << "p" << "playlist", "Load a playlist (*.h2playlist) at startup", "File" );
-		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
-		QCommandLineOption configFileOption(
-			QStringList() << "config", "Use an alternate config file", "Path" );
-		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
-		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
-		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
-		QCommandLineOption logFileOption( QStringList() << "L" << "log-file",
-										  "Alternative log file path", "Path" );
-		QCommandLineOption logTimestampsOption(
-			QStringList() << "T" << "log-timestamps",
-			"Add timestamps to all log messages" );
-		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
-		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
-		QCommandLineOption noReporterOption( QStringList() << "child", "Child process (no crash reporter)");
-#ifdef H2CORE_HAVE_OSC
-		QCommandLineOption oscPortOption( QStringList() << "O" << "osc-port",
-										  "Custom port for OSC connections", "int" );
-#endif
-		
-		parser.addHelpOption();
-		parser.addVersionOption();
-		parser.addOption( audioDriverOption );
-		parser.addOption( installDrumkitOption );
-		parser.addOption( noSplashScreenOption );
-		parser.addOption( playlistFileNameOption );
-		parser.addOption( systemDataPathOption );
-		parser.addOption( configFileOption );
-		parser.addOption( songFileOption );
-		parser.addOption( kitOption );
-		parser.addOption( verboseOption );
-		parser.addOption( logFileOption );
-		parser.addOption( logTimestampsOption );
-		parser.addOption( shotListOption );
-		parser.addOption( uiLayoutOption );
-		parser.addOption( noReporterOption );
-#ifdef H2CORE_HAVE_OSC
-		parser.addOption( oscPortOption );
-#endif
-		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
-		
-		// Evaluate the options
-		parser.process( *pBootStrApp );
-		QString sSelectedDriver = parser.value( audioDriverOption );
-		QString sDrumkitName = parser.value( installDrumkitOption );
-		bool	bNoSplash = parser.isSet( noSplashScreenOption );
-		QString sPlaylistFilename = parser.value( playlistFileNameOption );
-		QString sSysDataPath = parser.value( systemDataPathOption );
-		const QString sConfigFilePath = parser.value( configFileOption );
-		QString sSongFilename = parser.value ( songFileOption );
-		QString sDrumkitToLoad = parser.value( kitOption );
-		QString sVerbosityString = parser.value( verboseOption );
-		QString sShotList = parser.value( shotListOption );
-		QString sUiLayout = parser.value( uiLayoutOption );
-		QString sLogFile = parser.value( logFileOption );
-		bool bLogTimestamps = parser.isSet( logTimestampsOption );
-
-		unsigned logLevelOpt = H2Core::Logger::Error;
-		if( parser.isSet(verboseOption) ){
-			if( !sVerbosityString.isEmpty() )
-			{
-				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
-			} else {
-				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
-			}
+		Parser parser;
+		if ( ! parser.parse( argc, argv ) ) {
+			std::cerr << "Error: Unable to parse CLI arguments. Abort..."
+					  << std::endl;
+			exit( 1 );
 		}
 
-		int nOscPort = -1;
-#ifdef H2CORE_HAVE_OSC
-		QString sOscPort = parser.value( oscPortOption );
-		if ( ! sOscPort.isEmpty() ) {
-			bool bOk;
-			nOscPort = sOscPort.toInt( &bOk, 10 );
-			if ( ! bOk ) {
-				std::cerr << "Unable to parse 'osc-port' option. Please provide an integer value"
-						  << std::endl;
-				exit( 1 );
-			}
-		}
-#endif
+		QString sSongFilename = parser.getSongFilename();
 
-		// Operating system GUIs typically pass documents to open as
-		// simple positional arguments to the process command
-		// line. Handling this here enables "Open with" as well as
-		// default document bindings to work.
-		QString sArg;
-		foreach ( sArg, parser.positionalArguments() ) {
-			if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
-				sSongFilename = sArg;
-			}
-			if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
-				sDrumkitName = sArg;
-			}
-			if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-				sPlaylistFilename = sArg;
-			}
-		}
-		
 		std::cout << H2Core::getAboutText().toStdString();
 		
 		setup_unix_signal_handlers();
@@ -341,11 +231,15 @@ int main(int argc, char *argv[])
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
-		auto pLogger = H2Core::Logger::bootstrap( logLevelOpt, sLogFile,
-												  true, bLogTimestamps );
-		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
+		auto pLogger = H2Core::Logger::bootstrap(
+			parser.getLogLevel(), parser.getLogFile(), true,
+			parser.getLogTimestamps() );
+		H2Core::Base::bootstrap(
+			pLogger, pLogger->should_log( H2Core::Logger::Debug ) );
 
-		H2Core::Filesystem::bootstrap( pLogger, sSysDataPath, sConfigFilePath );
+		H2Core::Filesystem::bootstrap(
+			pLogger, parser.getSysDataPath(), parser.getConfigFilePath(),
+			parser.getLogFile() );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
@@ -377,16 +271,16 @@ int main(int argc, char *argv[])
 #endif
 
 		// Force layout
-		if ( !sUiLayout.isEmpty() ) {
-			if ( sUiLayout == "tabbed" ) {
+		if ( ! parser.getUiLayout().isEmpty() ) {
+			if ( parser.getUiLayout() == "tabbed" ) {
 				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::Tabbed );
 			} else {
 				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::SinglePane );
 			}
 		}
 
-		if ( nOscPort != -1 ) {
-			pPref->m_nOscTemporaryPort = nOscPort;
+		if ( parser.getOscPort() != -1 ) {
+			pPref->m_nOscTemporaryPort = parser.getOscPort();
 		}
 
 #ifdef H2CORE_HAVE_LASH
@@ -395,18 +289,20 @@ int main(int argc, char *argv[])
 		LashClient* pLashClient = LashClient::get_instance();
 
 #endif
-		if( ! sDrumkitName.isEmpty() ){
-			H2Core::Drumkit::install( sDrumkitName );
-			exit(0);
+		if( ! parser.getInstallDrumkitPath().isEmpty() ){
+			if ( ! H2Core::Drumkit::install( parser.getInstallDrumkitPath() ) ) {
+				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
+							 .arg( parser.getInstallDrumkitPath() ) );
+				exit( 1  );
+			}
+			exit( 0 );
 		}
 
-		if ( ! sSelectedDriver.isEmpty() ) {
+		if ( ! parser.getAudioDriver().isEmpty() ) {
 			pPref->m_audioDriver =
-				H2Core::Preferences::parseAudioDriver( sSelectedDriver );
+				H2Core::Preferences::parseAudioDriver( parser.getAudioDriver() );
 		}
 
-		// Bootstrap is complete, start GUI
-		delete pBootStrApp;
 		H2QApplication* pQApp = new H2QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
@@ -510,7 +406,7 @@ int main(int argc, char *argv[])
 #ifdef H2CORE_HAVE_OSC
 		// Check for being under session management without the
 		// NsmClient class available yet.
-		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
+		if ( parser.getNoSplashScreen() ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
 		else {
@@ -577,9 +473,10 @@ int main(int argc, char *argv[])
 		
 		pSplash->finish( pMainForm );
 
-		if( ! sPlaylistFilename.isEmpty() ){
-			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
-			if ( loadlist ){
+		if( ! parser.getPlaylistFilename().isEmpty() ){
+			bool bLoadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName(
+				parser.getPlaylistFilename() );
+			if ( bLoadlist ){
 				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
 				___ERRORLOG ( "Error loading the playlist" );
@@ -587,8 +484,9 @@ int main(int argc, char *argv[])
 		}
 
 
-		if( ! sDrumkitToLoad.isEmpty() ) {
-			pHydrogen->getCoreActionController()->setDrumkit( sDrumkitToLoad );
+		if( ! parser.getDrumkitToLoad().isEmpty() ) {
+			pHydrogen->getCoreActionController()->setDrumkit(
+				parser.getDrumkitToLoad() );
 		}
 
 		// Write the changes in the Preferences to disk to make them
@@ -600,8 +498,8 @@ int main(int argc, char *argv[])
 		// Tell the core that the GUI is now fully loaded and ready.
 		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
 
-		if ( sShotList != QString() ) {
-			ShotList *sl = new ShotList( sShotList );
+		if ( ! parser.getShotList().isEmpty() ) {
+			ShotList *sl = new ShotList( parser.getShotList() );
 			sl->shoot();
 		}
 
