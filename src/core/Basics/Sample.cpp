@@ -164,7 +164,8 @@ bool Sample::load( float fBpm )
 	// characters of the filename entered in the GUI right. No matter which
 	// encoding was used locally.
 	// We have to terminate the string using a null character ourselves.
-	QString sPaddedPath = get_filepath().append( '\0' );
+	QString sPath( get_filepath() );
+	const QString sPaddedPath = sPath.append( '\0' );
 	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
 
 	sPaddedPath.toWCharArray( encodedFilename );

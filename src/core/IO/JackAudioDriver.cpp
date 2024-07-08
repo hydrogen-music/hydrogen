@@ -643,6 +643,13 @@ void JackAudioDriver::updateTransportPosition()
 				else {
 					m_timebaseState = Timebase::None;
 				}
+
+#if JACK_DEBUG
+				J_DEBUGLOG( QString( "Updating Timebase [0] [%1] -> [%2]" )
+							.arg( TimebaseToQString( Timebase::Master ) )
+							.arg( TimebaseToQString( m_timebaseState ) ) );
+#endif
+
 				m_nTimebaseFrameOffset = 0;
 				EventQueue::get_instance()->push_event(
 					EVENT_JACK_TIMEBASE_STATE_CHANGED,
@@ -654,6 +661,13 @@ void JackAudioDriver::updateTransportPosition()
 			if ( m_JackTransportPos.valid & JackPositionBBT ) {
 				// There is an external master
 				if ( m_timebaseState != Timebase::Listener ) {
+
+#if JACK_DEBUG
+				J_DEBUGLOG( QString( "Updating Timebase [1] [%1] -> [%2]" )
+							.arg( TimebaseToQString( m_timebaseState ) )
+							.arg( TimebaseToQString( Timebase::Listener ) ) );
+#endif
+
 					m_timebaseState = Timebase::Listener;
 					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->push_event(
@@ -674,6 +688,13 @@ void JackAudioDriver::updateTransportPosition()
 				}
 				else {
 					m_timebaseTracking = TimebaseTracking::Valid;
+
+#if JACK_DEBUG
+				J_DEBUGLOG( QString( "Updating Timebase [2] [%1] -> [%2]" )
+							.arg( TimebaseToQString( m_timebaseState ) )
+							.arg( TimebaseToQString( Timebase::None ) ) );
+#endif
+
 					m_timebaseState = Timebase::None;
 					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->push_event(
@@ -683,12 +704,6 @@ void JackAudioDriver::updateTransportPosition()
 			}
 		}
 	}
-
-#if JACK_DEBUG
-	J_DEBUGLOG( QString( "Timebase state: %1, tracking: %2" )
-			  .arg( TimebaseToQString( m_timebaseState ) )
-			  .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) );
-#endif
 
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
@@ -1284,10 +1299,14 @@ void JackAudioDriver::initTimebaseMaster()
 						.arg( nReturnValue ) );
 		}
 		else {
-#if JACK_DEBUG
-			J_DEBUGLOG( "Registered as master" );
-#endif
 			m_timebaseTracking = TimebaseTracking::Valid;
+
+#if JACK_DEBUG
+			J_DEBUGLOG( QString( "Updating Timebase [2] [%1] -> [%2]" )
+						.arg( TimebaseToQString( m_timebaseState ) )
+						.arg( TimebaseToQString( Timebase::Master ) ) );
+#endif
+
 			m_timebaseState = Timebase::Master;
 			EventQueue::get_instance()->push_event(
 				EVENT_JACK_TIMEBASE_STATE_CHANGED,
@@ -1323,12 +1342,15 @@ void JackAudioDriver::releaseTimebaseMaster()
 	else {
 		m_timebaseState = Timebase::None;
 	}
-	EventQueue::get_instance()->push_event(
-		EVENT_JACK_TIMEBASE_STATE_CHANGED,
-		static_cast<int>(m_timebaseState) );
+
 #if JACK_DEBUG
-	J_DEBUGLOG( TimebaseToQString( m_timebaseState ) );
+	J_DEBUGLOG( QString( "Updating Timebase [%1] -> [%2]" )
+				.arg( TimebaseToQString( Timebase::Master ) )
+				.arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
+
+	EventQueue::get_instance()->push_event(
+		EVENT_JACK_TIMEBASE_STATE_CHANGED, static_cast<int>(m_timebaseState) );
 
 }
 
@@ -1386,15 +1408,18 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pDriver->m_timebaseTracking = TimebaseTracking::Valid;
 	}
 	if ( pDriver->m_timebaseState != Timebase::Master ) {
+
+#if JACK_DEBUG
+		J_DEBUGLOG( QString( "Updating Timebase [%1] -> [%2]" )
+					.arg( TimebaseToQString( pDriver->m_timebaseState ) )
+					.arg( TimebaseToQString( Timebase::Master ) ) );
+#endif
+
 		pDriver->m_timebaseState = Timebase::Master;
 
 		EventQueue::get_instance()->push_event(
 			EVENT_JACK_TIMEBASE_STATE_CHANGED,
 			static_cast<int>(pDriver->m_timebaseState) );
-#if JACK_DEBUG
-		J_DEBUGLOG( QString( "Switching timebase state to: %1" )
-				  .arg( TimebaseToQString( pDriver->m_timebaseState ) ) );
-#endif
 	}
 
 #if JACK_DEBUG
