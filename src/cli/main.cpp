@@ -290,7 +290,8 @@ int main(int argc, char *argv[])
 		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, bLogTimestamps );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
-		H2Core::Filesystem::bootstrap( pLogger, sSysDataPath, sConfigFilePath );
+		H2Core::Filesystem::bootstrap(
+			pLogger, sSysDataPath, sConfigFilePath, sLogFile );
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
