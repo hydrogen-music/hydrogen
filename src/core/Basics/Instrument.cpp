@@ -174,8 +174,6 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
 	if ( bSongKit ) {
 
-		bool bNoDrumkitRequired = false;
-
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = node.read_string( "drumkit", "", false,
@@ -205,16 +203,13 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 					sInstrumentDrumkitPath = "";
 				}
 			}
-			else if ( sInstrumentDrumkitName.isEmpty() ) {
-				// Both empty drumkit path and name indicate that the instrument
-				// was added as a new one to the drumkit instead of importing it
-				// from another kit. It must only hold absolute paths for
-				// samples.
-				bNoDrumkitRequired = true;
-			}
 		}
 
-		if ( sInstrumentDrumkitPath.isEmpty() && ! bNoDrumkitRequired ) {
+		// Both empty drumkit path and name indicate that the instrument was
+		// added as a new one to the drumkit instead of importing it from
+		// another kit. It must only hold absolute paths for samples.
+		if ( sInstrumentDrumkitPath.isEmpty() &&
+			 ! sInstrumentDrumkitName.isEmpty() ) {
 			if ( ! node.firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
 				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
@@ -222,12 +217,11 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 				// Using the additional lookup variable two drumkits holding
 				// the same name but one of the residing in user-space and
 				// the other one in system-space can be distinguished.
-				Filesystem::Lookup lookup =
-					static_cast<Filesystem::Lookup>(
-						node.read_int( "drumkitLookup",
-										 static_cast<int>(Filesystem::Lookup::stacked),
-										 false, false, bSilent ) );
-			
+				Filesystem::Lookup lookup = static_cast<Filesystem::Lookup>(
+					node.read_int( "drumkitLookup",
+								   static_cast<int>(Filesystem::Lookup::stacked),
+								   false, false, bSilent ) );
+
 				sInstrumentDrumkitPath =
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
 													 lookup, true );
@@ -358,7 +352,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 
 	// This license will be applied to all samples contained in this
 	// instrument.
-	License instrumentLicense;
+	License instrumentLicense = License();
 	if ( license == License() ) {
 		// No/empty license supplied. We will use the license stored
 		// in the drumkit.xml file found in __drumkit_name. But since
@@ -367,7 +361,8 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		// the drumkit is not present yet, the License will be loaded
 		// directly.
 		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-		if ( pSoundLibraryDatabase != nullptr ) {
+		if ( pSoundLibraryDatabase != nullptr &&
+			 ! pInstrument->get_drumkit_path().isEmpty() ) {
 
 			// It is important to _not_ load the drumkit into the
 			// database as this code is part of the drumkit load
@@ -377,14 +372,8 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 				pInstrument->get_drumkit_path() );
 			if ( pDrumkit != nullptr ) {
 				instrumentLicense = pDrumkit->getLicense();
-			} else {
-				// Associated drumkit could not be found on disk. Use unknown
-				// License as fallback.
-				instrumentLicense = License();
 			}
 		}
-	} else {
-		instrumentLicense = license;
 	}
 
 	if ( ! node.firstChildElement( "instrumentComponent" ).isNull() ) {
@@ -395,7 +384,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 				push_back( InstrumentComponent::load_from(
 							   componentNode, pInstrument->get_drumkit_path(),
 							   sSongPath, instrumentLicense, bSilent ) );
-			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
+			componentNode = componentNode.nextSiblingElement( "instrumentComponent" ) ;
 		}
 	}
 	else {
@@ -610,6 +599,8 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
 			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_type ) )
 			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_path ) )
 			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
@@ -645,8 +636,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __apply_velocity ) )
 			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
 			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
-			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_type ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
@@ -658,6 +647,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Instrument]" )
 			.append( QString( " id: %1" ).arg( __id ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", m_type: %1" ).arg( m_type ) )
 			.append( QString( ", drumkit_path: %1" ).arg( __drumkit_path ) )
 			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
@@ -693,7 +683,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", apply_velocity: %1" ).arg( __apply_velocity ) )
 			.append( QString( ", current_instr_for_export: %1" ).arg( __current_instr_for_export ) )
 			.append( QString( ", m_bHasMissingSamples: %1" ).arg( m_bHasMissingSamples ) )
-			.append( QString( ", m_type: %1" ).arg( m_type ) )
 			.append( QString( ", components: [" ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
