@@ -200,7 +200,7 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 			}
 		}
 		else if ( ! bSilent ) {
-			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registerd drumkit [%2]." )
+			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registered drumkit [%2]." )
 					 .arg( pPattern->get_name() )
 					 .arg( pPattern->getDrumkitName() ) );
 		}
@@ -489,7 +489,6 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sAuthor ) )
 			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2denominator: %3\n" ).arg( sPrefix ).arg( s ).arg( __denominator ) )
 			.append( QString( "%1%2category: %3\n" ).arg( sPrefix ).arg( s ).arg( __category ) )
