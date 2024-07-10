@@ -183,11 +183,23 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 		if ( bFound ) {
 			pInstrument = pDrumkit->getInstruments()->find( nId );
 		}
+		if ( pInstrument != nullptr ) {
+			DEBUGLOG( QString( "Instrument [%1] was found for type [%2]." )
+					  .arg( pInstrument->get_name() ).arg( m_sType ) );
+		}
+	}
+	else {
+		// Using instrument ID. This is used both for patterns created prior to
+		// version 2.0 of Hydrogen and patterns created with a kit with missing
+		// types (either legacy one or freshly created instrument).
+		pInstrument = pDrumkit->getInstruments()->find( __instrument_id );
+		if ( pInstrument != nullptr ) {
+			DEBUGLOG( QString( "Instrument [%1] was found for instrument ID [%2]." )
+					  .arg( pInstrument->get_name() ).arg( __instrument_id ) );
+		}
 	}
 
 	if ( pInstrument != nullptr ) {
-		DEBUGLOG( QString( "Instrument [%1] was found for type [%2]." )
-				  .arg( pInstrument->get_name() ).arg( m_sType ) );
 		__instrument = pInstrument;
 		__adsr = pInstrument->copy_adsr();
 		__instrument_id = pInstrument->get_id();
@@ -202,8 +214,8 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 		}
 	}
 	else {
-		DEBUGLOG( QString( "No instrument was found for type [%1]." )
-				  .arg( m_sType ) );
+		ERRORLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
+				  .arg( m_sType ).arg( __instrument_id ) );
 		__instrument = nullptr;
 		__adsr = nullptr;
 		__instrument_id = -2;
@@ -545,7 +557,7 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	note->setType( node.read_string( "type", "", false, false, bSilent ) );
+	note->setType( node.read_string( "type", "", true, false, bSilent ) );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
