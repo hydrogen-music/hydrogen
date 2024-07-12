@@ -59,7 +59,7 @@ namespace H2Core
 
 Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 					 m_pInstruments( nullptr ),
-					 m_type( Type::User ),
+					 m_context( Context::User ),
 					 m_sName( "empty" ),
 					 m_sAuthor( "undefined author" ),
 					 m_sInfo( "No information available." ),
@@ -74,7 +74,7 @@ Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	Object(),
-	m_type( other->getType() ),
+	m_context( other->getContext() ),
 	m_sPath( other->getPath() ),
 	m_sName( other->getName() ),
 	m_sAuthor( other->getAuthor() ),
@@ -161,7 +161,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		return nullptr;
 	}
 
-	pDrumkit->setType( DetermineType( pDrumkit->getPath() ) );
+	pDrumkit->setContext( DetermineContext( pDrumkit->getPath() ) );
 
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
@@ -569,7 +569,7 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	// filename, a random prefix was introduced. This has to be stripped first.
 	QString sTargetImagePath( getAbsoluteImagePath() );
 	QString sTargetImageName( getAbsoluteImagePath() );
-	if ( m_type == Type::Song ) {
+	if ( m_context == Context::Song ) {
 		sTargetImageName = Filesystem::removeUniquePrefix( sTargetImagePath );
 	}
 
@@ -687,7 +687,7 @@ void Drumkit::addInstrument() {
 	// The new instrument is manually added to a floating song kit. It must not
 	// have a drumkit path or drumkit name set. All contained samples have to be
 	// referenced by absolute paths.
-	if ( m_type != Type::Song ) {
+	if ( m_context != Context::Song ) {
 		pNewInstrument->set_drumkit_name( m_sName );
 		pNewInstrument->set_drumkit_path( m_sPath );
 	}
@@ -1617,41 +1617,41 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 	}
 }
 
-Drumkit::Type Drumkit::DetermineType( const QString& sPath ) {
+Drumkit::Context Drumkit::DetermineContext( const QString& sPath ) {
 	if ( ! sPath.isEmpty() ) {
 		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
 		if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
-			return Type::System;
+			return Context::System;
 		}
 		else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
-			return Type::User;
+			return Context::User;
 		}
 		else {
 			if ( Filesystem::dir_writable( sAbsolutePath, true ) ) {
-				return Type::SessionReadWrite;
+				return Context::SessionReadWrite;
 			} else {
-				return Type::SessionReadOnly;
+				return Context::SessionReadOnly;
 			}
 		}
 	} else {
-		return Type::Song;
+		return Context::Song;
 	}
 }
 
-QString Drumkit::TypeToString( const Type& type ) {
-	switch( type ) {
-	case Type::System:
+QString Drumkit::ContextToString( const Context& context ) {
+	switch( context ) {
+	case Context::System:
 		return "System";
-	case Type::User:
+	case Context::User:
 		return "User";
-	case Type::SessionReadOnly:
+	case Context::SessionReadOnly:
 		return "SessionReadOnly";
-	case Type::SessionReadWrite:
+	case Context::SessionReadWrite:
 		return "SessionReadWrite";
-	case Type::Song:
+	case Context::Song:
 		return "Song";
 	default:
-		return QString( "Unknown type [%1]" ).arg( static_cast<int>(type) );
+		return QString( "Unknown context [%1]" ).arg( static_cast<int>(context) );
 	}
 }
 
@@ -1697,8 +1697,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
-			.append( QString( "%1%2type: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( TypeToString( m_type ) ) )
+			.append( QString( "%1%2context: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( ContextToString( m_context ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
@@ -1719,7 +1719,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( " type: %1" ).arg( TypeToString( m_type ) ) )
+			.append( QString( " context: %1" ).arg( ContextToString( m_context ) ) )
 			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )
 			.append( QString( ", author: %1" ).arg( m_sAuthor ) )

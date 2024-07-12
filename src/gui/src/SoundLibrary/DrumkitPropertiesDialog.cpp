@@ -78,16 +78,16 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
-		auto drumkitType = pDrumkit->getType();
-		if ( drumkitType == Drumkit::Type::User ||
-			 drumkitType == Drumkit::Type::SessionReadWrite ||
-			 drumkitType == Drumkit::Type::Song ) {
+		auto drumkitContext = pDrumkit->getContext();
+		if ( drumkitContext == Drumkit::Context::User ||
+			 drumkitContext == Drumkit::Context::SessionReadWrite ||
+			 drumkitContext == Drumkit::Context::Song ) {
 			bDrumkitWritable = true;
 		}
 
 		nameTxt->setText( pDrumkit->getName() );
 
-		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 			if ( bEditingNotSaving ) {
 				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
 			}
@@ -669,7 +669,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	bool bOldImageDeleted = false;
-	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
 		if ( ! sNewImagePath.isEmpty() ) {
@@ -717,7 +717,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
-	if ( m_bSaveToNsmSession && m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	if ( m_bSaveToNsmSession && m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir( NsmClient::get_instance()->getSessionFolderPath() )
 			.absoluteFilePath( m_pDrumkit->getName() ) );
@@ -725,9 +725,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( false ) {
 #endif
 	} // Read-only and song kits we can only duplicate into the user folder.
-	else if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
-			  m_pDrumkit->getType() == Drumkit::Type::System ||
-			  m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	else if ( m_pDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
+			  m_pDrumkit->getContext() == Drumkit::Context::System ||
+			  m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		m_pDrumkit->setPath(
 			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}

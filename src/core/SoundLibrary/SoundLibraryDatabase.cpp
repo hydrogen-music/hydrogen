@@ -204,15 +204,15 @@ void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 												std::shared_ptr<Drumkit> pDrumkit ) {
 
 	QString sLabel = pDrumkit->getName();
-	const auto drumkitType = pDrumkit->getType();
+	const auto drumkitContext = pDrumkit->getContext();
 
-	if ( drumkitType == Drumkit::Type::System ) {
+	if ( drumkitContext == Drumkit::Context::System ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "system" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
 	}
-	else if ( drumkitType == Drumkit::Type::SessionReadOnly ||
-			  drumkitType == Drumkit::Type::SessionReadWrite ) {
+	else if ( drumkitContext == Drumkit::Context::SessionReadOnly ||
+			  drumkitContext == Drumkit::Context::SessionReadWrite ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "session" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );

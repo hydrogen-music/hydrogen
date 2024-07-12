@@ -49,7 +49,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	public:
 
 	/** Indicates usage, storage, and access permissions of a kit.*/
-	enum class Type {
+	enum class Context {
 		/** Kit is located in the system-level drumkit folder, loaded into the
 		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
 		System = 0,
@@ -65,7 +65,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * loaded into Hydrogen during a session using e.g. OSC or its location
 		 * was provided during startup. It is transient and can be modified.*/
 		SessionReadWrite = 3,
-		/** In contrast to the other types this drumkit was not loaded from a
+		/** In contrast to the other contexts this drumkit was not loaded from a
 		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
 		 * is part of a song and loaded with a .h2song or created with a new
 		 * song. It is stored with the song when saving the song and can be
@@ -74,8 +74,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Hydrogen.*/
 		Song = 4
 	};
-		static QString TypeToString( const Type& type );
-		static Type DetermineType( const QString& sPath );
+		static QString ContextToString( const Context& context );
+		static Context DetermineContext( const QString& sPath );
 
 		/** drumkit constructor, does nothing */
 		Drumkit();
@@ -258,8 +258,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		void setType( const Type& type );
-		const Type& getType() const;
+		void setContext( const Context& context );
+		const Context& getContext() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
@@ -359,7 +359,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License m_imageLicense;			///< drumkit image license
 		/** Transient property neither written to a drumkit.xml nor to a .h2song
 		 * but determined when loading the kit. */
-		Type m_type;
+		Context m_context;
 
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
@@ -418,11 +418,11 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
-inline void Drumkit::setType( const Drumkit::Type& type ) {
-	m_type = type;
+inline void Drumkit::setContext( const Drumkit::Context& context ) {
+	m_context = context;
 }
-inline const Drumkit::Type& Drumkit::getType() const {
-	return m_type;
+inline const Drumkit::Context& Drumkit::getContext() const {
+	return m_context;
 }
 
 inline void Drumkit::setPath( const QString& path )

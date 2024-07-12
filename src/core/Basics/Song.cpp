@@ -128,7 +128,7 @@ Song::~Song()
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
-	m_pDrumkit->setType( Drumkit::Type::Song );
+	m_pDrumkit->setContext( Drumkit::Context::Song );
 
 	m_sLastLoadedDrumkitPath = pDrumkit->getPath();
 }
