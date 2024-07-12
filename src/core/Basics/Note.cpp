@@ -179,13 +179,17 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 	std::shared_ptr<Instrument> pInstrument;
 	if ( ! m_sType.isEmpty() ) {
 		bool bFound;
-		const int nId = pDrumkit->toDrumkitMap()->getId( m_sType, bFound );
+		const int nId = pDrumkit->toDrumkitMap()->getId( m_sType, &bFound );
 		if ( bFound ) {
 			pInstrument = pDrumkit->getInstruments()->find( nId );
 		}
 		if ( pInstrument != nullptr ) {
 			DEBUGLOG( QString( "Instrument [%1] was found for type [%2]." )
 					  .arg( pInstrument->get_name() ).arg( m_sType ) );
+		} else {
+			DEBUGLOG( QString( "No instrument found for type [%1] in drumkit map [%2]" )
+					  .arg( m_sType )
+					  .arg( pDrumkit->toDrumkitMap()->toQString() ) );
 		}
 	}
 	else {
