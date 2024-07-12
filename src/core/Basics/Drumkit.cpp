@@ -260,27 +260,37 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 				  .arg( duplicates.join( ", " ) ) );
 	}
 
+	pDrumkit->fixupTypes( bSilent );
+
+	return pDrumkit;
+}
+
+void Drumkit::fixupTypes( bool bSilent ) {
 	// In case no instrument types are defined in the loaded drumkit, we
 	// check whether there is .h2map file in the shipped with the installation
 	// corresponding to the name of the kit.
 	bool bMissingType = false;
-	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {
 			bMissingType = true;
 			break;
 		}
 	}
 
+	if ( ! bMissingType ) {
+		return;
+	}
+
 	if ( bMissingType ) {
 		const QString sMapFile =
-			Filesystem::getDrumkitMap( pDrumkit->getExportName(), bSilent );
+			Filesystem::getDrumkitMap( getExportName(), bSilent );
 
 		if ( ! sMapFile.isEmpty() ) {
 			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
 			if ( pDrumkitMap != nullptr ) {
 				// We do not replace any type but only set those not defined
 				// yet.
-				for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+				for ( const auto& ppInstrument : *m_pInstruments ) {
 					if ( ppInstrument != nullptr &&
 						 ppInstrument->getType().isEmpty() &&
 						 ! pDrumkitMap->getType( ppInstrument->get_id() ).isEmpty() ) {
@@ -291,16 +301,14 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 			}
 			else {
 				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types of instruments for drumkit [%2]" )
-						  .arg( sMapFile ).arg( sDrumkitPath ) );
+						  .arg( sMapFile ).arg( getExportName() ) );
 			}
 		}
 		else if ( ! bSilent ) {
 			INFOLOG( QString( "There are missing Types for instruments in drumkit [%1] and no corresponding .h2map file found." )
-					 .arg( sDrumkitPath ) );
+					 .arg( getExportName() ) );
 		}
 	}
-
-	return pDrumkit;
 }
 
 void Drumkit::loadSamples( float fBpm )

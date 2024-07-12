@@ -331,6 +331,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Returns all types of the contained instruments. */
 		std::set<DrumkitMap::Type> getAllTypes() const;
 
+		/** In case no instrument types are defined in the loaded drumkit, we
+		 * check whether there is a .h2map file shipped with the installation
+		 * corresponding to getExportName() of the kit. From this is retrieve
+		 * only missing types.*/
+		void fixupTypes( bool bSilent = false );
+
 		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
 
 		/** Formatted string version for debugging purposes.

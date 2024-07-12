@@ -175,6 +175,8 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	pNewDrumkit->setComponents( pComponents );
 	pNewDrumkit->setInstruments( pInstrumentList );
 
+	pNewDrumkit->fixupTypes( bSilent );
+
 	return pNewDrumkit;
 }
 
