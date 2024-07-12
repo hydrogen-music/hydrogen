@@ -175,11 +175,17 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
+	const auto pDrumkitMap = pDrumkit->toDrumkitMap();
 
 	std::shared_ptr<Instrument> pInstrument;
-	if ( ! m_sType.isEmpty() ) {
+	// In case drumkit and note feature a type string, we use this one to
+	// retrieve the matching instrument. Else we restore to "historical" loading
+	// using instrument IDs. This is used both for patterns created prior to
+	// version 2.0 of Hydrogen and patterns created with a kit with missing
+	// types (either legacy one or freshly created instrument).
+	if ( ! m_sType.isEmpty() && pDrumkitMap->getAllTypes().size() > 0 ) {
 		bool bFound;
-		const int nId = pDrumkit->toDrumkitMap()->getId( m_sType, &bFound );
+		const int nId = pDrumkitMap->getId( m_sType, &bFound );
 		if ( bFound ) {
 			pInstrument = pDrumkit->getInstruments()->find( nId );
 		}
@@ -188,14 +194,10 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 					  .arg( pInstrument->get_name() ).arg( m_sType ) );
 		} else {
 			DEBUGLOG( QString( "No instrument found for type [%1] in drumkit map [%2]" )
-					  .arg( m_sType )
-					  .arg( pDrumkit->toDrumkitMap()->toQString() ) );
+					  .arg( m_sType ).arg( pDrumkitMap->toQString() ) );
 		}
 	}
 	else {
-		// Using instrument ID. This is used both for patterns created prior to
-		// version 2.0 of Hydrogen and patterns created with a kit with missing
-		// types (either legacy one or freshly created instrument).
 		pInstrument = pDrumkit->getInstruments()->find( __instrument_id );
 		if ( pInstrument != nullptr ) {
 			DEBUGLOG( QString( "Instrument [%1] was found for instrument ID [%2]." )
