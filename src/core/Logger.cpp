@@ -22,6 +22,7 @@
 
 #include "core/Logger.h"
 #include "core/Helpers/Filesystem.h"
+#include <core/Version.h>
 
 #include <cstdio>
 #include <chrono>
@@ -165,6 +166,8 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamp
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 
 	if ( should_log( Info ) ) {
+		log( Info, "Logger", "Logger", QString( "Starting Hydrogen version [%1]" )
+			 .arg( QString::fromStdString( get_version() ) ) );
 		log( Info, "Logger", "Logger", QString( "Using log file [%1]" )
 			 .arg( m_sLogFilePath ) );
 	}

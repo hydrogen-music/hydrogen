@@ -118,7 +118,8 @@ QString Filesystem::m_sPreferencesOverwritePath = "";
 
 /* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
-							const QString& sUserConfigPath )
+							const QString& sUserConfigPath,
+							const QString& sLogFile )
 {
 	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
@@ -158,6 +159,12 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 		INFOLOG( QString( "Using custom user-level config file [%1]" )
 				 .arg( sUserConfigPath ) );
 		__usr_cfg_path = sUserConfigPath;
+	}
+
+	if ( ! sLogFile.isEmpty() ) {
+		// No need for an info log. This is done within the bootstrap of the
+		// logger.
+		Filesystem::__usr_log_path = sLogFile;
 	}
 
 	if( !dir_readable( __sys_data_path ) ) {

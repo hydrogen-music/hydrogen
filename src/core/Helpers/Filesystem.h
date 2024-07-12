@@ -99,15 +99,17 @@ namespace H2Core
 		/**
 		 * check user and system filesystem usability
 		 *
-		 * If either @a sSysDataPath or @a sUserConfigFile are not provided or
-		 * empty, the corresponding default values will be used
+		 * If either @a sSysDataPath, @a sLogFile, or @a sUserConfigFile are not
+		 * provided or empty, the corresponding default values will be used
 		 *
 		 * \param logger is a pointer to the logger instance which will be used
 		 * \param sSysDataPath path to an alternate system data folder
 		 * \param sUserConfigFile path to an alternate hydrogen.conf config file
+		 * \param sLogFile path to alternate log file
 		 */
 		static bool bootstrap( Logger* logger, const QString& sSysDataPath = "",
-							   const QString& sUserConfigFile = "" );
+							   const QString& sUserConfigFile = "",
+							   const QString& sLogFile = "" );
 
 		/** returns system data path */
 		static QString sys_data_path();
