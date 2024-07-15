@@ -29,13 +29,14 @@
 #include <core/SMF/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
@@ -2303,6 +2304,7 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
 
 	const auto pDrumkitDB = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
 
+	// In case no drumkit was provided, use the next/previous one in the DB.
 	std::shared_ptr<H2Core::Drumkit> pTarget = pTargetKit;
 	if ( pTarget == nullptr ) {
 		const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
@@ -2329,34 +2331,48 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
 				pTarget = std::prev( search, 1 )->second;
 			}
 		}
+
+		if ( pTarget == nullptr ) {
+			ERRORLOG( "Unable to select target drumkit" );
+			return false;
+		}
 	}
 
-	auto pSource = pSong->getDrumkit();
-	if ( pSource == nullptr || pTarget == nullptr ) {
-		ERRORLOG( "Invalid kits. Unable to switch." );
-		return false;
+	auto pPatternList = pSong->getPatternList();
+
+	Patch patch;
+	// We only use the patchbay in case there are missing types in the target
+	// kit. And we can only use it in case the notes in the patterns are
+	// associated with instrument types.
+	if ( pTarget->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
+		patch = remapPatterns( pPatternList, pTarget );
 	}
 
-	auto pPatchBay = new PatchBay( this, pSource, pTarget,
-								   PatchBay::Type::Instruments );
+	// TODO both remapping of the types in the pattern and switching drumkits
+	// has to be undone/redone in a single action.
+	DEBUGLOG( patch.toQString() );
+
+	std::shared_ptr<Action> pAction;
+	if ( bCycleForward ) {
+		pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
+	}
+	else {
+		pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
+	}
+
+	MidiActionManager::get_instance()->handleAction( pAction );
+
+	return true;
+}
+
+Patch MainForm::remapPatterns( PatternList* pPatternList,
+							  std::shared_ptr<Drumkit> pDrumkit ) {
+	auto pPatchBay = new PatchBay( this, pPatternList, pDrumkit );
 	auto nRes = pPatchBay->exec();
 
 	DEBUGLOG( QString( "Patch bay finished: %v" ).arg( nRes ) );
 
-	if ( pTargetKit == nullptr ) {
-		std::shared_ptr<Action> pAction;
-		if ( bCycleForward ) {
-			pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
-		}
-		else {
-			pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
-		}
-
-		MidiActionManager::get_instance()->handleAction( pAction );
-	}
-
-
-	return true;
+	return pPatchBay->getPatch();
 }
 
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {

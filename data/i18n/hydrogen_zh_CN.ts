@@ -2949,13 +2949,6 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>NewTypeDialog</name>
-    <message>
-        <source>Add a new instrument type</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>NotePropertiesRuler</name>
     <message>
         <source>Select &amp;all</source>

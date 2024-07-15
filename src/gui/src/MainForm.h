@@ -31,12 +31,14 @@
 #include <memory>
 
 #include "EventListener.h"
+#include "Types/Patch.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/PatternList.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -91,6 +93,11 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 											  const QString& sContext );
 
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
+
+		/** Remaps all patterns in @a pPattern (of length 1 in case you want to
+		 * map a single pattern) to @a pDrumkit using #PatchBay. */
+		Patch remapPatterns( H2Core::PatternList* pPatterns,
+							 std::shared_ptr<H2Core::Drumkit> pDrumkit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
