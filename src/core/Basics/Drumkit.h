@@ -337,6 +337,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * only missing types.*/
 		void fixupTypes( bool bSilent = false );
 
+		bool hasMissingTypes() const;
+
 		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
 
 		/** Formatted string version for debugging purposes.

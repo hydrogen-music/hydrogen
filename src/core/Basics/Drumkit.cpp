@@ -1691,6 +1691,15 @@ std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
 	return pMap;
 }
 
+bool Drumkit::hasMissingTypes() const {
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
 
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
