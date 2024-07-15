@@ -27,6 +27,7 @@
 #include <memory>
 #include <core/License.h>
 #include <core/Object.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 
@@ -244,6 +245,9 @@ class Pattern : public H2Core::Object<Pattern>
 
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+
+		/** Aggregates all types of the contained notes. */
+		std::set<DrumkitMap::Type> getAllTypes() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

@@ -27,6 +27,7 @@
 #include <vector>
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/DrumkitMap.h>
 
 namespace H2Core
 {
@@ -184,6 +185,7 @@ class XMLNode;
 		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+		std::set<DrumkitMap::Type> getAllTypes() const;
 
 		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
 		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );

@@ -391,6 +391,18 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
+	std::set<DrumkitMap::Type> types;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			types.merge( ppPattern->getAllTypes() );
+		}
+	}
+
+	return types;
+}
+
 
 std::vector<Pattern*>::iterator PatternList::begin() {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
