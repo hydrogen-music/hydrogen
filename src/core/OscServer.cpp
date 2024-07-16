@@ -938,13 +938,8 @@ void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	bool bConditionalLoad = true;
-	if ( argc > 1 ) {
-		bConditionalLoad = argv[1]->f == 0 ? false : true;
-	}
-
 	H2Core::CoreActionController::setDrumkit(
-		QString::fromUtf8( &argv[0]->s ), bConditionalLoad );
+		QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {

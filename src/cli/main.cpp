@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToLoad.isEmpty() ){
-			CoreActionController::setDrumkit( sDrumkitToLoad, true );
+			CoreActionController::setDrumkit( sDrumkitToLoad );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();

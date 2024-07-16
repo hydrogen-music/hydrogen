@@ -6178,20 +6178,6 @@ Está certo disto?</translation>
         <translation>Remoção do drumkit falhou.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Manter</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>O kit existente possui %1 instrumentos, mas o novo possui apenas %2.
-Os primeiros %2 instrumentos serão substituídos pelos novos instrumentos e manterão suas notas, mas alguns dos instrumentos restantes têm notas.
-Você gostaria de manter ou descartar os instrumentos e anotações restantes?
-</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Clique duplo pra expandir a lista</translation>
     </message>

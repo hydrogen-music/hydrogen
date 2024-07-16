@@ -6167,19 +6167,6 @@ Bist Du sicher?</translation>
         <translation>Löschen des Schlagzeuges ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Behalten</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>Das vorhandene Schlagzeug beinhaltet %1 Instrumente. Das Neue dagegen %2.
-	Die ersten %2 Instrumente werden mit den neuen Instrumenten ersetzt und behalten ihre Noten. Aber auch einige der übrigen Instrument beinhalten Noten.
-	Willst Du diese verwerfen oder behalten?</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Doppelklick zum Aufblättern der Liste</translation>
     </message>

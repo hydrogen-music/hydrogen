@@ -257,10 +257,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @param sDrumkit Can be either the name of a #Drumkit or a
 	 * relative or absolute path pointing to it.
-	 * \param bConditional Whether to remove all redundant
-	 * H2Core::Instrument regardless of their content.
 	 */
-	static bool setDrumkit( const QString& sDrumkit, bool bConditional = true );
+	static bool setDrumkit( const QString& sDrumkit );
 	/**
 	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
 	 *
@@ -270,10 +268,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * drumkit to its default values.
 	 *
 	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
-	 * \param bConditional Whether to remove all redundant
-	 * H2Core::Instrument regardless of their content.
 	 */
-	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
+	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 	/** 
 	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
 	 *

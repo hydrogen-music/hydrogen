@@ -6180,20 +6180,6 @@ Are you sure?</source>
         <translation>Error al borrar drumkit.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Guardar</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>El kit existente tiene %1 instrumentos pero el nuevo solo tiene %2.
-Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y mantendrán sus notas, pero algunos de los instrumentos restantes tienen notas.
-¿Quiere mantener o descartar los instrumentos y las notas restantes?
-</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Hacer doble clic para expandir la lista</translation>
     </message>

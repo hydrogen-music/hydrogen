@@ -6159,20 +6159,6 @@ Are you sure?</source>
         <translation>Није успело уклањање бубњева.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Задржи</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>Постојећи бубњеви садрже %1, а ови нови само %2 инструмента.
-Првих %2 биће замењено новим инструментима уз задржавање њ. нота, али неки од преосталих инструмената садрже ноте.
-Желите ли да задржите ове преостале инструменте и ноте?
-</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Двоклик за проширење ове листе</translation>
     </message>

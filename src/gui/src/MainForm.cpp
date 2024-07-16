@@ -1365,7 +1365,7 @@ void MainForm::action_drumkit_new()
 	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false,
+		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
 		SE_switchDrumkitAction::Type::NewDrumkit );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
@@ -1543,13 +1543,14 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 			if ( pDrumkit == nullptr ) {
 				ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
 						  .arg( sFileName ) );
-				QApplication::restoreOverrideCursor();
-				return;
 			}
-			auto pAction = new SE_switchDrumkitAction(
-				pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
-				SE_switchDrumkitAction::Type::SwitchDrumkit );
-			HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+			else {
+
+				if ( ! switchDrumkit( pDrumkit ) ) {
+					ERRORLOG( QString( "Unable to switch to freshly imported kit [%1]" )
+							  .arg( sFileName ) );
+				}
+			}
 		}
 		else {
 			ERRORLOG( QString( "Unable to determine imported path for [%1]" )

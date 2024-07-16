@@ -697,7 +697,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// But due to the license propagation into the instruments, we switch
 		// the entire kit for now.
 		auto pAction = new SE_switchDrumkitAction(
-			m_pDrumkit, pSong->getDrumkit(), false,
+			m_pDrumkit, pSong->getDrumkit(),
 			SE_switchDrumkitAction::Type::EditProperties );
 		pHydrogenApp->m_pUndoStack->push( pAction );
 

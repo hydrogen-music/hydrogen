@@ -6082,17 +6082,6 @@ imported into %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Keep</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation></translation>

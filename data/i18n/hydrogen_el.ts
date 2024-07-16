@@ -6174,21 +6174,6 @@ Are you sure?</source>
         <translation>Αποτυχία διαγραφής της ομάδας κρουστών.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Διατήρηση</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>Η υπάρχουσα ομάδα κρουστών έχει %1 όργανα, όμως η καινούρια έχει %2.
-Τα πρώτα %2 όργανα θα αντικατασταθούν από τα νέα όργανα και θα διατηρήσουν τα στίγματά τους.
-Όμως, κάποια από τα υπόλοιπα όργανα έχουν στίγματα.
-
-Θα ήθελες να διατηρήσεις ή να απορρίψεις τα υπόλοιπα όργανα και τα στίγματα;</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Διπλό κλικ για την επέκταση του κατάστιχου</translation>
     </message>

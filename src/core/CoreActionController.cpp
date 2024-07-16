@@ -1058,7 +1058,7 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditional ) {
+bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
@@ -1069,10 +1069,10 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditiona
 		return false;
 	}
 
-	return setDrumkit( pDrumkit, bConditional );
+	return setDrumkit( pDrumkit );
 }
 
-bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
@@ -1088,13 +1088,12 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	}
 
 	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-			.arg( pDrumkit->getName() )
-			.arg( pDrumkit->getPath() ) );
+			.arg( pDrumkit->getName() ).arg( pDrumkit->getPath() ) );
 
 	// Use a cloned version of the kit from e.g. the SoundLibrary in
 	// order to not overwrite the original when altering the properties
 	// of the current kit.
-	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
 
 	// It would be more clean to lock the audio engine _before_ loading
 	// the samples. We might pass a tempo marker while loading and users
@@ -1104,9 +1103,9 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	pNewDrumkit->loadSamples(
 		pAudioEngine->getTransportPosition()->getBpm());
 
-	pAudioEngine->lock(RIGHT_HERE);
+	pAudioEngine->lock( RIGHT_HERE );
 
-	pSong->setDrumkit(pNewDrumkit);
+	pSong->setDrumkit( pNewDrumkit );
 
 	// Remap instruments in pattern list to ensure component indices for
 	// SelectedLayerInfo's are up to date for the current kit.
@@ -1116,21 +1115,21 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 		}
 	}
 
-	pHydrogen->renameJackPorts(pSong);
+	pHydrogen->renameJackPorts( pSong );
 
 	pAudioEngine->unlock();
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
-			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false);
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
 	}
 
 	initExternalControlInterfaces();
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event(EVENT_DRUMKIT_LOADED, 0);
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }

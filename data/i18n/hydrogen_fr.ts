@@ -6180,20 +6180,6 @@ Are you sure?</source>
         <translation>Échec de la suppression du kit.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Conserver</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>Le kit existant possède %1 instruments mais le nouveau en a seulement %2.
-Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
-Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
-</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Double-clic pour étendre la liste</translation>
     </message>
