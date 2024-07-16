@@ -1358,7 +1358,6 @@ bool OscServer::init()
 
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "", LOAD_PREV_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "f", LOAD_PREV_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "", LOAD_NEXT_DRUMKIT_Handler);
