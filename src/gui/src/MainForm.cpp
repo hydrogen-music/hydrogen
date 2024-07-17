@@ -2330,7 +2330,7 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 
 Patch MainForm::remapPatterns( PatternList* pPatternList,
 							  std::shared_ptr<Drumkit> pDrumkit ) {
-	auto pPatchBay = new PatchBay( this, pPatternList, pDrumkit );
+	auto pPatchBay = new PatchBay( nullptr, pPatternList, pDrumkit );
 	auto nRes = pPatchBay->exec();
 
 	DEBUGLOG( QString( "Patch bay finished: %v" ).arg( nRes ) );

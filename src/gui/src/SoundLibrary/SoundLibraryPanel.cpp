@@ -595,17 +595,13 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit =
 		pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
-	
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to find drumkit [%1] (mapped to path [%2]" )
 				  .arg( sDrumkitName ).arg( sDrumkitPath ) );
 		return;
 	}
 
-	auto pAction = new SE_switchDrumkitAction(
-		pDrumkit, pSong->getDrumkit(),
-		SE_switchDrumkitAction::Type::SwitchDrumkit );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	MainForm::switchDrumkit( pDrumkit );
 }
 
 void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,

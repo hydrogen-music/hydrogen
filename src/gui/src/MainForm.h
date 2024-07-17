@@ -94,10 +94,12 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
 
+		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
+
 		/** Remaps all patterns in @a pPattern (of length 1 in case you want to
 		 * map a single pattern) to @a pDrumkit using #PatchBay. */
-		Patch remapPatterns( H2Core::PatternList* pPatterns,
-							 std::shared_ptr<H2Core::Drumkit> pDrumkit );
+		static Patch remapPatterns( H2Core::PatternList* pPatterns,
+									std::shared_ptr<H2Core::Drumkit> pDrumkit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
@@ -243,8 +245,6 @@ public slots:
 			setFixedSize( w, h );
 		}
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-
-		bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 	private slots:
 		void onAutoSaveTimer();
