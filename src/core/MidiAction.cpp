@@ -1291,57 +1291,14 @@ bool MidiActionManager::redo_action( std::shared_ptr<Action> , Hydrogen* ) {
 
 bool MidiActionManager::loadNextDrumkit( std::shared_ptr<Action>, Hydrogen* ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-
-	const auto pDrumkitDB = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
-	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-
-	const auto search = pDrumkitDB.find( sLastLoadedDrumkitPath );
-	std::shared_ptr<Drumkit> pNewDrumkit;
-	if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ||
-		 std::next( pDrumkitDB.find( sLastLoadedDrumkitPath ), 1 ) ==
-		 pDrumkitDB.end() ) {
-		pNewDrumkit = pDrumkitDB.begin()->second;
-	}
-	else {
-		pNewDrumkit = std::next( search, 1 )->second;
-	}
-
-	CoreActionController::setDrumkit( pNewDrumkit );
-
-	return true;
+	return CoreActionController::setDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() );
 }
 
 bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<Action>, Hydrogen* ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-
-	const auto pDrumkitDB = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
-	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-
-	const auto search = pDrumkitDB.find( sLastLoadedDrumkitPath );
-	std::shared_ptr<Drumkit> pNewDrumkit;
-	if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ) {
-		pNewDrumkit = pDrumkitDB.begin()->second;
-	}
-	else if ( search == pDrumkitDB.begin() ) {
-		pNewDrumkit = std::prev( pDrumkitDB.end(), 1 )->second;
-	}
-	else {
-		pNewDrumkit = std::prev( search, 1 )->second;
-	}
-
-	CoreActionController::setDrumkit( pNewDrumkit );
-
-	return true;
+	return CoreActionController::setDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() );
 }
 
 int MidiActionManager::getParameterNumber( const QString& sActionType ) const {

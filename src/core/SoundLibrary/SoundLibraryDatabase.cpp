@@ -26,9 +26,11 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {
@@ -198,6 +200,54 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	}
 	
 	return m_drumkitDatabase.at( sDrumkitPath );
+}
+
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+	else if ( search == m_drumkitDatabase.begin() ) {
+		// Periodic boundary conditions. The previous with respect to the first
+		// one is the last.
+		return std::prev( m_drumkitDatabase.end(), 1 )->second;
+	}
+
+	return std::prev( search, 1 )->second;
+}
+
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ||
+		 std::next( m_drumkitDatabase.find( sLastLoadedDrumkitPath ), 1 ) ==
+		 m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit or it is located at the
+		// very bottom, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+
+	return std::next( search, 1 )->second;
 }
 
 void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,

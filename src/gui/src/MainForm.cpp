@@ -2292,8 +2292,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	}
 }
 
-bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
-							  bool bCycleForward ) {
+bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 	DEBUGLOG("");
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -2302,41 +2301,9 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
-
-	const auto pDrumkitDB = pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase();
-
-	// In case no drumkit was provided, use the next/previous one in the DB.
-	std::shared_ptr<H2Core::Drumkit> pTarget = pTargetKit;
-	if ( pTarget == nullptr ) {
-		const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-		const auto search = pDrumkitDB.find( sLastLoadedDrumkitPath );
-
-		if ( bCycleForward ) {
-			if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ||
-				 std::next( pDrumkitDB.find( sLastLoadedDrumkitPath ), 1 ) ==
-				 pDrumkitDB.end() ) {
-				pTarget = pDrumkitDB.begin()->second;
-			}
-			else {
-				pTarget = std::next( search, 1 )->second;
-			}
-		}
-		else {
-			if ( sLastLoadedDrumkitPath.isEmpty() || search == pDrumkitDB.end() ) {
-				pTarget = pDrumkitDB.begin()->second;
-			}
-			else if ( search == pDrumkitDB.begin() ) {
-				pTarget = std::prev( pDrumkitDB.end(), 1 )->second;
-			}
-			else {
-				pTarget = std::prev( search, 1 )->second;
-			}
-		}
-
-		if ( pTarget == nullptr ) {
-			ERRORLOG( "Unable to select target drumkit" );
-			return false;
-		}
+	if ( pTargetKit == nullptr ) {
+		ERRORLOG( "Invalid target kit" );
+		return false;
 	}
 
 	auto pPatternList = pSong->getPatternList();
@@ -2345,23 +2312,18 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
 	// We only use the patchbay in case there are missing types in the target
 	// kit. And we can only use it in case the notes in the patterns are
 	// associated with instrument types.
-	if ( pTarget->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
-		patch = remapPatterns( pPatternList, pTarget );
-	}
+	// if ( pTargetKit->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
+		patch = remapPatterns( pPatternList, pTargetKit );
+	// }
 
 	// TODO both remapping of the types in the pattern and switching drumkits
 	// has to be undone/redone in a single action.
 	DEBUGLOG( patch.toQString() );
 
-	std::shared_ptr<Action> pAction;
-	if ( bCycleForward ) {
-		pAction = std::make_shared<Action>( "LOAD_NEXT_DRUMKIT" );
-	}
-	else {
-		pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
-	}
-
-	MidiActionManager::get_instance()->handleAction( pAction );
+	auto pAction = new SE_switchDrumkitAction(
+		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
+		SE_switchDrumkitAction::Type::SwitchDrumkit );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 	return true;
 }
@@ -2385,6 +2347,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pActionManager = MidiActionManager::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -2924,12 +2887,12 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::LoadNextDrumkit:
-				switchDrumkit( nullptr, true );
+				switchDrumkit( pSoundLibraryDataBase->getNextDrumkit() );
 				break;
 			case Shortcuts::Action::LoadPrevDrumkit:
-				switchDrumkit( nullptr, false );
-				pAction = std::make_shared<Action>( "LOAD_PREV_DRUMKIT" );
+				switchDrumkit( pSoundLibraryDataBase->getPreviousDrumkit() );
 				break;
+
 				//////////////////////////////////////////////////////
 				// GUI Actions
 

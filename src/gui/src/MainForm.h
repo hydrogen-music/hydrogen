@@ -244,8 +244,7 @@ public slots:
 		}
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-		bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit,
-							bool bCycleForward = true );
+		bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 	private slots:
 		void onAutoSaveTimer();

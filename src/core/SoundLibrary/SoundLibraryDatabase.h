@@ -73,6 +73,16 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 *   (containing a drumkit.xml) file as unique identifier.
 	 */
 	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+
+		/** Based on #Song::m_sLastLoadedDrumkitPath get the previous drumkit in
+		 * the data base (the one shown above the last loaded one in the Sound
+		 * Library widget) */
+		std::shared_ptr<Drumkit> getPreviousDrumkit() const;
+		/** Based on #Song::m_sLastLoadedDrumkitPath get the next drumkit in the
+		 * data base (the one shown below the last loaded one in the Sound
+		 * Library widget) */
+		std::shared_ptr<Drumkit> getNextDrumkit() const;
+
 	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
