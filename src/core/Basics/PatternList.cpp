@@ -403,6 +403,22 @@ std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
 	return types;
 }
 
+std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
+	const DrumkitMap::Type& sType ) const
+{
+	std::vector<H2Core::Note*> notes;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			auto patternNotes = ppPattern->getAllNotesOfType( sType );
+			notes.insert(
+				notes.end(), patternNotes.begin(), patternNotes.end() );
+		}
+	}
+
+	return notes;
+}
+
 
 std::vector<Pattern*>::iterator PatternList::begin() {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );

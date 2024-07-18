@@ -487,6 +487,20 @@ std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
 	return types;
 }
 
+std::vector<H2Core::Note*> Pattern::getAllNotesOfType(
+	const DrumkitMap::Type& sType ) const
+{
+	std::vector<H2Core::Note*> notes;
+
+	for ( const auto& [ _, ppNote ] : __notes ) {
+		if ( ppNote != nullptr && ppNote->getType() == sType ) {
+			notes.push_back( ppNote );
+		}
+	}
+
+	return notes;
+}
+
 std::set<Pattern*>::iterator Pattern::begin() {
 	return __flattened_virtual_patterns.begin();
 }

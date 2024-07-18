@@ -248,6 +248,8 @@ class Pattern : public H2Core::Object<Pattern>
 
 		/** Aggregates all types of the contained notes. */
 		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::vector<H2Core::Note*> getAllNotesOfType(
+			const DrumkitMap::Type& sType ) const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

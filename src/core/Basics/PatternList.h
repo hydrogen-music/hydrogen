@@ -37,6 +37,7 @@ class Pattern;
 class AudioEngineLocking;
 class InstrumentList;
 class XMLNode;
+class Note;
 
 /**
  * PatternList is a collection of patterns
@@ -186,6 +187,8 @@ class XMLNode;
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
 		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::vector<H2Core::Note*> getAllNotesOfType(
+			const DrumkitMap::Type& sType ) const;
 
 		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
 		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );
