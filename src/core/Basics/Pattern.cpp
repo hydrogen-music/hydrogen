@@ -475,7 +475,7 @@ std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
 	for ( const auto& [ _, ppNote ] : __notes ) {
 		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() ) {
 			if ( auto search = types.find( ppNote->getType() );
-				 search != types.end() ) {
+				 search == types.end() ) {
 				const auto [ _, bSuccess ] = types.insert( ppNote->getType() );
 				if ( ! bSuccess ) {
 					WARNINGLOG( QString( "Unable to insert note type [%1]" ) );
