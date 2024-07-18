@@ -29,10 +29,10 @@ QString Patch::Mapping::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Mapping]\n" ).arg( sPrefix )
-			.append( QString( "%1%2sOldType: %3" ).arg( sPrefix ).arg( s )
-					 .arg( sOldType ) )
-			.append( QString( "%1%2sNewType: %3" ).arg( sPrefix ).arg( s )
-					 .arg( sNewType ) )
+			.append( QString( "%1%2sOldPatternType: %3" ).arg( sPrefix ).arg( s )
+					 .arg( sOldPatternType ) )
+			.append( QString( "%1%2nNewInstrumentId: %3" ).arg( sPrefix ).arg( s )
+					 .arg( nNewInstrumentId ) )
 			.append( QString( "%1%2affectedNotes: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto ppNote : affectedNotes ) {
 			if ( ppNote != nullptr ) {
@@ -44,8 +44,8 @@ QString Patch::Mapping::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[Mapping]" )
-			.append( QString( " sOldType: %1" ).arg( sOldType ) )
-			.append( QString( ", sNewType: %1" ).arg( sNewType ) )
+			.append( QString( " sOldPatternType: %1" ).arg( sOldPatternType ) )
+			.append( QString( ", nNewInstrumentId: %1" ).arg( nNewInstrumentId ) )
 			.append( ", affectedNotes: [" );
 		for ( const auto ppNote : affectedNotes ) {
 			if ( ppNote != nullptr ) {
@@ -67,11 +67,11 @@ Patch::Patch() {}
 Patch::~Patch() {
 }
 
-void Patch::addMapping( const QString& sOldType, const QString& sNewType,
+void Patch::addMapping( const QString& sOldPatternType, int nNewInstrumentId,
 						std::vector<H2Core::Note*> afftectedNotes ) {
 	Mapping mapping;
-	mapping.sOldType = sOldType;
-	mapping.sNewType = sNewType;
+	mapping.sOldPatternType = sOldPatternType;
+	mapping.nNewInstrumentId = nNewInstrumentId;
 	mapping.affectedNotes = afftectedNotes;
 
 	m_mappings.push_back( mapping );

@@ -39,8 +39,8 @@ class Patch : public H2Core::Object<Patch> {
 
 public:
 		struct Mapping {
-			QString sOldType;
-			QString sNewType;
+			QString sOldPatternType;
+			int nNewInstrumentId;
 			std::vector<H2Core::Note*> affectedNotes;
 
 			/** Formatted string version for debugging purposes.
@@ -58,7 +58,7 @@ public:
 		Patch();
 		~Patch();
 
-		void addMapping( const QString& sOldType, const QString& sNewType,
+		void addMapping( const QString& sOldPatternType, int nNewInstrumentId,
 						 std::vector<H2Core::Note*> affectedNotes );
 		const std::vector<Mapping> getMappings() const {
 			return m_mappings;
