@@ -30,14 +30,113 @@ PatchBay::PatchBay( QWidget* pParent,
 	, m_pDrumkit( pDrumkit)
 {
 	// General layout structure
-	QHBoxLayout* pHBoxLayout = new QHBoxLayout( this );
-	setLayout( pHBoxLayout );
 	setMinimumWidth( 750 );
+
+	setup();
 }
 
 PatchBay::~PatchBay() {}
 
+void PatchBay::setup() {
+	if ( m_pPatternList == nullptr ) {
+		ERRORLOG( "Invalid pattern list" );
+		return;
+	}
+	if ( m_pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
+		return;
+	}
+
+	m_patternTypesBoxes.clear();
+	m_drumkitInstrumentBoxes.clear();
+	m_instrumentLabels.clear();
+
+	for ( const auto& ppInstrument : *m_pDrumkit->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+
+		QString sLabel = ppInstrument->get_name();
+		if ( ! ppInstrument->getType().isEmpty() ) {
+			sLabel.append( QString( " (%1)" ).arg( ppInstrument->getType() ) );
+		}
+		m_instrumentLabels.push_back(
+			std::make_pair( ppInstrument->get_id(), sLabel ) );
+	}
+	const auto drumkitTypes = m_pDrumkit->getAllTypes();
+
+	const auto patternTypes = m_pPatternList->getAllTypes();
+	if ( patternTypes.size() == 0 ) {
+		ERRORLOG( "Provided pattern list does not contain instrument types" );
+		return;
+	}
+
+	QGridLayout* pGridLayout = new QGridLayout( this );
+	setLayout( pGridLayout );
+
+	// Containing the right hand side - which instrument type all notes with a
+	// specific type will be remapped to.
+	auto createComboBox = [=]() {
+		LCDCombo* pCombo = new LCDCombo( this );
+		pCombo->addItem( "" );
+		for ( const auto& [_, ssLabel ] : m_instrumentLabels ) {
+			pCombo->addItem( ssLabel );
+		}
+
+		return pCombo;
+	};
+
+	int nnRow = 0;
+	for ( const auto& ssPatternType : patternTypes ) {
+		LCDDisplay* pDisplay =
+			new LCDDisplay( this, QSize( 0, 0 ), false, false );
+		pDisplay->setText( ssPatternType );
+
+		LCDCombo* pCombo = createComboBox();
+
+		// On startup the combo box will either show the same type in case it is
+		// also present within the drumkit or will be empty.
+		if ( auto search = drumkitTypes.find( ssPatternType );
+			 search != drumkitTypes.end() ) {
+			for ( const auto& ppInstrument : *m_pDrumkit->getInstruments() ) {
+				if ( ppInstrument != nullptr &&
+					 ppInstrument->getType() == ssPatternType ) {
+
+					// Offset of one because we add an empty element at the top.
+					int nnIndex = 1;
+					for ( const auto [ nnId, _ ] : m_instrumentLabels ) {
+						if ( nnId == ppInstrument->get_id() ) {
+							pCombo->setCurrentIndex( nnIndex );
+							break;
+						}
+						++nnIndex;
+					}
+					break;
+				}
+			}
+		}
+
+		pGridLayout->addWidget( pDisplay, nnRow, 0 );
+		pGridLayout->addWidget( pCombo, nnRow, 1 );
+
+		m_patternTypesBoxes.push_back( pDisplay );
+		m_drumkitInstrumentBoxes.push_back( pCombo );
+
+		++nnRow;
+	}
+}
+
 Patch PatchBay::getPatch() const {
 	Patch patch;
+
+	for ( int ii = 0; ii < m_patternTypesBoxes.size(); ++ii ) {
+		const QString ssPatternType = m_patternTypesBoxes[ ii ]->text();
+		patch.addMapping(
+			ssPatternType,
+			m_instrumentLabels[
+				m_drumkitInstrumentBoxes[ ii ]->currentIndex() + 1 ].first,
+			m_pPatternList->getAllNotesOfType( ssPatternType ) );
+	}
+
 	return patch;
 }

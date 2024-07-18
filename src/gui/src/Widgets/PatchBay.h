@@ -27,6 +27,7 @@
 
 #include <map>
 #include <memory>
+#include <utility>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -58,11 +59,20 @@ public:
 		Patch getPatch() const;
 
 private:
+		void setup();
 		std::vector<LCDDisplay*> m_patternTypesBoxes;
 		std::vector<LCDCombo*> m_drumkitInstrumentBoxes;
 
 		H2Core::PatternList* m_pPatternList;
 		std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
+
+		/** Used to correlate the choices in #m_drumkitInstrumentBoxes with the
+		 * instruments of #m_pDrumkit.
+		 *
+		 * The index of the vector correspond to the index in the combo box, the
+		 * int to instrument's ID, and the QString to the label shown in the
+		 * combo box. */
+		std::vector<std::pair<int, QString>> m_instrumentLabels;
 };
 
 #endif

@@ -2293,7 +2293,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 }
 
 bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
-	DEBUGLOG("");
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -2312,9 +2311,9 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 	// We only use the patchbay in case there are missing types in the target
 	// kit. And we can only use it in case the notes in the patterns are
 	// associated with instrument types.
-	// if ( pTargetKit->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
+	if ( pTargetKit->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
 		patch = remapPatterns( pPatternList, pTargetKit );
-	// }
+	}
 
 	// TODO both remapping of the types in the pattern and switching drumkits
 	// has to be undone/redone in a single action.
