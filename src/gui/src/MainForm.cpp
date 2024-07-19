@@ -2305,36 +2305,12 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 		return false;
 	}
 
-	auto pPatternList = pSong->getPatternList();
-
-	Patch patch;
-	// We only use the patchbay in case there are missing types in the target
-	// kit. And we can only use it in case the notes in the patterns are
-	// associated with instrument types.
-	if ( pTargetKit->hasMissingTypes() && pPatternList->getAllTypes().size() > 0 ) {
-		patch = remapPatterns( pPatternList, pTargetKit );
-	}
-
-	// TODO both remapping of the types in the pattern and switching drumkits
-	// has to be undone/redone in a single action.
-	DEBUGLOG( patch.toQString() );
-
 	auto pAction = new SE_switchDrumkitAction(
 		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
 		SE_switchDrumkitAction::Type::SwitchDrumkit );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 	return true;
-}
-
-Patch MainForm::remapPatterns( PatternList* pPatternList,
-							  std::shared_ptr<Drumkit> pDrumkit ) {
-	auto pPatchBay = new PatchBay( nullptr, pPatternList, pDrumkit );
-	auto nRes = pPatchBay->exec();
-
-	DEBUGLOG( QString( "Patch bay finished: %v" ).arg( nRes ) );
-
-	return pPatchBay->getPatch();
 }
 
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
