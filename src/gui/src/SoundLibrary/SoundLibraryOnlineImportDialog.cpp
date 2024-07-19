@@ -392,11 +392,11 @@ void SoundLibraryOnlineImportDialog::updateSoundLibraryList()
 		if( pDrumkitItem ) {
 			if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
 				pDrumkitItem->setText( 0, sLibraryName );
-				pDrumkitItem->setText( 1, tr( "Installed" ) );
+				pDrumkitItem->setText( 1, m_sLabelInstalled );
 			}
 			else {
 				pDrumkitItem->setText( 0, sLibraryName );
-				pDrumkitItem->setText( 1, tr( "New" ) );
+				pDrumkitItem->setText( 1, m_sLabelNew );
 			}
 		}
 	}
@@ -695,13 +695,31 @@ void SoundLibraryOnlineImportDialog::on_close_btn_clicked() {
 }
 
 void SoundLibraryOnlineImportDialog::selectionChanged() {
-	if ( m_pDrumkitTree->selectedItems().size() == 0 ) {
+
+	// We do not take the root nodes into account.
+	auto pCurrentItem = m_pDrumkitTree->currentItem();
+	if ( pCurrentItem != nullptr && (
+			 pCurrentItem == m_pDrumkitsItem || pCurrentItem == m_pSongItem ||
+			 pCurrentItem == m_pPatternItem ) ) {
+		pCurrentItem->setSelected( false );
+	}
+
+	// Determine how many of the selected kits are not installed yet.
+	int nInstalledKits = 0;
+	for ( const auto& ppItem : m_pDrumkitTree->selectedItems() ) {
+		if ( ppItem != nullptr && ppItem->text( 1 ) == m_sLabelNew ) {
+			++nInstalledKits;
+		}
+	}
+
+	if ( nInstalledKits == 0 ) {
 		DownloadBtn->setIsActive( false );
 		DownloadBtn->setText( m_sDownloadBtnBase );
-	} else {
+	}
+	else {
 		DownloadBtn->setIsActive( true );
 		DownloadBtn->setText(
 			QString( "%1 (%2)" ).arg( m_sDownloadBtnBase )
-			.arg( m_pDrumkitTree->selectedItems().size() ) );
+			.arg( nInstalledKits ) );
 	}
 }
