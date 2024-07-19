@@ -605,6 +605,10 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 		}
 
 		const QString sSelected = ppItem->text(0);
+		if ( ppItem->text( 1 ) == m_sLabelInstalled ) {
+			// Item already installed. Skipping...
+			continue;
+		}
 
 		for ( int ii = 0; ii < m_soundLibraryList.size(); ++ii ) {
 			if ( m_soundLibraryList[ ii ].getName() == sSelected ) {
