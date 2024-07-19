@@ -32,6 +32,7 @@
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/License.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -58,6 +59,9 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 					Qt::WindowMinMaxButtonsHint );
 
 	setWindowTitle( tr( "Sound Library import" ) );
+
+	m_sLabelInstalled = tr( "Installed" );
+	m_sLabelNew = tr( "New" );
 
 	QStringList headers;
 	headers << tr( "Sound library" ) << tr( "Status" );
@@ -105,21 +109,21 @@ SoundLibraryOnlineImportDialog::~SoundLibraryOnlineImportDialog()
 //update combo box
 void SoundLibraryOnlineImportDialog::updateRepositoryCombo()
 {
-	H2Core::Preferences* pref = H2Core::Preferences::get_instance();
+	H2Core::Preferences* pPref = H2Core::Preferences::get_instance();
 
 	/*
 		Read serverList from config and put servers into the comboBox
 	*/
 
-	if( pref->sServerList.size() == 0 ) {
-		pref->sServerList.push_back( "http://hydrogen-music.org/feeds/drumkit_list.php" );
+	if ( pPref->sServerList.size() == 0 ) {
+		pPref->sServerList.push_back(
+			"http://hydrogen-music.org/feeds/drumkit_list.php" );
 	}
 
 	repositoryCombo->clear();
 
-	std::list<QString>::const_iterator cur_Server;
-	for( cur_Server = pref->sServerList.begin(); cur_Server != pref->sServerList.end(); ++cur_Server ) {
-		repositoryCombo->insertItem( 0, *cur_Server );
+	for ( const auto& ssServer : pPref->sServerList ) {
+		repositoryCombo->insertItem( 0, ssServer );
 	}
 	reloadRepositoryData();
 }
@@ -170,18 +174,20 @@ void SoundLibraryOnlineImportDialog::clearImageCache()
 
 QString SoundLibraryOnlineImportDialog::getCachedFilename()
 {
-	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
-	QString serverMd5 = QString(QCryptographicHash::hash(( repositoryCombo->currentText().toLatin1() ),QCryptographicHash::Md5).toHex());
-	QString cacheFile = cacheDir + "/" + serverMd5;
-	return cacheFile;
+	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
+	const QString sServerMd5 = QString(
+		QCryptographicHash::hash( repositoryCombo->currentText().toLatin1(),
+								  QCryptographicHash::Md5 ).toHex() );
+	return sCacheDir + "/" + sServerMd5;
 }
 
 QString SoundLibraryOnlineImportDialog::getCachedImageFilename()
 {
-	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
-	QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
-	QString cacheFile = cacheDir + "/" + kitNameMd5 + ".png";	
-	return cacheFile;
+	const QString sCacheDir = H2Core::Filesystem::repositories_cache_dir();
+	const QString sKitNameMd5 = QString(
+		QCryptographicHash::hash( SoundLibraryNameLbl->text().toLatin1(),
+								  QCryptographicHash::Md5 ).toHex() );
+	return sCacheDir + "/" + sKitNameMd5 + ".png";
 }
 
 
@@ -221,27 +227,21 @@ void SoundLibraryOnlineImportDialog::writeCachedImage( const QString& imageFile,
 	outFile.close();
 }
 
-QString SoundLibraryOnlineImportDialog::readCachedData(const QString& fileName)
-{
-	QString content;
-	QFile inFile( fileName );
-	if( !inFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
-	{
-		ERRORLOG( QString("Failed to open file for reading: %1").arg( fileName ) );
-		return content;
+QString SoundLibraryOnlineImportDialog::readCachedData( const QString& sFileName ) {
+	QFile inFile( sFileName );
+	if ( ! inFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+		ERRORLOG( QString("Failed to open file for reading: %1").arg( sFileName ) );
+		return "";
 	}
 
 	QDomDocument document;
-	if( !document.setContent( &inFile ) )
-	{
+	if ( ! document.setContent( &inFile ) ) {
 		inFile.close();
-		return content;
+		return "";
 	}
 	inFile.close();
 
-	content = document.toString();
-
-	return content;
+	return document.toString();
 }
 
 QString SoundLibraryOnlineImportDialog::readCachedImage( const QString& imageFile )
@@ -261,80 +261,50 @@ QString SoundLibraryOnlineImportDialog::readCachedImage( const QString& imageFil
 void SoundLibraryOnlineImportDialog::reloadRepositoryData()
 {
 	QString sDrumkitXML;
-	QString cacheFile = getCachedFilename();
+	const QString sCacheFile = getCachedFilename();
 
-	if(H2Core::Filesystem::file_exists(cacheFile,true))
-	{
-		sDrumkitXML = readCachedData(cacheFile);
+	if ( H2Core::Filesystem::file_exists( sCacheFile, true ) ) {
+		sDrumkitXML = readCachedData( sCacheFile );
 	}
 
 	m_soundLibraryList.clear();
+
 	QDomDocument dom;
 	dom.setContent( sDrumkitXML );
+
+	auto setIfPresent = []( H2Core::SoundLibraryInfo& info,
+							const QDomNode& node, const QString& sLabel ) {
+		const QDomElement childNode = node.firstChildElement( sLabel );
+		if ( ! childNode.isNull() ) {
+			info.setName( childNode.text() );
+		}
+	};
+
 	QDomNode drumkitNode = dom.documentElement().firstChild();
-	while ( !drumkitNode.isNull() ) {
-		if( !drumkitNode.toElement().isNull() ) {
+	while ( ! drumkitNode.isNull() ) {
+		if ( ! drumkitNode.toElement().isNull() &&
+			 ( drumkitNode.toElement().tagName() == "drumkit" ||
+			   drumkitNode.toElement().tagName() == "song" ||
+			   drumkitNode.toElement().tagName() == "pattern" ) ) {
 
-			if ( drumkitNode.toElement().tagName() == "drumkit" || drumkitNode.toElement().tagName() == "song" || drumkitNode.toElement().tagName() == "pattern" ) {
-
-				H2Core::SoundLibraryInfo soundLibInfo;
-
-				if ( drumkitNode.toElement().tagName() =="song" ) {
-					soundLibInfo.setType( "song" );
-				}
-
-				if ( drumkitNode.toElement().tagName() =="drumkit" ) {
-					soundLibInfo.setType( "drumkit" );
-				}
-
-				if ( drumkitNode.toElement().tagName() =="pattern" ) {
-					soundLibInfo.setType( "pattern" );
-				}
-
-				QDomElement nameNode = drumkitNode.firstChildElement( "name" );
-				if ( !nameNode.isNull() ) {
-					soundLibInfo.setName( nameNode.text() );
-				}
-
-				QDomElement urlNode = drumkitNode.firstChildElement( "url" );
-				if ( !urlNode.isNull() ) {
-					soundLibInfo.setUrl( urlNode.text() );
-				}
-
-				QDomElement infoNode = drumkitNode.firstChildElement( "info" );
-				if ( !infoNode.isNull() ) {
-					soundLibInfo.setInfo( infoNode.text() );
-				}
-
-				QDomElement authorNode = drumkitNode.firstChildElement( "author" );
-				if ( !authorNode.isNull() ) {
-					soundLibInfo.setAuthor( authorNode.text() );
-				}
-
-				QDomElement licenseNode = drumkitNode.firstChildElement( "license" );
-				if ( !licenseNode.isNull() ) {
-					soundLibInfo.setLicense( licenseNode.text() );
-				}
-
-				QDomElement imageNode = drumkitNode.firstChildElement( "image" );
-				if ( !imageNode.isNull() ) {
-					soundLibInfo.setImage( imageNode.text() );
-				}
-
-				QDomElement imageLicenseNode = drumkitNode.firstChildElement( "imageLicense" );
-				if ( !imageLicenseNode.isNull() ) {
-					soundLibInfo.setImageLicense( imageLicenseNode.text() );
-				}
-
-
-				m_soundLibraryList.push_back( soundLibInfo );
-			}
+			m_soundLibraryList.push_back( H2Core::SoundLibraryInfo(
+				drumkitNode.firstChildElement( "name" ).text(),
+				drumkitNode.firstChildElement( "url" ).text(),
+				drumkitNode.firstChildElement( "info" ).text(),
+				drumkitNode.firstChildElement( "author" ).text(),
+				drumkitNode.firstChildElement( "category" ).text(),
+				drumkitNode.toElement().tagName(),
+				H2Core::License(
+					drumkitNode.firstChildElement( "license" ).text() ),
+				drumkitNode.firstChildElement( "image" ).text(),
+				H2Core::License(
+					drumkitNode.firstChildElement( "imageLicense" ).text() ),
+				"" ) );
 		}
 		drumkitNode = drumkitNode.nextSibling();
 	}
 
 	updateSoundLibraryList();
-
 }
 
 ///
@@ -504,94 +474,110 @@ void SoundLibraryOnlineImportDialog::showImage( const QPixmap& pixmap )
 }
 
 
-void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous  )
+void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* pCurrentItem,
+															  QTreeWidgetItem*  )
 {
-	UNUSED( previous );
-	if ( current ) {
+	auto resetLabels = [=](){
+		SoundLibraryNameLbl->setText( "" );
+		SoundLibraryInfoLbl->setText( "" );
+		AuthorLbl->setText( "" );
+		LicenseLbl->setText( "" );
+	};
 
-		QString selected = current->text(0);
-		for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
-			if ( m_soundLibraryList[ i ].getName() == selected ) {
-				H2Core::SoundLibraryInfo info = m_soundLibraryList[ i ];
+	if ( pCurrentItem == nullptr ) {
+		resetLabels();
+		return;
+	}
 
-				//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
+	if ( pCurrentItem == m_pDrumkitsItem || pCurrentItem == m_pSongItem ||
+		 pCurrentItem == m_pPatternItem ) {
+		resetLabels();
+		pCurrentItem->setSelected( false );
+		return;
+	}
 
-				SoundLibraryNameLbl->setText( info.getName() );
+	QString selected = pCurrentItem->text(0);
+	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
+		if ( m_soundLibraryList[ i ].getName() == selected ) {
+			H2Core::SoundLibraryInfo info = m_soundLibraryList[ i ];
 
-				if( info.getType() == "pattern" ){
-					SoundLibraryInfoLbl->setText("");
-				} else {
-					SoundLibraryInfoLbl->setText( info.getInfo() );
-				}
+			//bool alreadyInstalled = isSoundLibraryAlreadyInstalled( info.m_sURL );
 
-				AuthorLbl->setText( tr( "Author: %1" ).arg( info.getAuthor() ) );
+			SoundLibraryNameLbl->setText( info.getName() );
 
-				LicenseLbl->setText( tr( "Drumkit License: %1" )
-									 .arg( info.getLicense().getLicenseString() ) );
+			if( info.getType() == "pattern" ){
+				SoundLibraryInfoLbl->setText("");
+			} else {
+				SoundLibraryInfoLbl->setText( info.getInfo() );
+			}
 
-				ImageLicenseLbl->setText( tr("Image License: %1" )
-										  .arg( info.getImageLicense().getLicenseString() ) );
+			AuthorLbl->setText( tr( "Author: %1" ).arg( info.getAuthor() ) );
 
-				// Load the drumkit image
-				// Clear any image first
-				drumkitImageLabel->setPixmap( QPixmap() );
-				drumkitImageLabel->setText( info.getImage() );
+			LicenseLbl->setText( tr( "Drumkit License: %1" )
+								 .arg( info.getLicense().getLicenseString() ) );
 
-				if ( info.getImage().length() > 0 ) {
-					if ( isSoundLibraryItemAlreadyInstalled( info ) ) {
-						// get image file from local disk
-						QString sName = QFileInfo( info.getUrl() ).fileName();
-						sName = sName.left( sName.lastIndexOf( "." ) );
+			ImageLicenseLbl->setText( tr("Image License: %1" )
+									  .arg( info.getImageLicense().getLicenseString() ) );
 
-						auto pDrumkit = H2Core::Hydrogen::get_instance()
-							->getSoundLibraryDatabase()->getDrumkit( info.getPath() );
-						if ( pDrumkit != nullptr ) {
-							// get the image from the local filesystem
-							QPixmap pixmap ( pDrumkit->getPath() + "/" + pDrumkit->getImage() );
-							INFOLOG("Loaded image " + pDrumkit->getImage() + " from local filesystem");
-							showImage( pixmap );
-						}
-						else {
-							___ERRORLOG ( "Error loading the drumkit" );
-						}
+			// Load the drumkit image
+			// Clear any image first
+			drumkitImageLabel->setPixmap( QPixmap() );
+			drumkitImageLabel->setText( info.getImage() );
 
+			if ( info.getImage().length() > 0 ) {
+				if ( isSoundLibraryItemAlreadyInstalled( info ) ) {
+					// get image file from local disk
+					QString sName = QFileInfo( info.getUrl() ).fileName();
+					sName = sName.left( sName.lastIndexOf( "." ) );
+
+					auto pDrumkit = H2Core::Hydrogen::get_instance()
+						->getSoundLibraryDatabase()->getDrumkit( info.getPath() );
+					if ( pDrumkit != nullptr ) {
+						// get the image from the local filesystem
+						QPixmap pixmap ( pDrumkit->getPath() + "/" + pDrumkit->getImage() );
+						INFOLOG("Loaded image " + pDrumkit->getImage() + " from local filesystem");
+						showImage( pixmap );
 					}
 					else {
-						// Try from the cache
-						QString cachedFile = readCachedImage( info.getImage() );
-						
-						if ( cachedFile.length() > 0 ) {
-							QPixmap pixmap ( cachedFile );
-							showImage( pixmap );
-							INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
-						}
-						else {
-							// Get the drumkit's directory name from URL
-							//
-							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php
-							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
-							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
+						___ERRORLOG ( "Error loading the drumkit" );
+					}
 
-							if ( info.getImage().length() > 0 ) {
-								QString sImageUrl;
-								QString sLocalFile;
-								
-								sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
-								sLocalFile = QDir::tempPath() + "/" + QFileInfo( sImageUrl ).fileName();
+				}
+				else {
+					// Try from the cache
+					QString cachedFile = readCachedImage( info.getImage() );
 
-								DownloadWidget dl( this, tr( "" ), sImageUrl, sLocalFile );
-								dl.exec();
+					if ( cachedFile.length() > 0 ) {
+						QPixmap pixmap ( cachedFile );
+						showImage( pixmap );
+						INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
+					}
+					else {
+						// Get the drumkit's directory name from URL
+						//
+						// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php
+						// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+						// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-								loadImage( sLocalFile );
-								// Delete the temporary file
-								QFile::remove( sLocalFile );
-							}
+						if ( info.getImage().length() > 0 ) {
+							QString sImageUrl;
+							QString sLocalFile;
+
+							sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
+							sLocalFile = QDir::tempPath() + "/" + QFileInfo( sImageUrl ).fileName();
+
+							DownloadWidget dl( this, tr( "" ), sImageUrl, sLocalFile );
+							dl.exec();
+
+							loadImage( sLocalFile );
+							// Delete the temporary file
+							QFile::remove( sLocalFile );
 						}
 					}
 				}
-				
-				return;
 			}
+
+			return;
 		}
 	}
 

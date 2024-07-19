@@ -73,6 +73,8 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		QTreeWidgetItem* m_pPatternItem;
 
 		QString m_sDownloadBtnBase;
+		QString m_sLabelInstalled;
+		QString m_sLabelNew;
 
 		bool isSoundLibraryItemAlreadyInstalled( const H2Core::SoundLibraryInfo& sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);
