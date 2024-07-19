@@ -2,58 +2,86 @@
 <drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
  <mapping>
   <instrumentID>0</instrumentID>
-  <type>Kick</type>
- </mapping>
- <mapping>
-  <instrumentID>1</instrumentID>
   <type>Stick</type>
  </mapping>
  <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Cajon Thumb</type>
+ </mapping>
+ <mapping>
   <instrumentID>2</instrumentID>
-  <type>Snare 2</type>
+  <type>Finger Snap</type>
  </mapping>
  <mapping>
   <instrumentID>3</instrumentID>
-  <type>Hand Clap</type>
+  <type>Cajon Slap</type>
  </mapping>
  <mapping>
   <instrumentID>4</instrumentID>
-  <type>Snare</type>
+  <type>Hand Clap</type>
  </mapping>
  <mapping>
   <instrumentID>5</instrumentID>
-  <type>Tom Low</type>
+  <type>Cajon Slap 2</type>
  </mapping>
  <mapping>
   <instrumentID>6</instrumentID>
-  <type>Hi-hat Closed</type>
+  <type>Conga Low</type>
  </mapping>
  <mapping>
   <instrumentID>7</instrumentID>
-  <type>Tom Mid</type>
+  <type>Shaker</type>
  </mapping>
  <mapping>
   <instrumentID>8</instrumentID>
-  <type>Hi-hat Pedal</type>
+  <type>Conga Low 2</type>
  </mapping>
  <mapping>
   <instrumentID>9</instrumentID>
-  <type>Tom High</type>
+  <type>Tambourine</type>
  </mapping>
  <mapping>
   <instrumentID>10</instrumentID>
-  <type>Hi-hat Open</type>
+  <type>Conga High</type>
  </mapping>
  <mapping>
   <instrumentID>11</instrumentID>
-  <type>Cowbell</type>
+  <type>Tambourine Mute</type>
  </mapping>
  <mapping>
   <instrumentID>12</instrumentID>
-  <type>Ride Bow</type>
+  <type>Conga High 2</type>
  </mapping>
  <mapping>
   <instrumentID>13</instrumentID>
+  <type>Claves</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
   <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Ride Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>16</instrumentID>
+  <type>Cowbell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>17</instrumentID>
+  <type>Foot Stomp</type>
+ </mapping>
+ <mapping>
+  <instrumentID>18</instrumentID>
+  <type>Bucket</type>
+ </mapping>
+ <mapping>
+  <instrumentID>19</instrumentID>
+  <type>Bell Tree Down</type>
+ </mapping>
+ <mapping>
+  <instrumentID>20</instrumentID>
+  <type>Bell Tree Up</type>
  </mapping>
 </drumkit_map>

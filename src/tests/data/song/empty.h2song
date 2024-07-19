@@ -45,7 +45,7 @@ p, li { white-space: pre-wrap; }
    <instrument>
     <id>0</id>
     <name>Kick</name>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <drumkitPath>/home/phil/git/hydrogen/data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
@@ -1465,7 +1465,7 @@ p, li { white-space: pre-wrap; }
    <instrument>
     <id>12</id>
     <name>Ride</name>
-    <type>Ride</type>
+    <type>Ride Bow</type>
     <drumkitPath>/home/phil/git/hydrogen/data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.633621</volume>
@@ -1713,7 +1713,7 @@ p, li { white-space: pre-wrap; }
    <instrument>
     <id>14</id>
     <name>Ride 2</name>
-    <type>Ride 2</type>
+    <type>Ride Bow 2</type>
     <drumkitPath>/home/phil/git/hydrogen/data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>

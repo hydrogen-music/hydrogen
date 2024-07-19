@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Kick 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>6</instrumentID>
+  <type>Snare</type>
+ </mapping>
+ <mapping>
+  <instrumentID>7</instrumentID>
+  <type>Stick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>8</instrumentID>
+  <type>Stick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>11</instrumentID>
+  <type>Snare Rimshot</type>
+ </mapping>
+ <mapping>
+  <instrumentID>12</instrumentID>
+  <type>Hi-hat Pedal</type>
+ </mapping>
+ <mapping>
+  <instrumentID>13</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Hi-hat Closed 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Hi-hat Open 6</type>
+ </mapping>
+ <mapping>
+  <instrumentID>16</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>17</instrumentID>
+  <type>Hi-hat Open 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>18</instrumentID>
+  <type>Hi-hat Open 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>19</instrumentID>
+  <type>Hi-hat Open 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>20</instrumentID>
+  <type>Hi-hat Open 5</type>
+ </mapping>
+ <mapping>
+  <instrumentID>22</instrumentID>
+  <type>Tom Mid 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>24</instrumentID>
+  <type>Tom Floor 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>25</instrumentID>
+  <type>Ride Bow 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>26</instrumentID>
+  <type>Ride Side 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>27</instrumentID>
+  <type>Ride Bow</type>
+ </mapping>
+ <mapping>
+  <instrumentID>28</instrumentID>
+  <type>Ride Side</type>
+ </mapping>
+ <mapping>
+  <instrumentID>29</instrumentID>
+  <type>Ride Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>30</instrumentID>
+  <type>Kick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>31</instrumentID>
+  <type>Tom Floor</type>
+ </mapping>
+ <mapping>
+  <instrumentID>32</instrumentID>
+  <type>Tom Mid</type>
+ </mapping>
+ <mapping>
+  <instrumentID>33</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>34</instrumentID>
+  <type>Kick 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>35</instrumentID>
+  <type>Snare Rimshot 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>36</instrumentID>
+  <type>Snare 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>37</instrumentID>
+  <type>Stick 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>38</instrumentID>
+  <type>Stick 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>39</instrumentID>
+  <type>Whistle</type>
+ </mapping>
+ <mapping>
+  <instrumentID>40</instrumentID>
+  <type>Whistle 2</type>
+ </mapping>
+</drumkit_map>

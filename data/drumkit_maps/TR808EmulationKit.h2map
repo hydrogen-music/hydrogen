@@ -3,11 +3,11 @@
 			       xmlns="http://www.hydrogen-music.org/drumkit_map">
   <mapping>
 	  <instrumentID>0</instrumentID>
-	  <type>Bass Drum</type>
+	  <type>Kick</type>
   </mapping>
   <mapping>
 	  <instrumentID>1</instrumentID>
-	  <type>Bass Drum 2</type>
+	  <type>Kick 2</type>
   </mapping>
   <mapping>
 	  <instrumentID>2</instrumentID>
@@ -55,11 +55,11 @@
   </mapping>
   <mapping>
 	  <instrumentID>13</instrumentID>
-	  <type>Conga</type>
+	  <type>Conga High</type>
   </mapping>
   <mapping>
 	  <instrumentID>14</instrumentID>
-	  <type>Clave</type>
+	  <type>Claves</type>
   </mapping>
   <mapping>
 	  <instrumentID>15</instrumentID>

@@ -19,7 +19,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -84,7 +84,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -97,7 +97,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -149,7 +149,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>true</note_off>
     <probability>1</probability>
    </note>
@@ -162,7 +162,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
@@ -253,7 +253,7 @@
     <key>C0</key>
     <length>-1</length>
     <instrument>0</instrument>
-    <type>Bass Drum</type>
+    <type>Kick</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>

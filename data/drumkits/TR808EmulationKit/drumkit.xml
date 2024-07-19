@@ -21,7 +21,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>0</id>
    <name>Kick Long</name>
-	 <type>Bass Drum</type>
+	 <type>Kick</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -64,7 +64,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>1</id>
    <name>Kick Short</name>
-	 <type>Bass Drum 2</type>
+	 <type>Kick 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -580,7 +580,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>13</id>
    <name>Conga</name>
-	 <type>Conga</type>
+	 <type>Conga High</type>
    <volume>0.88</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -623,7 +623,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>14</id>
    <name>Clave</name>
-	 <type>Clave</type>
+	 <type>Claves</type>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>

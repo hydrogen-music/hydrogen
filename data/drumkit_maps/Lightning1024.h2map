@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <mapping>
+  <instrumentID>26</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>27</instrumentID>
+  <type>Kick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>28</instrumentID>
+  <type>Kick 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>29</instrumentID>
+  <type>Kick 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>30</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>31</instrumentID>
+  <type>Hi-hat Closed 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>32</instrumentID>
+  <type>Hi-hat Pedal</type>
+ </mapping>
+ <mapping>
+  <instrumentID>33</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>34</instrumentID>
+  <type>Hi-hat Open 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>35</instrumentID>
+  <type>Hi-hat Open 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>36</instrumentID>
+  <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>37</instrumentID>
+  <type>Crash 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>38</instrumentID>
+  <type>Crash 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>39</instrumentID>
+  <type>Crash Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>40</instrumentID>
+  <type>China</type>
+ </mapping>
+ <mapping>
+  <instrumentID>41</instrumentID>
+  <type>China 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>42</instrumentID>
+  <type>China Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>43</instrumentID>
+  <type>Ride Bow</type>
+ </mapping>
+ <mapping>
+  <instrumentID>44</instrumentID>
+  <type>Ride Bow 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>45</instrumentID>
+  <type>Ride Bow 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>46</instrumentID>
+  <type>Ride Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>47</instrumentID>
+  <type>Ride Bell 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>48</instrumentID>
+  <type>Ride Bell 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>49</instrumentID>
+  <type>Snare</type>
+ </mapping>
+ <mapping>
+  <instrumentID>50</instrumentID>
+  <type>Snare 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>51</instrumentID>
+  <type>Snare 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>52</instrumentID>
+  <type>Snare Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>53</instrumentID>
+  <type>Snare Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>54</instrumentID>
+  <type>Splash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>55</instrumentID>
+  <type>Splash 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>56</instrumentID>
+  <type>Splash 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>57</instrumentID>
+  <type>Splash 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>58</instrumentID>
+  <type>Stick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>59</instrumentID>
+  <type>Stick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>60</instrumentID>
+  <type>Stick 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>61</instrumentID>
+  <type>Timbale High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>62</instrumentID>
+  <type>Timbale High 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>63</instrumentID>
+  <type>Timbale High 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>64</instrumentID>
+  <type>Timbale High 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>65</instrumentID>
+  <type>Timbale High Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>66</instrumentID>
+  <type>Timbale High Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>67</instrumentID>
+  <type>Tom High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>68</instrumentID>
+  <type>Tom High Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>69</instrumentID>
+  <type>Tom High Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>70</instrumentID>
+  <type>Tom Mid</type>
+ </mapping>
+ <mapping>
+  <instrumentID>71</instrumentID>
+  <type>Tom Mid Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>72</instrumentID>
+  <type>Tom Mid Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>73</instrumentID>
+  <type>Tom Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>74</instrumentID>
+  <type>Tom Low Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>75</instrumentID>
+  <type>Tom Low Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>76</instrumentID>
+  <type>Tom Floor</type>
+ </mapping>
+ <mapping>
+  <instrumentID>77</instrumentID>
+  <type>Tom Floor Roll</type>
+ </mapping>
+ <mapping>
+  <instrumentID>78</instrumentID>
+  <type>Tom Floor 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>79</instrumentID>
+  <type>Tom Floor Roll 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>80</instrumentID>
+  <type>Tom Floor Roll 3</type>
+ </mapping>
+</drumkit_map>

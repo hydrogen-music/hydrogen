@@ -3,7 +3,7 @@
 			       xmlns="http://www.hydrogen-music.org/drumkit_map">
   <mapping>
 	  <instrumentID>0</instrumentID>
-	  <type>Bass Drum</type>
+	  <type>Kick</type>
   </mapping>
   <mapping>
 	  <instrumentID>1</instrumentID>
@@ -51,7 +51,7 @@
   </mapping>
   <mapping>
 	  <instrumentID>12</instrumentID>
-	  <type>Ride</type>
+	  <type>Ride Bow</type>
   </mapping>
   <mapping>
 	  <instrumentID>13</instrumentID>
@@ -59,7 +59,7 @@
   </mapping>
   <mapping>
 	  <instrumentID>14</instrumentID>
-	  <type>Ride 2</type>
+	  <type>Ride Bow 2</type>
   </mapping>
   <mapping>
 	  <instrumentID>15</instrumentID>

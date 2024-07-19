@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+<drumkit_map xmlns="http://www.hydrogen-music.org/drumkit_map" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  <mapping>
   <instrumentID>0</instrumentID>
   <type>Kick</type>
@@ -50,10 +50,18 @@
  </mapping>
  <mapping>
   <instrumentID>12</instrumentID>
-  <type>Ride Bow</type>
+  <type>Ride Bow 2</type>
  </mapping>
  <mapping>
   <instrumentID>13</instrumentID>
   <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Ride Bow</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Crash 2</type>
  </mapping>
 </drumkit_map>

@@ -6,23 +6,23 @@
  </mapping>
  <mapping>
   <instrumentID>1</instrumentID>
-  <type>Stick</type>
+  <type>Kick 2</type>
  </mapping>
  <mapping>
   <instrumentID>2</instrumentID>
-  <type>Snare 2</type>
+  <type>Kick 3</type>
  </mapping>
  <mapping>
   <instrumentID>3</instrumentID>
-  <type>Hand Clap</type>
- </mapping>
- <mapping>
-  <instrumentID>4</instrumentID>
   <type>Snare</type>
  </mapping>
  <mapping>
+  <instrumentID>4</instrumentID>
+  <type>Hand Clap</type>
+ </mapping>
+ <mapping>
   <instrumentID>5</instrumentID>
-  <type>Tom Low</type>
+  <type>Hand Clap 2</type>
  </mapping>
  <mapping>
   <instrumentID>6</instrumentID>
@@ -30,15 +30,15 @@
  </mapping>
  <mapping>
   <instrumentID>7</instrumentID>
-  <type>Tom Mid</type>
+  <type>Hi-hat Closed 2</type>
  </mapping>
  <mapping>
   <instrumentID>8</instrumentID>
-  <type>Hi-hat Pedal</type>
+  <type>Hi-hat Closed 3</type>
  </mapping>
  <mapping>
   <instrumentID>9</instrumentID>
-  <type>Tom High</type>
+  <type>Hi-hat Closed 4</type>
  </mapping>
  <mapping>
   <instrumentID>10</instrumentID>
@@ -46,14 +46,22 @@
  </mapping>
  <mapping>
   <instrumentID>11</instrumentID>
-  <type>Cowbell</type>
+  <type>Hi-hat Open 2</type>
  </mapping>
  <mapping>
   <instrumentID>12</instrumentID>
-  <type>Ride Bow</type>
+  <type>Hi-hat Open 3</type>
  </mapping>
  <mapping>
   <instrumentID>13</instrumentID>
-  <type>Crash</type>
+  <type>Tom High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Tom Mid</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Tom Floor</type>
  </mapping>
 </drumkit_map>
