@@ -87,14 +87,14 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QPushButton" name="UpdateListBtn">
+                <widget class="Button" name="UpdateListBtn">
                  <property name="text">
                   <string>Update list</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="EditListBtn">
+                <widget class="Button" name="EditListBtn">
                  <property name="text">
                   <string>Edit server list</string>
                  </property>
@@ -296,7 +296,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="DownloadBtn">
+              <widget class="Button" name="DownloadBtn">
                <property name="text">
                 <string>Download and install</string>
                </property>
@@ -324,7 +324,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="close_btn">
+          <widget class="Button" name="close_btn">
            <property name="text">
             <string>Close</string>
            </property>
@@ -351,6 +351,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
