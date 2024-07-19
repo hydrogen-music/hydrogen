@@ -33,6 +33,29 @@ SoundLibraryInfo::SoundLibraryInfo()
 	//default constructor
 }
 
+SoundLibraryInfo::SoundLibraryInfo( const QString& sName,
+									const QString& sURL,
+									const QString& sInfo,
+									const QString& sAuthor,
+									const QString& sCategory,
+									const QString& sType,
+									const License& license,
+									const QString& sImage,
+									const License& imageLicense,
+									const QString& sPath )
+	: m_sName( sName )
+	, m_sURL( sURL )
+	, m_sInfo( sInfo )
+	, m_sAuthor( sAuthor )
+	, m_sCategory( sCategory )
+	, m_sType( sType )
+	, m_license( license )
+	, m_sImage( sImage )
+	, m_imageLicense( imageLicense )
+	, m_sPath( sPath )
+{
+}
+
 bool SoundLibraryInfo::load( const QString& sPath ) {
 	setPath( sPath );
 
