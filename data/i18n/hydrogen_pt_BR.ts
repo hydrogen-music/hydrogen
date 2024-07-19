@@ -6076,9 +6076,9 @@ Sobrescrever o padrão existente?</translation>
         <translation>Baixando Biblioteca de Som</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>

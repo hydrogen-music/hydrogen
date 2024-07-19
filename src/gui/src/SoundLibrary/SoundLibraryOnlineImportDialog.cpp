@@ -593,86 +593,91 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	const QString selected = m_pDrumkitTree->currentItem()->text(0);
 
 	bool bUpdateDrumkits = false;
 	bool bUpdatePatterns = false;
 
-	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
-		if ( m_soundLibraryList[ i ].getName() == selected ) {
-			// Download the sound library
-			const QString sName = m_soundLibraryList[ i ].getName();
-			const QString sType = m_soundLibraryList[ i ].getType();
-			QString sURL = m_soundLibraryList[ i ].getUrl();
-			QString sLocalFile;
+	QStringList installedDrumkits;
 
-			if ( sType == "drumkit") {
-				sLocalFile = QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
-			}
-			else if ( sType == "song" ) {
-				sLocalFile = H2Core::Filesystem::songs_dir() + QFileInfo( sURL ).fileName();
-			}
-			else if ( sType == "pattern" ) {
-				sLocalFile = H2Core::Filesystem::patterns_dir() + QFileInfo( sURL ).fileName();
-				bUpdatePatterns = true;
-			}
-			else {
-				QApplication::restoreOverrideCursor();
-				ERRORLOG( QString( "Unknown type [%1]" ).arg( sType ) );
-				return;
-			}
+	for ( const auto& ppItem : m_pDrumkitTree->selectedItems() ) {
+		if ( ppItem == nullptr ) {
+			continue;
+		}
 
-			bool bError = false;
+		const QString sSelected = ppItem->text(0);
 
-			for ( int i = 0; i < max_redirects; ++i ) {
-				DownloadWidget dl( this, tr( "Downloading SoundLibrary..." ), sURL, sLocalFile );
-				dl.exec();
+		for ( int ii = 0; ii < m_soundLibraryList.size(); ++ii ) {
+			if ( m_soundLibraryList[ ii ].getName() == sSelected ) {
+				// Download the sound library
+				const QString sName = m_soundLibraryList[ ii ].getName();
+				const QString sType = m_soundLibraryList[ ii ].getType();
+				QString sURL = m_soundLibraryList[ ii ].getUrl();
+				QString sLocalFile;
 
-				QUrl redirect_url = dl.get_redirect_url();
-				if (redirect_url.isEmpty() ) {
-					// ok, we have all data
-					bError = !dl.get_error().isEmpty();
-					break;
+				if ( sType == "drumkit") {
+					sLocalFile = QDir::tempPath() + "/" +
+						QFileInfo( sURL ).fileName();
+				}
+				else if ( sType == "song" ) {
+					sLocalFile = H2Core::Filesystem::songs_dir() +
+						QFileInfo( sURL ).fileName();
+				}
+				else if ( sType == "pattern" ) {
+					sLocalFile = H2Core::Filesystem::patterns_dir() +
+						QFileInfo( sURL ).fileName();
+					bUpdatePatterns = true;
 				}
 				else {
-					sURL = redirect_url.toEncoded();
-					bError = !dl.get_error().isEmpty();
+					ERRORLOG( QString( "Unknown type [%1]" ).arg( sType ) );
+					continue;
 				}
-			}
 
-			// Error message has been already displayed by DL widget
-			if ( ! bError && sType == "drumkit" ) {
-				if ( H2Core::Drumkit::install( sLocalFile ) ) {
-					// Success
-					QApplication::restoreOverrideCursor();
-					QDir dir;
-					dir.remove( sLocalFile );
-					bUpdateDrumkits = true;
+				bool bError = false;
 
-					QMessageBox::information(
-						this, "Hydrogen",
-						QString( tr( "Drumkit\n\n%1\n\nimported into %2" ) )
-						.arg( sName )
-						.arg( H2Core::Filesystem::usr_data_path() ) );
-					QApplication::setOverrideCursor( Qt::WaitCursor );
-				}
-				else {
-					QApplication::restoreOverrideCursor();
-					if ( MainForm::checkDrumkitPathEncoding(
-							 sLocalFile,
-							 pCommonStrings->getImportDrumkitFailure() ) ) {
-						// In case it was not an encoding error, we have to
-						// create and error window ourselves.
-						QMessageBox::critical(
-							nullptr, "Hydrogen", QString( "%1\n\n%2" )
-							.arg( pCommonStrings->getImportDrumkitFailure() )
-							.arg( sName ) );
+				for ( int jj = 0; jj < max_redirects; ++jj ) {
+					DownloadWidget dl( this, tr( "Downloading SoundLibrary..." ), sURL, sLocalFile );
+					dl.exec();
+
+					QUrl redirect_url = dl.get_redirect_url();
+					if ( redirect_url.isEmpty() ) {
+						// ok, we have all data
+						bError = ! dl.get_error().isEmpty();
+						break;
 					}
-					QApplication::setOverrideCursor( Qt::WaitCursor );
+					else {
+						sURL = redirect_url.toEncoded();
+						bError = ! dl.get_error().isEmpty();
+					}
 				}
-			}
 
-			break;
+				// Error message has been already displayed by DL widget
+				if ( ! bError && sType == "drumkit" ) {
+					if ( H2Core::Drumkit::install( sLocalFile ) ) {
+						// Success
+						QDir dir;
+						dir.remove( sLocalFile );
+						bUpdateDrumkits = true;
+
+						installedDrumkits << sName;
+					}
+					else {
+						QApplication::restoreOverrideCursor();
+						if ( MainForm::checkDrumkitPathEncoding(
+								 sLocalFile,
+								 pCommonStrings->getImportDrumkitFailure() ) ) {
+							// In case it was not an encoding error, we have to
+							// create and std:: <<  << std::endl;or window ourselves.
+							QMessageBox::critical(
+								nullptr, "Hydrogen", QString( "%1\n\n%2" )
+								.arg( pCommonStrings->getImportDrumkitFailure() )
+								.arg( sName ) );
+						}
+						QApplication::setOverrideCursor( Qt::WaitCursor );
+					}
+				}
+
+				break;
+			}
 		}
 	}
 
@@ -686,6 +691,12 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 	}
 
 	QApplication::restoreOverrideCursor();
+
+	QMessageBox::information(
+		this, "Hydrogen",
+		QString( tr( "Drumkits\n\n- %1\n\nimported into %2" ) )
+		.arg( installedDrumkits.join( "\n- " ) )
+		.arg( H2Core::Filesystem::usr_data_path() ) );
 
 	return;
 }
@@ -704,7 +715,7 @@ void SoundLibraryOnlineImportDialog::selectionChanged() {
 		pCurrentItem->setSelected( false );
 	}
 
-	// Determine how many of the selected kits are not installed yet.
+	// Determine how many of the sSelected kits are not installed yet.
 	int nInstalledKits = 0;
 	for ( const auto& ppItem : m_pDrumkitTree->selectedItems() ) {
 		if ( ppItem != nullptr && ppItem->text( 1 ) == m_sLabelNew ) {

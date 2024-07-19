@@ -6048,9 +6048,9 @@ Sobrescribir o patrón existente?</translation>
         <translation>Descargando biblioteca de son...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>
