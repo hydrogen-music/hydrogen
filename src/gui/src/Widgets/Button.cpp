@@ -54,13 +54,7 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_nBorderRadius( nBorderRadius )
 {
 	setFocusPolicy( Qt::NoFocus );
-	
-	if ( size.isNull() || size.isEmpty() ) {
-		m_size = sizeHint();
-	}
-	adjustSize();
-	setFixedSize( m_size );
-	resize( m_size );
+	setSize( size );
 
 	if ( ! sIcon.isEmpty() ) {
 		updateIcon();
@@ -68,16 +62,6 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 		setText( sText );
 	}
 
-	if ( m_nBorderRadius == -1 ) {
-		if ( size.width() <= 12 || size.height() <= 12 ) {
-			m_nBorderRadius = 0;
-		} else if ( size.width() <= 20 || size.height() <= 20 ) {
-			m_nBorderRadius = 3;
-		} else {
-			m_nBorderRadius = 5;
-		}
-	}
-	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
 	} else {
@@ -88,7 +72,6 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 		setFlat( true );
 	}
 
-	updateFont();
 	updateStyleSheet();
 	updateTooltip();
 	
@@ -367,12 +350,24 @@ void Button::updateTooltip() {
 }
 
 void Button::setSize( const QSize& size ) {
-	m_size = size;
-	
+	if ( size.isNull() || size.isEmpty() ) {
+		m_size = sizeHint();
+	} else {
+		m_size = size;
+	}
+
+	setFixedSize( m_size );
+	resize( m_size );
 	adjustSize();
-	if ( ! size.isNull() ) {
-		setFixedSize( size );
-		resize( size );
+
+	if ( m_nBorderRadius == -1 ) {
+		if ( m_size.width() <= 12 || m_size.height() <= 12 ) {
+			m_nBorderRadius = 0;
+		} else if ( m_size.width() <= 20 || m_size.height() <= 20 ) {
+			m_nBorderRadius = 3;
+		} else {
+			m_nBorderRadius = 5;
+		}
 	}
 
 	updateFont();
