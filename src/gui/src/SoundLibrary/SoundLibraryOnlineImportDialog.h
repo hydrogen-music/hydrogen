@@ -61,7 +61,9 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		void soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* );
 		void onRepositoryComboBoxIndexChanged(int);
 
-
+		// Indicate the number of selected items in the download button and only
+		// active it in case at least one was selected.
+		void selectionChanged();
 
 	private:
 	std::vector<H2Core::SoundLibraryInfo> m_soundLibraryList;
@@ -69,6 +71,8 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		QTreeWidgetItem* m_pDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;
 		QTreeWidgetItem* m_pPatternItem;
+
+		QString m_sDownloadBtnBase;
 
 		bool isSoundLibraryItemAlreadyInstalled( const H2Core::SoundLibraryInfo& sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);

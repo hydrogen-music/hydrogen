@@ -22,20 +22,17 @@
 
 #include "SoundLibraryOnlineImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
-#include "SoundLibraryPanel.h"
 
-#include "../Widgets/DownloadWidget.h"
-#include "../Widgets/FileDialog.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../InstrumentRack.h"
-#include "../CommonStrings.h"
+#include "../Widgets/DownloadWidget.h"
 
-#include <core/H2Exception.h>
-#include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Hydrogen.h>
+#include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QTreeWidget>
@@ -68,12 +65,16 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 	m_pDrumkitTree->setHeaderItem( header );
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
 
-	connect( m_pDrumkitTree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
-	connect( repositoryCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( onRepositoryComboBoxIndexChanged(int) ));
+	connect( m_pDrumkitTree,
+			 SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ),
+			 this,
+			 SLOT( soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
+	connect( repositoryCombo, SIGNAL(currentIndexChanged(int)),
+			 this, SLOT( onRepositoryComboBoxIndexChanged(int) ));
 
 	SoundLibraryNameLbl->setText( "" );
 	SoundLibraryInfoLbl->setText( "" );
-	DownloadBtn->setEnabled( false );
+	DownloadBtn->setIsActive( false );
 
 	UpdateListBtn->setSize( QSize( 105, 24 ) );
 	UpdateListBtn->setType( Button::Type::Push );
@@ -84,6 +85,9 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 	close_btn->setSize( QSize( 80, 24 ) );
 	close_btn->setType( Button::Type::Push );
 
+	m_sDownloadBtnBase = DownloadBtn->text();
+	connect( m_pDrumkitTree, &QTreeWidget::itemSelectionChanged,
+			 this, &SoundLibraryOnlineImportDialog::selectionChanged );
 
 	updateRepositoryCombo();
 }
@@ -586,7 +590,6 @@ void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* c
 					}
 				}
 				
-				DownloadBtn->setEnabled( true );
 				return;
 			}
 		}
@@ -595,7 +598,6 @@ void SoundLibraryOnlineImportDialog::soundLibraryItemChanged( QTreeWidgetItem* c
 	SoundLibraryNameLbl->setText( "" );
 	SoundLibraryInfoLbl->setText( "" );
 	AuthorLbl->setText( "" );
-	DownloadBtn->setEnabled( false );
 }
 
 
@@ -704,4 +706,16 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 
 void SoundLibraryOnlineImportDialog::on_close_btn_clicked() {
 	accept();
+}
+
+void SoundLibraryOnlineImportDialog::selectionChanged() {
+	if ( m_pDrumkitTree->selectedItems().size() == 0 ) {
+		DownloadBtn->setIsActive( false );
+		DownloadBtn->setText( m_sDownloadBtnBase );
+	} else {
+		DownloadBtn->setIsActive( true );
+		DownloadBtn->setText(
+			QString( "%1 (%2)" ).arg( m_sDownloadBtnBase )
+			.arg( m_pDrumkitTree->selectedItems().size() ) );
+	}
 }
