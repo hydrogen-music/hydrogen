@@ -143,6 +143,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	void patternSizeChanged( double );
 	void switchPatternSizeFocus();
 
+		void patchBayBtnClicked();
+
 	private:
 	void updateStyleSheet();
 	
@@ -168,6 +170,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		Button *		__show_piano_btn;
 	Button *		m_pHearNotesBtn;
 	Button *		m_pQuantizeEventsBtn;
+		Button* m_pPatchBayBtn;
 	
 		ClickableLabel*		m_pPatternSizeLbl;
 		ClickableLabel*		m_pResolutionLbl;

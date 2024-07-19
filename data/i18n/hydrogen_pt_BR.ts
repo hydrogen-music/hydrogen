@@ -3253,6 +3253,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Drumkit used in the current song</source>
         <translation>Drumkit usado na canção atual</translation>
     </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>

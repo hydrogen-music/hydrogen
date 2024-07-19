@@ -309,6 +309,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_piano_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( __show_piano_btn );
 
+	m_pPatchBayBtn = new Button(
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "patchBay.svg", "", false,
+		QSize( 19, 15 ), tr( "Show PatchBay" ) );
+	m_pPatchBayBtn->move( 209, 1 );
+	m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
+	connect( m_pPatchBayBtn, SIGNAL( clicked() ),
+			 this, SLOT( patchBayBtnClicked() ) );
+	m_pPatchBayBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pPatchBayBtn );
+
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
 		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false,
@@ -1378,4 +1388,18 @@ NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
 	}
 
 	return mode;
+}
+
+void PatternEditorPanel::patchBayBtnClicked() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No Song set" );
+		return;
+	}
+
+	auto pPatchBay = new PatchBay(
+		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
+	auto nRes = pPatchBay->exec();
+
+	DEBUGLOG( pPatchBay->getPatch().toQString() );
 }

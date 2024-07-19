@@ -3234,6 +3234,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>

@@ -3255,6 +3255,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>

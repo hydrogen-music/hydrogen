@@ -3239,6 +3239,10 @@ LilyPond 导出是一项实验性功能。
         <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
