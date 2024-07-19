@@ -80,7 +80,7 @@ SoundLibraryOnlineImportDialog::SoundLibraryOnlineImportDialog( QWidget* pParent
 	UpdateListBtn->setType( Button::Type::Push );
 	EditListBtn->setSize( QSize( 130, 24 ) );
 	EditListBtn->setType( Button::Type::Push );
-	DownloadBtn->setSize( QSize( 380, 24 ) );
+	DownloadBtn->setSize( QSize( 215, 24 ) );
 	DownloadBtn->setType( Button::Type::Push );
 	close_btn->setSize( QSize( 80, 24 ) );
 	close_btn->setType( Button::Type::Push );
