@@ -89,7 +89,7 @@ class SoundLibraryOnlineImportDialog :  public QDialog,
 		void updateRepositoryCombo();
 		void showImage( const QPixmap& pixmap );
 		void loadImage( const QString& img );
-
+		void updateDownloadBtn();
 };
 
 #endif

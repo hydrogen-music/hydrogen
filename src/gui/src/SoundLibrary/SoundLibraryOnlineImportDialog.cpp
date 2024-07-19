@@ -655,28 +655,33 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 				}
 
 				// Error message has been already displayed by DL widget
-				if ( ! bError && sType == "drumkit" ) {
-					if ( H2Core::Drumkit::install( sLocalFile ) ) {
-						// Success
-						QDir dir;
-						dir.remove( sLocalFile );
-						bUpdateDrumkits = true;
+				if ( ! bError ) {
+					// Success
+					ppItem->setText( 1, m_sLabelInstalled );
+					updateDownloadBtn();
 
-						installedDrumkits << sName;
-					}
-					else {
-						QApplication::restoreOverrideCursor();
-						if ( MainForm::checkDrumkitPathEncoding(
-								 sLocalFile,
-								 pCommonStrings->getImportDrumkitFailure() ) ) {
-							// In case it was not an encoding error, we have to
-							// create and std:: <<  << std::endl;or window ourselves.
-							QMessageBox::critical(
-								nullptr, "Hydrogen", QString( "%1\n\n%2" )
-								.arg( pCommonStrings->getImportDrumkitFailure() )
-								.arg( sName ) );
+					if ( sType == "drumkit" ) {
+						if ( H2Core::Drumkit::install( sLocalFile ) ) {
+							QDir dir;
+							dir.remove( sLocalFile );
+							bUpdateDrumkits = true;
+
+							installedDrumkits << sName;
 						}
-						QApplication::setOverrideCursor( Qt::WaitCursor );
+						else {
+							QApplication::restoreOverrideCursor();
+							if ( MainForm::checkDrumkitPathEncoding(
+									 sLocalFile,
+									 pCommonStrings->getImportDrumkitFailure() ) ) {
+								// In case it was not an encoding error, we have
+								// to create and show an error dialog ourselves.
+								QMessageBox::critical(
+									nullptr, "Hydrogen", QString( "%1\n\n%2" )
+									.arg( pCommonStrings->getImportDrumkitFailure() )
+									.arg( sName ) );
+							}
+							QApplication::setOverrideCursor( Qt::WaitCursor );
+						}
 					}
 				}
 
@@ -719,6 +724,10 @@ void SoundLibraryOnlineImportDialog::selectionChanged() {
 		pCurrentItem->setSelected( false );
 	}
 
+	updateDownloadBtn();
+}
+
+void SoundLibraryOnlineImportDialog::updateDownloadBtn() {
 	// Determine how many of the sSelected kits are not installed yet.
 	int nInstalledKits = 0;
 	for ( const auto& ppItem : m_pDrumkitTree->selectedItems() ) {
