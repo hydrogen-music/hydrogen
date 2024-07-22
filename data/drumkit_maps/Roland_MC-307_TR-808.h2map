@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <mapping>
+  <instrumentID>0</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Kick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>2</instrumentID>
+  <type>Snare Rimshot</type>
+ </mapping>
+ <mapping>
+  <instrumentID>3</instrumentID>
+  <type>Snare</type>
+ </mapping>
+ <mapping>
+  <instrumentID>4</instrumentID>
+  <type>Hand Clap</type>
+ </mapping>
+ <mapping>
+  <instrumentID>5</instrumentID>
+  <type>Snare 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>6</instrumentID>
+  <type>Tom Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>7</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>8</instrumentID>
+  <type>Tom Mid</type>
+ </mapping>
+ <mapping>
+  <instrumentID>9</instrumentID>
+  <type>Hi-hat Pedal</type>
+ </mapping>
+ <mapping>
+  <instrumentID>10</instrumentID>
+  <type>Tom High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>11</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>12</instrumentID>
+  <type>Kick 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>13</instrumentID>
+  <type>Kick 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Snare Rimshot 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Snare 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>16</instrumentID>
+  <type>Hand Clap 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>17</instrumentID>
+  <type>Snare 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>18</instrumentID>
+  <type>Tom Floor 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>19</instrumentID>
+  <type>Hi-hat Closed 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>20</instrumentID>
+  <type>Tom Floor</type>
+ </mapping>
+ <mapping>
+  <instrumentID>21</instrumentID>
+  <type>Hi-hat Pedal 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>22</instrumentID>
+  <type>Tom Low 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>23</instrumentID>
+  <type>Hi-hat Open 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>24</instrumentID>
+  <type>Tom Mid 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>25</instrumentID>
+  <type>Tom High 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>26</instrumentID>
+  <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>27</instrumentID>
+  <type>Tom High 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>28</instrumentID>
+  <type>Crash 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>29</instrumentID>
+  <type>Crash 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>30</instrumentID>
+  <type>Ride Bow</type>
+ </mapping>
+ <mapping>
+  <instrumentID>31</instrumentID>
+  <type>Whistle</type>
+ </mapping>
+ <mapping>
+  <instrumentID>32</instrumentID>
+  <type>Crash 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>33</instrumentID>
+  <type>Cowbell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>34</instrumentID>
+  <type>Crash 5</type>
+ </mapping>
+ <mapping>
+  <instrumentID>35</instrumentID>
+  <type>Guiro Long</type>
+ </mapping>
+ <mapping>
+  <instrumentID>36</instrumentID>
+  <type>Ride Bow 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>37</instrumentID>
+  <type>Conga High 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>38</instrumentID>
+  <type>Conga High 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>39</instrumentID>
+  <type>Conga Low 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>40</instrumentID>
+  <type>Conga Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>41</instrumentID>
+  <type>Conga High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>42</instrumentID>
+  <type>Timbale High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>43</instrumentID>
+  <type>Timbale Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>44</instrumentID>
+  <type>Agogo High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>45</instrumentID>
+  <type>Claves</type>
+ </mapping>
+ <mapping>
+  <instrumentID>46</instrumentID>
+  <type>Cabasa Up</type>
+ </mapping>
+ <mapping>
+  <instrumentID>47</instrumentID>
+  <type>Maracas</type>
+ </mapping>
+ <mapping>
+  <instrumentID>48</instrumentID>
+  <type>Whistle 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>49</instrumentID>
+  <type>Whistle 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>50</instrumentID>
+  <type>Whistle 4</type>
+ </mapping>
+ <mapping>
+  <instrumentID>51</instrumentID>
+  <type>Whistle 5</type>
+ </mapping>
+ <mapping>
+  <instrumentID>52</instrumentID>
+  <type>Whistle 6</type>
+ </mapping>
+ <mapping>
+  <instrumentID>53</instrumentID>
+  <type>Whistle 7</type>
+ </mapping>
+ <mapping>
+  <instrumentID>54</instrumentID>
+  <type>Whistle 8</type>
+ </mapping>
+ <mapping>
+  <instrumentID>55</instrumentID>
+  <type>Whistle 9</type>
+ </mapping>
+ <mapping>
+  <instrumentID>56</instrumentID>
+  <type>Whistle 10</type>
+ </mapping>
+ <mapping>
+  <instrumentID>57</instrumentID>
+  <type>Whistle 11</type>
+ </mapping>
+ <mapping>
+  <instrumentID>58</instrumentID>
+  <type>Hi-hat Open 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>59</instrumentID>
+  <type>Hand Clap 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>60</instrumentID>
+  <type>Kick 5</type>
+ </mapping>
+ <mapping>
+  <instrumentID>61</instrumentID>
+  <type>Kick 6</type>
+ </mapping>
+ <mapping>
+  <instrumentID>62</instrumentID>
+  <type>Snare 5</type>
+ </mapping>
+ <mapping>
+  <instrumentID>63</instrumentID>
+  <type>Snare 6</type>
+ </mapping>
+</drumkit_map>
