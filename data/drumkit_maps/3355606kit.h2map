@@ -26,15 +26,15 @@
  </mapping>
  <mapping>
   <instrumentID>6</instrumentID>
-  <type>Tom Mid</type>
+  <type>Tom Low</type>
  </mapping>
  <mapping>
   <instrumentID>7</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>8</instrumentID>
-  <type>Tom Low</type>
+  <type>Tom Floor</type>
  </mapping>
  <mapping>
   <instrumentID>9</instrumentID>

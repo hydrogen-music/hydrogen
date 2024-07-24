@@ -42,7 +42,7 @@
  </mapping>
  <mapping>
   <instrumentID>17</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>18</instrumentID>
@@ -66,7 +66,7 @@
  </mapping>
  <mapping>
   <instrumentID>23</instrumentID>
-  <type>Tom High Flam</type>
+  <type>Tom Mid Flam</type>
  </mapping>
  <mapping>
   <instrumentID>24</instrumentID>

@@ -632,7 +632,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>9</id>
    <name>Tom 1</name>
-	 <type>Tom High</type>
+	 <type>Tom Mid</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>

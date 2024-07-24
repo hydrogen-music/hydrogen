@@ -58,10 +58,10 @@
  </mapping>
  <mapping>
   <instrumentID>14</instrumentID>
-  <type>Tom Floor</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>15</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Low</type>
  </mapping>
 </drumkit_map>

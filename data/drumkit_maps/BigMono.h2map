@@ -66,7 +66,7 @@
  </mapping>
  <mapping>
   <instrumentID>31</instrumentID>
-  <type>Tom Low 2</type>
+  <type>Tom Floor 2</type>
  </mapping>
  <mapping>
   <instrumentID>32</instrumentID>
@@ -74,6 +74,6 @@
  </mapping>
  <mapping>
   <instrumentID>33</instrumentID>
-  <type>Tom Low</type>
+  <type>Tom Floor</type>
  </mapping>
 </drumkit_map>

@@ -54,11 +54,11 @@
  </mapping>
  <mapping>
   <instrumentID>13</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>14</instrumentID>
-  <type>Tom Mid</type>
+  <type>Tom Low</type>
  </mapping>
  <mapping>
   <instrumentID>15</instrumentID>

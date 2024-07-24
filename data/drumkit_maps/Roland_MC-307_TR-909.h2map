@@ -118,7 +118,7 @@
  </mapping>
  <mapping>
   <instrumentID>29</instrumentID>
-  <type>Crash 2</type>
+  <type>Crash 3</type>
  </mapping>
  <mapping>
   <instrumentID>30</instrumentID>
@@ -130,7 +130,7 @@
  </mapping>
  <mapping>
   <instrumentID>32</instrumentID>
-  <type>Crash 3</type>
+  <type>Crash 2</type>
  </mapping>
  <mapping>
   <instrumentID>33</instrumentID>

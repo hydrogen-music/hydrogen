@@ -26,7 +26,7 @@
  </mapping>
  <mapping>
   <instrumentID>6</instrumentID>
-  <type>Tom Low</type>
+  <type>Tom Floor 2</type>
  </mapping>
  <mapping>
   <instrumentID>7</instrumentID>
@@ -34,7 +34,7 @@
  </mapping>
  <mapping>
   <instrumentID>8</instrumentID>
-  <type>Tom Mid</type>
+  <type>Tom Low 2</type>
  </mapping>
  <mapping>
   <instrumentID>9</instrumentID>
@@ -42,7 +42,7 @@
  </mapping>
  <mapping>
   <instrumentID>10</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Mid 2</type>
  </mapping>
  <mapping>
   <instrumentID>11</instrumentID>
@@ -74,7 +74,7 @@
  </mapping>
  <mapping>
   <instrumentID>18</instrumentID>
-  <type>Tom Floor 2</type>
+  <type>Tom Floor</type>
  </mapping>
  <mapping>
   <instrumentID>19</instrumentID>
@@ -82,7 +82,7 @@
  </mapping>
  <mapping>
   <instrumentID>20</instrumentID>
-  <type>Tom Floor</type>
+  <type>Tom Low</type>
  </mapping>
  <mapping>
   <instrumentID>21</instrumentID>
@@ -90,7 +90,7 @@
  </mapping>
  <mapping>
   <instrumentID>22</instrumentID>
-  <type>Tom Low 2</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>23</instrumentID>
@@ -98,7 +98,7 @@
  </mapping>
  <mapping>
   <instrumentID>24</instrumentID>
-  <type>Tom Mid 2</type>
+  <type>Tom High</type>
  </mapping>
  <mapping>
   <instrumentID>25</instrumentID>
@@ -118,7 +118,7 @@
  </mapping>
  <mapping>
   <instrumentID>29</instrumentID>
-  <type>Crash 2</type>
+  <type>Crash 3</type>
  </mapping>
  <mapping>
   <instrumentID>30</instrumentID>
@@ -130,7 +130,7 @@
  </mapping>
  <mapping>
   <instrumentID>32</instrumentID>
-  <type>Crash 3</type>
+  <type>Crash 2</type>
  </mapping>
  <mapping>
   <instrumentID>33</instrumentID>

@@ -118,11 +118,11 @@
  </mapping>
  <mapping>
   <instrumentID>29</instrumentID>
-  <type>Tom Mid</type>
+  <type>Tom Low</type>
  </mapping>
  <mapping>
   <instrumentID>30</instrumentID>
-  <type>Tom High</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>31</instrumentID>

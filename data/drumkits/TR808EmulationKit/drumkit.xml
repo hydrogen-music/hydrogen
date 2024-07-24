@@ -236,7 +236,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>5</id>
    <name>Tom Low</name>
-	 <type>Tom Low</type>
+	 <type>Tom Floor</type>
    <volume>0.77</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -279,7 +279,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>6</id>
    <name>Tom Mid</name>
-	 <type>Tom Mid</type>
+	 <type>Tom Low</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -322,7 +322,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>7</id>
    <name>Tom Hi</name>
-	 <type>Tom High</type>
+	 <type>Tom Mid</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>

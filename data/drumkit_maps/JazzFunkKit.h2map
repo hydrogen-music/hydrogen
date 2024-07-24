@@ -70,7 +70,7 @@
  </mapping>
  <mapping>
   <instrumentID>26</instrumentID>
-  <type>Ride Side 2</type>
+  <type>Crash 2</type>
  </mapping>
  <mapping>
   <instrumentID>27</instrumentID>
@@ -78,7 +78,7 @@
  </mapping>
  <mapping>
   <instrumentID>28</instrumentID>
-  <type>Ride Side</type>
+  <type>Crash</type>
  </mapping>
  <mapping>
   <instrumentID>29</instrumentID>

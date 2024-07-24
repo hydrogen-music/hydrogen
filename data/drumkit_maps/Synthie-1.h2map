@@ -14,7 +14,7 @@
  </mapping>
  <mapping>
   <instrumentID>3</instrumentID>
-  <type>Tom Low</type>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
   <instrumentID>4</instrumentID>
@@ -46,7 +46,7 @@
  </mapping>
  <mapping>
   <instrumentID>11</instrumentID>
-  <type>Snare Rimshot</type>
+  <type>Crash</type>
  </mapping>
  <mapping>
   <instrumentID>12</instrumentID>
@@ -58,7 +58,7 @@
  </mapping>
  <mapping>
   <instrumentID>14</instrumentID>
-  <type>Whistle 4</type>
+  <type>Crash 2</type>
  </mapping>
  <mapping>
   <instrumentID>15</instrumentID>
