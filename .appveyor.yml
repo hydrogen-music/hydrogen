@@ -600,7 +600,8 @@ for:
           if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-angleproject
+          REM *** The angleproject package does not seem to be available for 32bit Windows and Qt does not find its libGLESv2.dll anymore ***
+          if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-angleproject
           c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
           c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
@@ -643,7 +644,12 @@ for:
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Deploy Qt ***
-          %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe
+          set "DEPLOY_ARGS=-xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
+
+          REM *** No OpenGL ES support via pacman on 32bit Windows
+          if %job_name%==Windows32 set "DEPLOY_ARGS=%DEPLOY_ARGS% --no-angle"
+
+          %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
