@@ -6066,9 +6066,9 @@ Soll sie überschrieben werden?</translation>
         <translation>Lade Soundbibliothek herunter...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>

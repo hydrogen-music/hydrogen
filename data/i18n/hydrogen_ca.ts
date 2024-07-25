@@ -6010,9 +6010,9 @@ Overwrite the existing pattern?</source>
         <translation>Descarregant llibreria de sò...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>

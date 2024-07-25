@@ -6013,9 +6013,9 @@ Sovrascrivere il modello esistente?</translation>
         <translation>Scaricamento libreria sonora...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>

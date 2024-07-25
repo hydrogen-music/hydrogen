@@ -48,6 +48,16 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo>
 	H2_OBJECT(SoundLibraryInfo)
 	public:
 		SoundLibraryInfo();
+		SoundLibraryInfo( const QString& sName,
+						  const QString& sURL,
+						  const QString& sInfo,
+						  const QString& sAuthor,
+						  const QString& sCategory,
+						  const QString& sType,
+						  const License& license,
+						  const QString& sImage,
+						  const License& imageLicense,
+						  const QString& sPath );
 		~SoundLibraryInfo();
 
 	/**

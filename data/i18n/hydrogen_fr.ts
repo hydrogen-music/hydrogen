@@ -6078,9 +6078,9 @@ Overwrite the existing pattern?</source>
         <translation>Téléchargement de la bibliothèque de sons...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>

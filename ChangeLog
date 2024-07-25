@@ -1,5 +1,5 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
-	* Release 1.3.0
+	* Release 2.0.0
 	* Added
 		- PortMidi driver does open a input/output port which can be
 		  discovered and connected to by other applications when port was
@@ -53,6 +53,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  samples. Linked ones are not supported) as available as session kits
 				  in the Sound Library.
 				- New action in Main Menu to save kit to session folder.
+		- Online import dialog now allows for multiple downloads at once (#1143).
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.

@@ -6008,9 +6008,9 @@ Overwrite the existing pattern?</source>
         <translation>Skidanje zvučne knjižnice...</translation>
     </message>
     <message>
-        <source>Drumkit
+        <source>Drumkits
 
-%1
+- %1
 
 imported into %2</source>
         <translation type="unfinished"></translation>
