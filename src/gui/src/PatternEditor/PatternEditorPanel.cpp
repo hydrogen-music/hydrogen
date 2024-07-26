@@ -41,7 +41,6 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../SongEditor/SongEditorPanel.h"
-#include "../Types/Patch.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDCombo.h"
@@ -313,6 +312,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		m_pRec, QSize( 25, 18 ), Button::Type::Push, "patchBay.svg", "", false,
 		QSize( 19, 15 ), tr( "Show PatchBay" ) );
 	m_pPatchBayBtn->move( 209, 1 );
+	m_pPatchBayBtn->hide();
 	m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
 	connect( m_pPatchBayBtn, SIGNAL( clicked() ),
 			 this, SLOT( patchBayBtnClicked() ) );
