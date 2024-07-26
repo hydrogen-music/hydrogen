@@ -32,6 +32,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			files as well.
 		- CLI options:
 				- `kitToDrumkitMap`: to extract a .h2map file from a drumkit
+		- Patterns are now independent of Drumkits and the latter can switched
+			without the need to adjust the patterns. Mapping between the two will be
+			done using "instrument types".
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
@@ -42,6 +45,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- .h2song file format changed. (forward compatible only with v1.2.3 and newer).
 		- Drumkit format XSD changed. Adjustments done in the Sample Editor are now
 			stored in the kit as well (previously, this was only possible in songs).
+		- Notes in .h2pattern files as well as instruments in .h2drumkits do now have
+			a new property `type`.
 		- Prerelease version suffix (alpha, beta, rc..) are now appended to
 			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 		- Preferences dialog can now be smoothly resized.
