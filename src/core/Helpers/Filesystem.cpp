@@ -1111,15 +1111,15 @@ QString Filesystem::getDrumkitMap( const QString& sDrumkitName,
 	QDir mapDir( sMapDir );
 	// The mapping file must exactly match drumkit name.
 	if ( ! mapDir.exists( sTarget ) ) {
-		if ( bSilent ) {
-			WARNINGLOG( QString( "No .h2map fallback file for kit [%1] found. Please add types in the kit's Properties dialog yourself" )
-						.arg( sDrumkitName ) );
-		}
+		WARNINGLOG( QString( "No .h2map fallback file for kit [%1] found. Please add types in the kit's Properties dialog yourself" )
+					.arg( sDrumkitName ) );
 		return QString();
 	}
 
-	DEBUGLOG(QString( "Found map file [%1] for kit [%2]" )
-			 .arg( mapDir.filePath( sTarget ) ).arg( sDrumkitName ) );
+	if ( bSilent ) {
+		INFOLOG(QString( "Found map file [%1] for kit [%2]" )
+				 .arg( mapDir.filePath( sTarget ) ).arg( sDrumkitName ) );
+	}
 	return mapDir.filePath( sTarget );
 }
 
