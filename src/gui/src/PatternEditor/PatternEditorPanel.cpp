@@ -1399,7 +1399,6 @@ void PatternEditorPanel::patchBayBtnClicked() {
 
 	auto pPatchBay = new PatchBay(
 		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
-	auto nRes = pPatchBay->exec();
-
-	DEBUGLOG( pPatchBay->getPatch().toQString() );
+	pPatchBay->exec();
+	delete pPatchBay;
 }

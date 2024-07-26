@@ -63,7 +63,6 @@
 #include "Widgets/InfoBar.h"
 #include "Widgets/FileDialog.h"
 #include "Widgets/InputCaptureDialog.h"
-#include "Widgets/PatchBay.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"

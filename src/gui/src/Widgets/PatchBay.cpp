@@ -22,6 +22,11 @@
 
 #include "PatchBay.h"
 
+#include "Button.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../Types/Patch.h"
+
 PatchBay::PatchBay( QWidget* pParent,
 					H2Core::PatternList* pPatternList,
 					std::shared_ptr<H2Core::Drumkit> pDrumkit )
@@ -29,8 +34,36 @@ PatchBay::PatchBay( QWidget* pParent,
 	, m_pPatternList( pPatternList )
 	, m_pDrumkit( pDrumkit)
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	// General layout structure
 	setMinimumWidth( 750 );
+
+	m_pMainLayout = new QVBoxLayout();
+
+	QHBoxLayout* pButtonLayout = new QHBoxLayout();
+	pButtonLayout->setMargin( 0 );
+	Button* pApplyButton =
+		new Button( this, QSize( 120, 24 ), Button::Type::Push, "",
+					pCommonStrings->getButtonApply() );
+	connect( pApplyButton, &QPushButton::clicked,
+			 this, &PatchBay::applyButtonClicked );
+	Button* pCancelButton =
+		new Button( this, QSize( 120, 24 ), Button::Type::Push, "",
+					pCommonStrings->getButtonCancel() );
+	connect( pCancelButton, &QPushButton::clicked, this, &QDialog::reject );
+
+	// stretches on both sides center the buttons
+	pButtonLayout->addStretch();
+	pButtonLayout->addWidget( pApplyButton );
+	pButtonLayout->addWidget( pCancelButton );
+	pButtonLayout->addStretch();
+
+	QWidget* pButtonBox = new QWidget();
+	pButtonBox->setLayout( pButtonLayout );
+
+	m_pMainLayout->insertWidget( 1, pButtonBox );
+	setLayout( m_pMainLayout );
 
 	setup();
 }
@@ -71,8 +104,7 @@ void PatchBay::setup() {
 		return;
 	}
 
-	QGridLayout* pGridLayout = new QGridLayout( this );
-	setLayout( pGridLayout );
+	QGridLayout* pGridLayout = new QGridLayout();
 
 	// Containing the right hand side - which instrument type all notes with a
 	// specific type will be remapped to.
@@ -124,9 +156,14 @@ void PatchBay::setup() {
 
 		++nnRow;
 	}
+
+	QWidget* pGridBox = new QWidget();
+	pGridBox->setLayout( pGridLayout );
+
+	m_pMainLayout->insertWidget( 0, pGridBox );
 }
 
-Patch PatchBay::getPatch() const {
+void PatchBay::applyButtonClicked() {
 	Patch patch;
 
 	for ( int ii = 0; ii < m_patternTypesBoxes.size(); ++ii ) {
@@ -138,5 +175,7 @@ Patch PatchBay::getPatch() const {
 			m_pPatternList->getAllNotesOfType( ssPatternType ) );
 	}
 
-	return patch;
+	DEBUGLOG( patch.toQString() );
+
+	accept();
 }

@@ -1080,6 +1080,11 @@ Are you sure?</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Apply</source>
+        <extracomment>Text displayed on an Apply button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>

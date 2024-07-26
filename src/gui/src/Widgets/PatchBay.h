@@ -38,7 +38,6 @@
 
 #include "LCDCombo.h"
 #include "LCDDisplay.h"
-#include "../Types/Patch.h"
 
 /** Custom widget to map instruments and components onto eachother when
  * switching drumkits.
@@ -56,10 +55,14 @@ public:
 			  std::shared_ptr<H2Core::Drumkit> pDrumkit );
 	~PatchBay();
 
-		Patch getPatch() const;
+private slots:
+		void applyButtonClicked();
 
 private:
 		void setup();
+
+		QVBoxLayout* m_pMainLayout;
+
 		std::vector<LCDDisplay*> m_patternTypesBoxes;
 		std::vector<LCDCombo*> m_drumkitInstrumentBoxes;
 
