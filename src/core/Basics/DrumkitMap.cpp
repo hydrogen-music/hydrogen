@@ -166,7 +166,7 @@ int DrumkitMap::getId( const Type& sType, bool* pOk ) const {
 DrumkitMap::Type DrumkitMap::getType( int nId ) const {
 	const auto it = m_mapping.find( nId );
 	if ( it == m_mapping.end() ) {
-		ERRORLOG( QString( "No type found for id [%1]" ).arg( nId ) );
+		WARNINGLOG( QString( "No type found for id [%1]" ).arg( nId ) );
 		return "";
 	}
 
