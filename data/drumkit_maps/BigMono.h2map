@@ -6,74 +6,74 @@
  </mapping>
  <mapping>
   <instrumentID>1</instrumentID>
-  <type>Hi-hat Semi-Open</type>
- </mapping>
- <mapping>
-  <instrumentID>2</instrumentID>
-  <type>Hi-hat Pedal</type>
- </mapping>
- <mapping>
-  <instrumentID>18</instrumentID>
-  <type>Hi-hat Closed 2</type>
- </mapping>
- <mapping>
-  <instrumentID>19</instrumentID>
-  <type>Snare 4</type>
- </mapping>
- <mapping>
-  <instrumentID>20</instrumentID>
-  <type>Crash 2</type>
- </mapping>
- <mapping>
-  <instrumentID>21</instrumentID>
   <type>Snare 2</type>
  </mapping>
  <mapping>
-  <instrumentID>22</instrumentID>
-  <type>Ride Bow</type>
+  <instrumentID>2</instrumentID>
+  <type>Snare 4</type>
  </mapping>
  <mapping>
-  <instrumentID>23</instrumentID>
-  <type>Crash</type>
- </mapping>
- <mapping>
-  <instrumentID>24</instrumentID>
-  <type>Hi-hat Open</type>
- </mapping>
- <mapping>
-  <instrumentID>25</instrumentID>
-  <type>Hi-hat Closed</type>
- </mapping>
- <mapping>
-  <instrumentID>26</instrumentID>
+  <instrumentID>3</instrumentID>
   <type>Snare</type>
  </mapping>
  <mapping>
-  <instrumentID>27</instrumentID>
-  <type>Tom Mid</type>
- </mapping>
- <mapping>
-  <instrumentID>28</instrumentID>
-  <type>Snare Rimshot</type>
- </mapping>
- <mapping>
-  <instrumentID>29</instrumentID>
-  <type>Ride Bell</type>
- </mapping>
- <mapping>
-  <instrumentID>30</instrumentID>
+  <instrumentID>4</instrumentID>
   <type>Snare 3</type>
  </mapping>
  <mapping>
-  <instrumentID>31</instrumentID>
-  <type>Tom Floor 2</type>
+  <instrumentID>5</instrumentID>
+  <type>Tom Mid</type>
  </mapping>
  <mapping>
-  <instrumentID>32</instrumentID>
+  <instrumentID>6</instrumentID>
   <type>Tom Mid 2</type>
  </mapping>
  <mapping>
-  <instrumentID>33</instrumentID>
+  <instrumentID>7</instrumentID>
   <type>Tom Floor</type>
+ </mapping>
+ <mapping>
+  <instrumentID>8</instrumentID>
+  <type>Tom Floor 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>9</instrumentID>
+  <type>Snare Rimshot</type>
+ </mapping>
+ <mapping>
+  <instrumentID>10</instrumentID>
+  <type>Ride Bell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>11</instrumentID>
+  <type>Ride Bow</type>
+ </mapping>
+ <mapping>
+  <instrumentID>12</instrumentID>
+  <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>13</instrumentID>
+  <type>Crash 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Hi-hat Closed 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>16</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>17</instrumentID>
+  <type>Hi-hat Semi-Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>18</instrumentID>
+  <type>Hi-hat Pedal</type>
  </mapping>
 </drumkit_map>
