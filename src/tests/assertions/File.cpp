@@ -212,9 +212,13 @@ void H2Test::checkDirsEqual( const QString& sDirExpected,
 
 	if ( contentExpected.size() != contentActual.size() ) {
 		if ( bEquality ) {
-			CppUnit::Message msg( std::string("Mismatching number of file in directories "),
-								  std::string("Expected: ") + std::to_string( contentExpected.size() ),
-								  std::string("Actual  : ") + std::to_string( contentActual.size() ) );
+			CppUnit::Message msg(
+				QString( "Mismatching number of file in directories\n")
+				.append( QString( " * Expected : %1 [%2]\n" )
+						 .arg( contentExpected.size() ).arg( sDirExpected ) )
+				.append( QString( " * Actual   : %1 [%2]\n" )
+						 .arg( contentActual.size() ).arg( sDirActual ) )
+				.toStdString() );
 			throw CppUnit::Exception(msg, sourceLine);
 		} else {
 			return;
