@@ -440,6 +440,7 @@ void Drumkit::saveTo( XMLNode& node,
 					  bool bSongKit,
 					  bool bSilent ) const
 {
+	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
 	node.write_string( "author", m_sAuthor );
 	node.write_string( "info", m_sInfo );

@@ -119,6 +119,8 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 void DrumkitMap::saveTo( XMLNode& node, bool bSilent ) const {
 
+	node.write_int( "formatVersion", nCurrentFormatVersion );
+
 	for ( const auto& [nnId, ssType] : m_mapping ) {
 		XMLNode mappingNode = node.createNode( "mapping" );
 		mappingNode.write_int( "instrumentID", nnId );

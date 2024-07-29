@@ -867,6 +867,7 @@ bool Preferences::savePreferences() const
 	XMLNode rootNode = doc.set_root( "hydrogen_preferences" );
 
 	// hydrogen version
+	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////

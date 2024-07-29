@@ -130,6 +130,7 @@ bool Playlist::save( bool bSilent ) const {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 
+	root.write_int( "formatVersion", nCurrentFormatVersion );
 	QFileInfo info( m_sFilename );
 	root.write_string( "name", info.fileName() );
 

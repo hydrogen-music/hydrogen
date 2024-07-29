@@ -616,6 +616,7 @@ void XmlTest::testPlaylist()
 		H2TEST_FILE( "playlist/test.h2playlist" ) );
 	H2Core::XMLDoc doc;
 
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath ) );
 	CPPUNIT_ASSERT( doc.read( sTmpPath,
 							  H2Core::Filesystem::playlist_xsd_path() ) );

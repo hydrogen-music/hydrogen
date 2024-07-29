@@ -787,6 +787,9 @@ private:
 										const WindowProperties& prop );
 
 	bool m_bLoadingSuccessful;
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline const QString&			Preferences::getLastExportPatternAsDirectory() const {

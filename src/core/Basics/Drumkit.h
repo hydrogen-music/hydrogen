@@ -411,6 +411,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		int findUnusedComponentId() const;
 
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
+
 };
 
 // DEFINITIONS
