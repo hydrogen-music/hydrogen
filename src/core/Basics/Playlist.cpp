@@ -60,9 +60,6 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 	else {
 		XMLNode root = doc.firstChildElement( "playlist" );
 		if ( ! root.isNull() ) {
-			if ( root.read_string( "name", "", false, false ).isEmpty() ) {
-				WARNINGLOG( "Playlist does not contain name" );
-			}
 			pPlaylist = Playlist::load_from( root, sPath );
 		}
 		else {
@@ -131,8 +128,6 @@ bool Playlist::save( bool bSilent ) const {
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 
 	root.write_int( "formatVersion", nCurrentFormatVersion );
-	QFileInfo info( m_sFilename );
-	root.write_string( "name", info.fileName() );
 
 	saveTo( root );
 	return doc.write( m_sFilename );
