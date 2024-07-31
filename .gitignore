@@ -43,3 +43,4 @@ tests/jackTearDown/h2cli.log
 tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
 tests/jackTimebase/test*.log
+src/tests/data/playlist/tmp-duplicate-test.h2playlist

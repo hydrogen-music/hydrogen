@@ -658,6 +658,25 @@ void XmlTest::checkTestPatterns()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testPlaylistFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/playlist/test.h2playlist" );
+	const auto pPlaylist = H2Core::Playlist::load( sTestFile );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+
+	// As we are using relative paths to the song files, we have to create the
+	// test artifact within the same folder as the original playlist.
+	const QString sTmpPlaylist =
+		H2TEST_FILE( "/playlist/tmp-duplicate-test.h2playlist" );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPlaylist, false ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPlaylist );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPlaylist ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testPlaylist()
 {
 	___INFOLOG( "" );

@@ -38,6 +38,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPattern);
 	CPPUNIT_TEST(testPatternLegacy);
 	CPPUNIT_TEST(testPatternInstrumentTypes);
+	CPPUNIT_TEST(testPlaylistFormatIntegrity);
 	CPPUNIT_TEST(testPlaylist);
 	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(checkTestPatterns);
@@ -62,6 +63,8 @@ class XmlTest : public CppUnit::TestCase {
 		void testPattern();
 		void testPatternLegacy();
 		void testPatternInstrumentTypes();
+		/** Checks whether the format of `.h2playlist` files did change. */
+		void testPlaylistFormatIntegrity();
 		void testPlaylist();
 		// Check whether the drumkits provided alongside this repo can
 		// be validated against the drumkit XSD.
