@@ -135,12 +135,14 @@ bool Playlist::save( bool bSilent ) const {
 
 void Playlist::saveTo( XMLNode& node ) const
 {
+	QFileInfo fileInfo( m_sFilename );
+
 	XMLNode songs = node.createNode( "songs" );
 
 	for ( const auto& pEntry : m_entries ) {
 		QString sPath = pEntry->getSongPath();
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
-			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
+			sPath = fileInfo.absoluteDir().relativeFilePath( sPath );
 		}
 		XMLNode song_node = songs.createNode( "song" );
 		song_node.write_string( "path", sPath );
