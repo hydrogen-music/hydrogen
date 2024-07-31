@@ -398,8 +398,7 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
-		ERRORLOG( "Playlist has no name, abort" );
-		return nullptr;
+		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
