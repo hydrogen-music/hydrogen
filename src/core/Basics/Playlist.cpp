@@ -85,13 +85,30 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
 
-			QString songPath = nextNode.read_string( "path", "", false, false );
-			if ( !songPath.isEmpty() ) {
-				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
+			const QString sSongPath =
+				nextNode.read_string( "path", "", false, false );
+			if ( !sSongPath.isEmpty() ) {
+				// In case `sSongPath` is relative, it will be resolved with
+				// respect to the folder containing the playlist file. In case
+				// it is absolute, that path is used without further
+				// modification.
+				//
+				// In here we ignore the users choice whether or not to use the
+				// relative paths but, instead, cover both cases for
+				// convenience' sake.
+				QFileInfo songPathInfo( fileInfo.absoluteDir(), sSongPath );
 				auto pEntry = std::make_shared<PlaylistEntry>(
-					songPathInfo.absoluteFilePath(),
-					nextNode.read_string( "scriptPath", "" ),
+					songPathInfo.absoluteFilePath(), "",
 					nextNode.read_bool( "scriptEnabled", false ) );
+
+				// The same relative path handling for the script too.
+				const QString sScriptPath =
+					nextNode.read_string( "scriptPath", "", true, true );
+				if ( ! sScriptPath.isEmpty() ) {
+					QFileInfo scriptPathInfo( fileInfo.absoluteDir(),
+											  sScriptPath );
+					pEntry->setScriptPath( scriptPathInfo.absoluteFilePath() );
+				}
 				pPlaylist->add( pEntry );
 			}
 
@@ -140,13 +157,19 @@ void Playlist::saveTo( XMLNode& node ) const
 	XMLNode songs = node.createNode( "songs" );
 
 	for ( const auto& pEntry : m_entries ) {
-		QString sPath = pEntry->getSongPath();
+		QString sSongPath = pEntry->getSongPath();
+		QString sScriptPath = pEntry->getScriptPath();
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
-			sPath = fileInfo.absoluteDir().relativeFilePath( sPath );
+			if ( ! sSongPath.isEmpty() ) {
+				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
+			}
+			if ( ! sScriptPath.isEmpty() ) {
+				sScriptPath = fileInfo.absoluteDir().relativeFilePath( sScriptPath );
+			}
 		}
 		XMLNode song_node = songs.createNode( "song" );
-		song_node.write_string( "path", sPath );
-		song_node.write_string( "scriptPath", pEntry->getScriptPath() );
+		song_node.write_string( "path", sSongPath );
+		song_node.write_string( "scriptPath", sScriptPath );
 		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
 	}
 }
