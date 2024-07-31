@@ -78,7 +78,30 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 	return ( count==4 );
 }
 
+void XmlTest::testDrumkitFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFolder = H2TEST_FILE( "/drumkits/format-integrity/");
+	const auto pDrumkit = H2Core::Drumkit::load( sTestFolder );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
+	const QString sTmpDrumkitXml =
+		H2Core::Filesystem::tmp_file_path( "drumkit-format-integrity.xml" );
+
+	// We just store the definition. Saving the whole kit is tested in another
+	// function.
+	H2Core::XMLDoc doc;
+	H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	pDrumkit->saveTo( root, -1, true, false, false );
+
+	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL(
+		H2Core::Filesystem::drumkit_file( sTestFolder ), sTmpDrumkitXml );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitXml ) );
+	___INFOLOG( "passed" );
+}
 
 void XmlTest::testDrumkit()
 {

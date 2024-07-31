@@ -27,6 +27,7 @@
 
 class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
+	CPPUNIT_TEST(testDrumkitFormatIntegrity);
 	CPPUNIT_TEST(testDrumkit);
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
@@ -45,6 +46,8 @@ class XmlTest : public CppUnit::TestCase {
 	public:
 		// Removes all .bak backup files from the test data folder.
 		void tearDown();
+		/** Checks whether the format of `drumkit.xml` files did change. */
+		void testDrumkitFormatIntegrity();
 		void testDrumkit();
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testDrumkitUpgrade();
