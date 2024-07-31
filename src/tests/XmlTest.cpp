@@ -575,6 +575,23 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitMapFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/drumkit_map/ref.h2map");
+	const auto pDrumkitMap = H2Core::DrumkitMap::load( sTestFile );
+	CPPUNIT_ASSERT( pDrumkitMap != nullptr );
+
+	const QString sTmpDrumkitMap =
+		H2Core::Filesystem::tmp_file_path( "drumkit-map-format-integrity.h2map" );
+	CPPUNIT_ASSERT( pDrumkitMap->save( sTmpDrumkitMap ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpDrumkitMap );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitMap ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testDrumkitMap()
 {
 	___INFOLOG( "" );

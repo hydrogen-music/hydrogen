@@ -32,6 +32,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
+	CPPUNIT_TEST(testDrumkitMapFormatIntegrity);
 	CPPUNIT_TEST(testDrumkitMap);
 	CPPUNIT_TEST(testPattern);
 	CPPUNIT_TEST(testPatternLegacy);
@@ -52,6 +53,8 @@ class XmlTest : public CppUnit::TestCase {
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testDrumkitUpgrade();
 		void testDrumkitInstrumentTypeUniqueness();
+		/** Checks whether the format of `drumkit.xml` files did change. */
+		void testDrumkitMapFormatIntegrity();
 		void testDrumkitMap();
 		void testPattern();
 		void testPatternLegacy();
