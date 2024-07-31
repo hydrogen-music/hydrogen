@@ -401,6 +401,27 @@ void XmlTest::testDrumkitUpgrade() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testPatternFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
+	const auto pPattern = H2Core::Pattern::load_file( sTestFile );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	H2Core::License license{};
+	license.setType( H2Core::License::LicenseType::CC_0 );
+	const QString sTmpPattern =
+		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
+	CPPUNIT_ASSERT( pPattern->save_file(
+						"GMRockKit", "Hydrogen dev team", license,
+						sTmpPattern, true ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPattern ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testPattern()
 {
 	___INFOLOG( "" );
