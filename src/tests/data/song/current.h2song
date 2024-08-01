@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
  <version>1.3.0-alpha-'d3404ea5e'</version>
+ <formatVersion>2</formatVersion>
  <bpm>120</bpm>
  <volume>0.5</volume>
  <isMuted>false</isMuted>
@@ -24,6 +25,7 @@
  <humanize_velocity>0</humanize_velocity>
  <swing_factor>0</swing_factor>
  <drumkit_info>
+  <formatVersion>2</formatVersion>
   <name>GMRockKit</name>
   <author>Glen MacArthur / Sebastian Moors</author>
   <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
@@ -46,7 +48,7 @@ p, li { white-space: pre-wrap; }
     <id>0</id>
     <name>Kick</name>
     <type>Kick</type>
-    <drumkitPath>/home/phil/.hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -80,7 +82,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/home/phil/.hydrogen/data/drumkits/GMRockKit/Kick-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
@@ -97,7 +99,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/home/phil/.hydrogen/data/drumkits/GMRockKit/Kick-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Soft.wav</filename>
       <min>0.202899</min>
       <max>0.369565</max>
       <gain>1</gain>
@@ -114,7 +116,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/home/phil/.hydrogen/data/drumkits/GMRockKit/Kick-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Med.wav</filename>
       <min>0.369565</min>
       <max>0.731884</max>
       <gain>1</gain>
@@ -131,7 +133,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/home/phil/.hydrogen/data/drumkits/GMRockKit/Kick-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Hard.wav</filename>
       <min>0.731884</min>
       <max>0.865942</max>
       <gain>1</gain>
@@ -148,7 +150,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/home/phil/.hydrogen/data/drumkits/GMRockKit/Kick-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Hardest.wav</filename>
       <min>0.865942</min>
       <max>1</max>
       <gain>1</gain>
@@ -221,7 +223,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/home/phil/git/hydrogen/src/tests/data/song/../drumkits/baseKit/snare.wav</filename>
+      <filename>../drumkits/baseKit/snare.wav</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
@@ -243,7 +245,7 @@ p, li { white-space: pre-wrap; }
     <id>18</id>
     <name>Kick Long</name>
     <type></type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/TR808EmulationKit</drumkitPath>
     <drumkit>TR808EmulationKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -277,7 +279,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit/808_Kick_Long.flac</filename>
+      <filename>../../../../data/drumkits/TR808EmulationKit/808_Kick_Long.flac</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
@@ -299,7 +301,7 @@ p, li { white-space: pre-wrap; }
     <id>19</id>
     <name>Snare 1</name>
     <type></type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/TR808EmulationKit</drumkitPath>
     <drumkit>TR808EmulationKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -333,7 +335,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit/808_Snare_1.flac</filename>
+      <filename>../../../../data/drumkits/TR808EmulationKit/808_Snare_1.flac</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
@@ -355,7 +357,7 @@ p, li { white-space: pre-wrap; }
     <id>1</id>
     <name>Stick</name>
     <type>Stick</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.99569</volume>
     <isMuted>false</isMuted>
@@ -389,7 +391,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
@@ -406,7 +408,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SideStick-Soft.wav</filename>
       <min>0.188406</min>
       <max>0.402174</max>
       <gain>1</gain>
@@ -423,7 +425,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SideStick-Med.wav</filename>
       <min>0.402174</min>
       <max>0.597826</max>
       <gain>1</gain>
@@ -440,7 +442,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SideStick-Hard.wav</filename>
       <min>0.597826</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -457,7 +459,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SideStick-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -479,7 +481,7 @@ p, li { white-space: pre-wrap; }
     <id>2</id>
     <name>Snare</name>
     <type>Snare</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.02155</volume>
     <isMuted>false</isMuted>
@@ -513,7 +515,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Snare-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
@@ -530,7 +532,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Snare-Soft.wav</filename>
       <min>0.202899</min>
       <max>0.376812</max>
       <gain>1</gain>
@@ -547,7 +549,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Snare-Med.wav</filename>
       <min>0.376812</min>
       <max>0.568841</max>
       <gain>1</gain>
@@ -564,7 +566,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Snare-Hard.wav</filename>
       <min>0.568841</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -581,7 +583,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Snare-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -619,7 +621,7 @@ p, li { white-space: pre-wrap; }
     <id>3</id>
     <name>Hand Clap</name>
     <type>Hand Clap</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.02155</volume>
     <isMuted>false</isMuted>
@@ -653,7 +655,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HandClap.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HandClap.wav</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
@@ -675,7 +677,7 @@ p, li { white-space: pre-wrap; }
     <id>4</id>
     <name>Snare Rimshot</name>
     <type>Snare Rimshot</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -709,7 +711,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
@@ -726,7 +728,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Soft.wav</filename>
       <min>0.188406</min>
       <max>0.380435</max>
       <gain>1</gain>
@@ -743,7 +745,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Med.wav</filename>
       <min>0.380435</min>
       <max>0.594203</max>
       <gain>1</gain>
@@ -760,7 +762,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Hard.wav</filename>
       <min>0.594203</min>
       <max>0.728261</max>
       <gain>1</gain>
@@ -777,7 +779,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Hardest.wav</filename>
       <min>0.728261</min>
       <max>1</max>
       <gain>1</gain>
@@ -799,7 +801,7 @@ p, li { white-space: pre-wrap; }
     <id>5</id>
     <name>Floor Tom</name>
     <type>Tom Floor</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1.04741</volume>
     <isMuted>false</isMuted>
@@ -833,7 +835,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
       <min>0</min>
       <max>0.199275</max>
       <gain>1</gain>
@@ -850,7 +852,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/TomFloor-Soft.wav</filename>
       <min>0.199275</min>
       <max>0.394928</max>
       <gain>1</gain>
@@ -867,7 +869,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/TomFloor-Med.wav</filename>
       <min>0.394928</min>
       <max>0.608696</max>
       <gain>1</gain>
@@ -884,7 +886,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/TomFloor-Hard.wav</filename>
       <min>0.608696</min>
       <max>0.786232</max>
       <gain>1</gain>
@@ -901,7 +903,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/TomFloor-Hardest.wav</filename>
       <min>0.786232</min>
       <max>1</max>
       <gain>1</gain>
@@ -923,7 +925,7 @@ p, li { white-space: pre-wrap; }
     <id>6</id>
     <name>Hat Closed</name>
     <type>Hi-hat Closed</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.685345</volume>
     <isMuted>false</isMuted>
@@ -957,7 +959,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
       <min>0</min>
       <max>0.173913</max>
       <gain>1</gain>
@@ -974,7 +976,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatClosed-Soft.wav</filename>
       <min>0.173913</min>
       <max>0.373188</max>
       <gain>1</gain>
@@ -991,7 +993,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatClosed-Med.wav</filename>
       <min>0.373188</min>
       <max>0.576087</max>
       <gain>1</gain>
@@ -1008,7 +1010,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatClosed-Hard.wav</filename>
       <min>0.576087</min>
       <max>0.786232</max>
       <gain>1</gain>
@@ -1025,7 +1027,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatClosed-Hardest.wav</filename>
       <min>0.786232</min>
       <max>1</max>
       <gain>1</gain>
@@ -1047,7 +1049,7 @@ p, li { white-space: pre-wrap; }
     <id>7</id>
     <name>Tom 2</name>
     <type>Tom Low</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -1081,7 +1083,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
       <min>0</min>
       <max>0.177536</max>
       <gain>1</gain>
@@ -1098,7 +1100,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom2-Soft.wav</filename>
       <min>0.177536</min>
       <max>0.373188</max>
       <gain>1</gain>
@@ -1115,7 +1117,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom2-Med.wav</filename>
       <min>0.373188</min>
       <max>0.576087</max>
       <gain>1</gain>
@@ -1132,7 +1134,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom2-Hard.wav</filename>
       <min>0.576087</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -1149,7 +1151,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom2-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -1171,7 +1173,7 @@ p, li { white-space: pre-wrap; }
     <id>8</id>
     <name>Hat Pedal</name>
     <type>Hi-hat Pedal</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.685345</volume>
     <isMuted>false</isMuted>
@@ -1205,7 +1207,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
       <min>0</min>
       <max>0.210145</max>
       <gain>1</gain>
@@ -1222,7 +1224,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatPedal-Soft.wav</filename>
       <min>0.210145</min>
       <max>0.384058</max>
       <gain>1</gain>
@@ -1239,7 +1241,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatPedal-Med.wav</filename>
       <min>0.384058</min>
       <max>0.594203</max>
       <gain>1</gain>
@@ -1256,7 +1258,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatPedal-Hard.wav</filename>
       <min>0.594203</min>
       <max>0.797101</max>
       <gain>1</gain>
@@ -1273,7 +1275,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatPedal-Hardest.wav</filename>
       <min>0.797101</min>
       <max>1</max>
       <gain>1</gain>
@@ -1295,7 +1297,7 @@ p, li { white-space: pre-wrap; }
     <id>9</id>
     <name>Tom 1</name>
     <type>Tom High</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -1329,7 +1331,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
@@ -1346,7 +1348,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom1-Soft.wav</filename>
       <min>0.202899</min>
       <max>0.394928</max>
       <gain>1</gain>
@@ -1363,7 +1365,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom1-Med.wav</filename>
       <min>0.394928</min>
       <max>0.605072</max>
       <gain>1</gain>
@@ -1380,7 +1382,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom1-Hard.wav</filename>
       <min>0.605072</min>
       <max>0.786232</max>
       <gain>1</gain>
@@ -1397,7 +1399,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Tom1-Hardest.wav</filename>
       <min>0.786232</min>
       <max>1</max>
       <gain>1</gain>
@@ -1419,7 +1421,7 @@ p, li { white-space: pre-wrap; }
     <id>10</id>
     <name>Hat Open</name>
     <type>Hi-hat Open</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.698276</volume>
     <isMuted>false</isMuted>
@@ -1453,7 +1455,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
@@ -1470,7 +1472,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatOpen-Soft.wav</filename>
       <min>0.202899</min>
       <max>0.398551</max>
       <gain>1</gain>
@@ -1487,7 +1489,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatOpen-Med.wav</filename>
       <min>0.398551</min>
       <max>0.605072</max>
       <gain>1</gain>
@@ -1504,7 +1506,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatOpen-Hard.wav</filename>
       <min>0.605072</min>
       <max>0.797101</max>
       <gain>1</gain>
@@ -1521,7 +1523,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatOpen-Hardest.wav</filename>
       <min>0.797101</min>
       <max>1</max>
       <gain>1</gain>
@@ -1543,7 +1545,7 @@ p, li { white-space: pre-wrap; }
     <id>11</id>
     <name>Cowbell</name>
     <type>Cowbell</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.568965</volume>
     <isMuted>false</isMuted>
@@ -1577,7 +1579,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
       <min>0</min>
       <max>0.184783</max>
       <gain>1</gain>
@@ -1594,7 +1596,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Cowbell-Soft.wav</filename>
       <min>0.184783</min>
       <max>0.384058</max>
       <gain>1</gain>
@@ -1611,7 +1613,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Cowbell-Med.wav</filename>
       <min>0.384058</min>
       <max>0.576087</max>
       <gain>1</gain>
@@ -1628,7 +1630,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Cowbell-Hard.wav</filename>
       <min>0.576087</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -1645,7 +1647,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Cowbell-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -1667,7 +1669,7 @@ p, li { white-space: pre-wrap; }
     <id>12</id>
     <name>Ride</name>
     <type>Ride Bow</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.633621</volume>
     <isMuted>false</isMuted>
@@ -1701,7 +1703,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Ride-Softest.wav</filename>
       <min>0</min>
       <max>0.195652</max>
       <gain>1</gain>
@@ -1718,7 +1720,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Ride-Soft.wav</filename>
       <min>0.195652</min>
       <max>0.376812</max>
       <gain>1</gain>
@@ -1735,7 +1737,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Ride-Med.wav</filename>
       <min>0.376812</min>
       <max>0.572464</max>
       <gain>1</gain>
@@ -1752,7 +1754,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Ride-Hard.wav</filename>
       <min>0.572464</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -1769,7 +1771,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Ride-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -1791,7 +1793,7 @@ p, li { white-space: pre-wrap; }
     <id>13</id>
     <name>Crash</name>
     <type>Crash</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.517241</volume>
     <isMuted>false</isMuted>
@@ -1825,7 +1827,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Crash-Softest.wav</filename>
       <min>0</min>
       <max>0.199275</max>
       <gain>1</gain>
@@ -1842,7 +1844,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Crash-Soft.wav</filename>
       <min>0.199275</min>
       <max>0.384058</max>
       <gain>1</gain>
@@ -1859,7 +1861,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Crash-Med.wav</filename>
       <min>0.384058</min>
       <max>0.59058</max>
       <gain>1</gain>
@@ -1876,7 +1878,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Crash-Hard.wav</filename>
       <min>0.59058</min>
       <max>0.789855</max>
       <gain>1</gain>
@@ -1893,7 +1895,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Crash-Hardest.wav</filename>
       <min>0.789855</min>
       <max>1</max>
       <gain>1</gain>
@@ -1915,7 +1917,7 @@ p, li { white-space: pre-wrap; }
     <id>14</id>
     <name>Ride 2</name>
     <type>Ride Bow 2</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
@@ -1949,7 +1951,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-5.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/24Ride-5.wav</filename>
       <min>0.8</min>
       <max>1</max>
       <gain>1</gain>
@@ -1966,7 +1968,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-4.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/24Ride-4.wav</filename>
       <min>0.6</min>
       <max>0.8</max>
       <gain>1</gain>
@@ -1983,7 +1985,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-3.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/24Ride-3.wav</filename>
       <min>0.4</min>
       <max>0.6</max>
       <gain>1</gain>
@@ -2000,7 +2002,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-2.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/24Ride-2.wav</filename>
       <min>0.2</min>
       <max>0.4</max>
       <gain>1</gain>
@@ -2017,7 +2019,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-1.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/24Ride-1.wav</filename>
       <min>0</min>
       <max>0.2</max>
       <gain>1</gain>
@@ -2039,7 +2041,7 @@ p, li { white-space: pre-wrap; }
     <id>15</id>
     <name>Splash</name>
     <type>Splash</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.543103</volume>
     <isMuted>false</isMuted>
@@ -2073,7 +2075,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Splash-Softest.wav</filename>
       <min>0</min>
       <max>0.195652</max>
       <gain>1</gain>
@@ -2090,7 +2092,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Splash-Soft.wav</filename>
       <min>0.195652</min>
       <max>0.362319</max>
       <gain>1</gain>
@@ -2107,7 +2109,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Splash-Med.wav</filename>
       <min>0.362319</min>
       <max>0.568841</max>
       <gain>1</gain>
@@ -2124,7 +2126,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Splash-Hard.wav</filename>
       <min>0.568841</min>
       <max>0.75</max>
       <gain>1</gain>
@@ -2141,7 +2143,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Splash-Hardest.wav</filename>
       <min>0.75</min>
       <max>1</max>
       <gain>1</gain>
@@ -2163,7 +2165,7 @@ p, li { white-space: pre-wrap; }
     <id>16</id>
     <name>Hat Semi-Open</name>
     <type>Hi-hat Semi-Open</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.69</volume>
     <isMuted>false</isMuted>
@@ -2197,7 +2199,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
@@ -2214,7 +2216,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Soft.wav</filename>
       <min>0.188406</min>
       <max>0.380435</max>
       <gain>1</gain>
@@ -2231,7 +2233,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Med.wav</filename>
       <min>0.380435</min>
       <max>0.57971</max>
       <gain>1</gain>
@@ -2248,7 +2250,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Hard.wav</filename>
       <min>0.57971</min>
       <max>0.782609</max>
       <gain>1</gain>
@@ -2265,7 +2267,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Hardest.wav</filename>
       <min>0.782609</min>
       <max>1</max>
       <gain>1</gain>
@@ -2287,7 +2289,7 @@ p, li { white-space: pre-wrap; }
     <id>17</id>
     <name>Bell</name>
     <type>Ride Bell</type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>0.534828</volume>
     <isMuted>false</isMuted>
@@ -2321,7 +2323,7 @@ p, li { white-space: pre-wrap; }
      <component_id>0</component_id>
      <gain>1</gain>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Softest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Bell-Softest.wav</filename>
       <min>0</min>
       <max>0.210145</max>
       <gain>1</gain>
@@ -2338,7 +2340,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Soft.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Bell-Soft.wav</filename>
       <min>0.210145</min>
       <max>0.405797</max>
       <gain>1</gain>
@@ -2355,7 +2357,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Med.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Bell-Med.wav</filename>
       <min>0.405797</min>
       <max>0.605072</max>
       <gain>1</gain>
@@ -2372,7 +2374,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Hard.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Bell-Hard.wav</filename>
       <min>0.605072</min>
       <max>0.786232</max>
       <gain>1</gain>
@@ -2389,7 +2391,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Hardest.wav</filename>
+      <filename>../../../../data/drumkits/GMRockKit/Bell-Hardest.wav</filename>
       <min>0.786232</min>
       <max>1</max>
       <gain>1</gain>
@@ -2412,6 +2414,7 @@ p, li { white-space: pre-wrap; }
  <lastLoadedDrumkitPath></lastLoadedDrumkitPath>
  <patternList>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 1</name>
    <info></info>
    <category>not_categorized</category>
@@ -2512,6 +2515,7 @@ p, li { white-space: pre-wrap; }
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 2</name>
    <info></info>
    <category>not_categorized</category>
@@ -2520,6 +2524,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 3</name>
    <info></info>
    <category>not_categorized</category>
@@ -2528,6 +2533,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 4</name>
    <info></info>
    <category>not_categorized</category>
@@ -2536,6 +2542,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 5</name>
    <info></info>
    <category>not_categorized</category>
@@ -2544,6 +2551,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 6</name>
    <info></info>
    <category>not_categorized</category>
@@ -2552,6 +2560,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 7</name>
    <info></info>
    <category>not_categorized</category>
@@ -2560,6 +2569,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 8</name>
    <info></info>
    <category>not_categorized</category>
@@ -2568,6 +2578,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 9</name>
    <info></info>
    <category>not_categorized</category>
@@ -2576,6 +2587,7 @@ p, li { white-space: pre-wrap; }
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
    <name>Pattern 10</name>
    <info></info>
    <category>not_categorized</category>

@@ -32,13 +32,15 @@ namespace H2Test {
 	void checkFilesEqual( const QString& sExpected, const QString& sActual,
 						  bool bEquality, CppUnit::SourceLine sourceLine );
 	void checkXmlFilesEqual( const QString& sExpected, const QString& sActual,
-							 bool bEquality, CppUnit::SourceLine sourceLine );
+							 const bool bEquality, const bool bH2Song,
+							 CppUnit::SourceLine sourceLine );
 	void checkDirsEqual( const QString& sDirExpected, const QString& sDirActual,
 						 bool bEquality, CppUnit::SourceLine sourceLine );
 
 	void checkFileArgs( const QString& sExpected, QFile& f1,
 						const QString& sActual, QFile& f2,
-						bool bEquality, CppUnit::SourceLine sourceLine );
+						const bool bEquality, const bool bH2Song,
+						CppUnit::SourceLine sourceLine );
 }
 
 /**
@@ -49,9 +51,13 @@ namespace H2Test {
 #define H2TEST_ASSERT_FILES_UNEQUAL( sExpected, sActual ) \
 	H2Test::checkFilesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_XML_FILES_EQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, false, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_XML_FILES_UNEQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, false, false, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_H2SONG_FILES_EQUAL( sExpected, sActual ) \
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, true, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_H2SONG_FILES_UNEQUAL( sExpected, sActual ) \
+	H2Test::checkXmlFilesEqual( sExpected, sActual, false, true, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_EQUAL( sExpected, sActual ) \
 	H2Test::checkDirsEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_UNEQUAL( sExpected, sActual ) \

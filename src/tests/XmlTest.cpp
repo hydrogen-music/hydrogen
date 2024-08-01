@@ -754,19 +754,16 @@ void XmlTest::testSong()
 	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor ) != nullptr );
 
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
-
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
+		sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
 
 	// Test empty song (which is using the default kit)
 	const auto pSongEmpty = H2Core::Song::getEmptySong();
 	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty ) != nullptr );
 
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
+		sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
 
 	// Cleanup
 	H2Core::Filesystem::rm( sTmpPath );
