@@ -729,6 +729,22 @@ void XmlTest::testPlaylist()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testSongFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "song/current.h2song" );
+	const auto pSong = H2Core::Song::load( sTestFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const QString sTmpSong =
+		H2Core::Filesystem::tmp_file_path( "current-format-integrity.h2song" );
+	CPPUNIT_ASSERT( pSong->save( sTmpSong ) );
+
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL( sTestFile, sTmpSong );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpSong ) );
+	___INFOLOG( "passed" );
+}
 
 void XmlTest::testSong()
 {
@@ -739,15 +755,6 @@ void XmlTest::testSong()
 		"empty.h2song";
 	const QString sTmpPathConstructor = H2Core::Filesystem::tmp_dir() +
 		"constructor.h2song";
-
-	// Test constructor
-	const auto pSong = H2Core::Song::load( H2TEST_FILE( "song/current.h2song" ) );
-	CPPUNIT_ASSERT( pSong->save( sTmpPath ) );
-	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPath ) != nullptr );
-
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPath, H2TEST_FILE( "song/current.h2song" ));
 
 	// Test constructor
 	const auto pSongConstructor = std::make_shared<H2Core::Song>();

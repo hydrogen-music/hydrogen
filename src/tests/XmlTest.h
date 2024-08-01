@@ -42,6 +42,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPlaylist);
 	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(checkTestPatterns);
+	CPPUNIT_TEST(testSongFormatIntegrity);
 	CPPUNIT_TEST(testSong);
 	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST_SUITE_END();
@@ -73,6 +74,8 @@ class XmlTest : public CppUnit::TestCase {
 		// with respect to the shipped XSD file.
 		void checkTestPatterns();
 
+		/** Checks whether the format of `.h2song` files did change. */
+		void testSongFormatIntegrity();
 		void testSong();
 		// In the beginning of the 1.X.X series we had a lot of changes
 		// regarding how instruments are stored in a song and how the associated
