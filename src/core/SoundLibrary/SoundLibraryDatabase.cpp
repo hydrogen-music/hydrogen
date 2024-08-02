@@ -26,9 +26,11 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {
@@ -200,19 +202,67 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	return m_drumkitDatabase.at( sDrumkitPath );
 }
 
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+	else if ( search == m_drumkitDatabase.begin() ) {
+		// Periodic boundary conditions. The previous with respect to the first
+		// one is the last.
+		return std::prev( m_drumkitDatabase.end(), 1 )->second;
+	}
+
+	return std::prev( search, 1 )->second;
+}
+
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ||
+		 std::next( m_drumkitDatabase.find( sLastLoadedDrumkitPath ), 1 ) ==
+		 m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit or it is located at the
+		// very bottom, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+
+	return std::next( search, 1 )->second;
+}
+
 void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 												std::shared_ptr<Drumkit> pDrumkit ) {
 
 	QString sLabel = pDrumkit->getName();
-	const auto drumkitType = pDrumkit->getType();
+	const auto drumkitContext = pDrumkit->getContext();
 
-	if ( drumkitType == Drumkit::Type::System ) {
+	if ( drumkitContext == Drumkit::Context::System ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "system" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
 	}
-	else if ( drumkitType == Drumkit::Type::SessionReadOnly ||
-			  drumkitType == Drumkit::Type::SessionReadWrite ) {
+	else if ( drumkitContext == Drumkit::Context::SessionReadOnly ||
+			  drumkitContext == Drumkit::Context::SessionReadWrite ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "session" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
@@ -267,44 +317,23 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	return drumkitFolders;
 }
 
-std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
-	std::vector<DrumkitMap::Type> results;
+QStringList SoundLibraryDatabase::getAllTypes() const {
+	QStringList results;
 
 	// All types available
-	std::multiset<DrumkitMap::Type> allTypes;
+	std::set<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
-			allTypes.merge( ppDrumkit->getDrumkitMap().getAllTypes() );
-			allTypes.merge( ppDrumkit->getDrumkitMapFallback().getAllTypes() );
+			allTypes.merge( ppDrumkit->getAllTypes() );
 		}
 	}
 
-	// Count number of occurrences of types
-	std::multimap<int, DrumkitMap::Type> typesCounted;
-	DrumkitMap::Type sLastType;
-	for ( const auto& ssType : allTypes ) {
-		if ( sLastType != ssType ) {
-			typesCounted.insert( {
-				static_cast<int>(allTypes.count( ssType )),
-				ssType } );
-			sLastType = ssType;
-		}
-	}
-
-	// Create sorted list of types (sorting is done by map internally as we used
-	// the number of occurrences as keys).
-	results.resize( typesCounted.size() );
-	// Reverse insertion order to have highest key (most occurrences) first in
-	// resulting vector.
-	int ii = static_cast<int>(typesCounted.size()) - 1;
- 	for ( const auto& [ _, ssType ] : typesCounted ) {
-		if ( ii < 0 ) {
-			ERRORLOG( "Unexpected index" );
-			break;
-		}
-		 results[ ii ] = ssType;
-		 --ii;
+ 	for ( const auto& ssType : allTypes ) {
+		results << ssType;
 	 }
+
+	// Sort them alphabetically in ascending order.
+	results.sort();
 
 	return results;
 }

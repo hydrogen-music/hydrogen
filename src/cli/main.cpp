@@ -31,31 +31,32 @@
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
-#include <core/config.h>
-#include <core/Version.h>
 #include <getopt.h>
+#include <iostream>
+#include <signal.h>
 
 #ifdef H2CORE_HAVE_LASH
 #include <core/Lash/LashClient.h>
 #endif
 
-#include <core/Basics/Song.h>
-#include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/InstrumentList.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
-#include <core/Globals.h>
-#include <core/EventQueue.h>
-#include <core/Preferences/Preferences.h>
-#include <core/H2Exception.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Playlist.h>
-#include <core/Sampler/Interpolation.h>
+#include <core/Basics/Song.h>
+#include <core/config.h>
+#include <core/EventQueue.h>
+#include <core/Globals.h>
+#include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
-
-#include <iostream>
-#include <signal.h>
+#include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/MidiMap.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Interpolation.h>
+#include <core/Version.h>
 
 using namespace H2Core;
 
@@ -92,6 +93,44 @@ void show_playlist (uint active )
 	}
 	
 	std::cout << std::endl;
+}
+
+bool convertKitToDrumkitMap( const QString& sKit,
+							 const QString& sOutFilename ) {
+	bool bCompressed;
+	QString sKitFolder, sTmpFolder;
+	const auto pKit = CoreActionController::retrieveDrumkit(
+		sKit, &bCompressed, &sKitFolder, &sTmpFolder );
+
+	if ( pKit == nullptr ) {
+		___ERRORLOG( QString( "Unable to load kit from [%1]" ).arg( sKit ) );
+		return false;
+	}
+
+	const auto pDrumkitMap = pKit->toDrumkitMap();
+	if ( pDrumkitMap == nullptr ) {
+		___ERRORLOG( QString( "Unable to create drumkit map from kit [%1]" )
+					 .arg( sKit ) );
+		return false;
+	}
+
+	auto xmlDoc = pDrumkitMap->toXml();
+	if ( sOutFilename.isEmpty() ) {
+		// Write content to stdout
+		std::cout << xmlDoc.toString().toStdString();
+	}
+	else {
+		// Write content to file
+		if ( ! Filesystem::dir_readable(
+				 QFileInfo( sOutFilename ).dir().absolutePath(), false ) ) {
+			___ERRORLOG( QString( "Unable to write output file [%1]. Dir not writable" )
+						 .arg( sOutFilename ) );
+			return false;
+		}
+		xmlDoc.write( sOutFilename );
+	}
+
+	return true;
 }
 
 int main(int argc, char *argv[])
@@ -181,7 +220,11 @@ int main(int argc, char *argv[])
 			"Use an alternate system data path", "Path" );
 		QCommandLineOption configFileOption(
 			QStringList() << "config", "Use an alternate config file", "Path" );
-	QCommandLineOption kitOption(
+		QCommandLineOption kitToDrumkitMapOption(
+			QStringList() << "kitToDrumkitMap",
+			"Create a .h2map from the provided drumkit. To write the output into a file, use it in conjunction with -o.",
+			"Path" );
+		QCommandLineOption kitOption(
 			QStringList() << "k" << "kit",
 			"Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption(
@@ -208,6 +251,7 @@ int main(int argc, char *argv[])
 		parser.addOption( rateOption );
 		parser.addOption( bitsOption );
 		parser.addOption( kitOption );
+		parser.addOption( kitToDrumkitMapOption );
 		parser.addOption( interpolationOption );
 		parser.addOption( installDrumkitOption );
 		parser.addOption( checkDrumkitOption );
@@ -236,6 +280,7 @@ int main(int argc, char *argv[])
 		const QString sVerbosityString = parser.value( verboseOption );
 		const QString sInstallDrumkitName = parser.value( installDrumkitOption );
 		const QString sDrumkitToLoad = parser.value( kitOption );
+		const QString sKitToDrumkitMap = parser.value( kitToDrumkitMapOption );
 		const QString sDrumkitToValidate = parser.value( checkDrumkitOption );
 		const QString sDrumkitToLegacyValidate = parser.value( legacyCheckDrumkitOption );
 		const QString sLogFile = parser.value( logFileOption );
@@ -409,7 +454,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sDrumkitToLoad.isEmpty() ){
-			CoreActionController::setDrumkit( sDrumkitToLoad, true );
+			CoreActionController::setDrumkit( sDrumkitToLoad );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -437,8 +482,15 @@ int main(int argc, char *argv[])
 		signal(SIGINT, signal_handler);
 
 		// Hydrogen is up and running. Let's handle the requested user action.
+		//
+		// Note that handling of the output file option is kinda evolving
+		// naturally. It is (still) possible to trigger all sorts of actions via
+		// the CLI at the same time. But on the other hand we do not want to
+		// introduce output file arguments for each and every action. At some
+		// point the CLI has to be properly reworked. But as it seems not to be
+		// in common usage only support audio export or .h2map for now.
 		bool bExportMode = false;
-		if ( ! sOutFilename.isEmpty() ) {
+		if ( ! sOutFilename.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
 			auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
@@ -529,6 +581,14 @@ int main(int argc, char *argv[])
 						sTarget.toLocal8Bit().data() << "]";
 				}
 				std::cout << std::endl;
+			}
+		}
+
+		if ( ! sKitToDrumkitMap.isEmpty() ) {
+			if ( ! convertKitToDrumkitMap( sKitToDrumkitMap, sOutFilename ) ) {
+				nReturnCode = 1;
+			} else {
+				nReturnCode = 0;
 			}
 		}
 

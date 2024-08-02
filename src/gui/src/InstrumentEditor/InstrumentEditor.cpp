@@ -1581,7 +1581,7 @@ void InstrumentEditor::addComponentAction() {
 	selectComponent( pNewDrumkitComponent->get_id() );
 
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, pDrumkit, false,
+		pNewDrumkit, pDrumkit,
 		SE_switchDrumkitAction::Type::AddComponent, sNewName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
@@ -1633,7 +1633,7 @@ void InstrumentEditor::deleteComponentAction() {
 	// it also involves all associated instrument components and their samples.
 	// It's both more easy and clean to just switch between the entire drumkits.
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, pDrumkit, false,
+		pNewDrumkit, pDrumkit,
 		SE_switchDrumkitAction::Type::DeleteComponent, sOldName );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }

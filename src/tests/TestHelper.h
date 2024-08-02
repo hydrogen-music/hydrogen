@@ -34,11 +34,13 @@ class TestHelper {
 	
 	public:
 		TestHelper();
-	
+
 		QString getDataDir() const;
 		QString getTestDataDir() const;
 		QString getTestFile(const QString& file) const;
 	QStringList findDrumkitBackupFiles( const QString& sDir ) const;
+
+		static QString sRootDir;
 
 	/**
 	 * Picks different combinations of sample rate and buffer size of

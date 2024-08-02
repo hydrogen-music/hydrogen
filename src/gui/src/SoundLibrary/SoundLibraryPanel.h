@@ -52,9 +52,11 @@ public:
 
 public slots:
 	void on_drumkitLoadAction();
+		/** Somewhat low-level function for drumkit switching. In case drumkit
+		 * switching is triggered by the user, #MainForm::switchDrumkit() should
+		 * be used as entry point. */
 		void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
-							std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
-							bool bConditionalLoad );
+							std::shared_ptr<H2Core::Drumkit> pOldDrumkit );
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );

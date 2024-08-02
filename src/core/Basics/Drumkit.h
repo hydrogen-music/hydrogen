@@ -24,11 +24,13 @@
 #define H2C_DRUMKIT_H
 
 #include <map>
+#include <set>
 #include <memory>
 
 #include <core/Object.h>
 #include <core/License.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/DrumkitMap.h>
 
 namespace H2Core
 {
@@ -36,7 +38,6 @@ namespace H2Core
 class XMLDoc;
 class XMLNode;
 class DrumkitComponent;
-class DrumkitMap;
 
 /**
  * Drumkit info
@@ -48,7 +49,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	public:
 
 	/** Indicates usage, storage, and access permissions of a kit.*/
-	enum class Type {
+	enum class Context {
 		/** Kit is located in the system-level drumkit folder, loaded into the
 		 * #H2Core::SoundlibraryDatabase during startup, and is read-only.*/
 		System = 0,
@@ -64,7 +65,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * loaded into Hydrogen during a session using e.g. OSC or its location
 		 * was provided during startup. It is transient and can be modified.*/
 		SessionReadWrite = 3,
-		/** In contrast to the other types this drumkit was not loaded from a
+		/** In contrast to the other contexts this drumkit was not loaded from a
 		 * .h2drumkit or a drumkit.xml file within a drumkit folder. Instead, it
 		 * is part of a song and loaded with a .h2song or created with a new
 		 * song. It is stored with the song when saving the song and can be
@@ -73,8 +74,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Hydrogen.*/
 		Song = 4
 	};
-		static QString TypeToString( const Type& type );
-		static Type DetermineType( const QString& sPath );
+		static QString ContextToString( const Context& context );
+		static Context DetermineContext( const QString& sPath );
 
 		/** drumkit constructor, does nothing */
 		Drumkit();
@@ -257,8 +258,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**  returns #m_pInstruments */
 		std::shared_ptr<InstrumentList> getInstruments() const;
 
-		void setType( const Type& type );
-		const Type& getType() const;
+		void setContext( const Context& context );
+		const Context& getContext() const;
 		/** #m_sPath setter */
 		void setPath( const QString& path );
 		/** #m_sPath accessor */
@@ -313,11 +314,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Maps a compoment Id to an unique component label.*/
 		std::map<int, QString> generateUniqueComponentLabels() const;
 
-		const DrumkitMap&	getDrumkitMap() const;
-		void setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap );
-
-		const DrumkitMap&	getDrumkitMapFallback() const;
-
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
@@ -332,6 +328,18 @@ class Drumkit : public H2Core::Object<Drumkit>
 		*/
 		void recalculateRubberband( float fBpm );
 
+		/** Returns all types of the contained instruments. */
+		std::set<DrumkitMap::Type> getAllTypes() const;
+
+		/** In case no instrument types are defined in the loaded drumkit, we
+		 * check whether there is a .h2map file shipped with the installation
+		 * corresponding to getExportName() of the kit. From this is retrieve
+		 * only missing types.*/
+		void fixupTypes( bool bSilent = false );
+
+		bool hasMissingTypes() const;
+
+		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -353,7 +361,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License m_imageLicense;			///< drumkit image license
 		/** Transient property neither written to a drumkit.xml nor to a .h2song
 		 * but determined when loading the kit. */
-		Type m_type;
+		Context m_context;
 
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
@@ -376,29 +384,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return true on success
 		 */
 	bool saveSamples( const QString& dk_dir, bool bSilent = false ) const;
-
-		/** Maps the instruments of the kit to universal
-		 * #H2Core::DrumkitMap::Type using which seemless switching of drumkits
-		 * can be done.
-		 *
-		 * When saving the drumkit, this map is written into
-		 * $USR_DATA_DIR/drumkit_map/$KIT_NAME.h2map and _not_ into the drumkit
-		 * folder itself. This way, the original mapping - if provided by the
-		 * kit creator or as part of the Hydrogen installation - can still be
-		 * used as a fallback. The map can be reset to its initial state be
-		 * loading the kit with fallback mapping and saving it again.
-		 *
-		 * When exporting the drumkit, this map (and not the fallback one) will
-		 * be bundled in the resulting .h2drumkit. */
-		std::shared_ptr<DrumkitMap> m_pDrumkitMap;
-
-		/** Set whenever both a user-defined map and one found in the kit itself
-		 * or installed with Hydrogen is found. It can be used as a fallback
-		 * when switch between kits.
-		 *
-		 * It is not written to disk when saving or exporting the drumkit.
-		 * */
-		std::shared_ptr<DrumkitMap> m_pDrumkitMapFallback;
 
 	/**
 	 * Returns a version of #m_sName stripped of all whitespaces and
@@ -435,11 +420,11 @@ inline std::shared_ptr<InstrumentList> Drumkit::getInstruments() const
 	return m_pInstruments;
 }
 
-inline void Drumkit::setType( const Drumkit::Type& type ) {
-	m_type = type;
+inline void Drumkit::setContext( const Drumkit::Context& context ) {
+	m_context = context;
 }
-inline const Drumkit::Type& Drumkit::getType() const {
-	return m_type;
+inline const Drumkit::Context& Drumkit::getContext() const {
+	return m_context;
 }
 
 inline void Drumkit::setPath( const QString& path )
@@ -517,15 +502,6 @@ inline const bool Drumkit::areSamplesLoaded() const
 inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents() const
 {
 	return m_pComponents;
-}
-inline const DrumkitMap& Drumkit::getDrumkitMap() const {
-	return *m_pDrumkitMap;
-}
-inline void	Drumkit::setDrumkitMap( std::shared_ptr<DrumkitMap> pDrumkitMap ) {
-	m_pDrumkitMap = pDrumkitMap;
-}
-inline const DrumkitMap& Drumkit::getDrumkitMapFallback() const {
-	return *m_pDrumkitMapFallback;
 }
 
 };

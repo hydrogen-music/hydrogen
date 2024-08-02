@@ -156,6 +156,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
+	const QString& getButtonApply() const { return m_sButtonApply; }
 	const QString& getButtonSave() const { return m_sButtonSave; }
 	const QString& getButtonCancel() const { return m_sButtonCancel; }
 	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
@@ -344,6 +345,7 @@ private:
 	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;
+	QString m_sButtonApply;
 	QString m_sButtonSave;
 	QString m_sButtonCancel;
 	QString m_sButtonDiscard;

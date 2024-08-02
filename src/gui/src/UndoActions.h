@@ -1122,11 +1122,10 @@ class SE_switchDrumkitAction : public QUndoCommand {
 
 		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
 								std::shared_ptr<H2Core::Drumkit> pOldDrumkit,
-								bool bConditionalLoad, const Type& type,
+								const Type& type,
 								const QString& sComponentName = "" ) :
 			m_pNewDrumkit( pNewDrumkit ),
-			m_pOldDrumkit( pOldDrumkit ),
-			m_bConditionalLoad( bConditionalLoad )
+			m_pOldDrumkit( pOldDrumkit )
 		{
 			switch ( type ) {
 			case Type::SwitchDrumkit:
@@ -1156,21 +1155,18 @@ class SE_switchDrumkitAction : public QUndoCommand {
 		}
 		virtual void undo() {
 			HydrogenApp::get_instance()->getInstrumentRack()->
-				getSoundLibraryPanel()->switchDrumkit( m_pOldDrumkit,
-													   m_pNewDrumkit,
-													   m_bConditionalLoad );
+				getSoundLibraryPanel()->switchDrumkit(
+					m_pOldDrumkit, m_pNewDrumkit );
 		}
 		virtual void redo() {
 			HydrogenApp::get_instance()->getInstrumentRack()->
-				getSoundLibraryPanel()->switchDrumkit( m_pNewDrumkit,
-													   m_pOldDrumkit,
-													   m_bConditionalLoad );
+				getSoundLibraryPanel()->switchDrumkit(
+					m_pNewDrumkit, m_pOldDrumkit );
 		}
 
 	private:
 		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
 		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
-		bool m_bConditionalLoad;
 };
 
 class SE_renameComponentAction : public QUndoCommand {

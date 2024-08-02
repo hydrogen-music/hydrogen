@@ -24,6 +24,7 @@
 #include <core/Basics/PatternList.h>
 
 #include <core/Helpers/Xml.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 
@@ -54,7 +55,9 @@ PatternList::~PatternList()
 }
 
 PatternList* PatternList::load_from( const XMLNode& node,
-									 std::shared_ptr<InstrumentList> pInstrumentList,
+									 const QString& sDrumkitName,
+									 const QString& sAuthor,
+									 const License& license,
 									 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
@@ -68,7 +71,9 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern = Pattern::load_from( patternNode, pInstrumentList, bSilent );
+		Pattern* pPattern =
+			Pattern::load_from( patternNode, sDrumkitName, sAuthor, license,
+								bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -330,6 +335,12 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	return nMax;
 }
 
+void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+	for ( auto& ppPattern : __patterns ) {
+		ppPattern->mapTo( pDrumkit );
+	}
+}
+
 bool operator==( const PatternList& pLhs, const PatternList& pRhs ) {
 	if ( pLhs.size() != pRhs.size() ) {
 		return false;
@@ -378,6 +389,34 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	
 	return sOutput;
+}
+
+std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
+	std::set<DrumkitMap::Type> types;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			types.merge( ppPattern->getAllTypes() );
+		}
+	}
+
+	return types;
+}
+
+std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
+	const DrumkitMap::Type& sType ) const
+{
+	std::vector<H2Core::Note*> notes;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			auto patternNotes = ppPattern->getAllNotesOfType( sType );
+			notes.insert(
+				notes.end(), patternNotes.begin(), patternNotes.end() );
+		}
+	}
+
+	return notes;
 }
 
 

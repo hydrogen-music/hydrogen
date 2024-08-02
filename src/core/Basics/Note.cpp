@@ -29,6 +29,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -45,6 +46,7 @@ const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af
 Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
 	: __instrument( pInstrument ),
 	  __instrument_id( 0 ),
+	  m_sType( "" ),
 	  __specific_compo_id( -1 ),
 	  __position( nPosition ),
 	  __velocity( fVelocity ),
@@ -72,6 +74,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	if ( pInstrument != nullptr ) {
 		__adsr = pInstrument->copy_adsr();
 		__instrument_id = pInstrument->get_id();
+		m_sType = pInstrument->getType();
 
 		for ( const auto& pCompo : *pInstrument->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
@@ -90,6 +93,7 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	: Object( *other ),
 	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
+	  m_sType( other->getType() ),
 	  __specific_compo_id( -1 ),
 	  __position( other->get_position() ),
 	  __velocity( other->get_velocity() ),
@@ -165,25 +169,48 @@ void Note::set_humanize_delay( int nValue )
 	}
 }
 
-void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
+void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 {
-	if ( pInstrumentList == nullptr ) {
-		assert( pInstrumentList );
-		ERRORLOG( "Invalid instrument list" );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
-	
-	auto pInstr = pInstrumentList->find( __instrument_id );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Instrument with ID [%1] not found. Using empty instrument." )
-				  .arg( __instrument_id ) );
-		__instrument = std::make_shared<Instrument>();
+	const auto pDrumkitMap = pDrumkit->toDrumkitMap();
+
+	std::shared_ptr<Instrument> pInstrument;
+	// In case drumkit and note feature a type string, we use this one to
+	// retrieve the matching instrument. Else we restore to "historical" loading
+	// using instrument IDs. This is used both for patterns created prior to
+	// version 2.0 of Hydrogen and patterns created with a kit with missing
+	// types (either legacy one or freshly created instrument).
+	if ( ! m_sType.isEmpty() && pDrumkitMap->getAllTypes().size() > 0 ) {
+		bool bFound;
+		const int nId = pDrumkitMap->getId( m_sType, &bFound );
+		if ( bFound ) {
+			pInstrument = pDrumkit->getInstruments()->find( nId );
+		}
+		if ( pInstrument != nullptr ) {
+			DEBUGLOG( QString( "Instrument [%1] was found for type [%2]." )
+					  .arg( pInstrument->get_name() ).arg( m_sType ) );
+		} else {
+			DEBUGLOG( QString( "No instrument found for type [%1] in drumkit map [%2]" )
+					  .arg( m_sType ).arg( pDrumkitMap->toQString() ) );
+		}
 	}
 	else {
-		__instrument = pInstr;
-		__adsr = pInstr->copy_adsr();
+		pInstrument = pDrumkit->getInstruments()->find( __instrument_id );
+		if ( pInstrument != nullptr ) {
+			DEBUGLOG( QString( "Instrument [%1] was found for instrument ID [%2]." )
+					  .arg( pInstrument->get_name() ).arg( __instrument_id ) );
+		}
+	}
 
-		for ( const auto& ppCompo : *pInstr->get_components() ) {
+	if ( pInstrument != nullptr ) {
+		__instrument = pInstrument;
+		__adsr = pInstrument->copy_adsr();
+		__instrument_id = pInstrument->get_id();
+
+		for ( const auto& ppCompo : *pInstrument->get_components() ) {
 			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->nSelectedLayer = -1;
 			sampleInfo->fSamplePosition = 0;
@@ -191,6 +218,14 @@ void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
 
 			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
 		}
+	}
+	else {
+		ERRORLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
+				  .arg( m_sType ).arg( __instrument_id ) );
+		__instrument = nullptr;
+		__adsr = nullptr;
+		__instrument_id = -2;
+		__layers_selected.clear();
 	}
 }
 
@@ -494,13 +529,13 @@ void Note::save_to( XMLNode& node ) const
 	node.write_float( "pitch", __pitch );
 	node.write_string( "key", key_to_string() );
 	node.write_int( "length", __length );
-	node.write_int( "instrument", get_instrument()->get_id() );
+	node.write_int( "instrument", __instrument_id );
+	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", __note_off );
 	node.write_float( "probability", __probability );
 }
 
-Note* Note::load_from( const XMLNode& node,
-					   std::shared_ptr<InstrumentList> instruments, bool bSilent )
+Note* Note::load_from( const XMLNode& node, bool bSilent )
 {
 	bool bFound, bFound2;
 	float fPan = node.read_float( "pan", 0.f, &bFound, true, false, true );
@@ -528,7 +563,7 @@ Note* Note::load_from( const XMLNode& node,
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	note->map_instrument( instruments );
+	note->setType( node.read_string( "type", "", true, false, bSilent ) );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
@@ -540,6 +575,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
 			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
+			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sType ) )
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
 			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
 			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nNoteStart ) )
@@ -596,6 +633,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 
 		sOutput = QString( "[Note]" )
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
+			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
 			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )

@@ -456,7 +456,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_id() == pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->get_id() ){
+			if( pNote->get_instrument_id() == pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}

@@ -104,7 +104,9 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	H2TEST_ASSERT_DIRS_EQUAL(
+		exportValidation.path() + QDir::separator() + m_sTestKitName,
+		sExtractedKit );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );

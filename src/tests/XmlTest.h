@@ -30,11 +30,16 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testDrumkit);
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
+	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
+	CPPUNIT_TEST(testDrumkitMap);
 	CPPUNIT_TEST(testPattern);
+	CPPUNIT_TEST(testPatternLegacy);
+	CPPUNIT_TEST(testPatternInstrumentTypes);
 	CPPUNIT_TEST(testPlaylist);
 	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(checkTestPatterns);
-	CPPUNIT_TEST(testCompatibility);
+	CPPUNIT_TEST(testSong);
+	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -43,7 +48,11 @@ class XmlTest : public CppUnit::TestCase {
 		void testDrumkit();
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testDrumkitUpgrade();
+		void testDrumkitInstrumentTypeUniqueness();
+		void testDrumkitMap();
 		void testPattern();
+		void testPatternLegacy();
+		void testPatternInstrumentTypes();
 		void testPlaylist();
 		// Check whether the drumkits provided alongside this repo can
 		// be validated against the drumkit XSD.
@@ -52,6 +61,7 @@ class XmlTest : public CppUnit::TestCase {
 		// with respect to the shipped XSD file.
 		void checkTestPatterns();
 
+		void testSong();
 		// In the beginning of the 1.X.X series we had a lot of changes
 		// regarding how instruments are stored in a song and how the associated
 		// samples are looked up. Unfortunately, shortcomings of the individual
@@ -59,7 +69,7 @@ class XmlTest : public CppUnit::TestCase {
 		//
 		// This test loads song of various versions and checks whether all
 		// samples could be loaded.
-		void testCompatibility();
+		void testSongLegacy();
 };
 
 

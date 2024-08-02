@@ -1080,6 +1080,11 @@ Are you sure?</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Apply</source>
+        <extracomment>Text displayed on an Apply button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1269,10 +1274,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mapping</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Licenses</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1282,6 +1283,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Types</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1666,6 +1671,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3208,6 +3217,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Drumkit used in the current song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show PatchBay</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5666,6 +5679,14 @@ p, li { white-space: pre-wrap; }
         <source>Save current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch to next drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -6088,17 +6109,6 @@ imported into %2</source>
 Are you sure?</source>
         <translation>Atenció, el patró seleccionat serà esborrat del disc.
 N&apos;estàs segur?</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keep</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.

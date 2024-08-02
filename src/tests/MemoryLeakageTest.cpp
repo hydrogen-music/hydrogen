@@ -343,7 +343,7 @@ void MemoryLeakageTest::testLoading() {
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( node, pInstrumentList );
+		auto pNote = H2Core::Note::load_from( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
 		pInstrumentList = nullptr;
@@ -357,7 +357,7 @@ void MemoryLeakageTest::testLoading() {
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( node, pInstrumentList );
+		auto pNote = H2Core::Note::load_from( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
 		pInstrumentList = nullptr;
@@ -369,7 +369,8 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Pattern::load_file( H2TEST_FILE( "pattern/pat.h2pattern" ), pInstrumentList );
+		auto pPattern = H2Core::Pattern::load_file(
+			H2TEST_FILE( "pattern/pattern.h2pattern" ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
 		pInstrumentList = nullptr;
@@ -430,7 +431,8 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Legacy::load_drumkit_pattern( H2TEST_FILE( "pattern/legacy_pattern.h2pattern" ), pInstrumentList );
+		auto pPattern = H2Core::Legacy::load_drumkit_pattern(
+			H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		delete pPattern;
 		pInstrumentList = nullptr;
@@ -439,11 +441,13 @@ void MemoryLeakageTest::testLoading() {
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ) );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
 			H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 													 H2Core::Filesystem::Lookup::system,
 													 true ) );
+		CPPUNIT_ASSERT( pDrumkit2 != nullptr );
 		pDrumkit2->loadSamples();
 	
 		H2Core::CoreActionController::setDrumkit( pDrumkit );

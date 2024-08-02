@@ -21,6 +21,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>0</id>
    <name>Kick Long</name>
+	 <type>Kick</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -63,6 +64,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>1</id>
    <name>Kick Short</name>
+	 <type>Kick 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -105,6 +107,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>2</id>
    <name>Snare 1</name>
+	 <type>Snare</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -147,6 +150,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>3</id>
    <name>Snare 2</name>
+	 <type>Snare 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -189,6 +193,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>4</id>
    <name>Clap</name>
+	 <type>Hand Clap</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -231,6 +236,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>5</id>
    <name>Tom Low</name>
+	 <type>Tom Floor</type>
    <volume>0.77</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -273,6 +279,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>6</id>
    <name>Tom Mid</name>
+	 <type>Tom Low</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -315,6 +322,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>7</id>
    <name>Tom Hi</name>
+	 <type>Tom Mid</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -357,6 +365,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>8</id>
    <name>Closed Hat</name>
+	 <type>Hi-hat Closed</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -399,6 +408,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>9</id>
    <name>Pedal Hat</name>
+	 <type>Hi-hat Pedal</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -441,6 +451,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>10</id>
    <name>Open Hat</name>
+	 <type>Hi-hat Open</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -483,6 +494,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>11</id>
    <name>Cymbal</name>
+	 <type>Crash</type>
    <volume>0.82</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -525,6 +537,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>12</id>
    <name>Shaker</name>
+	 <type>Shaker</type>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -567,6 +580,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>13</id>
    <name>Conga</name>
+	 <type>Conga High</type>
    <volume>0.88</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -609,6 +623,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>14</id>
    <name>Clave</name>
+	 <type>Claves</type>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -651,6 +666,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>15</id>
    <name>Cowbell</name>
+	 <type>Cowbell</type>
    <volume>0.85</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>

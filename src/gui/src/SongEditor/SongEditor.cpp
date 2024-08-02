@@ -2279,7 +2279,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			QString patternFilePath = urlList.at(i).toLocalFile();
 			if( patternFilePath.endsWith(".h2pattern") )
 			{
-				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->getDrumkit()->getInstruments() );
+				Pattern* pPattern = Pattern::load_file( patternFilePath );
 				if ( pPattern)
 				{
 					H2Core::Pattern *pNewPattern = pPattern;

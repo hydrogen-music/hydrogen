@@ -375,7 +375,8 @@ void PianoRollEditor::drawPattern()
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
+	if ( pNote != nullptr && pNote->get_instrument() != nullptr &&
+		 pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
 		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
@@ -851,7 +852,8 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	const auto pDrumkit = Hydrogen::get_instance()->getSong()->getDrumkit();
+	const auto pInstrList = pDrumkit->getInstruments();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;
@@ -923,7 +925,8 @@ void PianoRollEditor::paste()
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
-			Note *pNote = Note::load_from( n, pInstrList );
+			Note *pNote = Note::load_from( n );
+			pNote->mapTo( pDrumkit );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 

@@ -369,6 +369,10 @@ CommonStrings::CommonStrings(){
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself
 	  will not be displayed.*/
 	m_sButtonOk = tr( "&Ok" );
+	/*: Text displayed on an Apply button of a dialog. The character after the
+	  '&' symbol can be used as a hotkey and the '&' symbol itself will not be
+	  displayed.*/
+	m_sButtonApply = tr( "&Apply" );
 	/*: Text displayed on a Save button of a dialog. The character after
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself
 	  will not be displayed.*/

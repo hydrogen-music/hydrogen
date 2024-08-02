@@ -68,6 +68,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
 	preferences->m_audioDriver = Preferences::AudioDriver::Fake;
 	preferences->m_nBufferSize = 1024;
+	preferences->setUseRelativeFilenamesForPlaylists( true );
 	
 	H2Core::Hydrogen::create_instance();
 	// Prevent the EventQueue from flooding the log since we will push

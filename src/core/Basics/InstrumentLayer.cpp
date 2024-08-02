@@ -126,7 +126,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 			QFileInfo songPathInfo( sSongPath );
 			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFilename );
 		}
-		else {
+		else if ( ! sDrumkitPath.isEmpty() ){
 			// Plain filenames of samples associated with an installed drumkit.
 			QFileInfo drumkitPathInfo( sDrumkitPath );
 			if ( drumkitPathInfo.isDir() ) {
@@ -141,7 +141,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( Filesystem::file_exists( sFilePath, true ) ) {
+	if ( ! sFilePath.isEmpty() && Filesystem::file_exists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
 		// If 'ismodified' is not present, InstrumentLayer was stored as
@@ -198,10 +198,16 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 			}
 			pSample->set_pan_envelope( panEnvelope );
 		}
-	} else {
-		ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
-				  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
-				  .arg( sSongPath ) );
+	}
+	else {
+		if ( sFilePath.isEmpty() ) {
+			ERRORLOG( QString( "Unable to find sample [%1] from sDrumkitPath [%2], sSongPath [%3]" )
+					  .arg( sFilename ).arg( sDrumkitPath ).arg( sSongPath ) );
+		} else {
+			ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
+					  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
+					  .arg( sSongPath ) );
+		}
 	}
 
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );

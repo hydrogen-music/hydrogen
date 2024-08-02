@@ -91,6 +91,9 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_sLastLoadedDrumkitPath( "" )
+	, m_pDrumkit( std::make_shared<Drumkit>() )
+	, m_pTimeline( std::make_shared<Timeline>() )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -98,8 +101,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
-
-	m_pTimeline = std::make_shared<Timeline>();
 }
 
 Song::~Song()
@@ -127,7 +128,9 @@ Song::~Song()
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
-	m_pDrumkit->setType( Drumkit::Type::Song );
+	m_pDrumkit->setContext( Drumkit::Context::Song );
+
+	m_sLastLoadedDrumkitPath = pDrumkit->getPath();
 }
 
 void Song::setBpm( float fBpm ) {
@@ -233,10 +236,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	float fBpm = rootNode.read_float( "bpm", 120, false, false, bSilent );
 	float fVolume = rootNode.read_float( "volume", 0.5, false, false, bSilent );
-	QString sName( rootNode.read_string( "name", "Untitled Song",
-										   false, false, bSilent ) );
-	QString sAuthor( rootNode.read_string( "author", "Unknown Author",
-											 false, false, bSilent ) );
+	const QString sName( rootNode.read_string( "name", "Untitled Song",
+											   false, false, bSilent ) );
+	const QString sAuthor( rootNode.read_string( "author", "Unknown Author",
+												 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 
@@ -245,8 +248,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	pSong->setMetronomeVolume( rootNode.read_float( "metronomeVolume", 0.5,
 													  false, false, bSilent ) );
 	pSong->setNotes( rootNode.read_string( "notes", "...", false, false, bSilent ) );
-	pSong->setLicense( License( rootNode.read_string( "license", "",
-														false, false, bSilent ), sAuthor ) );
+	const License license =
+		License( rootNode.read_string( "license", "",
+									   false, false, bSilent ), sAuthor );
+	pSong->setLicense( license );
 	if ( rootNode.read_bool( "loopEnabled", false, false, false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
@@ -392,11 +397,17 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pDrumkit = std::make_shared<Drumkit>();
 	}
 	pSong->setDrumkit( pDrumkit );
+	pSong->setLastLoadedDrumkitPath(
+		rootNode.read_string( "lastLoadedDrumkitPath", "", true, true,
+								bSilent ) );
 
 	// Pattern list
-	pSong->setPatternList( PatternList::load_from( rootNode,
-												   pSong->getDrumkit()->getInstruments(),
-												   bSilent ) );
+	auto pPatternList = PatternList::load_from(
+		rootNode, pDrumkit->getExportName(), sAuthor, license, bSilent );
+	if ( pPatternList != nullptr ) {
+		pPatternList->mapTo( pDrumkit );
+	}
+	pSong->setPatternList( pPatternList );
 
 	// Virtual Patterns
 	pSong->loadVirtualPatternsFrom( rootNode, bSilent );
@@ -676,6 +687,10 @@ void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
 }
 
 void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternList == nullptr ) {
+		return;
+	}
+
 	XMLNode virtualPatternListNode = node.createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
@@ -690,6 +705,10 @@ void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
 }
 
 void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternGroupSequence == nullptr ) {
+		return;
+	}
+
 	XMLNode patternSequenceNode = node.createNode( "patternSequence" );
 	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
 		if ( pPatternList != nullptr ) {
@@ -798,10 +817,12 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 		Legacy::saveEmbeddedSongDrumkit( rootNode, m_pDrumkit, bSilent );
 	}
 
-	m_pPatternList->save_to( rootNode, nullptr );
+	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
+	if ( m_pPatternList != nullptr ) {
+		m_pPatternList->save_to( rootNode, nullptr );
+	}
 	saveVirtualPatternsTo( rootNode, bSilent );
-
 	savePatternGroupVectorTo( rootNode, bSilent );
 
 	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
@@ -1146,7 +1167,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
 						XMLNode instrumentText = instrument.firstChild();
 
 						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( noteNode, getDrumkit()->getInstruments() );
+						Note *pNote = Note::load_from( noteNode );
 
 						pat->insert_note( pNote ); // Add note to created pattern
 

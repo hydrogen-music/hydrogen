@@ -59,7 +59,7 @@ namespace H2Core
 
 Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 					 m_pInstruments( nullptr ),
-					 m_type( Type::User ),
+					 m_context( Context::User ),
 					 m_sName( "empty" ),
 					 m_sAuthor( "undefined author" ),
 					 m_sInfo( "No information available." ),
@@ -70,14 +70,11 @@ Drumkit::Drumkit() : m_bSamplesLoaded( false ),
 	m_sPath = usrDrumkitPath.filePath( m_sName );
 	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
 	m_pInstruments = std::make_shared<InstrumentList>();
-
-	m_pDrumkitMap = std::make_shared<DrumkitMap>();
-	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	Object(),
-	m_type( other->getType() ),
+	m_context( other->getContext() ),
 	m_sPath( other->getPath() ),
 	m_sName( other->getName() ),
 	m_sAuthor( other->getAuthor() ),
@@ -93,9 +90,6 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	for ( const auto& pComponent : *other->getComponents() ) {
 		m_pComponents->push_back( std::make_shared<DrumkitComponent>( pComponent ) );
 	}
-
-	m_pDrumkitMap = std::make_shared<DrumkitMap>( other->m_pDrumkitMap );
-	m_pDrumkitMapFallback = std::make_shared<DrumkitMap>( other->m_pDrumkitMapFallback );
 }
 
 Drumkit::~Drumkit()
@@ -167,36 +161,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		return nullptr;
 	}
 
-	pDrumkit->setType( DetermineType( pDrumkit->getPath() ) );
-
-	// Load drumkit maps corresponding to this kit.
-	//
-	// Order of precedeence:
-	// 1. USER_DATA_DIR/drumkit_maps/KIT_NAME.h2map
-	// 2. *.h2map file in drumkit folder itself
-	// 3. SYS_DATA_DIR/drumkit_maps/KIT_NAME.h2map
-	//
-	// If both 1. and another map file is present, 1. will be assigned to m_pDrumkitMap
-	// and the other one to m_pDrumkitMapFallback. In case all there variants are
-	// present, only 2. is assigned to m_pDrumkitMapFallback.
-	const QString sUserMapFile =
-		Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), true );
-
-	QString sMapFile = Filesystem::getDrumkitMapFromKit( sDrumkitPath );
-	if ( sMapFile.isEmpty() ){
-		sMapFile = Filesystem::getDrumkitMapFromDir( pDrumkit->getExportName(), false );
-	}
-
-	if ( ! sUserMapFile.isEmpty() ) {
-		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sUserMapFile );
-
-		if ( ! sMapFile.isEmpty() ) {
-			pDrumkit->m_pDrumkitMapFallback = DrumkitMap::load( sMapFile );
-		}
-	}
-	else if ( ! sMapFile.isEmpty() ) {
-		pDrumkit->m_pDrumkitMap = DrumkitMap::load( sMapFile );
-	}
+	pDrumkit->setContext( DetermineContext( pDrumkit->getPath() ) );
 
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
@@ -275,8 +240,75 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		pDrumkit->propagateLicense();
 	}
 
-	return pDrumkit;
+	// Sanity checks
+	//
+	// Check for duplicates in instrument types. If we found one, we replace
+	// every but the first occurrence by an empty string.
+	std::set<DrumkitMap::Type> types;
+	QStringList duplicates;
+	for ( const auto& ppInstrument : *pDrumkit->m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
+			if ( ! bSuccess ) {
+				duplicates << ppInstrument->getType();
+				ppInstrument->setType( "" );
+			}
+		}
+	}
+	if ( duplicates.size() > 0 ) {
+		ERRORLOG( QString( "Instrument type [%1] has been used more than once!" )
+				  .arg( duplicates.join( ", " ) ) );
+	}
 
+	pDrumkit->fixupTypes( bSilent );
+
+	return pDrumkit;
+}
+
+void Drumkit::fixupTypes( bool bSilent ) {
+	// In case no instrument types are defined in the loaded drumkit, we
+	// check whether there is .h2map file in the shipped with the installation
+	// corresponding to the name of the kit.
+	bool bMissingType = false;
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {
+			bMissingType = true;
+			break;
+		}
+	}
+
+	if ( ! bMissingType ) {
+		return;
+	}
+
+	if ( bMissingType ) {
+		const QString sMapFile =
+			Filesystem::getDrumkitMap( getExportName(), bSilent );
+
+		if ( ! sMapFile.isEmpty() ) {
+			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
+			if ( pDrumkitMap != nullptr ) {
+				// We do not replace any type but only set those not defined
+				// yet.
+				for ( const auto& ppInstrument : *m_pInstruments ) {
+					if ( ppInstrument != nullptr &&
+						 ppInstrument->getType().isEmpty() &&
+						 ! pDrumkitMap->getType( ppInstrument->get_id() ).isEmpty() ) {
+						ppInstrument->setType(
+							pDrumkitMap->getType( ppInstrument->get_id() ) );
+					}
+				}
+			}
+			else {
+				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types of instruments for drumkit [%2]" )
+						  .arg( sMapFile ).arg( getExportName() ) );
+			}
+		}
+		else if ( ! bSilent ) {
+			INFOLOG( QString( "There are missing Types for instruments in drumkit [%1] and no corresponding .h2map file found." )
+					 .arg( getExportName() ) );
+		}
+	}
 }
 
 void Drumkit::loadSamples( float fBpm )
@@ -382,17 +414,6 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
 		return false;
 	}
 
-	// Save drumkit map (primary one)
-		const QString sDrumkitMapPath = QString( "%1/%2%3" )
-			.arg( Filesystem::usr_drumkit_maps_dir() )
-			.arg( getExportName() )
-			.arg( Filesystem::drumkit_map_ext );
-        if ( ! m_pDrumkitMap->save( sDrumkitMapPath ) ) {
-			ERRORLOG( QString( "Unable to save drumkit map to [%1]" )
-				  .arg( sDrumkitMapPath ) );
-		return false;
-	}
-
 	// Ensure all instruments and associated samples will hold the
 	// same license as the overall drumkit and are associated to
 	// it. (Not important for saving itself but for consistency and
@@ -432,7 +453,7 @@ void Drumkit::saveTo( XMLNode& node,
 		// Other routines take care of copying the image into the (top level of
 		// the) selected drumkit folder. We can thus just store the file name of
 		// the image.
-		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage ) )
+		sImage = QFileInfo( Filesystem::removeUniquePrefix( m_sImage, true ) )
 			.fileName();
 	}
 	node.write_string( "image", sImage );
@@ -548,7 +569,7 @@ bool Drumkit::saveImage( const QString& sDrumkitDir, bool bSilent ) const
 	// filename, a random prefix was introduced. This has to be stripped first.
 	QString sTargetImagePath( getAbsoluteImagePath() );
 	QString sTargetImageName( getAbsoluteImagePath() );
-	if ( m_type == Type::Song ) {
+	if ( m_context == Context::Song ) {
 		sTargetImageName = Filesystem::removeUniquePrefix( sTargetImagePath );
 	}
 
@@ -666,7 +687,7 @@ void Drumkit::addInstrument() {
 	// The new instrument is manually added to a floating song kit. It must not
 	// have a drumkit path or drumkit name set. All contained samples have to be
 	// referenced by absolute paths.
-	if ( m_type != Type::Song ) {
+	if ( m_context != Context::Song ) {
 		pNewInstrument->set_drumkit_name( m_sName );
 		pNewInstrument->set_drumkit_path( m_sPath );
 	}
@@ -1277,13 +1298,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		}
 	}
 
-	// Store a copy of the current drumkit map and add it to the included files.
-	QString sTmpMapPath = tmpFolder.filePath( QString( "%1%2" )
-									 .arg( sDrumkitName )
-									 .arg( Filesystem::drumkit_map_ext ) );
-	m_pDrumkitMap->save( sTmpMapPath );
-	filesUsed << sTmpMapPath;
-
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
 	if ( ! bSilent ) {
@@ -1603,42 +1617,88 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 	}
 }
 
-Drumkit::Type Drumkit::DetermineType( const QString& sPath ) {
+Drumkit::Context Drumkit::DetermineContext( const QString& sPath ) {
 	if ( ! sPath.isEmpty() ) {
 		const QString sAbsolutePath = Filesystem::absolute_path( sPath );
 		if ( sAbsolutePath.contains( Filesystem::sys_drumkits_dir() ) ) {
-			return Type::System;
+			return Context::System;
 		}
 		else if ( sAbsolutePath.contains( Filesystem::usr_drumkits_dir() ) ) {
-			return Type::User;
+			return Context::User;
 		}
 		else {
 			if ( Filesystem::dir_writable( sAbsolutePath, true ) ) {
-				return Type::SessionReadWrite;
+				return Context::SessionReadWrite;
 			} else {
-				return Type::SessionReadOnly;
+				return Context::SessionReadOnly;
 			}
 		}
 	} else {
-		return Type::Song;
+		return Context::Song;
 	}
 }
 
-QString Drumkit::TypeToString( const Type& type ) {
-	switch( type ) {
-	case Type::System:
+QString Drumkit::ContextToString( const Context& context ) {
+	switch( context ) {
+	case Context::System:
 		return "System";
-	case Type::User:
+	case Context::User:
 		return "User";
-	case Type::SessionReadOnly:
+	case Context::SessionReadOnly:
 		return "SessionReadOnly";
-	case Type::SessionReadWrite:
+	case Context::SessionReadWrite:
 		return "SessionReadWrite";
-	case Type::Song:
+	case Context::Song:
 		return "Song";
 	default:
-		return QString( "Unknown type [%1]" ).arg( static_cast<int>(type) );
+		return QString( "Unknown context [%1]" ).arg( static_cast<int>(context) );
 	}
+}
+
+std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
+	std::set<DrumkitMap::Type> types;
+
+	for ( const auto ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			const auto [ _, bSuccess ] = types.insert( ppInstrument->getType() );
+			if ( ! bSuccess ) {
+				WARNINGLOG( QString( "Instrument types must be unique! Type [%1] of instrument (id: %2, name: %3) will be omitted." )
+							.arg( ppInstrument->getType() )
+							.arg( ppInstrument->get_id() )
+							.arg( ppInstrument->get_name() ) );
+			}
+		}
+	}
+
+	return types;
+}
+
+std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
+	auto pMap = std::make_shared<DrumkitMap>();
+
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
+			if ( ! pMap->addMapping( ppInstrument->get_id(),
+									 ppInstrument->getType() ) ) {
+				ERRORLOG( QString( "Unable to add type [%1] for instrument (id: %2, name: %3)" )
+						  .arg( ppInstrument->getType() )
+						  .arg( ppInstrument->get_id() )
+						  .arg( ppInstrument->get_name() ) );
+			}
+		}
+	}
+
+	return pMap;
+}
+
+bool Drumkit::hasMissingTypes() const {
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
@@ -1646,8 +1706,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
-			.append( QString( "%1%2type: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( TypeToString( m_type ) ) )
+			.append( QString( "%1%2context: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( ContextToString( m_context ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
@@ -1663,15 +1723,12 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_pDrumkitMap: %3" ).arg( sPrefix ).arg( s )
-						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_pDrumkitMapFallback: %3" ).arg( sPrefix ).arg( s )
-						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) );
+		sOutput.append( QString( "%1%2]\n" ).arg( sPrefix ).arg( s ) );
 
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( " type: %1" ).arg( TypeToString( m_type ) ) )
+			.append( QString( " context: %1" ).arg( ContextToString( m_context ) ) )
 			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )
 			.append( QString( ", author: %1" ).arg( m_sAuthor ) )
@@ -1687,11 +1744,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
 			}
 		}
-		sOutput.append( QString( ", [m_pDrumkitMap: %1]" )
-						.arg( m_pDrumkitMap->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", [m_pDrumkitMapFallback: %1]" )
-						.arg( m_pDrumkitMapFallback->toQString( sPrefix + s, bShort ) ) )
-			.append( "]\n" );
+		sOutput.append( "]\n" );
 	}
 	
 	return sOutput;

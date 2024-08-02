@@ -20,6 +20,7 @@
  *
  */
 
+#include <set>
 #include <QtGui>
 #include <QtWidgets>
 
@@ -29,7 +30,6 @@
 #include "../UndoActions.h"
 
 #include "DrumkitPropertiesDialog.h"
-#include "../InstrumentRack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
@@ -78,16 +78,16 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
-		auto drumkitType = pDrumkit->getType();
-		if ( drumkitType == Drumkit::Type::User ||
-			 drumkitType == Drumkit::Type::SessionReadWrite ||
-			 drumkitType == Drumkit::Type::Song ) {
+		auto drumkitContext = pDrumkit->getContext();
+		if ( drumkitContext == Drumkit::Context::User ||
+			 drumkitContext == Drumkit::Context::SessionReadWrite ||
+			 drumkitContext == Drumkit::Context::Song ) {
 			bDrumkitWritable = true;
 		}
 
 		nameTxt->setText( pDrumkit->getName() );
 
-		if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 			if ( bEditingNotSaving ) {
 				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
 			}
@@ -199,16 +199,16 @@ QTextEdit { \
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
 	imageBrowsePushButton->setType( Button::Type::Push );
 	
-	mappingTable->setColumnCount( 3 );
-	mappingTable->setHorizontalHeaderLabels(
+	typesTable->setColumnCount( 3 );
+	typesTable->setHorizontalHeaderLabels(
 		QStringList() <<
 		pCommonStrings->getInstrumentId() <<
 		pCommonStrings->getInstrumentButton() <<
 		pCommonStrings->getInstrumentType() );
-	mappingTable->setColumnWidth( 0, 55 );
-	mappingTable->setColumnWidth( 1, 220 );
-	mappingTable->verticalHeader()->hide();
-	mappingTable->horizontalHeader()->setStretchLastSection( true );
+	typesTable->setColumnWidth( 0, 55 );
+	typesTable->setColumnWidth( 1, 220 );
+	typesTable->verticalHeader()->hide();
+	typesTable->horizontalHeader()->setStretchLastSection( true );
 
 	licensesTable->setColumnCount( 4 );
 	licensesTable->setHorizontalHeaderLabels(
@@ -226,7 +226,7 @@ QTextEdit { \
 	licensesTable->setColumnWidth( 2, 210 );
 
 	updateLicensesTable();
-	updateMappingTable();
+	updateTypesTable( bDrumkitWritable );
 }
 
 
@@ -314,7 +314,7 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 	}
 }
 
-void DrumkitPropertiesDialog::updateMappingTable() {
+void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
@@ -325,22 +325,17 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 		return;
 	}
 
-	const auto map = m_pDrumkit->getDrumkitMap();
 	const auto pInstrumentList = m_pDrumkit->getInstruments();
 
-	mappingTable->clearContents();
-	mappingTable->setRowCount( std::max( map.size(),
-										 pInstrumentList->size() ) );
+	typesTable->clearContents();
+	typesTable->setRowCount( pInstrumentList->size() );
+
+	const auto types = pDatabase->getAllTypes();
 
 	QMenu* pTypesMenu = new QMenu( this );
-	for ( const auto& ssType : pDatabase->getAllTypes() ) {
+	for ( const auto& ssType : types ) {
 		pTypesMenu->addAction( ssType );
 	}
-
-	// Coloring of highlighted rows
-	const QString sHighlight = QString( "color: %1; background-color: %2" )
-		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
 
 	auto insertRow = [=]( int nInstrumentId,
 						  const QString& sTextName,
@@ -360,43 +355,47 @@ void DrumkitPropertiesDialog::updateMappingTable() {
 										QSizePolicy::Expanding );
 		pInstrumentName->setToolTip( sTextName );
 
+		int nIndex = -1;
+		int nnType = 0;
 		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
-		for ( const auto& ssType : pDatabase->getAllTypes() ) {
+		for ( const auto& ssType : types ) {
 			pInstrumentType->addItem( ssType );
-		}
-		pInstrumentType->setEditable( true );
-		pInstrumentType->setCurrentText( sTextType );
 
-		mappingTable->setCellWidget( nCell, 0, pInstrumentId );
-		mappingTable->setCellWidget( nCell, 1, pInstrumentName );
-		mappingTable->setCellWidget( nCell, 2, pInstrumentType );
+			if ( ssType == sTextType ) {
+				nIndex = nnType;
+			}
+			nnType++;
+		}
+
+		if ( nIndex == -1 && ! sTextType.isEmpty() ) {
+			ERRORLOG( QString( "Provided type [%1] could not be found in database" )
+					  .arg( sTextType ) );
+		}
+
+		if ( bDrumkitWritable ) {
+			pInstrumentType->setIsActive( true );
+			pInstrumentType->setEditable( true );
+			pInstrumentType->setCurrentText( sTextType );
+		} else {
+			pInstrumentType->setIsActive( false );
+			if ( nIndex != -1 ) {
+				pInstrumentType->setCurrentIndex( nIndex );
+			}
+		}
+
+		typesTable->setCellWidget( nCell, 0, pInstrumentId );
+		typesTable->setCellWidget( nCell, 1, pInstrumentName );
+		typesTable->setCellWidget( nCell, 2, pInstrumentType );
 	};
 
 	int nnCell = 0;
 	for ( const auto& ppInstrument : *pInstrumentList ) {
-
-		const std::vector<DrumkitMap::Type> types =
-			map.getTypes( ppInstrument->get_id() );
-
-		if ( types.size() > 0 ) {
-			// Mapping for instrument found
-			for ( const auto& ssType : types ) {
-				insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
-						   ssType, nnCell );
-				++nnCell;
-			}
-		}
-		else {
-			// No mapping found for instrument
-			insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
-					   "", nnCell );
-			++nnCell;
-		}
+		insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
+				   ppInstrument->getType(), nnCell );
+		nnCell++;
 	}
 
-	// In case there was some garbage data or duplicates in the mapping file, we
-	// ensure to only show the elements we just added.
-	mappingTable->setRowCount( nnCell );
+	highlightDuplicates();
 }
 
 void DrumkitPropertiesDialog::licenseComboBoxChanged( int ) {
@@ -552,6 +551,24 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		return;
 	}
 
+	// Types have to be unique.
+	std::set<QString> types;
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppItemType =
+			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppItemType != nullptr ) {
+			const auto [ _, bSuccess ] =
+				types.insert( ppItemType->currentText() );
+			if ( ! bSuccess ) {
+				highlightDuplicates();
+				QMessageBox::warning( this, "Hydrogen",
+									  tr( "Instrument types must be unique!" ) );
+				return;
+			}
+		}
+	}
+
+
 	QString sNewLicenseString( licenseStringTxt->text() );
 	if ( licenseComboBox->currentIndex() ==
 		 static_cast<int>(License::Unspecified) ) {
@@ -619,11 +636,40 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkit->setImageLicense( newImageLicense );
 	}
 	
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppItemId =
+			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 0 ));
+		auto ppItemName =
+			dynamic_cast<LCDDisplay*>(typesTable->cellWidget( ii, 1 ));
+		auto ppItemType =
+			dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
 
-	saveDrumkitMap();
+		if ( ppItemId != nullptr && ppItemType != nullptr ) {
+			const auto ppInstrument = m_pDrumkit->getInstruments()->
+				find( ppItemId->text().toInt() );
+
+			if ( ppInstrument != nullptr ) {
+				ppInstrument->setType( ppItemType->currentText() );
+			}
+			else {
+				if ( ppItemName != nullptr ) {
+					ERRORLOG( QString( "Unable to find instrument [%1] (name: [%2], type: [%3])" )
+							  .arg( ppItemId->text() )
+							  .arg( ppItemName->text() )
+							  .arg( ppItemType->currentText() ) );
+				} else {
+					ERRORLOG( QString( "Unable to find instrument [%1] (type: [%2])" )
+							  .arg( ppItemId->text() )
+							  .arg( ppItemType->currentText() ) );
+				}
+			}
+		} else {
+			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii  ) );
+		}
+	}
 
 	bool bOldImageDeleted = false;
-	if ( m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		// Copy the selected image into our cache folder as the kit is a
 		// floating one associated to a song.
 		if ( ! sNewImagePath.isEmpty() ) {
@@ -651,7 +697,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// But due to the license propagation into the instruments, we switch
 		// the entire kit for now.
 		auto pAction = new SE_switchDrumkitAction(
-			m_pDrumkit, pSong->getDrumkit(), false,
+			m_pDrumkit, pSong->getDrumkit(),
 			SE_switchDrumkitAction::Type::EditProperties );
 		pHydrogenApp->m_pUndoStack->push( pAction );
 
@@ -671,7 +717,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
-	if ( m_bSaveToNsmSession && m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	if ( m_bSaveToNsmSession && m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		m_pDrumkit->setPath(
 			QDir( NsmClient::get_instance()->getSessionFolderPath() )
 			.absoluteFilePath( m_pDrumkit->getName() ) );
@@ -679,9 +725,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	if ( false ) {
 #endif
 	} // Read-only and song kits we can only duplicate into the user folder.
-	else if ( m_pDrumkit->getType() == Drumkit::Type::SessionReadOnly ||
-			  m_pDrumkit->getType() == Drumkit::Type::System ||
-			  m_pDrumkit->getType() == Drumkit::Type::Song ) {
+	else if ( m_pDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
+			  m_pDrumkit->getContext() == Drumkit::Context::System ||
+			  m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		m_pDrumkit->setPath(
 			Filesystem::drumkit_usr_path( m_pDrumkit->getName() ) );
 	}
@@ -740,21 +786,38 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 }
 
-void DrumkitPropertiesDialog::saveDrumkitMap() {
-	auto pMap = std::make_shared<DrumkitMap>();
+void DrumkitPropertiesDialog::highlightDuplicates() {
+	auto pPref = Preferences::get_instance();
+	QStringList duplicates;
 
-	for ( int ii = 0; ii < mappingTable->rowCount(); ++ii ) {
-		auto ppItemId = dynamic_cast<LCDDisplay*>(mappingTable->cellWidget( ii, 0 ));
-		auto ppItemMapping = dynamic_cast<LCDCombo*>(mappingTable->cellWidget( ii, 2 ));
+	const QString sHighlight = QString( "color: %1; background-color: %2" )
+		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
+		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
 
-		if ( ppItemId != nullptr && ppItemMapping != nullptr ) {
-			pMap->addMapping( ppItemId->text().toInt(),
-							  ppItemMapping->currentText() );
-		} else {
-			WARNINGLOG( QString( "Invalid row [%1]" ).arg( ii  ) );
+	// Compile a list of all duplicated types.
+	std::set<QString> types;
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppType = dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppType != nullptr ) {
+			const auto [ _, bSuccess ] = types.insert( ppType->currentText() );
+			if ( ! bSuccess ) {
+				duplicates << ppType->currentText();
+			}
 		}
 	}
 
-	m_pDrumkit->setDrumkitMap( pMap );
+	// Highlight the corresponding combo boxes
+	for ( int ii = 0; ii < typesTable->rowCount(); ++ii ) {
+		auto ppType = dynamic_cast<LCDCombo*>(typesTable->cellWidget( ii, 2 ));
+		if ( ppType != nullptr ) {
+			if ( duplicates.contains( ppType->currentText() ) ) {
+				ppType->setStyleSheet( sHighlight );
+			}
+			else {
+				ppType->setStyleSheet( "" );
+			}
+		}
+	}
 }
+
 }

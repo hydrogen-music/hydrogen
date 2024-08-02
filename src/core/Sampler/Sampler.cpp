@@ -126,11 +126,18 @@ void Sampler::process( uint32_t nFrames )
 	while ( ( int )m_playingNotesQueue.size() > nMaxNotes ) {
 		Note * pOldNote = m_playingNotesQueue[ 0 ];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
-		pOldNote->get_instrument()->dequeue();
-		WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
-					.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
-					.arg( pOldNote->toQString() ) );
-		delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
+		if ( pOldNote->get_instrument() != nullptr ) {
+			pOldNote->get_instrument()->dequeue();
+			WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
+						.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
+						.arg( pOldNote->toQString() ) );
+			delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
+		}
+		else {
+			ERRORLOG( QString( "Old note in Sampler has no instrument! [%1]" )
+					  .arg( pOldNote->toQString() ) );
+			delete pOldNote;
+		}
 	}
 
 	// Render next `nFrames` audio frames of all playing notes.
@@ -141,7 +148,12 @@ void Sampler::process( uint32_t nFrames )
 		if ( renderNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
-			pNote->get_instrument()->dequeue();
+			if ( pNote->get_instrument() != nullptr ) {
+				pNote->get_instrument()->dequeue();
+			} else {
+				ERRORLOG( QString( "Playing note in sampler does not have instrument! [%1]" )
+						  .arg( pNote->toQString() ) );
+			}
 			m_queuedNoteOffs.push_back( pNote );
 		} else {
 			// As finished notes are poped above 
@@ -155,13 +167,20 @@ void Sampler::process( uint32_t nFrames )
 			//Queue midi note off messages for notes that have a length specified for them
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
-		
-				if ( ! pNote->get_instrument()->is_muted() ){
-					pMidiOut->handleQueueNoteOff(
-						pNote->get_instrument()->get_midi_out_channel(), 
-						pNote->get_midi_key(),
-						pNote->get_midi_velocity() );
+
+				if ( pNote->get_instrument() != nullptr ) {
+					if ( ! pNote->get_instrument()->is_muted() ){
+						pMidiOut->handleQueueNoteOff(
+							pNote->get_instrument()->get_midi_out_channel(),
+							pNote->get_midi_key(),
+							pNote->get_midi_velocity() );
+					}
 				}
+				else {
+					ERRORLOG( QString( "Queued note off in sampler does not have instrument! [%1]" )
+							  .arg( pNote->toQString() ) );
+				}
+
 		
 				m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
 		
@@ -189,6 +208,12 @@ void Sampler::noteOn(Note *pNote )
 		return;
 	}
 
+	if ( pNote->get_instrument() == nullptr ||
+		 pNote->get_adsr() == nullptr ) {
+		ERRORLOG( QString( "Invalid note [%1]" ).arg( pNote->toQString() ) );
+		return;
+	}
+
 	pNote->get_adsr()->attack();
 	auto pInstr = pNote->get_instrument();
 
@@ -197,8 +222,11 @@ void Sampler::noteOn(Note *pNote )
 	if ( nMuteGrp != -1 ) {
 		// remove all notes using the same mute group
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {	// delete older note
-			if ( ( pOtherNote->get_instrument() != pInstr )  &&
-				 ( pOtherNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
+			if ( pOtherNote != nullptr &&
+				 pOtherNote->get_instrument() != nullptr &&
+				 pOtherNote->get_adsr() != nullptr &&
+				 pOtherNote->get_instrument() != pInstr  &&
+				 pOtherNote->get_instrument()->get_mute_group() == nMuteGrp ) {
 				pOtherNote->get_adsr()->release();
 			}
 		}
@@ -207,8 +235,10 @@ void Sampler::noteOn(Note *pNote )
 	//note off notes
 	if ( pNote->get_note_off() ){
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {
-			if ( ( pOtherNote->get_instrument() == pInstr ) ) {
-				//ERRORLOG("note_off");
+			if ( pOtherNote != nullptr &&
+				 pOtherNote->get_instrument() != nullptr &&
+				 pOtherNote->get_adsr() != nullptr &&
+				 pOtherNote->get_instrument() == pInstr ) {
 				pOtherNote->get_adsr()->release();
 			}
 		}
@@ -223,7 +253,8 @@ void Sampler::noteOn(Note *pNote )
 void Sampler::midiKeyboardNoteOff( int key )
 {
 	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( ( pNote->get_midi_msg() == key) ) {
+		if ( pNote->get_midi_msg() == key &&
+			 pNote->get_adsr() != nullptr ) {
 			pNote->get_adsr()->release();
 		}
 	}
@@ -235,10 +266,13 @@ void Sampler::midiKeyboardNoteOff( int key )
 void Sampler::noteOff(Note* pNote )
 {
 	auto pInstr = pNote->get_instrument();
-	// find the notes using the same instrument, and release them
-	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( pNote->get_instrument() == pInstr ) {
-			pNote->get_adsr()->release();
+	if ( pInstr != nullptr ) {
+		// find the notes using the same instrument, and release them
+		for ( const auto& pNote: m_playingNotesQueue ) {
+			if ( pNote->get_instrument() == pInstr &&
+				 pNote->get_adsr() != nullptr ) {
+				pNote->get_adsr()->release();
+			}
 		}
 	}
 	
@@ -657,6 +691,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 		auto pSelectedLayer =
 			pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+		if ( pSelectedLayer == nullptr ) {
+			ERRORLOG( "Invalid selection layer." );
+			returnValues[ ii ] = true;
+			continue;
+		}
 
 		// For round robin and random selection we will use the same
 		// layer again for all other samples.
@@ -665,7 +704,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			nAlreadySelectedLayer = pSelectedLayer->nSelectedLayer;
 		}
 
-		if( pSelectedLayer->nSelectedLayer == -1 ) {
+		if ( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
 			returnValues[ ii ] = true;
 			continue;
@@ -1072,7 +1111,7 @@ bool Sampler::renderNoteResample(
 	}
 
 	auto pInstrument = pNote->get_instrument();
-	if ( pInstrument == nullptr ) {
+	if ( pInstrument == nullptr || pNote->get_adsr() == nullptr ) {
 		ERRORLOG( "Invalid note instrument" );
 		return true;
 	}
@@ -1300,7 +1339,7 @@ bool Sampler::renderNoteResample(
 
 void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
-	if ( pInstr ) { // stop all notes using this instrument
+	if ( pInstr != nullptr ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
 			Note *pNote = m_playingNotesQueue[ i ];
 			assert( pNote );
@@ -1311,11 +1350,14 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 			}
 			++i;
 		}
-	} else { // stop all notes
+	}
+	else { // stop all notes
 		// delete all copied notes in the playing notes queue
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ++i ) {
 			Note *pNote = m_playingNotesQueue[i];
-			pNote->get_instrument()->dequeue();
+			if ( pNote->get_instrument() != nullptr ) {
+				pNote->get_instrument()->dequeue();
+			}
 			delete pNote;
 		}
 		m_playingNotesQueue.clear();
@@ -1381,11 +1423,13 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
-bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument ) const
+bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument ) const
 {
-	if ( instrument ) { // stop all notes using this instrument
+	if ( pInstrument != nullptr ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
-			if ( instrument->get_name() == m_playingNotesQueue[ j ]->get_instrument()->get_name()){
+			if ( m_playingNotesQueue[ j ]->get_instrument() != nullptr &&
+				 pInstrument->get_name() ==
+				 m_playingNotesQueue[ j ]->get_instrument()->get_name() ) {
 				return true;
 			}
 		}

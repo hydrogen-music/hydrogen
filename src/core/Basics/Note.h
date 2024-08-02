@@ -26,6 +26,7 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Sample.h>
 
@@ -136,18 +137,19 @@ class Note : public H2Core::Object<Note>
 		/**
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param instruments the current instrument list to search instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static Note* load_from( const XMLNode& node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
+	static Note* load_from( const XMLNode& node, bool bSilent = false );
 
 		/**
-		 * find the corresponding instrument and point to it, or an empty instrument
-		 * \param instruments the list of instrument to look into
+		 * Find the instrument corresponding to `m_sType` and assign it as
+		 * `__instrument`.
+		 *
+		 * \param pDrumkit Most likely the currently used kit.
 		 */
-		void map_instrument( std::shared_ptr<InstrumentList> instruments );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
 		/** #__instrument accessor */
 		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */
@@ -159,6 +161,10 @@ class Note : public H2Core::Object<Note>
 		void set_instrument_id( int value );
 		/** #__instrument_id accessor */
 		int get_instrument_id() const;
+
+		void setType( DrumkitMap::Type sType );
+		DrumkitMap::Type getType() const;
+
 		/**
 		 * #__specific_compo_id setter
 		 * \param value the new value
@@ -419,6 +425,9 @@ class Note : public H2Core::Object<Note>
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
+		/** Drumkit-independent identifier used to relate a note/pattern to a
+		 * different kit */
+		DrumkitMap::Type m_sType;
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
 		int				__position;             ///< note position in
 												///ticks inside the pattern
@@ -510,6 +519,13 @@ inline void Note::set_instrument_id( int value )
 inline int Note::get_instrument_id() const
 {
 	return __instrument_id;
+}
+
+inline void Note::setType( DrumkitMap::Type sType ) {
+	m_sType = sType;
+}
+inline DrumkitMap::Type Note::getType() const {
+	return m_sType;
 }
 
 inline void Note::set_specific_compo_id( int value )
@@ -676,11 +692,12 @@ inline Note::Octave Note::get_octave() const
 
 inline int Note::get_midi_key() const
 {
-	/* TODO ???
-	if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
-	*/
-	return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key +
-		__instrument->get_midi_out_note() - MidiMessage::instrumentOffset;
+	int nMidiKey = ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key;
+	if ( __instrument != nullptr ) {
+		nMidiKey += __instrument->get_midi_out_note() -
+			MidiMessage::instrumentOffset;
+	}
+	return nMidiKey;
 }
 
 inline int Note::get_midi_velocity() const
@@ -722,21 +739,21 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )
 {
-	/* TODO ???
-	if( !has_instrument() ) {
+	if ( __instrument == nullptr ) {
 		*val_l = 0.0f;
 		*val_r = 0.0f;
 		return;
 	}
-	*/
-	float cut_off = __instrument->get_filter_cutoff();
-	float resonance = __instrument->get_filter_resonance();
-	__bpfb_l  =  resonance * __bpfb_l  + cut_off * ( *val_l - __lpfb_l );
-	__lpfb_l +=  cut_off   * __bpfb_l;
-	__bpfb_r  =  resonance * __bpfb_r  + cut_off * ( *val_r - __lpfb_r );
-	__lpfb_r +=  cut_off   * __bpfb_r;
-	*val_l = __lpfb_l;
-	*val_r = __lpfb_r;
+	else {
+		const float fCutOff = __instrument->get_filter_cutoff();
+		const float fResonance = __instrument->get_filter_resonance();
+		__bpfb_l  =  fResonance * __bpfb_l  + fCutOff * ( *val_l - __lpfb_l );
+		__lpfb_l +=  fCutOff   * __bpfb_l;
+		__bpfb_r  =  fResonance * __bpfb_r  + fCutOff * ( *val_r - __lpfb_r );
+		__lpfb_r +=  fCutOff   * __bpfb_r;
+		*val_l = __lpfb_l;
+		*val_r = __lpfb_r;
+	}
 }
 
 inline long long Note::getNoteStart() const {

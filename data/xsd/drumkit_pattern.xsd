@@ -53,7 +53,10 @@
 			<xsd:element name="pitch"		type="xsd:float"/>
 			<xsd:element name="key"			type="xsd:string"/>
 			<xsd:element name="length"		type="xsd:integer"/>
+			<!-- Kept for backward compatibility to <= 1.X.X -->
 			<xsd:element name="instrument"	type="xsd:integer"/>
+			<xsd:element name="type"		type="xsd:string"
+						 minOccurs="0"/>
 			<xsd:element name="note_off"	type="h2:bool"/>
 			<xsd:element name="probability"	type="xsd:float"/>
 		</xsd:sequence>
@@ -83,6 +86,7 @@
 <xsd:element name="drumkit_pattern">
 	<xsd:complexType>
 		<xsd:sequence>
+			<!-- Kept for backward compatibility to <= 1.X.X -->
 			<xsd:element name="drumkit_name"	type="xsd:string"/>
 			<xsd:element name="author"			type="xsd:string"/>
 			<xsd:element name="license"			type="xsd:string"/>

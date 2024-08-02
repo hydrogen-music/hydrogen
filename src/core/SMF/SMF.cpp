@@ -259,7 +259,8 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 				const Pattern::notes_t* notes = pPattern->get_notes();
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,nNote,pPattern) {
 					Note *pNote = it->second;
-					if ( pNote ) {
+					if ( pNote != nullptr &&
+						 pNote->get_instrument() != nullptr ) {
 						float rnd = (float)rand()/(float)RAND_MAX;
 						if ( pNote->get_probability() < rnd ) {
 							continue;

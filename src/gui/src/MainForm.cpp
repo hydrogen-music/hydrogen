@@ -29,13 +29,14 @@
 #include <core/SMF/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
@@ -1126,7 +1127,7 @@ void MainForm::action_file_openPattern()
 
 		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getDrumkit()->getInstruments() );
+			auto pNewPattern = Pattern::load_file( ssFilename );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
@@ -1363,7 +1364,7 @@ void MainForm::action_drumkit_new()
 	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
 	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(), false,
+		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
 		SE_switchDrumkitAction::Type::NewDrumkit );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
@@ -1541,13 +1542,14 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 			if ( pDrumkit == nullptr ) {
 				ERRORLOG( QString( "Unable to load freshly imported kit [%1]" )
 						  .arg( sFileName ) );
-				QApplication::restoreOverrideCursor();
-				return;
 			}
-			auto pAction = new SE_switchDrumkitAction(
-				pDrumkit, pHydrogen->getSong()->getDrumkit(), false,
-				SE_switchDrumkitAction::Type::SwitchDrumkit );
-			HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+			else {
+
+				if ( ! switchDrumkit( pDrumkit ) ) {
+					ERRORLOG( QString( "Unable to switch to freshly imported kit [%1]" )
+							  .arg( sFileName ) );
+				}
+			}
 		}
 		else {
 			ERRORLOG( QString( "Unable to determine imported path for [%1]" )
@@ -2289,6 +2291,27 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	}
 }
 
+bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+	if ( pTargetKit == nullptr ) {
+		ERRORLOG( "Invalid target kit" );
+		return false;
+	}
+
+	auto pAction = new SE_switchDrumkitAction(
+		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
+		SE_switchDrumkitAction::Type::SwitchDrumkit );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+
+	return true;
+}
+
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	
 	auto pPref = Preferences::get_instance();
@@ -2298,6 +2321,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pActionManager = MidiActionManager::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -2834,6 +2858,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::LoopModeToggle:
 				H2Core::CoreActionController::toggleLoopMode();
+				break;
+
+			case Shortcuts::Action::LoadNextDrumkit:
+				switchDrumkit( pSoundLibraryDataBase->getNextDrumkit() );
+				break;
+			case Shortcuts::Action::LoadPrevDrumkit:
+				switchDrumkit( pSoundLibraryDataBase->getPreviousDrumkit() );
 				break;
 
 				//////////////////////////////////////////////////////
