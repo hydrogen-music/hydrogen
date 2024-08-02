@@ -167,7 +167,7 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
      <layer>
-      <filename>/home/phil/git/hydrogen/src/tests/data/song/../drumkits/baseKit/hh.wav</filename>
+      <filename>../drumkits/baseKit/hh.wav</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
@@ -189,7 +189,7 @@ p, li { white-space: pre-wrap; }
     <id>20</id>
     <name>New instrument</name>
     <type></type>
-    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkitPath>../../../../data/drumkits/GMRockKit</drumkitPath>
     <drumkit>GMRockKit</drumkit>
     <volume>1</volume>
     <isMuted>false</isMuted>
