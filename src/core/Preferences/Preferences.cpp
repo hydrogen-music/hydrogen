@@ -46,7 +46,6 @@
 
 #include <QDir>
 #include <QProcess>
-//#include <QApplication>
 
 namespace H2Core
 {
@@ -56,17 +55,43 @@ Preferences* Preferences::__instance = nullptr;
 void Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {
-		__instance = new Preferences;
+		// User-level configs
+		auto pPrefUser = load( Filesystem::usr_config_path() );
+		if ( pPrefUser != nullptr ) {
+			__instance = pPrefUser;
+			__instance->m_bLoadingSuccessful = true;
+		}
+		else {
+			// Fallback to system-level configs (the one we ship)
+			auto pPrefSystem = load( Filesystem::sys_config_path() );
+			if ( pPrefSystem != nullptr ) {
+				INFOLOG( QString( "Couldn't load user-level configuration from [%1]. Falling back to system-level one in [%2]" )
+						 .arg( Filesystem::usr_config_path() )
+						 .arg( Filesystem::sys_config_path() ) );
+				__instance = pPrefSystem;
+				__instance->m_bLoadingSuccessful = true;
+			}
+			else {
+				ERRORLOG( QString( "Couldn't load config file from neither [%1] nor [%2]." )
+						 .arg( Filesystem::usr_config_path() )
+						 .arg( Filesystem::sys_config_path() ) );
+				__instance = new Preferences;
+				__instance->m_bLoadingSuccessful = false;
+			}
+
+		}
 
 		// Propagate loaded settings
 		InstrumentComponent::setMaxLayers( __instance->getMaxLayers() );
-
 	}
+}
+
+void Preferences::replaceInstance( Preferences* pOther ) {
+	__instance = pOther;
 }
 
 Preferences::Preferences()
 {
-	__instance = this;
 	m_pShortcuts = std::make_shared<Shortcuts>();
 
 	// switch to enable / disable lash, only on h2 startup
@@ -86,8 +111,8 @@ Preferences::Preferences()
 		if ( QFile( m_rubberBandCLIexecutable ).exists() == true ){
 			readPrefFileforotherplaces = false;
 			break;
-		}else
-		{
+		}
+		else {
 			m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 			readPrefFileforotherplaces = true;
 		}
@@ -118,9 +143,11 @@ Preferences::Preferences()
 	m_sLastOpenPlaybackTrackDirectory = QDir::homePath();
 	m_sLastAddSongToPlaylistDirectory = Filesystem::songs_dir();
 	m_sLastPlaylistDirectory = Filesystem::playlists_dir();
-	m_sLastPlaylistScriptDirectory = Filesystem::scripts_dir();
+	m_sLastImportThemeDirectory = QDir::homePath();
+	m_sLastExportThemeDirectory = QDir::homePath();
 	
-	//export dialog
+	// export dialog
+	m_nExportTemplateIdx = 0;
 	m_nExportModeIdx = 0;
 	m_nExportSampleRateIdx = 0;
 	m_nExportSampleDepthIdx = 0;
@@ -131,15 +158,11 @@ Preferences::Preferences()
 
 	//export midi dialog
 	m_nMidiExportMode = 0;
-	/////////////////////////////////////////////////////////////////////////
-	/////////////////// DEFAULT SETTINGS ////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-	m_bFollowPlayhead = true;
-	// SEE ABOVE: m_brestartLash
-	// SEE ABOVE: m_bsetLash
 
-	m_bbc = false;
-	m_mmcsetplay = false;
+	m_bFollowPlayhead = true;
+
+	m_bbc = BC_OFF;
+	m_mmcsetplay = SET_PLAY_OFF;
 
 	m_countOffset = 0;  // beatcounter
 	m_startOffset = 0;  // beatcounter
@@ -176,9 +199,10 @@ Preferences::Preferences()
 	m_sMidiPortName = QString( Preferences::getNullMidiPort() );
 	m_sMidiOutputPortName = QString( Preferences::getNullMidiPort() );
 	m_nMidiChannelFilter = -1;
-	m_bMidiNoteOffIgnore = false;
+	m_bMidiNoteOffIgnore = true;
 	m_bMidiFixedMapping = false;
-	m_bMidiDiscardNoteAfterAction = false;
+	m_bMidiDiscardNoteAfterAction = true;
+	m_bEnableMidiFeedback = false;
 
 	// PortAudio properties
 	m_sPortAudioDevice = QString();
@@ -242,6 +266,7 @@ Preferences::Preferences()
 	m_bHideKeyboardCursor = false;
 
 	//___ GUI properties ___
+	m_nLastOpenTab = 0;
 	m_nPatternEditorGridResolution = 8;
 	m_bPatternEditorUsingTriplets = false;
 	m_bShowInstrumentPeaks = true;
@@ -266,22 +291,7 @@ Preferences::Preferences()
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
 	m_nMaxBars = 400;
 	m_nMaxLayers = 16;
-
-	/////////////////////////////////////////////////////////////////////////
-	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////
-
-	const bool bGlobalPrefLoaded = loadPreferences( true );
-	const bool bUserPrefLoaded = loadPreferences( false );
-	if ( bGlobalPrefLoaded || bUserPrefLoaded ) {
-		m_bLoadingSuccessful = true;
-	} else {
-		m_bLoadingSuccessful = false;
-	}
-		
 }
-
-
 
 Preferences::~Preferences()
 {
@@ -289,570 +299,728 @@ Preferences::~Preferences()
 	__instance = nullptr;
 }
 
-///
-/// Load the preferences file
-///
-bool Preferences::loadPreferences( bool bGlobal )
-{
-	// We do not required the recently used variables to be
-	// accumulated throughout various configuration files.
-	m_recentFiles.clear();
-	m_recentFX.clear();
+Preferences* Preferences::load( const QString& sPath, const bool bSilent ) {
+	if ( ! Filesystem::file_readable( sPath, bSilent ) ) {
+		return nullptr;
+	}
 
-	bool bRecreate = false;	// configuration file must be recreated?
+	XMLDoc doc;
+	doc.read( sPath, nullptr, false );
+	const XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "Preferences file [%1] ill-formatted. <hydrogen_preferences> node not found." )
+				  .arg( sPath ) );
+		return nullptr;
+	}
 
-	QString sPreferencesFilename =
-		( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
-	INFOLOG( QString( "Loading preferences file [%1]" )
-			 .arg( sPreferencesFilename ) );
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Loading preferences from [%1]" ).arg( sPath ) );
+	}
 
-	if ( ! Filesystem::file_readable( sPreferencesFilename, true ) ) {
-		if ( bGlobal ) {
-			ERRORLOG( QString( "Global preferences file [%1] is not readable!" )
-					  .arg( sPreferencesFilename ) );
-			return false;
+	Preferences* pPref = new Preferences;
+
+	//////// GENERAL ///////////
+	auto interfaceTheme = InterfaceTheme();
+	auto fontTheme = FontTheme();
+	auto colorTheme = ColorTheme();
+
+	pPref->m_sPreferredLanguage = rootNode.read_string(
+		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent );
+	pPref->__playselectedinstrument = rootNode.read_bool(
+		"instrumentInputMode", pPref->__playselectedinstrument, false, false,
+		bSilent );
+	pPref->m_bShowDevelWarning = rootNode.read_bool(
+		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent );
+	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
+		"showNoteOverwriteWarning",
+		pPref->m_bShowNoteOverwriteWarning, false, false, bSilent );
+	pPref->m_bUseLash = rootNode.read_bool(
+		"useLash", pPref->m_bUseLash, false, false, bSilent );
+	pPref->m_bsetLash = pPref->m_bUseLash;
+	pPref->__useTimelineBpm = rootNode.read_bool(
+		"useTimeLine", pPref->__useTimelineBpm, false, false, bSilent );
+	pPref->m_nMaxBars = rootNode.read_int(
+		"maxBars", pPref->m_nMaxBars, false, false, bSilent );
+	pPref->m_nMaxLayers = rootNode.read_int(
+		"maxLayers", pPref->m_nMaxLayers, false, false, bSilent );
+	if ( pPref->m_nMaxLayers < 16 ) {
+		WARNINGLOG( QString( "[maxLayers: %1] is smaller than the minimum number of layers [16]" )
+					.arg( pPref->m_nMaxLayers ) );
+		pPref->m_nMaxLayers = 16;
+	}
+	interfaceTheme.m_layout = static_cast<InterfaceTheme::Layout>(
+		rootNode.read_int( "defaultUILayout",
+						   static_cast<int>(interfaceTheme.m_layout),
+						   false, false, bSilent ));
+	interfaceTheme.m_uiScalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(
+		rootNode.read_int( "uiScalingPolicy",
+						   static_cast<int>(interfaceTheme.m_uiScalingPolicy),
+						   false, false, bSilent ));
+	pPref->m_nLastOpenTab = rootNode.read_int(
+		"lastOpenTab", pPref->m_nLastOpenTab, false, false, bSilent );
+	pPref->m_bUseRelativeFilenamesForPlaylists = rootNode.read_bool(
+		"useRelativeFilenamesForPlaylists",
+		pPref->m_bUseRelativeFilenamesForPlaylists, false, false, bSilent );
+	pPref->m_bHideKeyboardCursor = rootNode.read_bool(
+		"hideKeyboardCursorWhenUnused",
+		pPref->m_bHideKeyboardCursor, false, false, bSilent );
+	pPref->m_useTheRubberbandBpmChangeEvent = rootNode.read_bool(
+		"useTheRubberbandBpmChangeEvent",
+		pPref->m_useTheRubberbandBpmChangeEvent, false, false, bSilent );
+
+	pPref->hearNewNotes = rootNode.read_bool(
+		"hearNewNotes", pPref->hearNewNotes, false, false, bSilent );
+	pPref->quantizeEvents = rootNode.read_bool(
+		"quantizeEvents", pPref->quantizeEvents, false, false, bSilent );
+
+	if ( pPref->readPrefFileforotherplaces ){
+		// In case Rubberband CLI executable was not found yet, we check the
+		// additional path provided in the config (Preferences constructor
+		// already checked common places).
+		const QString sRubberbandPath = rootNode.read_string(
+			"path_to_rubberband", "", false, false, bSilent );
+		if ( ! sRubberbandPath.isEmpty() && QFile( sRubberbandPath ).exists() ){
+			pPref->m_rubberBandCLIexecutable = sRubberbandPath;
 		}
 		else {
-			WARNINGLOG( QString( "User-level preferences file [%1] is not readable! It will be recreated." )
-						.arg( sPreferencesFilename ) );
-			bRecreate = true;
+			pPref->m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
+		}
+	}
+
+	const XMLNode recentUsedSongsNode =
+		rootNode.firstChildElement( "recentUsedSongs" );
+	if ( ! recentUsedSongsNode.isNull() ) {
+		QDomElement songElement = recentUsedSongsNode.firstChildElement( "song" );
+		while( ! songElement.isNull() && ! songElement.text().isEmpty() ){
+			pPref->m_recentFiles.push_back( songElement.text() );
+			songElement = songElement.nextSiblingElement( "song" );
 		}
 	}
 	else {
-		// Preferences is readable.
+		WARNINGLOG( "<recentUsedSongs> node not found" );
+	}
 
-		XMLDoc doc;
-		doc.read( sPreferencesFilename, nullptr, false );
-		XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
+	const XMLNode recentFXNode =
+		rootNode.firstChildElement( "recentlyUsedEffects" );
+	if ( ! recentFXNode.isNull() ) {
+		QDomElement fxElement = recentFXNode.firstChildElement( "FX" );
+		while ( ! fxElement.isNull()  && ! fxElement.text().isEmpty() ) {
+			pPref->m_recentFX.push_back( fxElement.text() );
+			fxElement = fxElement.nextSiblingElement( "FX" );
+		}
+	}
+	else {
+		WARNINGLOG( "<recentlyUsedEffects> node not found" );
+	}
 
-		if ( !rootNode.isNull() ) {
-
-			// version
-			QString version = rootNode.read_string( "version", "", false, false );
-			if ( version.isEmpty() ) {
-				bRecreate = true;
-			}
-
-			//////// GENERAL ///////////
-			auto interfaceTheme = InterfaceTheme();
-			auto fontTheme = FontTheme();
-			auto colorTheme = ColorTheme();
-
-			m_sPreferredLanguage = rootNode.read_string( "preferredLanguage", m_sPreferredLanguage, false, "" );
-			__playselectedinstrument = rootNode.read_bool( "instrumentInputMode", __playselectedinstrument, false, false );
-			m_bShowDevelWarning = rootNode.read_bool( "showDevelWarning", m_bShowDevelWarning, false, false );
-			m_bShowNoteOverwriteWarning = rootNode.read_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning, false, false );
-			m_bUseLash = rootNode.read_bool( "useLash", false, false, false );
-			__useTimelineBpm = rootNode.read_bool( "useTimeLine", __useTimelineBpm, false, false );
-			m_nMaxBars = rootNode.read_int( "maxBars", 400, false, false );
-			m_nMaxLayers = rootNode.read_int( "maxLayers", 16, false, false );
-			interfaceTheme.m_layout = static_cast<InterfaceTheme::Layout>(
-				rootNode.read_int( "defaultUILayout",
-								   static_cast<int>(InterfaceTheme::Layout::SinglePane), false, false ));
-			interfaceTheme.m_uiScalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(
-				rootNode.read_int( "uiScalingPolicy",
-								   static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller), false, false ));
-			m_nLastOpenTab = rootNode.read_int( "lastOpenTab", 0, false, false );
-			m_bUseRelativeFilenamesForPlaylists = rootNode.read_bool( "useRelativeFilenamesForPlaylists", false, false, false );
-			m_bHideKeyboardCursor = rootNode.read_bool( "hideKeyboardCursorWhenUnused", false, false, false );
-
-			//restore the right m_bsetlash value
-			m_bsetLash = m_bUseLash;
-			m_useTheRubberbandBpmChangeEvent = rootNode.read_bool( "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent, false, false );
-
-			hearNewNotes = rootNode.read_bool( "hearNewNotes", hearNewNotes, false, false );
-			quantizeEvents = rootNode.read_bool( "quantizeEvents", quantizeEvents, false, false );
-
-			//rubberband
-			if( readPrefFileforotherplaces ){
-				//this scond test will check individual user settings
-				QString test = rootNode.read_string( "path_to_rubberband", "", false, false );
-				if ( QFile( test ).exists() == true ){
-					m_rubberBandCLIexecutable = test;
-				}else
-					{
-						m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
-					}
-			}
-
-			XMLNode recentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
-			if ( ! recentUsedSongsNode.isNull() ) {
-				QDomElement songElement = recentUsedSongsNode.firstChildElement( "song" );
-				while( !songElement.isNull() && ! songElement.text().isEmpty() ){
-					m_recentFiles.push_back( songElement.text() );
-					songElement = songElement.nextSiblingElement( "song" );
-				}
-
-			} else {
-				WARNINGLOG( "recentUsedSongs node not found" );
-			}
-
-			XMLNode recentFXNode = rootNode.firstChildElement( "recentlyUsedEffects" );
-			if ( ! recentFXNode.isNull() ) {
-				QDomElement fxElement = recentFXNode.firstChildElement( "FX" );
-				while ( !fxElement.isNull()  && ! fxElement.text().isEmpty()) {
-					m_recentFX.push_back( fxElement.text() );
-					fxElement = fxElement.nextSiblingElement( "FX" );
-				}
-			} else {
-				WARNINGLOG( "recentlyUsedEffects node not found" );
-			}
-
-			sServerList.clear();
-			XMLNode serverListNode = rootNode.firstChildElement( "serverList" );
-			if ( ! serverListNode.isNull() ) {
-				QDomElement serverElement = serverListNode.firstChildElement( "server" );
-				while ( !serverElement.isNull() && !serverElement.text().isEmpty() ) {
-					sServerList.push_back( serverElement.text() );
-					serverElement = serverElement.nextSiblingElement( "server" );
-				}
-			} else {
-				WARNINGLOG( "serverList node not found" );
-			}
-
-			m_patternCategories.clear();
-			XMLNode patternCategoriesNode = rootNode.firstChildElement( "patternCategories" );
-			if ( ! patternCategoriesNode.isNull() ) {
-				QDomElement patternCategoriesElement = patternCategoriesNode.firstChildElement( "categories" );
-				while ( !patternCategoriesElement.isNull() && !patternCategoriesElement.text().isEmpty() ) {
-					m_patternCategories.push_back( patternCategoriesElement.text() );
-					patternCategoriesElement = patternCategoriesElement.nextSiblingElement( "categories" );
-				}
-			} else {
-				WARNINGLOG( "patternCategories node not found" );
-			}
-
-
-			/////////////// AUDIO ENGINE //////////////
-			XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
-			if ( audioEngineNode.isNull() ) {
-				WARNINGLOG( "audio_engine node not found" );
-				bRecreate = true;
-			} else {
-				const QString sAudioDriver = audioEngineNode.read_string(
-					"audio_driver", Preferences::audioDriverToQString(
-						Preferences::AudioDriver::Auto ),
-					false, false );
-				m_audioDriver = parseAudioDriver( sAudioDriver );
-				if ( m_audioDriver == AudioDriver::None ) {
-					WARNINGLOG( "Falling back to 'Auto' audio driver" );
-					m_audioDriver = AudioDriver::Auto;
-				}
-				m_bUseMetronome = audioEngineNode.read_bool( "use_metronome", m_bUseMetronome, false, false );
-				m_fMetronomeVolume = audioEngineNode.read_float( "metronome_volume", 0.5f, false, false );
-				m_nMaxNotes = audioEngineNode.read_int( "maxNotes", m_nMaxNotes, false, false );
-				m_nBufferSize = audioEngineNode.read_int( "buffer_size", m_nBufferSize, false, false );
-				m_nSampleRate = audioEngineNode.read_int( "samplerate", m_nSampleRate, false, false );
-
-				//// OSS DRIVER ////
-				XMLNode ossDriverNode = audioEngineNode.firstChildElement( "oss_driver" );
-				if ( ossDriverNode.isNull()  ) {
-					WARNINGLOG( "oss_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sOSSDevice = ossDriverNode.read_string( "ossDevice", m_sOSSDevice, false, false );
-				}
-
-				//// PORTAUDIO DRIVER ////
-				XMLNode portAudioDriverNode = audioEngineNode.firstChildElement( "portaudio_driver" );
-				if ( portAudioDriverNode.isNull()  ) {
-					WARNINGLOG( "portaudio_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sPortAudioDevice = portAudioDriverNode.read_string( "portAudioDevice", m_sPortAudioDevice, false, true );
-					m_sPortAudioHostAPI = portAudioDriverNode.read_string( "portAudioHostAPI", m_sPortAudioHostAPI, false, true );
-					m_nLatencyTarget = portAudioDriverNode.read_int( "latencyTarget", m_nLatencyTarget, false, false );
-				}
-
-				//// COREAUDIO DRIVER ////
-				XMLNode coreAudioDriverNode = audioEngineNode.firstChildElement( "coreaudio_driver" );
-				if ( coreAudioDriverNode.isNull()  ) {
-					WARNINGLOG( "coreaudio_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sCoreAudioDevice = coreAudioDriverNode.read_string( "coreAudioDevice", m_sCoreAudioDevice, false, true );
-				}
-
-				//// JACK DRIVER ////
-				XMLNode jackDriverNode = audioEngineNode.firstChildElement( "jack_driver" );
-				if ( jackDriverNode.isNull() ) {
-					WARNINGLOG( "jack_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sJackPortName1 = jackDriverNode.read_string( "jack_port_name_1", m_sJackPortName1, false, false );
-					m_sJackPortName2 = jackDriverNode.read_string( "jack_port_name_2", m_sJackPortName2, false, false );
-					QString sMode = jackDriverNode.read_string( "jack_transport_mode", "NO_JACK_TRANSPORT", false, false );
-					if ( sMode == "NO_JACK_TRANSPORT" ) {
-						m_bJackTransportMode = NO_JACK_TRANSPORT;
-					} else if ( sMode == "USE_JACK_TRANSPORT" ) {
-						m_bJackTransportMode = USE_JACK_TRANSPORT;
-					}
-
-					//jack time master
-					m_bJackTimebaseEnabled = jackDriverNode.read_bool( "jack_timebase_enabled", false, false, false );
-					QString tmMode = jackDriverNode.read_string( "jack_transport_mode_master", "NO_JACK_TIME_MASTER", false, false );
-					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
-						m_bJackMasterMode = NO_JACK_TIME_MASTER;
-					} else if ( tmMode == "USE_JACK_TIME_MASTER" ) {
-						m_bJackMasterMode = USE_JACK_TIME_MASTER;
-					}
-					// ~ jack time master
-
-					m_bJackTrackOuts = jackDriverNode.read_bool( "jack_track_outs", m_bJackTrackOuts, false, false );
-					m_bJackConnectDefaults = jackDriverNode.read_bool( "jack_connect_defaults", m_bJackConnectDefaults, false, false );
-
-					int nJackTrackOutputMode = jackDriverNode.read_int( "jack_track_output_mode", 0, false, false );
-					switch ( nJackTrackOutputMode ) {
-					case 0:
-						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-						break;
-					case 1:
-						m_JackTrackOutputMode = JackTrackOutputMode::preFader;
-						break;
-					default:
-						WARNINGLOG( QString( "Unknown jack_track_output_mode value [%1]. Using JackTrackOutputMode::postFader instead." )
-									.arg( nJackTrackOutputMode ) );
-						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-					}
-				}
-
-
-				/// ALSA AUDIO DRIVER ///
-				XMLNode alsaAudioDriverNode = audioEngineNode.firstChildElement( "alsa_audio_driver" );
-				if ( alsaAudioDriverNode.isNull() ) {
-					WARNINGLOG( "alsa_audio_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sAlsaAudioDevice = alsaAudioDriverNode.read_string( "alsa_audio_device", m_sAlsaAudioDevice, false, false );
-				}
-
-				/// MIDI DRIVER ///
-				XMLNode midiDriverNode = audioEngineNode.firstChildElement( "midi_driver" );
-				if ( midiDriverNode.isNull() ) {
-					WARNINGLOG( "midi_driver node not found" );
-					bRecreate = true;
-				} else {
-					m_sMidiDriver = midiDriverNode.read_string(
-						"driverName", m_sMidiDriver, false, false );
-					// Ensure compatibility will older versions of the
-					// files after capitalization in the GUI
-					// (2021-02-05). This can be dropped in releases
-					// >= 1.2
-					if ( m_sMidiDriver == "JackMidi" ) {
-						m_sMidiDriver = "JACK-MIDI";
-					} else if ( m_sMidiDriver == "CoreMidi" ) {
-						m_sMidiDriver = "CoreMIDI";
-					}
-					m_sMidiPortName = midiDriverNode.read_string(
-						"port_name", Preferences::getNullMidiPort(), false, false );
-					m_sMidiOutputPortName = midiDriverNode.read_string(
-						"output_port_name", Preferences::getNullMidiPort(), false, false );
-					m_nMidiChannelFilter = midiDriverNode.read_int( "channel_filter", -1, false, false );
-					m_bMidiNoteOffIgnore = midiDriverNode.read_bool( "ignore_note_off", true, false, false );
-					m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool( "discard_note_after_action", true, false, false );
-					m_bMidiFixedMapping = midiDriverNode.read_bool( "fixed_mapping", false, false, true );
-					m_bEnableMidiFeedback = midiDriverNode.read_bool( "enable_midi_feedback", false, false, true );
-				}
-
-				/// OSC ///
-				XMLNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
-				if ( oscServerNode.isNull() ) {
-					WARNINGLOG( "osc_configuration node not found" );
-					bRecreate = true;
-				} else {
-					m_bOscServerEnabled = oscServerNode.read_bool( "oscEnabled", false, false, false );
-					m_bOscFeedbackEnabled = oscServerNode.read_bool( "oscFeedbackEnabled", true, false, false );
-					m_nOscServerPort = oscServerNode.read_int( "oscServerPort", 9000, false, false );
+	// Use the default server defined in the constructor and add additional
+	// ones.
+	const XMLNode serverListNode = rootNode.firstChildElement( "serverList" );
+	if ( ! serverListNode.isNull() ) {
+		QDomElement serverElement = serverListNode.firstChildElement( "server" );
+		while ( ! serverElement.isNull() && !serverElement.text().isEmpty() ) {
+			bool bAlreadyPresent = false;
+			for ( const auto& ssServer : pPref->sServerList ) {
+				if ( ssServer == serverElement.text() ) {
+					bAlreadyPresent = true;
+					break;
 				}
 			}
 
-			/////////////// GUI //////////////
-			XMLNode guiNode = rootNode.firstChildElement( "gui" );
-			if ( guiNode.isNull() ) {
-				WARNINGLOG( "gui node not found" );
-				bRecreate = true;
-			} else {
-				QString sQTStyle( guiNode.read_string( "QTStyle", "Fusion", false, true ) );
-
-				if ( sQTStyle == "Plastique" ){
-					sQTStyle = "Fusion";
-				}
-				interfaceTheme.m_sQTStyle = sQTStyle;
-
-				fontTheme.m_sApplicationFontFamily = guiNode.read_string(
-					"application_font_family", fontTheme.m_sApplicationFontFamily, false, false );
-				fontTheme.m_sLevel2FontFamily = guiNode.read_string(
-					"level2_font_family", fontTheme.m_sLevel2FontFamily, false, false );
-				fontTheme.m_sLevel3FontFamily = guiNode.read_string(
-					"level3_font_family", fontTheme.m_sLevel3FontFamily, false, false );
-				fontTheme.m_fontSize = static_cast<FontTheme::FontSize>( guiNode.read_int(
-					"font_size", static_cast<int>(FontTheme::FontSize::Medium), false, false ) );
-
-				interfaceTheme.m_fMixerFalloffSpeed = guiNode.read_float(
-					"mixer_falloff_speed", InterfaceTheme::FALLOFF_NORMAL, false, false );
-
-				m_nPatternEditorGridResolution = guiNode.read_int( "patternEditorGridResolution", m_nPatternEditorGridResolution, false, false );
-				m_bPatternEditorUsingTriplets = guiNode.read_bool( "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets, false, false );
-				
-				m_bShowInstrumentPeaks = guiNode.read_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks, false, false );
-				m_bIsFXTabVisible = guiNode.read_bool( "isFXTabVisible", m_bIsFXTabVisible, false, false );
-				m_bShowAutomationArea = guiNode.read_bool( "showAutomationArea", m_bShowAutomationArea, false, false );
-				m_bShowPlaybackTrack = guiNode.read_bool( "showPlaybackTrack", m_bShowPlaybackTrack, false, false );
-
-
-				// pattern editor grid geometry
-				m_nPatternEditorGridHeight = guiNode.read_int( "patternEditorGridHeight", m_nPatternEditorGridHeight, false, false );
-				m_nPatternEditorGridWidth = guiNode.read_int( "patternEditorGridWidth", m_nPatternEditorGridWidth, false, false );
-
-				// song editor grid geometry
-				m_nSongEditorGridHeight = guiNode.read_int( "songEditorGridHeight", m_nSongEditorGridHeight, false, false );
-				m_nSongEditorGridWidth = guiNode.read_int( "songEditorGridWidth", m_nSongEditorGridWidth, false, false );
-
-				// mainForm window properties
-				setMainFormProperties( loadWindowPropertiesFrom(
-					guiNode, "mainForm_properties", mainFormProperties ) );
-				setMixerProperties( loadWindowPropertiesFrom(
-					guiNode, "mixer_properties", mixerProperties ) );
-				setPatternEditorProperties( loadWindowPropertiesFrom(
-					guiNode, "patternEditor_properties", patternEditorProperties ) );
-				setSongEditorProperties( loadWindowPropertiesFrom(
-					guiNode, "songEditor_properties", songEditorProperties ) );
-				setInstrumentRackProperties( loadWindowPropertiesFrom(
-					guiNode, "instrumentRack_properties", instrumentRackProperties ) );
-				setAudioEngineInfoProperties( loadWindowPropertiesFrom(
-					guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
-				// In order to be backward compatible we still call the XML node
-				// "playlistDialog". For some time we had playlistEditor and
-				// playlistDialog coexisting.
-				setPlaylistEditorProperties( loadWindowPropertiesFrom(
-					guiNode, "playlistDialog_properties", m_playlistEditorProperties ) );
-				setDirectorProperties( loadWindowPropertiesFrom(
-					guiNode, "director_properties", m_directorProperties ) );
-
-				// last used file dialog folders
-				m_sLastExportPatternAsDirectory = guiNode.read_string( "lastExportPatternAsDirectory", QDir::homePath(), true, false, true );
-				m_sLastExportSongDirectory = guiNode.read_string( "lastExportSongDirectory", QDir::homePath(), true, false, true );
-				m_sLastSaveSongAsDirectory = guiNode.read_string( "lastSaveSongAsDirectory", QDir::homePath(), true, false, true );
-				m_sLastOpenSongDirectory = guiNode.read_string( "lastOpenSongDirectory", Filesystem::songs_dir(), true, false, true );
-				m_sLastOpenPatternDirectory = guiNode.read_string( "lastOpenPatternDirectory", Filesystem::patterns_dir(), true, false, true );
-				m_sLastExportLilypondDirectory = guiNode.read_string( "lastExportLilypondDirectory", QDir::homePath(), true, false, true );
-				m_sLastExportMidiDirectory = guiNode.read_string( "lastExportMidiDirectory", QDir::homePath(), true, false, true );
-				m_sLastImportDrumkitDirectory = guiNode.read_string( "lastImportDrumkitDirectory", QDir::homePath(), true, false, true );
-				m_sLastExportDrumkitDirectory = guiNode.read_string( "lastExportDrumkitDirectory", QDir::homePath(), true, false, true );
-				m_sLastOpenLayerDirectory = guiNode.read_string( "lastOpenLayerDirectory", QDir::homePath(), true, false, true );
-				m_sLastOpenPlaybackTrackDirectory = guiNode.read_string( "lastOpenPlaybackTrackDirectory", QDir::homePath(), true, false, true );
-				m_sLastAddSongToPlaylistDirectory = guiNode.read_string( "lastAddSongToPlaylistDirectory", Filesystem::songs_dir(), true, false, true );
-				m_sLastPlaylistDirectory = guiNode.read_string( "lastPlaylistDirectory", Filesystem::playlists_dir(), true, false, true );
-				m_sLastPlaylistScriptDirectory = guiNode.read_string( "lastPlaylistScriptDirectory", Filesystem::scripts_dir(), true, false, true );
-				m_sLastImportThemeDirectory = guiNode.read_string( "lastImportThemeDirectory", QDir::homePath(), true, false, true );
-				m_sLastExportThemeDirectory = guiNode.read_string( "lastExportThemeDirectory", QDir::homePath(), true, false, true );
-
-				//export dialog properties
-				m_nExportTemplateIdx = guiNode.read_int( "exportDialogTemplate", 0, false, false );
-				m_nExportModeIdx = guiNode.read_int( "exportDialogMode", 0, false, false );
-				m_nExportSampleRateIdx = guiNode.read_int( "exportDialogSampleRate", 0, false, false );
-				m_nExportSampleDepthIdx = guiNode.read_int( "exportDialogSampleDepth", 0, false, false );
-				m_bShowExportSongLicenseWarning =
-					guiNode.read_bool( "showExportSongLicenseWarning", true,
-									   true, false );
-				
-				m_bShowExportDrumkitLicenseWarning =
-					guiNode.read_bool( "showExportDrumkitLicenseWarning", true,
-									   true, false );
-				m_bShowExportDrumkitCopyleftWarning =
-					guiNode.read_bool( "showExportDrumkitCopyleftWarning", true,
-									   true, false );
-				m_bShowExportDrumkitAttributionWarning =
-					guiNode.read_bool( "showExportDrumkitAttributionWarning", true,
-									   true, false );
-				
-				m_bFollowPlayhead = guiNode.read_bool( "followPlayhead", true, false, false );
-
-				// midi export dialog properties
-				m_nMidiExportMode = guiNode.read_int( "midiExportDialogMode", 0, false, false );
-				
-				//beatcounter
-				QString bcMode = guiNode.read_string( "bc", "BC_OFF", false, false );
-				if ( bcMode == "BC_OFF" ) {
-					m_bbc = BC_OFF;
-				} else if ( bcMode == "BC_ON" ) {
-					m_bbc = BC_ON;
-				}
-
-
-				QString setPlay = guiNode.read_string( "setplay", "SET_PLAY_OFF", false, false );
-				if ( setPlay == "SET_PLAY_OFF" ) {
-					m_mmcsetplay = SET_PLAY_OFF;
-				} else if ( setPlay == "SET_PLAY_ON" ) {
-					m_mmcsetplay = SET_PLAY_ON;
-				}
-
-				m_countOffset = guiNode.read_int( "countoffset", 0, false, false );
-				m_startOffset = guiNode.read_int( "playoffset", 0, false, false );
-
-				// ~ beatcounter
-
-				m_nAutosavesPerHour = guiNode.read_int( "autosavesPerHour", 60, false, false );
-				
-				//SoundLibraryPanel expand items
-				__expandSongItem = guiNode.read_bool( "expandSongItem", __expandSongItem, false, false );
-				__expandPatternItem = guiNode.read_bool( "expandPatternItem", __expandPatternItem, false, false );
-
-				for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-					QString sNodeName = QString("ladspaFX_properties%1").arg( nFX );
-					setLadspaProperties( nFX, loadWindowPropertiesFrom(
-						guiNode, sNodeName, m_ladspaProperties[nFX] ) );
-				}
-
-				XMLNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
-				ColorTheme colorTheme;
-				if ( ! pColorThemeNode.isNull() ) {
-					colorTheme = ColorTheme::loadFrom( pColorThemeNode );
-				}
-				else {
-					WARNINGLOG( "colorTheme node not found" );
-					bRecreate = true;
-				}
-
-				//SongEditor coloring
-				interfaceTheme.m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
-					guiNode.read_int("SongEditor_ColoringMethod",
-									 static_cast<int>(InterfaceTheme::ColoringMethod::Custom), false, false ));
-				std::vector<QColor> patternColors( InterfaceTheme::nMaxPatternColors );
-				for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-					patternColors[ ii ] = guiNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-													   colorTheme.m_accentColor, false, false );
-				}
-				interfaceTheme.m_patternColors = patternColors;
-				interfaceTheme.m_nVisiblePatternColors = std::clamp( guiNode.read_int(
-					"SongEditor_visible_pattern_colors", 1, false, false ), 0, 50 );
+			if ( ! bAlreadyPresent ) {
+				pPref->sServerList.push_back( serverElement.text() );
 			}
 
-			/////////////// FILES //////////////
-			XMLNode filesNode = rootNode.firstChildElement( "files" );
-			if ( filesNode.isNull() ) {
-				WARNINGLOG( "files node not found" );
-				bRecreate = true;
-			} else {
-				// last used song
-				m_lastSongFilename = filesNode.read_string( "lastSongFilename", m_lastSongFilename, false, true );
-				m_lastPlaylistFilename = filesNode.read_string( "lastPlaylistFilename", m_lastPlaylistFilename, false, true );
-				m_sDefaultEditor = filesNode.read_string( "defaulteditor", m_sDefaultEditor, false, true );
-			}
+			serverElement = serverElement.nextSiblingElement( "server" );
+		}
+	}
+	else {
+		WARNINGLOG( "<serverList> node not found" );
+	}
 
-			// Midi map
-			MidiMap::reset_instance();
-			MidiMap* mM = MidiMap::get_instance();
-
-
-			XMLNode pMidiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
-			if ( !pMidiEventMapNode.isNull() ) {
-				XMLNode pMidiEventNode = pMidiEventMapNode.firstChildElement( "midiEvent" );
-				while ( !pMidiEventNode.isNull() ) {
-					if( pMidiEventNode.firstChildElement().nodeName() == QString("mmcEvent")){
-						QString event = pMidiEventNode.firstChildElement("mmcEvent").text();
-						QString sAction = pMidiEventNode.firstChildElement("action").text();
-						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
-						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
-						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
-
-						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
-						pAction->setParameter1( sParam );
-						pAction->setParameter2( sParam2 );
-						pAction->setParameter3( sParam3 );
-						mM->registerMMCEvent(event, pAction);
-					}
-
-					if( pMidiEventNode.firstChildElement().nodeName() == QString("noteEvent")){
-						QString event = pMidiEventNode.firstChildElement("noteEvent").text();
-						QString sAction = pMidiEventNode.firstChildElement("action").text();
-						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
-						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
-						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
-						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
-						pAction->setParameter1( sParam );
-						pAction->setParameter2( sParam2 );
-						pAction->setParameter3( sParam3 );
-						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
-					}
-
-					if( pMidiEventNode.firstChildElement().nodeName() == QString("ccEvent") ){
-						QString event = pMidiEventNode.firstChildElement("ccEvent").text();
-						QString sAction = pMidiEventNode.firstChildElement("action").text();
-						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
-						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
-						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
-						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
-						pAction->setParameter1( sParam );
-						pAction->setParameter2( sParam2 );
-						pAction->setParameter3( sParam3 );
-						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
-					}
-
-					if( pMidiEventNode.firstChildElement().nodeName() == QString("pcEvent") ){
-						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
-						QString sAction = pMidiEventNode.firstChildElement("action").text();
-						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
-						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
-						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
-						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
-						pAction->setParameter1( sParam );
-						pAction->setParameter2( sParam2 );
-						pAction->setParameter3( sParam3 );
-						mM->registerPCEvent( pAction );
-					}
-
-					pMidiEventNode = pMidiEventNode.nextSiblingElement( "midiEvent" );
+	// Use the default categories defined in the constructor and add additional
+	// ones.
+	const XMLNode patternCategoriesNode =
+		rootNode.firstChildElement( "patternCategories" );
+	if ( ! patternCategoriesNode.isNull() ) {
+		QDomElement patternCategoriesElement =
+			patternCategoriesNode.firstChildElement( "categories" );
+		while ( ! patternCategoriesElement.isNull() &&
+				! patternCategoriesElement.text().isEmpty() ) {
+			bool bAlreadyPresent = false;
+			for ( const auto& ssCategory : pPref->m_patternCategories ) {
+				if ( ssCategory == patternCategoriesElement.text() ) {
+					bAlreadyPresent = true;
+					break;
 				}
-
-			} else {
-				WARNINGLOG( "midiMap node not found" );
 			}
 
-			m_theme = Theme( colorTheme, interfaceTheme, fontTheme );
+			if ( ! bAlreadyPresent ) {
+				pPref->m_patternCategories.push_back( patternCategoriesElement.text() );
+			}
 
-			// Shortcuts
-			m_pShortcuts = Shortcuts::loadFrom( rootNode, false );
-			
-		} // rootNode
+			patternCategoriesElement = patternCategoriesElement.nextSiblingElement( "categories" );
+		}
+	} else {
+		WARNINGLOG( "<patternCategories> node not found" );
+	}
+
+	/////////////// AUDIO ENGINE //////////////
+	const XMLNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
+	if ( ! audioEngineNode.isNull() ) {
+		const QString sAudioDriver = audioEngineNode.read_string(
+			"audio_driver",
+			Preferences::audioDriverToQString( pPref->m_audioDriver ),
+			false, false, bSilent );
+		pPref->m_audioDriver = parseAudioDriver( sAudioDriver );
+		if ( pPref->m_audioDriver == AudioDriver::None ) {
+			WARNINGLOG( QString( "Parsing of audio driver [%1] failed. Falling back to 'Auto'" )
+						.arg( sAudioDriver ) );
+			pPref->m_audioDriver = AudioDriver::Auto;
+		}
+		pPref->m_bUseMetronome = audioEngineNode.read_bool(
+			"use_metronome", pPref->m_bUseMetronome, false, false, bSilent );
+		pPref->m_fMetronomeVolume = audioEngineNode.read_float(
+			"metronome_volume", pPref->m_fMetronomeVolume, false, false, bSilent );
+		pPref->m_nMaxNotes = audioEngineNode.read_int(
+			"maxNotes", pPref->m_nMaxNotes, false, false, bSilent );
+		pPref->m_nBufferSize = audioEngineNode.read_int(
+			"buffer_size", pPref->m_nBufferSize, false, false, bSilent );
+		pPref->m_nSampleRate = audioEngineNode.read_int(
+			"samplerate", pPref->m_nSampleRate, false, false, bSilent );
+
+		//// OSS DRIVER ////
+		const XMLNode ossDriverNode =
+			audioEngineNode.firstChildElement( "oss_driver" );
+		if ( ! ossDriverNode.isNull()  ) {
+			pPref->m_sOSSDevice = ossDriverNode.read_string(
+				"ossDevice", pPref->m_sOSSDevice, false, false, bSilent );
+		}
 		else {
-			WARNINGLOG( "hydrogen_preferences node not found" );
-			bRecreate = true;
+			WARNINGLOG( "<portaudio_driver> node not found" );
+		}
+
+		//// PORTAUDIO DRIVER ////
+		const XMLNode portAudioDriverNode =
+			audioEngineNode.firstChildElement( "portaudio_driver" );
+		if ( ! portAudioDriverNode.isNull()  ) {
+			pPref->m_sPortAudioDevice = portAudioDriverNode.read_string(
+				"portAudioDevice", pPref->m_sPortAudioDevice, false, true, bSilent );
+			pPref->m_sPortAudioHostAPI = portAudioDriverNode.read_string(
+				"portAudioHostAPI", pPref->m_sPortAudioHostAPI, false, true,
+				bSilent );
+			pPref->m_nLatencyTarget = portAudioDriverNode.read_int(
+				"latencyTarget", pPref->m_nLatencyTarget, false, false, bSilent );
+		}
+		else {
+			WARNINGLOG( "<portaudio_driver> node not found" );
+		}
+
+		//// COREAUDIO DRIVER ////
+		const XMLNode coreAudioDriverNode =
+			audioEngineNode.firstChildElement( "coreaudio_driver" );
+		if ( ! coreAudioDriverNode.isNull()  ) {
+			pPref->m_sCoreAudioDevice = coreAudioDriverNode.read_string(
+				"coreAudioDevice", pPref->m_sCoreAudioDevice, false, true,
+				bSilent );
+		}
+		else {
+			WARNINGLOG( "<coreaudio_driver> node not found" );
+		}
+
+		//// JACK DRIVER ////
+		const XMLNode jackDriverNode =
+			audioEngineNode.firstChildElement( "jack_driver" );
+		if ( ! jackDriverNode.isNull() ) {
+			pPref->m_sJackPortName1 = jackDriverNode.read_string(
+				"jack_port_name_1",
+				pPref->m_sJackPortName1, false, false, bSilent );
+			pPref->m_sJackPortName2 = jackDriverNode.read_string(
+				"jack_port_name_2",
+				pPref->m_sJackPortName2, false, false, bSilent );
+			const QString sMode = jackDriverNode.read_string(
+				"jack_transport_mode", "", false, false, bSilent );
+			if ( sMode == "NO_JACK_TRANSPORT" ) {
+				pPref->m_bJackTransportMode = NO_JACK_TRANSPORT;
+			} else if ( sMode == "USE_JACK_TRANSPORT" ) {
+				pPref->m_bJackTransportMode = USE_JACK_TRANSPORT;
+			}
+
+			pPref->m_bJackTimebaseEnabled = jackDriverNode.read_bool(
+				"jack_timebase_enabled",
+				pPref->m_bJackTimebaseEnabled, false, false, bSilent );
+
+			// Constructor's default value will only be overwritten in case the
+			// parameter is present and well formatted.
+			const QString sJackMasterMode = jackDriverNode.read_string(
+				"jack_transport_mode_master", "", false, false, bSilent );
+			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
+				pPref->m_bJackMasterMode = NO_JACK_TIME_MASTER;
+			}
+			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
+				pPref->m_bJackMasterMode = USE_JACK_TIME_MASTER;
+			}
+			else if ( ! sJackMasterMode.isEmpty() ){
+				WARNINGLOG( QString( "Unable to parse <jack_transport_mode_master>: [%1]" )
+							.arg( sJackMasterMode ) );
+			}
+
+			pPref->m_bJackTrackOuts = jackDriverNode.read_bool(
+				"jack_track_outs", pPref->m_bJackTrackOuts, false, false, bSilent );
+			pPref->m_bJackConnectDefaults = jackDriverNode.read_bool(
+				"jack_connect_defaults",
+				pPref->m_bJackConnectDefaults, false, false, bSilent );
+
+			const int nJackTrackOutputMode = jackDriverNode.read_int(
+				"jack_track_output_mode", -255, false, false, bSilent );
+			if ( nJackTrackOutputMode == 0 ) {
+				pPref->m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+			}
+			else if ( nJackTrackOutputMode == 1 ) {
+				pPref->m_JackTrackOutputMode = JackTrackOutputMode::preFader;
+			}
+			else if ( nJackTrackOutputMode != -255 ) {
+				WARNINGLOG( QString( "Unable to parse <jack_track_output_mode>: [%1]" )
+							.arg( nJackTrackOutputMode ) );
+			}
+		}
+		else {
+			WARNINGLOG( "<jack_driver> node not found" );
+		}
+
+		/// ALSA AUDIO DRIVER ///
+		const XMLNode alsaAudioDriverNode =
+			audioEngineNode.firstChildElement( "alsa_audio_driver" );
+		if ( ! alsaAudioDriverNode.isNull() ) {
+			pPref->m_sAlsaAudioDevice = alsaAudioDriverNode.read_string(
+				"alsa_audio_device",
+				pPref->m_sAlsaAudioDevice, false, false, bSilent );
+		} else {
+			WARNINGLOG( "<alsa_audio_driver> node not found" );
+		}
+
+		/// MIDI DRIVER ///
+		const XMLNode midiDriverNode =
+			audioEngineNode.firstChildElement( "midi_driver" );
+		if ( ! midiDriverNode.isNull() ) {
+			pPref->m_sMidiDriver = midiDriverNode.read_string(
+				"driverName", pPref->m_sMidiDriver, false, false, bSilent );
+			// Ensure compatibility with older versions of the
+			// files after capitalization in the GUI
+			// (2021-02-05). This can be dropped in releases
+			// >= 1.2
+			if ( pPref->m_sMidiDriver == "JackMidi" ) {
+				pPref->m_sMidiDriver = "JACK-MIDI";
+			} else if ( pPref->m_sMidiDriver == "CoreMidi" ) {
+				pPref->m_sMidiDriver = "CoreMIDI";
+			}
+			pPref->m_sMidiPortName = midiDriverNode.read_string(
+				"port_name", pPref->m_sMidiPortName, false, false, bSilent );
+			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
+				"output_port_name",
+				pPref->m_sMidiOutputPortName, false, false, bSilent );
+			pPref->m_nMidiChannelFilter = midiDriverNode.read_int(
+				"channel_filter",
+				pPref->m_nMidiChannelFilter, false, false, bSilent );
+			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
+				"ignore_note_off",
+				pPref->m_bMidiNoteOffIgnore, false, false, bSilent );
+			pPref->m_bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
+				"discard_note_after_action",
+				pPref->m_bMidiDiscardNoteAfterAction, false, false, bSilent );
+			pPref->m_bMidiFixedMapping = midiDriverNode.read_bool(
+				"fixed_mapping",
+				pPref->m_bMidiFixedMapping, false, true, bSilent );
+			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
+				"enable_midi_feedback",
+				pPref->m_bEnableMidiFeedback, false, true, bSilent );
+		}
+		else {
+			WARNINGLOG( "<midi_driver> node not found" );
+		}
+
+		/// OSC ///
+		const XMLNode oscServerNode =
+			audioEngineNode.firstChildElement( "osc_configuration" );
+		if ( ! oscServerNode.isNull() ) {
+			pPref->m_bOscServerEnabled = oscServerNode.read_bool(
+				"oscEnabled", pPref->m_bOscServerEnabled, false, false, bSilent );
+			pPref->m_bOscFeedbackEnabled = oscServerNode.read_bool(
+				"oscFeedbackEnabled",
+				pPref->m_bOscFeedbackEnabled, false, false, bSilent );
+			pPref->m_nOscServerPort = oscServerNode.read_int(
+				"oscServerPort", pPref->m_nOscServerPort, false, false, bSilent );
+		}
+		else {
+			WARNINGLOG( "<osc_configuration> node not found" );
 		}
 	}
 
-	if ( m_nMaxLayers < 16 ) {
-		m_nMaxLayers = 16;
+	/////////////// GUI //////////////
+	XMLNode guiNode = rootNode.firstChildElement( "gui" );
+	if ( ! guiNode.isNull() ) {
+		QString sQTStyle = guiNode.read_string(
+			"QTStyle", interfaceTheme.m_sQTStyle, false, true, bSilent );
+
+		if ( sQTStyle == "Plastique" ){
+			sQTStyle = "Fusion";
+		}
+		interfaceTheme.m_sQTStyle = sQTStyle;
+
+		fontTheme.m_sApplicationFontFamily = guiNode.read_string(
+			"application_font_family",
+			fontTheme.m_sApplicationFontFamily, false, false, bSilent );
+		fontTheme.m_sLevel2FontFamily = guiNode.read_string(
+			"level2_font_family",
+			fontTheme.m_sLevel2FontFamily, false, false, bSilent );
+		fontTheme.m_sLevel3FontFamily = guiNode.read_string(
+			"level3_font_family",
+			fontTheme.m_sLevel3FontFamily, false, false, bSilent );
+		fontTheme.m_fontSize = static_cast<FontTheme::FontSize>(
+			guiNode.read_int(
+				"font_size",
+				static_cast<int>( fontTheme.m_fontSize ), false, false, bSilent ) );
+
+		interfaceTheme.m_fMixerFalloffSpeed = guiNode.read_float(
+			"mixer_falloff_speed",
+			interfaceTheme.m_fMixerFalloffSpeed, false, false, bSilent );
+
+		pPref->m_nPatternEditorGridResolution = guiNode.read_int(
+			"patternEditorGridResolution",
+			pPref->m_nPatternEditorGridResolution, false, false, bSilent );
+		pPref->m_bPatternEditorUsingTriplets = guiNode.read_bool(
+			"patternEditorUsingTriplets",
+			pPref->m_bPatternEditorUsingTriplets, false, false, bSilent );
+				
+		pPref->m_bShowInstrumentPeaks = guiNode.read_bool(
+			"showInstrumentPeaks",
+			pPref->m_bShowInstrumentPeaks, false, false, bSilent );
+		pPref->m_bIsFXTabVisible = guiNode.read_bool(
+			"isFXTabVisible", pPref->m_bIsFXTabVisible, false, false, bSilent );
+		pPref->m_bShowAutomationArea = guiNode.read_bool(
+			"showAutomationArea",
+			pPref->m_bShowAutomationArea, false, false, bSilent );
+		pPref->m_bShowPlaybackTrack = guiNode.read_bool(
+			"showPlaybackTrack",
+			pPref->m_bShowPlaybackTrack, false, false, bSilent );
+
+
+		// pattern editor grid geometry
+		pPref->m_nPatternEditorGridHeight = guiNode.read_int(
+			"patternEditorGridHeight",
+			pPref->m_nPatternEditorGridHeight, false, false, bSilent );
+		pPref->m_nPatternEditorGridWidth = guiNode.read_int(
+			"patternEditorGridWidth",
+			pPref->m_nPatternEditorGridWidth, false, false, bSilent );
+
+		// song editor grid geometry
+		pPref->m_nSongEditorGridHeight = guiNode.read_int(
+			"songEditorGridHeight",
+			pPref->m_nSongEditorGridHeight, false, false, bSilent );
+		pPref->m_nSongEditorGridWidth = guiNode.read_int(
+			"songEditorGridWidth",
+			pPref->m_nSongEditorGridWidth, false, false, bSilent );
+
+		// mainForm window properties
+		pPref->setMainFormProperties(
+			loadWindowPropertiesFrom( guiNode, "mainForm_properties",
+									  pPref->mainFormProperties, bSilent ) );
+		pPref->setMixerProperties(
+			loadWindowPropertiesFrom( guiNode, "mixer_properties",
+									  pPref->mixerProperties, bSilent ) );
+		pPref->setPatternEditorProperties(
+			loadWindowPropertiesFrom( guiNode, "patternEditor_properties",
+									  pPref->patternEditorProperties, bSilent ) );
+		pPref->setSongEditorProperties(
+			loadWindowPropertiesFrom( guiNode, "songEditor_properties",
+									  pPref->songEditorProperties, bSilent ) );
+		pPref->setInstrumentRackProperties(
+			loadWindowPropertiesFrom( guiNode, "instrumentRack_properties",
+									  pPref->instrumentRackProperties, bSilent ) );
+		pPref->setAudioEngineInfoProperties(
+			loadWindowPropertiesFrom( guiNode, "audioEngineInfo_properties",
+									  pPref->audioEngineInfoProperties, bSilent ) );
+		// In order to be backward compatible we still call the XML node
+		// "playlistDialog". For some time we had playlistEditor and
+		// playlistDialog coexisting.
+		pPref->setPlaylistEditorProperties(
+			loadWindowPropertiesFrom( guiNode, "playlistDialog_properties",
+									  pPref->m_playlistEditorProperties, bSilent ) );
+		pPref->setDirectorProperties(
+			loadWindowPropertiesFrom( guiNode, "director_properties",
+									  pPref->m_directorProperties, bSilent ) );
+
+		// last used file dialog folders
+		pPref->m_sLastExportPatternAsDirectory = guiNode.read_string(
+			"lastExportPatternAsDirectory",
+			pPref->m_sLastExportPatternAsDirectory, true, false, bSilent );
+		pPref->m_sLastExportSongDirectory = guiNode.read_string(
+			"lastExportSongDirectory",
+			pPref->m_sLastExportSongDirectory, true, false, bSilent );
+		pPref->m_sLastSaveSongAsDirectory = guiNode.read_string(
+			"lastSaveSongAsDirectory",
+			pPref->m_sLastSaveSongAsDirectory, true, false, bSilent );
+		pPref->m_sLastOpenSongDirectory = guiNode.read_string(
+			"lastOpenSongDirectory",
+			pPref->m_sLastOpenSongDirectory, true, false, bSilent );
+		pPref->m_sLastOpenPatternDirectory = guiNode.read_string(
+			"lastOpenPatternDirectory",
+			pPref->m_sLastOpenPatternDirectory, true, false, bSilent );
+		pPref->m_sLastExportLilypondDirectory = guiNode.read_string(
+			"lastExportLilypondDirectory",
+			pPref->m_sLastExportLilypondDirectory, true, false, bSilent );
+		pPref->m_sLastExportMidiDirectory = guiNode.read_string(
+			"lastExportMidiDirectory",
+			pPref->m_sLastExportMidiDirectory, true, false, bSilent );
+		pPref->m_sLastImportDrumkitDirectory = guiNode.read_string(
+			"lastImportDrumkitDirectory",
+			pPref->m_sLastImportDrumkitDirectory, true, false, bSilent );
+		pPref->m_sLastExportDrumkitDirectory = guiNode.read_string(
+			"lastExportDrumkitDirectory",
+			pPref->m_sLastExportDrumkitDirectory, true, false, bSilent );
+		pPref->m_sLastOpenLayerDirectory = guiNode.read_string(
+			"lastOpenLayerDirectory",
+			pPref->m_sLastOpenLayerDirectory, true, false, bSilent );
+		pPref->m_sLastOpenPlaybackTrackDirectory = guiNode.read_string(
+			"lastOpenPlaybackTrackDirectory",
+			pPref->m_sLastOpenPlaybackTrackDirectory, true, false, bSilent );
+		pPref->m_sLastAddSongToPlaylistDirectory = guiNode.read_string(
+			"lastAddSongToPlaylistDirectory",
+			pPref->m_sLastAddSongToPlaylistDirectory, true, false, bSilent );
+		pPref->m_sLastPlaylistDirectory = guiNode.read_string(
+			"lastPlaylistDirectory",
+			pPref->m_sLastPlaylistDirectory, true, false, bSilent );
+		pPref->m_sLastPlaylistScriptDirectory = guiNode.read_string(
+			"lastPlaylistScriptDirectory",
+			pPref->m_sLastPlaylistScriptDirectory, true, false, bSilent );
+		pPref->m_sLastImportThemeDirectory = guiNode.read_string(
+			"lastImportThemeDirectory",
+			pPref->m_sLastImportThemeDirectory, true, false, bSilent );
+		pPref->m_sLastExportThemeDirectory = guiNode.read_string(
+			"lastExportThemeDirectory",
+			pPref->m_sLastExportThemeDirectory, true, false, bSilent );
+
+		// export dialog properties
+		pPref->m_nExportTemplateIdx = guiNode.read_int(
+			"exportDialogTemplate",
+			pPref->m_nExportTemplateIdx, false, false, bSilent );
+		pPref->m_nExportModeIdx = guiNode.read_int(
+			"exportDialogMode", pPref->m_nExportModeIdx, false, false, bSilent );
+		pPref->m_nExportSampleRateIdx = guiNode.read_int(
+			"exportDialogSampleRate",
+			pPref->m_nExportSampleRateIdx, false, false, bSilent );
+		pPref->m_nExportSampleDepthIdx = guiNode.read_int(
+			"exportDialogSampleDepth",
+			pPref->m_nExportSampleDepthIdx, false, false, bSilent );
+		pPref->m_bShowExportSongLicenseWarning = guiNode.read_bool(
+			"showExportSongLicenseWarning",
+			pPref->m_bShowExportSongLicenseWarning, true, false, bSilent );
+		pPref->m_bShowExportDrumkitLicenseWarning = guiNode.read_bool(
+			"showExportDrumkitLicenseWarning",
+			pPref->m_bShowExportDrumkitLicenseWarning, true, false, bSilent );
+		pPref->m_bShowExportDrumkitCopyleftWarning = guiNode.read_bool(
+			"showExportDrumkitCopyleftWarning",
+			pPref->m_bShowExportDrumkitCopyleftWarning, true, false, bSilent );
+		pPref->m_bShowExportDrumkitAttributionWarning = guiNode.read_bool(
+			"showExportDrumkitAttributionWarning",
+			pPref->m_bShowExportDrumkitAttributionWarning, true, false, bSilent );
+				
+		pPref->m_bFollowPlayhead = guiNode.read_bool(
+			"followPlayhead", pPref->m_bFollowPlayhead, false, false, bSilent );
+
+		// midi export dialog properties
+		pPref->m_nMidiExportMode = guiNode.read_int(
+			"midiExportDialogMode", pPref->m_nMidiExportMode, false, false, bSilent );
+				
+		// beatcounter
+		const QString sUseBeatCounter =
+			guiNode.read_string( "bc", "", false, false, bSilent );
+		if ( sUseBeatCounter == "BC_OFF" ) {
+			pPref->m_bbc = BC_OFF;
+		}
+		else if ( sUseBeatCounter == "BC_ON" ) {
+			pPref->m_bbc = BC_ON;
+		}
+		else if ( ! sUseBeatCounter.isEmpty() ) {
+			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
+						.arg( sUseBeatCounter ) );
+		}
+
+		const QString sBeatCounterSetPlay =
+			guiNode.read_string( "setplay", "", false, false, bSilent );
+		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
+			pPref->m_mmcsetplay = SET_PLAY_OFF;
+		}
+		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
+			pPref->m_mmcsetplay = SET_PLAY_ON;
+		}
+		else if ( ! sBeatCounterSetPlay.isEmpty() ) {
+			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
+						.arg( sBeatCounterSetPlay ) );
+		}
+
+		pPref->m_countOffset = guiNode.read_int(
+			"countoffset", pPref->m_countOffset, false, false, bSilent );
+		pPref->m_startOffset = guiNode.read_int(
+			"playoffset", pPref->m_startOffset, false, false, bSilent );
+
+		// ~ beatcounter
+
+		pPref->m_nAutosavesPerHour = guiNode.read_int(
+			"autosavesPerHour", pPref->m_nAutosavesPerHour, false, false, bSilent );
+				
+		// SoundLibraryPanel expand items
+		pPref->__expandSongItem = guiNode.read_bool(
+			"expandSongItem", pPref->__expandSongItem, false, false, bSilent );
+		pPref->__expandPatternItem = guiNode.read_bool(
+			"expandPatternItem", pPref->__expandPatternItem, false, false, bSilent );
+
+		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
+			const QString sNodeName = QString( "ladspaFX_properties%1" ).arg( nFX );
+			pPref->setLadspaProperties(
+				nFX, loadWindowPropertiesFrom(
+					guiNode, sNodeName, pPref->m_ladspaProperties[ nFX ],
+					bSilent ) );
+		}
+
+		const XMLNode colorThemeNode = guiNode.firstChildElement( "colorTheme" );
+		if ( ! colorThemeNode.isNull() ) {
+			colorTheme = ColorTheme::loadFrom( colorThemeNode, bSilent );
+		}
+		else {
+			WARNINGLOG( "<colorTheme> node not found" );
+		}
+
+		// SongEditor coloring
+		interfaceTheme.m_coloringMethod = static_cast<InterfaceTheme::ColoringMethod>(
+				guiNode.read_int( "SongEditor_ColoringMethod",
+								  static_cast<int>(interfaceTheme.m_coloringMethod),
+								  false, false, bSilent ) );
+		std::vector<QColor> patternColors( InterfaceTheme::nMaxPatternColors );
+		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
+			patternColors[ ii ] = guiNode.read_color(
+				QString( "SongEditor_pattern_color_%1" ).arg( ii ),
+				colorTheme.m_accentColor, false, false, bSilent );
+		}
+		interfaceTheme.m_patternColors = patternColors;
+		interfaceTheme.m_nVisiblePatternColors = std::clamp(
+			guiNode.read_int(
+				"SongEditor_visible_pattern_colors",
+				interfaceTheme.m_nVisiblePatternColors, false, false, bSilent ),
+			0, 50 );
+	}
+	else {
+		WARNINGLOG( "<gui> node not found" );
 	}
 
-	// The preferences file should be recreated?
-	if ( bRecreate && ! bGlobal ) {
-		WARNINGLOG( "Recreating configuration file." );
-		savePreferences();
-		return false;
+	/////////////// FILES //////////////
+	const XMLNode filesNode = rootNode.firstChildElement( "files" );
+	if ( ! filesNode.isNull() ) {
+		pPref->m_lastSongFilename = filesNode.read_string(
+			"lastSongFilename", pPref->m_lastSongFilename, false, true, bSilent );
+		pPref->m_lastPlaylistFilename = filesNode.read_string(
+			"lastPlaylistFilename",
+			pPref->m_lastPlaylistFilename, false, true, bSilent );
+		pPref->m_sDefaultEditor = filesNode.read_string(
+			"defaulteditor", pPref->m_sDefaultEditor, false, true, bSilent );
+	}
+	else {
+		WARNINGLOG( "<files> node not found" );
 	}
 
-	return true;
+	// Midi map
+	MidiMap::reset_instance();
+	MidiMap* mM = MidiMap::get_instance();
+
+	const XMLNode midiEventMapNode = rootNode.firstChildElement( "midiEventMap" );
+	if ( ! midiEventMapNode.isNull() ) {
+		XMLNode eventNode = midiEventMapNode.firstChildElement( "midiEvent" );
+		while ( ! eventNode.isNull() ) {
+			const QString sNodeName = eventNode.firstChildElement().nodeName();
+			if ( sNodeName == "mmcEvent" ) {
+				std::shared_ptr<Action> pAction = std::make_shared<Action>(
+					eventNode.firstChildElement( "action" ).text() );
+				pAction->setParameter1(
+					eventNode.firstChildElement( "parameter" ).text() );
+				pAction->setParameter2(
+					eventNode.firstChildElement( "parameter2" ).text() );
+				pAction->setParameter3(
+					eventNode.firstChildElement( "parameter3" ).text() );
+
+				mM->registerMMCEvent(
+					eventNode.firstChildElement( "mmcEvent" ).text(),
+					pAction );
+			}
+			else if ( sNodeName == "noteEvent" ) {
+				std::shared_ptr<Action> pAction = std::make_shared<Action>(
+					eventNode.firstChildElement( "action" ).text() );
+				pAction->setParameter1(
+					eventNode.firstChildElement( "parameter" ).text() );
+				pAction->setParameter2(
+					eventNode.firstChildElement( "parameter2" ).text() );
+				pAction->setParameter3(
+					eventNode.firstChildElement( "parameter3" ).text() );
+
+				mM->registerNoteEvent(
+					eventNode.firstChildElement( "eventParameter").text().toInt(),
+					pAction );
+			}
+			else if ( sNodeName == "ccEvent" ){
+				std::shared_ptr<Action> pAction = std::make_shared<Action>(
+					eventNode.firstChildElement( "action" ).text() );
+				pAction->setParameter1(
+					eventNode.firstChildElement( "parameter" ).text() );
+				pAction->setParameter2(
+					eventNode.firstChildElement( "parameter2" ).text() );
+				pAction->setParameter3(
+					eventNode.firstChildElement( "parameter3" ).text() );
+				mM->registerCCEvent(
+					eventNode.firstChildElement( "eventParameter" ).text().toInt(),
+					pAction );
+			}
+			else if ( sNodeName == "pcEvent" ){
+				std::shared_ptr<Action> pAction = std::make_shared<Action>(
+					eventNode.firstChildElement( "action" ).text() );
+				pAction->setParameter1(
+					eventNode.firstChildElement( "parameter" ).text() );
+				pAction->setParameter2(
+					eventNode.firstChildElement( "parameter2" ).text() );
+				pAction->setParameter3(
+					eventNode.firstChildElement( "parameter3" ).text() );
+				mM->registerPCEvent( pAction );
+			}
+			else {
+				WARNINGLOG( QString( "Unknown MIDI map node [%1]" )
+							.arg( sNodeName ) );
+			}
+
+			eventNode = eventNode.nextSiblingElement( "midiEvent" );
+		}
+	}
+	else {
+		WARNINGLOG( "<midiMap> node not found" );
+	}
+
+	pPref->m_theme = Theme( colorTheme, interfaceTheme, fontTheme );
+
+	// Shortcuts
+	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, bSilent );
+
+	return pPref;
 }
 
+bool Preferences::saveCopyAs( const QString& sPath, const bool bSilent ) const {
+	return saveTo( sPath, bSilent );
+}
 
+bool Preferences::save( const bool bSilent ) const {
+	return saveTo( Filesystem::usr_config_path(), bSilent );
+}
 
-///
-/// Save the preferences file
-///
-bool Preferences::savePreferences() const
-{
-	QString sPreferencesFilename;
-	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
-	if ( sPreferencesOverwritePath.isEmpty() ) {
-		sPreferencesFilename = Filesystem::usr_config_path();
-	} else {
-		sPreferencesFilename = sPreferencesOverwritePath;
+bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Saving preferences file into [%1]" ).arg( sPath ) );
 	}
-
-	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
 	const auto interfaceTheme = m_theme.m_interface;
 	const auto fontTheme = m_theme.m_font;
@@ -1237,7 +1405,7 @@ bool Preferences::savePreferences() const
 	// Shortcuts
 	m_pShortcuts->saveTo( rootNode );
 
-	return doc.write( sPreferencesFilename );
+	return doc.write( sPath );
 }
 
 Preferences::AudioDriver Preferences::parseAudioDriver( const QString& sDriver ) {
@@ -1458,22 +1626,33 @@ void Preferences::setMostRecentFX( const QString& FX_name )
 }
 
 /// Read the xml nodes related to window properties
-WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent, const QString& windowName, const WindowProperties& defaultProp )
+WindowProperties Preferences::loadWindowPropertiesFrom( const XMLNode& parent,
+														const QString& sWindowName,
+														const WindowProperties& defaultProp,
+														const bool bSilent )
 {
 	WindowProperties prop { defaultProp };
 
-	XMLNode windowPropNode  = parent.firstChildElement( windowName );
-	if ( windowPropNode.isNull() ) {
-		WARNINGLOG( "Error reading configuration file: " + windowName + " node not found" );
-	} else {
-		prop.visible = windowPropNode.read_bool( "visible", true, false, false );
-		prop.x = windowPropNode.read_int( "x", prop.x, false, false );
-		prop.y = windowPropNode.read_int( "y", prop.y, false, false );
-		prop.width = windowPropNode.read_int( "width", prop.width, false, false );
-		prop.height = windowPropNode.read_int( "height", prop.height, false, false );
-		prop.m_geometry = QByteArray::fromBase64( windowPropNode.read_string( "geometry",
-																			  prop.m_geometry.toBase64(), false, true )
-												  .toUtf8() );
+	const XMLNode windowPropNode  = parent.firstChildElement( sWindowName );
+	if ( ! windowPropNode.isNull() ) {
+		prop.visible = windowPropNode.read_bool(
+			"visible", true, false, false, bSilent );
+		prop.x = windowPropNode.read_int(
+			"x", prop.x, false, false, bSilent );
+		prop.y = windowPropNode.read_int(
+			"y", prop.y, false, false, bSilent );
+		prop.width = windowPropNode.read_int(
+			"width", prop.width, false, false, bSilent );
+		prop.height = windowPropNode.read_int(
+			"height", prop.height, false, false, bSilent );
+		prop.m_geometry = QByteArray::fromBase64(
+			windowPropNode.read_string(
+				"geometry",
+				prop.m_geometry.toBase64(), false, true, bSilent ).toUtf8() );
+	}
+	else {
+		WARNINGLOG( QString( "Error reading configuration file <%1> node not found" )
+					.arg( sWindowName ) );
 	}
 
 	return prop;

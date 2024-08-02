@@ -487,10 +487,6 @@ int main(int argc, char *argv[])
 			H2Core::CoreActionController::setDrumkit( parser.getDrumkitToLoad() );
 		}
 
-		// Write the changes in the Preferences to disk to make them
-		// accessible in the PreferencesDialog.
-		pPref->savePreferences();
-
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
@@ -536,7 +532,7 @@ int main(int argc, char *argv[])
 		QString sShutdownCrashContext( "Shutting down Hydrogen" );
 		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
 
-		pPref->savePreferences();
+		pPref->save();
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;

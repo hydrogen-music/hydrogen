@@ -404,11 +404,20 @@ public:
 
 	~Preferences();
 
-	/// Load the preferences file
-	bool			loadPreferences( bool bGlobal );
+		/** Exchange the instance referenced by the current singleton with
+		 * another one. */
+		void replaceInstance( Preferences* pOther );
 
-	/// Save the preferences file
-	bool			savePreferences() const;
+		static Preferences*	load( const QString& sPath, bool bSilent = false );
+		/** Save the config to the user-level config file (or the one specified
+		 * via CLI) */
+		bool			save( const bool bSilent = false) const;
+		/** Instead of a `saveAs` method #Preferences only provides a
+		 * #saveCopyAs() method to indicate that corresponding file won't change
+		 * and will always be the user-level config file. (Which can be altered
+		 * using #Filesystem::m_sPreferencesOverwritePath) */
+		bool			saveCopyAs( const QString& sPath,
+									const bool bSilent = false ) const;
 
 	const QString&	getDataDirectory() const;
 
@@ -645,6 +654,8 @@ private:
 	 */
 	static Preferences *		__instance;
 
+		bool saveTo( const QString& sPath, const bool bSilent ) const;
+
 	Theme		m_theme;
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
 	
@@ -782,7 +793,8 @@ private:
 
 	static WindowProperties loadWindowPropertiesFrom( const XMLNode& parent,
 													  const QString& sWindowName,
-													  const WindowProperties& defaultProp );
+													  const WindowProperties& defaultProp,
+													  const bool bSilent = false );
 	static void saveWindowPropertiesTo( XMLNode& parent, const QString& sWindowName,
 										const WindowProperties& prop );
 

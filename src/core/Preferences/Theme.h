@@ -50,7 +50,8 @@ public:
 	ColorTheme& operator=( ColorTheme&& other ) = default;
 
 	void saveTo( XMLNode& parent ) const;
-	static ColorTheme loadFrom( const XMLNode& parent );
+	static ColorTheme loadFrom( const XMLNode& parent,
+								const bool bSilent = false );
 
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;

@@ -658,19 +658,19 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::on_cancelBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::get_instance();
-	preferencesMng->loadPreferences( false );	// reload old user's preferences
+	auto pPref = CoreActionController::loadPreferences(
+		Filesystem::usr_config_path() );
 
-	//restore the right m_bsetlash value
-	if ( preferencesMng->m_brestartLash == true ){
-		if (preferencesMng->m_bsetLash == false ){
-			preferencesMng->m_bsetLash = true ;
-			preferencesMng->m_brestartLash = false;
-		}
-
+	if ( pPref != nullptr ) {
+		pPref->setTheme( m_previousTheme );
+		CoreActionController::setPreferences( pPref );
 	}
-	
-	H2Core::Preferences::get_instance()->setTheme( m_previousTheme );
+	else {
+		// This happens when opening the preferences dialog during the first
+		// startup. There is no user-level Preferences file yet.
+		Preferences::get_instance()->setTheme( m_previousTheme );
+	}
+
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 
 	reject();
@@ -1106,7 +1106,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//////////////////////////////////////////////////////////////////
 	// Write all changes to disk.
-	pPref->savePreferences();
+	pPref->save();
 	
 	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );
@@ -1753,7 +1753,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 							   tr( "Unable to start audio driver" ) );
 	}
 	
-	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
 	updateDriverInfo();
 }

@@ -28,6 +28,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/PatternList.h>
@@ -722,6 +723,37 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	return true;
 }
 
+Preferences* CoreActionController::loadPreferences( const QString& sPath ) {
+	return Preferences::load( sPath, false );
+}
+
+bool CoreActionController::setPreferences( Preferences* pPreferences ) {
+	if ( pPreferences == nullptr ) {
+		ERRORLOG( "invalid preferences" );
+		return false;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	Preferences::get_instance()->replaceInstance( pPreferences );
+
+	pAudioEngine->getMetronomeInstrument()->set_volume(
+		pPreferences->m_fMetronomeVolume );
+
+	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+		H2Core::EventQueue::get_instance()->push_event(
+			H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
+
+	return true;
+}
+
 bool CoreActionController::savePreferences() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -733,7 +765,7 @@ bool CoreActionController::savePreferences() {
 		return true;
 	}
 	
-	return Preferences::get_instance()->savePreferences();
+	return Preferences::get_instance()->save();
 }
 
 bool CoreActionController::quit() {
@@ -1959,24 +1991,6 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 			 .arg( sMode ).arg( nNote ).arg( nInstrument ) );
 
 	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
-}
-
-bool CoreActionController::updatePreferences() {
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	pAudioEngine->getMetronomeInstrument()->set_volume(
-		pPref->m_fMetronomeVolume );
-
-	// If the GUI is active, we have to update it to reflect the
-	// changes in the preferences.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
-	}
-
-	return true;
 }
 
 void CoreActionController::insertRecentFile( const QString& sFilename ){

@@ -86,7 +86,7 @@ int main(int argc, char** argv){
 
 	// Tell the core that we are done initializing the most basic parts.
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
-	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
@@ -111,11 +111,11 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				pHydrogen->sequencerStop();
 
+				pPref->save();
 				pSong = nullptr;
 				delete pHydrogen;
 				delete H2Core::EventQueue::get_instance();
-				preferences->savePreferences();
-				delete preferences;
+				delete pPref;
 				delete H2Core::Logger::get_instance();
 
 				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;

@@ -1623,7 +1623,7 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
-void MainForm::savePreferences() {
+void MainForm::saveWindowProperties() {
 	// save window properties in the preferences files
 	Preferences *pPreferences = Preferences::get_instance();
 
@@ -1656,7 +1656,7 @@ void MainForm::closeAll(){
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
-	savePreferences();
+	saveWindowProperties();
 	m_pQApp->quit();
 }
 
@@ -2156,29 +2156,28 @@ void MainForm::action_redo(){
 }
 
 void MainForm::updatePreferencesEvent( int nValue ) {
-	
 	if ( nValue == 0 ) {
 		// Write the state of the GUI to the Preferences.
-		savePreferences();
-		Preferences::get_instance()->savePreferences();
-		
-	} else if ( nValue == 1 ) {
+		saveWindowProperties();
+		CoreActionController::savePreferences();
+	}
+	else if ( nValue == 1 ) {
 		
 		// Reflect the changes in the preferences in the objects
 		// stored in MainForm.
-		if( Preferences::get_instance()->__playselectedinstrument ) {
+		if ( Preferences::get_instance()->__playselectedinstrument ) {
 			m_pInstrumentAction->setChecked( true );
-			m_pDrumkitAction->setChecked (false );
-		} else {
+			m_pDrumkitAction->setChecked( false );
+		}
+		else {
 			m_pInstrumentAction->setChecked( false );
-			m_pDrumkitAction->setChecked (true );
+			m_pDrumkitAction->setChecked( true );
 		}
 
 	} else {
 		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )
 				  .arg( nValue ) );
 	}
-	
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){

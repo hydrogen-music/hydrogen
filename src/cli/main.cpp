@@ -341,11 +341,11 @@ int main(int argc, char *argv[])
 			pLogger, sSysDataPath, sConfigFilePath, sLogFile );
 		MidiMap::create_instance();
 		Preferences::create_instance();
-		Preferences* preferences = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 #ifdef H2CORE_HAVE_OSC
-		preferences->setOscServerEnabled( true );
+		pPref->setOscServerEnabled( true );
 		if ( nOscPort != -1 ) {
-			preferences->m_nOscTemporaryPort = nOscPort;
+			pPref->m_nOscTemporaryPort = nOscPort;
 		}
 #endif
 		// See below for Hydrogen.
@@ -369,12 +369,12 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! sSelectedDriver.isEmpty() ) {
-			preferences->m_audioDriver =
+			pPref->m_audioDriver =
 				Preferences::parseAudioDriver( sSelectedDriver );
 		}
 
 #ifdef H2CORE_HAVE_LASH
-		if ( preferences->useLash() && lashClient->isConnected() ) {
+		if ( pPref->useLash() && lashClient->isConnected() ) {
 			lash_event_t* lash_event = lashClient->getNextEvent();
 			if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File) {
 				// notify client that this project was not a new one
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
 			}
 			else {
 				/* Try load last song */
-				const QString sSongPath = preferences->getLastSongFilename();
+				const QString sSongPath = pPref->getLastSongFilename();
 				if ( ! sSongPath.isEmpty() ) {
 					pSong = CoreActionController::loadSong( sSongPath, "" );
 				}
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
 				___INFOLOG( "Starting with empty song" );
 				pSong = Song::getEmptySong();
 
-				// We avoid setting LastSongFilename in the Preferences
+				// We avoid setting LastSongFilename in the PPref
 				pHydrogen->setSong( pSong );
 			}
 			else {
@@ -637,10 +637,10 @@ int main(int argc, char *argv[])
 
 		pSong = nullptr;
 
-		preferences->savePreferences();
+		pPref->save();
 		delete pHydrogen;
 		delete pQueue;
-		delete preferences;
+		delete pPref;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();

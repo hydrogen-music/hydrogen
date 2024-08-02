@@ -186,10 +186,20 @@ void NsmClient::copyPreferences( const char* name ) {
 	if ( newPreferencesFileInfo.exists() ){
 		// If there's already a preference file present from a
 		// previous session, we load it instead of overwriting it.
-		pPref->loadPreferences( false );
-		
-	} else {
-		if ( !preferences.copy( sNewPreferencesPath ) ) {
+		auto pPref =
+			H2Core::CoreActionController::loadPreferences( sNewPreferencesPath );
+		if ( pPref != nullptr ) {
+			H2Core::CoreActionController::setPreferences( pPref );
+
+			NsmClient::printMessage( "Preferences loaded!" );
+		}
+		else {
+			ERRORLOG( QString( "Loading the previous session's config from [%1] failed!" )
+					  .arg( sNewPreferencesPath ) );
+		}
+	}
+	else {
+		if ( ! preferences.copy( sNewPreferencesPath ) ) {
 			NsmClient::printError( QString( "Unable to copy preferences to [%1]" )
 								   .arg( sNewPreferencesPath ) );
 		} else {
@@ -198,10 +208,6 @@ void NsmClient::copyPreferences( const char* name ) {
 			// The copied preferences file is already loaded.
 		}
 	}
-
-	H2Core::CoreActionController::updatePreferences();
-	
-	NsmClient::printMessage( "Preferences loaded!" );
 }
 
 void NsmClient::printError( const QString& msg ) {
