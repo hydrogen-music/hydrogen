@@ -504,9 +504,13 @@ QString Filesystem::sys_config_path()
 {
        return __sys_data_path + SYS_CONFIG;
 }
-const QString& Filesystem::usr_config_path()
+QString Filesystem::usr_config_path()
 {
-       return __usr_cfg_path;
+	if ( ! m_sPreferencesOverwritePath.isEmpty() ) {
+		return m_sPreferencesOverwritePath;
+	} else {
+		return __usr_cfg_path;
+	}
 }
 QString Filesystem::empty_sample_path()
 {

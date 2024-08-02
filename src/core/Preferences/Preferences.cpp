@@ -301,17 +301,11 @@ bool Preferences::loadPreferences( bool bGlobal )
 
 	bool bRecreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesFilename;
-	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
-	if ( sPreferencesOverwritePath.isEmpty() ) {
-			sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
-			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
-	}
-	else {
-		sPreferencesFilename = sPreferencesOverwritePath;
-		INFOLOG( QString( "Loading preferences file [%1]" ).arg( sPreferencesFilename ) );
-	}
-	
+	QString sPreferencesFilename =
+		( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
+	INFOLOG( QString( "Loading preferences file [%1]" )
+			 .arg( sPreferencesFilename ) );
+
 	if ( ! Filesystem::file_readable( sPreferencesFilename, true ) ) {
 		if ( bGlobal ) {
 			ERRORLOG( QString( "Global preferences file [%1] is not readable!" )

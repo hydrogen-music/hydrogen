@@ -111,8 +111,10 @@ namespace H2Core
 
 		/** returns system config path */
 		static QString sys_config_path();
-		/** returns user config path */
-		static const QString& usr_config_path();
+		/** @return user config path. This is either
+		 * $HOME/.hydrogen/hydrogen.conf or the alternative path provided via
+		 * CLI (see #m_sPreferencesOverwritePath) */
+		static QString usr_config_path();
 		/** returns system empty sample file path */
 		static QString empty_sample_path();
 		/**
