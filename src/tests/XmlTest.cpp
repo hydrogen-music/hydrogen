@@ -32,16 +32,17 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Playlist.h>
-#include <core/Hydrogen.h>
-#include <core/License.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Helpers/Xml.h>
+#include <core/License.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QDir>
 #include <QTemporaryDir>
 #include <QTime>
 
-#include <core/Helpers/Filesystem.h>
-#include <core/Helpers/Xml.h>
 #include "TestHelper.h"
 #include "assertions/File.h"
 
@@ -796,6 +797,26 @@ void XmlTest::testSongLegacy() {
 	}
 	___INFOLOG( "passed" );
 }
+
+void XmlTest::testPreferencesFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "preferences/current.conf" );
+	const auto pPreferences = H2Core::Preferences::load( sTestFile );
+	CPPUNIT_ASSERT( pPreferences != nullptr );
+
+	const QString sTmpPreferences =
+		H2Core::Filesystem::tmp_file_path( "current-format-integrity.conf" );
+	CPPUNIT_ASSERT( pPreferences->saveCopyAs( sTmpPreferences ) );
+
+	delete pPreferences;
+
+	H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( sTestFile, sTmpPreferences );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPreferences ) );
+	___INFOLOG( "passed" );
+}
+
 
 void XmlTest::tearDown() {
 

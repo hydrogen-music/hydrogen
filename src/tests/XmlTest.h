@@ -45,6 +45,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSongFormatIntegrity);
 	CPPUNIT_TEST(testSong);
 	CPPUNIT_TEST(testSongLegacy);
+	CPPUNIT_TEST(testPreferencesFormatIntegrity);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -85,6 +86,10 @@ class XmlTest : public CppUnit::TestCase {
 		// This test loads song of various versions and checks whether all
 		// samples could be loaded.
 		void testSongLegacy();
+
+		/** Checks whether the format of our preferences file `hydrogen.conf`
+		 * did change. */
+		void testPreferencesFormatIntegrity();
 };
 
 

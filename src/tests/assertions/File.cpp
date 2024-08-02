@@ -35,8 +35,8 @@ void H2Test::checkFilesEqual( const QString& sExpected, const QString& sActual,
 							  bool bEquality, CppUnit::SourceLine sourceLine ) {
 	QFile f1( sExpected );
 	QFile f2( sActual );
-	checkFileArgs( sExpected, f1, sActual, f2, bEquality, false, sourceLine );
-
+	checkFileArgs( sExpected, f1, sActual, f2, bEquality, FileType::Xml,
+				   sourceLine );
 
 	auto remaining = f1.size();
 	qint64 offset = 0;
@@ -96,11 +96,12 @@ void H2Test::checkFilesEqual( const QString& sExpected, const QString& sActual,
 }
 
 void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActual,
-								 const bool bEquality, const bool bH2Song,
+								 const bool bEquality,
+								 const H2Test::FileType& fileType,
 								 CppUnit::SourceLine sourceLine ) {
 	QFile f1( sExpected );
 	QFile f2( sActual );
-	checkFileArgs( sExpected, f1, sActual, f2, bEquality, bH2Song, sourceLine );
+	checkFileArgs( sExpected, f1, sActual, f2, bEquality, fileType, sourceLine );
 
 	H2Core::XMLDoc docExpected, docActual;
 	if ( ! docExpected.read( sExpected ) ) {
@@ -146,15 +147,24 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				// (changes with every commit) as well as sample and drumkit
 				// paths (so, we do not have to teach Hydrogen to store song
 				// with relative paths just to pass some unit tests).
-				if ( bH2Song && (
+				//
+				// Preferences do only change the version when saving them
+				// straight away.
+				if ( ( fileType == FileType::Song ||
+					   fileType == FileType::Preferences ) && (
+						( expectedLines.at( ii ).contains( "<version>" ) &&
+						  actualLines.at( ii ).contains( "<version>" ) )
+						) ) {
+					continue;
+				}
+
+				if ( fileType == FileType::Song  && (
 						( expectedLines.at( ii ).contains( "<filename>" ) &&
 						  actualLines.at( ii ).contains( "<filename>" ) ) ||
 						( expectedLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) &&
 						  actualLines.at( ii ).contains( "<lastLoadedDrumkitPath>" ) ) ||
 						( expectedLines.at( ii ).contains( "<drumkitPath>" ) &&
-						  actualLines.at( ii ).contains( "<drumkitPath>" ) ) ||
-						( expectedLines.at( ii ).contains( "<version>" ) &&
-						  actualLines.at( ii ).contains( "<version>" ) )
+						  actualLines.at( ii ).contains( "<drumkitPath>" ) )
 						) ) {
 					continue;
 				}
@@ -203,7 +213,8 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 
 void H2Test::checkFileArgs( const QString& sExpected, QFile& f1,
 							const QString& sActual, QFile& f2,
-							const bool bEquality, const bool bH2Song,
+							const bool bEquality,
+							const H2Test::FileType& fileType,
 							CppUnit::SourceLine sourceLine ) {
 
 	if ( ! f1.open( QIODevice::ReadOnly ) ) {
@@ -225,7 +236,7 @@ void H2Test::checkFileArgs( const QString& sExpected, QFile& f1,
 	// We omit the test for file size on Windows since it can/does introduce
 	// additional carriage return and line feed symbols in <info> elements
 	// breaking the unit tests.
-	if ( f1.size() != f2.size() && bEquality && ! bH2Song ) {
+	if ( f1.size() != f2.size() && bEquality && fileType == FileType::Xml ) {
 		CppUnit::Message msg(
 			"File size differ",
 			std::string( "Expected: " ) + sExpected.toStdString(),
