@@ -426,11 +426,6 @@ void XmlTest::testPattern()
 {
 	___INFOLOG( "" );
 
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
-
 	QString sPatternPath =
 		H2Core::Filesystem::tmp_dir() + "pattern.h2pattern";
 
@@ -504,11 +499,6 @@ void XmlTest::testPatternLegacy() {
 void XmlTest::testPatternInstrumentTypes()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	const QString sTmpWithoutTypes =
 		H2Core::Filesystem::tmp_dir() + "pattern-without-types.h2pattern";
@@ -617,11 +607,6 @@ void XmlTest::testDrumkitMap()
 {
 	___INFOLOG( "" );
 
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
-
 	// Test resilience against loading duplicate type and key. They should both
 	// be dropped.
 	const QString sRefFile = H2TEST_FILE( "drumkit_map/ref.h2map" );
@@ -680,11 +665,6 @@ void XmlTest::testPlaylistFormatIntegrity() {
 void XmlTest::testPlaylist()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	const QString sTmpPath = H2Core::Filesystem::tmp_dir() +
 		"playlist.h2playlist";
