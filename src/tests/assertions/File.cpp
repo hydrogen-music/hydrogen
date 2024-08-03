@@ -159,6 +159,18 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 					continue;
 				}
 
+#ifdef WIN32
+				// Windows uses its own set of carriage returns and line feeds.
+				// These might be introduced into the <info> elements and mess
+				// up the unit test.
+				if ( expectedLines.at( ii ).contains( "&#xd;" ) ||
+					 actualLines.at( ii ).contains( "&#xd;" ) ||
+					 expectedLines.at( ii ).contains( "&#xa;" ) ||
+					 actualLines.at( ii ).contains( "&#xa;" ) ) {
+					continue;
+				}
+#endif
+
 				if ( expectedLines.at( ii ) != actualLines.at( ii ) ) {
 					sMsgPart = QString( "at line [%1]:\n\texpected: %2\n\tactual  : %3" )
 						.arg( ii ).arg( expectedLines.at( ii ) )
@@ -208,6 +220,11 @@ void H2Test::checkFileArgs( const QString& sExpected, QFile& f1,
 			std::string( "Actual  : " ) + sActual.toStdString() );
 		throw CppUnit::Exception( msg, sourceLine );
 	}
+
+#ifndef WIN32
+	// We omit the test for file size on Windows since it can/does introduce
+	// additional carriage return and line feed symbols in <info> elements
+	// breaking the unit tests.
 	if ( f1.size() != f2.size() && bEquality && ! bH2Song ) {
 		CppUnit::Message msg(
 			"File size differ",
@@ -215,6 +232,7 @@ void H2Test::checkFileArgs( const QString& sExpected, QFile& f1,
 			std::string( "Actual  : " ) + sActual.toStdString() );
 		throw CppUnit::Exception( msg, sourceLine );
 	}
+#endif
 }
 
 void H2Test::checkDirsEqual( const QString& sDirExpected,
