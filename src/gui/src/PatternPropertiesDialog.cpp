@@ -53,7 +53,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	}
 	categoryComboBox->addItem( category );
 
-	Preferences *pPref = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 
 	std::list<QString>::const_iterator cur_patternCategories;
 	
@@ -99,7 +99,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	pattName = pPatternList->find_unused_pattern_name(pattName, pattern);
 
-	Preferences *pPref = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 	std::list<QString>::const_iterator cur_testpatternCategories;
 
 	bool test = true;

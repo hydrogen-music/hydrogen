@@ -29,7 +29,6 @@
 
 #include <core/config.h>
 #include <core/Version.h>
-#include <core/Preferences/Theme.h>
 #include <getopt.h>
 
 #include "ShotList.h"
@@ -56,6 +55,7 @@
 #include <core/Globals.h>
 #include <core/EventQueue.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Playlist.h>
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 					.arg( QString( QTextCodec::codecForLocale()->name() ) ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
-		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+		auto pPref = H2Core::Preferences::get_instance();
 		pPref->setH2ProcessName( QString(argv[0]) );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
@@ -372,7 +372,6 @@ int main(int argc, char *argv[])
 			// user level could be loaded successfully. Hydrogen was
 			// most probably not installed properly. Abort.
 			delete pQApp;
-			delete pPref;
 
 			delete MidiMap::get_instance();
 
@@ -429,7 +428,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-		if ( H2Core::Preferences::get_instance()->useLash() ){
+		if ( pPref->useLash() ){
 			if (pLashClient->isConnected())
 			{
 				lash_event_t* lash_event = pLashClient->getNextEvent();
@@ -536,7 +535,6 @@ int main(int argc, char *argv[])
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;
-		delete pPref;
 		delete H2Core::EventQueue::get_instance();
 
 		delete MidiMap::get_instance();

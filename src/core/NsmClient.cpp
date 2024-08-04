@@ -257,7 +257,7 @@ void NsmClient::createInitialClient()
 
 	nsm_client_t* pNsm = nullptr;
 
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	QString H2ProcessName = pPref->getH2ProcessName();
 	QByteArray byteArray = H2ProcessName.toLatin1();
 

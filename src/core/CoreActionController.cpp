@@ -319,7 +319,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
@@ -461,7 +461,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -723,11 +723,11 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	return true;
 }
 
-Preferences* CoreActionController::loadPreferences( const QString& sPath ) {
+std::shared_ptr<Preferences> CoreActionController::loadPreferences( const QString& sPath ) {
 	return Preferences::load( sPath, false );
 }
 
-bool CoreActionController::setPreferences( Preferences* pPreferences ) {
+bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPreferences ) {
 	if ( pPreferences == nullptr ) {
 		ERRORLOG( "invalid preferences" );
 		return false;
@@ -1913,7 +1913,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 }
 
 bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();

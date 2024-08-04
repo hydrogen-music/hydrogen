@@ -400,15 +400,15 @@ public:
 	 * Returns a pointer to the current Preferences singleton
 	 * stored in #__instance.
 	 */
-	static Preferences* 	get_instance(){ assert(__instance); return __instance; }
+	static std::shared_ptr<Preferences> get_instance(){ assert(__instance); return __instance; }
 
 	~Preferences();
 
 		/** Exchange the instance referenced by the current singleton with
 		 * another one. */
-		void replaceInstance( Preferences* pOther );
+		void replaceInstance( std::shared_ptr<Preferences> pOther );
 
-		static Preferences*	load( const QString& sPath, bool bSilent = false );
+		static std::shared_ptr<Preferences>	load( const QString& sPath, bool bSilent = false );
 		/** Save the config to the user-level config file (or the one specified
 		 * via CLI) */
 		bool			save( const bool bSilent = false) const;
@@ -652,7 +652,7 @@ private:
 	 * initialized with NULL, set with create_instance(), and
 	 * accessed with get_instance().
 	 */
-	static Preferences *		__instance;
+	static std::shared_ptr<Preferences>		__instance;
 
 		bool saveTo( const QString& sPath, const bool bSilent ) const;
 

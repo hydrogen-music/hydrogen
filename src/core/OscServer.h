@@ -30,6 +30,7 @@
 
 #include <core/Object.h>
 #include <cassert>
+#include <memory>
 
 namespace lo
 {
@@ -115,7 +116,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * H2Core::Preferences::get_instance(), this is an appetizer
 		 * for internal changes happening after the 1.0 release.
 		 */
-		static void create_instance( H2Core::Preferences* pPreferences );
+		static void create_instance( std::shared_ptr<H2Core::Preferences> pPreferences );
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
@@ -904,7 +905,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * H2Core::Preferences::get_instance(), this is an appetizer
 		 * for internal changes happening after the 1.0 release.
 		 */
-		OscServer( H2Core::Preferences* pPreferences );
+		OscServer( std::shared_ptr<H2Core::Preferences> pPreferences );
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
@@ -914,7 +915,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * could be accessed internally using
 		 * H2Core::Preferences::get_instance(), this is an appetizer
 		 * for internal changes happening after the 1.0 release.*/
-		H2Core::Preferences*			m_pPreferences;
+		std::shared_ptr<H2Core::Preferences>			m_pPreferences;
 		/**
 		 * Used to determine whether the callback methods were already
 		 * added to #m_pServerThread.

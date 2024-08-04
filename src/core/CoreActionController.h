@@ -131,11 +131,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/**
 		 * Loads an instance of #H2Core::Preferences from the corresponding XML
 		 * file. */
-		static Preferences* loadPreferences( const QString& sPath );
+		static std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
 		/**
 		 * Replaces the current #H2Core::Preferences singleton with the provided
 		 * instance. */
-		static bool setPreferences( Preferences* pPreferences );
+		static bool setPreferences( std::shared_ptr<Preferences> pPreferences );
 		/**
 		 * Saves the current state of the #H2Core::Preferences. */
 		static bool savePreferences();

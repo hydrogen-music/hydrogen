@@ -129,7 +129,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 		connect( m_pFxRotary[i], SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( knobChanged( WidgetWithInput* ) ) );
 	}
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
@@ -410,7 +410,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	m_pSoloBtn->move( 28, 16 );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
@@ -599,7 +599,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
@@ -836,7 +836,7 @@ InstrumentNameWidget::~InstrumentNameWidget()
 void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	PixmapWidget::paintEvent( ev );
 

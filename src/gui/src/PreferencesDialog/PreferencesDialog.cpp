@@ -169,7 +169,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -682,7 +682,7 @@ void PreferencesDialog::audioDeviceTxtChanged( const QString& )
 }
 
 void PreferencesDialog::updateDriverPreferences() {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
 	bool bAudioOptionAltered = false;
@@ -1131,7 +1131,7 @@ void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 
 void PreferencesDialog::updateDriverInfo()
 {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
@@ -1339,7 +1339,7 @@ void PreferencesDialog::updateDriverInfoLabel() {
 }
 
 void PreferencesDialog::setDriverInfoOss() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Oss );
 	m_pAudioDeviceTxt->setIsActive(true);
@@ -1362,7 +1362,7 @@ void PreferencesDialog::setDriverInfoOss() {
 }
 
 void PreferencesDialog::setDriverInfoAlsa() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Alsa );
 	m_pAudioDeviceTxt->setIsActive(true);
@@ -1385,7 +1385,7 @@ void PreferencesDialog::setDriverInfoAlsa() {
 }
 
 void PreferencesDialog::setDriverInfoJack() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Jack );
 	m_pAudioDeviceTxt->setIsActive(false);
@@ -1412,7 +1412,7 @@ void PreferencesDialog::setDriverInfoJack() {
 }
 
 void PreferencesDialog::setDriverInfoCoreAudio() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::CoreAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
@@ -1435,7 +1435,7 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 }
 
 void PreferencesDialog::setDriverInfoPortAudio() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::PortAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
@@ -1491,7 +1491,7 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 }
 
 void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sApplicationFontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sApplicationFontFamily = font.family();
@@ -1504,7 +1504,7 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sLevel2FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel2FontFamily = font.family();
@@ -1517,7 +1517,7 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sLevel3FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel3FontFamily = font.family();
@@ -1686,7 +1686,7 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 }
 
 void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	
 	if ( nIndex == 0 ) {
 		m_currentTheme.m_interface.m_fMixerFalloffSpeed =
@@ -1741,7 +1741,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	
 	updateDriverPreferences();
-	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->restartDrivers();
 	
@@ -2233,7 +2232,8 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 }
 
 void PreferencesDialog::importTheme() {
-	QString sPath = H2Core::Preferences::get_instance()->getLastImportThemeDirectory();
+	auto pPref = H2Core::Preferences::get_instance();
+	QString sPath = pPref->getLastImportThemeDirectory();
 	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::sys_theme_dir();
 	}
@@ -2255,7 +2255,7 @@ void PreferencesDialog::importTheme() {
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	QString sSelectedPath = fileInfo.absoluteFilePath();
-	H2Core::Preferences::get_instance()->setLastImportThemeDirectory( fd.directory().absolutePath() );
+	pPref->setLastImportThemeDirectory( fd.directory().absolutePath() );
 
 	if ( sSelectedPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme couldn't be found.") );
@@ -2268,7 +2268,7 @@ void PreferencesDialog::importTheme() {
 		return;
 	}
 	m_currentTheme = *pTheme;
-	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
+	pPref->setTheme( m_currentTheme );
 	if ( m_nCurrentId == 0 ) {
 		m_pCurrentColor = nullptr;
 		updateColorTree();
@@ -2292,7 +2292,8 @@ void PreferencesDialog::importTheme() {
 }
 
 void PreferencesDialog::exportTheme() {
-	QString sPath = H2Core::Preferences::get_instance()->getLastExportThemeDirectory();
+	auto pPref = H2Core::Preferences::get_instance();
+	QString sPath = pPref->getLastExportThemeDirectory();
 	if ( ! H2Core::Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::usr_theme_dir();
 	}
@@ -2320,7 +2321,7 @@ void PreferencesDialog::exportTheme() {
 		return;
 	}
 
-	H2Core::Preferences::get_instance()->setLastExportThemeDirectory( fd.directory().absolutePath() );
+	pPref->setLastExportThemeDirectory( fd.directory().absolutePath() );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme exported to " ) +
 													   sSelectedPath );

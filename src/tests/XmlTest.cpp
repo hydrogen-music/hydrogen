@@ -808,8 +808,6 @@ void XmlTest::testPreferencesFormatIntegrity() {
 		H2Core::Filesystem::tmp_file_path( "current-format-integrity.conf" );
 	CPPUNIT_ASSERT( pPreferences->saveCopyAs( sTmpPreferences ) );
 
-	delete pPreferences;
-
 	H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( sTestFile, sTmpPreferences );
 
 	// Cleanup

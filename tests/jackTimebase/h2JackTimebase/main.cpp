@@ -99,7 +99,6 @@ void tearDown() {
 
 	delete pHydrogen;
 	delete EventQueue::get_instance();
-	delete Preferences::get_instance();
 
 	delete MidiMap::get_instance();
 	delete MidiActionManager::get_instance();
@@ -250,25 +249,25 @@ int main(int argc, char *argv[])
 		Filesystem::bootstrap( pLogger );
 		MidiMap::create_instance();
 		Preferences::create_instance();
-		Preferences* preferences = Preferences::get_instance();
-		preferences->setOscServerEnabled( true );
+		auto pPref = Preferences::get_instance();
+		pPref->setOscServerEnabled( true );
 		if ( nOscPort != -1 ) {
-			preferences->m_nOscTemporaryPort = nOscPort;
+			pPref->m_nOscTemporaryPort = nOscPort;
 		}
 		if ( timebaseState == JackAudioDriver::Timebase::Master ) {
-			preferences->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+			pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		} else {
-			preferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+			pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		}
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + Filesystem::sys_data_path() );
 
-		preferences->m_bUseMetronome = false;
-		preferences->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;
-		preferences->m_bJackTransportMode =
+		pPref->m_bUseMetronome = false;
+		pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;
+		pPref->m_bJackTransportMode =
 			H2Core::Preferences::USE_JACK_TRANSPORT;
-		preferences->m_nBufferSize = 1024;
+		pPref->m_nBufferSize = 1024;
 
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();

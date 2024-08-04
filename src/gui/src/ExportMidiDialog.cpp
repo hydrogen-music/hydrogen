@@ -66,7 +66,8 @@ ExportMidiDialog::~ExportMidiDialog()
 
 void ExportMidiDialog::saveSettingsToPreferences()
 {
-	m_pPreferences->setMidiExportMode( exportTypeCombo->currentIndex() );
+	auto pPref = Preferences::get_instance();
+	pPref->setMidiExportMode( exportTypeCombo->currentIndex() );
 	
 	// extracting dirname from export box	
 	QString sFilename = exportNameTxt->text();
@@ -78,7 +79,7 @@ void ExportMidiDialog::saveSettingsToPreferences()
 	}
 	
 	sLastFilename = info.fileName();
-	Preferences::get_instance()->setLastExportMidiDirectory( dir.absolutePath() );
+	pPref->setLastExportMidiDirectory( dir.absolutePath() );
 }
 
 QString ExportMidiDialog::createDefaultFilename()

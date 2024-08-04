@@ -87,7 +87,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 	
-	Preferences* pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SongEditor::onPreferencesChanged );
 	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
@@ -1022,7 +1022,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 		drawSequence();
 	}
 	
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
@@ -1116,7 +1116,7 @@ void SongEditor::leaveEvent( QEvent *ev ) {
 void SongEditor::createBackground()
 {
 	m_bBackgroundInvalid = false;
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 
 	uint nPatterns = pSong->getPatternList()->size();
@@ -1273,7 +1273,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	/*
 	 * The default color of the cubes in rgb is 97,167,251.
 	 */
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
@@ -1420,7 +1420,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	m_nWidth = 200;
 	m_nGridHeight = pPref->getSongEditorGridHeight();
@@ -1644,7 +1644,7 @@ void SongEditorPatternList::inlineEditingFinished()
 
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSongEditor = pHydrogenApp->getSongEditorPanel()->getSongEditor();
 	
@@ -1692,7 +1692,7 @@ void SongEditorPatternList::invalidateBackground()
 
 void SongEditorPatternList::createBackground()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	m_bBackgroundInvalid = false;
 
 	QFont boldTextFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -1907,6 +1907,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 
 void SongEditorPatternList::patternPopup_load()
 {
+	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
@@ -1920,7 +1921,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	Pattern* pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
-	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
+	QString sPath = pPref->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::patterns_dir();
 	}
@@ -1951,7 +1952,7 @@ void SongEditorPatternList::patternPopup_load()
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
-	Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 	SE_loadPatternAction *action =
 		new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath,
@@ -2435,7 +2436,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , m_nColumn( 0 )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -2447,8 +2448,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 
-	int nInitialWidth = SongEditor::nMargin +
-		Preferences::get_instance()->getMaxBars() * m_nGridWidth;
+	int nInitialWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
 	
 	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
 
@@ -2513,7 +2513,7 @@ void SongEditorPositionRuler::invalidateBackground() {
 
 void SongEditorPositionRuler::createBackground()
 {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pTimeline = pHydrogen->getTimeline();
@@ -2700,7 +2700,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		mousePressEvent( ev );
 	} else if ( ev->buttons() & Qt::RightButton ) {
 		// Right-click+drag
-		Preferences* pPref = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 		
 		if ( nColumn > (int)Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size() ) {
 			pPref->setPunchOutPos(-1);
@@ -2836,7 +2836,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		showTagWidget( nColumn );
 	}
 	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
-		Preferences* pPref = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 		if ( nColumn >= (int) m_pHydrogen->getSong()->getPatternGroupVector()->size() ) {
 			pPref->unsetPunchArea();
 			return;
@@ -2868,7 +2868,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSongEditor = pHydrogenApp->getSongEditorPanel()->getSongEditor();
 	auto pTimeline = m_pHydrogen->getTimeline();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
+	const auto theme = pPref->getTheme();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
 	if ( m_bBackgroundInvalid ) {
@@ -2879,20 +2880,20 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 	
-	QColor textColor( pPref->getTheme().m_color.m_songEditor_textColor );
+	QColor textColor( theme.m_color.m_songEditor_textColor );
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
-	QColor highlightColor = pPref->getTheme().m_color.m_highlightColor;
+	QColor highlightColor = theme.m_color.m_highlightColor;
 	QColor colorHovered( highlightColor );
 	colorHovered.setAlpha( 200 );
-	QColor backgroundColor = pPref->getTheme().m_color.m_songEditor_alternateRowColor.darker( 115 );
+	QColor backgroundColor = theme.m_color.m_songEditor_alternateRowColor.darker( 115 );
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
-	int nPunchInPos = Preferences::get_instance()->getPunchInPos();
-	int nPunchOutPos = Preferences::get_instance()->getPunchOutPos();
+	int nPunchInPos = pPref->getPunchInPos();
+	int nPunchOutPos = pPref->getPunchOutPos();
 
 	QPainter painter(this);
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
 		createBackground();
@@ -2981,11 +2982,11 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 	
-		QFont font2( pPref->getTheme().m_font.m_sApplicationFontFamily, 5 );
+		QFont font2( theme.m_font.m_sApplicationFontFamily, 5 );
 		painter.setFont( font2 );
 		
-		painter.fillRect( rect, pPref->getTheme().m_color.m_highlightColor );
-		painter.setPen( pPref->getTheme().m_color.m_highlightedTextColor );
+		painter.fillRect( rect, theme.m_color.m_highlightColor );
+		painter.setPen( theme.m_color.m_highlightedTextColor );
 		painter.drawText( rect, Qt::AlignCenter, "T");
 
 		painter.setFont( font );
@@ -3080,7 +3081,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if ( ! pHydrogenApp->hideKeyboardCursor() && pSongEditor->hasFocus() ) {
 		int nCursorX = columnToX( pSongEditor->getCursorColumn() ) + 2;
 
-		QColor cursorColor = pPref->getTheme().m_color.m_cursorColor;
+		QColor cursorColor = theme.m_color.m_cursorColor;
 
 		QPen p( cursorColor );
 		p.setWidth( 2 );
@@ -3130,7 +3131,7 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 	assert( pTempoMarker );
 
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto weight = QFont::Normal;
 	if ( bEmphasize ) {
 		weight = QFont::Bold;
@@ -3163,7 +3164,7 @@ QRect SongEditorPositionRuler::calcTempoMarkerRect( std::shared_ptr<const Timeli
 void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::TempoMarker> pTempoMarker, bool bEmphasize, QPainter& painter ) {
 	assert( pTempoMarker );
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pTimeline = pHydrogen->getTimeline();

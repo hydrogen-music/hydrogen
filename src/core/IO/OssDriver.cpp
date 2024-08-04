@@ -115,11 +115,11 @@ int OssDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	Preferences *preferencesMng = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	// initialize OSS
 	int bits = 16;
-	int speed = preferencesMng->m_nSampleRate;
+	int speed = pPref->m_nSampleRate;
 	int stereo = 1;
 	int bs;
 
@@ -127,7 +127,7 @@ int OssDriver::connect()
 #ifdef __NetBSD__
 	audioDevice = "/dev/audio";
 #else
-	audioDevice = preferencesMng->m_sOSSDevice;
+	audioDevice = pPref->m_sOSSDevice;
 #endif
 
 	// Non blocking OSS open code stolen from GLAME
@@ -274,8 +274,7 @@ unsigned OssDriver::getBufferSize()
 
 unsigned OssDriver::getSampleRate()
 {
-	Preferences *preferencesMng = Preferences::get_instance();
-	return preferencesMng->m_nSampleRate;
+	return Preferences::get_instance()->m_nSampleRate;
 }
 
 

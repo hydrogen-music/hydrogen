@@ -50,7 +50,7 @@
 namespace H2Core
 {
 
-Preferences* Preferences::__instance = nullptr;
+std::shared_ptr<Preferences> Preferences::__instance = nullptr;
 
 void Preferences::create_instance()
 {
@@ -75,7 +75,7 @@ void Preferences::create_instance()
 				ERRORLOG( QString( "Couldn't load config file from neither [%1] nor [%2]." )
 						 .arg( Filesystem::usr_config_path() )
 						 .arg( Filesystem::sys_config_path() ) );
-				__instance = new Preferences;
+				__instance = std::shared_ptr<Preferences>(new Preferences());
 				__instance->m_bLoadingSuccessful = false;
 			}
 
@@ -86,7 +86,7 @@ void Preferences::create_instance()
 	}
 }
 
-void Preferences::replaceInstance( Preferences* pOther ) {
+void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther ) {
 	__instance = pOther;
 }
 
@@ -299,7 +299,7 @@ Preferences::~Preferences()
 	__instance = nullptr;
 }
 
-Preferences* Preferences::load( const QString& sPath, const bool bSilent ) {
+std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool bSilent ) {
 	if ( ! Filesystem::file_readable( sPath, bSilent ) ) {
 		return nullptr;
 	}
@@ -317,7 +317,7 @@ Preferences* Preferences::load( const QString& sPath, const bool bSilent ) {
 		INFOLOG( QString( "Loading preferences from [%1]" ).arg( sPath ) );
 	}
 
-	Preferences* pPref = new Preferences;
+	auto pPref = std::shared_ptr<Preferences>(new Preferences());
 
 	//////// GENERAL ///////////
 	auto interfaceTheme = InterfaceTheme();

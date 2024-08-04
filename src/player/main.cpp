@@ -115,7 +115,6 @@ int main(int argc, char** argv){
 				pSong = nullptr;
 				delete pHydrogen;
 				delete H2Core::EventQueue::get_instance();
-				delete pPref;
 				delete H2Core::Logger::get_instance();
 
 				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;

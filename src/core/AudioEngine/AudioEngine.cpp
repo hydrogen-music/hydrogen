@@ -873,7 +873,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	AE_INFOLOG( QString( "Creating driver [%1]" )
 				.arg( Preferences::audioDriverToQString( driver ) ) );
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	AudioOutput *pAudioDriver = nullptr;
@@ -991,7 +991,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 void AudioEngine::startAudioDrivers()
 {
 	AE_INFOLOG("");
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	if ( getState() != State::Initialized ) {
 		AE_ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )

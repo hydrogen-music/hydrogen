@@ -356,7 +356,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
@@ -966,7 +966,7 @@ void Hydrogen::setBcOffsetAdjust()
 {
 	//individual fine tuning for the m_nBeatCounter
 	//to adjust  ms_offset from different people and controller
-	Preferences *pPreferences = Preferences::get_instance();
+	const auto pPreferences = Preferences::get_instance();
 
 	m_nCountOffset = pPreferences->m_countOffset;
 	m_nStartOffset = pPreferences->m_startOffset;

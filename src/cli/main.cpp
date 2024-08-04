@@ -640,7 +640,6 @@ int main(int argc, char *argv[])
 		pPref->save();
 		delete pHydrogen;
 		delete pQueue;
-		delete pPref;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();

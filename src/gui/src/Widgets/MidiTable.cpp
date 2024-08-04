@@ -28,7 +28,6 @@
 
 #include <core/MidiMap.h>
 #include <core/IO/MidiCommon.h>
-#include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/InstrumentComponent.h>

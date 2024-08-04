@@ -59,7 +59,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : PatternEditor( parent, panel )
 {
 	m_editor = PatternEditor::Editor::DrumPattern;
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_nGridHeight = pPref->getPatternEditorGridHeight();
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
@@ -1061,7 +1061,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	auto  pInstrList = pSong->getDrumkit()->getInstruments();
@@ -1175,7 +1175,7 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 
 void DrumPatternEditor::drawBackground( QPainter& p)
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	const QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
@@ -1288,7 +1288,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		return;
 	}
 	
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
@@ -1337,7 +1337,7 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	QColor color = pPref->getTheme().m_color.m_highlightColor;
 

@@ -1261,7 +1261,7 @@ void JackAudioDriver::initTimebaseMaster()
 		return;
 	}
 
-	Preferences* pPreferences = Preferences::get_instance();
+	auto pPreferences = Preferences::get_instance();
 	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
 		// Defined in jack/transport.h
 		// Register as timebase master for the JACK

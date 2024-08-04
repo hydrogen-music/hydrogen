@@ -24,6 +24,7 @@
 #ifndef EXPORT_MIDI_DIALOG_H
 #define EXPORT_MIDI_DIALOG_H
 
+#include <memory>
 
 #include "ui_ExportMidiDialog_UI.h"
 #include <core/Object.h>
@@ -60,7 +61,7 @@ class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public
 		bool	 	validateUserInput();
 		
 		H2Core::Hydrogen* 		m_pHydrogen;
-		H2Core::Preferences* 	m_pPreferences;
+		std::shared_ptr<H2Core::Preferences> 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;
 		

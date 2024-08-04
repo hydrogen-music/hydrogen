@@ -352,7 +352,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( false )
+OscServer::OscServer( std::shared_ptr<H2Core::Preferences> pPreferences ) : m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -402,7 +402,7 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance( H2Core::Preferences* pPreferences )
+void OscServer::create_instance( std::shared_ptr<H2Core::Preferences> pPreferences )
 {
 	if( __instance == nullptr ) {
 		__instance = new OscServer( pPreferences );
@@ -1091,9 +1091,7 @@ void OscServer::broadcastMessage( const char* msgText, const lo_message& message
 
 void OscServer::handleAction( std::shared_ptr<Action> pAction )
 {
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-	
-	if( !pPref->getOscFeedbackEnabled() ){
+	if ( ! H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		return;
 	}
 	

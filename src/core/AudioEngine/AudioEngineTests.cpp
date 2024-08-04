@@ -103,7 +103,7 @@ void AudioEngineTests::testFrameToTickConversion() {
 void AudioEngineTests::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	auto pQueuingPos = pAE->m_pQueuingPosition;
@@ -436,7 +436,7 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 void AudioEngineTests::testLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	
@@ -645,7 +645,7 @@ int AudioEngineTests::processTransport( const QString& sContext,
 void AudioEngineTests::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 
@@ -754,7 +754,7 @@ void AudioEngineTests::testSongSizeChange() {
 void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pTransportPos = pAE->getTransportPosition();
 	
@@ -842,7 +842,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 void AudioEngineTests::testNoteEnqueuing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getTransportPosition();
@@ -1135,7 +1135,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
@@ -1236,7 +1236,7 @@ void AudioEngineTests::testHumanization() {
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
 	auto pTransportPos = pAE->getTransportPosition();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	CoreActionController::activateLoopMode( false );
 	CoreActionController::activateSongMode( true );
@@ -1978,7 +1978,7 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	auto pSong = pHydrogen->getSong();
 	auto pAE = pHydrogen->getAudioEngine();
 	auto pSampler = pAE->getSampler();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	// Larger number to account for both small buffer sizes and long
 	// samples.
@@ -2074,7 +2074,6 @@ void AudioEngineTests::testUpdateTransportPosition() {
 void AudioEngineTests::testTransportProcessingJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	auto pPref = Preferences::get_instance();
 	auto pAE = pHydrogen->getAudioEngine();
 
 	// Check whether all frames are covered when running playback in song mode
@@ -2403,7 +2402,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	if ( pAudioEngine->getState() == AudioEngine::State::Testing ) {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );

@@ -103,7 +103,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 
 	updateWindowTitle();
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	setupSinglePanedInterface();
 
@@ -241,7 +241,7 @@ HydrogenApp::~HydrogenApp()
 
 void HydrogenApp::setupSinglePanedInterface()
 {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	InterfaceTheme::Layout layout = pPref->getTheme().m_interface.m_layout;
 
 	// MAINFORM
@@ -367,7 +367,7 @@ void HydrogenApp::setupSinglePanedInterface()
 #endif
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
-		m_pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
+		m_pTab->setCurrentIndex( pPref->getLastOpenTab() );
 		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
 }
@@ -1143,9 +1143,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// these changes in the GUI - its format, colors, fonts,
 		// selections etc.
 		// But we won't change the layout!
-		Preferences *pPref = Preferences::get_instance();
-		auto layout = Preferences::get_instance()->
-			getTheme().m_interface.m_layout;
+		const auto pPref = Preferences::get_instance();
+		auto layout = pPref->getTheme().m_interface.m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, SetWidth + SetHeight );
@@ -1265,7 +1264,7 @@ void HydrogenApp::propagatePreferences() {
 
 bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit ) {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( ! pPref->m_bShowExportDrumkitLicenseWarning &&
 		 ! pPref->m_bShowExportDrumkitCopyleftWarning &&

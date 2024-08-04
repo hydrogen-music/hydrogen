@@ -81,6 +81,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pPref = Preferences::get_instance();
 
 	auto addDrumkitActions = [&]( QMenu* pMenu, bool bWritable) {
 		pMenu->addAction( pCommonStrings->getMenuActionLoad(), this,
@@ -151,8 +152,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 	this->setLayout( pVBox );
 
-	__expand_pattern_list = Preferences::get_instance()->__expandPatternItem;
-	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
+	__expand_pattern_list = pPref->__expandPatternItem;
+	__expand_songs_list = pPref->__expandSongItem;
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
@@ -174,17 +175,17 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateTree()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont boldFont( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
-	QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont childFont( theme.m_font.m_sLevel2FontFamily, getPointSize( theme.m_font.m_fontSize ) );
 	setFont( childFont );
 	
 	m_pTreeSystemDrumkitsItem = nullptr;
@@ -815,6 +816,9 @@ void SoundLibraryPanel::soundLibraryChangedEvent() {
 void SoundLibraryPanel::test_expandedItems()
 {
 	assert( __sound_library_tree );
+
+	auto pPref = Preferences::get_instance();
+
 	if ( __song_item == nullptr) {
 		__expand_songs_list = false;
 	} else {
@@ -825,18 +829,18 @@ void SoundLibraryPanel::test_expandedItems()
 	} else {
 		__expand_pattern_list = __pattern_item->isExpanded();
 	}
-	Preferences::get_instance()->__expandSongItem = __expand_songs_list;
-	Preferences::get_instance()->__expandPatternItem = __expand_pattern_list;
+	pPref->__expandSongItem = __expand_songs_list;
+	pPref->__expandPatternItem = __expand_pattern_list;
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
 
 void SoundLibraryPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		QFont font( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont font( theme.m_font.m_sLevel2FontFamily, getPointSize( theme.m_font.m_fontSize ) );
+		QFont boldFont( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

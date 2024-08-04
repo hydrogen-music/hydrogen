@@ -109,7 +109,7 @@ SoundLibraryOnlineImportDialog::~SoundLibraryOnlineImportDialog()
 //update combo box
 void SoundLibraryOnlineImportDialog::updateRepositoryCombo()
 {
-	H2Core::Preferences* pPref = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 
 	/*
 		Read serverList from config and put servers into the comboBox
