@@ -253,6 +253,15 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 
 void XmlTest::testDrumkitUpgrade() {
 	___INFOLOG( "" );
+
+	// `CoreActionController::validateDrumkit()` will be called on invalid kits
+	// in this unit test. This will cause the routine to _not_ clean up
+	// extracted artifacts. We have to do ourselves. Else they will pile up in
+	// the tmp folder.
+	QDir tmpDir( H2Core::Filesystem::tmp_dir() );
+	const auto tmpDirContentPre = tmpDir.entryList(
+		QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files );
+
 	// For all drumkits in the legacy folder, check whether there are
 	// invalid. Then, we upgrade them to the most recent version and
 	// check whether there are valid and if a second upgrade is yields
@@ -399,6 +408,17 @@ void XmlTest::testDrumkitUpgrade() {
 		H2Core::Filesystem::rm( firstUpgrade.path(), true, true );
 		H2Core::Filesystem::rm( secondUpgrade.path(), true, true );
 	}
+
+	// Check whether there is new content in the tmp dir.
+	const auto tmpDirContentPost = tmpDir.entryList(
+		QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files );
+
+	for ( const auto& ssEntry : tmpDirContentPost ) {
+		if ( ! tmpDirContentPre.contains( ssEntry ) ) {
+			H2Core::Filesystem::rm( tmpDir.filePath( ssEntry ), true, true );
+		}
+	}
+
 	___INFOLOG( "passed" );
 }
 
