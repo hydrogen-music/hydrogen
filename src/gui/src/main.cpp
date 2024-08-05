@@ -49,7 +49,6 @@
 #include <stdio.h>
 #endif
 
-#include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
@@ -241,7 +240,6 @@ int main(int argc, char *argv[])
 		H2Core::Filesystem::bootstrap(
 			pLogger, parser.getSysDataPath(), parser.getConfigFilePath(),
 			parser.getLogFile() );
-		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
 
@@ -372,8 +370,6 @@ int main(int argc, char *argv[])
 			// user level could be loaded successfully. Hydrogen was
 			// most probably not installed properly. Abort.
 			delete pQApp;
-
-			delete MidiMap::get_instance();
 
 			___ERRORLOG( "No preferences file found. Aborting..." );
 			delete H2Core::Logger::get_instance();
@@ -537,7 +533,6 @@ int main(int argc, char *argv[])
 		delete pQApp;
 		delete H2Core::EventQueue::get_instance();
 
-		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );

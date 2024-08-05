@@ -29,15 +29,15 @@
 #include "../Widgets/ColorSelectionButton.h"
 #include "../Widgets/LCDCombo.h"
 
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/IO/OssDriver.h>
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/PulseAudioDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
-#include <core/IO/JackAudioDriver.h>
-#include <core/IO/OssDriver.h>
-#include <core/IO/AlsaAudioDriver.h>
-#include <core/IO/PortAudioDriver.h>
-#include <core/IO/CoreAudioDriver.h>
-#include <core/IO/PulseAudioDriver.h>
 
 #include <QtWidgets>
 #include <QColorDialog>

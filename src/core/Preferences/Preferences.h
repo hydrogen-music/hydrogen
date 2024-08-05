@@ -42,6 +42,7 @@
 namespace H2Core
 {
 
+class MidiMap;
 
 /**
 \ingroup H2CORE
@@ -640,6 +641,8 @@ public:
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
+	const std::shared_ptr<MidiMap> getMidiMap() const;
+	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
 
 	bool getLoadingSuccessful() const;
 	
@@ -655,6 +658,7 @@ private:
 
 	Theme		m_theme;
 	std::shared_ptr<Shortcuts>  m_pShortcuts;
+	std::shared_ptr<MidiMap> m_pMidiMap;
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
@@ -1340,6 +1344,12 @@ inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
 }
 inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
 	m_pShortcuts = pShortcuts;
+}
+inline const std::shared_ptr<MidiMap> Preferences::getMidiMap() const {
+	return m_pMidiMap;
+}
+inline void Preferences::setMidiMap( const std::shared_ptr<MidiMap> pMidiMap ) {
+	m_pMidiMap = pMidiMap;
 }
 inline bool Preferences::getLoadingSuccessful() const {
 	return m_bLoadingSuccessful;

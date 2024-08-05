@@ -37,7 +37,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/MidiMap.h>
 
 using std::cout;
 using std::endl;
@@ -79,7 +78,6 @@ int main(int argc, char** argv){
 
 	QString filename = argv[1];
 
-	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();

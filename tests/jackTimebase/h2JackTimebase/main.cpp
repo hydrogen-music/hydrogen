@@ -44,7 +44,6 @@
 #endif
 
 #include <core/Basics/Song.h>
-#include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Hydrogen.h>
@@ -100,7 +99,6 @@ void tearDown() {
 	delete pHydrogen;
 	delete EventQueue::get_instance();
 
-	delete MidiMap::get_instance();
 	delete MidiActionManager::get_instance();
 
 	___INFOLOG( "Quitting..." );
@@ -247,7 +245,6 @@ int main(int argc, char *argv[])
 											sLogFile, true, true );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( pLogger );
-		MidiMap::create_instance();
 		Preferences::create_instance();
 		auto pPref = Preferences::get_instance();
 		pPref->setOscServerEnabled( true );

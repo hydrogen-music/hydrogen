@@ -23,36 +23,34 @@
 #include <cstring>
 
 #include "PreferencesDialog.h"
+
+#include <QMessageBox>
+#include <QStyleFactory>
+#include <QPixmap>
+#include <QFontDatabase>
+#include <QTreeWidgetItemIterator>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Translations.h>
+#include <core/Hydrogen.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/PortAudioDriver.h>
+#include <core/Lash/LashClient.h>
+#include <core/Sampler/Sampler.h>
+
+#include "../SongEditor/SongEditor.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../CommonStrings.h"
 
-#include "qmessagebox.h"
-#include "qstylefactory.h"
-
-#include <QPixmap>
-#include <QFontDatabase>
-#include <QTreeWidgetItemIterator>
-#include "../Widgets/MidiTable.h"
-#include "../Widgets/ShortcutCaptureDialog.h"
-
-#include <core/EventQueue.h>
-#include <core/MidiMap.h>
-#include <core/Hydrogen.h>
-#include <core/IO/MidiInput.h>
-#include <core/Lash/LashClient.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Helpers/Translations.h>
-#include <core/Sampler/Sampler.h>
-#include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/FileDialog.h"
-
-#include <core/IO/PortAudioDriver.h>
-#include <core/IO/CoreAudioDriver.h>
-#include <core/IO/AlsaAudioDriver.h>
-
+#include "../Widgets/MidiTable.h"
+#include "../Widgets/ShortcutCaptureDialog.h"
 
 using namespace H2Core;
 
@@ -900,12 +898,8 @@ void PreferencesDialog::on_okBtn_clicked()
 	// MIDI tab
 	//////////////////////////////////////////////////////////////////
 	bool bMidiOptionAltered = false;
-
-	MidiMap *mM = MidiMap::get_instance();
-	mM->reset_instance();
-
-	midiTable->saveMidiTable();
 	if ( m_bMidiTableChanged ) {
+		midiTable->saveMidiTable();
 		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
 	}
 

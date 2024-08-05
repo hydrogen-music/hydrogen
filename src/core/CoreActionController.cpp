@@ -278,7 +278,7 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
@@ -305,7 +305,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
@@ -332,7 +332,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("TOGGLE_METRONOME"));
 	
@@ -360,8 +360,8 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	}
 #endif
 
-	MidiMap*	pMidiMap = MidiMap::get_instance();
-	
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MUTE_TOGGLE") );
 
 	return handleOutgoingControlChanges( ccParamValues,
@@ -386,7 +386,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_MUTE_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
@@ -416,7 +416,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_SOLO_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
 	
@@ -445,7 +445,7 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 		}
 #endif
 	
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
 

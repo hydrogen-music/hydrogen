@@ -53,7 +53,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-#include <core/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
 #include <core/Version.h>
@@ -339,7 +338,6 @@ int main(int argc, char *argv[])
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		H2Core::Filesystem::bootstrap(
 			pLogger, sSysDataPath, sConfigFilePath, sLogFile );
-		MidiMap::create_instance();
 		Preferences::create_instance();
 		auto pPref = Preferences::get_instance();
 #ifdef H2CORE_HAVE_OSC
@@ -641,7 +639,6 @@ int main(int argc, char *argv[])
 		delete pHydrogen;
 		delete pQueue;
 
-		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
