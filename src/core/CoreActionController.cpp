@@ -1927,7 +1927,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	QString sMode;
 
-	if ( pPref->__playselectedinstrument ){
+	if ( pPref->m_bPlaySelectedInstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
 		pInstrument = pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {

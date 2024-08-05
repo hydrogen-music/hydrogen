@@ -102,7 +102,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 	m_pSampleWaveDisplay->move( 3, 3 );
 
-	playSamplescheckBox->setChecked( Preferences::get_instance()->__playsamplesonclicking );
+	playSamplescheckBox->setChecked( Preferences::get_instance()->m_bPlaySamplesOnClicking );
 	//get the kde or gnome environment variable for mouse double or single clicking
 	m_SingleClick = false;
 	getEnvironment();
@@ -403,7 +403,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
-	Preferences::get_instance()->__playsamplesonclicking = playSamplescheckBox->isChecked();
+	Preferences::get_instance()->m_bPlaySamplesOnClicking = playSamplescheckBox->isChecked();
 }
 
 

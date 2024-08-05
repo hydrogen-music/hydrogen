@@ -606,7 +606,7 @@ bool Sample::exec_rubberband_cli( float fBpm )
 	}
 	
 	//set the path to rubberband-cli
-	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+	QString program = Preferences::get_instance()->m_sRubberBandCLIexecutable;
 	//test the path. if test fails return NULL
 	if ( QFile( program ).exists() == false && __rubberband.use ) {
 		ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );

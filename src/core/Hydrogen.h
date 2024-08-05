@@ -515,7 +515,7 @@ private:
 	 * Instrument currently focused/selected in the GUI. 
 	 *
 	 * Within the core it is relevant for the MIDI input. Using
-	 * Preferences::__playselectedinstrument incoming MIDI signals can be
+	 * Preferences::m_bPlaySelectedInstrument incoming MIDI signals can be
 	 * used to play back only the selected instrument or the whole
 	 * drumkit.
 	 */

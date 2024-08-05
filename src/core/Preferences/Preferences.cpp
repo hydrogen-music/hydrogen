@@ -95,11 +95,11 @@ Preferences::Preferences()
 	m_pShortcuts = std::make_shared<Shortcuts>();
 
 	// switch to enable / disable lash, only on h2 startup
-	m_brestartLash = false;
-	m_bsetLash = false;
+	m_bRestartLash = false;
+	m_bSetLash = false;
 
 	//rubberband bpm change queue
-	m_useTheRubberbandBpmChangeEvent = false;
+	m_bUseTheRubberbandBpmChangeEvent = false;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as separator. maybe windows and osx use other separators
@@ -107,28 +107,28 @@ Preferences::Preferences()
 	//find the Rubberband-CLI in system env
 	//if this fails a second test will check individual user settings
 	for(int i = 0; i < rubberBandCLIPathList.size(); ++i){
-		m_rubberBandCLIexecutable = rubberBandCLIPathList[i] + "/rubberband";
-		if ( QFile( m_rubberBandCLIexecutable ).exists() == true ){
-			readPrefFileforotherplaces = false;
+		m_sRubberBandCLIexecutable = rubberBandCLIPathList[i] + "/rubberband";
+		if ( QFile( m_sRubberBandCLIexecutable ).exists() == true ){
+			m_bSearchForRubberbandOnLoad = false;
 			break;
 		}
 		else {
-			m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
-			readPrefFileforotherplaces = true;
+			m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
+			m_bSearchForRubberbandOnLoad = true;
 		}
 	}
 
 	m_sPreferredLanguage = QString();
-	__playsamplesonclicking = false; // audio file browser
-	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
+	m_bPlaySamplesOnClicking = false; // audio file browser
+	m_bPlaySelectedInstrument = false; // midi keyboard and keyboard play only selected instrument
 
-	recordEvents = false; // not recording by default
-	punchInPos = 0;
-	punchOutPos = -1;
+	m_bRecordEvents = false; // not recording by default
+	m_nPunchInPos = 0;
+	m_nPunchOutPos = -1;
 
-	__expandSongItem = true; //SoundLibraryPanel
-	__expandPatternItem = true; //SoundLibraryPanel
-	__useTimelineBpm = false;		// use timeline
+	m_bExpandSongItem = true; //SoundLibraryPanel
+	m_bExpandPatternItem = true; //SoundLibraryPanel
+	m_bUseTimelineBpm = false;		// use timeline
 	
 	m_sLastExportPatternAsDirectory = QDir::homePath();
 	m_sLastExportSongDirectory = QDir::homePath();
@@ -161,13 +161,13 @@ Preferences::Preferences()
 
 	m_bFollowPlayhead = true;
 
-	m_bbc = BC_OFF;
-	m_mmcsetplay = SET_PLAY_OFF;
+	m_bBbc = BC_OFF;
+	m_bMmcSetPlay = SET_PLAY_OFF;
 
-	m_countOffset = 0;  // beatcounter
-	m_startOffset = 0;  // beatcounter
+	m_nCountOffset = 0;  // beatcounter
+	m_nStartOffset = 0;  // beatcounter
 
-	sServerList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
+	m_serverList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
 	m_nAutosavesPerHour = 60;
 	m_patternCategories.push_back( QString("not_categorized") );
 
@@ -257,11 +257,11 @@ Preferences::Preferences()
 	m_bShowDevelWarning = false;
 	m_bShowNoteOverwriteWarning = true;
 	// NONE: lastSongFilename;
-	hearNewNotes = true;
+	m_bHearNewNotes = true;
 	// NONE: m_recentFiles;
 	// NONE: m_recentFX;
-	quantizeEvents = true;
-	recordEvents = false;
+	m_bQuantizeEvents = true;
+	m_bRecordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = false;
 
@@ -277,12 +277,12 @@ Preferences::Preferences()
 	m_nPatternEditorGridWidth = 3;
 	m_nSongEditorGridHeight = 18;
 	m_nSongEditorGridWidth = 16;
-	mainFormProperties.set(0, 0, 1000, 700, true);
-	mixerProperties.set(10, 350, 829, 276, true);
-	patternEditorProperties.set(280, 100, 706, 439, true);
-	songEditorProperties.set(10, 10, 600, 250, true);
-	instrumentRackProperties.set(500, 20, 526, 437, true);
-	audioEngineInfoProperties.set(720, 120, 0, 0, false);
+	m_mainFormProperties.set(0, 0, 1000, 700, true);
+	m_mixerProperties.set(10, 350, 829, 276, true);
+	m_patternEditorProperties.set(280, 100, 706, 439, true);
+	m_songEditorProperties.set(10, 10, 600, 250, true);
+	m_instrumentRackProperties.set(500, 20, 526, 437, true);
+	m_audioEngineInfoProperties.set(720, 120, 0, 0, false);
 	m_playlistEditorProperties.set(200, 300, 921, 703, false);
 	m_directorProperties.set(200, 300, 423, 377, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
@@ -326,8 +326,8 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 	pPref->m_sPreferredLanguage = rootNode.read_string(
 		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent );
-	pPref->__playselectedinstrument = rootNode.read_bool(
-		"instrumentInputMode", pPref->__playselectedinstrument, false, false,
+	pPref->m_bPlaySelectedInstrument = rootNode.read_bool(
+		"instrumentInputMode", pPref->m_bPlaySelectedInstrument, false, false,
 		bSilent );
 	pPref->m_bShowDevelWarning = rootNode.read_bool(
 		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent );
@@ -336,9 +336,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		pPref->m_bShowNoteOverwriteWarning, false, false, bSilent );
 	pPref->m_bUseLash = rootNode.read_bool(
 		"useLash", pPref->m_bUseLash, false, false, bSilent );
-	pPref->m_bsetLash = pPref->m_bUseLash;
-	pPref->__useTimelineBpm = rootNode.read_bool(
-		"useTimeLine", pPref->__useTimelineBpm, false, false, bSilent );
+	pPref->m_bSetLash = pPref->m_bUseLash;
+	pPref->m_bUseTimelineBpm = rootNode.read_bool(
+		"useTimeLine", pPref->m_bUseTimelineBpm, false, false, bSilent );
 	pPref->m_nMaxBars = rootNode.read_int(
 		"maxBars", pPref->m_nMaxBars, false, false, bSilent );
 	pPref->m_nMaxLayers = rootNode.read_int(
@@ -364,26 +364,26 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	pPref->m_bHideKeyboardCursor = rootNode.read_bool(
 		"hideKeyboardCursorWhenUnused",
 		pPref->m_bHideKeyboardCursor, false, false, bSilent );
-	pPref->m_useTheRubberbandBpmChangeEvent = rootNode.read_bool(
+	pPref->m_bUseTheRubberbandBpmChangeEvent = rootNode.read_bool(
 		"useTheRubberbandBpmChangeEvent",
-		pPref->m_useTheRubberbandBpmChangeEvent, false, false, bSilent );
+		pPref->m_bUseTheRubberbandBpmChangeEvent, false, false, bSilent );
 
-	pPref->hearNewNotes = rootNode.read_bool(
-		"hearNewNotes", pPref->hearNewNotes, false, false, bSilent );
-	pPref->quantizeEvents = rootNode.read_bool(
-		"quantizeEvents", pPref->quantizeEvents, false, false, bSilent );
+	pPref->m_bHearNewNotes = rootNode.read_bool(
+		"hearNewNotes", pPref->m_bHearNewNotes, false, false, bSilent );
+	pPref->m_bQuantizeEvents = rootNode.read_bool(
+		"quantizeEvents", pPref->m_bQuantizeEvents, false, false, bSilent );
 
-	if ( pPref->readPrefFileforotherplaces ){
+	if ( pPref->m_bSearchForRubberbandOnLoad ){
 		// In case Rubberband CLI executable was not found yet, we check the
 		// additional path provided in the config (Preferences constructor
 		// already checked common places).
 		const QString sRubberbandPath = rootNode.read_string(
 			"path_to_rubberband", "", false, false, bSilent );
 		if ( ! sRubberbandPath.isEmpty() && QFile( sRubberbandPath ).exists() ){
-			pPref->m_rubberBandCLIexecutable = sRubberbandPath;
+			pPref->m_sRubberBandCLIexecutable = sRubberbandPath;
 		}
 		else {
-			pPref->m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
+			pPref->m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
 		}
 	}
 
@@ -420,7 +420,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		QDomElement serverElement = serverListNode.firstChildElement( "server" );
 		while ( ! serverElement.isNull() && !serverElement.text().isEmpty() ) {
 			bool bAlreadyPresent = false;
-			for ( const auto& ssServer : pPref->sServerList ) {
+			for ( const auto& ssServer : pPref->m_serverList ) {
 				if ( ssServer == serverElement.text() ) {
 					bAlreadyPresent = true;
 					break;
@@ -428,7 +428,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			}
 
 			if ( ! bAlreadyPresent ) {
-				pPref->sServerList.push_back( serverElement.text() );
+				pPref->m_serverList.push_back( serverElement.text() );
 			}
 
 			serverElement = serverElement.nextSiblingElement( "server" );
@@ -724,22 +724,22 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		// mainForm window properties
 		pPref->setMainFormProperties(
 			loadWindowPropertiesFrom( guiNode, "mainForm_properties",
-									  pPref->mainFormProperties, bSilent ) );
+									  pPref->m_mainFormProperties, bSilent ) );
 		pPref->setMixerProperties(
 			loadWindowPropertiesFrom( guiNode, "mixer_properties",
-									  pPref->mixerProperties, bSilent ) );
+									  pPref->m_mixerProperties, bSilent ) );
 		pPref->setPatternEditorProperties(
 			loadWindowPropertiesFrom( guiNode, "patternEditor_properties",
-									  pPref->patternEditorProperties, bSilent ) );
+									  pPref->m_patternEditorProperties, bSilent ) );
 		pPref->setSongEditorProperties(
 			loadWindowPropertiesFrom( guiNode, "songEditor_properties",
-									  pPref->songEditorProperties, bSilent ) );
+									  pPref->m_songEditorProperties, bSilent ) );
 		pPref->setInstrumentRackProperties(
 			loadWindowPropertiesFrom( guiNode, "instrumentRack_properties",
-									  pPref->instrumentRackProperties, bSilent ) );
+									  pPref->m_instrumentRackProperties, bSilent ) );
 		pPref->setAudioEngineInfoProperties(
 			loadWindowPropertiesFrom( guiNode, "audioEngineInfo_properties",
-									  pPref->audioEngineInfoProperties, bSilent ) );
+									  pPref->m_audioEngineInfoProperties, bSilent ) );
 		// In order to be backward compatible we still call the XML node
 		// "playlistDialog". For some time we had playlistEditor and
 		// playlistDialog coexisting.
@@ -836,10 +836,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
 		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bbc = BC_OFF;
+			pPref->m_bBbc = BC_OFF;
 		}
 		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bbc = BC_ON;
+			pPref->m_bBbc = BC_ON;
 		}
 		else if ( ! sUseBeatCounter.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
@@ -849,20 +849,20 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sBeatCounterSetPlay =
 			guiNode.read_string( "setplay", "", false, false, bSilent );
 		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			pPref->m_mmcsetplay = SET_PLAY_OFF;
+			pPref->m_bMmcSetPlay = SET_PLAY_OFF;
 		}
 		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			pPref->m_mmcsetplay = SET_PLAY_ON;
+			pPref->m_bMmcSetPlay = SET_PLAY_ON;
 		}
 		else if ( ! sBeatCounterSetPlay.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
 						.arg( sBeatCounterSetPlay ) );
 		}
 
-		pPref->m_countOffset = guiNode.read_int(
-			"countoffset", pPref->m_countOffset, false, false, bSilent );
-		pPref->m_startOffset = guiNode.read_int(
-			"playoffset", pPref->m_startOffset, false, false, bSilent );
+		pPref->m_nCountOffset = guiNode.read_int(
+			"countoffset", pPref->m_nCountOffset, false, false, bSilent );
+		pPref->m_nStartOffset = guiNode.read_int(
+			"playoffset", pPref->m_nStartOffset, false, false, bSilent );
 
 		// ~ beatcounter
 
@@ -870,10 +870,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			"autosavesPerHour", pPref->m_nAutosavesPerHour, false, false, bSilent );
 				
 		// SoundLibraryPanel expand items
-		pPref->__expandSongItem = guiNode.read_bool(
-			"expandSongItem", pPref->__expandSongItem, false, false, bSilent );
-		pPref->__expandPatternItem = guiNode.read_bool(
-			"expandPatternItem", pPref->__expandPatternItem, false, false, bSilent );
+		pPref->m_bExpandSongItem = guiNode.read_bool(
+			"expandSongItem", pPref->m_bExpandSongItem, false, false, bSilent );
+		pPref->m_bExpandPatternItem = guiNode.read_bool(
+			"expandPatternItem", pPref->m_bExpandPatternItem, false, false, bSilent );
 
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			const QString sNodeName = QString( "ladspaFX_properties%1" ).arg( nFX );
@@ -916,11 +916,11 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	/////////////// FILES //////////////
 	const XMLNode filesNode = rootNode.firstChildElement( "files" );
 	if ( ! filesNode.isNull() ) {
-		pPref->m_lastSongFilename = filesNode.read_string(
-			"lastSongFilename", pPref->m_lastSongFilename, false, true, bSilent );
-		pPref->m_lastPlaylistFilename = filesNode.read_string(
+		pPref->m_sLastSongFilename = filesNode.read_string(
+			"lastSongFilename", pPref->m_sLastSongFilename, false, true, bSilent );
+		pPref->m_sLastPlaylistFilename = filesNode.read_string(
 			"lastPlaylistFilename",
-			pPref->m_lastPlaylistFilename, false, true, bSilent );
+			pPref->m_sLastPlaylistFilename, false, true, bSilent );
 		pPref->m_sDefaultEditor = filesNode.read_string(
 			"defaulteditor", pPref->m_sDefaultEditor, false, true, bSilent );
 	}
@@ -1035,8 +1035,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	////// GENERAL ///////
 	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
 
-	rootNode.write_bool( "useLash", m_bsetLash );
-	rootNode.write_bool( "useTimeLine", __useTimelineBpm );
+	rootNode.write_bool( "useLash", m_bSetLash );
+	rootNode.write_bool( "useTimeLine", m_bUseTimelineBpm );
 
 	rootNode.write_int( "maxBars", m_nMaxBars );
 	rootNode.write_int( "maxLayers", m_nMaxLayers );
@@ -1047,13 +1047,13 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 							interfaceTheme.m_uiScalingPolicy) );
 	rootNode.write_int( "lastOpenTab", m_nLastOpenTab );
 
-	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
+	rootNode.write_bool( "useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent );
 
 	rootNode.write_bool( "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists );
 	rootNode.write_bool( "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
 	// instrument input mode
-	rootNode.write_bool( "instrumentInputMode", __playselectedinstrument );
+	rootNode.write_bool( "instrumentInputMode", m_bPlaySelectedInstrument );
 	
 	//show development version warning
 	rootNode.write_bool( "showDevelWarning", m_bShowDevelWarning );
@@ -1062,13 +1062,13 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	rootNode.write_bool( "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
 
 	// hear new notes in the pattern editor
-	rootNode.write_bool( "hearNewNotes", hearNewNotes );
+	rootNode.write_bool( "hearNewNotes", m_bHearNewNotes );
 
 	// key/midi event prefs
-	rootNode.write_bool( "quantizeEvents", quantizeEvents );
+	rootNode.write_bool( "quantizeEvents", m_bQuantizeEvents );
 
 	//extern executables
-	QString rubberBandCLIexecutable( m_rubberBandCLIexecutable );
+	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
 	if ( !Filesystem::file_executable( rubberBandCLIexecutable, true /* silent */) ) {
 		rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
@@ -1100,7 +1100,7 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	std::list<QString>::const_iterator cur_Server;
 
 	XMLNode serverListNode = rootNode.createNode( "serverList" );
-	for( cur_Server = sServerList.begin(); cur_Server != sServerList.end(); ++cur_Server ){
+	for( cur_Server = m_serverList.begin(); cur_Server != m_serverList.end(); ++cur_Server ){
 		serverListNode.write_string( QString("server") , QString( *cur_Server ) );
 	}
 
@@ -1242,12 +1242,12 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
 
 		// MainForm window properties
-		saveWindowPropertiesTo( guiNode, "mainForm_properties", mainFormProperties );
-		saveWindowPropertiesTo( guiNode, "mixer_properties", mixerProperties );
-		saveWindowPropertiesTo( guiNode, "patternEditor_properties", patternEditorProperties );
-		saveWindowPropertiesTo( guiNode, "songEditor_properties", songEditorProperties );
-		saveWindowPropertiesTo( guiNode, "instrumentRack_properties", instrumentRackProperties );
-		saveWindowPropertiesTo( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
+		saveWindowPropertiesTo( guiNode, "mainForm_properties", m_mainFormProperties );
+		saveWindowPropertiesTo( guiNode, "mixer_properties", m_mixerProperties );
+		saveWindowPropertiesTo( guiNode, "patternEditor_properties", m_patternEditorProperties );
+		saveWindowPropertiesTo( guiNode, "songEditor_properties", m_songEditorProperties );
+		saveWindowPropertiesTo( guiNode, "instrumentRack_properties", m_instrumentRackProperties );
+		saveWindowPropertiesTo( guiNode, "audioEngineInfo_properties", m_audioEngineInfoProperties );
 		saveWindowPropertiesTo( guiNode, "playlistDialog_properties", m_playlistEditorProperties );
 		saveWindowPropertiesTo( guiNode, "director_properties", m_directorProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
@@ -1291,30 +1291,30 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		//beatcounter
 		QString bcMode;
 
-		if ( m_bbc == BC_OFF ) {
+		if ( m_bBbc == BC_OFF ) {
 			bcMode = "BC_OFF";
-		} else if ( m_bbc  == BC_ON ) {
+		} else if ( m_bBbc  == BC_ON ) {
 			bcMode = "BC_ON";
 		}
 		guiNode.write_string( "bc", bcMode );
 
 		QString setPlay;
-		if ( m_mmcsetplay == SET_PLAY_OFF ) {
+		if ( m_bMmcSetPlay == SET_PLAY_OFF ) {
 			setPlay = "SET_PLAY_OFF";
-		} else if ( m_mmcsetplay == SET_PLAY_ON ) {
+		} else if ( m_bMmcSetPlay == SET_PLAY_ON ) {
 			setPlay = "SET_PLAY_ON";
 		}
 		guiNode.write_string( "setplay", setPlay );
 
-		guiNode.write_int( "countoffset", m_countOffset );
-		guiNode.write_int( "playoffset", m_startOffset );
+		guiNode.write_int( "countoffset", m_nCountOffset );
+		guiNode.write_int( "playoffset", m_nStartOffset );
 		// ~ beatcounter
 
 		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
 
 		//SoundLibraryPanel expand items
-		guiNode.write_bool( "expandSongItem", __expandSongItem );
-		guiNode.write_bool( "expandPatternItem", __expandPatternItem );
+		guiNode.write_bool( "expandSongItem", m_bExpandSongItem );
+		guiNode.write_bool( "expandPatternItem", m_bExpandPatternItem );
 
 		// User interface style
 		m_theme.m_color.saveTo( guiNode );
@@ -1334,8 +1334,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	XMLNode filesNode = rootNode.createNode( "files" );
 	{
 		// last used song
-		filesNode.write_string( "lastSongFilename", m_lastSongFilename );
-		filesNode.write_string( "lastPlaylistFilename", m_lastPlaylistFilename );
+		filesNode.write_string( "lastSongFilename", m_sLastSongFilename );
+		filesNode.write_string( "lastPlaylistFilename", m_sLastPlaylistFilename );
 		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
 	}
 

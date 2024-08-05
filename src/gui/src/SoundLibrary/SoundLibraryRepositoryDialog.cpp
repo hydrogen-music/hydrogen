@@ -52,7 +52,7 @@ void SoundLibraryRepositoryDialog::updateDialog(){
 	*/
 	
 	ServerListWidget->clear();
-	for ( const auto& ssServer : pPref->sServerList ) {
+	for ( const auto& ssServer : pPref->m_serverList ) {
 		ServerListWidget->addItem( ssServer );
 	}
 }
@@ -70,7 +70,7 @@ void SoundLibraryRepositoryDialog::on_AddBtn_clicked()
 	QString text = QInputDialog::getText(this, tr("Edit server list"), tr("URL"), QLineEdit::Normal,QString(""), &ok);
 	
 	if( ok && !text.isEmpty() ){
-		pPref->sServerList.push_back( text );
+		pPref->m_serverList.push_back( text );
 	}
 
 	updateDialog();
@@ -92,7 +92,7 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	
 		selText = selectedItems.takeFirst()->text();
 
-		pPref->sServerList.remove(selText);
+		pPref->m_serverList.remove(selText);
 
 	}
 	updateDialog();

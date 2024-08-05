@@ -524,7 +524,7 @@ void MainForm::createMenuBar()
 									 pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
 	m_pDrumkitAction->setCheckable( true );
 
-	if ( pPref->__playselectedinstrument ) {
+	if ( pPref->m_bPlaySelectedInstrument ) {
 		m_pInstrumentAction->setChecked( true );
 		m_pDrumkitAction->setChecked (false );
 	}
@@ -949,8 +949,8 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 void MainForm::action_inputMode_instrument() {
 	auto pPref = Preferences::get_instance();
 
-	if ( ! pPref->__playselectedinstrument ) {
-		pPref->__playselectedinstrument = true;
+	if ( ! pPref->m_bPlaySelectedInstrument ) {
+		pPref->m_bPlaySelectedInstrument = true;
 		m_pDrumkitAction->setChecked( false );
 	}
 	m_pInstrumentAction->setChecked( true );
@@ -959,8 +959,8 @@ void MainForm::action_inputMode_instrument() {
 void MainForm::action_inputMode_drumkit() {
 	auto pPref = Preferences::get_instance();
 
-	if ( pPref->__playselectedinstrument ) {
-		pPref->__playselectedinstrument = false;
+	if ( pPref->m_bPlaySelectedInstrument ) {
+		pPref->m_bPlaySelectedInstrument = false;
 		m_pInstrumentAction->setChecked( false );
 	}
 	m_pDrumkitAction->setChecked( true );
@@ -2172,7 +2172,7 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 		
 		// Reflect the changes in the preferences in the objects
 		// stored in MainForm.
-		if ( Preferences::get_instance()->__playselectedinstrument ) {
+		if ( Preferences::get_instance()->m_bPlaySelectedInstrument ) {
 			m_pInstrumentAction->setChecked( true );
 			m_pDrumkitAction->setChecked( false );
 		}

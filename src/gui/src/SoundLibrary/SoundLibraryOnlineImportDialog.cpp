@@ -115,14 +115,14 @@ void SoundLibraryOnlineImportDialog::updateRepositoryCombo()
 		Read serverList from config and put servers into the comboBox
 	*/
 
-	if ( pPref->sServerList.size() == 0 ) {
-		pPref->sServerList.push_back(
+	if ( pPref->m_serverList.size() == 0 ) {
+		pPref->m_serverList.push_back(
 			"http://hydrogen-music.org/feeds/drumkit_list.php" );
 	}
 
 	repositoryCombo->clear();
 
-	for ( const auto& ssServer : pPref->sServerList ) {
+	for ( const auto& ssServer : pPref->m_serverList ) {
 		repositoryCombo->insertItem( 0, ssServer );
 	}
 	reloadRepositoryData();

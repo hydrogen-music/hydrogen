@@ -360,7 +360,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
-	bool bPlaySelectedInstrument = pPref->__playselectedinstrument;
+	bool bPlaySelectedInstrument = pPref->m_bPlaySelectedInstrument;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	int currentPatternNumber;
 
@@ -968,8 +968,8 @@ void Hydrogen::setBcOffsetAdjust()
 	//to adjust  ms_offset from different people and controller
 	const auto pPreferences = Preferences::get_instance();
 
-	m_nCountOffset = pPreferences->m_countOffset;
-	m_nStartOffset = pPreferences->m_startOffset;
+	m_nCountOffset = pPreferences->m_nCountOffset;
+	m_nStartOffset = pPreferences->m_nStartOffset;
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -1029,7 +1029,7 @@ bool Hydrogen::handleBeatCounter()
 			
 			CoreActionController::setBpm( fBeatCountBpm );
 
-			if (Preferences::get_instance()->m_mmcsetplay
+			if (Preferences::get_instance()->m_bMmcSetPlay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
 				m_nEventCount = 1;

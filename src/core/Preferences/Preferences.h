@@ -139,29 +139,29 @@ public:
 		ShortcutTab = 0x080,
 	};
 
-	bool				__playsamplesonclicking; // audio file browser
+	bool				m_bPlaySamplesOnClicking; // audio file browser
 
-	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
+	bool				m_bPlaySelectedInstrument; // midi keys and keys play instrument or drumset
 
 	bool				m_bFollowPlayhead;
 
 	// switch to enable / disable lash, only on h2 startup
-	bool				m_brestartLash;
-	bool				m_bsetLash;
+	bool				m_bRestartLash;
+	bool				m_bSetLash;
 
 	//soundlibrarypanel expand song and pattern item
-	bool				__expandSongItem;
-	bool				__expandPatternItem;
+	bool				m_bExpandSongItem;
+	bool				m_bExpandPatternItem;
 
 	//beatcounter
-	bool				m_bbc;
-	bool				m_mmcsetplay;
+	bool				m_bBbc;
+	bool				m_bMmcSetPlay;
 
-	int					m_countOffset;
-	int					m_startOffset;
+	int					m_nCountOffset;
+	int					m_nStartOffset;
 	// ~ beatcounter
 
-	std::list<QString> 		sServerList;
+	std::list<QString> 		m_serverList;
 	std::list<QString> 		m_patternCategories;
 
 	//	audio engine properties ___
@@ -387,7 +387,7 @@ public:
 	int				m_nAutosavesPerHour;
 
 	///Rubberband CLI
-	QString				m_rubberBandCLIexecutable;
+	QString				m_sRubberBandCLIexecutable;
 
 	/**
 	 * If #__instance equals 0, a new Preferences singleton will
@@ -564,11 +564,8 @@ public:
 	/** \param oscPort Sets #m_nOscServerPort*/
 	void			setOscServerPort( int oscPort );
 
-	/** Whether to use the bpm of the timeline.
-	 * \return #__useTimelineBpm */
+	/** Whether to use the bpm of the timeline.*/
 	bool			getUseTimelineBpm() const;
-	/** Setting #__useTimelineBpm.
-	 * \param val New choice. */
 	void			setUseTimelineBpm( bool val );
 	
 	void			setShowPlaybackTrack( bool val);
@@ -662,21 +659,24 @@ private:
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	 ///rubberband bpm change queue
-	bool				m_useTheRubberbandBpmChangeEvent;
+	bool				m_bUseTheRubberbandBpmChangeEvent;
 
 	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
 	bool				m_bShowNoteOverwriteWarning;
 	///< Last song used
-	QString				m_lastSongFilename;
-	QString				m_lastPlaylistFilename;
+	QString				m_sLastSongFilename;
+	QString				m_sLastPlaylistFilename;
 
-	bool				quantizeEvents;
-	bool				recordEvents;
-	bool				readPrefFileforotherplaces;
-	int					punchInPos;
-	int					punchOutPos;
+	bool				m_bQuantizeEvents;
+	bool				m_bRecordEvents;
+		/** In case the rubberband binary was not found in common places, this
+		 * variable indicated - if `true` - that Hydrogen should continue
+		 * searching for it in places provided during #load() */
+	bool				m_bSearchForRubberbandOnLoad;
+	int					m_nPunchInPos;
+	int					m_nPunchOutPos;
 	bool				m_bHideKeyboardCursor;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
@@ -696,7 +696,7 @@ private:
 	 * configuration file of Hydrogen in your home folder. Default
 	 * value assigned in constructor: 16. */
 	int					m_nMaxLayers;
-	bool				hearNewNotes;
+	bool				m_bHearNewNotes;
 
 	QStringList			m_recentFX;
 	std::vector<QString> 		m_recentFiles;
@@ -706,7 +706,7 @@ private:
 		QString			m_sNsmSongName;
 #endif
 
-	bool					waitingForSessionHandler;
+	bool					m_bWaitingForSessionHandler;
 	/**
 	 * Whether to use local speeds specified along the Timeline or
 	 * a constant tempo for the whole Song in
@@ -715,7 +715,7 @@ private:
 	 * It is set using setUseTimelineBpm() and accessed via
 	 * getUseTimelineBpm().
 	 */
-	bool					__useTimelineBpm;
+	bool					m_bUseTimelineBpm;
 
 
 	//___ GUI properties ___
@@ -732,12 +732,12 @@ private:
 	unsigned				m_nPatternEditorGridWidth;
 	unsigned				m_nSongEditorGridHeight;
 	unsigned				m_nSongEditorGridWidth;
-	WindowProperties		mainFormProperties;
-	WindowProperties		mixerProperties;
-	WindowProperties		patternEditorProperties;
-	WindowProperties		songEditorProperties;
-	WindowProperties		instrumentRackProperties;
-	WindowProperties		audioEngineInfoProperties;
+	WindowProperties		m_mainFormProperties;
+	WindowProperties		m_mixerProperties;
+	WindowProperties		m_patternEditorProperties;
+	WindowProperties		m_songEditorProperties;
+	WindowProperties		m_instrumentRackProperties;
+	WindowProperties		m_audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 	WindowProperties		m_playlistEditorProperties;
 	WindowProperties		m_directorProperties;
@@ -1017,51 +1017,51 @@ inline bool Preferences::isPlaylistUsingRelativeFilenames() const {
 }
 
 inline void Preferences::setLastSongFilename( const QString& filename ) {
-	m_lastSongFilename = filename;
+	m_sLastSongFilename = filename;
 }
 inline const QString& Preferences::getLastSongFilename() const {
-	return m_lastSongFilename;
+	return m_sLastSongFilename;
 }
 
 inline void Preferences::setLastPlaylistFilename( const QString& filename ) {
-	m_lastPlaylistFilename = filename;
+	m_sLastPlaylistFilename = filename;
 }
 inline const QString& Preferences::getLastPlaylistFilename() const {
-	return m_lastPlaylistFilename;
+	return m_sLastPlaylistFilename;
 }
 
 inline void Preferences::setHearNewNotes( bool value ) {
-	hearNewNotes = value;
+	m_bHearNewNotes = value;
 }
 inline bool Preferences::getHearNewNotes() const {
-	return hearNewNotes;
+	return m_bHearNewNotes;
 }
 
 inline void Preferences::setRecordEvents( bool value ) {
-	recordEvents = value;
+	m_bRecordEvents = value;
 }
 inline bool Preferences::getRecordEvents() const {
-	return recordEvents;
+	return m_bRecordEvents;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {
-	punchInPos = pos;
+	m_nPunchInPos = pos;
 }
 inline int Preferences::getPunchInPos() const {
-	return punchInPos;
+	return m_nPunchInPos;
 }
 
 inline void Preferences::setPunchOutPos ( unsigned pos ) {
-	punchOutPos = pos;
+	m_nPunchOutPos = pos;
 }
 inline int Preferences::getPunchOutPos() const {
-	return punchOutPos;
+	return m_nPunchOutPos;
 }
 
 inline bool Preferences::inPunchArea (int pos) const {
 	// Return true if punch area not defined
-	if ( punchInPos <= punchOutPos ) {
-		if ( pos < punchInPos || punchOutPos < pos ) {
+	if ( m_nPunchInPos <= m_nPunchOutPos ) {
+		if ( pos < m_nPunchInPos || m_nPunchOutPos < pos ) {
 			return false;
 		}
 	}
@@ -1069,15 +1069,15 @@ inline bool Preferences::inPunchArea (int pos) const {
 }
 
 inline void Preferences::unsetPunchArea () {
-	punchInPos = 0;
-	punchOutPos = -1;
+	m_nPunchInPos = 0;
+	m_nPunchOutPos = -1;
 }
 
 inline void Preferences::setQuantizeEvents( bool value ) {
-	quantizeEvents = value;
+	m_bQuantizeEvents = value;
 }
 inline bool Preferences::getQuantizeEvents() const {
-	return quantizeEvents;
+	return m_bQuantizeEvents;
 }
 
 inline void Preferences::setRecentFiles( const std::vector<QString>& recentFiles ) {
@@ -1156,46 +1156,46 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 }
 
 inline const WindowProperties& Preferences::getMainFormProperties() const {
-	return mainFormProperties;
+	return m_mainFormProperties;
 }
 inline void Preferences::setMainFormProperties( const WindowProperties& prop ) {
-	mainFormProperties = prop;
+	m_mainFormProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getMixerProperties() const {
-	return mixerProperties;
+	return m_mixerProperties;
 }
 inline void Preferences::setMixerProperties( const WindowProperties& prop ) {
-	mixerProperties = prop;
+	m_mixerProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getPatternEditorProperties() const {
-	return patternEditorProperties;
+	return m_patternEditorProperties;
 }
 inline void Preferences::setPatternEditorProperties( const WindowProperties& prop ) {
-	patternEditorProperties = prop;
+	m_patternEditorProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getSongEditorProperties() const {
-	return songEditorProperties;
+	return m_songEditorProperties;
 }
 inline void Preferences::setSongEditorProperties( const WindowProperties& prop ) {
-	songEditorProperties = prop;
+	m_songEditorProperties = prop;
 }
 
 
 inline const WindowProperties& Preferences::getInstrumentRackProperties() const {
-	return instrumentRackProperties;
+	return m_instrumentRackProperties;
 }
 inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
-	instrumentRackProperties = prop;
+	m_instrumentRackProperties = prop;
 }
  
 inline const WindowProperties& Preferences::getAudioEngineInfoProperties() const {
-	return audioEngineInfoProperties;
+	return m_audioEngineInfoProperties;
 }
 inline void Preferences::setAudioEngineInfoProperties( const WindowProperties& prop ) {
-	audioEngineInfoProperties = prop;
+	m_audioEngineInfoProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getLadspaProperties( unsigned nFX ) const {
@@ -1243,11 +1243,11 @@ inline int Preferences::getMaxLayers() const {
 }
 
 inline void Preferences::setWaitForSessionHandler(bool value){
-	waitingForSessionHandler = value;
+	m_bWaitingForSessionHandler = value;
 }
 
 inline bool Preferences::getWaitForSessionHandler() const {
-		return waitingForSessionHandler;
+		return m_bWaitingForSessionHandler;
 }
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
@@ -1291,10 +1291,10 @@ inline void Preferences::setOscServerPort( int oscPort ){
 }
 
 inline bool Preferences::getUseTimelineBpm() const {
-	return __useTimelineBpm;
+	return m_bUseTimelineBpm;
 }
 inline void Preferences::setUseTimelineBpm( bool val ){
-	__useTimelineBpm = val;
+	m_bUseTimelineBpm = val;
 }
 
 inline void Preferences::setShowPlaybackTrack( bool val ) {
@@ -1305,10 +1305,10 @@ inline bool Preferences::getShowPlaybackTrack() const {
 }
 
 inline int Preferences::getRubberBandBatchMode() const {
-	return m_useTheRubberbandBpmChangeEvent;
+	return m_bUseTheRubberbandBpmChangeEvent;
 }
 inline void Preferences::setRubberBandBatchMode( int val ){
-	m_useTheRubberbandBpmChangeEvent = val;
+	m_bUseTheRubberbandBpmChangeEvent = val;
 }
 
 inline int Preferences::getLastOpenTab() const {

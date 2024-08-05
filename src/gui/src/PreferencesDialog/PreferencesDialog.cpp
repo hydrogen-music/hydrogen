@@ -182,19 +182,19 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
 	// General tab - restore the right m_bsetlash value
-	if ( pPref->m_brestartLash == true ){
-		if (pPref->m_bsetLash == false ){
-			pPref->m_bsetLash = true ;
-			pPref->m_brestartLash = false;
+	if ( pPref->m_bRestartLash == true ){
+		if (pPref->m_bSetLash == false ){
+			pPref->m_bSetLash = true ;
+			pPref->m_bRestartLash = false;
 		}
 
 	}
-	useLashCheckbox->setChecked( pPref->m_bsetLash );
+	useLashCheckbox->setChecked( pPref->m_bSetLash );
 
 	sBcountOffset->setSize( generalTabWidgetSize );
-	sBcountOffset->setValue( pPref->m_countOffset );
+	sBcountOffset->setValue( pPref->m_nCountOffset );
 	sBstartOffset->setSize( generalTabWidgetSize );
-	sBstartOffset->setValue( pPref->m_startOffset );
+	sBstartOffset->setValue( pPref->m_nStartOffset );
 
 	sBmaxBars->setSize( generalTabWidgetSize );
 	sBmaxBars->setValue( pPref->getMaxBars() );
@@ -203,7 +203,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	autosaveSpinBox->setSize( generalTabWidgetSize );
 	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
 
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+	QString pathtoRubberband = pPref->m_sRubberBandCLIexecutable;
 	rubberbandLineEdit->setText( pathtoRubberband );
 
 #ifdef H2CORE_HAVE_RUBBERBAND
@@ -1024,8 +1024,8 @@ void PreferencesDialog::on_okBtn_clicked()
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_bsetLash != useLashCheckbox->isChecked() ) {
-		pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
+	if ( pPref->m_bSetLash != useLashCheckbox->isChecked() ) {
+		pPref->m_bSetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
 		bGeneralOptionAltered = true;
 	}
 	
@@ -1035,24 +1035,24 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	//path to rubberband
-	if ( pPref->m_rubberBandCLIexecutable != rubberbandLineEdit->text() ) {
-		pPref->m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+	if ( pPref->m_sRubberBandCLIexecutable != rubberbandLineEdit->text() ) {
+		pPref->m_sRubberBandCLIexecutable = rubberbandLineEdit->text();
 		bGeneralOptionAltered = true;
 	}
 
 	//check preferences
-	if ( pPref->m_brestartLash == true ){
-		pPref->m_bsetLash = true ;
+	if ( pPref->m_bRestartLash == true ){
+		pPref->m_bSetLash = true ;
 	}
 
-	if ( pPref->m_countOffset != sBcountOffset->value() ) {
-		pPref->m_countOffset = sBcountOffset->value();
+	if ( pPref->m_nCountOffset != sBcountOffset->value() ) {
+		pPref->m_nCountOffset = sBcountOffset->value();
 		pHydrogen->setBcOffsetAdjust();
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_startOffset != sBstartOffset->value() ) {
-		pPref->m_startOffset = sBstartOffset->value();
+	if ( pPref->m_nStartOffset != sBstartOffset->value() ) {
+		pPref->m_nStartOffset = sBstartOffset->value();
 		pHydrogen->setBcOffsetAdjust();
 		bGeneralOptionAltered = true;
 	}
@@ -1795,11 +1795,11 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 void PreferencesDialog::on_useLashCheckbox_clicked()
 {
 	if ( useLashCheckbox->isChecked() ){
-		Preferences::get_instance()->m_brestartLash = true;
+		Preferences::get_instance()->m_bRestartLash = true;
 	}
 	else
 	{
-		Preferences::get_instance()->m_bsetLash = false ;
+		Preferences::get_instance()->m_bSetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
