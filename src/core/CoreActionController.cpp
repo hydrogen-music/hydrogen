@@ -1290,7 +1290,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 
 	// Upgrade was successful. Cleanup
 	if ( ! sTemporaryFolder.isEmpty() ) {
-		// Filesystem::rm( sTemporaryFolder, true, true );
+		Filesystem::rm( sTemporaryFolder, true, true );
 	}
 
 	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
@@ -1408,6 +1408,11 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		ERRORLOG( QString( "Drumkit name [%1] must not end with a trailing whitespace" )
 				  .arg( sDrumkitName ) );
 		return false;
+	}
+
+	// Everything is valid. No need to keep temporary artifacts.
+	if ( ! sTemporaryFolder.isEmpty() ) {
+		Filesystem::rm( sTemporaryFolder, true, true );
 	}
 
 	INFOLOG( QString( "Drumkit [%1] is valid!" )
