@@ -24,28 +24,31 @@
 
 #include <cassert>
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Hydrogen.h>
-
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
+Pattern::Pattern( const QString& name, const QString& info, const QString& sCategory, int length, int denominator )
 	: __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
-	, __category( category )
+	, __category( sCategory )
 	  , m_sDrumkitName( "" )
 	  , m_sAuthor( "" )
 	  , m_license( License() )
 {
+	if ( sCategory.isEmpty() ) {
+		__category = SoundLibraryDatabase::m_sPatternBaseCategory;
+	}
 }
 
 Pattern::Pattern( Pattern* other )

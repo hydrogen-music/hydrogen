@@ -28,6 +28,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
 
@@ -44,14 +45,14 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	patternDescTxt->setText( pattern->get_info() );
 
-	QString category = pattern->get_category();
+	QString sCategory = pattern->get_category();
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;	
 	
-	if ( category == "" ){
-		category = "not_categorized";
+	if ( sCategory.isEmpty() ){
+		sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
 	}
-	categoryComboBox->addItem( category );
+	categoryComboBox->addItem( sCategory );
 
 	const auto pPref = H2Core::Preferences::get_instance();
 

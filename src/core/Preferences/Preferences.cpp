@@ -37,12 +37,13 @@
 #include <algorithm>
 #include <memory>
 
-#include <core/MidiMap.h>
-#include <core/Version.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/Basics/InstrumentComponent.h>
+#include <core/MidiMap.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Version.h>
 
 #include <QDir>
 #include <QProcess>
@@ -169,7 +170,7 @@ Preferences::Preferences()
 
 	m_serverList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
 	m_nAutosavesPerHour = 60;
-	m_patternCategories.push_back( QString("not_categorized") );
+	m_patternCategories.push_back( SoundLibraryDatabase::m_sPatternBaseCategory );
 
 	//___ audio engine properties ___
 	m_audioDriver = AudioDriver::Auto;

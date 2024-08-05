@@ -35,6 +35,8 @@
 namespace H2Core
 {
 
+QString SoundLibraryDatabase::m_sPatternBaseCategory = "not_categorized";
+
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
 	update();
