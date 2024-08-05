@@ -92,7 +92,7 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	
 		selText = selectedItems.takeFirst()->text();
 
-		pPref->m_serverList.remove(selText);
+		pPref->m_serverList.removeAll(selText);
 
 	}
 	updateDialog();

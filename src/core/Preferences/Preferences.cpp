@@ -419,15 +419,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	if ( ! serverListNode.isNull() ) {
 		QDomElement serverElement = serverListNode.firstChildElement( "server" );
 		while ( ! serverElement.isNull() && !serverElement.text().isEmpty() ) {
-			bool bAlreadyPresent = false;
-			for ( const auto& ssServer : pPref->m_serverList ) {
-				if ( ssServer == serverElement.text() ) {
-					bAlreadyPresent = true;
-					break;
-				}
-			}
-
-			if ( ! bAlreadyPresent ) {
+			if ( ! pPref->m_serverList.contains( serverElement.text() ) ) {
 				pPref->m_serverList.push_back( serverElement.text() );
 			}
 
@@ -447,16 +439,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			patternCategoriesNode.firstChildElement( "categories" );
 		while ( ! patternCategoriesElement.isNull() &&
 				! patternCategoriesElement.text().isEmpty() ) {
-			bool bAlreadyPresent = false;
-			for ( const auto& ssCategory : pPref->m_patternCategories ) {
-				if ( ssCategory == patternCategoriesElement.text() ) {
-					bAlreadyPresent = true;
-					break;
-				}
-			}
-
-			if ( ! bAlreadyPresent ) {
-				pPref->m_patternCategories.push_back( patternCategoriesElement.text() );
+			if ( ! pPref->m_patternCategories.contains(
+					 patternCategoriesElement.text() ) ) {
+				pPref->m_patternCategories.push_back(
+					patternCategoriesElement.text() );
 			}
 
 			patternCategoriesElement = patternCategoriesElement.nextSiblingElement( "categories" );
@@ -1096,20 +1082,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		}
 	}
 
-
-	std::list<QString>::const_iterator cur_Server;
-
 	XMLNode serverListNode = rootNode.createNode( "serverList" );
-	for( cur_Server = m_serverList.begin(); cur_Server != m_serverList.end(); ++cur_Server ){
-		serverListNode.write_string( QString("server") , QString( *cur_Server ) );
+	for ( const auto& ssServer : m_serverList ){
+		serverListNode.write_string( "server", ssServer );
 	}
 
-
-	std::list<QString>::const_iterator cur_patternCategories;
-
 	XMLNode patternCategoriesNode = rootNode.createNode( "patternCategories" );
-	for( cur_patternCategories = m_patternCategories.begin(); cur_patternCategories != m_patternCategories.end(); ++cur_patternCategories ){
-		patternCategoriesNode.write_string( QString("categories") , QString( *cur_patternCategories ) );
+	for ( const auto& ssCategory : m_patternCategories ){
+		patternCategoriesNode.write_string( "categories", ssCategory );
 	}
 
 	//---- AUDIO ENGINE ----

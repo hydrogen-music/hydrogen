@@ -161,8 +161,8 @@ public:
 	int					m_nStartOffset;
 	// ~ beatcounter
 
-	std::list<QString> 		m_serverList;
-	std::list<QString> 		m_patternCategories;
+	QStringList 		m_serverList;
+	QStringList 		m_patternCategories;
 
 	//	audio engine properties ___
 	enum class AudioDriver {
