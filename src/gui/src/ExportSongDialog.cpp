@@ -857,10 +857,6 @@ bool ExportSongDialog::checkUseOfRubberband()
 										.arg( nLayer ) );
 						}
 					}
-					else {
-						WARNINGLOG( QString( "Invalid layer [%1]" )
-									.arg( nLayer ) );
-					}
 				}
 			}
 		}
