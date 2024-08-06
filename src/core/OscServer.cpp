@@ -352,16 +352,16 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( std::shared_ptr<H2Core::Preferences> pPreferences ) : m_bInitialized( false )
+OscServer::OscServer() : m_bInitialized( false )
 {
-	m_pPreferences = pPreferences;
+	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pPreferences->getOscServerEnabled() ) {
+	if ( pPref->getOscServerEnabled() ) {
 		int nPort;
-		if ( m_pPreferences->m_nOscTemporaryPort != -1  ) {
-			nPort = m_pPreferences->m_nOscTemporaryPort;
+		if ( pPref->m_nOscTemporaryPort != -1  ) {
+			nPort = pPref->m_nOscTemporaryPort;
 		} else {
-			nPort = m_pPreferences->getOscServerPort();
+			nPort = pPref->getOscServerPort();
 		}
 	
 		m_pServerThread = new lo::ServerThread( nPort );
@@ -380,7 +380,7 @@ OscServer::OscServer( std::shared_ptr<H2Core::Preferences> pPreferences ) : m_bI
 			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.")
 					  .arg( nPort ).arg( nTmpPort ) );
 
-			m_pPreferences->m_nOscTemporaryPort = nTmpPort;
+			pPref->m_nOscTemporaryPort = nTmpPort;
 			
 			H2Core::EventQueue::get_instance()->push_event(
 				H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
@@ -402,10 +402,10 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance( std::shared_ptr<H2Core::Preferences> pPreferences )
+void OscServer::create_instance()
 {
 	if( __instance == nullptr ) {
-		__instance = new OscServer( pPreferences );
+		__instance = new OscServer();
 	}
 }
 
@@ -1404,10 +1404,11 @@ bool OscServer::start() {
 	m_pServerThread->start();
 
 	int nOscPortUsed;
-	if ( m_pPreferences->m_nOscTemporaryPort != -1 ) {
-		nOscPortUsed = m_pPreferences->m_nOscTemporaryPort;
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( pPref->m_nOscTemporaryPort != -1 ) {
+		nOscPortUsed = pPref->m_nOscTemporaryPort;
 	} else {
-		nOscPortUsed = m_pPreferences->getOscServerPort();
+		nOscPortUsed = pPref->getOscServerPort();
 	}
 	
 	INFOLOG( QString( "Osc server started. Listening on port %1" )
