@@ -35,7 +35,6 @@ using InterpolateMode = H2Core::Interpolation::InterpolateMode;
 
 namespace H2Core {
 	class Instrument;
-	class Hydrogen;
 	class Preferences;
 }
 
@@ -92,7 +91,6 @@ private:
 	bool					m_bOldTimeLineBPMMode;
 	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
-	H2Core::Hydrogen *		m_pHydrogen;
 	std::shared_ptr<H2Core::Preferences>	m_pPreferences;
 	
 	static QString 			sLastFilename;
