@@ -76,7 +76,7 @@ void Preferences::create_instance()
 				ERRORLOG( QString( "Couldn't load config file from neither [%1] nor [%2]." )
 						 .arg( Filesystem::usr_config_path() )
 						 .arg( Filesystem::sys_config_path() ) );
-				__instance = std::shared_ptr<Preferences>(new Preferences());
+				__instance = std::make_shared<Preferences>();
 				__instance->m_bLoadingSuccessful = false;
 			}
 
@@ -93,84 +93,26 @@ void Preferences::replaceInstance( std::shared_ptr<Preferences> pOther ) {
 
 Preferences::Preferences()
 {
-	m_pShortcuts = std::make_shared<Shortcuts>();
-	m_pMidiMap = std::make_shared<MidiMap>();
+	m_bPlaySamplesOnClicking = false;
+	m_bPlaySelectedInstrument = false;
+	m_bFollowPlayhead = true;
 
 	// switch to enable / disable lash, only on h2 startup
 	m_bRestartLash = false;
 	m_bSetLash = false;
 
-	//rubberband bpm change queue
-	m_bUseTheRubberbandBpmChangeEvent = false;
+	// SoundLibraryPanel
+	m_bExpandSongItem = true;
+	m_bExpandPatternItem = true;
 
-	QString rubberBandCLIPath = getenv( "PATH" );
-	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as separator. maybe windows and osx use other separators
-
-	//find the Rubberband-CLI in system env
-	//if this fails a second test will check individual user settings
-	for(int i = 0; i < rubberBandCLIPathList.size(); ++i){
-		m_sRubberBandCLIexecutable = rubberBandCLIPathList[i] + "/rubberband";
-		if ( QFile( m_sRubberBandCLIexecutable ).exists() == true ){
-			m_bSearchForRubberbandOnLoad = false;
-			break;
-		}
-		else {
-			m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
-			m_bSearchForRubberbandOnLoad = true;
-		}
-	}
-
-	m_sPreferredLanguage = QString();
-	m_bPlaySamplesOnClicking = false; // audio file browser
-	m_bPlaySelectedInstrument = false; // midi keyboard and keyboard play only selected instrument
-
-	m_bRecordEvents = false; // not recording by default
-	m_nPunchInPos = 0;
-	m_nPunchOutPos = -1;
-
-	m_bExpandSongItem = true; //SoundLibraryPanel
-	m_bExpandPatternItem = true; //SoundLibraryPanel
-	m_bUseTimelineBpm = false;		// use timeline
-	
-	m_sLastExportPatternAsDirectory = QDir::homePath();
-	m_sLastExportSongDirectory = QDir::homePath();
-	m_sLastSaveSongAsDirectory = QDir::homePath();
-	m_sLastOpenSongDirectory = Filesystem::songs_dir();
-	m_sLastOpenPatternDirectory = Filesystem::patterns_dir();
-	m_sLastExportLilypondDirectory = QDir::homePath();
-	m_sLastExportMidiDirectory = QDir::homePath();
-	m_sLastImportDrumkitDirectory = QDir::homePath();
-	m_sLastExportDrumkitDirectory = QDir::homePath();
-	m_sLastOpenLayerDirectory = QDir::homePath();
-	m_sLastOpenPlaybackTrackDirectory = QDir::homePath();
-	m_sLastAddSongToPlaylistDirectory = Filesystem::songs_dir();
-	m_sLastPlaylistDirectory = Filesystem::playlists_dir();
-	m_sLastImportThemeDirectory = QDir::homePath();
-	m_sLastExportThemeDirectory = QDir::homePath();
-	
-	// export dialog
-	m_nExportTemplateIdx = 0;
-	m_nExportModeIdx = 0;
-	m_nExportSampleRateIdx = 0;
-	m_nExportSampleDepthIdx = 0;
-	m_bShowExportSongLicenseWarning = true;
-	m_bShowExportDrumkitLicenseWarning = true;
-	m_bShowExportDrumkitCopyleftWarning = true;
-	m_bShowExportDrumkitAttributionWarning = true;
-
-	//export midi dialog
-	m_nMidiExportMode = 0;
-
-	m_bFollowPlayhead = true;
-
+	// BeatCounter
 	m_bBbc = BC_OFF;
 	m_bMmcSetPlay = SET_PLAY_OFF;
+	m_nCountOffset = 0;
+	m_nStartOffset = 0;
 
-	m_nCountOffset = 0;  // beatcounter
-	m_nStartOffset = 0;  // beatcounter
-
-	m_serverList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
-	m_nAutosavesPerHour = 60;
+	m_serverList.push_back(
+		QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
 	m_patternCategories.push_back( SoundLibraryDatabase::m_sPatternBaseCategory );
 
 	//___ audio engine properties ___
@@ -206,16 +148,13 @@ Preferences::Preferences()
 	m_bMidiDiscardNoteAfterAction = true;
 	m_bEnableMidiFeedback = false;
 
-	// PortAudio properties
-	m_sPortAudioDevice = QString();
-	m_sPortAudioHostAPI = QString();
-	m_nLatencyTarget = 0;
-
-	// CoreAudio
-	m_sCoreAudioDevice = QString();
+	// OSC configuration
+	m_bOscServerEnabled = false;
+	m_bOscFeedbackEnabled = true;
+	m_nOscTemporaryPort = -1;
+	m_nOscServerPort = 9000;
 
 	//___  alsa audio driver properties ___
-
 #ifdef H2CORE_HAVE_ALSA
 	// Ensure the device read from the local preferences does
 	// exist. If not, we try to replace it with a valid one.
@@ -238,43 +177,86 @@ Preferences::Preferences()
 	m_sAlsaAudioDevice = "hw:0";
 #endif
 
+	// PortAudio properties
+	m_sPortAudioDevice = QString();
+	m_sPortAudioHostAPI = QString();
+	m_nLatencyTarget = 0;
+
+	// CoreAudio
+	m_sCoreAudioDevice = QString();
+
 	//___  jack driver properties ___
 	m_sJackPortName1 = QString("alsa_pcm:playback_1");
 	m_sJackPortName2 = QString("alsa_pcm:playback_2");
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
+	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_bJackTimebaseEnabled = false;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
-	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 
-	// OSC configuration
-	m_bOscServerEnabled = false;
-	m_bOscFeedbackEnabled = true;
-	m_nOscServerPort = 9000;
-	m_nOscTemporaryPort = -1;
+	m_nAutosavesPerHour = 60;
 
-	//___ General properties ___
-	m_bUseLash = false;
+	// Find the Rubberband-CLI in system env. If this fails a second test will
+	// check individual user settings
+	const QStringList commonPaths = QString( getenv( "PATH" ) ).split(":");
+	m_bSearchForRubberbandOnLoad = true;
+	for ( const auto& ssPath : commonPaths ) {
+		m_sRubberBandCLIexecutable = ssPath + "/rubberband";
+		if ( QFile( m_sRubberBandCLIexecutable ).exists() ){
+			m_bSearchForRubberbandOnLoad = false;
+			break;
+		}
+	}
+	if ( m_bSearchForRubberbandOnLoad ) {
+		// No binary found
+		m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
+	}
+
+	m_sDefaultEditor = "";
+
+	m_sPreferredLanguage = QString();
+
+	m_bUseRelativeFilenamesForPlaylists = false;
+
 	m_bShowDevelWarning = false;
 	m_bShowNoteOverwriteWarning = true;
-	// NONE: lastSongFilename;
+
+	m_sLastSongFilename = "";
+	m_sLastPlaylistFilename = "";
+
 	m_bHearNewNotes = true;
-	// NONE: m_recentFiles;
-	// NONE: m_recentFX;
-	m_bQuantizeEvents = true;
 	m_bRecordEvents = false;
-	m_bUseRelativeFilenamesForPlaylists = false;
-	m_bHideKeyboardCursor = false;
+	unsetPunchArea();
+	m_bQuantizeEvents = true;
+
+	m_recentFiles = std::vector<QString>();
+	m_recentFX = QStringList();
+
+	m_bUseLash = false;
+
+	m_nMaxBars = 400;
+	m_nMaxLayers = 16;
+
+#ifdef H2CORE_HAVE_OSC
+	m_sNsmClientId = "";
+#endif
+	m_sH2ProcessName = "";
+
+	m_bUseTimelineBpm = false;		// use timeline
+
+	//rubberband bpm change queue
+	m_bUseTheRubberbandBpmChangeEvent = false;
 
 	//___ GUI properties ___
-	m_nLastOpenTab = 0;
+	m_bShowInstrumentPeaks = true;
 	m_nPatternEditorGridResolution = 8;
 	m_bPatternEditorUsingTriplets = false;
-	m_bShowInstrumentPeaks = true;
 	m_bIsFXTabVisible = true;
-	m_bShowAutomationArea = false;
+	m_bHideKeyboardCursor = false;
 	m_bShowPlaybackTrack = false;
+	m_nLastOpenTab = 0;
+	m_bShowAutomationArea = false;
 	m_nPatternEditorGridHeight = 21;
 	m_nPatternEditorGridWidth = 3;
 	m_nSongEditorGridHeight = 18;
@@ -285,14 +267,49 @@ Preferences::Preferences()
 	m_songEditorProperties.set(10, 10, 600, 250, true);
 	m_instrumentRackProperties.set(500, 20, 526, 437, true);
 	m_audioEngineInfoProperties.set(720, 120, 0, 0, false);
-	m_playlistEditorProperties.set(200, 300, 921, 703, false);
-	m_directorProperties.set(200, 300, 423, 377, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
-	m_nMaxBars = 400;
-	m_nMaxLayers = 16;
+	m_playlistEditorProperties.set(200, 300, 921, 703, false);
+	m_directorProperties.set(200, 300, 423, 377, false);
+	
+	m_sLastExportPatternAsDirectory = QDir::homePath();
+	m_sLastExportSongDirectory = QDir::homePath();
+	m_sLastSaveSongAsDirectory = QDir::homePath();
+	m_sLastOpenSongDirectory = Filesystem::songs_dir();
+	m_sLastOpenPatternDirectory = Filesystem::patterns_dir();
+	m_sLastExportLilypondDirectory = QDir::homePath();
+	m_sLastExportMidiDirectory = QDir::homePath();
+	m_sLastImportDrumkitDirectory = QDir::homePath();
+	m_sLastExportDrumkitDirectory = QDir::homePath();
+	m_sLastOpenLayerDirectory = QDir::homePath();
+	m_sLastOpenPlaybackTrackDirectory = QDir::homePath();
+	m_sLastAddSongToPlaylistDirectory = Filesystem::songs_dir();
+	m_sLastPlaylistDirectory = Filesystem::playlists_dir();
+	m_sLastPlaylistScriptDirectory = QDir::homePath();
+	m_sLastImportThemeDirectory = QDir::homePath();
+	m_sLastExportThemeDirectory = QDir::homePath();
+	
+	// export dialog
+	m_nExportSampleDepthIdx = 0;
+	m_nExportSampleRateIdx = 0;
+	m_nExportModeIdx = 0;
+	m_nExportTemplateIdx = 0;
+
+	//export midi dialog
+	m_nMidiExportMode = 0;
+
+	m_bShowExportSongLicenseWarning = true;
+	m_bShowExportDrumkitLicenseWarning = true;
+	m_bShowExportDrumkitCopyleftWarning = true;
+	m_bShowExportDrumkitAttributionWarning = true;
+
+	m_theme = Theme();
+	m_pShortcuts = std::make_shared<Shortcuts>();
+	m_pMidiMap = std::make_shared<MidiMap>();
+
+	m_bLoadingSuccessful = false;
 }
 
 Preferences::~Preferences()
@@ -319,7 +336,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		INFOLOG( QString( "Loading preferences from [%1]" ).arg( sPath ) );
 	}
 
-	auto pPref = std::shared_ptr<Preferences>(new Preferences());
+	auto pPref = std::make_shared<Preferences>();
 
 	//////// GENERAL ///////////
 	auto interfaceTheme = InterfaceTheme();
@@ -853,6 +870,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			"playoffset", pPref->m_nStartOffset, false, false, bSilent );
 
 		// ~ beatcounter
+		pPref->m_bPlaySamplesOnClicking = guiNode.read_bool(
+			"playSamplesOnClicking", pPref->m_bPlaySamplesOnClicking, true,
+			false, bSilent );
 
 		pPref->m_nAutosavesPerHour = guiNode.read_int(
 			"autosavesPerHour", pPref->m_nAutosavesPerHour, false, false, bSilent );
@@ -1225,6 +1245,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_int( "countoffset", m_nCountOffset );
 		guiNode.write_int( "playoffset", m_nStartOffset );
 		// ~ beatcounter
+
+		guiNode.write_bool( "playSamplesOnClicking", m_bPlaySamplesOnClicking );
 
 		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
 
