@@ -54,12 +54,9 @@ class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public
 	
 	private:
 		void 		exportTrack();
-		void 		saveSettingsToPreferences();
-		void		restoreSettingsFromPreferences();
 		QString	 	createDefaultFilename();
 		bool	 	validateUserInput();
 		
-		std::shared_ptr<H2Core::Preferences> 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;
 		
