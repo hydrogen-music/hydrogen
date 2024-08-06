@@ -35,7 +35,6 @@ using InterpolateMode = H2Core::Interpolation::InterpolateMode;
 
 namespace H2Core {
 	class Instrument;
-	class Preferences;
 }
 
 ///
@@ -69,10 +68,7 @@ private:
 
 	void		setResamplerMode(int index);
 	bool		checkUseOfRubberband();
-	
-	void		saveSettingsToPreferences();
-	void		restoreSettingsFromPreferences();
-	
+
 	bool		currentInstrumentHasNotes();
 	QString		findUniqueExportFilenameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
@@ -91,8 +87,7 @@ private:
 	bool					m_bOldTimeLineBPMMode;
 	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
-	std::shared_ptr<H2Core::Preferences>	m_pPreferences;
-	
+
 	static QString 			sLastFilename;
 };
 

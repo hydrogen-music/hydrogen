@@ -89,7 +89,6 @@ QString ExportSongDialog::sLastFilename = "";
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
 	, m_bExporting( false )
-	, m_pPreferences( Preferences::get_instance() )
 {
 	setupUi( this );
 	setModal( true );
@@ -100,6 +99,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	exportTypeCombo->addItem(tr("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	const auto pPref = Preferences::get_instance();
 
 	m_pProgressBar->setValue( 0 );
 	
@@ -108,7 +110,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_nInstrument = 0;
 	m_sExtension = ".wav";
 	m_bOverwriteFiles = false;
-	m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
+	m_bOldRubberbandBatchMode = pPref->getRubberBandBatchMode();
 
 	// use of rubberband batch
 	if( checkUseOfRubberband() ) {
@@ -119,10 +121,35 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 		toggleRubberbandCheckBox->setToolTip( tr( "No sample in the current song uses Rubberband" ) );
 	}
 
-	const auto pHydrogen = Hydrogen::get_instance();
+	// loading previous directory and filling filename text field
+	if ( sLastFilename.isEmpty() ) {
+		sLastFilename = createDefaultFilename();
+	}
 
-	// use of timeline
-	const auto pSong = pHydrogen->getSong();
+	QDir lastExportDir = QDir( pPref->getLastExportSongDirectory() );
+
+	// joining filepath with dirname
+	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFilename );
+	exportNameTxt->setText( sFullPath );
+
+	// loading rest of the options
+	templateCombo->setCurrentIndex( pPref->getExportTemplateIdx() );
+	exportTypeCombo->setCurrentIndex( pPref->getExportModeIdx() );
+
+	const int nExportSampleRateIdx = pPref->getExportSampleRateIdx();
+	if ( nExportSampleRateIdx > 0 ) {
+		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
+	} else {
+		sampleRateCombo->setCurrentIndex( 0 );
+	}
+
+	const int nExportBithDepthIdx = pPref->getExportSampleDepthIdx();
+	if ( nExportBithDepthIdx > 0 ) {
+		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
+	} else {
+		sampleDepthCombo->setCurrentIndex( 0 );
+	}
+
 	if ( pSong != nullptr ) {
 		toggleTimeLineBPMCheckBox->setChecked( pSong->getIsTimelineActivated());
 		m_bOldTimeLineBPMMode = pSong->getIsTimelineActivated();
@@ -137,12 +164,10 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 		connect( resampleComboBox, SIGNAL( currentIndexChanged(int) ),
 				 this, SLOT( resampleComboBoIndexChanged(int) ) );
 
-		//Load the other settings..
-		restoreSettingsFromPreferences();
-
-		// Have the dialog find the best size
-		adjustSize();
 	}
+
+	// Have the dialog find the best size
+	adjustSize();
 }
 
 ExportSongDialog::~ExportSongDialog()
@@ -175,67 +200,11 @@ QString ExportSongDialog::createDefaultFilename()
 	return sDefaultFilename;
 }
 
-void ExportSongDialog::saveSettingsToPreferences()
-{
-	// extracting dirname from export box	
-	QString sFilename = exportNameTxt->text();
-	QFileInfo info( sFilename );
-	QDir dir = info.absoluteDir();
-	if ( !dir.exists() ) {
-		// very strange if it happens but better to check for it anyway
-		return;
-	}
-	
-	// saving filename for this session	
-	sLastFilename = info.fileName();
-	Preferences::get_instance()->setLastExportSongDirectory( dir.absolutePath() );
-	
-	// saving other options
-	m_pPreferences->setExportModeIdx( exportTypeCombo->currentIndex() );
-	m_pPreferences->setExportTemplateIdx( templateCombo->currentIndex() );
-	m_pPreferences->setExportSampleRateIdx( sampleRateCombo->currentIndex() );
-	m_pPreferences->setExportSampleDepthIdx( sampleDepthCombo->currentIndex() );
-}
-
-void ExportSongDialog::restoreSettingsFromPreferences()
-{
-	// loading previous directory and filling filename text field
-	
-	// loading default filename on a first run and storing it in static field
-	if( sLastFilename.isEmpty() ) {
-		sLastFilename = createDefaultFilename();
-	}
-
-	QString sDirPath = m_pPreferences->getLastExportSongDirectory();
-	QDir qd = QDir( sDirPath );
-	
-	// joining filepath with dirname
-	QString sFullPath = qd.absoluteFilePath( sLastFilename );
-	exportNameTxt->setText( sFullPath );
-	
-	// loading rest of the options
-	templateCombo->setCurrentIndex( m_pPreferences->getExportTemplateIdx() );
-	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
-	
-	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
-	if( nExportSampleRateIdx > 0 ) {
-		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
-	} else {
-		sampleRateCombo->setCurrentIndex( 0 );
-	}
-	
-	
-	int nExportBithDepthIdx = m_pPreferences->getExportSampleDepthIdx();
-	if( nExportBithDepthIdx > 0 ) {
-		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
-	} else {
-		sampleDepthCombo->setCurrentIndex( 0 );
-	}
-}
-
 void ExportSongDialog::on_browseBtn_clicked()
 {
-	QString sPath = Preferences::get_instance()->getLastExportSongDirectory();
+	const auto pPref = Preferences::get_instance();
+
+	QString sPath = pPref->getLastExportSongDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
@@ -257,27 +226,27 @@ void ExportSongDialog::on_browseBtn_clicked()
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( tr( "Export song" ) );
 
-	QString defaultFilename = exportNameTxt->text();
+	const QString sDefaultFilename = exportNameTxt->text();
 
-	fd.selectFile(defaultFilename);
+	fd.selectFile( sDefaultFilename );
 
-	QString filename = "";
+	QString sFilename = "";
 	if (fd.exec()) {
-		filename = fd.selectedFiles().first();
+		sFilename = fd.selectedFiles().first();
 		m_bQfileDialog = true;
 	}
 
-	if ( !filename.isEmpty() ) {
+	if ( !sFilename.isEmpty() ) {
 		//this second extension check is mostly important if you leave a dot
 		//without a regular extionsion in a filename
-		if( !filename.endsWith( m_sExtension ) ){
-			filename.append(m_sExtension);
+		if( !sFilename.endsWith( m_sExtension ) ){
+			sFilename.append(m_sExtension);
 		}
 
-		exportNameTxt->setText(filename);
+		exportNameTxt->setText(sFilename);
 	}
 
-	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
+	if( sFilename.endsWith( ".ogg" ) || sFilename.endsWith( ".OGG" ) ){
 		sampleRateCombo->hide();
 		sampleDepthCombo->hide();
 		sampleRateLable->hide();
@@ -289,7 +258,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 bool ExportSongDialog::validateUserInput() 
 {
     // check if directory exists otherwise error
-	QString filename = exportNameTxt->text();
+	const QString filename = exportNameTxt->text();
 	QFileInfo file( filename );
 	QDir dir = file.dir();
 	if( !dir.exists() ) {
@@ -306,6 +275,12 @@ bool ExportSongDialog::validateUserInput()
 
 void ExportSongDialog::on_okBtn_clicked()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	if ( m_bExporting ) {
 		return;
 	}
@@ -313,23 +288,33 @@ void ExportSongDialog::on_okBtn_clicked()
 	if( !validateUserInput() ) {
 		return;
 	}
-	
-	saveSettingsToPreferences();
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pPref = Preferences::get_instance();
+
+	// extracting dirname from export box
+	QString sFilename = exportNameTxt->text();
+	QFileInfo info( sFilename );
+	QDir dir = info.absoluteDir();
+	if ( !dir.exists() ) {
+		// very strange if it happens but better to check for it anyway
+		return;
+	}
+
+	// saving filename for this session
+	sLastFilename = info.fileName();
+	pPref->setLastExportSongDirectory( dir.absolutePath() );
+	pPref->setExportModeIdx( exportTypeCombo->currentIndex() );
+	pPref->setExportTemplateIdx( templateCombo->currentIndex() );
+	pPref->setExportSampleRateIdx( sampleRateCombo->currentIndex() );
+	pPref->setExportSampleDepthIdx( sampleDepthCombo->currentIndex() );
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	QFileInfo fileInfo( exportNameTxt->text() );
 	if ( ! Filesystem::dir_writable( fileInfo.absoluteDir().absolutePath(), false ) ) {
 		QMessageBox::warning( this, "Hydrogen",
 							  pCommonStrings->getFileDialogMissingWritePermissions(),
 							  QMessageBox::Ok );
-		return;
-	}
-
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
@@ -409,7 +394,8 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bOverwriteFiles = false;
 
-	if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK || exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
+	if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ||
+		exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
 		m_bExportTrackouts = false;
 
 		QString filename = exportNameTxt->text();
@@ -450,9 +436,10 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
-	if( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
+	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ) {
 		m_bExportTrackouts = true;
-		pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(),
+									  sampleDepthCombo->currentText().toInt());
 		exportTracks();
 		return;
 	}
@@ -583,6 +570,7 @@ void ExportSongDialog::on_closeBtn_clicked()
 	closeExport();
 }
 void ExportSongDialog::closeExport() {
+	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -594,13 +582,13 @@ void ExportSongDialog::closeExport() {
 	
 	m_bExporting = false;
 	
-	if( m_pPreferences->getRubberBandBatchMode() ){
+	if ( pPref->getRubberBandBatchMode() ){
 		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pSong->getDrumkit()->recalculateRubberband(
 			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 		pHydrogen->getAudioEngine()->unlock();
 	}
-	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
+	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	pHydrogen->setIsTimelineActivated( m_bOldTimeLineBPMMode );
 	
 	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
@@ -807,7 +795,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 {
-	m_pPreferences->setRubberBandBatchMode(toggled);
+	Preferences::get_instance()->setRubberBandBatchMode(toggled);
 }
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
