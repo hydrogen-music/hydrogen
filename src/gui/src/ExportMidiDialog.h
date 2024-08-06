@@ -31,7 +31,6 @@
 
 namespace H2Core {
     class Preferences;
-    class Hydrogen;
 }
 
 ///
@@ -60,7 +59,6 @@ class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public
 		QString	 	createDefaultFilename();
 		bool	 	validateUserInput();
 		
-		H2Core::Hydrogen* 		m_pHydrogen;
 		std::shared_ptr<H2Core::Preferences> 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;

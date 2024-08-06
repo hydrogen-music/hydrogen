@@ -23,6 +23,7 @@
 #include <QLabel>
 
 #include "ExportMidiDialog.h"
+
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "Widgets/FileDialog.h"
@@ -42,7 +43,6 @@ QString ExportMidiDialog::sLastFilename = "";
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
 	, Object()
-	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
 	, m_bFileSelected( false )
 	, m_sExtension( ".mid" )
@@ -84,10 +84,14 @@ void ExportMidiDialog::saveSettingsToPreferences()
 
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pHydrogen->getSong()->getFilename();
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return "";
+	}
+	QString sDefaultFilename = pSong->getFilename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pHydrogen->getSong()->getName();
+		sDefaultFilename = pSong->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -175,16 +179,20 @@ bool ExportMidiDialog::validateUserInput( )
 
 void ExportMidiDialog::on_okBtn_clicked()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	if ( !validateUserInput() ) {
 		return;
 	}
 	
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	saveSettingsToPreferences();
 
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );
 	
