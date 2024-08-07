@@ -1718,17 +1718,13 @@ void MainForm::updateRecentUsedSongList()
 {
 	m_pRecentFilesMenu->clear();
 
-	std::vector<QString> recentUsedSongs =
+	const QStringList recentUsedSongs =
 		Preferences::get_instance()->getRecentFiles();
 
-	QString sFilename;
-
-	for ( uint i = 0; i < recentUsedSongs.size(); ++i ) {
-		sFilename = recentUsedSongs[ i ];
-
-		if ( !sFilename.isEmpty() ) {
+	for ( const auto& ssFilename : recentUsedSongs ) {
+		if ( ! ssFilename.isEmpty() ) {
 			QAction *pAction = new QAction( this  );
-			pAction->setText( sFilename );
+			pAction->setText( ssFilename );
 			m_pRecentFilesMenu->addAction( pAction );
 		}
 	}

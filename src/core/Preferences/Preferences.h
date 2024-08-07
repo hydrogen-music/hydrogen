@@ -429,8 +429,8 @@ public:
 	bool			getQuantizeEvents() const;
 	void			setQuantizeEvents( bool value );
 
-	const std::vector<QString>& 		getRecentFiles() const;
-	void			setRecentFiles( const std::vector<QString>& recentFiles );
+	const QStringList& 	getRecentFiles() const;
+	void			setRecentFiles( const QStringList& recentFiles );
 
 	const QStringList&	getRecentFX() const;
 	void			setMostRecentFX( const QString& );
@@ -635,7 +635,7 @@ private:
 	bool				m_bQuantizeEvents;
 
 	QStringList			m_recentFX;
-	std::vector<QString> 		m_recentFiles;
+	QStringList 		m_recentFiles;
 
 	bool				m_bUseLash;
 
@@ -998,10 +998,10 @@ inline bool Preferences::getQuantizeEvents() const {
 	return m_bQuantizeEvents;
 }
 
-inline void Preferences::setRecentFiles( const std::vector<QString>& recentFiles ) {
+inline void Preferences::setRecentFiles( const QStringList& recentFiles ) {
 	m_recentFiles = recentFiles;
 }
-inline const std::vector<QString>& Preferences::getRecentFiles() const {
+inline const QStringList& Preferences::getRecentFiles() const {
 	return m_recentFiles;
 }
 

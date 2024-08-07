@@ -2005,31 +2005,15 @@ void CoreActionController::insertRecentFile( const QString& sFilename ){
 	// duplicates are removed later on.
 	bool bAlreadyContained = false;
 
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	QStringList recentFiles = pPref->getRecentFiles();
 
 	// We have to normalize directory separators. Else opening a
 	// song via double click from file browser and from within
     // Hydrogen will give to distinct entries on Windows.
     const QString sFilenameCleaned = QDir::cleanPath( sFilename );
 
-    recentFiles.insert( recentFiles.begin(), sFilenameCleaned );
-
-	if ( std::find( recentFiles.begin(), recentFiles.end(),
-					sFilenameCleaned ) != recentFiles.end() ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning. Also, in case the file got renamed,
-		// remove it's previous name from the list.
-		std::vector<QString> sTmpVec;
-		for ( const auto& ssFilename : recentFiles ) {
-			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
-				 sTmpVec.end() ) {
-				// Particular file is not contained yet.
-				sTmpVec.push_back( ssFilename );
-			}
-		}
-
-		recentFiles = sTmpVec;
-	}
+    recentFiles.push_front( sFilenameCleaned );
+	recentFiles.removeDuplicates();
 
 	pPref->setRecentFiles( recentFiles );
 }
