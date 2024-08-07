@@ -127,7 +127,7 @@ Preferences::Preferences()
 	, m_sCoreAudioDevice( "" )
 	, m_sJackPortName1( "alsa_pcm:playback_1" )
 	, m_sJackPortName2( "alsa_pcm:playback_2" )
-	, m_bJackTransportMode( true )
+	, m_nJackTransportMode( USE_JACK_TRANSPORT )
 	, m_bJackConnectDefaults( true )
 	, m_bJackTrackOuts( false )
 	, m_JackTrackOutputMode( JackTrackOutputMode::postFader )
@@ -309,7 +309,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_sCoreAudioDevice( pOther->m_sCoreAudioDevice )
 	, m_sJackPortName1( pOther->m_sJackPortName1 )
 	, m_sJackPortName2( pOther->m_sJackPortName2 )
-	, m_bJackTransportMode( pOther->m_bJackTransportMode )
+	, m_nJackTransportMode( pOther->m_nJackTransportMode )
 	, m_bJackConnectDefaults( pOther->m_bJackConnectDefaults )
 	, m_bJackTrackOuts( pOther->m_bJackTrackOuts )
 	, m_JackTrackOutputMode( pOther->m_JackTrackOutputMode )
@@ -642,9 +642,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			const QString sMode = jackDriverNode.read_string(
 				"jack_transport_mode", "", false, false, bSilent );
 			if ( sMode == "NO_JACK_TRANSPORT" ) {
-				pPref->m_bJackTransportMode = NO_JACK_TRANSPORT;
+				pPref->m_nJackTransportMode = NO_JACK_TRANSPORT;
 			} else if ( sMode == "USE_JACK_TRANSPORT" ) {
-				pPref->m_bJackTransportMode = USE_JACK_TRANSPORT;
+				pPref->m_nJackTransportMode = USE_JACK_TRANSPORT;
 			}
 
 			pPref->m_bJackTimebaseEnabled = jackDriverNode.read_bool(
@@ -1186,9 +1186,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 
 			// jack transport client
 			QString sMode;
-			if ( m_bJackTransportMode == NO_JACK_TRANSPORT ) {
+			if ( m_nJackTransportMode == NO_JACK_TRANSPORT ) {
 				sMode = "NO_JACK_TRANSPORT";
-			} else if ( m_bJackTransportMode == USE_JACK_TRANSPORT ) {
+			} else if ( m_nJackTransportMode == USE_JACK_TRANSPORT ) {
 				sMode = "USE_JACK_TRANSPORT";
 			}
 			jackDriverNode.write_string( "jack_transport_mode", sMode );
@@ -1728,8 +1728,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_sJackPortName1 ) )
 			.append( QString( "%1%2m_sJackPortName2: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sJackPortName2 ) )
-			.append( QString( "%1%2m_bJackTransportMode: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bJackTransportMode ) )
+			.append( QString( "%1%2m_nJackTransportMode: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nJackTransportMode ) )
 			.append( QString( "%1%2m_bJackConnectDefaults: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bJackConnectDefaults ) )
 			.append( QString( "%1%2m_bJackTrackOuts: %3\n" ).arg( sPrefix )
@@ -1975,8 +1975,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sJackPortName1 ) )
 			.append( QString( ", m_sJackPortName2: %1" )
 					 .arg( m_sJackPortName2 ) )
-			.append( QString( ", m_bJackTransportMode: %1" )
-					 .arg( m_bJackTransportMode ) )
+			.append( QString( ", m_nJackTransportMode: %1" )
+					 .arg( m_nJackTransportMode ) )
 			.append( QString( ", m_bJackConnectDefaults: %1" )
 					 .arg( m_bJackConnectDefaults ) )
 			.append( QString( ", m_bJackTrackOuts: %1" )

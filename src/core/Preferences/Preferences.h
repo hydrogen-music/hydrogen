@@ -357,7 +357,7 @@ public:
 	 * transport system. It has two different states:
 	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
 	 */
-	int					m_bJackTransportMode;
+	int					m_nJackTransportMode;
 	/** Toggles auto-connecting of the main stereo output ports to the
 		system's default ports when starting the JACK server.*/
 	bool				m_bJackConnectDefaults;

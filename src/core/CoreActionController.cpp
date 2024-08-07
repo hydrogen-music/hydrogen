@@ -901,7 +901,7 @@ bool CoreActionController::deleteTag( int nPosition ) {
 bool CoreActionController::toggleJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	if ( Preferences::get_instance()->m_bJackTransportMode ==
+	if ( Preferences::get_instance()->m_nJackTransportMode ==
 		 Preferences::USE_JACK_TRANSPORT ) {
 		activateJackTransport( false );
 	} else {
@@ -923,9 +923,9 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	

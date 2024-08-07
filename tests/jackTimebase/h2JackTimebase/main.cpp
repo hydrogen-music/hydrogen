@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
 		pPref->m_bUseMetronome = false;
 		pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Jack;
-		pPref->m_bJackTransportMode =
+		pPref->m_nJackTransportMode =
 			H2Core::Preferences::USE_JACK_TRANSPORT;
 		pPref->m_nBufferSize = 1024;
 

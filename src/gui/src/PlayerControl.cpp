@@ -902,7 +902,7 @@ void PlayerControl::jackTransportBtnClicked()
 	}
 
 	const auto pPref = Preferences::get_instance();
-	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		CoreActionController::activateJackTransport( false );
 	}
 	else {
@@ -1117,7 +1117,7 @@ void PlayerControl::jackTransportActivationEvent( )
 {
 	const auto pPref = Preferences::get_instance();
 	
-	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		
 		if ( ! m_pJackTransportBtn->isDown() ) {
 			m_pJackTransportBtn->setChecked( true );

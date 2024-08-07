@@ -378,7 +378,7 @@ public:
 	/**
 	 * \return Whether JackAudioDriver is used as current audio driver
 	 * and JACK transport was activated via the GUI
-	 * (#H2Core::Preferences::m_bJackTransportMode).
+	 * (#H2Core::Preferences::m_nJackTransportMode).
 	 */
 	bool			hasJackTransport() const;
         float			getMasterBpm() const;

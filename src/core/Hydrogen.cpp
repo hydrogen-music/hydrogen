@@ -1154,7 +1154,7 @@ bool Hydrogen::hasJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
-			 Preferences::get_instance()->m_bJackTransportMode ==
+			 Preferences::get_instance()->m_nJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
 		}
