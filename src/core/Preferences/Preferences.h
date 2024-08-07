@@ -72,6 +72,8 @@ public:
 		m_geometry = geometry;
 	}
 
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 };
 
 /**
@@ -586,6 +588,9 @@ public:
 	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
 
 	bool getLoadingSuccessful() const;
+
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 	
 private:
 
