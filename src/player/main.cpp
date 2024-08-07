@@ -115,6 +115,12 @@ int main(int argc, char** argv){
 				delete H2Core::EventQueue::get_instance();
 				delete H2Core::Logger::get_instance();
 
+				// There is no particular need to clean up the Preferences
+				// outselves. This is just done in order for it to not appear in
+				// the objects map printed below.
+				pPref->replaceInstance( nullptr );
+				pPref = nullptr;
+
 				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
 				H2Core::Base::write_objects_map_to_cerr();
 

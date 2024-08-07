@@ -641,6 +641,12 @@ int main(int argc, char *argv[])
 
 		delete MidiActionManager::get_instance();
 
+		// There is no particular need to clean up the Preferences outselves.
+		// This is just done in order for it to not appear in the objects map
+		// printed below.
+		pPref->replaceInstance( nullptr );
+		pPref = nullptr;
+
 		___INFOLOG( "Quitting..." );
 		delete Logger::get_instance();
 

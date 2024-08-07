@@ -537,6 +537,13 @@ int main(int argc, char *argv[])
 
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;
+
+		// There is no particular need to clean up the Preferences outselves.
+		// This is just done in order for it to not appear in the objects map
+		// printed below.
+		pPref->replaceInstance( nullptr );
+		pPref = nullptr;
+
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Base::count_active()) {
