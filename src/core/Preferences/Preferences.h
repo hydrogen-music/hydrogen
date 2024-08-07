@@ -60,7 +60,9 @@ public:
 	QByteArray m_geometry;
 
 	WindowProperties();
-	WindowProperties(const WindowProperties &other);
+	WindowProperties( int _x, int _y, int _width, int _height, bool _visible,
+					  const QByteArray& geometry = QByteArray() );
+	WindowProperties( const WindowProperties &other );
 	~WindowProperties();
 
 	void set(int _x, int _y, int _width, int _height, bool _visible, const QByteArray& geometry = QByteArray() ) {
