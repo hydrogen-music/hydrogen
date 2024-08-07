@@ -99,7 +99,7 @@ Preferences::Preferences()
 	, m_bSetLash( false )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
-	, m_bBbc( BC_OFF )
+	, m_bBc( BC_OFF )
 	, m_bMmcSetPlay( SET_PLAY_OFF )
 	, m_nCountOffset( 0 )
 	, m_nStartOffset( 0 )
@@ -279,7 +279,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bSetLash( pOther->m_bSetLash )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
-	, m_bBbc( pOther->m_bBbc )
+	, m_bBc( pOther->m_bBc )
 	, m_bMmcSetPlay( pOther->m_bMmcSetPlay )
 	, m_nCountOffset( pOther->m_nCountOffset )
 	, m_nStartOffset( pOther->m_nStartOffset )
@@ -937,10 +937,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
 		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bBbc = BC_OFF;
+			pPref->m_bBc = BC_OFF;
 		}
 		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bBbc = BC_ON;
+			pPref->m_bBc = BC_ON;
 		}
 		else if ( ! sUseBeatCounter.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
@@ -1323,9 +1323,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		//beatcounter
 		QString bcMode;
 
-		if ( m_bBbc == BC_OFF ) {
+		if ( m_bBc == BC_OFF ) {
 			bcMode = "BC_OFF";
-		} else if ( m_bBbc  == BC_ON ) {
+		} else if ( m_bBc  == BC_ON ) {
 			bcMode = "BC_ON";
 		}
 		guiNode.write_string( "bc", bcMode );
@@ -1664,8 +1664,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bExpandSongItem ) )
 			.append( QString( "%1%2m_bExpandPatternItem: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bExpandPatternItem ) )
-			.append( QString( "%1%2m_bBbc: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBbc ) )
+			.append( QString( "%1%2m_bBc: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bBc ) )
 			.append( QString( "%1%2m_bMmcSetPlay: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bMmcSetPlay ) )
 			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix )
@@ -1911,8 +1911,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExpandSongItem ) )
 			.append( QString( ", m_bExpandPatternItem: %1" )
 					 .arg( m_bExpandPatternItem ) )
-			.append( QString( ", m_bBbc: %1" )
-					 .arg( m_bBbc ) )
+			.append( QString( ", m_bBc: %1" )
+					 .arg( m_bBc ) )
 			.append( QString( ", m_bMmcSetPlay: %1" )
 					 .arg( m_bMmcSetPlay ) )
 			.append( QString( ", m_nCountOffset: %1" )

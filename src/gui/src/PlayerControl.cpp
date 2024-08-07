@@ -232,7 +232,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 								QSize(), m_sBCOnOffBtnToolTip,
 								false, true );
 	m_pBCOnOffBtn->move(0, 0);
-	if ( pPref->m_bBbc == Preferences::BC_ON ) {
+	if ( pPref->m_bBc == Preferences::BC_ON ) {
 		m_bLastBCOnOffBtnState = true;
 	} else {
 		m_bLastBCOnOffBtnState = false;
@@ -557,7 +557,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	//beatcounter
-	if ( pPref->m_bBbc == Preferences::BC_OFF ) {
+	if ( pPref->m_bBc == Preferences::BC_OFF ) {
 		m_pControlsBCPanel->hide();
 		if ( ! m_pBCOnOffBtn->isDown() ) {
 			m_pBCOnOffBtn->setChecked(false);
@@ -608,15 +608,15 @@ void PlayerControl::updatePlayerControl()
 	switch (nEventCount){
 		case 1 :
 			if ( bcDisplaystatus == 1 ){
-				pPref->m_bBbc = Preferences::BC_OFF;
+				pPref->m_bBc = Preferences::BC_OFF;
 				bcDisplaystatus = 0;
 			}
 			sBcStatus = "R";
 
 			break;
 		default:
-			if ( pPref->m_bBbc == Preferences::BC_OFF ){
-				pPref->m_bBbc = Preferences::BC_ON;
+			if ( pPref->m_bBc == Preferences::BC_OFF ){
+				pPref->m_bBc = Preferences::BC_ON;
 				bcDisplaystatus = 1;
 			}
 			sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10,
@@ -779,13 +779,13 @@ void PlayerControl::activateBeatCounter( bool bActivate )
 {
 	auto pPref = Preferences::get_instance();
 	if ( bActivate ) {
-		pPref->m_bBbc = Preferences::BC_ON;
+		pPref->m_bBc = Preferences::BC_ON;
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel on") );
 		m_pControlsBCPanel->show();
 		m_pBCOnOffBtn->setChecked( true );
 	}
 	else {
-		pPref->m_bBbc = Preferences::BC_OFF;
+		pPref->m_bBc = Preferences::BC_OFF;
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel off") );
 		m_pControlsBCPanel->hide();
 		m_pBCOnOffBtn->setChecked( false );
@@ -1026,14 +1026,14 @@ void PlayerControl::updateBeatCounter() {
 		m_pBCOnOffBtn->setIsActive( true );
 		if ( m_bLastBCOnOffBtnState ) {
 			m_pBCOnOffBtn->setChecked( true );
-			pPref->m_bBbc = Preferences::BC_ON;
+			pPref->m_bBc = Preferences::BC_ON;
 			m_pControlsBCPanel->show();
 		}
 		
 	} else if ( pHydrogen->getTempoSource() !=
 				H2Core::Hydrogen::Tempo::Song &&
 				m_pBCOnOffBtn->getIsActive() ) {
-		pPref->m_bBbc = Preferences::BC_OFF;
+		pPref->m_bBc = Preferences::BC_OFF;
 		m_pControlsBCPanel->hide();
 		m_bLastBCOnOffBtnState = m_pBCOnOffBtn->isChecked();
 		m_pBCOnOffBtn->setChecked( false );

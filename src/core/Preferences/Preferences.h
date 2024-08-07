@@ -234,7 +234,7 @@ public:
 	bool				m_bExpandPatternItem;
 
 	// BeatCounter
-	bool				m_bBbc;
+	bool				m_bBc;
 	bool				m_bMmcSetPlay;
 	int					m_nCountOffset;
 	int					m_nStartOffset;
