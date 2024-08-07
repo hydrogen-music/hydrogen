@@ -408,9 +408,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	}
 }
 
-Preferences::~Preferences()
-{
-	INFOLOG( "DESTROY" );
+Preferences::~Preferences() {
 	__instance = nullptr;
 }
 
