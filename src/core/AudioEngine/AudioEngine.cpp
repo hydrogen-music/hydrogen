@@ -819,7 +819,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 		pPos->setFrame( nNewFrame );
 	}
 
-	if ( pPos = m_pTransportPosition ) {
+	if ( pPos == m_pTransportPosition ) {
 		handleTempoChange();
 	}
 }
