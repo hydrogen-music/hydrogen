@@ -445,6 +445,8 @@ private:
 	 */
 	QString m_sLastLoadedDrumkitPath;
 
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline bool Song::getIsTimelineActivated() const {

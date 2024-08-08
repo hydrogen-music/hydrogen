@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
  <version>1.3.0-alpha-'d3404ea5e'</version>
+ <formatVersion>2</formatVersion>
  <bpm>120</bpm>
  <volume>0.5</volume>
  <isMuted>false</isMuted>
@@ -24,6 +25,7 @@
  <humanize_velocity>0</humanize_velocity>
  <swing_factor>0</swing_factor>
  <drumkit_info>
+  <formatVersion>2</formatVersion>
   <name>empty</name>
   <author>undefined author</author>
   <info>No information available.</info>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <playlist xmlns="http://www.hydrogen-music.org/playlist" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- <name>test.h2playlist</name>
+ <formatVersion>2</formatVersion>
  <songs>
   <song>
    <path>../../../../data/demo_songs/GM_kit_demo1.h2song</path>

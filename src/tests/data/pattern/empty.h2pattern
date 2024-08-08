@@ -4,6 +4,7 @@
  <author>Hydrogen dev team</author>
  <license>CC0</license>
  <pattern>
+  <formatVersion>2</formatVersion>
   <name>test</name>
   <info>ladida</info>
   <category></category>

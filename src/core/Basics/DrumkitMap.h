@@ -147,6 +147,9 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 * kits can be mapped onto each other.
 	 */
 	std::map<int, Type> m_mapping;
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline void DrumkitMap::clear() {

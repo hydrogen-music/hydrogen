@@ -725,6 +725,7 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 
 void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
+	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );

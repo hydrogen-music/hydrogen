@@ -229,6 +229,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
+	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );

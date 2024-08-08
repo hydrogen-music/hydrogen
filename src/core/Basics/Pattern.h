@@ -295,6 +295,9 @@ class Pattern : public H2Core::Object<Pattern>
 	 */
 	static bool loadDoc( const QString& sPatternPath, XMLDoc* pDoc,
 						 bool bSilent = false );
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 /** Iterate over all provided notes in an immutable way. */

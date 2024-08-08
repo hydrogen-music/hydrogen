@@ -24,6 +24,8 @@
 
   <xsd:element name="drumkit_map">
 	  <xsd:complexType>
+      <xsd:element name="formatVersion" type="xsd:nonNegativeInteger"
+						 minOccurs="0"	maxOccurs="1"/>
 	    <xsd:sequence>
 		    <xsd:element ref="h2:mapping" minOccurs="0" maxOccurs="unbounded"/>
 	    </xsd:sequence>

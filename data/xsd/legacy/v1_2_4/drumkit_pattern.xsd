@@ -66,8 +66,6 @@
 <xsd:element name="pattern">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="formatVersion" type="xsd:nonNegativeInteger"
-						 minOccurs="0"		maxOccurs="1"/>
 			<xsd:element name="name"		type="xsd:string"/>
 			<xsd:element name="info"		type="xsd:string"/>
 			<xsd:element name="category"	type="xsd:string"/>

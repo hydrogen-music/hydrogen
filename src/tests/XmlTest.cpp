@@ -78,7 +78,30 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 	return ( count==4 );
 }
 
+void XmlTest::testDrumkitFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFolder = H2TEST_FILE( "/drumkits/format-integrity/");
+	const auto pDrumkit = H2Core::Drumkit::load( sTestFolder );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
+	const QString sTmpDrumkitXml =
+		H2Core::Filesystem::tmp_file_path( "drumkit-format-integrity.xml" );
+
+	// We just store the definition. Saving the whole kit is tested in another
+	// function.
+	H2Core::XMLDoc doc;
+	H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	pDrumkit->saveTo( root, -1, true, false, false );
+
+	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL(
+		H2Core::Filesystem::drumkit_file( sTestFolder ), sTmpDrumkitXml );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitXml ) );
+	___INFOLOG( "passed" );
+}
 
 void XmlTest::testDrumkit()
 {
@@ -378,14 +401,30 @@ void XmlTest::testDrumkitUpgrade() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testPatternFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
+	const auto pPattern = H2Core::Pattern::load_file( sTestFile );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	H2Core::License license{};
+	license.setType( H2Core::License::LicenseType::CC_0 );
+	const QString sTmpPattern =
+		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
+	CPPUNIT_ASSERT( pPattern->save_file(
+						"GMRockKit", "Hydrogen dev team", license,
+						sTmpPattern, true ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPattern ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testPattern()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	QString sPatternPath =
 		H2Core::Filesystem::tmp_dir() + "pattern.h2pattern";
@@ -460,11 +499,6 @@ void XmlTest::testPatternLegacy() {
 void XmlTest::testPatternInstrumentTypes()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	const QString sTmpWithoutTypes =
 		H2Core::Filesystem::tmp_dir() + "pattern-without-types.h2pattern";
@@ -552,14 +586,26 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitMapFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/drumkit_map/ref.h2map");
+	const auto pDrumkitMap = H2Core::DrumkitMap::load( sTestFile );
+	CPPUNIT_ASSERT( pDrumkitMap != nullptr );
+
+	const QString sTmpDrumkitMap =
+		H2Core::Filesystem::tmp_file_path( "drumkit-map-format-integrity.h2map" );
+	CPPUNIT_ASSERT( pDrumkitMap->save( sTmpDrumkitMap ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpDrumkitMap );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitMap ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testDrumkitMap()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	// Test resilience against loading duplicate type and key. They should both
 	// be dropped.
@@ -597,14 +643,28 @@ void XmlTest::checkTestPatterns()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testPlaylistFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/playlist/test.h2playlist" );
+	const auto pPlaylist = H2Core::Playlist::load( sTestFile );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+
+	// As we are using relative paths to the song files, we have to create the
+	// test artifact within the same folder as the original playlist.
+	const QString sTmpPlaylist =
+		H2TEST_FILE( "/playlist/tmp-duplicate-test.h2playlist" );
+	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPlaylist, false ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPlaylist );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPlaylist ) );
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testPlaylist()
 {
 	___INFOLOG( "" );
-
-#ifdef WIN32
-	___WARNINGLOG( "skipped" );
-	return;
-#endif
 
 	const QString sTmpPath = H2Core::Filesystem::tmp_dir() +
 		"playlist.h2playlist";
@@ -616,6 +676,7 @@ void XmlTest::testPlaylist()
 		H2TEST_FILE( "playlist/test.h2playlist" ) );
 	H2Core::XMLDoc doc;
 
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath ) );
 	CPPUNIT_ASSERT( doc.read( sTmpPath,
 							  H2Core::Filesystem::playlist_xsd_path() ) );
@@ -648,6 +709,22 @@ void XmlTest::testPlaylist()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testSongFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "song/current.h2song" );
+	const auto pSong = H2Core::Song::load( sTestFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const QString sTmpSong =
+		H2Core::Filesystem::tmp_file_path( "current-format-integrity.h2song" );
+	CPPUNIT_ASSERT( pSong->save( sTmpSong ) );
+
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL( sTestFile, sTmpSong );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpSong ) );
+	___INFOLOG( "passed" );
+}
 
 void XmlTest::testSong()
 {
@@ -660,32 +737,20 @@ void XmlTest::testSong()
 		"constructor.h2song";
 
 	// Test constructor
-	const auto pSong = H2Core::Song::load( H2TEST_FILE( "song/current.h2song" ) );
-	CPPUNIT_ASSERT( pSong->save( sTmpPath ) );
-	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPath ) != nullptr );
-
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPath, H2TEST_FILE( "song/current.h2song" ));
-
-	// Test constructor
 	const auto pSongConstructor = std::make_shared<H2Core::Song>();
 	CPPUNIT_ASSERT( pSongConstructor->save( sTmpPathConstructor ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathConstructor ) != nullptr );
 
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
-
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
+		sTmpPathConstructor, H2TEST_FILE( "song/constructor.h2song" ));
 
 	// Test empty song (which is using the default kit)
 	const auto pSongEmpty = H2Core::Song::getEmptySong();
 	CPPUNIT_ASSERT( pSongEmpty->save( sTmpPathEmpty ) );
 	CPPUNIT_ASSERT( H2Core::Song::load( sTmpPathEmpty ) != nullptr );
 
-	// TODO these still have to be made portable
-	// H2TEST_ASSERT_XML_FILES_EQUAL(
-	// 	sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
+	H2TEST_ASSERT_H2SONG_FILES_EQUAL(
+		sTmpPathEmpty, H2TEST_FILE( "song/empty.h2song" ));
 
 	// Cleanup
 	H2Core::Filesystem::rm( sTmpPath );

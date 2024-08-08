@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<drumkit_pattern xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_pattern">
  <drumkit_name>GMRockKit</drumkit_name>
  <author>Hydrogen dev team</author>
  <license>CC0</license>
  <pattern>
+  <formatVersion>2</formatVersion>
   <name>pat</name>
   <info></info>
   <category>unknown</category>
