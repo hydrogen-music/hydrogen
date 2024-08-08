@@ -121,7 +121,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	getAllFrameInfos();
 
 #ifndef H2CORE_HAVE_RUBBERBAND
-	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
+	if ( !Filesystem::file_executable( Preferences::get_instance()->m_sRubberBandCLIexecutable , true /* silent */) ) {
 		RubberbandCframe->setDisabled ( true );
 		setClean();
 	}
