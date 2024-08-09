@@ -25,6 +25,8 @@
 #include <map>
 #include <QMutexLocker>
 
+namespace H2Core {
+
 /**
 * @class MidiMap
 *
@@ -40,12 +42,8 @@
 * @author Sebastian Moors
 *
 */
-
-MidiMap * MidiMap::__instance = nullptr;
-
 MidiMap::MidiMap()
 {
-	__instance = this;
 	QMutexLocker mx(&__mutex);
 
 	// Constructor
@@ -57,23 +55,137 @@ MidiMap::MidiMap()
 MidiMap::~MidiMap()
 {
 	QMutexLocker mx(&__mutex);
-
-	__instance = nullptr;
 }
 
-void MidiMap::create_instance()
-{
-	if( __instance == nullptr ) {
-		__instance = new MidiMap;
+std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
+											bool bSilent ) {
+	auto pMidiMap = std::make_shared<MidiMap>();
+
+	auto eventNode = node.firstChildElement( "midiEvent" );
+	while ( ! eventNode.isNull() ) {
+		const QString sNodeName = eventNode.firstChildElement().nodeName();
+		if ( sNodeName == "mmcEvent" ) {
+			std::shared_ptr<Action> pAction = std::make_shared<Action>(
+				eventNode.firstChildElement( "action" ).text() );
+			pAction->setParameter1(
+				eventNode.firstChildElement( "parameter" ).text() );
+			pAction->setParameter2(
+				eventNode.firstChildElement( "parameter2" ).text() );
+			pAction->setParameter3(
+				eventNode.firstChildElement( "parameter3" ).text() );
+
+			pMidiMap->registerMMCEvent(
+				eventNode.firstChildElement( "mmcEvent" ).text(),
+				pAction );
+		}
+		else if ( sNodeName == "noteEvent" ) {
+			std::shared_ptr<Action> pAction = std::make_shared<Action>(
+				eventNode.firstChildElement( "action" ).text() );
+			pAction->setParameter1(
+				eventNode.firstChildElement( "parameter" ).text() );
+			pAction->setParameter2(
+				eventNode.firstChildElement( "parameter2" ).text() );
+			pAction->setParameter3(
+				eventNode.firstChildElement( "parameter3" ).text() );
+
+			pMidiMap->registerNoteEvent(
+				eventNode.firstChildElement( "eventParameter").text().toInt(),
+				pAction );
+		}
+		else if ( sNodeName == "ccEvent" ){
+			std::shared_ptr<Action> pAction = std::make_shared<Action>(
+				eventNode.firstChildElement( "action" ).text() );
+			pAction->setParameter1(
+				eventNode.firstChildElement( "parameter" ).text() );
+			pAction->setParameter2(
+				eventNode.firstChildElement( "parameter2" ).text() );
+			pAction->setParameter3(
+				eventNode.firstChildElement( "parameter3" ).text() );
+			pMidiMap->registerCCEvent(
+				eventNode.firstChildElement( "eventParameter" ).text().toInt(),
+				pAction );
+		}
+		else if ( sNodeName == "pcEvent" ){
+			std::shared_ptr<Action> pAction = std::make_shared<Action>(
+				eventNode.firstChildElement( "action" ).text() );
+			pAction->setParameter1(
+				eventNode.firstChildElement( "parameter" ).text() );
+			pAction->setParameter2(
+				eventNode.firstChildElement( "parameter2" ).text() );
+			pAction->setParameter3(
+				eventNode.firstChildElement( "parameter3" ).text() );
+			pMidiMap->registerPCEvent( pAction );
+		}
+		else {
+			WARNINGLOG( QString( "Unknown MIDI map node [%1]" )
+						.arg( sNodeName ) );
+		}
+
+		eventNode = eventNode.nextSiblingElement( "midiEvent" );
+	}
+
+	return pMidiMap;
+}
+
+void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
+	auto midiEventMapNode = node.createNode( "midiEventMap" );
+
+	for( const auto& [ssType, ppAction] : m_mmcActionMap ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
+			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
+
+			midiEventNode.write_string( "mmcEvent" , ssType );
+			midiEventNode.write_string( "action" , ppAction->getType());
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
+		}
+	}
+
+	for ( const auto& [nnPitch, ppAction] : m_noteActionMap ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
+			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
+
+			midiEventNode.write_string(
+				"noteEvent", H2Core::MidiMessage::EventToQString(
+					H2Core::MidiMessage::Event::Note ) );
+			midiEventNode.write_int( "eventParameter" , nnPitch );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
+		}
+	}
+
+	for ( const auto& [nnParam, ppAction] : m_ccActionMap ){
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
+			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
+
+			midiEventNode.write_string(
+				"ccEvent", H2Core::MidiMessage::EventToQString(
+					H2Core::MidiMessage::Event::CC ) );
+			midiEventNode.write_int( "eventParameter" , nnParam );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
+		}
+	}
+
+	for ( const auto& ppAction : m_pcActionVector ) {
+		if ( ppAction != nullptr && ! ppAction->isNull() ){
+			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
+
+			midiEventNode.write_string(
+				"pcEvent", H2Core::MidiMessage::EventToQString(
+					H2Core::MidiMessage::Event::PC ) );
+			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
+			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
+			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
+		}
 	}
 }
-
-void MidiMap::reset_instance()
-{
-	create_instance();
-	__instance->reset();
-}
-
 
 /**
  * Clears the complete midi map and releases the memory
@@ -403,3 +515,4 @@ QString MidiMap::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
+};

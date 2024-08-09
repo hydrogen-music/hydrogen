@@ -26,6 +26,7 @@
 
 #include "ui_MixerSettingsDialog_UI.h"
 
+#include <QDialog>
 #include <core/Object.h>
 
 ///

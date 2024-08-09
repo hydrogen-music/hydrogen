@@ -42,6 +42,7 @@
 namespace H2Core
 {
 
+class MidiMap;
 
 /**
 \ingroup H2CORE
@@ -59,7 +60,9 @@ public:
 	QByteArray m_geometry;
 
 	WindowProperties();
-	WindowProperties(const WindowProperties &other);
+	WindowProperties( int _x, int _y, int _width, int _height, bool _visible,
+					  const QByteArray& geometry = QByteArray() );
+	WindowProperties( const WindowProperties &other );
 	~WindowProperties();
 
 	void set(int _x, int _y, int _width, int _height, bool _visible, const QByteArray& geometry = QByteArray() ) {
@@ -69,6 +72,8 @@ public:
 		m_geometry = geometry;
 	}
 
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 };
 
 /**
@@ -139,32 +144,6 @@ public:
 		ShortcutTab = 0x080,
 	};
 
-	bool				__playsamplesonclicking; // audio file browser
-
-	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
-
-	bool				m_bFollowPlayhead;
-
-	// switch to enable / disable lash, only on h2 startup
-	bool				m_brestartLash;
-	bool				m_bsetLash;
-
-	//soundlibrarypanel expand song and pattern item
-	bool				__expandSongItem;
-	bool				__expandPatternItem;
-
-	//beatcounter
-	bool				m_bbc;
-	bool				m_mmcsetplay;
-
-	int					m_countOffset;
-	int					m_startOffset;
-	// ~ beatcounter
-
-	std::list<QString> 		sServerList;
-	std::list<QString> 		m_patternCategories;
-
-	//	audio engine properties ___
 	enum class AudioDriver {
 		None,
 		Null,
@@ -178,6 +157,41 @@ public:
 		CoreAudio,
 		PortAudio
 	};
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the JACK per track output ports.*/
+	enum class JackTrackOutputMode {
+		/** Applies layer, component, and instrument gain, note and
+		instrument pan, note velocity, and main component and
+		instrument volume to the samples. */
+		postFader = 0,
+		/** Only layer gain and note velocity will be applied to the samples.*/
+		preFader = 1
+	};
+
+	static void				create_instance();
+	static std::shared_ptr<Preferences> get_instance(){
+		assert(__instance); return __instance; }
+
+		Preferences();
+		Preferences( std::shared_ptr<Preferences> pOther );
+		~Preferences();
+
+		/** Exchange the instance referenced by the current singleton with
+		 * another one. */
+		void replaceInstance( std::shared_ptr<Preferences> pOther );
+
+		static std::shared_ptr<Preferences>	load( const QString& sPath, bool bSilent = false );
+		/** Save the config to the user-level config file (or the one specified
+		 * via CLI) */
+		bool			save( const bool bSilent = false) const;
+		/** Instead of a `saveAs` method #Preferences only provides a
+		 * #saveCopyAs() method to indicate that corresponding file won't change
+		 * and will always be the user-level config file. (Which can be altered
+		 * using #Filesystem::m_sPreferencesOverwritePath) */
+		bool			saveCopyAs( const QString& sPath,
+									const bool bSilent = false ) const;
+
 	static AudioDriver parseAudioDriver( const QString& sDriver );
 	static QString audioDriverToQString( const AudioDriver& driver );
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
@@ -196,22 +210,39 @@ public:
 	static bool checkJackSupport();
 
 	/**
-	 * Audio driver
+	 * Choice of #m_sMidiPortName and #m_sMidiOutputPortName in case
+	 * no port/device was selected.
 	 *
-	 * Used in the audioEngine_startAudioDrivers() to create an
-	 * audio driver using createDriver(). 
-	 *
-	 * These choices are support:
-	 * - "Auto" : audioEngine_startAudioDrivers() will try
-	 *   different drivers itself.
-	 * - "Jack" : createDriver() will create a JackAudioDriver.
-	 * - "Alsa" : createDriver() will create a AlsaAudioDriver.
-	 * - "CoreAudio" : createDriver() will create a CoreAudioDriver.
-	 * - "PortAudio" : createDriver() will create a PortAudioDriver.
-	 * - "Oss" : createDriver() will create a OssDriver.
-	 * - "PulseAudio" : createDriver() will create a PulseAudioDriver.
-	 * - "Fake" : createDriver() will create a FakeDriver.
+	 * Pinning its value to "None" will prevent Hydrogen to connect to
+	 * ports/devices using this exact name but is still done for
+	 * backward compatibility.
 	 */
+	static QString getNullMidiPort() {
+		return "None";
+	}
+
+	bool				m_bPlaySamplesOnClicking; // audio file browser
+	bool				m_bPlaySelectedInstrument; // midi keys and keys play instrument or drumset
+	bool				m_bFollowPlayhead;
+
+	// switch to enable / disable lash, only on h2 startup
+	bool				m_bRestartLash;
+	bool				m_bSetLash;
+
+	// SoundLibraryPanel expand song and pattern item
+	bool				m_bExpandSongItem;
+	bool				m_bExpandPatternItem;
+
+	// BeatCounter
+	bool				m_bBc;
+	bool				m_bMmcSetPlay;
+	int					m_nCountOffset;
+	int					m_nStartOffset;
+
+	QStringList 		m_serverList;
+	QStringList 		m_patternCategories;
+
+	//___ audio engine properties ___
 	AudioDriver			m_audioDriver;
 	/** If set to true, samples of the metronome will be added to
 	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
@@ -255,18 +286,7 @@ public:
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
-	/**
-	 * Choice of #m_sMidiPortName and #m_sMidiOutputPortName in case
-	 * no port/device was selected.
-	 *
-	 * Pinning its value to "None" will prevent Hydrogen to connect to
-	 * ports/devices using this exact name but is still done for
-	 * backward compatibility.
-	 */
-	static QString getNullMidiPort() {
-		return "None";
-	}
-	
+
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
@@ -274,6 +294,18 @@ public:
 	bool				m_bEnableMidiFeedback;
 	
 	// OSC Server properties
+	/** \return #m_bOscServerEnabled*/
+	bool			getOscServerEnabled() const;
+	/** \param val Sets #m_bOscServerEnabled*/
+	void			setOscServerEnabled( bool val );
+	/** \return #m_bOscFeedbackEnabled*/
+	bool			getOscFeedbackEnabled() const;
+	/** \param val Sets #m_bOscFeedbackEnabled*/
+	void			setOscFeedbackEnabled( bool val );
+	/** \return #m_nOscServerPort*/
+	int				getOscServerPort() const;
+	/** \param oscPort Sets #m_nOscServerPort*/
+	void			setOscServerPort( int oscPort );
 	/**
 	 * Whether to start the OscServer thread.
 	 *
@@ -282,9 +314,6 @@ public:
 	 * Hydrogen::Hydrogen(). This will register all OSC message
 	 * handlers and makes the server listen to port
 	 * #m_nOscServerPort.
-	 *
-	 * Set by setOscServerEnabled() and queried by
-	 * getOscServerEnabled().
 	 */
 	bool				m_bOscServerEnabled;
 	/**
@@ -295,10 +324,7 @@ public:
 	 * \e all known OSC clients using
 	 * CoreActionController::initExternalControlInterfaces() and
 	 * OscServer::handleAction() via OSC messages each time it gets
-	 * updated..
-	 
-	 * Set by setOscFeedbackEnabled() and queried by
-	 * getOscFeedbackEnabled().
+	 * updated.
 	 */
 	bool				m_bOscFeedbackEnabled;
 	/**
@@ -309,12 +335,7 @@ public:
 	 * -1.
 	 */
 	int					m_nOscTemporaryPort;
-	/**
-	 * Port number the OscServer will be started at.
-	 
-	 * Set by setOscServerPort() and queried by
-	 * getOscServerPort().
-	 */
+	/** Port number the OscServer will be started at. */
 	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
@@ -336,7 +357,7 @@ public:
 	 * transport system. It has two different states:
 	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
 	 */
-	int					m_bJackTransportMode;
+	int					m_nJackTransportMode;
 	/** Toggles auto-connecting of the main stereo output ports to the
 		system's default ports when starting the JACK server.*/
 	bool				m_bJackConnectDefaults;
@@ -347,16 +368,6 @@ public:
 	 * output will be created.
 	 */
 	bool				m_bJackTrackOuts;
-
-	/** Specifies which audio settings will be applied to the sample
-		supplied in the JACK per track output ports.*/
-	enum class JackTrackOutputMode {
-		/** Applies layer, component, and instrument gain, note and
-		instrument pan, note velocity, and main component and
-		instrument volume to the samples. */
-		postFader = 0,
-		/** Only layer gain and note velocity will be applied to the samples.*/
-		preFader = 1 };
 
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
@@ -374,43 +385,14 @@ public:
 	/**
 	 * Specifies if Hydrogen should run as JACK time master. It
 	 * has two states: Preferences::USE_JACK_TIME_MASTER and
-	 * Preferences::NO_JACK_TIME_MASTER. It is set to
-	 * Preferences::NO_JACK_TIME_MASTER by the
-	 * JackAudioDriver::initTimebaseMaster() if Hydrogen couldn't be
-	 * registered as time master.
-	 */
+	 * Preferences::NO_JACK_TIME_MASTER. */
 	int					m_bJackMasterMode;
 	// ~ jack driver properties
 
-	///Default text editor (used by Playlisteditor)
-	QString				m_sDefaultEditor;
 	int				m_nAutosavesPerHour;
 
 	///Rubberband CLI
-	QString				m_rubberBandCLIexecutable;
-
-	/**
-	 * If #__instance equals 0, a new Preferences singleton will
-	 * be created and stored in it.
-	 *
-	 * It is called in Hydrogen::create_instance().
-	 */
-	static void				create_instance();
-	/**
-	 * Returns a pointer to the current Preferences singleton
-	 * stored in #__instance.
-	 */
-	static Preferences* 	get_instance(){ assert(__instance); return __instance; }
-
-	~Preferences();
-
-	/// Load the preferences file
-	bool			loadPreferences( bool bGlobal );
-
-	/// Save the preferences file
-	bool			savePreferences() const;
-
-	const QString&	getDataDirectory() const;
+	QString				m_sRubberBandCLIexecutable;
 
 	const QString&	getDefaultEditor() const;
 	void			setDefaultEditor( const QString& editor);
@@ -419,46 +401,66 @@ public:
 	const QString&	getPreferredLanguage() const;
 	void			setPreferredLanguage( const QString& sLanguage );
 
+	bool			isPlaylistUsingRelativeFilenames() const;
 	void			setUseRelativeFilenamesForPlaylists( bool value );
 
-	void			setShowDevelWarning( bool value );
 	bool			getShowDevelWarning() const;
-
+	void			setShowDevelWarning( bool value );
 	bool			getShowNoteOverwriteWarning() const;
 	void			setShowNoteOverwriteWarning( bool bValue );
 
-	bool			isPlaylistUsingRelativeFilenames() const;
-
-	void			setLastSongFilename( const QString& filename );
 	const QString&	getLastSongFilename() const;
-
-	void			setLastPlaylistFilename( const QString& filename );
+	void			setLastSongFilename( const QString& filename );
 	const QString&	getLastPlaylistFilename() const;
+	void			setLastPlaylistFilename( const QString& filename );
 
-	void			setHearNewNotes( bool value );
 	bool			getHearNewNotes() const;
+	void			setHearNewNotes( bool value );
 
-	void			setRecordEvents( bool value );
 	bool			getRecordEvents() const;
-
-	void			setPunchInPos ( unsigned pos );
+	void			setRecordEvents( bool value );
 	int				getPunchInPos() const;
-
-	void			setPunchOutPos ( unsigned pos );
+	void			setPunchInPos( unsigned pos );
 	int				getPunchOutPos() const;
-
-	bool			inPunchArea (int pos) const;
+	void			setPunchOutPos( unsigned pos );
+	bool			inPunchArea( int pos ) const;
 	void			unsetPunchArea();
 
-	void			setQuantizeEvents( bool value );
 	bool			getQuantizeEvents() const;
+	void			setQuantizeEvents( bool value );
 
-	const std::vector<QString>& 		getRecentFiles() const;
-	void			setRecentFiles( const std::vector<QString>& recentFiles );
+	const QStringList& 	getRecentFiles() const;
+	void			setRecentFiles( const QStringList& recentFiles );
 
 	const QStringList&	getRecentFX() const;
 	void			setMostRecentFX( const QString& );
 
+	bool			useLash() const;
+	void			setUseLash( bool b );
+
+	/** @return #m_nMaxBars.*/
+	int				getMaxBars() const;
+	/** @param bars Sets #m_nMaxBars.*/
+	void			setMaxBars( const int bars );
+	/** @return #m_nMaxLayers.*/
+	int				getMaxLayers() const;
+	/** @param layers Sets #m_nMaxLayers.*/
+	void			setMaxLayers( const int layers );
+
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
+	const QString&	getNsmClientId(void) const;
+	void			setNsmClientId(const QString& nsmClientId);
+#endif
+	const QString&	getH2ProcessName() const;
+	void			setH2ProcessName(const QString& processName);
+
+
+	/** Whether to use the bpm of the timeline.*/
+	bool			getUseTimelineBpm() const;
+	void			setUseTimelineBpm( bool val );
+
+	int				getRubberBandBatchMode() const;
+	void			setRubberBandBatchMode( int val );
 
 	// GUI Properties
 	bool			showInstrumentPeaks() const;
@@ -472,6 +474,15 @@ public:
 
 	bool			isFXTabVisible() const;
 	void			setFXTabVisible( bool value );
+
+	bool			hideKeyboardCursor() const;
+	void			setHideKeyboardCursor( bool b );
+
+	void			setShowPlaybackTrack( bool val);
+	bool			getShowPlaybackTrack() const;
+
+	int				getLastOpenTab() const;
+	void			setLastOpenTab(int n);
 	
 	bool			getShowAutomationArea() const;
 	void			setShowAutomationArea( bool value );
@@ -515,111 +526,50 @@ public:
 	const WindowProperties& getDirectorProperties() const;
 	void				setDirectorProperties( const WindowProperties& prop );
 
-	bool			useLash() const;
-	void			setUseLash( bool b );
-
-	bool			hideKeyboardCursor() const;
-	void			setHideKeyboardCursor( bool b );
-
-	/** @param bars Sets #m_nMaxBars.*/
-	void				setMaxBars( const int bars );
-	/** @return #m_nMaxBars.*/
-	int				getMaxBars() const;
-
-	/** @param layers Sets #m_nMaxLayers.*/
-	void			setMaxLayers( const int layers );
-	/** @return #m_nMaxLayers.*/
-	int				getMaxLayers() const;
-
-	void			setWaitForSessionHandler(bool value);
-	bool			getWaitForSessionHandler() const;
-
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	void			setNsmClientId(const QString& nsmClientId);
-	const QString&		getNsmClientId(void) const;
-
-	void			setNsmSongName(const QString& nsmSongName);
-	const QString& 		getNsmSongName(void) const;
-#endif
-
-	/** \return #m_bOscServerEnabled*/
-	bool			getOscServerEnabled() const;
-	/** \param val Sets #m_bOscServerEnabled*/
-	void			setOscServerEnabled( bool val );
-	/** \return #m_bOscFeedbackEnabled*/
-	bool			getOscFeedbackEnabled() const;
-	/** \param val Sets #m_bOscFeedbackEnabled*/
-	void			setOscFeedbackEnabled( bool val );
-	/** \return #m_nOscServerPort*/
-	int				getOscServerPort() const;
-	/** \param oscPort Sets #m_nOscServerPort*/
-	void			setOscServerPort( int oscPort );
-
-	/** Whether to use the bpm of the timeline.
-	 * \return #__useTimelineBpm */
-	bool			getUseTimelineBpm() const;
-	/** Setting #__useTimelineBpm.
-	 * \param val New choice. */
-	void			setUseTimelineBpm( bool val );
-	
-	void			setShowPlaybackTrack( bool val);
-	bool			getShowPlaybackTrack() const;
-
-	int				getRubberBandBatchMode() const;
-	void			setRubberBandBatchMode( int val );
-
-	int				getLastOpenTab() const;
-	void			setLastOpenTab(int n);
-
-	void			setH2ProcessName(const QString& processName);
-
-	const QString&	getH2ProcessName() const;
-
 	const QString&	getLastExportPatternAsDirectory() const;
-	const QString&	getLastExportSongDirectory() const;
-	const QString&	getLastSaveSongAsDirectory() const;
-	const QString&	getLastOpenSongDirectory() const;
-	const QString&	getLastOpenPatternDirectory() const;
-	const QString&	getLastExportLilypondDirectory() const;
-	const QString&	getLastExportMidiDirectory() const;
-	const QString&	getLastImportDrumkitDirectory() const;
-	const QString&	getLastExportDrumkitDirectory() const;
-	const QString&	getLastOpenLayerDirectory() const;
-	const QString&	getLastOpenPlaybackTrackDirectory() const;
-	const QString&	getLastAddSongToPlaylistDirectory() const;
-	const QString&	getLastPlaylistDirectory() const;
-	const QString&	getLastPlaylistScriptDirectory() const;
-	const QString&	getLastImportThemeDirectory() const;
-	const QString&	getLastExportThemeDirectory() const;
 	void			setLastExportPatternAsDirectory( const QString& sPath );
+	const QString&	getLastExportSongDirectory() const;
 	void			setLastExportSongDirectory( const QString& sPath );
+	const QString&	getLastSaveSongAsDirectory() const;
 	void			setLastSaveSongAsDirectory( const QString& sPath );
+	const QString&	getLastOpenSongDirectory() const;
 	void			setLastOpenSongDirectory( const QString& sPath );
+	const QString&	getLastOpenPatternDirectory() const;
 	void			setLastOpenPatternDirectory( const QString& sPath );
+	const QString&	getLastExportLilypondDirectory() const;
 	void			setLastExportLilypondDirectory( const QString& sPath );
+	const QString&	getLastExportMidiDirectory() const;
 	void			setLastExportMidiDirectory( const QString& sPath );
+	const QString&	getLastImportDrumkitDirectory() const;
 	void			setLastImportDrumkitDirectory( const QString& sPath );
+	const QString&	getLastExportDrumkitDirectory() const;
 	void			setLastExportDrumkitDirectory( const QString& sPath );
+	const QString&	getLastOpenLayerDirectory() const;
 	void			setLastOpenLayerDirectory( const QString& sPath );
+	const QString&	getLastOpenPlaybackTrackDirectory() const;
 	void			setLastOpenPlaybackTrackDirectory( const QString& sPath );
+	const QString&	getLastAddSongToPlaylistDirectory() const;
 	void			setLastAddSongToPlaylistDirectory( const QString& sPath );
+	const QString&	getLastPlaylistDirectory() const;
 	void			setLastPlaylistDirectory( const QString& sPath );
+	const QString&	getLastPlaylistScriptDirectory() const;
 	void			setLastPlaylistScriptDirectory( const QString& sPath );
+	const QString&	getLastImportThemeDirectory() const;
 	void			setLastImportThemeDirectory( const QString& sPath );
+	const QString&	getLastExportThemeDirectory() const;
 	void			setLastExportThemeDirectory( const QString& sPath );
 
+		// Export song dialog
 	int				getExportSampleDepthIdx() const;
 	void			setExportSampleDepthIdx( int nExportSampleDepthIdx );
-	
 	int				getExportSampleRateIdx() const;
 	void			setExportSampleRateIdx( int nExportSampleRateIdx );
-
 	int				getExportModeIdx() const;
 	void			setExportModeIdx(int nExportMode);
-	
 	int				getExportTemplateIdx() const;
 	void			setExportTemplateIdx( int nExportTemplateIdx );
 
+		// Export MIDI dialog
     int				getMidiExportMode() const;
     void			setMidiExportMode(int nExportMode);
 
@@ -634,104 +584,108 @@ public:
 
 	const std::shared_ptr<Shortcuts> getShortcuts() const;
 	void setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts );
+	const std::shared_ptr<MidiMap> getMidiMap() const;
+	void setMidiMap( const std::shared_ptr<MidiMap> pMidiMap );
 
 	bool getLoadingSuccessful() const;
+
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 	
 private:
+
+		static WindowProperties loadWindowPropertiesFrom(
+			const XMLNode& parent, const QString& sWindowName,
+			const WindowProperties& defaultProp, const bool bSilent = false );
+		static void saveWindowPropertiesTo(
+			XMLNode& parent, const QString& sWindowName,
+			const WindowProperties& prop );
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
+
+		bool saveTo( const QString& sPath, const bool bSilent ) const;
+
 	/**
 	 * Object holding the current Preferences singleton. It is
 	 * initialized with NULL, set with create_instance(), and
 	 * accessed with get_instance().
 	 */
-	static Preferences *		__instance;
+	static std::shared_ptr<Preferences>		__instance;
 
-	Theme		m_theme;
-	std::shared_ptr<Shortcuts>  m_pShortcuts;
+	/** Default text editor (used by Playlisteditor) */
+	QString				m_sDefaultEditor;
+
+	QString				m_sPreferredLanguage;
+
+	bool				m_bUseRelativeFilenamesForPlaylists;
 	
-	//___ General properties ___
-	QString				m_sH2ProcessName; //Name of hydrogen's main process
-	 ///rubberband bpm change queue
-	bool				m_useTheRubberbandBpmChangeEvent;
-
-	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
 	bool				m_bShowNoteOverwriteWarning;
-	///< Last song used
-	QString				m_lastSongFilename;
-	QString				m_lastPlaylistFilename;
 
-	bool				quantizeEvents;
-	bool				recordEvents;
-	bool				readPrefFileforotherplaces;
-	int					punchInPos;
-	int					punchOutPos;
-	bool				m_bHideKeyboardCursor;
-	/** Maximum number of bars shown in the Song Editor at
-	 * once. 
-	 *
-	 * It is set by setMaxBars() and queried by
-	 * getMaxBars(). In order to change this value, you have to
-	 * manually edit the \<maxBars\> tag in the configuration file
-	 * of Hydrogen in your home folder. Default value assigned in
-	 * constructor: 400.*/
-	int					m_nMaxBars;
-	/** Maximum number of layers to be used in the Instrument
-	 *  editor. 
-	 *
-	 * It is set by setMaxLayers() and queried by
-	 * getMaxLayers(). It is setIn order to change this value, you
-	 * have to manually edit the \<maxLayers\> tag in the
-	 * configuration file of Hydrogen in your home folder. Default
-	 * value assigned in constructor: 16. */
-	int					m_nMaxLayers;
-	bool				hearNewNotes;
+	///< Last song used
+	QString				m_sLastSongFilename;
+	QString				m_sLastPlaylistFilename;
+
+	bool				m_bHearNewNotes;
+	bool				m_bRecordEvents;
+	int					m_nPunchInPos;
+	int					m_nPunchOutPos;
+	bool				m_bQuantizeEvents;
 
 	QStringList			m_recentFX;
-	std::vector<QString> 		m_recentFiles;
+	QStringList 		m_recentFiles;
+
+	bool				m_bUseLash;
+
+	/** Maximum number of bars shown in the Song Editor at
+	 * once. */
+	int					m_nMaxBars;
+	/** Maximum number of layers to be used in the Instrument
+	 *  editor. */
+	int					m_nMaxLayers;
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
-		QString			m_sNsmSongName;
 #endif
+		/** Name of hydrogen's main process */
+		QString			m_sH2ProcessName;
 
-	bool					waitingForSessionHandler;
-	/**
-	 * Whether to use local speeds specified along the Timeline or
+	/** Whether to use local speeds specified along the Timeline or
 	 * a constant tempo for the whole Song in
-	 * Hydrogen::getTimelineBpm() and Hydrogen::getTimelineBpm().
-	 *
-	 * It is set using setUseTimelineBpm() and accessed via
-	 * getUseTimelineBpm().
-	 */
-	bool					__useTimelineBpm;
+	 * Hydrogen::getTimelineBpm() and Hydrogen::getTimelineBpm(). */
+	bool				m_bUseTimelineBpm;
 
+		/** In case the rubberband binary was not found in common places, this
+		 * variable indicated - if `true` - that Hydrogen should continue
+		 * searching for it in places provided during #load() */
+	bool				m_bSearchForRubberbandOnLoad;
+	 ///rubberband bpm change queue
+	bool				m_bUseTheRubberbandBpmChangeEvent;
 
 	//___ GUI properties ___
-	int						m_nLastOpenTab;
-	bool					m_bShowPlaybackTrack;
-
+	bool					m_bShowInstrumentPeaks;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
-	bool					m_bShowInstrumentPeaks;
 	bool					m_bIsFXTabVisible;
+	bool					m_bHideKeyboardCursor;
+	bool					m_bShowPlaybackTrack;
+	int						m_nLastOpenTab;
 	bool					m_bShowAutomationArea;
-	bool					m_bUseRelativeFilenamesForPlaylists;
 	unsigned				m_nPatternEditorGridHeight;
 	unsigned				m_nPatternEditorGridWidth;
 	unsigned				m_nSongEditorGridHeight;
 	unsigned				m_nSongEditorGridWidth;
-	WindowProperties		mainFormProperties;
-	WindowProperties		mixerProperties;
-	WindowProperties		patternEditorProperties;
-	WindowProperties		songEditorProperties;
-	WindowProperties		instrumentRackProperties;
-	WindowProperties		audioEngineInfoProperties;
+	WindowProperties		m_mainFormProperties;
+	WindowProperties		m_mixerProperties;
+	WindowProperties		m_patternEditorProperties;
+	WindowProperties		m_songEditorProperties;
+	WindowProperties		m_instrumentRackProperties;
+	WindowProperties		m_audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 	WindowProperties		m_playlistEditorProperties;
 	WindowProperties		m_directorProperties;
-
-	QString					m_sPreferredLanguage;
 
 	// Last directories used in QFileDialogs
 	QString					m_sLastExportPatternAsDirectory;
@@ -752,44 +706,20 @@ private:
 	QString					m_sLastExportThemeDirectory;
 
 	//Export dialog
-	int						m_nExportModeIdx;
-	int						m_nExportSampleRateIdx;
 	int						m_nExportSampleDepthIdx;
+	int						m_nExportSampleRateIdx;
+	int						m_nExportModeIdx;
 	int						m_nExportTemplateIdx;
-	// ~ Export dialog
 
     // Export midi dialog
     int						m_nMidiExportMode;
-    // ~ Export midi dialog
-	
-	/** Full path to local preferences file.
-	 *
-	 * Used in nsm_open_cb() to specify a preferences file specific to
-	 * the current session.
-	 *
-	 * If non-empty, the local file will be loaded instead of
-	 * Filesystem::usr_config_path() or
-	 * Filesystem::sys_config_path(). In general the underlying file
-	 * does not have to be named "hydrogen.conf". But for the sake of
-	 * consistency the latter naming is strongly recommended.
-	 *
-	 * Note that this variable is a session variable, which won't be
-	 * stored in the hydrogen.conf preferences file!
-	 */
-	QString					m_sPreferencesOverwritePath;
-	
-	Preferences();
 
-	static WindowProperties loadWindowPropertiesFrom( const XMLNode& parent,
-													  const QString& sWindowName,
-													  const WindowProperties& defaultProp );
-	static void saveWindowPropertiesTo( XMLNode& parent, const QString& sWindowName,
-										const WindowProperties& prop );
+	Theme					m_theme;
 
-	bool m_bLoadingSuccessful;
+	std::shared_ptr<Shortcuts>  m_pShortcuts;
+	std::shared_ptr<MidiMap> m_pMidiMap;
 
-		/** Used to indicate changes in the underlying XSD file. */
-		static constexpr int nCurrentFormatVersion = 2;
+	bool					m_bLoadingSuccessful;
 };
 
 inline const QString&			Preferences::getLastExportPatternAsDirectory() const {
@@ -1005,51 +935,51 @@ inline bool Preferences::isPlaylistUsingRelativeFilenames() const {
 }
 
 inline void Preferences::setLastSongFilename( const QString& filename ) {
-	m_lastSongFilename = filename;
+	m_sLastSongFilename = filename;
 }
 inline const QString& Preferences::getLastSongFilename() const {
-	return m_lastSongFilename;
+	return m_sLastSongFilename;
 }
 
 inline void Preferences::setLastPlaylistFilename( const QString& filename ) {
-	m_lastPlaylistFilename = filename;
+	m_sLastPlaylistFilename = filename;
 }
 inline const QString& Preferences::getLastPlaylistFilename() const {
-	return m_lastPlaylistFilename;
+	return m_sLastPlaylistFilename;
 }
 
 inline void Preferences::setHearNewNotes( bool value ) {
-	hearNewNotes = value;
+	m_bHearNewNotes = value;
 }
 inline bool Preferences::getHearNewNotes() const {
-	return hearNewNotes;
+	return m_bHearNewNotes;
 }
 
 inline void Preferences::setRecordEvents( bool value ) {
-	recordEvents = value;
+	m_bRecordEvents = value;
 }
 inline bool Preferences::getRecordEvents() const {
-	return recordEvents;
+	return m_bRecordEvents;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {
-	punchInPos = pos;
+	m_nPunchInPos = pos;
 }
 inline int Preferences::getPunchInPos() const {
-	return punchInPos;
+	return m_nPunchInPos;
 }
 
 inline void Preferences::setPunchOutPos ( unsigned pos ) {
-	punchOutPos = pos;
+	m_nPunchOutPos = pos;
 }
 inline int Preferences::getPunchOutPos() const {
-	return punchOutPos;
+	return m_nPunchOutPos;
 }
 
 inline bool Preferences::inPunchArea (int pos) const {
 	// Return true if punch area not defined
-	if ( punchInPos <= punchOutPos ) {
-		if ( pos < punchInPos || punchOutPos < pos ) {
+	if ( m_nPunchInPos <= m_nPunchOutPos ) {
+		if ( pos < m_nPunchInPos || m_nPunchOutPos < pos ) {
 			return false;
 		}
 	}
@@ -1057,21 +987,21 @@ inline bool Preferences::inPunchArea (int pos) const {
 }
 
 inline void Preferences::unsetPunchArea () {
-	punchInPos = 0;
-	punchOutPos = -1;
+	m_nPunchInPos = 0;
+	m_nPunchOutPos = -1;
 }
 
 inline void Preferences::setQuantizeEvents( bool value ) {
-	quantizeEvents = value;
+	m_bQuantizeEvents = value;
 }
 inline bool Preferences::getQuantizeEvents() const {
-	return quantizeEvents;
+	return m_bQuantizeEvents;
 }
 
-inline void Preferences::setRecentFiles( const std::vector<QString>& recentFiles ) {
+inline void Preferences::setRecentFiles( const QStringList& recentFiles ) {
 	m_recentFiles = recentFiles;
 }
-inline const std::vector<QString>& Preferences::getRecentFiles() const {
+inline const QStringList& Preferences::getRecentFiles() const {
 	return m_recentFiles;
 }
 
@@ -1144,46 +1074,46 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 }
 
 inline const WindowProperties& Preferences::getMainFormProperties() const {
-	return mainFormProperties;
+	return m_mainFormProperties;
 }
 inline void Preferences::setMainFormProperties( const WindowProperties& prop ) {
-	mainFormProperties = prop;
+	m_mainFormProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getMixerProperties() const {
-	return mixerProperties;
+	return m_mixerProperties;
 }
 inline void Preferences::setMixerProperties( const WindowProperties& prop ) {
-	mixerProperties = prop;
+	m_mixerProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getPatternEditorProperties() const {
-	return patternEditorProperties;
+	return m_patternEditorProperties;
 }
 inline void Preferences::setPatternEditorProperties( const WindowProperties& prop ) {
-	patternEditorProperties = prop;
+	m_patternEditorProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getSongEditorProperties() const {
-	return songEditorProperties;
+	return m_songEditorProperties;
 }
 inline void Preferences::setSongEditorProperties( const WindowProperties& prop ) {
-	songEditorProperties = prop;
+	m_songEditorProperties = prop;
 }
 
 
 inline const WindowProperties& Preferences::getInstrumentRackProperties() const {
-	return instrumentRackProperties;
+	return m_instrumentRackProperties;
 }
 inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
-	instrumentRackProperties = prop;
+	m_instrumentRackProperties = prop;
 }
  
 inline const WindowProperties& Preferences::getAudioEngineInfoProperties() const {
-	return audioEngineInfoProperties;
+	return m_audioEngineInfoProperties;
 }
 inline void Preferences::setAudioEngineInfoProperties( const WindowProperties& prop ) {
-	audioEngineInfoProperties = prop;
+	m_audioEngineInfoProperties = prop;
 }
 
 inline const WindowProperties& Preferences::getLadspaProperties( unsigned nFX ) const {
@@ -1230,14 +1160,6 @@ inline int Preferences::getMaxLayers() const {
 	return m_nMaxLayers;
 }
 
-inline void Preferences::setWaitForSessionHandler(bool value){
-	waitingForSessionHandler = value;
-}
-
-inline bool Preferences::getWaitForSessionHandler() const {
-		return waitingForSessionHandler;
-}
-
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 inline void Preferences::setNsmClientId(const QString& nsmClientId){
 	m_sNsmClientId = nsmClientId;
@@ -1246,15 +1168,6 @@ inline void Preferences::setNsmClientId(const QString& nsmClientId){
 inline const QString& Preferences::getNsmClientId(void) const {
 	return m_sNsmClientId;
 }
-
-inline void Preferences::setNsmSongName(const QString& nsmSongName){
-	m_sNsmSongName = nsmSongName;
-}
-
-inline const QString& Preferences::getNsmSongName(void) const {
-	return m_sNsmSongName;
-}
-
 #endif
 
 inline bool Preferences::getOscServerEnabled() const {
@@ -1279,10 +1192,10 @@ inline void Preferences::setOscServerPort( int oscPort ){
 }
 
 inline bool Preferences::getUseTimelineBpm() const {
-	return __useTimelineBpm;
+	return m_bUseTimelineBpm;
 }
 inline void Preferences::setUseTimelineBpm( bool val ){
-	__useTimelineBpm = val;
+	m_bUseTimelineBpm = val;
 }
 
 inline void Preferences::setShowPlaybackTrack( bool val ) {
@@ -1293,10 +1206,10 @@ inline bool Preferences::getShowPlaybackTrack() const {
 }
 
 inline int Preferences::getRubberBandBatchMode() const {
-	return m_useTheRubberbandBpmChangeEvent;
+	return m_bUseTheRubberbandBpmChangeEvent;
 }
 inline void Preferences::setRubberBandBatchMode( int val ){
-	m_useTheRubberbandBpmChangeEvent = val;
+	m_bUseTheRubberbandBpmChangeEvent = val;
 }
 
 inline int Preferences::getLastOpenTab() const {
@@ -1328,6 +1241,12 @@ inline const std::shared_ptr<Shortcuts> Preferences::getShortcuts() const {
 }
 inline void Preferences::setShortcuts( const std::shared_ptr<Shortcuts> pShortcuts ) {
 	m_pShortcuts = pShortcuts;
+}
+inline const std::shared_ptr<MidiMap> Preferences::getMidiMap() const {
+	return m_pMidiMap;
+}
+inline void Preferences::setMidiMap( const std::shared_ptr<MidiMap> pMidiMap ) {
+	m_pMidiMap = pMidiMap;
 }
 inline bool Preferences::getLoadingSuccessful() const {
 	return m_bLoadingSuccessful;

@@ -23,6 +23,7 @@
 #include <QLabel>
 
 #include "ExportMidiDialog.h"
+
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
 #include "Widgets/FileDialog.h"
@@ -42,8 +43,6 @@ QString ExportMidiDialog::sLastFilename = "";
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
 	, Object()
-	, m_pHydrogen( Hydrogen::get_instance() )
-	, m_pPreferences( Preferences::get_instance() )
 	, m_bFileSelected( false )
 	, m_sExtension( ".mid" )
 {
@@ -55,7 +54,22 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	exportTypeCombo->addItem( tr("SMF1 multi: export each instrument to separate track") );
 	exportTypeCombo->addItem( tr("SMF0: export all events to one track") );
 
-	restoreSettingsFromPreferences();
+	// loading previous directory and filling filename text field
+	// loading default filename on a first run
+	if ( sLastFilename.isEmpty() ) {
+		sLastFilename = createDefaultFilename();
+	}
+
+	const auto pPref = Preferences::get_instance();
+
+	QDir lastExportDir = QDir( pPref->getLastExportMidiDirectory() );
+
+	// joining filepath with dirname
+	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFilename );
+	exportNameTxt->setText( sFullPath );
+
+	// loading rest of the options
+	exportTypeCombo->setCurrentIndex( pPref->getMidiExportMode() );
 
 	adjustSize();
 }
@@ -64,29 +78,16 @@ ExportMidiDialog::~ExportMidiDialog()
 {
 }
 
-void ExportMidiDialog::saveSettingsToPreferences()
-{
-	m_pPreferences->setMidiExportMode( exportTypeCombo->currentIndex() );
-	
-	// extracting dirname from export box	
-	QString sFilename = exportNameTxt->text();
-	QFileInfo info( sFilename );
-	QDir dir = info.absoluteDir();
-	if ( !dir.exists() ) {
-		// very strange if it happens but better to check for it anyway
-		return;	
-	}
-	
-	sLastFilename = info.fileName();
-	Preferences::get_instance()->setLastExportMidiDirectory( dir.absolutePath() );
-}
-
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pHydrogen->getSong()->getFilename();
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return "";
+	}
+	QString sDefaultFilename = pSong->getFilename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pHydrogen->getSong()->getName();
+		sDefaultFilename = pSong->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -98,26 +99,6 @@ QString ExportMidiDialog::createDefaultFilename()
 	sDefaultFilename += m_sExtension;
 	return sDefaultFilename;
 }
-
-void ExportMidiDialog::restoreSettingsFromPreferences()
-{
-	// loading previous directory and filling filename text field
-	// loading default filename on a first run
-	if( sLastFilename.isEmpty() ) {
-		sLastFilename = createDefaultFilename();
-	}
-
-	QString sDirPath = m_pPreferences->getLastExportMidiDirectory();
-	QDir qd = QDir( sDirPath );
-	
-	// joining filepath with dirname
-	QString sFullPath = qd.absoluteFilePath( sLastFilename );
-	exportNameTxt->setText( sFullPath );
-
-	// loading rest of the options
-	exportTypeCombo->setCurrentIndex( m_pPreferences->getMidiExportMode() );
-}
-
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
@@ -174,27 +155,41 @@ bool ExportMidiDialog::validateUserInput( )
 
 void ExportMidiDialog::on_okBtn_clicked()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	if ( !validateUserInput() ) {
 		return;
 	}
 	
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	saveSettingsToPreferences();
+	auto pPref = Preferences::get_instance();
+	pPref->setMidiExportMode( exportTypeCombo->currentIndex() );
 
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	
-	QString sFilename = exportNameTxt->text();
-	QFileInfo qFile( sFilename );
-	
-	if ( ! Filesystem::dir_writable( qFile.absoluteDir().absolutePath(), false ) ) {
+	// extracting dirname from export box
+	const QString sFilename = exportNameTxt->text();
+	QFileInfo info( sFilename );
+	QDir dir = info.absoluteDir();
+	if ( !dir.exists() ) {
+		// very strange if it happens but better to check for it anyway
+		return;
+	}
+
+	sLastFilename = info.fileName();
+	pPref->setLastExportMidiDirectory( dir.absolutePath() );
+
+	if ( ! Filesystem::dir_writable(  info.absoluteDir().absolutePath(), false ) ) {
 		QMessageBox::warning( this, "Hydrogen",
 							  pCommonStrings->getFileDialogMissingWritePermissions(),
 							  QMessageBox::Ok );
 		return;
 	}
 	
-	if ( qFile.exists() == true && m_bFileSelected == false ) {
+	if ( info.exists() == true && m_bFileSelected == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );
 		if ( res == QMessageBox::No ) {
 			return;

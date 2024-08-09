@@ -258,17 +258,8 @@ class NsmClient : public H2Core::Object<NsmClient>
 	static void* ProcessEvent( void* data );
 	
 	/**
-	 * Part of OpenCallback() responsible for copying and loading the
-	 * preferences.
-	 *
-	 * Then it uses H2Core::Preferences::loadPreferences() in
-	 * combination with
-	 * H2Core::Filesystem::setPreferencesOverwritePath() to load the
-	 * configurations specific to the session. If none hydrogen.conf
-	 * file (see #USR_CONFIG) is present in the session folder, the
-	 * one of the user is used to create one instead. Next, a
-	 * H2Core::EVENT_UPDATE_PREFERENCES event is created to trigger to
-	 * ensure the GUI reflects the changes in configuration.
+	 * Part of OpenCallback() responsible for copying the current user-level
+	 * preference file or loading an existing one.
 	 *
 	 * \param name Absolute path to the session folder.
 	 */

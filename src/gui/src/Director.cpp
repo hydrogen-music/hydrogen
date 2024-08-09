@@ -76,13 +76,13 @@ Director::Director ( QWidget* pParent )
 	
 	setWindowTitle ( tr ( "Director" ) );
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	auto pPos = H2Core::Hydrogen::get_instance()->getAudioEngine()
 		->getTransportPosition();
 	
 	m_nBar = pPos->getBar();
 	m_nBeat = pPos->getBeat();
-	m_Color = pPref->getTheme().m_color.m_accentColor;
+	m_Color = theme.m_color.m_accentColor;
 	m_Color.setAlpha( 0 );
 	m_nFlashingArea = width() * 5/100;
 
@@ -188,7 +188,7 @@ bool Director::updateTags() {
 
 void Director::bbtChangedEvent()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
 
 	// 1000 ms / bpm / 60s
@@ -199,13 +199,13 @@ void Director::bbtChangedEvent()
 	m_nBeat = pPos->getBeat();
 
 	if ( m_nBeat == 1 ) {	//foregroundcolor "rect" for first blink
-		m_Color = pPref->getTheme().m_color.m_buttonRedColor;
+		m_Color = theme.m_color.m_buttonRedColor;
 	}
 	else {	//foregroundcolor "rect" for all other blinks
 		if ( m_nBeat %2 == 0 ) {
 			m_nFlashingArea = width() * 52.5/100;
 		}
-		m_Color = pPref->getTheme().m_color.m_accentColor;
+		m_Color = theme.m_color.m_accentColor;
 	}
 	
 	updateTags();
@@ -221,8 +221,8 @@ void Director::updateMetronomBackground()
 }
 
 void Director::updateFontSize( FontUpdate update ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	const QString sFontFamily = pPref->getTheme().m_font.m_sApplicationFontFamily;
+	const QString sFontFamily =
+		H2Core::Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily;
 
 	// Reduce the pixelsize of the font till it fits the width of its
 	// enclosing rectangle.
@@ -279,8 +279,8 @@ void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 
-	auto pPref = H2Core::Preferences::get_instance();
-	const QString sFontFamily = pPref->getTheme().m_font.m_sApplicationFontFamily;
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const QString sFontFamily = theme.m_font.m_sApplicationFontFamily;
 
 	//draw the songname
 	painter.setFont( m_fontSongName );
@@ -288,14 +288,14 @@ void Director::paintEvent( QPaintEvent* ev )
 
 
 	//draw the metronome
-	painter.setPen( QPen( pPref->getTheme().m_color.m_highlightColor, 1 , Qt::SolidLine ) );
+	painter.setPen( QPen( theme.m_color.m_highlightColor, 1 , Qt::SolidLine ) );
 	painter.setBrush( m_Color );
 	painter.drawRect( m_nFlashingArea, height() * 25/100, width() * 42.5/100,
 					  height() * 35/100);
 
 
 	//draw bars
-	QColor textColor = pPref->getTheme().m_color.m_windowTextColor;
+	QColor textColor = theme.m_color.m_windowTextColor;
 	painter.setPen( textColor );
 	painter.setFont(QFont( sFontFamily, height() * 25/100 ));
 	QRect r1(QPoint( width() * 5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));

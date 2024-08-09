@@ -26,44 +26,29 @@
 #include <vector>
 #include <map>
 #include <cassert>
+
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
 #include <core/IO/MidiCommon.h>
 
 #include <QtCore/QMutex>
 
 class Action;
 
+namespace H2Core {
+
 /** \ingroup docCore docMIDI */
 class MidiMap : public H2Core::Object<MidiMap>
 {
 	H2_OBJECT(MidiMap)
 public:
-	/**
-	 * Object holding the current MidiMap singleton. It is
-	 * initialized with NULL, set with create_instance(),
-	 * and accessed with get_instance().
-	 */
-	static MidiMap* __instance;
+	MidiMap();
 	~MidiMap();
-		
-	/**
-	 * If #__instance equals 0, a new MidiMap singleton will
-	 * be created and stored in it.
-	 *
-	 * It is called in Hydrogen::create_instance().
-	 */
-	static void create_instance();
-	/**
-	 * Convenience function calling reset() on the current
-	 * MidiMap #__instance.
-	 */
-	static void reset_instance();
-	/**
-	 * Returns a pointer to the current MidiMap singleton
-	 * stored in #__instance.
-	 */
-	static MidiMap* get_instance() { assert(__instance); return __instance; }
 
+	static std::shared_ptr<MidiMap> loadFrom( const H2Core::XMLNode& node,
+											  bool bSilent = false );
+	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
+	
 	void reset();  ///< Reinitializes the object.
 
 	/** Sets up the relation between a mmc event and an action */
@@ -109,13 +94,11 @@ public:
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
-	MidiMap();
 
 	std::multimap<int, std::shared_ptr<Action>> m_noteActionMap;
 	std::multimap<int, std::shared_ptr<Action>> m_ccActionMap;
 	std::multimap<QString, std::shared_ptr<Action>> m_mmcActionMap;
 	std::vector<std::shared_ptr<Action>> m_pcActionVector;
-
 
 	QMutex __mutex;
 };
@@ -132,5 +115,7 @@ inline const std::multimap<int, std::shared_ptr<Action>>& MidiMap::getCCActionMa
 inline const std::vector<std::shared_ptr<Action>>& MidiMap::getPCActions() const {
 	return m_pcActionVector;
 }
+
+};
 
 #endif

@@ -68,7 +68,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = m_pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
@@ -232,7 +232,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 								QSize(), m_sBCOnOffBtnToolTip,
 								false, true );
 	m_pBCOnOffBtn->move(0, 0);
-	if ( pPref->m_bbc == Preferences::BC_ON ) {
+	if ( pPref->m_bBc == Preferences::BC_ON ) {
 		m_bLastBCOnOffBtnState = true;
 	} else {
 		m_bLastBCOnOffBtnState = false;
@@ -357,7 +357,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRubberBPMChange->move( 131, 0 );
 	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
 	connect( m_pRubberBPMChange, SIGNAL( clicked() ), this, SLOT( rubberbandButtonToggle() ) );
-	QString program = pPref->m_rubberBandCLIexecutable;
+	QString program = pPref->m_sRubberBandCLIexecutable;
 	//test the path. if test fails, no button
 	if ( QFile( program ).exists() == false) {
 		m_pRubberBPMChange->hide();
@@ -519,7 +519,7 @@ PlayerControl::~PlayerControl() {
 
 void PlayerControl::updatePlayerControl()
 {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 
 	if ( ! m_pShowMixerBtn->isDown() ) {
@@ -557,7 +557,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	//beatcounter
-	if ( pPref->m_bbc == Preferences::BC_OFF ) {
+	if ( pPref->m_bBc == Preferences::BC_OFF ) {
 		m_pControlsBCPanel->hide();
 		if ( ! m_pBCOnOffBtn->isDown() ) {
 			m_pBCOnOffBtn->setChecked(false);
@@ -570,7 +570,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	if ( ! m_pBCSetPlayBtn->isDown() ) {
-		if ( pPref->m_mmcsetplay ==  Preferences::SET_PLAY_OFF) {
+		if ( pPref->m_bMmcSetPlay ==  Preferences::SET_PLAY_OFF) {
 			m_pBCSetPlayBtn->setChecked(false);
 		} else {
 			m_pBCSetPlayBtn->setChecked(true);
@@ -608,15 +608,15 @@ void PlayerControl::updatePlayerControl()
 	switch (nEventCount){
 		case 1 :
 			if ( bcDisplaystatus == 1 ){
-				Preferences::get_instance()->m_bbc = Preferences::BC_OFF;
+				pPref->m_bBc = Preferences::BC_OFF;
 				bcDisplaystatus = 0;
 			}
 			sBcStatus = "R";
 
 			break;
 		default:
-			if ( Preferences::get_instance()->m_bbc == Preferences::BC_OFF ){
-				Preferences::get_instance()->m_bbc = Preferences::BC_ON;
+			if ( pPref->m_bBc == Preferences::BC_OFF ){
+				pPref->m_bBc = Preferences::BC_ON;
 				bcDisplaystatus = 1;
 			}
 			sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10,
@@ -777,15 +777,15 @@ void PlayerControl::bpmChanged( double fNewBpmValue ) {
 //beatcounter
 void PlayerControl::activateBeatCounter( bool bActivate )
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	if ( bActivate ) {
-		pPref->m_bbc = Preferences::BC_ON;
+		pPref->m_bBc = Preferences::BC_ON;
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel on") );
 		m_pControlsBCPanel->show();
 		m_pBCOnOffBtn->setChecked( true );
 	}
 	else {
-		pPref->m_bbc = Preferences::BC_OFF;
+		pPref->m_bBc = Preferences::BC_OFF;
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel off") );
 		m_pControlsBCPanel->hide();
 		m_pBCOnOffBtn->setChecked( false );
@@ -794,14 +794,14 @@ void PlayerControl::activateBeatCounter( bool bActivate )
 
 void PlayerControl::bcSetPlayBtnClicked()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	if ( m_pBCSetPlayBtn->text() == HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() ) {
-		pPref->m_mmcsetplay = Preferences::SET_PLAY_ON;
+		pPref->m_bMmcSetPlay = Preferences::SET_PLAY_ON;
 		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOn() );
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count BPM and start PLAY") );
 	}
 	else {
-		pPref->m_mmcsetplay = Preferences::SET_PLAY_OFF;
+		pPref->m_bMmcSetPlay = Preferences::SET_PLAY_OFF;
 		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() );
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count and set BPM") );
 	}
@@ -809,7 +809,7 @@ void PlayerControl::bcSetPlayBtnClicked()
 
 void PlayerControl::rubberbandButtonToggle()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	if ( m_pRubberBPMChange->isChecked() ) {
 		auto pSong = pHydrogen->getSong();
@@ -901,8 +901,8 @@ void PlayerControl::jackTransportBtnClicked()
 		return;
 	}
 
-	auto pPref = Preferences::get_instance();
-	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+	const auto pPref = Preferences::get_instance();
+	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		CoreActionController::activateJackTransport( false );
 	}
 	else {
@@ -920,7 +920,7 @@ void PlayerControl::jackMasterBtnClicked()
 		return;
 	}
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		CoreActionController::activateJackTimebaseMaster( false );
 	}
@@ -1026,14 +1026,14 @@ void PlayerControl::updateBeatCounter() {
 		m_pBCOnOffBtn->setIsActive( true );
 		if ( m_bLastBCOnOffBtnState ) {
 			m_pBCOnOffBtn->setChecked( true );
-			pPref->m_bbc = Preferences::BC_ON;
+			pPref->m_bBc = Preferences::BC_ON;
 			m_pControlsBCPanel->show();
 		}
 		
 	} else if ( pHydrogen->getTempoSource() !=
 				H2Core::Hydrogen::Tempo::Song &&
 				m_pBCOnOffBtn->getIsActive() ) {
-		pPref->m_bbc = Preferences::BC_OFF;
+		pPref->m_bBc = Preferences::BC_OFF;
 		m_pControlsBCPanel->hide();
 		m_bLastBCOnOffBtnState = m_pBCOnOffBtn->isChecked();
 		m_pBCOnOffBtn->setChecked( false );
@@ -1115,9 +1115,9 @@ void PlayerControl::driverChangedEvent() {
 
 void PlayerControl::jackTransportActivationEvent( )
 {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
-	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		
 		if ( ! m_pJackTransportBtn->isDown() ) {
 			m_pJackTransportBtn->setChecked( true );
@@ -1143,8 +1143,7 @@ void PlayerControl::jackTransportActivationEvent( )
 
 void PlayerControl::jackTimebaseStateChangedEvent()
 {
-	auto pPref = Preferences::get_instance();
-	if ( ! pPref->m_bJackTimebaseEnabled ) {
+	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		return;
 	}
 	
@@ -1195,10 +1194,9 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 void PlayerControl::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
-		auto pPref = Preferences::get_instance();
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-		if ( pPref->m_bJackTimebaseEnabled ) {
+		if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 			if ( Hydrogen::get_instance()->hasJackTransport() ) {
 				m_pJackMasterBtn->setIsActive( true );
 				jackTimebaseStateChangedEvent();

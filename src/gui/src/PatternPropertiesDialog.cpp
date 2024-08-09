@@ -28,6 +28,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
 
@@ -44,29 +45,20 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 
 	patternDescTxt->setText( pattern->get_info() );
 
-	QString category = pattern->get_category();
+	QString sCategory = pattern->get_category();
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;	
 	
-	if ( category == "" ){
-		category = "not_categorized";
+	if ( sCategory.isEmpty() ){
+		sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
 	}
-	categoryComboBox->addItem( category );
+	categoryComboBox->addItem( sCategory );
 
-	Preferences *pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
-	std::list<QString>::const_iterator cur_patternCategories;
-	
-	if ( pPref->m_patternCategories.size() == 0 ) {
-		pPref->m_patternCategories.push_back( "not_categorized" );
-	}
-
-	//categoryComboBox->clear();
-
-	for( cur_patternCategories = pPref->m_patternCategories.begin(); cur_patternCategories != pPref->m_patternCategories.end(); ++cur_patternCategories )
-	{
-		if ( categoryComboBox->currentText() != *cur_patternCategories ){
-			categoryComboBox->addItem( *cur_patternCategories );
+	for ( const auto& ssCategory : pPref->m_patternCategories ) {
+		if ( categoryComboBox->currentText() != ssCategory ){
+			categoryComboBox->addItem( ssCategory );
 		}
 	}
 
@@ -91,36 +83,27 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
-	QString pattName = patternNameTxt->text();
-	QString pattCategory = categoryComboBox->currentText();
-	QString pattInfo = patternDescTxt->toPlainText();
+	QString sPattName = patternNameTxt->text();
+	const QString sPattCategory = categoryComboBox->currentText();
+	const QString sPattInfo = patternDescTxt->toPlainText();
 
 	// Ensure the pattern name is unique
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	pattName = pPatternList->find_unused_pattern_name(pattName, pattern);
+	sPattName = pPatternList->find_unused_pattern_name(sPattName, pattern);
 
-	Preferences *pPref = H2Core::Preferences::get_instance();
-	std::list<QString>::const_iterator cur_testpatternCategories;
+	auto pPref = H2Core::Preferences::get_instance();
 
-	bool test = true;
-	for( cur_testpatternCategories = pPref->m_patternCategories.begin(); cur_testpatternCategories != pPref->m_patternCategories.end(); ++cur_testpatternCategories )
-	{
-		if ( categoryComboBox->currentText() == *cur_testpatternCategories ){
-			test = false;
-		}
-	}
-
-	if (test == true ) {
-		pPref->m_patternCategories.push_back( pattCategory );
+	if ( pPref->m_patternCategories.contains( sPattCategory ) ) {
+		pPref->m_patternCategories.push_back( sPattCategory );
 	}
 
 	if( __savepattern ){
-		pattern->set_name( pattName );
-		pattern->set_info( pattInfo );
-		pattern->set_category( pattCategory );
-	} else if ( pattern->get_name() != pattName || pattern->get_info() != pattInfo || pattern->get_category() != pattCategory) {
+		pattern->set_name( sPattName );
+		pattern->set_info( sPattInfo );
+		pattern->set_category( sPattCategory );
+	} else if ( pattern->get_name() != sPattName || pattern->get_info() != sPattInfo || pattern->get_category() != sPattCategory) {
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
-												  pattName, pattInfo, pattCategory, __nselectedPattern );
+												  sPattName, sPattInfo, sPattCategory, __nselectedPattern );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 	accept();

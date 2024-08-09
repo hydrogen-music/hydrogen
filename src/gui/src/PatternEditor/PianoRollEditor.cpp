@@ -20,27 +20,30 @@
  *
  */
 
+#include <cassert>
+
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
-#include "UndoActions.h"
-#include <cassert>
+#include "../HydrogenApp.h"
+#include "../Skin.h"
+#include "../UndoActions.h"
 
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
+
+
 using namespace H2Core;
-
-#include "../HydrogenApp.h"
-#include "../Skin.h"
-
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
@@ -135,7 +138,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		return;
 	}
 	
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
@@ -183,7 +186,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 void PianoRollEditor::drawFocus( QPainter& painter ) {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( ! m_bEntered && ! hasFocus() ) {
 		return;
@@ -214,7 +217,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 
 void PianoRollEditor::createBackground()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
 	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
@@ -432,8 +435,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 	if ( pOldNote == nullptr ) {
 		// hear note
-		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
+		const auto pPref = Preferences::get_instance();
+		if ( pPref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );

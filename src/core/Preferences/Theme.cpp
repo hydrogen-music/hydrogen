@@ -181,213 +181,279 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	widgetNode.write_color( "cursorColor", m_cursorColor );
 }
 
-ColorTheme ColorTheme::loadFrom( const XMLNode& parent ) {
+ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 	auto colorTheme = ColorTheme();
 
 	// SONG EDITOR
-	XMLNode songEditorNode = parent.firstChildElement( "songEditor" );
+	const XMLNode songEditorNode = parent.firstChildElement( "songEditor" );
 	if ( ! songEditorNode.isNull() ) {
-		colorTheme.m_songEditor_backgroundColor =
-			songEditorNode.read_color( "backgroundColor",
-									   colorTheme.m_songEditor_backgroundColor, false, false );
-		colorTheme.m_songEditor_alternateRowColor =
-			songEditorNode.read_color( "alternateRowColor",
-									   colorTheme.m_songEditor_alternateRowColor, false, false );
-		colorTheme.m_songEditor_virtualRowColor =
-			songEditorNode.read_color( "virtualRowColor",
-									   colorTheme.m_songEditor_virtualRowColor, false, false );
-		colorTheme.m_songEditor_selectedRowColor =
-			songEditorNode.read_color( "selectedRowColor",
-									   colorTheme.m_songEditor_selectedRowColor, false, false );
-		colorTheme.m_songEditor_selectedRowTextColor =
-			songEditorNode.read_color( "selectedRowTextColor",
-									   colorTheme.m_songEditor_selectedRowTextColor, false, false );
-		colorTheme.m_songEditor_lineColor =
-			songEditorNode.read_color( "lineColor",
-									   colorTheme.m_songEditor_lineColor, false, false );
-		colorTheme.m_songEditor_textColor =
-			songEditorNode.read_color( "textColor",
-									   colorTheme.m_songEditor_textColor, false, false );
+		colorTheme.m_songEditor_backgroundColor = songEditorNode.read_color(
+			"backgroundColor",
+			colorTheme.m_songEditor_backgroundColor, false, false, bSilent );
+		colorTheme.m_songEditor_alternateRowColor = songEditorNode.read_color(
+			"alternateRowColor",
+			colorTheme.m_songEditor_alternateRowColor, false, false, bSilent );
+		colorTheme.m_songEditor_virtualRowColor = songEditorNode.read_color(
+			"virtualRowColor",
+			colorTheme.m_songEditor_virtualRowColor, false, false, bSilent );
+		colorTheme.m_songEditor_selectedRowColor = songEditorNode.read_color(
+			"selectedRowColor",
+			colorTheme.m_songEditor_selectedRowColor, false, false, bSilent );
+		colorTheme.m_songEditor_selectedRowTextColor = songEditorNode.read_color(
+			"selectedRowTextColor",
+			colorTheme.m_songEditor_selectedRowTextColor, false, false, bSilent );
+		colorTheme.m_songEditor_lineColor = songEditorNode.read_color(
+			"lineColor",
+			colorTheme.m_songEditor_lineColor, false, false, bSilent );
+		colorTheme.m_songEditor_textColor = songEditorNode.read_color(
+			"textColor",
+			colorTheme.m_songEditor_textColor, false, false, bSilent );
 		colorTheme.m_songEditor_automationBackgroundColor =
-			songEditorNode.read_color( "automationBackgroundColor",
-									   colorTheme.m_songEditor_automationBackgroundColor, false, false );
+			songEditorNode.read_color(
+				"automationBackgroundColor",
+				colorTheme.m_songEditor_automationBackgroundColor, false, false,
+				bSilent );
 		colorTheme.m_songEditor_automationLineColor =
-			songEditorNode.read_color( "automationLineColor",
-									   colorTheme.m_songEditor_automationLineColor, false, false );
+			songEditorNode.read_color(
+				"automationLineColor",
+				colorTheme.m_songEditor_automationLineColor, false, false,
+				bSilent );
 		colorTheme.m_songEditor_automationNodeColor =
-			songEditorNode.read_color( "automationNodeColor",
-									   colorTheme.m_songEditor_automationNodeColor, false, false );
+			songEditorNode.read_color(
+				"automationNodeColor",
+				colorTheme.m_songEditor_automationNodeColor, false, false,
+				bSilent );
 		colorTheme.m_songEditor_stackedModeOnColor =
-			songEditorNode.read_color( "stackedModeOnColor",
-									   colorTheme.m_songEditor_stackedModeOnColor, false, false );
+			songEditorNode.read_color(
+				"stackedModeOnColor",
+				colorTheme.m_songEditor_stackedModeOnColor, false, false,
+				bSilent );
 		colorTheme.m_songEditor_stackedModeOnNextColor =
-			songEditorNode.read_color( "stackedModeOnNextColor",
-									   colorTheme.m_songEditor_stackedModeOnNextColor, false, false );
+			songEditorNode.read_color(
+				"stackedModeOnNextColor",
+				colorTheme.m_songEditor_stackedModeOnNextColor, false, false,
+				bSilent );
 		colorTheme.m_songEditor_stackedModeOffNextColor =
-			songEditorNode.read_color( "stackedModeOffNextColor",
-									   colorTheme.m_songEditor_stackedModeOffNextColor, false, false );
-	} else {
-		WARNINGLOG( "'songEditor' node not found" );
+			songEditorNode.read_color(
+				"stackedModeOffNextColor",
+				colorTheme.m_songEditor_stackedModeOffNextColor, false, false,
+				bSilent );
+	}
+	else {
+		WARNINGLOG( "<songEditor> node not found" );
 	}
 
 	// PATTERN EDITOR
-	XMLNode patternEditorNode = parent.firstChildElement( "patternEditor" );
+	const XMLNode patternEditorNode = parent.firstChildElement( "patternEditor" );
 	if ( ! patternEditorNode.isNull() ) {
 		colorTheme.m_patternEditor_backgroundColor =
-			patternEditorNode.read_color( "backgroundColor",
-										  colorTheme.m_patternEditor_backgroundColor, false, false );
+			patternEditorNode.read_color(
+				"backgroundColor",
+				colorTheme.m_patternEditor_backgroundColor, false, false, bSilent );
 		colorTheme.m_patternEditor_alternateRowColor =
-			patternEditorNode.read_color( "alternateRowColor",
-										  colorTheme.m_patternEditor_alternateRowColor, false, false );
+			patternEditorNode.read_color(
+				"alternateRowColor",
+				colorTheme.m_patternEditor_alternateRowColor, false, false, bSilent );
 		colorTheme.m_patternEditor_selectedRowColor =
-			patternEditorNode.read_color( "selectedRowColor",
-										  colorTheme.m_patternEditor_selectedRowColor, false, false );
+			patternEditorNode.read_color(
+				"selectedRowColor",
+				colorTheme.m_patternEditor_selectedRowColor, false, false, bSilent );
 		colorTheme.m_patternEditor_selectedRowTextColor =
-			patternEditorNode.read_color( "selectedRowTextColor",
-										  colorTheme.m_patternEditor_selectedRowTextColor, false, false );
+			patternEditorNode.read_color(
+				"selectedRowTextColor",
+				colorTheme.m_patternEditor_selectedRowTextColor, false, false, bSilent );
 		colorTheme.m_patternEditor_octaveRowColor =
-			patternEditorNode.read_color( "octaveRowColor",
-										  colorTheme.m_patternEditor_octaveRowColor, false, false );
+			patternEditorNode.read_color(
+				"octaveRowColor",
+				colorTheme.m_patternEditor_octaveRowColor, false, false, bSilent );
 		colorTheme.m_patternEditor_textColor =
-			patternEditorNode.read_color( "textColor",
-										  colorTheme.m_patternEditor_textColor, false, false );
+			patternEditorNode.read_color(
+				"textColor",
+				colorTheme.m_patternEditor_textColor, false, false, bSilent );
 		colorTheme.m_patternEditor_noteVelocityFullColor =
-			patternEditorNode.read_color( "noteVelocityFullColor",
-										  colorTheme.m_patternEditor_noteVelocityFullColor, false, false );
+			patternEditorNode.read_color(
+				"noteVelocityFullColor",
+				colorTheme.m_patternEditor_noteVelocityFullColor, false, false,
+				bSilent );
 		colorTheme.m_patternEditor_noteVelocityDefaultColor =
-			patternEditorNode.read_color( "noteVelocityDefaultColor",
-										  colorTheme.m_patternEditor_noteVelocityDefaultColor, false, false );
+			patternEditorNode.read_color(
+				"noteVelocityDefaultColor",
+				colorTheme.m_patternEditor_noteVelocityDefaultColor, false,
+				false, bSilent );
 		colorTheme.m_patternEditor_noteVelocityHalfColor =
-			patternEditorNode.read_color( "noteVelocityHalfColor",
-										  colorTheme.m_patternEditor_noteVelocityHalfColor, false, false );
+			patternEditorNode.read_color(
+				"noteVelocityHalfColor",
+				colorTheme.m_patternEditor_noteVelocityHalfColor, false, false,
+				bSilent );
 		colorTheme.m_patternEditor_noteVelocityZeroColor =
-			patternEditorNode.read_color( "noteVelocityZeroColor",
-										  colorTheme.m_patternEditor_noteVelocityZeroColor, false, false );
+			patternEditorNode.read_color(
+				"noteVelocityZeroColor",
+				colorTheme.m_patternEditor_noteVelocityZeroColor, false, false,
+				bSilent );
 		colorTheme.m_patternEditor_noteOffColor =
-			patternEditorNode.read_color( "noteOffColor",
-										  colorTheme.m_patternEditor_noteOffColor, false, false );
+			patternEditorNode.read_color(
+				"noteOffColor",
+				colorTheme.m_patternEditor_noteOffColor, false, false, bSilent );
 		colorTheme.m_patternEditor_lineColor =
-			patternEditorNode.read_color( "lineColor",
-										  colorTheme.m_patternEditor_lineColor, false, false );
+			patternEditorNode.read_color(
+				"lineColor",
+				colorTheme.m_patternEditor_lineColor, false, false, bSilent );
 		colorTheme.m_patternEditor_line1Color =
-			patternEditorNode.read_color( "line1Color",
-										  colorTheme.m_patternEditor_line1Color, false, false );
+			patternEditorNode.read_color(
+				"line1Color",
+				colorTheme.m_patternEditor_line1Color, false, false, bSilent );
 		colorTheme.m_patternEditor_line2Color =
-			patternEditorNode.read_color( "line2Color",
-										  colorTheme.m_patternEditor_line2Color, false, false );
+			patternEditorNode.read_color(
+				"line2Color",
+				colorTheme.m_patternEditor_line2Color, false, false, bSilent );
 		colorTheme.m_patternEditor_line3Color =
-			patternEditorNode.read_color( "line3Color",
-										  colorTheme.m_patternEditor_line3Color, false, false );
+			patternEditorNode.read_color(
+				"line3Color",
+				colorTheme.m_patternEditor_line3Color, false, false, bSilent );
 		colorTheme.m_patternEditor_line4Color =
-			patternEditorNode.read_color( "line4Color",
-										  colorTheme.m_patternEditor_line4Color, false, false );
+			patternEditorNode.read_color(
+				"line4Color",
+				colorTheme.m_patternEditor_line4Color, false, false, bSilent );
 		colorTheme.m_patternEditor_line5Color =
-			patternEditorNode.read_color( "line5Color",
-										  colorTheme.m_patternEditor_line5Color, false, false );
-	} else {
-		WARNINGLOG( "'patternEditor' node not found" );
+			patternEditorNode.read_color(
+				"line5Color",
+				colorTheme.m_patternEditor_line5Color, false, false, bSilent );
+	}
+	else {
+		WARNINGLOG( "<patternEditor> node not found" );
 	}
 
-	XMLNode selectionNode = parent.firstChildElement( "selection" );
+	const XMLNode selectionNode = parent.firstChildElement( "selection" );
 	if ( ! selectionNode.isNull() ) {
 		colorTheme.m_selectionHighlightColor =
-			selectionNode.read_color( "highlightColor",
-									  colorTheme.m_selectionHighlightColor, false, false );
+			selectionNode.read_color(
+				"highlightColor",
+				colorTheme.m_selectionHighlightColor, false, false, bSilent );
 		colorTheme.m_selectionInactiveColor =
-			selectionNode.read_color( "inactiveColor",
-									  colorTheme.m_selectionInactiveColor, false, false );
-	} else {
-		WARNINGLOG( "'selection' node not found" );
+			selectionNode.read_color(
+				"inactiveColor",
+				colorTheme.m_selectionInactiveColor, false, false, bSilent );
+	}
+	else {
+		WARNINGLOG( "<selection> node not found" );
 	}
 
-	XMLNode paletteNode = parent.firstChildElement( "palette" );
+	const XMLNode paletteNode = parent.firstChildElement( "palette" );
 	if ( ! paletteNode.isNull() ) {
 		colorTheme.m_windowColor =
-			paletteNode.read_color( "windowColor",
-									colorTheme.m_windowColor, false, false );
+			paletteNode.read_color(
+				"windowColor",
+				colorTheme.m_windowColor, false, false, bSilent );
 		colorTheme.m_windowTextColor =
-			paletteNode.read_color( "windowTextColor",
-									colorTheme.m_windowTextColor, false, false );
+			paletteNode.read_color(
+				"windowTextColor",
+				colorTheme.m_windowTextColor, false, false, bSilent );
 		colorTheme.m_baseColor =
-			paletteNode.read_color( "baseColor",
-									colorTheme.m_baseColor, false, false );
+			paletteNode.read_color(
+				"baseColor",
+				colorTheme.m_baseColor, false, false, bSilent );
 		colorTheme.m_alternateBaseColor =
-			paletteNode.read_color( "alternateBaseColor",
-									colorTheme.m_alternateBaseColor, false, false );
+			paletteNode.read_color(
+				"alternateBaseColor",
+				colorTheme.m_alternateBaseColor, false, false, bSilent );
 		colorTheme.m_textColor =
-			paletteNode.read_color( "textColor",
-									colorTheme.m_textColor, false, false );
+			paletteNode.read_color(
+				"textColor",
+				colorTheme.m_textColor, false, false, bSilent );
 		colorTheme.m_buttonColor =
-			paletteNode.read_color( "buttonColor",
-									colorTheme.m_buttonColor, false, false );
+			paletteNode.read_color(
+				"buttonColor",
+				colorTheme.m_buttonColor, false, false, bSilent );
 		colorTheme.m_buttonTextColor =
-			paletteNode.read_color( "buttonTextColor",
-									colorTheme.m_buttonTextColor, false, false );
+			paletteNode.read_color(
+				"buttonTextColor",
+				colorTheme.m_buttonTextColor, false, false, bSilent );
 		colorTheme.m_lightColor =
-			paletteNode.read_color( "lightColor",
-									colorTheme.m_lightColor, false, false );
+			paletteNode.read_color(
+				"lightColor",
+				colorTheme.m_lightColor, false, false, bSilent );
 		colorTheme.m_midLightColor =
-			paletteNode.read_color( "midLightColor",
-									colorTheme.m_midLightColor, false, false );
+			paletteNode.read_color(
+				"midLightColor",
+				colorTheme.m_midLightColor, false, false, bSilent );
 		colorTheme.m_midColor =
-			paletteNode.read_color( "midColor",
-									colorTheme.m_midColor, false, false );
+			paletteNode.read_color(
+				"midColor",
+				colorTheme.m_midColor, false, false, bSilent );
 		colorTheme.m_darkColor =
-			paletteNode.read_color( "darkColor",
-									colorTheme.m_darkColor, false, false );
+			paletteNode.read_color(
+				"darkColor",
+				colorTheme.m_darkColor, false, false, bSilent );
 		colorTheme.m_shadowTextColor =
-			paletteNode.read_color( "shadowTextColor",
-									colorTheme.m_shadowTextColor, false, false );
+			paletteNode.read_color(
+				"shadowTextColor",
+				colorTheme.m_shadowTextColor, false, false, bSilent );
 		colorTheme.m_highlightColor =
-			paletteNode.read_color( "highlightColor",
-									colorTheme.m_highlightColor, false, false );
+			paletteNode.read_color(
+				"highlightColor",
+				colorTheme.m_highlightColor, false, false, bSilent );
 		colorTheme.m_highlightedTextColor =
-			paletteNode.read_color( "highlightedTextColor",
-									colorTheme.m_highlightedTextColor, false, false );
+			paletteNode.read_color(
+				"highlightedTextColor",
+				colorTheme.m_highlightedTextColor, false, false, bSilent );
 		colorTheme.m_toolTipBaseColor =
-			paletteNode.read_color( "toolTipBaseColor",
-									colorTheme.m_toolTipBaseColor, false, false );
+			paletteNode.read_color(
+				"toolTipBaseColor",
+				colorTheme.m_toolTipBaseColor, false, false, bSilent );
 		colorTheme.m_toolTipTextColor =
-			paletteNode.read_color( "toolTipTextColor",
-									colorTheme.m_toolTipTextColor, false, false );
-	} else {
-		WARNINGLOG( "'palette' node not found" );
+			paletteNode.read_color(
+				"toolTipTextColor",
+				colorTheme.m_toolTipTextColor, false, false, bSilent );
+	}
+	else {
+		WARNINGLOG( "<palette> node not found" );
 	}
 
-	XMLNode widgetNode = parent.firstChildElement( "widget" );
+	const XMLNode widgetNode = parent.firstChildElement( "widget" );
 	if ( ! widgetNode.isNull() ) {
 		colorTheme.m_accentColor =
-			widgetNode.read_color( "accentColor",
-								   colorTheme.m_accentColor, false, false );
+			widgetNode.read_color(
+				"accentColor",
+				colorTheme.m_accentColor, false, false, bSilent );
 		colorTheme.m_accentTextColor =
-			widgetNode.read_color( "accentTextColor",
-								   colorTheme.m_accentTextColor, false, false );
+			widgetNode.read_color(
+				"accentTextColor",
+				colorTheme.m_accentTextColor, false, false, bSilent );
 		colorTheme.m_widgetColor =
-			widgetNode.read_color( "widgetColor",
-								   colorTheme.m_widgetColor, false, false );
+			widgetNode.read_color(
+				"widgetColor",
+				colorTheme.m_widgetColor, false, false, bSilent );
 		colorTheme.m_widgetTextColor =
-			widgetNode.read_color( "widgetTextColor",
-								   colorTheme.m_widgetTextColor, false, false );
+			widgetNode.read_color(
+				"widgetTextColor",
+				colorTheme.m_widgetTextColor, false, false, bSilent );
 		colorTheme.m_buttonRedColor =
-			widgetNode.read_color( "buttonRedColor",
-								   colorTheme.m_buttonRedColor, false, false );
+			widgetNode.read_color(
+				"buttonRedColor",
+				colorTheme.m_buttonRedColor, false, false, bSilent );
 		colorTheme.m_buttonRedTextColor =
-			widgetNode.read_color( "buttonRedTextColor",
-								   colorTheme.m_buttonRedTextColor, false, false );
+			widgetNode.read_color(
+				"buttonRedTextColor",
+				colorTheme.m_buttonRedTextColor, false, false, bSilent );
 		colorTheme.m_spinBoxColor =
-			widgetNode.read_color( "spinBoxColor",
-								   colorTheme.m_spinBoxColor, false, false );
+			widgetNode.read_color(
+				"spinBoxColor",
+				colorTheme.m_spinBoxColor, false, false, bSilent );
 		colorTheme.m_spinBoxTextColor =
-			widgetNode.read_color( "spinBoxTextColor",
-								   colorTheme.m_spinBoxTextColor, false, false );
+			widgetNode.read_color(
+				"spinBoxTextColor",
+				colorTheme.m_spinBoxTextColor, false, false, bSilent );
 		colorTheme.m_playheadColor =
-			widgetNode.read_color( "playheadColor",
-								   colorTheme.m_playheadColor, false, false );
+			widgetNode.read_color(
+				"playheadColor",
+				colorTheme.m_playheadColor, false, false, bSilent );
 		colorTheme.m_cursorColor =
-			widgetNode.read_color( "cursorColor",
-								   colorTheme.m_cursorColor, false, false );
-	} else {
-		WARNINGLOG( "'widget' node not found" );
+			widgetNode.read_color(
+				"cursorColor",
+				colorTheme.m_cursorColor, false, false, bSilent );
+	}
+	else {
+		WARNINGLOG( "<widget> node not found" );
 	}
 
 	return colorTheme;

@@ -56,9 +56,10 @@ using namespace H2Core;
 
 void PatternEditorPanel::updateDrumkitLabel( )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
 	
-	QFont font( Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pTheme.m_font.m_sApplicationFontFamily,
+				getPointSize( pTheme.m_font.m_fontSize ) );
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
@@ -80,7 +81,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 {
 	setAcceptDrops(true);
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -787,8 +788,9 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 
-	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
-	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridResolution( nResolution );
+	pPref->setPatternEditorUsingTriplets( bUseTriplets );
 }
 
 
@@ -824,8 +826,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick()
 {
-	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( m_pHearNotesBtn->isChecked() );
+	Preferences::get_instance()->setHearNewNotes( m_pHearNotesBtn->isChecked() );
 
 	if ( m_pHearNotesBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = On" ) );
@@ -836,8 +837,8 @@ void PatternEditorPanel::hearNotesBtnClick()
 
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
-	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( m_pQuantizeEventsBtn->isChecked() );
+	Preferences::get_instance()->setQuantizeEvents(
+		m_pQuantizeEventsBtn->isChecked() );
 
 	if ( m_pQuantizeEventsBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
@@ -976,9 +977,10 @@ void PatternEditorPanel::zoomInBtnClicked()
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
-	
-	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
-	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
 	resizeEvent( nullptr );
 }
@@ -995,9 +997,10 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
-	
-	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
-	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
@@ -1300,7 +1303,7 @@ int PatternEditorPanel::moveCursorRight( int n )
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
@@ -1321,7 +1324,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 
 void PatternEditorPanel::updateStyleSheet() {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	int nFactorTop = 112;
 	
 	QColor topColorLight = pPref->getTheme().m_color.m_midColor.lighter( nFactorTop );

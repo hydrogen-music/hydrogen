@@ -170,7 +170,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 
 			// Check whether the rubberband executable is present.
 			if ( ! Filesystem::file_exists( Preferences::get_instance()->
-											m_rubberBandCLIexecutable ) ) {
+											m_sRubberBandCLIexecutable ) ) {
 				rubberband.use = false;
 			}
 			pSample->set_rubberband( rubberband );

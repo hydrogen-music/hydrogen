@@ -35,6 +35,7 @@ namespace H2Core
 	class Instrument;
 	class Playlist;
 	struct PlaylistEntry;
+	class Preferences;
 
 
 /** \ingroup docCore docAutomation */
@@ -128,10 +129,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool saveSongAs( const QString& sNewFilename );
 		/**
-		 * Saves the current state of the #H2Core::Preferences.
-		 *
-		 * \return true on success
-		 */
+		 * Loads an instance of #H2Core::Preferences from the corresponding XML
+		 * file. */
+		static std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
+		/**
+		 * Replaces the current #H2Core::Preferences singleton with the provided
+		 * instance. */
+		static bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+		/**
+		 * Saves the current state of the #H2Core::Preferences. */
 		static bool savePreferences();
 		/**
 		 * Triggers the shutdown of Hydrogen.
@@ -390,13 +396,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @return bool true on success */
 		static bool handleNote( int nNote, float fVelocity, bool bNoteOff = false );
-
-	/**
-	 * In case a different preferences file was loaded with Hydrogen
-	 * already fully set up this function refreshes all corresponding
-	 * values and informs the GUI.
-	 */
-	static bool updatePreferences();
 
 	/**
 	 * Loads the drumkit specified in @a sDrumkitPath.

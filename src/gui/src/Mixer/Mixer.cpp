@@ -424,7 +424,7 @@ void Mixer::updateMixer()
 		// Skip redundant updates if mixer is not visible.
 		return;
 	}
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -798,7 +798,7 @@ void Mixer::showFXPanelClicked()
 
 void Mixer::showPeaksBtnClicked()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 
 	if ( m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );

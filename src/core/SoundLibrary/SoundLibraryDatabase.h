@@ -53,6 +53,9 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
+		/** Null element of the category list*/
+		static QString m_sPatternBaseCategory;
+
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
 		return m_patternInfoVector;
 	}

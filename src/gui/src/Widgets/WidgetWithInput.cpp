@@ -25,7 +25,6 @@
 #include "MidiSenseWidget.h"
 
 #include <core/Hydrogen.h>
-#include <core/MidiMap.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"

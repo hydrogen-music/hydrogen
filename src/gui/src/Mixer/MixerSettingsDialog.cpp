@@ -23,23 +23,15 @@
 #include <cstring>
 
 #include "MixerSettingsDialog.h"
-#include "HydrogenApp.h"
-#include "MainForm.h"
 
-#include "qmessagebox.h"
-#include "qstylefactory.h"
+#include <QObject>
+#include <QMessageBox>
+#include <QStandardItemModel>
+#include <QDoubleValidator>
 
-#include <QPixmap>
-#include <QFontDialog>
-
-#include <core/MidiMap.h>
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Lash/LashClient.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Helpers/Translations.h>
-#include "SongEditor/SongEditor.h"
-#include "SongEditor/SongEditorPanel.h"
+#include <core/Sampler/Sampler.h>
 
 
 using namespace H2Core;

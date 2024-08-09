@@ -62,7 +62,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 
 	setupUi( this );
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setupLicenseComboBox( licenseComboBox );
@@ -248,7 +248,7 @@ void DrumkitPropertiesDialog::showEvent( QShowEvent *e )
 }
 
 void DrumkitPropertiesDialog::updateLicensesTable() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 
 	if ( m_pDrumkit == nullptr ){
@@ -286,8 +286,8 @@ void DrumkitPropertiesDialog::updateLicensesTable() {
 			// In case of a license mismatch we highlight the row
 			if ( ccontent->m_license != m_pDrumkit->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
-					.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
-					.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
+					.arg( theme.m_color.m_buttonRedTextColor.name() )
+					.arg( theme.m_color.m_buttonRedColor.name() );
 				pInstrumentItem->setStyleSheet( sHighlight );
 				pComponentItem->setStyleSheet( sHighlight );
 				pSampleItem->setStyleSheet( sHighlight );
@@ -787,12 +787,12 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 }
 
 void DrumkitPropertiesDialog::highlightDuplicates() {
-	auto pPref = Preferences::get_instance();
+	const auto theme = Preferences::get_instance()->getTheme();
 	QStringList duplicates;
 
 	const QString sHighlight = QString( "color: %1; background-color: %2" )
-		.arg( pPref->getTheme().m_color.m_buttonRedTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_buttonRedColor.name() );
+		.arg( theme.m_color.m_buttonRedTextColor.name() )
+		.arg( theme.m_color.m_buttonRedColor.name() );
 
 	// Compile a list of all duplicated types.
 	std::set<QString> types;

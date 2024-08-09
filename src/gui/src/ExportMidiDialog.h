@@ -24,13 +24,13 @@
 #ifndef EXPORT_MIDI_DIALOG_H
 #define EXPORT_MIDI_DIALOG_H
 
+#include <memory>
 
 #include "ui_ExportMidiDialog_UI.h"
 #include <core/Object.h>
 
 namespace H2Core {
     class Preferences;
-    class Hydrogen;
 }
 
 ///
@@ -54,13 +54,9 @@ class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public
 	
 	private:
 		void 		exportTrack();
-		void 		saveSettingsToPreferences();
-		void		restoreSettingsFromPreferences();
 		QString	 	createDefaultFilename();
 		bool	 	validateUserInput();
 		
-		H2Core::Hydrogen* 		m_pHydrogen;
-		H2Core::Preferences* 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;
 		

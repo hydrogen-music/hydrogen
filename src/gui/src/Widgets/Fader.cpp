@@ -173,16 +173,15 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 
 void Fader::paintEvent( QPaintEvent *ev)
 {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
 	QPainter painter(this);
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
+		colorHighlightActive = theme.m_color.m_highlightColor;
 	} else {
-		colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
+		colorHighlightActive = theme.m_color.m_lightColor;
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

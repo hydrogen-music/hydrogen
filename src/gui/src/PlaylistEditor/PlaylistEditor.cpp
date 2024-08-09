@@ -327,7 +327,8 @@ void PlaylistEditor::showUndoHistory() {
 
 void PlaylistEditor::addSong()
 {
-	QString sPath = Preferences::get_instance()->getLastAddSongToPlaylistDirectory();
+	auto pPref = Preferences::get_instance();
+	QString sPath = pPref->getLastAddSongToPlaylistDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::songs_dir();
 	}
@@ -345,8 +346,7 @@ void PlaylistEditor::addSong()
 		return;
 	}
 	
-	Preferences::get_instance()->setLastAddSongToPlaylistDirectory(
-		fd.directory().absolutePath() );
+	pPref->setLastAddSongToPlaylistDirectory( fd.directory().absolutePath() );
 
 	m_pUndoStack->beginMacro( sTitle );
 	for ( const auto& sPath : fd.selectedFiles() ) {
@@ -475,7 +475,7 @@ void PlaylistEditor::openPlaylist() {
 
 void PlaylistEditor::newScript()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
@@ -483,7 +483,7 @@ void PlaylistEditor::newScript()
 		return;
 	}
 
-	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
+	QString sPath = pPref->getLastPlaylistScriptDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::scripts_dir();
 	}
@@ -523,8 +523,7 @@ void PlaylistEditor::newScript()
 		return;
 	}
 
-	Preferences::get_instance()->setLastPlaylistScriptDirectory(
-		fd.directory().absolutePath() );
+	pPref->setLastPlaylistScriptDirectory( fd.directory().absolutePath() );
 
 	QTextStream out(&chngPerm);
 	out <<  "#!/bin/sh\n\n#have phun";
@@ -579,12 +578,13 @@ void PlaylistEditor::newScript()
 }
 
 bool PlaylistEditor::savePlaylistAs() {
+	auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPlaylist = pHydrogen->getPlaylist();
 	const auto sLastFilename = pPlaylist->getFilename();
 
-	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
+	QString sPath = pPref->getLastPlaylistDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::playlists_dir();
 	}
@@ -610,8 +610,7 @@ bool PlaylistEditor::savePlaylistAs() {
 		return false;
 	}
 
-	Preferences::get_instance()->setLastPlaylistDirectory(
-		fd.directory().absolutePath() );
+	pPref->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
 	if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Playlist ) ) {
 		// In case we stored the playlist for the first time, we remove the
@@ -651,7 +650,8 @@ bool PlaylistEditor::savePlaylist()
 }
 
 void PlaylistEditor::loadScript() {
-	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
+	auto pPref = Preferences::get_instance();
+	QString sPath = pPref->getLastPlaylistScriptDirectory();
 
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
@@ -683,8 +683,7 @@ void PlaylistEditor::loadScript() {
 		return;
 	}
 
-	Preferences::get_instance()->setLastPlaylistScriptDirectory(
-		fd.directory().absolutePath() );
+	pPref->setLastPlaylistScriptDirectory( fd.directory().absolutePath() );
 
 	auto pOldEntry = Hydrogen::get_instance()->getPlaylist()->get( nIndex );
 
@@ -729,7 +728,7 @@ void PlaylistEditor::removeScript() {
 
 void PlaylistEditor::editScript()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	const int nIndex = m_pPlaylistTable->currentRow();
 	if ( nIndex == -1 ) {
 		// No selection
@@ -1116,7 +1115,7 @@ void PlaylistEditor::updateWindowTitle() {
 }
 
 void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		

@@ -71,7 +71,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_mode( Mode::None )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
@@ -153,7 +153,7 @@ void PatternEditor::zoomOut()
 QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor fullColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityFullColor;
 	QColor defaultColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor;
@@ -208,7 +208,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor noteColor( pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
 	const QColor noteInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
@@ -672,10 +672,10 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 		}
 	}
 	if ( !duplicates.empty() ) {
-		Preferences *pPreferences = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 		bool bOk = true;
 
-		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+		if ( pPref->getShowNoteOverwriteWarning() ) {
 			m_selection.cancelGesture();
 			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
 			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
@@ -684,7 +684,7 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 			messageBox.checkBox()->setChecked( false );
 			bOk = messageBox.exec() == QMessageBox::Ok;
 			if ( messageBox.checkBox()->isChecked() ) {
-				pPreferences->setShowNoteOverwriteWarning( false );
+				pPref->setShowNoteOverwriteWarning( false );
 			}
 		}
 
@@ -811,7 +811,7 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	const std::vector<QColor> colorsActive = {
 		QColor( pPref->getTheme().m_color.m_patternEditor_line1Color ),
 		QColor( pPref->getTheme().m_color.m_patternEditor_line2Color ),
@@ -927,7 +927,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 QColor PatternEditor::selectedNoteColor() const {
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
 		const QColor selectHighlightColor( pPref->getTheme().m_color.m_selectionHighlightColor );

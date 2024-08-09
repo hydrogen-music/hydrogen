@@ -20,20 +20,15 @@
  *
  */
 
-#include "Version.h"
 
 #include <cassert>
 #include <memory>
 
+#include <core/Basics/Song.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-
-#include <core/Preferences/Preferences.h>
-#include <core/EventQueue.h>
-#include <core/FX/Effects.h>
-#include <core/Globals.h>
-#include <core/Timeline.h>
-#include <core/Basics/Song.h>
+#include <core/AutomationPathSerializer.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -43,15 +38,20 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/AutomationPath.h>
-#include <core/AutomationPathSerializer.h>
-#include <core/Hydrogen.h>
+#include <core/EventQueue.h>
+#include <core/FX/Effects.h>
+#include <core/Globals.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Hydrogen.h>
+#ifdef H2CORE_HAVE_OSC
+  #include <core/NsmClient.h>
+#endif
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Timeline.h>
+#include <core/Version.h>
 
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
 
 #include <QDir>
 
@@ -924,7 +924,6 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 		Pattern*		pEmptyPattern = new Pattern();
 
 		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
-		pEmptyPattern->set_category( QString( "not_categorized" ) );
 		pPatternList->add( pEmptyPattern );
 
 		if ( nn == 0 ) {

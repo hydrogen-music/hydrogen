@@ -24,6 +24,7 @@
 #include "../HydrogenApp.h"
 
 #include <core/MidiMap.h>
+#include <core/Preferences/Preferences.h>
 
 MidiLearnable::MidiLearnable() : m_pAction( nullptr ) {
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -44,8 +45,8 @@ void MidiLearnable::setAction( std::shared_ptr<Action> pAction ){
 
 void MidiLearnable::midiMapChangedEvent() {
 	if ( m_pAction != nullptr ) {
-		m_registeredMidiEvents =
-			MidiMap::get_instance()->getRegisteredMidiEvents( m_pAction );
+		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
+			getMidiMap()->getRegisteredMidiEvents( m_pAction );
 		updateTooltip();
 	}
 }

@@ -56,7 +56,7 @@ using namespace H2Core;
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
@@ -374,7 +374,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
 	m_pWidgetStack->addWidget( m_pPlaybackTrackScrollView );
 
-	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
+	if( pPref->getShowPlaybackTrack() ) {
 		showPlaybackTrack();
 	} else {
 		showTimeline();
@@ -478,7 +478,7 @@ void SongEditorPanel::highlightPatternEditorLocked( bool bUseRedBackground ) {
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
 	Sampler*		pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
-	Preferences *	pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto		pInstrument = pSampler->getPlaybackTrackInstrument();
 
 	
@@ -949,14 +949,16 @@ void SongEditorPanel::stackedModeActivationEvent( int )
 
 void SongEditorPanel::zoomInBtnClicked()
 {
+	auto pPref = Preferences::get_instance();
+
 	unsigned width = m_pSongEditor->getGridWidth();
 	--width;
 	m_pSongEditor->setGridWidth( width );
 	m_pPositionRuler->setGridWidth( width );
 	m_pAutomationPathView->setGridWidth( width );
 
-	Preferences::get_instance()->setSongEditorGridWidth( width );
-	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	pPref->setSongEditorGridWidth( width );
+	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
 	updateAll();
 }
@@ -964,14 +966,16 @@ void SongEditorPanel::zoomInBtnClicked()
 
 void SongEditorPanel::zoomOutBtnClicked()
 {
+	auto pPref = Preferences::get_instance();
+
 	unsigned width = m_pSongEditor->getGridWidth();
 	++width;
 	m_pSongEditor->setGridWidth( width );
 	m_pPositionRuler->setGridWidth( width );
 	m_pAutomationPathView->setGridWidth( width );
 
-	Preferences::get_instance()->setSongEditorGridWidth( width );
-	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	pPref->setSongEditorGridWidth( width );
+	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
 	updateAll();
 }
@@ -1039,14 +1043,14 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 
 void SongEditorPanel::toggleAutomationAreaVisibility()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	
-	if(!pPref->getShowAutomationArea())
-	{
+	if ( ! pPref->getShowAutomationArea() )	{
 		m_pAutomationPathScrollView->show();
 		m_pAutomationCombo->show();
 		pPref->setShowAutomationArea( true );
-	} else {
+	}
+	else {
 		m_pAutomationPathScrollView->hide();
 		m_pAutomationCombo->hide();
 		pPref->setShowAutomationArea( false );
@@ -1153,9 +1157,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
 
 		// Scroll vertically to keep currently playing patterns in view
 		int nPatternInView = -1;

@@ -102,7 +102,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveSongFile( "" )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	setObjectName( "MainForm" );
@@ -524,7 +524,7 @@ void MainForm::createMenuBar()
 									 pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
 	m_pDrumkitAction->setCheckable( true );
 
-	if ( pPref->__playselectedinstrument ) {
+	if ( pPref->m_bPlaySelectedInstrument ) {
 		m_pInstrumentAction->setChecked( true );
 		m_pDrumkitAction->setChecked (false );
 	}
@@ -782,6 +782,7 @@ bool MainForm::action_file_save_as()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	auto pPref = Preferences::get_instance();
 
 	if ( pSong == nullptr ) {
 		return false;
@@ -789,7 +790,7 @@ bool MainForm::action_file_save_as()
 
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 
-	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
+	QString sPath = pPref->getLastSaveSongAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::songs_dir();
 	}
@@ -833,7 +834,7 @@ bool MainForm::action_file_save_as()
 		QString sNewFilename = fd.selectedFiles().first();
 
 		if ( ! sNewFilename.isEmpty() ) {
-			Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
+			pPref->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
 			if ( ! sNewFilename.endsWith( Filesystem::songs_ext ) ) {
 				sNewFilename += Filesystem::songs_ext;
@@ -945,24 +946,24 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 }
 
 
-void MainForm::action_inputMode_instrument()
-{
-	if( !Preferences::get_instance()->__playselectedinstrument )
-	{
-		Preferences::get_instance()->__playselectedinstrument = true;
-		m_pDrumkitAction->setChecked (false );
+void MainForm::action_inputMode_instrument() {
+	auto pPref = Preferences::get_instance();
+
+	if ( ! pPref->m_bPlaySelectedInstrument ) {
+		pPref->m_bPlaySelectedInstrument = true;
+		m_pDrumkitAction->setChecked( false );
 	}
 	m_pInstrumentAction->setChecked( true );
 }
 
-void MainForm::action_inputMode_drumkit()
-{
-	if( Preferences::get_instance()->__playselectedinstrument )
-	{
-		Preferences::get_instance()->__playselectedinstrument = false;
+void MainForm::action_inputMode_drumkit() {
+	auto pPref = Preferences::get_instance();
+
+	if ( pPref->m_bPlaySelectedInstrument ) {
+		pPref->m_bPlaySelectedInstrument = false;
 		m_pInstrumentAction->setChecked( false );
 	}
-	m_pDrumkitAction->setChecked (true );
+	m_pDrumkitAction->setChecked( true );
 }
 
 void MainForm::action_help_about() {
@@ -1014,7 +1015,8 @@ void MainForm::showUserManual()
 void MainForm::action_file_export_pattern_as( int nPatternRow )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-		
+	auto pPref = Preferences::get_instance();
+
 	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
 		Hydrogen::get_instance()->sequencerStop();
 	}
@@ -1044,7 +1046,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	QString sPath = Preferences::get_instance()->getLastExportPatternAsDirectory();
+	QString sPath = pPref->getLastExportPatternAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::patterns_dir();
 	}
@@ -1065,7 +1067,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	}
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
-	Preferences::get_instance()->setLastExportPatternAsDirectory( fileInfo.path() );
+	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
 	QString filePath = fileInfo.absoluteFilePath();
 
 	QString originalName = pPattern->get_name();
@@ -1107,9 +1109,10 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openPattern()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
+	QString sPath = pPref->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::patterns_dir();
 	}
@@ -1123,7 +1126,7 @@ void MainForm::action_file_openPattern()
 	fd.setWindowTitle ( tr ( "Open Pattern" ) );
 
 	if ( fd.exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
+		pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
@@ -1623,9 +1626,9 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
-void MainForm::savePreferences() {
+void MainForm::saveWindowProperties() {
 	// save window properties in the preferences files
-	Preferences *pPreferences = Preferences::get_instance();
+	auto pPreferences = Preferences::get_instance();
 
 	// mainform
 	pPreferences->setMainFormProperties( h2app->getWindowProperties( this ) );
@@ -1656,17 +1659,17 @@ void MainForm::closeAll(){
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
-	savePreferences();
+	saveWindowProperties();
 	m_pQApp->quit();
 }
 
 
 void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		
-		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	
+		QFont font( theme.m_font.m_sApplicationFontFamily,
+					getPointSize( theme.m_font.m_fontSize ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 
@@ -1715,17 +1718,13 @@ void MainForm::updateRecentUsedSongList()
 {
 	m_pRecentFilesMenu->clear();
 
-	Preferences *pPref = Preferences::get_instance();
-	std::vector<QString> recentUsedSongs = pPref->getRecentFiles();
+	const QStringList recentUsedSongs =
+		Preferences::get_instance()->getRecentFiles();
 
-	QString sFilename;
-
-	for ( uint i = 0; i < recentUsedSongs.size(); ++i ) {
-		sFilename = recentUsedSongs[ i ];
-
-		if ( !sFilename.isEmpty() ) {
+	for ( const auto& ssFilename : recentUsedSongs ) {
+		if ( ! ssFilename.isEmpty() ) {
 			QAction *pAction = new QAction( this  );
-			pAction->setText( sFilename );
+			pAction->setText( ssFilename );
 			m_pRecentFilesMenu->addAction( pAction );
 		}
 	}
@@ -1881,7 +1880,10 @@ void MainForm::action_file_export_midi()
 
 void MainForm::action_file_export_lilypond()
 {
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
+	auto pPref = Preferences::get_instance();
+
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencerStop();
 	}
 
@@ -1893,7 +1895,7 @@ void MainForm::action_file_export_lilypond()
 		"GMRockKit, and that you do not use triplet.\n" ),
 		QMessageBox::Ok );
 
-	QString sPath = Preferences::get_instance()->getLastExportLilypondDirectory();
+	QString sPath = pPref->getLastExportLilypondDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::usr_data_path();
 	}
@@ -1907,7 +1909,7 @@ void MainForm::action_file_export_lilypond()
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastExportLilypondDirectory( fd.directory().absolutePath() );
+		pPref->setLastExportLilypondDirectory( fd.directory().absolutePath() );
 		sFilename = fd.selectedFiles().first();
 	}
 
@@ -1959,7 +1961,8 @@ void MainForm::errorEvent( int nErrorCode )
 		break;
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
-		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) ).arg( Preferences::get_instance()->m_nOscTemporaryPort );
+		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) )
+			.arg( Preferences::get_instance()->m_nOscTemporaryPort );
 		break;
 
 	case Hydrogen::PLAYBACK_TRACK_INVALID:
@@ -2010,7 +2013,7 @@ void MainForm::action_window_showPatternEditor()
 
 void MainForm::showDevelWarning()
 {
-	Preferences *pPreferences = Preferences::get_instance();
+	auto pPreferences = Preferences::get_instance();
 	bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
 
 	//set this to 'false' for the case that you want to make a release..
@@ -2156,29 +2159,28 @@ void MainForm::action_redo(){
 }
 
 void MainForm::updatePreferencesEvent( int nValue ) {
-	
 	if ( nValue == 0 ) {
 		// Write the state of the GUI to the Preferences.
-		savePreferences();
-		Preferences::get_instance()->savePreferences();
-		
-	} else if ( nValue == 1 ) {
+		saveWindowProperties();
+		CoreActionController::savePreferences();
+	}
+	else if ( nValue == 1 ) {
 		
 		// Reflect the changes in the preferences in the objects
 		// stored in MainForm.
-		if( Preferences::get_instance()->__playselectedinstrument ) {
+		if ( Preferences::get_instance()->m_bPlaySelectedInstrument ) {
 			m_pInstrumentAction->setChecked( true );
-			m_pDrumkitAction->setChecked (false );
-		} else {
+			m_pDrumkitAction->setChecked( false );
+		}
+		else {
 			m_pInstrumentAction->setChecked( false );
-			m_pDrumkitAction->setChecked (true );
+			m_pDrumkitAction->setChecked( true );
 		}
 
 	} else {
 		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )
 				  .arg( nValue ) );
 	}
-	
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){
@@ -2314,7 +2316,7 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 
 bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pShortcuts = pPref->getShortcuts();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();

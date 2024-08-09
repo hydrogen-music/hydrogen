@@ -28,6 +28,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/PatternList.h>
@@ -277,7 +278,7 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
@@ -304,7 +305,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
@@ -318,7 +319,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
@@ -331,7 +332,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("TOGGLE_METRONOME"));
 	
@@ -359,8 +360,8 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	}
 #endif
 
-	MidiMap*	pMidiMap = MidiMap::get_instance();
-	
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MUTE_TOGGLE") );
 
 	return handleOutgoingControlChanges( ccParamValues,
@@ -385,7 +386,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_MUTE_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
@@ -415,7 +416,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_SOLO_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
 	
@@ -444,7 +445,7 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 		}
 #endif
 	
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
 
@@ -460,7 +461,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -722,6 +723,37 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	return true;
 }
 
+std::shared_ptr<Preferences> CoreActionController::loadPreferences( const QString& sPath ) {
+	return Preferences::load( sPath, false );
+}
+
+bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPreferences ) {
+	if ( pPreferences == nullptr ) {
+		ERRORLOG( "invalid preferences" );
+		return false;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	Preferences::get_instance()->replaceInstance( pPreferences );
+
+	pAudioEngine->getMetronomeInstrument()->set_volume(
+		pPreferences->m_fMetronomeVolume );
+
+	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+		H2Core::EventQueue::get_instance()->push_event(
+			H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
+
+	return true;
+}
+
 bool CoreActionController::savePreferences() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -733,7 +765,7 @@ bool CoreActionController::savePreferences() {
 		return true;
 	}
 	
-	return Preferences::get_instance()->savePreferences();
+	return Preferences::get_instance()->save();
 }
 
 bool CoreActionController::quit() {
@@ -869,7 +901,7 @@ bool CoreActionController::deleteTag( int nPosition ) {
 bool CoreActionController::toggleJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	if ( Preferences::get_instance()->m_bJackTransportMode ==
+	if ( Preferences::get_instance()->m_nJackTransportMode ==
 		 Preferences::USE_JACK_TRANSPORT ) {
 		activateJackTransport( false );
 	} else {
@@ -891,9 +923,9 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	
@@ -1258,7 +1290,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 
 	// Upgrade was successful. Cleanup
 	if ( ! sTemporaryFolder.isEmpty() ) {
-		// Filesystem::rm( sTemporaryFolder, true, true );
+		Filesystem::rm( sTemporaryFolder, true, true );
 	}
 
 	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
@@ -1376,6 +1408,11 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		ERRORLOG( QString( "Drumkit name [%1] must not end with a trailing whitespace" )
 				  .arg( sDrumkitName ) );
 		return false;
+	}
+
+	// Everything is valid. No need to keep temporary artifacts.
+	if ( ! sTemporaryFolder.isEmpty() ) {
+		Filesystem::rm( sTemporaryFolder, true, true );
 	}
 
 	INFOLOG( QString( "Drumkit [%1] is valid!" )
@@ -1881,7 +1918,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 }
 
 bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
@@ -1895,7 +1932,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	QString sMode;
 
-	if ( pPref->__playselectedinstrument ){
+	if ( pPref->m_bPlaySelectedInstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
 		pInstrument = pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {
@@ -1961,24 +1998,6 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
 }
 
-bool CoreActionController::updatePreferences() {
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	pAudioEngine->getMetronomeInstrument()->set_volume(
-		pPref->m_fMetronomeVolume );
-
-	// If the GUI is active, we have to update it to reflect the
-	// changes in the preferences.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
-	}
-
-	return true;
-}
-
 void CoreActionController::insertRecentFile( const QString& sFilename ){
 	auto pPref = Preferences::get_instance();
 
@@ -1986,31 +2005,15 @@ void CoreActionController::insertRecentFile( const QString& sFilename ){
 	// duplicates are removed later on.
 	bool bAlreadyContained = false;
 
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	QStringList recentFiles = pPref->getRecentFiles();
 
 	// We have to normalize directory separators. Else opening a
 	// song via double click from file browser and from within
     // Hydrogen will give to distinct entries on Windows.
     const QString sFilenameCleaned = QDir::cleanPath( sFilename );
 
-    recentFiles.insert( recentFiles.begin(), sFilenameCleaned );
-
-	if ( std::find( recentFiles.begin(), recentFiles.end(),
-					sFilenameCleaned ) != recentFiles.end() ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning. Also, in case the file got renamed,
-		// remove it's previous name from the list.
-		std::vector<QString> sTmpVec;
-		for ( const auto& ssFilename : recentFiles ) {
-			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
-				 sTmpVec.end() ) {
-				// Particular file is not contained yet.
-				sTmpVec.push_back( ssFilename );
-			}
-		}
-
-		recentFiles = sTmpVec;
-	}
+    recentFiles.push_front( sFilenameCleaned );
+	recentFiles.removeDuplicates();
 
 	pPref->setRecentFiles( recentFiles );
 }

@@ -25,7 +25,6 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
-#include <core/Preferences/Preferences.h>
 #include <core/FX/Effects.h>
 #include <core/FX/LadspaFX.h>
 

@@ -145,8 +145,7 @@ QStringList PortAudioDriver::getDevices( const QString& sHostAPI ) {
 }
 
 QStringList PortAudioDriver::getDevices() {
-	Preferences *pPreferences = Preferences::get_instance();
-	return getDevices( pPreferences->m_sPortAudioHostAPI );
+	return getDevices( Preferences::get_instance()->m_sPortAudioHostAPI );
 }
 
 //
@@ -157,7 +156,7 @@ QStringList PortAudioDriver::getDevices() {
 int PortAudioDriver::connect()
 {
 	bool bUseDefaultStream = true;
-	Preferences *pPreferences = Preferences::get_instance();
+	const auto pPreferences = Preferences::get_instance();
 	INFOLOG( "[connect]" );
 
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];

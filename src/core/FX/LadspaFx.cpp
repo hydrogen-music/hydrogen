@@ -23,7 +23,6 @@
 #include <core/FX/LadspaFX.h>
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
 

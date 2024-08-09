@@ -89,6 +89,7 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 
 void AudioEngineInfoForm::updateInfo()
 {
+	const auto pPref = Preferences::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -171,7 +172,7 @@ void AudioEngineInfoForm::updateInfo()
 		midiDriverName->setText("No MIDI driver support");
 	}
 
-	m_pMidiDeviceName->setText( Preferences::get_instance()->m_sMidiPortName );
+	m_pMidiDeviceName->setText( pPref->m_sMidiPortName );
 
 
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
@@ -199,7 +200,9 @@ void AudioEngineInfoForm::updateInfo()
 
 	// SAMPLER
 	Sampler *pSampler = pAudioEngine->getSampler();
-	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->getPlayingNotesNumber()).arg(Preferences::get_instance()->m_nMaxNotes));
+	sampler_playingNotesLbl->setText( QString( "%1 / %2" )
+									  .arg( pSampler->getPlayingNotesNumber() )
+									  .arg( pPref->m_nMaxNotes ) );
 }
 
 

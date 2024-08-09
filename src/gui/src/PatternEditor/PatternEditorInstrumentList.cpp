@@ -60,7 +60,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	, m_bEntered( false )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	int h = pPref->getPatternEditorGridHeight();
@@ -209,7 +209,7 @@ void InstrumentLine::setSelected( bool bSelected )
 
 void InstrumentLine::updateStyleSheet() {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor textColor;
 	if ( m_bIsSelected ) {
@@ -238,7 +238,7 @@ void InstrumentLine::leaveEvent( QEvent* ev ) {
 }
 
 void InstrumentLine::paintEvent( QPaintEvent* ev ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	
 	QPainter painter(this);
@@ -656,7 +656,7 @@ void InstrumentLine::functionRenameInstrument()
 }
 
 void InstrumentLine::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		

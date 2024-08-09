@@ -110,6 +110,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
+	H2Core::Filesystem::rm( sExportPath, false, true );
 
 	___INFOLOG( "passed" );
 }
@@ -163,6 +164,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
+	H2Core::Filesystem::rm( sExportPath, false, true );
 
 	___INFOLOG( "passed" );
 }
