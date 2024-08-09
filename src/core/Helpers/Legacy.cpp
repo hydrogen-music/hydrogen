@@ -261,8 +261,7 @@ Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
-		ERRORLOG( "Playlist has no name, abort" );
-		return nullptr;
+		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	pPlaylist->setFilename( pl_path );
