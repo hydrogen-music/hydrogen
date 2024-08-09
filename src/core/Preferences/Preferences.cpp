@@ -409,7 +409,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 }
 
 Preferences::~Preferences() {
-	__instance = nullptr;
 }
 
 std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool bSilent ) {
