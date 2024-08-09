@@ -39,6 +39,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(testDrumkitMapFormatIntegrity);
 	CPPUNIT_TEST(testDrumkitMap);
+	CPPUNIT_TEST(testShippedDrumkitMaps);
 	CPPUNIT_TEST(testPatternFormatIntegrity);
 	CPPUNIT_TEST(testPattern);
 	CPPUNIT_TEST(testPatternLegacy);
@@ -68,6 +69,9 @@ class XmlTest : public CppUnit::TestCase {
 		/** Checks whether the format of `.h2map` files did change. */
 		void testDrumkitMapFormatIntegrity();
 		void testDrumkitMap();
+		// Check whether the drumkit maps provided alongside this repo can be
+		// validated against their XSD.
+		void testShippedDrumkitMaps();
 
 		/** Checks whether the format of `.h2pattern` files did change. */
 		void testPatternFormatIntegrity();

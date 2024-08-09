@@ -435,10 +435,10 @@ void XmlTest::testShippedDrumkits()
 {
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
-	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
+	for ( const auto& ssKit : H2Core::Filesystem::sys_drumkit_list() ) {
 		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
 								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
-								  .arg( ii ),
+								  .arg( ssKit ),
 								  H2Core::Filesystem::drumkit_xsd_path() ) );
 
 	}
@@ -483,6 +483,25 @@ void XmlTest::testDrumkitMap()
 	H2TEST_ASSERT_XML_FILES_EQUAL( sRefFile, sTmpFile );
 
 	H2Core::Filesystem::rm( sTmpFile );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testShippedDrumkitMaps()
+{
+	___INFOLOG( "" );
+
+	QDir mapDir( H2Core::Filesystem::sys_drumkit_maps_dir() );
+	H2Core::XMLDoc doc;
+	const auto shippedMaps = mapDir.entryList(
+		QStringList( QString( "*%1" ).arg( H2Core::Filesystem::drumkit_map_ext ) ),
+		QDir::Files | QDir::NoDotAndDotDot );
+
+	CPPUNIT_ASSERT( shippedMaps.size() > 0 );
+
+	for ( const auto& ssMap : shippedMaps ) {
+		CPPUNIT_ASSERT( doc.read( mapDir.filePath( ssMap ),
+								  H2Core::Filesystem::drumkit_map_xsd_path() ) );
+	}
 	___INFOLOG( "passed" );
 }
 
