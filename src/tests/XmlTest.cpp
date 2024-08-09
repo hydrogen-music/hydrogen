@@ -46,38 +46,28 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
-static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded )
-{
-	int count = 0;
-	H2Core::InstrumentComponent::setMaxLayers( 16 );
-	auto instruments = dk->getInstruments();
-	for( int i=0; i<instruments->size(); i++ ) {
-		count++;
-		auto pInstr = ( *instruments )[i];
-		for ( const auto& pComponent : *pInstr->get_components() ) {
-			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				auto pLayer = pComponent->get_layer( nLayer );
-				if( pLayer ) {
-					auto pSample = pLayer->get_sample();
-					if ( pSample == nullptr ) {
-						return false;
-					}
-					if( loaded ) {
-						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
-							return false;
-						}
-					} else {
-						if( pSample->get_data_l() != nullptr || pSample->get_data_r() != nullptr ) {
-							return false;
-						}
-					}
-				}
+void XmlTest::tearDown() {
 
-			}
+	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
+					 QDirIterator::Subdirectories);
+	QStringList filters;
+	filters << "*.bak*";
+
+	while ( it.hasNext() ) {
+		it.next();
+		const QDir testFolder( it.next() );
+		const QStringList backupFiles = testFolder.entryList( filters, QDir::NoFilter, QDir::NoSort );
+
+		for ( auto& bbackupFile : backupFiles ) {
+
+			H2Core::Filesystem::rm( testFolder.absolutePath()
+									.append( "/" )
+									.append( bbackupFile ), false );
 		}
 	}
-	return ( count==4 );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void XmlTest::testDrumkitFormatIntegrity() {
 	___INFOLOG( "" );
@@ -119,7 +109,7 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
+	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
 	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->getInstruments()->size() );
 
 	// Check if drumkit was valid (what we assume in this test)
@@ -129,7 +119,7 @@ void XmlTest::testDrumkit()
 	// manually load samples
 	pDrumkitLoaded->loadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
+	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, true ) );
 
 	pDrumkitLoaded = nullptr;
 	
@@ -139,12 +129,12 @@ void XmlTest::testDrumkit()
 
 	pDrumkitLoaded->loadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
+	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, true ) );
 	
 	// unload samples
 	pDrumkitLoaded->unloadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
+	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
 	
 	// save drumkit elsewhere
 	pDrumkitLoaded->setName( "pDrumkitLoaded" );
@@ -183,20 +173,6 @@ void XmlTest::testDrumkit()
 
 	// Cleanup
 	H2Core::Filesystem::rm( sDrumkitPath, true );
-	___INFOLOG( "passed" );
-}
-
-void XmlTest::testShippedDrumkits()
-{
-	___INFOLOG( "" );
-	H2Core::XMLDoc doc;
-	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
-		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
-								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
-								  .arg( ii ),
-								  H2Core::Filesystem::drumkit_xsd_path() ) );
-
-	}
 	___INFOLOG( "passed" );
 }
 
@@ -422,6 +398,96 @@ void XmlTest::testDrumkitUpgrade() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitInstrumentTypeUniqueness()
+{
+	___INFOLOG( "" );
+
+	// Test resilience against loading duplicate type and key. They should both
+	// be dropped.
+	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
+	const QString sDuplicateFolder =
+		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
+	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder );
+	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
+	const auto pDrumkitDuplicates = H2Core::Drumkit::load( sDuplicateFolder );
+	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
+
+	H2TEST_ASSERT_XML_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
+								   sDuplicateFolder + "/drumkit.xml" );
+
+	const QString sTmpRef = H2Core::Filesystem::tmp_dir() + "ref-saved";
+	const QString sTmpDuplicate =
+		H2Core::Filesystem::tmp_dir() + "duplicate-saved";
+
+	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
+	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTmpRef + "/drumkit.xml",
+								   sTmpDuplicate + "/drumkit.xml" );
+	H2TEST_ASSERT_DIRS_EQUAL( sTmpRef, sTmpDuplicate );
+
+	H2Core::Filesystem::rm( sTmpRef, true );
+	H2Core::Filesystem::rm( sTmpDuplicate, true );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testShippedDrumkits()
+{
+	___INFOLOG( "" );
+	H2Core::XMLDoc doc;
+	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
+		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
+								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
+								  .arg( ii ),
+								  H2Core::Filesystem::drumkit_xsd_path() ) );
+
+	}
+	___INFOLOG( "passed" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void XmlTest::testDrumkitMapFormatIntegrity() {
+	___INFOLOG( "" );
+	const QString sTestFile = H2TEST_FILE( "/drumkit_map/ref.h2map");
+	const auto pDrumkitMap = H2Core::DrumkitMap::load( sTestFile );
+	CPPUNIT_ASSERT( pDrumkitMap != nullptr );
+
+	const QString sTmpDrumkitMap =
+		H2Core::Filesystem::tmp_file_path( "drumkit-map-format-integrity.h2map" );
+	CPPUNIT_ASSERT( pDrumkitMap->save( sTmpDrumkitMap ) );
+
+	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpDrumkitMap );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitMap ) );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testDrumkitMap()
+{
+	___INFOLOG( "" );
+
+	// Test resilience against loading duplicate type and key. They should both
+	// be dropped.
+	const QString sRefFile = H2TEST_FILE( "drumkit_map/ref.h2map" );
+	const auto pDrumkitMapRef = H2Core::DrumkitMap::load( sRefFile );
+	CPPUNIT_ASSERT( pDrumkitMapRef != nullptr );
+	const auto pDrumkitMapDuplicates = H2Core::DrumkitMap::load(
+		H2TEST_FILE( "drumkit_map/ref-duplicates.h2map" ) );
+	CPPUNIT_ASSERT( pDrumkitMapDuplicates != nullptr );
+
+	const QString sTmpFile = H2Core::Filesystem::tmp_dir() + "ref-saved.h2map";
+
+	CPPUNIT_ASSERT( pDrumkitMapDuplicates->save( sTmpFile, false ) );
+	H2TEST_ASSERT_XML_FILES_EQUAL( sRefFile, sTmpFile );
+
+	H2Core::Filesystem::rm( sTmpFile );
+	___INFOLOG( "passed" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void XmlTest::testPatternFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
@@ -574,78 +640,6 @@ void XmlTest::testPatternInstrumentTypes()
 	___INFOLOG( "passed" );
 }
 
-void XmlTest::testDrumkitInstrumentTypeUniqueness()
-{
-	___INFOLOG( "" );
-
-	// Test resilience against loading duplicate type and key. They should both
-	// be dropped.
-	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
-	const QString sDuplicateFolder =
-		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
-	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder );
-	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
-	const auto pDrumkitDuplicates = H2Core::Drumkit::load( sDuplicateFolder );
-	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
-
-	H2TEST_ASSERT_XML_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
-								   sDuplicateFolder + "/drumkit.xml" );
-
-	const QString sTmpRef = H2Core::Filesystem::tmp_dir() + "ref-saved";
-	const QString sTmpDuplicate =
-		H2Core::Filesystem::tmp_dir() + "duplicate-saved";
-
-	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
-	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
-
-	H2TEST_ASSERT_XML_FILES_EQUAL( sTmpRef + "/drumkit.xml",
-								   sTmpDuplicate + "/drumkit.xml" );
-	H2TEST_ASSERT_DIRS_EQUAL( sTmpRef, sTmpDuplicate );
-
-	H2Core::Filesystem::rm( sTmpRef, true );
-	H2Core::Filesystem::rm( sTmpDuplicate, true );
-	___INFOLOG( "passed" );
-}
-
-void XmlTest::testDrumkitMapFormatIntegrity() {
-	___INFOLOG( "" );
-	const QString sTestFile = H2TEST_FILE( "/drumkit_map/ref.h2map");
-	const auto pDrumkitMap = H2Core::DrumkitMap::load( sTestFile );
-	CPPUNIT_ASSERT( pDrumkitMap != nullptr );
-
-	const QString sTmpDrumkitMap =
-		H2Core::Filesystem::tmp_file_path( "drumkit-map-format-integrity.h2map" );
-	CPPUNIT_ASSERT( pDrumkitMap->save( sTmpDrumkitMap ) );
-
-	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpDrumkitMap );
-
-	// Cleanup
-	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitMap ) );
-	___INFOLOG( "passed" );
-}
-
-void XmlTest::testDrumkitMap()
-{
-	___INFOLOG( "" );
-
-	// Test resilience against loading duplicate type and key. They should both
-	// be dropped.
-	const QString sRefFile = H2TEST_FILE( "drumkit_map/ref.h2map" );
-	const auto pDrumkitMapRef = H2Core::DrumkitMap::load( sRefFile );
-	CPPUNIT_ASSERT( pDrumkitMapRef != nullptr );
-	const auto pDrumkitMapDuplicates = H2Core::DrumkitMap::load(
-		H2TEST_FILE( "drumkit_map/ref-duplicates.h2map" ) );
-	CPPUNIT_ASSERT( pDrumkitMapDuplicates != nullptr );
-
-	const QString sTmpFile = H2Core::Filesystem::tmp_dir() + "ref-saved.h2map";
-
-	CPPUNIT_ASSERT( pDrumkitMapDuplicates->save( sTmpFile, false ) );
-	H2TEST_ASSERT_XML_FILES_EQUAL( sRefFile, sTmpFile );
-
-	H2Core::Filesystem::rm( sTmpFile );
-	___INFOLOG( "passed" );
-}
-
 void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
@@ -682,6 +676,8 @@ void XmlTest::testPlaylistFormatIntegrity() {
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPlaylist ) );
 	___INFOLOG( "passed" );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void XmlTest::testPlaylist()
 {
@@ -729,6 +725,8 @@ void XmlTest::testPlaylist()
 
 	___INFOLOG( "passed" );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void XmlTest::testSongFormatIntegrity() {
 	___INFOLOG( "" );
@@ -818,6 +816,8 @@ void XmlTest::testSongLegacy() {
 	___INFOLOG( "passed" );
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void XmlTest::testPreferencesFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "preferences/current.conf" );
@@ -836,23 +836,35 @@ void XmlTest::testPreferencesFormatIntegrity() {
 }
 
 
-void XmlTest::tearDown() {
+bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoaded )
+{
+	int count = 0;
+	H2Core::InstrumentComponent::setMaxLayers( 16 );
+	auto instruments = pKit->getInstruments();
+	for( int i=0; i<instruments->size(); i++ ) {
+		count++;
+		auto pInstr = ( *instruments )[i];
+		for ( const auto& pComponent : *pInstr->get_components() ) {
+			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
+				auto pLayer = pComponent->get_layer( nLayer );
+				if( pLayer ) {
+					auto pSample = pLayer->get_sample();
+					if ( pSample == nullptr ) {
+						return false;
+					}
+					if( bLoaded ) {
+						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
+							return false;
+						}
+					} else {
+						if( pSample->get_data_l() != nullptr || pSample->get_data_r() != nullptr ) {
+							return false;
+						}
+					}
+				}
 
-	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
-					 QDirIterator::Subdirectories);
-	QStringList filters;
-	filters << "*.bak*";
-	
-	while ( it.hasNext() ) {
-		it.next();
-		const QDir testFolder( it.next() );
-		const QStringList backupFiles = testFolder.entryList( filters, QDir::NoFilter, QDir::NoSort );
-
-		for ( auto& bbackupFile : backupFiles ) {
-			
-			H2Core::Filesystem::rm( testFolder.absolutePath()
-									.append( "/" )
-									.append( bbackupFile ), false );
+			}
 		}
 	}
+	return ( count==4 );
 }

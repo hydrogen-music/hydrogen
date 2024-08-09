@@ -25,6 +25,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+namespace H2Core {
+	class Drumkit;
+}
+
 class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
 	CPPUNIT_TEST(testDrumkitFormatIntegrity);
@@ -32,6 +36,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
+	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(testDrumkitMapFormatIntegrity);
 	CPPUNIT_TEST(testDrumkitMap);
 	CPPUNIT_TEST(testPatternFormatIntegrity);
@@ -40,7 +45,6 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPatternInstrumentTypes);
 	CPPUNIT_TEST(testPlaylistFormatIntegrity);
 	CPPUNIT_TEST(testPlaylist);
-	CPPUNIT_TEST(testShippedDrumkits);
 	CPPUNIT_TEST(checkTestPatterns);
 	CPPUNIT_TEST(testSongFormatIntegrity);
 	CPPUNIT_TEST(testSong);
@@ -57,23 +61,26 @@ class XmlTest : public CppUnit::TestCase {
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testDrumkitUpgrade();
 		void testDrumkitInstrumentTypeUniqueness();
+		// Check whether the drumkits provided alongside this repo can
+		// be validated against the drumkit XSD.
+		void testShippedDrumkits();
+
 		/** Checks whether the format of `.h2map` files did change. */
 		void testDrumkitMapFormatIntegrity();
 		void testDrumkitMap();
+
 		/** Checks whether the format of `.h2pattern` files did change. */
 		void testPatternFormatIntegrity();
 		void testPattern();
 		void testPatternLegacy();
 		void testPatternInstrumentTypes();
-		/** Checks whether the format of `.h2playlist` files did change. */
-		void testPlaylistFormatIntegrity();
-		void testPlaylist();
-		// Check whether the drumkits provided alongside this repo can
-		// be validated against the drumkit XSD.
-		void testShippedDrumkits();
 		// Check whether the pattern used in the unit test is valid
 		// with respect to the shipped XSD file.
 		void checkTestPatterns();
+
+		/** Checks whether the format of `.h2playlist` files did change. */
+		void testPlaylistFormatIntegrity();
+		void testPlaylist();
 
 		/** Checks whether the format of `.h2song` files did change. */
 		void testSongFormatIntegrity();
@@ -90,6 +97,10 @@ class XmlTest : public CppUnit::TestCase {
 		/** Checks whether the format of our preferences file `hydrogen.conf`
 		 * did change. */
 		void testPreferencesFormatIntegrity();
+
+	private:
+		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,
+									 bool bLoaded );
 };
 
 
