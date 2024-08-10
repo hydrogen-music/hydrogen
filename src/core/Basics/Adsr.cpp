@@ -317,25 +317,35 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )
-			.append( QString( "%1%2attack: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nAttack ) )
-			.append( QString( "%1%2decay: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nDecay ) )
-			.append( QString( "%1%2sustain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSustain ) )
-			.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRelease ) )
-			.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s )
+			.append( QString( "%1%2m_nAttack: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nAttack ) )
+			.append( QString( "%1%2m_nDecay: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nDecay ) )
+			.append( QString( "%1%2m_fSustain: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fSustain ) )
+			.append( QString( "%1%2m_nRelease: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nRelease ) )
+			.append( QString( "%1%2m_state: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( StateToQString( m_state ) ) )
-			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fFramesInState ) )
-			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fValue ) )
-			.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fReleaseValue ) );
+			.append( QString( "%1%2m_fFramesInState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fFramesInState ) )
+			.append( QString( "%1%2m_fValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fValue ) )
+			.append( QString( "%1%2m_fReleaseValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fReleaseValue ) )
+			.append( QString( "%1%2m_fQ: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fQ ) );
 	} else {
 		sOutput = QString( "[ADSR]" )
-			.append( QString( " attack: %1" ).arg( m_nAttack ) )
-			.append( QString( ", decay: %1" ).arg( m_nDecay ) )
-			.append( QString( ", sustain: %1" ).arg( m_fSustain ) )
-			.append( QString( ", release: %1" ).arg( m_nRelease ) )
-			.append( QString( ", state: %1" ).arg( StateToQString( m_state ) ) )
-			.append( QString( ", ticks: %1" ).arg( m_fFramesInState ) )
-			.append( QString( ", value: %1" ).arg( m_fValue ) )
-			.append( QString( ", release_value: %1\n" ).arg( m_fReleaseValue ) );
+			.append( QString( " m_nAttack: %1" ).arg( m_nAttack ) )
+			.append( QString( ", m_nDecay: %1" ).arg( m_nDecay ) )
+			.append( QString( ", m_fSustain: %1" ).arg( m_fSustain ) )
+			.append( QString( ", m_nRelease: %1" ).arg( m_nRelease ) )
+			.append( QString( ", m_state: %1" ).arg( StateToQString( m_state ) ) )
+			.append( QString( ", m_fFramesInState: %1" ).arg( m_fFramesInState ) )
+			.append( QString( ", m_fValue: %1" ).arg( m_fValue ) )
+			.append( QString( ", m_fReleaseValue: %1\n" ).arg( m_fReleaseValue ) )
+			.append( QString( ", m_fQ: %1\n" ).arg( m_fQ ) );
 	}
 	
 	return sOutput;
