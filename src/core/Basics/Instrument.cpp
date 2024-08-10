@@ -47,6 +47,9 @@ namespace H2Core
 Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
 	: __id( id )
 	, __name( name )
+	, m_type( "" )
+	, __drumkit_path( "" )
+	, __drumkit_name( "" )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
 	, m_fPan( 0.f )
@@ -70,13 +73,12 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
-	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples( false )
-	  , m_type( "" )
+	, __components( nullptr )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
@@ -99,6 +101,9 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 Instrument::Instrument( std::shared_ptr<Instrument> other )
 	: __id( other->get_id() )
 	, __name( other->get_name() )
+	, m_type( other->m_type )
+	, __drumkit_path( other->get_drumkit_path() )
+	, __drumkit_name( other->__drumkit_name )
 	, __gain( other->__gain )
 	, __volume( other->get_volume() )
 	, m_fPan( other->getPan() )
@@ -108,8 +113,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __filter_active( other->is_filter_active() )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
-	, __pitch_offset( other->get_pitch_offset() )
 	, __random_pitch_factor( other->get_random_pitch_factor() )
+	, __pitch_offset( other->get_pitch_offset() )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
@@ -122,15 +127,12 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
-	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( other->get_apply_velocity() )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples(other->has_missing_samples())
-	, __drumkit_path( other->get_drumkit_path() )
-	, __drumkit_name( other->__drumkit_name )
-	  , m_type( other->m_type )
+	, __components( nullptr )
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );
@@ -597,45 +599,76 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
-			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
-			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __id ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __name ) )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_type ) )
-			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_path ) )
-			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
-			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
-			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
-			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
-			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
-			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) )
+			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __drumkit_path ) )
+			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __drumkit_name ) )
+			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __gain ) )
+			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __volume ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPan ) )
+			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __peak_l ) )
+			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __peak_r ) )
 			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2filter_active: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_active ) )
-			.append( QString( "%1%2filter_cutoff: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_cutoff ) )
-			.append( QString( "%1%2filter_resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_resonance ) )
-			.append( QString( "%1%2random_pitch_factor: %3\n" ).arg( sPrefix ).arg( s ).arg( __random_pitch_factor ) )
-			.append( QString( "%1%2pitch_offset: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch_offset ) )
-			.append( QString( "%1%2midi_out_note: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_note ) )
-			.append( QString( "%1%2midi_out_channel: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_channel ) )
-			.append( QString( "%1%2stop_notes: %3\n" ).arg( sPrefix ).arg( s ).arg( __stop_notes ) )
-			.append( QString( "%1%2sample_selection_alg: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_selection_alg ) )
-			.append( QString( "%1%2active: %3\n" ).arg( sPrefix ).arg( s ).arg( __active ) )
-			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s ).arg( __soloed ) )
-			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s ).arg( __muted ) )
-			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s ).arg( __mute_group ) )
-			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s ).arg( __queued ) ) ;
+			.append( QString( "%1%2filter_active: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_active ) )
+			.append( QString( "%1%2filter_cutoff: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_cutoff ) )
+			.append( QString( "%1%2filter_resonance: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_resonance ) )
+			.append( QString( "%1%2random_pitch_factor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __random_pitch_factor ) )
+			.append( QString( "%1%2pitch_offset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __pitch_offset ) )
+			.append( QString( "%1%2midi_out_note: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __midi_out_note ) )
+			.append( QString( "%1%2midi_out_channel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __midi_out_channel ) )
+			.append( QString( "%1%2stop_notes: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __stop_notes ) )
+			.append( QString( "%1%2sample_selection_alg: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( SampleSelectionAlgoToQString( __sample_selection_alg ) ) )
+			.append( QString( "%1%2active: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __active ) )
+			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __soloed ) )
+			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __muted ) )
+			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __mute_group ) )
+			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __queued ) ) ;
 		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
 		}
 		sOutput.append( QString( "]\n" ) )
-			.append( QString( "%1%2hihat_grp: %3\n" ).arg( sPrefix ).arg( s ).arg( __hihat_grp ) )
-			.append( QString( "%1%2lower_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __lower_cc ) )
-			.append( QString( "%1%2higher_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __higher_cc ) )
-			.append( QString( "%1%2is_preview_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_preview_instrument ) )
-			.append( QString( "%1%2is_metronome_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_metronome_instrument ) )
-			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __apply_velocity ) )
-			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
-			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
+			.append( QString( "%1%2hihat_grp: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __hihat_grp ) )
+			.append( QString( "%1%2lower_cc: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __lower_cc ) )
+			.append( QString( "%1%2higher_cc: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __higher_cc ) )
+			.append( QString( "%1%2is_preview_instrument: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_preview_instrument ) )
+			.append( QString( "%1%2is_metronome_instrument: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_metronome_instrument ) )
+			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __apply_velocity ) )
+			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __current_instr_for_export ) )
+			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bHasMissingSamples ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
@@ -664,7 +697,8 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", midi_out_note: %1" ).arg( __midi_out_note ) )
 			.append( QString( ", midi_out_channel: %1" ).arg( __midi_out_channel ) )
 			.append( QString( ", stop_notes: %1" ).arg( __stop_notes ) )
-			.append( QString( ", sample_selection_alg: %1" ).arg( __sample_selection_alg ) )
+			.append( QString( ", sample_selection_alg: %1" )
+					 .arg( SampleSelectionAlgoToQString( __sample_selection_alg ) ) )
 			.append( QString( ", active: %1" ).arg( __active ) )
 			.append( QString( ", soloed: %1" ).arg( __soloed ) )
 			.append( QString( ", muted: %1" ).arg( __muted ) )
@@ -694,6 +728,21 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
+
+QString Instrument::SampleSelectionAlgoToQString( const SampleSelectionAlgo& sampleSelectionAlgo ) {
+	switch( sampleSelectionAlgo ) {
+	case SampleSelectionAlgo::VELOCITY:
+		return "Velocity";
+	case SampleSelectionAlgo::ROUND_ROBIN:
+		return "Round Robin";
+	case SampleSelectionAlgo::RANDOM:
+		return "Random";
+	default:
+		return QString( "Unknown sampleSelectionAlgo [%1]" )
+			.arg( static_cast<int>(sampleSelectionAlgo) );
+	}
+}
+
 
 };
 
