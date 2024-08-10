@@ -812,22 +812,56 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
-			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s ).arg( __filepath ) )
-			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s ).arg( __frames ) )
-			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_rate ) )
-			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_modified ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
-			.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
-	} else {
+			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filepath ) )
+			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __frames ) )
+			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __sample_rate ) )
+			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_modified ) )
+			.append( QString( "%1%2__pan_envelope: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppoint : __pan_envelope ) {
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4" ).arg( sPrefix ).arg( s )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( QString( "]\n%1%2__velocity_envelope: [\n" )
+						.arg( sPrefix ).arg( s ) );
+		for ( const auto& ppoint : __velocity_envelope ) {
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4" ).arg( sPrefix ).arg( s )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+			sOutput.append( QString( "]\n%1" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" )
+					 .arg( __rubberband.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s, bShort ) ) );
+	}
+	else {
 		sOutput = QString( "[Sample]" )
 			.append( QString( " filepath: %1" ).arg( __filepath ) )
 			.append( QString( ", frames: %1" ).arg( __frames ) )
 			.append( QString( ", sample_rate: %1" ).arg( __sample_rate ) )
 			.append( QString( ", is_modified: %1" ).arg( __is_modified ) )
-			.append( QString( ", m_license: %1" ).arg( m_license.toQString() ) )
-			.append( QString( ", [%1]" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", [%1]\n" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
+			.append( ", __pan_envelope: [" );
+		for ( const auto& ppoint : __pan_envelope ) {
+			sOutput.append( QString( "[frame: %1, value: %2] " )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( "], __velocity_envelope: [" );
+		for ( const auto& ppoint : __velocity_envelope ) {
+			sOutput.append( QString( "[frame: %1, value: %2] " )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( QString( "], [%1]" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", [%1]\n" )
+					 .arg( __rubberband.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_license: %1" )
+					 .arg( m_license.toQString( sPrefix, bShort ) ) );
 	}
 	
 	return sOutput;
