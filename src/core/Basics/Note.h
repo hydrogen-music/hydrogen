@@ -89,6 +89,8 @@ struct SelectedLayerInfo {
 	 * started, it is important to not rescale the whole length of the note but
 	 * just the fraction between #fSamplePosition and the former #nNoteLength.*/
 	int nNoteLength;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 /**
@@ -101,10 +103,11 @@ class Note : public H2Core::Object<Note>
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
-	static QString KeyToQString( Key key );
+	static QString KeyToQString( const Key& key );
 	
 		/** possible octaves */
 		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
+		static QString OctaveToQString( const Octave& octave );
 
 		/**
 		 * constructor
@@ -423,7 +426,6 @@ class Note : public H2Core::Object<Note>
 	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 ) const;
 
 	private:
-		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		/** Drumkit-independent identifier used to relate a note/pattern to a
 		 * different kit */
@@ -459,7 +461,6 @@ class Note : public H2Core::Object<Note>
 		 * It is incorporated in the #m_nNoteStart.
 		 */
 		int				__humanize_delay;
-	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
 		float			__bpfb_r;             ///< right band pass filter buffer
 		float			__lpfb_l;             ///< left low pass filter buffer
@@ -492,6 +493,11 @@ class Note : public H2Core::Object<Note>
 	 * during processing and not written to disk.
 	 */
 	float m_fUsedTickSize;
+
+	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
+
+		/** the instrument to be played by this note */
+		std::shared_ptr<Instrument>		__instrument;
 };
 
 // DEFINITIONS
