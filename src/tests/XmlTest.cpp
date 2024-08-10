@@ -46,6 +46,13 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
+void XmlTest::setUp() {
+	// Test for possible side effects by comparing serializations
+	m_sPrefPre =
+		H2Core::Preferences::get_instance()->toQString( "", true );
+
+}
+
 void XmlTest::tearDown() {
 
 	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
@@ -65,6 +72,9 @@ void XmlTest::tearDown() {
 									.append( bbackupFile ), false );
 		}
 	}
+
+	CPPUNIT_ASSERT( m_sPrefPre ==
+					H2Core::Preferences::get_instance()->toQString( "", true ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

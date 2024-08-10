@@ -23,6 +23,8 @@
 #ifndef XML_TEST_H
 #define XML_TEST_H
 
+#include <QString>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace H2Core {
@@ -54,6 +56,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
+		void setUp();
 		// Removes all .bak backup files from the test data folder.
 		void tearDown();
 		/** Checks whether the format of `drumkit.xml` files did change. */
@@ -105,6 +108,7 @@ class XmlTest : public CppUnit::TestCase {
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,
 									 bool bLoaded );
+		QString m_sPrefPre;
 };
 
 
