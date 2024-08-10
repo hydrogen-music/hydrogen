@@ -352,6 +352,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		/** Transient property neither written to a drumkit.xml nor to a .h2song
+		 * but determined when loading the kit. */
+		Context m_context;
 		QString m_sPath;					///< absolute drumkit path
 		QString m_sName;					///< drumkit name
 		QString m_sAuthor;				///< drumkit author
@@ -359,9 +362,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		License m_license;				///< drumkit license description
 		QString m_sImage;				///< drumkit image filename
 		License m_imageLicense;			///< drumkit image license
-		/** Transient property neither written to a drumkit.xml nor to a .h2song
-		 * but determined when loading the kit. */
-		Context m_context;
 
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
