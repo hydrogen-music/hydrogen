@@ -27,6 +27,7 @@
  <drumkit_info>
   <formatVersion>2</formatVersion>
   <name>empty</name>
+  <version>0</version>
   <author>undefined author</author>
   <info>No information available.</info>
   <license>undefined license</license>

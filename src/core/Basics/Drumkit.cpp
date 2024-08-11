@@ -57,19 +57,20 @@
 namespace H2Core
 {
 
-Drumkit::Drumkit() : m_bSamplesLoaded( false ),
-					 m_pInstruments( nullptr ),
-					 m_context( Context::User ),
+Drumkit::Drumkit() : m_context( Context::User ),
 					 m_sName( "empty" ),
+					 m_nVersion( 0 ),
 					 m_sAuthor( "undefined author" ),
 					 m_sInfo( "No information available." ),
 					 m_license( License() ),
-					 m_imageLicense( License() )
+					 m_sImage( "" ),
+					 m_imageLicense( License() ),
+					 m_bSamplesLoaded( false ),
+					 m_pInstruments( std::make_shared<InstrumentList>() ),
+					 m_pComponents( std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>() )
 {
 	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
 	m_sPath = usrDrumkitPath.filePath( m_sName );
-	m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	m_pInstruments = std::make_shared<InstrumentList>();
 }
 
 Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
@@ -77,6 +78,7 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	m_context( other->getContext() ),
 	m_sPath( other->getPath() ),
 	m_sName( other->getName() ),
+	m_nVersion( other->m_nVersion ),
 	m_sAuthor( other->getAuthor() ),
 	m_sInfo( other->getInfo() ),
 	m_license( other->getLicense() ),
@@ -186,6 +188,8 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 
 	pDrumkit->m_sPath = sDrumkitPath;
 	pDrumkit->m_sName = sDrumkitName;
+	pDrumkit->m_nVersion = node.read_int(
+		"version", pDrumkit->m_nVersion, true, false, bSilent );
 	pDrumkit->m_sAuthor = node.read_string( "author", "undefined author",
 											true, true, true );
 	pDrumkit->m_sInfo = node.read_string( "info", "No information available.",
@@ -442,6 +446,7 @@ void Drumkit::saveTo( XMLNode& node,
 {
 	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
+	node.write_int( "version", m_nVersion );
 	node.write_string( "author", m_sAuthor );
 	node.write_string( "info", m_sInfo );
 	node.write_string( "license", m_license.getLicenseString() );
@@ -1711,6 +1716,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( ContextToString( m_context ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
+			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nVersion ) )
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
 			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
 			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
@@ -1732,6 +1739,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( " context: %1" ).arg( ContextToString( m_context ) ) )
 			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )
+			.append( QString( ", version: %1" ).arg( m_nVersion ) )
 			.append( QString( ", author: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", info: %1" ).arg( m_sInfo ) )
 			.append( QString( ", license: %1" ).arg( m_license.toQString() ) )
