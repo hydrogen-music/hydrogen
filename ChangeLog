@@ -66,6 +66,12 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  in the Sound Library.
 				- New action in Main Menu to save kit to session folder.
 		- Online import dialog now allows for multiple downloads at once (#1143).
+		- `userVersion` element was added to `.h2song`, `.h2pattern`, and drumkit
+			files. It can be set using the corresponding properties dialog and can
+			help to tell different artifact versions apart.
+		- `formatVersion` element was added to `.h2song`, `.h2pattern`, `.h2playlist`,
+			drumkit and config files. This integer will be increment each time the
+			format will be changed.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
