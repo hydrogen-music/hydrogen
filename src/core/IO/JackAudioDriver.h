@@ -374,6 +374,8 @@ public:
 									jack_position_t* pPos );
 		static QString JackTransportPosToQString( const jack_position_t& pPos );
 
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 		friend class AudioEngineTests;
 private:
 

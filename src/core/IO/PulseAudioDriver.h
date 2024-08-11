@@ -54,6 +54,7 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	pthread_t				m_thread;
 	pthread_mutex_t			m_mutex;

@@ -60,7 +60,8 @@ public:
 	static QStringList getDevices();
 
 	virtual int getXRuns() const override { return m_nXRuns; }
-	
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 
 	unsigned int m_nSampleRate;

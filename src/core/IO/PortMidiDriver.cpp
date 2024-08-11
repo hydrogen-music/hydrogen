@@ -604,6 +604,30 @@ QString PortMidiDriver::translatePmError( const PmError& err ) {
 
 	return std::move( sRes );
 }
+
+QString PortMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PortMidiDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bActive ) )
+			.append( QString( "%1%2m_bRunning: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bRunning ) )
+			.append( QString( "%1%2m_nVirtualInputDeviceId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nVirtualInputDeviceId ) )
+			.append( QString( "%1%2m_nVirtualOutputDeviceId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nVirtualOutputDeviceId ) );
+	} else {
+		sOutput = QString( "[PortMidiDriver]" )
+			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
+			.append( QString( ", m_bRunning: %1" ).arg( m_bRunning ) )
+			.append( QString( ", m_nVirtualInputDeviceId: %1" ).arg( m_nVirtualInputDeviceId ) )
+			.append( QString( ", m_nVirtualOutputDeviceId: %1" ).arg( m_nVirtualOutputDeviceId ) );
+	}
+
+	return sOutput;
+}
 };
 
 #endif	// H2CORE_HAVE_PORTMIDI

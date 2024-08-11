@@ -68,6 +68,7 @@ public:
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
 

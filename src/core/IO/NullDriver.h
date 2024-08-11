@@ -50,6 +50,7 @@ public:
 	float* getOut_L() override;
 	float* getOut_R() override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 };
 
 };

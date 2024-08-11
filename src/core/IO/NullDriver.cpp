@@ -87,4 +87,15 @@ float* NullDriver::getOut_R()
 	return nullptr;
 }
 
+QString NullDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[NullDriver]" ).arg( sPrefix );
+	} else {
+		sOutput = "[NullDriver]";
+	}
+
+	return sOutput;
+}
 };

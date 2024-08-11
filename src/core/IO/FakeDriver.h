@@ -53,6 +53,7 @@ public:
 
 	void processCallback();
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	audioProcessCallback m_processCallback;
 	unsigned m_nBufferSize;

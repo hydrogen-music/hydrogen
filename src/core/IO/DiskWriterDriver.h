@@ -89,6 +89,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 			m_sFilename = sFilename;
 		}
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
 
 };

@@ -1519,6 +1519,100 @@ QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t ) 
 			return "Unknown";
 	}
 }
+
+QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[JackAudioDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_sOutputPortName1: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sOutputPortName1 ) )
+			.append( QString( "%1%2m_sOutputPortName2: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sOutputPortName2 ) )
+			.append( QString( "%1%2m_trackMap:\n" ).arg( sPrefix ).arg( s ) );
+		for ( int rrow = 0; rrow < MAX_INSTRUMENTS; ++rrow ) {
+			sOutput.append( QString( "%1%2%2[" ).arg( sPrefix ).arg( s ) );
+			for ( int ccolumn = 0; ccolumn < MAX_COMPONENTS; ++ccolumn ) {
+				sOutput.append( QString( "%1, " )
+								.arg( m_trackMap[ rrow ][ ccolumn ] ) );
+			}
+			sOutput.append( "]\n" );
+		}
+		sOutput.append( QString( "%1%2m_nTrackPortCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nTrackPortCount ) )
+			.append( QString( "%1%2m_JackTransportState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( JackTransportStateToQString( m_JackTransportState ) ) )
+			.append( QString( "%1%2m_JackTransportPos: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( JackTransportPosToQString( m_JackTransportPos ) ) )
+			.append( QString( "%1%2m_nextJackTransportPos: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) )
+			.append( QString( "%1%2m_bConnectDefaults: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bConnectDefaults ) )
+			.append( QString( "%1%2m_timebaseState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( TimebaseToQString( m_timebaseState ) ) )
+			.append( QString( "%1%2m_timebaseTracking: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) )
+			.append( QString( "%1%2m_fLastTimebaseBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fLastTimebaseBpm ) )
+			.append( QString( "%1%2m_nTimebaseFrameOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nTimebaseFrameOffset ) )
+			.append( QString( "%1%2m_lastTransportBits: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_lastTransportBits ) );
+#ifdef HAVE_INTEGRATION_TESTS
+			sOutput.append( QString( "%1%2m_nIntegrationLastRelocationFrame: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nIntegrationLastRelocationFrame ) )
+			.append( QString( "%1%2m_bIntegrationRelocationLoop: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIntegrationRelocationLoop ) )
+			.append( QString( "%1%2m_bIntegrationCheckRelocationLoop: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIntegrationCheckRelocationLoop ) );
+#endif
+	} else {
+		sOutput = QString( "[JackAudioDriver]" ).arg( sPrefix )
+			.append( QString( " m_sOutputPortName1: %1" )
+					 .arg( m_sOutputPortName1 ) )
+			.append( QString( ", m_sOutputPortName2: %1" )
+					 .arg( m_sOutputPortName2 ) )
+			.append( ", m_trackMap: [" );
+		for ( int rrow = 0; rrow < MAX_INSTRUMENTS; ++rrow ) {
+			sOutput.append( QString( "[" ) );
+			for ( int ccolumn = 0; ccolumn < MAX_COMPONENTS; ++ccolumn ) {
+				sOutput.append( QString( "%1, " )
+								.arg( m_trackMap[ rrow ][ ccolumn ] ) );
+			}
+			sOutput.append( "] " );
+		}
+		sOutput.append( QString( ", m_nTrackPortCount: %1" )
+					 .arg( m_nTrackPortCount ) )
+			.append( QString( ", m_JackTransportState: %1" )
+					 .arg( JackTransportStateToQString( m_JackTransportState ) ) )
+			.append( QString( ", m_JackTransportPos: %1" )
+					 .arg( JackTransportPosToQString( m_JackTransportPos ) ) )
+			.append( QString( ", m_nextJackTransportPos: %1" )
+					 .arg( JackTransportPosToQString( m_nextJackTransportPos ) ) )
+			.append( QString( ", m_bConnectDefaults: %1" )
+					 .arg( m_bConnectDefaults ) )
+			.append( QString( ", m_timebaseState: %1" )
+					 .arg( TimebaseToQString( m_timebaseState ) ) )
+			.append( QString( ", m_timebaseTracking: %1" )
+					 .arg( TimebaseTrackingToQString( m_timebaseTracking ) ) )
+			.append( QString( ", m_fLastTimebaseBpm: %1" )
+					 .arg( m_fLastTimebaseBpm ) )
+			.append( QString( ", m_nTimebaseFrameOffset: %1" )
+					 .arg( m_nTimebaseFrameOffset ) )
+			.append( QString( ", m_lastTransportBits: %1" )
+					 .arg( m_lastTransportBits ) );
+#ifdef HAVE_INTEGRATION_TESTS
+			sOutput.append( QString( ", m_nIntegrationLastRelocationFrame: %1" )
+					 .arg( m_nIntegrationLastRelocationFrame ) )
+			.append( QString( ", m_bIntegrationRelocationLoop: %1" )
+					 .arg( m_bIntegrationRelocationLoop ) )
+			.append( QString( ", m_bIntegrationCheckRelocationLoop: %1" )
+					 .arg( m_bIntegrationCheckRelocationLoop ) );
+#endif
+	}
+
+	return sOutput;
+}
 };
 
 #endif // H2CORE_HAVE_JACK

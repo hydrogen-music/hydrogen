@@ -66,6 +66,7 @@ public:
 	 */
 	static bool appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg );
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;

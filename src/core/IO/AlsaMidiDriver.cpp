@@ -668,6 +668,32 @@ void AlsaMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
+QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[AlsaMidiDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bActive ) )
+			.append( QString( "%1%2isMidiDriverRunning: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( isMidiDriverRunning ) )
+			.append( QString( "%1%2portId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( portId ) )
+			.append( QString( "%1%2clientId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( clientId ) )
+			.append( QString( "%1%2outPortId: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( outPortId ) );
+	} else {
+		sOutput = QString( "[AlsaMidiDriver]" )
+			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
+			.append( QString( ", isMidiDriverRunning: %1" ).arg( isMidiDriverRunning ) )
+			.append( QString( ", portId: %1" ).arg( portId ) )
+			.append( QString( ", clientId: %1" ).arg( clientId ) )
+			.append( QString( ", outPortId: %1" ).arg( outPortId ) );
+	}
+
+	return sOutput;
+}
 };
 
 #endif // H2CORE_HAVE_ALSA
