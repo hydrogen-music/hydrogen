@@ -42,10 +42,9 @@ time). That's a price we can pay for a scalable versioning of our artifacts.
 
 ### Consequences
 
-* The initial `formatVersion` introduced in the first beta version Hydrogen
-  v2.0.0 will be set to `1` and in the actual v2.0.0 release to `2`. Afterwards
-  any change in the file format will cause the number to be incremented for that
-  particular XML file.
+* The initial `formatVersion` introduced in the v2.0.0 release of Hydrogen will
+  be set to `2`. Afterwards any change in the file format will cause the number
+  to be incremented for that particular XML file.
 * Integration tests for _all_ XML files must be written which fail as soon as
   their format changes (in order to make breaking it an explicit and intentional
   action).
