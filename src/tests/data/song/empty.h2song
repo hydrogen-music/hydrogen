@@ -6,6 +6,7 @@
  <volume>0.5</volume>
  <isMuted>false</isMuted>
  <metronomeVolume>0.5</metronomeVolume>
+ <version>0</version>
  <name>Untitled Song</name>
  <author>hydrogen</author>
  <notes>...</notes>

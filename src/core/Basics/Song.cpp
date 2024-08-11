@@ -67,6 +67,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsMuted( false )
 	, m_resolution( nDefaultResolution )
 	, m_fBpm( fBpm )
+	, m_nVersion( 0 )
 	, m_sName( sName )
 	, m_sAuthor( sAuthor )
 	, m_fVolume( fVolume )
@@ -242,6 +243,9 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 												 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
+
+	pSong->m_nVersion = rootNode.read_int(
+		"version", pSong->m_nVersion, true, false, bSilent );
 
 	pSong->setIsMuted( rootNode.read_bool( "isMuted", false, true, false,
 											 bSilent ) );
@@ -721,6 +725,7 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );
 	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
+	rootNode.write_int( "version", m_nVersion );
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
 	rootNode.write_string( "notes", m_sNotes );
@@ -1346,6 +1351,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_resolution ) )
 			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fBpm ) )
+			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nVersion ) )
 			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sName ) )
 			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
@@ -1423,6 +1430,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
 			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
+			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )

@@ -176,6 +176,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float getBpm() const;
 		void setBpm( float fBpm );
 
+		int getVersion() const;
+		void setVersion( int nVersion );
+
 		const QString& getName() const;
 		void setName( const QString& sName );
 		
@@ -335,6 +338,8 @@ private:
 		 * different tempo instances work.
 		 */
 		float m_fBpm;
+
+		int m_nVersion;
 		
 		///< song name
 		QString m_sName;
@@ -497,6 +502,14 @@ inline float Song::getBpm() const
 {
 	return m_fBpm;
 }
+
+inline void Song::setVersion( int nVersion ) {
+	m_nVersion = nVersion;
+}
+inline int Song::getVersion() const {
+	return m_nVersion;
+}
+
 
 inline void Song::setName( const QString& sName )
 {
