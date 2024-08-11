@@ -38,9 +38,11 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	adjustSize();
-	setMaximumSize( width(), height() );
-	setMinimumSize( width(), height() );
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	setWindowTitle( tr( "Song properties" ) );
 
