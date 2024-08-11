@@ -1458,5 +1458,65 @@ void Sampler::reinitializePlaybackTrack()
 	m_nPlayBackSamplePosition = 0;
 }
 
+QString Sampler::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Sampler]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_playingNotesQueue: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppNote : m_playingNotesQueue ) {
+			sOutput.append( ppNote->toQString( sPrefix + s, bShort ) );
+		}
+		sOutput.append( QString( "]\n%1%2m_queuedNoteOffs: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppNote : m_queuedNoteOffs ) {
+			sOutput.append( ppNote->toQString( sPrefix + s, bShort ) );
+		}
+		sOutput.append(
+			QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" ).arg( sPrefix ).arg( s )
+			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
+				  m_pPlaybackTrackInstrument->toQString( sPrefix + s, bShort) ) )
+			.append(
+				QString( "%1%2m_pPreviewInstrument: %3\n" ).arg( sPrefix ).arg( s )
+				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
+					  m_pPreviewInstrument->toQString( sPrefix + s, bShort) ) )
+			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nMaxLayers ) )
+			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPlayBackSamplePosition ) )
+			.append( QString( "%1%2m_interpolateMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+	}
+	else {
+		sOutput = QString( "[Sampler] " )
+			.append( "m_playingNotesQueue: [" );
+		for ( const auto& ppNote : m_playingNotesQueue ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppNote->toQString( "", bShort ) ) );
+		}
+		sOutput.append( QString( "], m_queuedNoteOffs: [" ) );
+		for ( const auto& ppNote : m_queuedNoteOffs ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppNote->toQString( "", bShort ) ) );
+		}
+		sOutput.append(
+			QString( "], m_pPlaybackTrackInstrument: %1" )
+			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
+				  m_pPlaybackTrackInstrument->toQString( "", bShort) ) )
+			.append(
+				QString( ", m_pPreviewInstrument: %1" )
+				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
+					  m_pPreviewInstrument->toQString( "", bShort) ) )
+			.append( QString( ", m_nMaxLayers: %1" )
+					 .arg( m_nMaxLayers ) )
+			.append( QString( ", m_nPlayBackSamplePosition: %1" )
+					 .arg( m_nPlayBackSamplePosition ) )
+			.append( QString( ", m_interpolateMode: %1" )
+					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+	}
+
+	return sOutput;
+}
+
+
 };
 
