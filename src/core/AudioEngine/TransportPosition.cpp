@@ -819,38 +819,63 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[TransportPosition]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_sLabel: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLabel ) )
-			.append( QString( "%1%2m_nFrame: %3\n" ).arg( sPrefix ).arg( s ).arg( getFrame() ) )
-			.append( QString( "%1%2m_fTick: %3\n" ).arg( sPrefix ).arg( s ).arg( getDoubleTick(), 0, 'f' ) )
-			.append( QString( "%1%2m_fTick (rounded): %3\n" ).arg( sPrefix ).arg( s ).arg( getTick() ) )
-			.append( QString( "%1%2m_fTickSize: %3\n" ).arg( sPrefix ).arg( s ).arg( getTickSize(), 0, 'f' ) )
-			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( getBpm(), 0, 'f' ) )
-			.append( QString( "%1%2m_nPatternStartTick: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternStartTick ) )
-			.append( QString( "%1%2m_nPatternTickPosition: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternTickPosition ) )
-			.append( QString( "%1%2m_nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nColumn ) )
-			.append( QString( "%1%2m_fTickMismatch: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickMismatch, 0, 'f' ) )
-			.append( QString( "%1%2m_nFrameOffsetTempo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nFrameOffsetTempo ) )
-			.append( QString( "%1%2m_fTickOffsetQueuing: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
-			.append( QString( "%1%2m_fTickOffsetSongSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
-		if ( m_pPlayingPatterns != nullptr ) {
-			sOutput.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) );
-		}
+			.append( QString( "%1%2m_sLabel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLabel ) )
+			.append( QString( "%1%2m_nFrame: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nFrame ) )
+			.append( QString( "%1%2m_fTick: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTick, 0, 'f' ) )
+			.append( QString( "%1%2m_fTick (rounded): %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getTick() ) )
+			.append( QString( "%1%2m_fTickSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTickSize, 0, 'f' ) )
+			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fBpm, 0, 'f' ) )
+			.append( QString( "%1%2m_nPatternStartTick: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPatternStartTick ) )
+			.append( QString( "%1%2m_nPatternTickPosition: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPatternTickPosition ) )
+			.append( QString( "%1%2m_nColumn: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nColumn ) )
+			.append( QString( "%1%2m_fTickMismatch: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTickMismatch, 0, 'f' ) )
+			.append( QString( "%1%2m_nFrameOffsetTempo: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nFrameOffsetTempo ) )
+			.append( QString( "%1%2m_fTickOffsetQueuing: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTickOffsetQueuing, 0, 'f' ) )
+			.append( QString( "%1%2m_fTickOffsetSongSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTickOffsetSongSize, 0, 'f' ) );
 		if ( m_pNextPatterns != nullptr ) {
-			sOutput.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
+			sOutput.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pNextPatterns->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2m_pNextPatterns: nullptr\n" )
+							.arg( sPrefix ).arg( s ) );
 		}
-		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternSize ) )
-			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastLeadLagFactor ) )
-			.append( QString( "%1%2m_nBar: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBar ) )
-			.append( QString( "%1%2m_nBeat: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeat ) );
+		if ( m_pPlayingPatterns != nullptr ) {
+			sOutput.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pPlayingPatterns->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2m_pPlayingPatterns: nullptr\n" )
+							.arg( sPrefix ).arg( s ) );
+		}
+		sOutput.append( QString( "%1%2m_nPatternSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPatternSize ) )
+			.append( QString( "%1%2m_nLastLeadLagFactor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastLeadLagFactor ) )
+			.append( QString( "%1%2m_nBar: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBar ) )
+			.append( QString( "%1%2m_nBeat: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeat ) );
 	}
 	else {
 		sOutput = QString( "%1[TransportPosition]" ).arg( sPrefix )
 			.append( QString( " m_sLabel: %1" ).arg( m_sLabel ) )
-			.append( QString( ", m_nFrame: %1" ).arg( getFrame() ) )
-			.append( QString( ", m_fTick: %1" ).arg( getDoubleTick(), 0, 'f' ) )
+			.append( QString( ", m_nFrame: %1" ).arg( m_nFrame ) )
+			.append( QString( ", m_fTick: %1" ).arg( m_fTick, 0, 'f' ) )
 			.append( QString( ", m_fTick (rounded): %1" ).arg( getTick() ) )
-			.append( QString( ", m_fTickSize: %1" ).arg( getTickSize(), 0, 'f' ) )
-			.append( QString( ", m_fBpm: %1" ).arg( getBpm(), 0, 'f' ) )
+			.append( QString( ", m_fTickSize: %1" ).arg( m_fTickSize, 0, 'f' ) )
+			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm, 0, 'f' ) )
 			.append( QString( ", m_nPatternStartTick: %1" ).arg( m_nPatternStartTick ) )
 			.append( QString( ", m_nPatternTickPosition: %1" ).arg( m_nPatternTickPosition ) )
 			.append( QString( ", m_nColumn: %1" ).arg( m_nColumn ) )
@@ -858,11 +883,17 @@ QString TransportPosition::toQString( const QString& sPrefix, bool bShort ) cons
 			.append( QString( ", m_nFrameOffsetTempo: %1" ).arg( m_nFrameOffsetTempo ) )
 			.append( QString( ", m_fTickOffsetQueuing: %1" ).arg( m_fTickOffsetQueuing, 0, 'f' ) )
 			.append( QString( ", m_fTickOffsetSongSize: %1" ).arg( m_fTickOffsetSongSize, 0, 'f' ) );
-		if ( m_pPlayingPatterns != nullptr ) {
-			sOutput.append( QString( ", m_pPlayingPatterns: %1" ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) );
-		}
 		if ( m_pNextPatterns != nullptr ) {
-			sOutput.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) );
+			sOutput.append( QString( ", m_pNextPatterns: %1" )
+					 .arg( m_pNextPatterns->toQString( "", bShort ) ) );
+		} else {
+			sOutput.append( ", m_pNextPatterns: nullptr" );
+		}
+		if ( m_pPlayingPatterns != nullptr ) {
+			sOutput.append( QString( ", m_pPlayingPatterns: %1" )
+					 .arg( m_pPlayingPatterns->toQString( "", bShort ) ) );
+		} else {
+			sOutput.append( ", m_pPlayingPatterns: nullptr" );
 		}
 		sOutput.append( QString( ", m_nPatternSize: %1" ).arg( m_nPatternSize ) )
 			.append( QString( ", m_nLastLeadLagFactor: %1" ).arg( m_nLastLeadLagFactor ) )
