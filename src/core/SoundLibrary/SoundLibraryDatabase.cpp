@@ -386,8 +386,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ssPath, ddrumkit ] : m_drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) )
-				.append( QString( "%1%2%2%2mapping:\n" ).arg( sPrefix ).arg( s ) );
+							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) );
 		}
 		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
@@ -400,48 +399,34 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 							.arg( ppatternInfo->toQString( sPrefix + s + s, bShort ) ) );
 		}
 		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( m_patternCategories.join( ", " ) ) );
-		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
-		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
+						.arg( m_patternCategories.join( ", " ) ) )
+			.append( QString( "%1%2m_customDrumkitPaths: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_customDrumkitPaths.join( ", " ) ) )
+			.append( QString( "%1%2m_customDrumkitFolders: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_customDrumkitFolders.join( ", " ) ) );
 	}
 	else {
-
-		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput = QString( "[SoundLibraryDatabase] " )
+			.append( "m_drumkitDatabase: " );
 		for ( const auto& [ ssPath, ppDrumkit ] : m_drumkitDatabase ) {
-			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+			sOutput.append( QString( "[%1: %2] " )
 							.arg( ssPath ).arg( ppDrumkit->getName() ) );
 		}
-		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( ", m_drumkitUniqueLabels: " );
 		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
-			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+			sOutput.append( QString( "[%1: %2] " )
 							.arg( ssPath ).arg( ssLabel ) );
 		}
-		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( ", m_patternInfoVector: " );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ppatternInfo->getPath() ) );
+			sOutput.append( QString( "%1, " ).arg( ppatternInfo->getPath() ) );
 		}
-		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( m_patternCategories.join( ", " ) ) );
-		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
-		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
+		sOutput.append( QString( ", m_patternCategories: %1" )
+						.arg( m_patternCategories.join( ", " ) ) )
+			.append( QString( ", m_customDrumkitPaths: %1" )
+						.arg( m_customDrumkitPaths.join( ", " ) ) )
+			.append( QString( ", m_customDrumkitFolders: %1" )
+						.arg( m_customDrumkitFolders.join( ", " ) ) );
 	}
 
 	return sOutput;
