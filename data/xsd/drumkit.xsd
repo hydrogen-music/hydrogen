@@ -157,7 +157,7 @@
 			<xsd:element name="formatVersion"	type="xsd:nonNegativeInteger"
 						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="name"			type="xsd:string"/>
-			<xsd:element name="version"			type="xsd:nonNegativeInteger"
+			<xsd:element name="userVersion"			type="xsd:nonNegativeInteger"
 						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="author"			type="xsd:string"/>
 			<xsd:element name="info"			type="xsd:string"/>

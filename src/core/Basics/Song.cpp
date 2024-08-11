@@ -245,7 +245,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 
 	pSong->m_nVersion = rootNode.read_int(
-		"version", pSong->m_nVersion, true, false, bSilent );
+		"userVersion", pSong->m_nVersion, true, false, bSilent );
 
 	pSong->setIsMuted( rootNode.read_bool( "isMuted", false, true, false,
 											 bSilent ) );
@@ -725,7 +725,7 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );
 	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
-	rootNode.write_int( "version", m_nVersion );
+	rootNode.write_int( "userVersion", m_nVersion );
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
 	rootNode.write_string( "notes", m_sNotes );

@@ -4,7 +4,7 @@ date: 2024-08-11
 deciders: phil (theGreatWhiteShark)
 ---
 
-# AD: Introduce `version` to XML files
+# AD: Introduce `userVersion` to XML files
 
 ## Context and Problem Statement
 
@@ -38,7 +38,7 @@ way, like including topic, style, using semantic versioning, but since we can
 not compare them in a meaningful way, this would be effectively just another
 "name" element.
 
-I also decided to include `version` into `.h2song`, `.h2pattern`, and
+I also decided to include `userVersion` into `.h2song`, `.h2pattern`, and
 `drumkit.xml` file but not into `.h2playlist`, `hydrogen.conf`, and `.h2map`
 files. `hydrogen.conf` and `.h2map` are somewhat internal and not user-fronted
 files. These are more for us to ship and not for the user to share.
@@ -46,9 +46,15 @@ files. These are more for us to ship and not for the user to share.
 mostly it was an UX-driven decision to not include it there. For songs, kits,
 and patterns we already provide a properties dialog. But not for the playlist
 and it would be awkward to introduce one just to set the version.
+
+The name `userVersion` instead of plain `version` is required as there is
+already `version` element present in both `.h2song` and `hydrogen.conf` file
+indicating the semantic version of the Hydrogen installation the file was
+created with.
+
 ### Consequences
 
-* `version` elements will be introduced to `.h2song`, `.h2pattern`, and
+* `userVersion` elements will be introduced to `.h2song`, `.h2pattern`, and
   `drumkit.xml` files and the corresponding XSD files will be tweaked.
 * The initial version will be set to `0` and higher values will indicate newer
   versions.

@@ -150,7 +150,7 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	);
 
 	pPattern->m_nVersion = node.read_int(
-		"version", pPattern->m_nVersion, false, false, bSilent );
+		"userVersion", pPattern->m_nVersion, false, false, bSilent );
 	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->setAuthor( sAuthor );
 	pPattern->setLicense( license );
@@ -237,7 +237,7 @@ void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrum
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
-	pattern_node.write_int( "version", m_nVersion );
+	pattern_node.write_int( "userVersion", m_nVersion );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );

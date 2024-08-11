@@ -152,7 +152,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	 *
 	 * @param sFilename Absolute path to write the song to.
 	 * @param bLegacy Whether the current format containing a proper
-	 *   #H2Core::Drumkit or the legacy format (prior to version 1.3.0)
+	 *   #H2Core::Drumkit or the legacy format (prior to version 2.0.0)
 	 *   containing only selected drumkit parts should be used.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.

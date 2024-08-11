@@ -6,7 +6,7 @@
  <volume>0.5</volume>
  <isMuted>false</isMuted>
  <metronomeVolume>0.5</metronomeVolume>
- <version>0</version>
+ <userVersion>0</userVersion>
  <name>Untitled Song</name>
  <author>hydrogen</author>
  <notes>...</notes>
@@ -28,7 +28,7 @@
  <drumkit_info>
   <formatVersion>2</formatVersion>
   <name>GMRockKit</name>
-  <version>0</version>
+  <userVersion>0</userVersion>
   <author>Glen MacArthur / Sebastian Moors</author>
   <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
@@ -2216,7 +2216,7 @@ p, li { white-space: pre-wrap; }
  <patternList>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 1</name>
    <info></info>
    <category>not_categorized</category>
@@ -2226,7 +2226,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 2</name>
    <info></info>
    <category>not_categorized</category>
@@ -2236,7 +2236,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 3</name>
    <info></info>
    <category>not_categorized</category>
@@ -2246,7 +2246,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 4</name>
    <info></info>
    <category>not_categorized</category>
@@ -2256,7 +2256,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 5</name>
    <info></info>
    <category>not_categorized</category>
@@ -2266,7 +2266,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 6</name>
    <info></info>
    <category>not_categorized</category>
@@ -2276,7 +2276,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 7</name>
    <info></info>
    <category>not_categorized</category>
@@ -2286,7 +2286,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 8</name>
    <info></info>
    <category>not_categorized</category>
@@ -2296,7 +2296,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 9</name>
    <info></info>
    <category>not_categorized</category>
@@ -2306,7 +2306,7 @@ p, li { white-space: pre-wrap; }
   </pattern>
   <pattern>
    <formatVersion>2</formatVersion>
-   <version>0</version>
+   <userVersion>0</userVersion>
    <name>Pattern 10</name>
    <info></info>
    <category>not_categorized</category>

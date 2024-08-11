@@ -189,7 +189,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	pDrumkit->m_sPath = sDrumkitPath;
 	pDrumkit->m_sName = sDrumkitName;
 	pDrumkit->m_nVersion = node.read_int(
-		"version", pDrumkit->m_nVersion, true, false, bSilent );
+		"userVersion", pDrumkit->m_nVersion, true, false, bSilent );
 	pDrumkit->m_sAuthor = node.read_string( "author", "undefined author",
 											true, true, true );
 	pDrumkit->m_sInfo = node.read_string( "info", "No information available.",
@@ -446,7 +446,7 @@ void Drumkit::saveTo( XMLNode& node,
 {
 	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
-	node.write_int( "version", m_nVersion );
+	node.write_int( "userVersion", m_nVersion );
 	node.write_string( "author", m_sAuthor );
 	node.write_string( "info", m_sInfo );
 	node.write_string( "license", m_license.getLicenseString() );
