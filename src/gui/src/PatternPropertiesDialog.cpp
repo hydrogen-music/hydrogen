@@ -38,8 +38,17 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	setupUi( this );
 	setWindowTitle( tr( "Pattern properties" ) );
 
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
+
 	this->pattern = pattern;
 
+	// Remove size constraints
+	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
 
@@ -63,7 +72,16 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	}
 
 	defaultNameCheck( pattern->get_name(), savepattern );
-	okBtn->setEnabled(true);
+
+	okBtn->setFixedFontSize( 12 );
+	okBtn->setSize( QSize( 70, 23 ) );
+	okBtn->setBorderRadius( 3 );
+	okBtn->setType( Button::Type::Push );
+	okBtn->setIsActive( true );
+	cancelBtn->setFixedFontSize( 12 );
+	cancelBtn->setSize( QSize( 70, 23 ) );
+	cancelBtn->setBorderRadius( 3 );
+	cancelBtn->setType( Button::Type::Push );
 }
 
 
