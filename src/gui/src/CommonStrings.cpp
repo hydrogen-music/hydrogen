@@ -401,6 +401,9 @@ CommonStrings::CommonStrings(){
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
+	/*: Label of the spin box in pattern/song/drumkit properties dialog to set
+	 *  the version of the particular artifact. */
+	m_sVersionDialog = tr( "Version" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could

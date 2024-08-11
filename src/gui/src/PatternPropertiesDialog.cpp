@@ -49,6 +49,9 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	// Remove size constraints
 	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	versionLabel->setText(
+		HydrogenApp::get_instance()->getCommonStrings()->getVersionDialog() );
+
 	patternNameTxt->setText( pattern->get_name() );
 	patternNameTxt->selectAll();
 
