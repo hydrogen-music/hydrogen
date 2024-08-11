@@ -312,19 +312,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	pSong->setIsPatternEditorLocked( rootNode.read_bool( "isPatternEditorLocked",
 														   false, true, false, true ) );
 
-	bool bContainsIsTimelineActivated;
-	bool bIsTimelineActivated =
-		rootNode.read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, true, false, true );
-	if ( ! bContainsIsTimelineActivated ) {
-		// .h2song file was created in an older version of
-		// Hydrogen. Using the Timeline state in the
-		// Preferences as a fallback.
-		bIsTimelineActivated = pPreferences->getUseTimelineBpm();
-	} else {
-		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
-	}
-	pSong->setIsTimelineActivated( bIsTimelineActivated );
+	pSong->setIsTimelineActivated( rootNode.read_bool(
+									   "isTimelineActivated",
+									   pSong->getIsTimelineActivated(),
+									   true, false, true ) );
 
 	// pan law
 	QString sPanLawType( rootNode.read_string( "pan_law_type",

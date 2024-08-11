@@ -153,7 +153,6 @@ Preferences::Preferences()
 	, m_sNsmClientId( "" )
 #endif
 	, m_sH2ProcessName( "" )
-	, m_bUseTimelineBpm( false )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -336,7 +335,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_sNsmClientId( pOther->m_sNsmClientId )
 #endif
 	, m_sH2ProcessName( pOther->m_sH2ProcessName )
-	, m_bUseTimelineBpm( pOther->m_bUseTimelineBpm )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -449,8 +447,6 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	pPref->m_bUseLash = rootNode.read_bool(
 		"useLash", pPref->m_bUseLash, false, false, bSilent );
 	pPref->m_bSetLash = pPref->m_bUseLash;
-	pPref->m_bUseTimelineBpm = rootNode.read_bool(
-		"useTimeLine", pPref->m_bUseTimelineBpm, false, false, bSilent );
 	pPref->m_nMaxBars = rootNode.read_int(
 		"maxBars", pPref->m_nMaxBars, false, false, bSilent );
 	pPref->m_nMaxLayers = rootNode.read_int(
@@ -1071,7 +1067,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
 
 	rootNode.write_bool( "useLash", m_bSetLash );
-	rootNode.write_bool( "useTimeLine", m_bUseTimelineBpm );
 
 	rootNode.write_int( "maxBars", m_nMaxBars );
 	rootNode.write_int( "maxLayers", m_nMaxLayers );
@@ -1781,8 +1776,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 #endif
 			.append( QString( "%1%2m_sH2ProcessName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sH2ProcessName ) )
-			.append( QString( "%1%2m_bUseTimelineBpm: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bUseTimelineBpm ) )
 			.append( QString( "%1%2m_bSearchForRubberbandOnLoad: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( "%1%2m_bUseTheRubberbandBpmChangeEvent: %3\n" ).arg( sPrefix )
@@ -2028,8 +2021,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 #endif
 			.append( QString( ", m_sH2ProcessName: %1" )
 					 .arg( m_sH2ProcessName ) )
-			.append( QString( ", m_bUseTimelineBpm: %1" )
-					 .arg( m_bUseTimelineBpm ) )
 			.append( QString( ", m_bSearchForRubberbandOnLoad: %1" )
 					 .arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( ", m_bUseTheRubberbandBpmChangeEvent: %1" )

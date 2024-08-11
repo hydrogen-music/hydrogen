@@ -1387,7 +1387,6 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 			// 		  .arg( bEnabled )
 			// 		  .arg( getSong()->getIsTimelineActivated()) );
 		
-			pPref->setUseTimelineBpm( bEnabled );
 			getSong()->setIsTimelineActivated( bEnabled );
 
 			if ( bEnabled ) {
