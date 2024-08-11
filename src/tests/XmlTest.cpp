@@ -50,6 +50,7 @@ void XmlTest::setUp() {
 	// Test for possible side effects by comparing serializations
 	m_sPrefPre =
 		H2Core::Preferences::get_instance()->toQString( "", true );
+	m_sHydrogenPre = H2Core::Hydrogen::get_instance()->toQString( "", true );
 
 }
 
@@ -75,6 +76,8 @@ void XmlTest::tearDown() {
 
 	CPPUNIT_ASSERT( m_sPrefPre ==
 					H2Core::Preferences::get_instance()->toQString( "", true ) );
+	CPPUNIT_ASSERT( m_sHydrogenPre ==
+					H2Core::Hydrogen::get_instance()->toQString( "", true ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

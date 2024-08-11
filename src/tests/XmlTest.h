@@ -109,6 +109,7 @@ class XmlTest : public CppUnit::TestCase {
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,
 									 bool bLoaded );
 		QString m_sPrefPre;
+		QString m_sHydrogenPre;
 };
 
 
