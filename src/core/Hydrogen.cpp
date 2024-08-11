@@ -1647,9 +1647,11 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_pSoundLibraryDatabase:\n" )
-						.arg( sPrefix ).arg( s ) )
-			.append( m_pSoundLibraryDatabase->toQString( sPrefix + s, bShort) )
+		sOutput.append(
+			QString( "%1%2m_pSoundLibraryDatabase: %3\n" )
+			.arg( sPrefix ).arg( s )
+			.arg( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+				  m_pSoundLibraryDatabase->toQString( sPrefix + s, bShort) ) )
 			.append( QString( "%1%2m_pPlaylist: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_pPlaylist == nullptr ? "nullptr" :
 						   m_pPlaylist->toQString( sPrefix + s, bShort ) ) )
@@ -1718,8 +1720,9 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( " nullptr" ) );
 		}
-		sOutput.append( ", m_pSoundLibraryDatabase:\n" )
-			.append( m_pSoundLibraryDatabase->toQString( "", bShort) )
+		sOutput.append( ", m_pSoundLibraryDatabase: %1" )
+			.append( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+					 m_pSoundLibraryDatabase->toQString( "", bShort) )
 			.append( QString( ", m_pPlaylist: %1" )
 					 .arg( m_pPlaylist == nullptr ? "nullptr" :
 						   m_pPlaylist->toQString( "", bShort ) ) )
