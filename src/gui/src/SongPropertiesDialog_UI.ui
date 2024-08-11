@@ -158,7 +158,7 @@
            <item>
             <widget class="Button" name="okBtn">
              <property name="text">
-              <string>&amp;OK</string>
+              <string> &amp;OK</string>
              </property>
              <property name="shortcut">
               <string>Alt+O</string>

@@ -46,30 +46,49 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	setWindowTitle( tr( "Song properties" ) );
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	songNameTxt->setText( pSong->getName() );
+	// Remove size constraints
+	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	// Arbitrary high number.
+	versionSpinBox->setMaximum( 300 );
+	versionLabel->setText( pCommonStrings->getVersionDialog() );
 
-	authorTxt->setText( pSong->getAuthor() );
-	notesTxt->append( pSong->getNotes() );
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+
+	if ( pSong != nullptr ) {
+		versionSpinBox->setValue( pSong->getVersion() );
+		songNameTxt->setText( pSong->getName() );
+
+		authorTxt->setText( pSong->getAuthor() );
+		notesTxt->append( pSong->getNotes() );
+
+		licenseComboBox->setCurrentIndex(
+			static_cast<int>( pSong->getLicense().getType() ) );
+		licenseStringTxt->setText( pSong->getLicense().getLicenseString() );
+		if ( pSong->getLicense().getType() == License::Unspecified ) {
+			licenseStringTxt->hide();
+		}
+	}
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
 
 	setupLicenseComboBox( licenseComboBox );
-	
+
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
-	
-	licenseComboBox->setCurrentIndex( static_cast<int>( pSong->getLicense().getType() ) );
-	licenseStringTxt->setText( pSong->getLicense().getLicenseString() );
-	if ( pSong->getLicense().getType() == License::Unspecified ) {
-		licenseStringTxt->hide();
-	}
+
+	okBtn->setFixedFontSize( 12 );
+	okBtn->setSize( QSize( 70, 23 ) );
+	okBtn->setBorderRadius( 3 );
+	okBtn->setType( Button::Type::Push );
+	okBtn->setIsActive( true );
+	cancelBtn->setFixedFontSize( 12 );
+	cancelBtn->setSize( QSize( 70, 23 ) );
+	cancelBtn->setBorderRadius( 3 );
+	cancelBtn->setType( Button::Type::Push );
 }
 
-
-
-SongPropertiesDialog::~SongPropertiesDialog()
-{
+SongPropertiesDialog::~SongPropertiesDialog() {
 }
 
 void SongPropertiesDialog::licenseComboBoxChanged( int ) {
@@ -96,6 +115,10 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	auto pSong = pHydrogen->getSong();
 
 	bool bIsModified = false;
+	if ( versionSpinBox->value() != pSong->getVersion() ) {
+		pSong->setVersion( versionSpinBox->value() );
+		bIsModified = true;
+	}
 	if ( songNameTxt->text() != pSong->getName() ) {
 		pSong->setName( songNameTxt->text() );
 		bIsModified = true;
