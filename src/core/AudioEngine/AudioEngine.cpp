@@ -2773,15 +2773,20 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[AudioEngine]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_pSampler: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pSampler->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pSampler == nullptr ? "nullptr" :
+						   m_pSampler->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pAudioDriver: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pAudioDriver->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pAudioDriver == nullptr ? "nullptr" :
+						   m_pAudioDriver->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiDriver: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pMidiDriver->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
+						   m_pMidiDriver->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiDriverOut: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pMidiDriverOut->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
+						   m_pMidiDriverOut->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pEventQueue: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pEventQueue->toQString( sPrefix + s, bShort ) ) );
+					 .arg( m_pEventQueue == nullptr ? "nullptr" :
+						   m_pEventQueue->toQString( sPrefix + s, bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_fFXPeak_L ) {
@@ -2845,10 +2850,13 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_songNoteQueue.size() ) )
 			.append( QString( "%1%2m_midiNoteQueue: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
+			if ( nn != nullptr ) {
+				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
+			}
 		}
 		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pMetronomeInstrument == nullptr ? "nullptr" :
+						   m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_fNextBpm: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fNextBpm, 0, 'f' ) )
 			.append( QString( "%1%2m_fLastTickEnd: %3\n" ).arg( sPrefix ).arg( s )
@@ -2869,15 +2877,20 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	else {
 		sOutput = QString( "[AudioEngine] " )
 			.append( QString( "m_pSampler: %1" )
-					 .arg( m_pSampler->toQString( "", bShort ) ) )
+					 .arg( m_pSampler == nullptr ? "nullptr" :
+						   m_pSampler->toQString( "", bShort ) ) )
 			.append( QString( ", m_pAudioDriver: %1" )
-					 .arg( m_pAudioDriver->toQString( "", bShort ) ) )
+					 .arg( m_pAudioDriver == nullptr ? "nullptr" :
+						   m_pAudioDriver->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiDriver: %1" )
-					 .arg( m_pMidiDriver->toQString( "", bShort ) ) )
+					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
+						   m_pMidiDriver->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiDriverOut: %1" )
-					 .arg( m_pMidiDriverOut->toQString( "", bShort ) ) )
+					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
+						   m_pMidiDriverOut->toQString( "", bShort ) ) )
 			.append( QString( ", m_pEventQueue: %1" )
-					 .arg( m_pEventQueue->toQString( "", bShort ) ) );
+					 .arg( m_pEventQueue == nullptr ? "nullptr" :
+						   m_pEventQueue->toQString( "", bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( ", m_fFXPeak_L: [" );
 		for ( const auto& ii : m_fFXPeak_L ) {
@@ -2941,10 +2954,13 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_songNoteQueue.size() ) )
 			.append( ", m_midiNoteQueue: [" );
 		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( ", " );
+			if ( nn != nullptr ) {
+				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( ", " );
+			}
 		}
 		sOutput.append( QString( "], m_pMetronomeInstrument: %1" )
-					 .arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
+					 .arg( m_pMetronomeInstrument == nullptr ? "nullptr" :
+						   m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", m_fNextBpm: %1" )
 					 .arg( m_fNextBpm, 0, 'f' ) )
 			.append( QString( ", m_fLastTickEnd: %1" )
