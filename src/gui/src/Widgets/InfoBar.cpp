@@ -48,9 +48,10 @@ InfoBar::InfoBar( QWidget *parent )
 }
 
 void InfoBar::updateStyleSheet(){
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	setStyleSheet( QString( "background: %1;" ).arg( pPref->getTheme().m_color.m_highlightColor.name() ) );
+
+	setStyleSheet( QString( "background: %1;" ) .arg(
+					   H2Core::Preferences::get_instance()->
+					   getTheme().m_color.m_highlightColor.name() ) );
 }
 
 void InfoBar::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

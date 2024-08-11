@@ -42,9 +42,9 @@ ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
 		resize( size );
 	}
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
-	updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
+	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
 	updateStyleSheet();
 
 	setAlignment( Qt::AlignCenter );
@@ -56,13 +56,13 @@ ClickableLabel::ClickableLabel( QWidget *pParent, const QSize& size,
 
 void ClickableLabel::updateStyleSheet() {
 
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
 	QColor text;
 	if ( m_color == Color::Bright ) {
-		text = pPref->getTheme().m_color.m_windowTextColor;
+		text = theme.m_color.m_windowTextColor;
 	} else {
-		text = pPref->getTheme().m_color.m_widgetTextColor;
+		text = theme.m_color.m_widgetTextColor;
 	}
 
 	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
@@ -82,16 +82,16 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
 		QColor colorHighlightActive;
 		if ( isEnabled() ) {
-			colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
+			colorHighlightActive = theme.m_color.m_highlightColor;
 		} else {
-			colorHighlightActive = pPref->getTheme().m_color.m_lightColor;
+			colorHighlightActive = theme.m_color.m_lightColor;
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -191,11 +191,11 @@ void ClickableLabel::updateFont( const QString& sFontFamily,
 }
 
 void ClickableLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-		updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
+		updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
 		updateStyleSheet();
 	}
 }
@@ -204,9 +204,9 @@ void ClickableLabel::setText( const QString& sNewText ) {
 	if ( text() == sNewText ) {
 		return;
 	}
-	
-	auto pPref = H2Core::Preferences::get_instance();
+
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	
 	QLabel::setText( sNewText );
-	updateFont( pPref->getTheme().m_font.m_sLevel3FontFamily, pPref->getTheme().m_font.m_fontSize );
+	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
 }

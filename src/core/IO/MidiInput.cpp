@@ -57,7 +57,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;
-		Preferences* pPref = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 		if ( pPref->m_nMidiChannelFilter != -1
 		  && pPref->m_nMidiChannelFilter != msg.m_nChannel
 		) {
@@ -164,7 +164,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
-	MidiMap *pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
 	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
@@ -186,7 +186,7 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
-	MidiMap *pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
@@ -213,9 +213,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	}
 
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
-	MidiMap * pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
@@ -287,7 +287,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
-	MidiMap * pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 

@@ -28,18 +28,25 @@
 #include <QFile>
 
 namespace H2Test {
-	
+
+	enum class FileType {
+		/** Generic XML file */
+		Xml = 0,
+		Song = 1,
+		Preferences = 2
+	};
+
 	void checkFilesEqual( const QString& sExpected, const QString& sActual,
 						  bool bEquality, CppUnit::SourceLine sourceLine );
 	void checkXmlFilesEqual( const QString& sExpected, const QString& sActual,
-							 const bool bEquality, const bool bH2Song,
+							 const bool bEquality, const FileType& fileType,
 							 CppUnit::SourceLine sourceLine );
 	void checkDirsEqual( const QString& sDirExpected, const QString& sDirActual,
 						 bool bEquality, CppUnit::SourceLine sourceLine );
 
 	void checkFileArgs( const QString& sExpected, QFile& f1,
 						const QString& sActual, QFile& f2,
-						const bool bEquality, const bool bH2Song,
+						const bool bEquality, const FileType& fileType,
 						CppUnit::SourceLine sourceLine );
 }
 
@@ -51,13 +58,15 @@ namespace H2Test {
 #define H2TEST_ASSERT_FILES_UNEQUAL( sExpected, sActual ) \
 	H2Test::checkFilesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_XML_FILES_EQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, true, false, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, H2Test::FileType::Xml, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_XML_FILES_UNEQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, false, false, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, false, H2Test::FileType::Xml, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_H2SONG_FILES_EQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, true, true, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, H2Test::FileType::Song, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_H2SONG_FILES_UNEQUAL( sExpected, sActual ) \
-	H2Test::checkXmlFilesEqual( sExpected, sActual, false, true, CPPUNIT_SOURCELINE() )
+	H2Test::checkXmlFilesEqual( sExpected, sActual, false, H2Test::FileType::Song, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( sExpected, sActual ) \
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, H2Test::FileType::Preferences, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_EQUAL( sExpected, sActual ) \
 	H2Test::checkDirsEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_UNEQUAL( sExpected, sActual ) \

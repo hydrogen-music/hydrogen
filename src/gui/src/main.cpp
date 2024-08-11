@@ -29,7 +29,6 @@
 
 #include <core/config.h>
 #include <core/Version.h>
-#include <core/Preferences/Theme.h>
 #include <getopt.h>
 
 #include "ShotList.h"
@@ -50,12 +49,12 @@
 #include <stdio.h>
 #endif
 
-#include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Playlist.h>
@@ -241,7 +240,6 @@ int main(int argc, char *argv[])
 		H2Core::Filesystem::bootstrap(
 			pLogger, parser.getSysDataPath(), parser.getConfigFilePath(),
 			parser.getLogFile() );
-		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
 
@@ -250,7 +248,7 @@ int main(int argc, char *argv[])
 					.arg( QString( QTextCodec::codecForLocale()->name() ) ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
-		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+		auto pPref = H2Core::Preferences::get_instance();
 		pPref->setH2ProcessName( QString(argv[0]) );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
@@ -372,9 +370,6 @@ int main(int argc, char *argv[])
 			// user level could be loaded successfully. Hydrogen was
 			// most probably not installed properly. Abort.
 			delete pQApp;
-			delete pPref;
-
-			delete MidiMap::get_instance();
 
 			___ERRORLOG( "No preferences file found. Aborting..." );
 			delete H2Core::Logger::get_instance();
@@ -429,7 +424,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-		if ( H2Core::Preferences::get_instance()->useLash() ){
+		if ( pPref->useLash() ){
 			if (pLashClient->isConnected())
 			{
 				lash_event_t* lash_event = pLashClient->getNextEvent();
@@ -487,10 +482,6 @@ int main(int argc, char *argv[])
 			H2Core::CoreActionController::setDrumkit( parser.getDrumkitToLoad() );
 		}
 
-		// Write the changes in the Preferences to disk to make them
-		// accessible in the PreferencesDialog.
-		pPref->savePreferences();
-
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
@@ -536,18 +527,23 @@ int main(int argc, char *argv[])
 		QString sShutdownCrashContext( "Shutting down Hydrogen" );
 		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
 
-		pPref->savePreferences();
+		pPref->save();
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;
-		delete pPref;
 		delete H2Core::EventQueue::get_instance();
 
-		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;
+
+		// There is no particular need to clean up the Preferences outselves.
+		// This is just done in order for it to not appear in the objects map
+		// printed below.
+		pPref->replaceInstance( nullptr );
+		pPref = nullptr;
+
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Base::count_active()) {

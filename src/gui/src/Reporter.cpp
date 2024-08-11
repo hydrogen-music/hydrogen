@@ -27,7 +27,6 @@
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Logger.h>
-#include <core/Preferences/Preferences.h>
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";

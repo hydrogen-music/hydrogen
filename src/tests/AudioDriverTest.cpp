@@ -36,8 +36,19 @@ void AudioDriverTest::testDriverSwitching() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
+	// Attempting to start up our JACK driver takes some time. In case it fails,
+	// it takes much longer. But this only indicates that the system does not
+	// offer JACK support. There is no need to test it again (which saves a
+	// significant amount of time for the unit tests/pipelines).
+	bool bCheckJack = H2Core::Preferences::checkJackSupport();
+	H2Core::AudioOutput* pDriver;
+
 	for ( int ii = 0; ii < 10; ++ii ) {
-		std::cout << ii << std::endl;
+		if ( bCheckJack ) {
+			// Apart from the JACK none of our drivers produces stdout/stderr
+			// output. No need for a visual separation.
+			std::cout << ii << std::endl;
+		}
 		pAudioEngine->stopAudioDrivers();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Alsa );
@@ -45,8 +56,13 @@ void AudioDriverTest::testDriverSwitching() {
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Oss );
 		pAudioEngine->stopAudioDrivers();
-		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Jack );
+		if ( bCheckJack ) {
+			pDriver = pAudioEngine->createAudioDriver(
+				H2Core::Preferences::AudioDriver::Jack );
+			if ( pDriver == nullptr ) {
+				bCheckJack = false;
+			}
+		}
 		pAudioEngine->stopAudioDrivers();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::PortAudio );

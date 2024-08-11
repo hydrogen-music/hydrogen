@@ -73,7 +73,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param length the length of the pattern
 		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES, int denominator=4 );
+		Pattern( const QString& name="Pattern", const QString& info="", const QString& sCategory = "", int length=MAX_NOTES, int denominator=4 );
 		/** copy constructor */
 		Pattern( Pattern* other );
 		/** destructor */

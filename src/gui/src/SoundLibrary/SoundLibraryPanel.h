@@ -97,9 +97,6 @@ private:
 	QTreeWidgetItem* __pattern_item;
 	QTreeWidgetItem* __pattern_item_list;
 
-	bool __expand_pattern_list;
-	bool __expand_songs_list;
-
 	/**
 	 * Used to uniquely identify the drumkit corresponding to an item
 	 * in the tree. It maps the name used as label (key) to the

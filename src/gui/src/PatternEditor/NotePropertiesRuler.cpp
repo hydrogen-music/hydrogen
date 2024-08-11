@@ -895,7 +895,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		return;
 	}
 
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
@@ -944,7 +944,7 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	QColor color = pPref->getTheme().m_color.m_highlightColor;
 
@@ -1030,7 +1030,7 @@ void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
 
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight, int nIncrement ) {
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	const QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_line5Color );
@@ -1074,7 +1074,7 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 
 void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
@@ -1159,7 +1159,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	QColor baseLineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
@@ -1282,7 +1282,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
 	const QColor backgroundInactiveColor( pPref->getTheme().m_color.m_windowColor );
 	QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;

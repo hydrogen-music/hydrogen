@@ -125,7 +125,7 @@ void Button::updateStyleSheet() {
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	
 	int nFactorGradient = 126;
 	int nFactorGradientShadow = 225;
@@ -137,7 +137,7 @@ void Button::updateStyleSheet() {
 	float y1 = 0;
 	float y2 = 1;
 
-	QColor baseColorBackground = pPref->getTheme().m_color.m_widgetColor;
+	QColor baseColorBackground = theme.m_color.m_widgetColor;
 	QColor backgroundLight = baseColorBackground.lighter( nFactorGradient );
 	QColor backgroundDark = baseColorBackground.darker( nFactorGradient );
 	QColor backgroundLightHover = baseColorBackground.lighter( nFactorGradient + nHover );
@@ -150,11 +150,11 @@ void Button::updateStyleSheet() {
 
 	QColor baseColorBackgroundChecked, textChecked;
 	if ( ! m_bUseRedBackground ) {
-		baseColorBackgroundChecked = pPref->getTheme().m_color.m_accentColor;
-		textChecked = pPref->getTheme().m_color.m_accentTextColor;
+		baseColorBackgroundChecked = theme.m_color.m_accentColor;
+		textChecked = theme.m_color.m_accentTextColor;
 	} else {
-		baseColorBackgroundChecked = pPref->getTheme().m_color.m_buttonRedColor;
-		textChecked = pPref->getTheme().m_color.m_buttonRedTextColor;
+		baseColorBackgroundChecked = theme.m_color.m_buttonRedColor;
+		textChecked = theme.m_color.m_buttonRedTextColor;
 	}
 	
 	QColor backgroundCheckedLight = baseColorBackgroundChecked.lighter( nFactorGradient );
@@ -166,7 +166,7 @@ void Button::updateStyleSheet() {
 	QColor backgroundShadowCheckedLightHover = baseColorBackgroundChecked.lighter( nFactorGradientShadow + nHover );
 	QColor backgroundShadowCheckedDarkHover = baseColorBackgroundChecked.darker( nFactorGradientShadow + nHover );
 
-	QColor textColor = pPref->getTheme().m_color.m_widgetTextColor;
+	QColor textColor = theme.m_color.m_widgetTextColor;
 	
 	QColor backgroundInactiveLight =
 		Skin::makeWidgetColorInactive( backgroundLight );
@@ -398,10 +398,10 @@ void Button::setType( const Type& type ) {
 
 void Button::updateFont() {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	
 	float fScalingFactor = 1.0;
-    switch ( pPref->getTheme().m_font.m_fontSize ) {
+    switch ( theme.m_font.m_fontSize ) {
     case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
@@ -436,7 +436,7 @@ void Button::updateFont() {
 		nPixelSize = m_nFixedFontSize;
 	}
 
-	QFont font( pPref->getTheme().m_font.m_sLevel3FontFamily );
+	QFont font( theme.m_font.m_sLevel3FontFamily );
 	font.setPixelSize( nPixelSize );
 
 	if ( m_size.width() > m_size.height() ) {

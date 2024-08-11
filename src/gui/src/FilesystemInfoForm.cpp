@@ -36,8 +36,10 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 {
 	ui->setupUi(this);
 
-	QColor windowColor = H2Core::Preferences::get_instance()->getTheme().m_color.m_windowColor;
-	QColor windowTextColor = H2Core::Preferences::get_instance()->getTheme().m_color.m_windowTextColor;
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	QColor windowColor = theme.m_color.m_windowColor;
+	QColor windowTextColor = theme.m_color.m_windowTextColor;
 
 	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
 	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );

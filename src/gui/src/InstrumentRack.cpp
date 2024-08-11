@@ -34,15 +34,15 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
  , Object()
 {
-	
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	resize( 290, m_nMinimumHeight );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
-	QFont fontButtons( H2Core::Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
+					   getPointSize( theme.m_font.m_fontSize ) );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -50,12 +50,18 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
+	m_pShowInstrumentEditorBtn =
+		new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "",
+					pCommonStrings->getInstrumentButton(), false, QSize(),
+					tr( "Show Instrument editor" ) );
 	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
 			 [=]() { showSoundLibrary( false ); });
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
+	m_pShowSoundLibraryBtn =
+		new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "",
+					pCommonStrings->getSoundLibraryButton(), false, QSize(),
+					tr( "Show sound library" ) );
 	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
 			 [=]() { showSoundLibrary( true ); });
 
@@ -98,10 +104,11 @@ InstrumentRack::~InstrumentRack()
 }
 
 void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		QFont fontButtons( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
+						   getPointSize( theme.m_font.m_fontSize ) );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
 	}

@@ -556,7 +556,7 @@ void JackAudioDriver::relocateUsingBBT()
 
 void JackAudioDriver::updateTransportPosition()
 {
-	if ( Preferences::get_instance()->m_bJackTransportMode !=
+	if ( Preferences::get_instance()->m_nJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
 		return;
 	}
@@ -1040,7 +1040,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	}
 #endif
 
-	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
+	if ( pPreferences->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
 		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
 		 pPreferences->m_bJackTimebaseEnabled ){
 		initTimebaseMaster();
@@ -1261,7 +1261,7 @@ void JackAudioDriver::initTimebaseMaster()
 		return;
 	}
 
-	Preferences* pPreferences = Preferences::get_instance();
+	auto pPreferences = Preferences::get_instance();
 	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
 		// Defined in jack/transport.h
 		// Register as timebase master for the JACK

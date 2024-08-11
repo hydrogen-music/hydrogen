@@ -69,7 +69,6 @@
 
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
-#include "MidiMap.h"
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -182,14 +181,13 @@ void Hydrogen::create_instance()
 	// Create all the other instances that we need
 	// ....and in the right order
 	Logger::create_instance();
-	MidiMap::create_instance();
 	Preferences::create_instance();
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance( Preferences::get_instance() );
+	OscServer::create_instance();
 #endif
 
 	if ( __instance == nullptr ) {
@@ -356,11 +354,11 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
-	bool bPlaySelectedInstrument = pPref->__playselectedinstrument;
+	bool bPlaySelectedInstrument = pPref->m_bPlaySelectedInstrument;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	int currentPatternNumber;
 
@@ -966,10 +964,10 @@ void Hydrogen::setBcOffsetAdjust()
 {
 	//individual fine tuning for the m_nBeatCounter
 	//to adjust  ms_offset from different people and controller
-	Preferences *pPreferences = Preferences::get_instance();
+	const auto pPreferences = Preferences::get_instance();
 
-	m_nCountOffset = pPreferences->m_countOffset;
-	m_nStartOffset = pPreferences->m_startOffset;
+	m_nCountOffset = pPreferences->m_nCountOffset;
+	m_nStartOffset = pPreferences->m_nStartOffset;
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -1029,7 +1027,7 @@ bool Hydrogen::handleBeatCounter()
 			
 			CoreActionController::setBpm( fBeatCountBpm );
 
-			if (Preferences::get_instance()->m_mmcsetplay
+			if (Preferences::get_instance()->m_bMmcSetPlay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
@@ -1156,7 +1154,7 @@ bool Hydrogen::hasJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
-			 Preferences::get_instance()->m_bJackTransportMode ==
+			 Preferences::get_instance()->m_nJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
 		}
@@ -1342,7 +1340,7 @@ void Hydrogen::recreateOscServer() {
 		delete pOscServer;
 	}
 
-	OscServer::create_instance( Preferences::get_instance() );
+	OscServer::create_instance();
 	
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );

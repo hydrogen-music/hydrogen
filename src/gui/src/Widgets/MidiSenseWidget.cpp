@@ -20,13 +20,15 @@
  *
  */
 
-#include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
+
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 
-#include <core/Hydrogen.h>
 #include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/MidiMap.h>
+#include <core/Preferences/Preferences.h>
 
 MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction)
 	: QDialog( pParent )
@@ -99,11 +101,11 @@ void MidiSenseWidget::updateMidi(){
 
 		if ( m_bDirectWrite ) {
 			// write the action / parameter combination to the midiMap
-			MidiMap *pMidiMap = MidiMap::get_instance();
+			auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 
 			assert(m_pAction);
 
-			std::shared_ptr<Action> pAction = std::make_shared<Action>( m_pAction );
+			auto pAction = std::make_shared<Action>( m_pAction );
 			pAction->setValue( "0" );
 
 			switch( m_lastMidiEvent ) {

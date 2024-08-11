@@ -26,22 +26,31 @@
 #include <QApplication>
 
 QString Skin::getGlobalStyleSheet() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	int nFactorGradient = 120;
-	int nHover = 10;
+	const int nFactorGradient = 120;
+	const int nHover = 10;
 	
-	QColor buttonBackgroundLight = pPref->getTheme().m_color.m_widgetColor.lighter( nFactorGradient );
-	QColor buttonBackgroundDark = pPref->getTheme().m_color.m_widgetColor.darker( nFactorGradient );
-	QColor buttonBackgroundLightHover = pPref->getTheme().m_color.m_widgetColor.lighter( nFactorGradient + nHover );
-	QColor buttonBackgroundDarkHover = pPref->getTheme().m_color.m_widgetColor.darker( nFactorGradient + nHover );
+	const QColor buttonBackgroundLight =
+		colorTheme.m_widgetColor.lighter( nFactorGradient );
+	const QColor buttonBackgroundDark =
+		colorTheme.m_widgetColor.darker( nFactorGradient );
+	const QColor buttonBackgroundLightHover =
+		colorTheme.m_widgetColor.lighter( nFactorGradient + nHover );
+	const QColor buttonBackgroundDarkHover =
+		colorTheme.m_widgetColor.darker( nFactorGradient + nHover );
 
-	QColor buttonBackgroundCheckedLight = pPref->getTheme().m_color.m_accentColor.lighter( nFactorGradient );
-	QColor buttonBackgroundCheckedDark = pPref->getTheme().m_color.m_accentColor.darker( nFactorGradient );
-	QColor buttonBackgroundCheckedLightHover = pPref->getTheme().m_color.m_accentColor.lighter( nFactorGradient + nHover );
-	QColor buttonBackgroundCheckedDarkHover = pPref->getTheme().m_color.m_accentColor.darker( nFactorGradient + nHover );
-	QColor buttonTextChecked = pPref->getTheme().m_color.m_accentTextColor;
-	QColor spinBoxSelection = pPref->getTheme().m_color.m_spinBoxColor.darker( 120 );
+	const QColor buttonBackgroundCheckedLight =
+		colorTheme.m_accentColor.lighter( nFactorGradient );
+	const QColor buttonBackgroundCheckedDark =
+		colorTheme.m_accentColor.darker( nFactorGradient );
+	const QColor buttonBackgroundCheckedLightHover =
+		colorTheme.m_accentColor.lighter( nFactorGradient + nHover );
+	const QColor buttonBackgroundCheckedDarkHover =
+		colorTheme.m_accentColor.darker( nFactorGradient + nHover );
+	const QColor buttonTextChecked = colorTheme.m_accentTextColor;
+	const QColor spinBoxSelection = colorTheme.m_spinBoxColor.darker( 120 );
 	
 	return QString( "\
 QToolTip { \
@@ -89,42 +98,46 @@ QDoubleSpinBox, QSpinBox { \
     selection-background-color: %16; \
 }"
 					)
-		.arg( pPref->getTheme().m_color.m_toolTipTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_toolTipBaseColor.name() )
+		.arg( colorTheme.m_toolTipTextColor.name() )
+		.arg( colorTheme.m_toolTipBaseColor.name() )
 		.arg( buttonTextChecked.name() )
 		.arg( buttonBackgroundLight.name() ).arg( buttonBackgroundDark.name() )
-		.arg( buttonBackgroundLightHover.name() ).arg( buttonBackgroundDarkHover.name() )
-		.arg( buttonBackgroundCheckedLight.name() ).arg( buttonBackgroundCheckedDark.name() )
-		.arg( buttonBackgroundCheckedLightHover.name() ).arg( buttonBackgroundCheckedDarkHover.name() )
-		.arg( pPref->getTheme().m_color.m_widgetTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_widgetColor.name() )
-		.arg( pPref->getTheme().m_color.m_spinBoxTextColor.name() )
-		.arg( pPref->getTheme().m_color.m_spinBoxColor.name() )
+		.arg( buttonBackgroundLightHover.name() )
+		.arg( buttonBackgroundDarkHover.name() )
+		.arg( buttonBackgroundCheckedLight.name() )
+		.arg( buttonBackgroundCheckedDark.name() )
+		.arg( buttonBackgroundCheckedLightHover.name() )
+		.arg( buttonBackgroundCheckedDarkHover.name() )
+		.arg( colorTheme.m_widgetTextColor.name() )
+		.arg( colorTheme.m_widgetColor.name() )
+		.arg( colorTheme.m_spinBoxTextColor.name() )
+		.arg( colorTheme.m_spinBoxColor.name() )
 		.arg( spinBoxSelection.name() );
 }
 
 void Skin::setPalette( QApplication *pQApp ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
 	// create the default palette
 	QPalette defaultPalette;
 
-	defaultPalette.setColor( QPalette::Window, pPref->getTheme().m_color.m_windowColor );
-	defaultPalette.setColor( QPalette::WindowText, pPref->getTheme().m_color.m_windowTextColor );
-	defaultPalette.setColor( QPalette::Base, pPref->getTheme().m_color.m_baseColor );
-	defaultPalette.setColor( QPalette::AlternateBase, pPref->getTheme().m_color.m_alternateBaseColor );
-	defaultPalette.setColor( QPalette::Text, pPref->getTheme().m_color.m_textColor );
-	defaultPalette.setColor( QPalette::Button, pPref->getTheme().m_color.m_buttonColor );
-	defaultPalette.setColor( QPalette::ButtonText, pPref->getTheme().m_color.m_buttonTextColor );
-	defaultPalette.setColor( QPalette::Light, pPref->getTheme().m_color.m_lightColor );
-	defaultPalette.setColor( QPalette::Midlight, pPref->getTheme().m_color.m_midLightColor );
-	defaultPalette.setColor( QPalette::Dark, pPref->getTheme().m_color.m_darkColor );
-	defaultPalette.setColor( QPalette::Mid, pPref->getTheme().m_color.m_midColor );
-	defaultPalette.setColor( QPalette::Shadow, pPref->getTheme().m_color.m_shadowTextColor );
-	defaultPalette.setColor( QPalette::Highlight, pPref->getTheme().m_color.m_highlightColor );
-	defaultPalette.setColor( QPalette::HighlightedText, pPref->getTheme().m_color.m_highlightedTextColor );
-	defaultPalette.setColor( QPalette::ToolTipBase, pPref->getTheme().m_color.m_toolTipBaseColor );
-	defaultPalette.setColor( QPalette::ToolTipText, pPref->getTheme().m_color.m_toolTipTextColor );
+	defaultPalette.setColor( QPalette::Window, colorTheme.m_windowColor );
+	defaultPalette.setColor( QPalette::WindowText, colorTheme.m_windowTextColor );
+	defaultPalette.setColor( QPalette::Base, colorTheme.m_baseColor );
+	defaultPalette.setColor( QPalette::AlternateBase, colorTheme.m_alternateBaseColor );
+	defaultPalette.setColor( QPalette::Text, colorTheme.m_textColor );
+	defaultPalette.setColor( QPalette::Button, colorTheme.m_buttonColor );
+	defaultPalette.setColor( QPalette::ButtonText, colorTheme.m_buttonTextColor );
+	defaultPalette.setColor( QPalette::Light, colorTheme.m_lightColor );
+	defaultPalette.setColor( QPalette::Midlight, colorTheme.m_midLightColor );
+	defaultPalette.setColor( QPalette::Dark, colorTheme.m_darkColor );
+	defaultPalette.setColor( QPalette::Mid, colorTheme.m_midColor );
+	defaultPalette.setColor( QPalette::Shadow, colorTheme.m_shadowTextColor );
+	defaultPalette.setColor( QPalette::Highlight, colorTheme.m_highlightColor );
+	defaultPalette.setColor( QPalette::HighlightedText, colorTheme.m_highlightedTextColor );
+	defaultPalette.setColor( QPalette::ToolTipBase, colorTheme.m_toolTipBaseColor );
+	defaultPalette.setColor( QPalette::ToolTipText, colorTheme.m_toolTipTextColor );
 
 	// Desaturate disabled widgets by blending with the alternate colour
 	for ( QPalette::ColorRole role : { QPalette::Window, QPalette::Base, QPalette::AlternateBase, QPalette::Dark,
@@ -225,8 +238,9 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 								 const Skin::Stacked& stacked ) {
 
-	auto pPref = H2Core::Preferences::get_instance();
-	
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
 	const QPointF points[3] = {
 		QPointF( x, y ),
 		QPointF( x + 8, y + 6 ),
@@ -244,13 +258,13 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 		fillColor.setAlpha( 0 );
 		break;
 	case Skin::Stacked::OffNext:
-		fillColor = pPref->getTheme().m_color.m_songEditor_stackedModeOffNextColor;
+		fillColor = colorTheme.m_songEditor_stackedModeOffNextColor;
 		break;
 	case Skin::Stacked::On:
-		fillColor = pPref->getTheme().m_color.m_songEditor_stackedModeOnColor;
+		fillColor = colorTheme.m_songEditor_stackedModeOnColor;
 		break;
 	case Skin::Stacked::OnNext:
-		fillColor = pPref->getTheme().m_color.m_songEditor_stackedModeOnNextColor;
+		fillColor = colorTheme.m_songEditor_stackedModeOnNextColor;
 		break;
 	}
 

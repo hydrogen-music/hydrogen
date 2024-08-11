@@ -186,7 +186,8 @@ void DrumkitExportDialog::on_drumkitPathTxt_textChanged( const QString& str )
 
 void DrumkitExportDialog::on_browseBtn_clicked()
 {
-	QString sPath = Preferences::get_instance()->getLastExportDrumkitDirectory();
+	auto pPref = Preferences::get_instance();
+	QString sPath = pPref->getLastExportDrumkitDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
@@ -203,7 +204,7 @@ void DrumkitExportDialog::on_browseBtn_clicked()
 			drumkitPathTxt->setText( sPath );
 		} else {
 			drumkitPathTxt->setText( sFilename );
-			Preferences::get_instance()->setLastExportDrumkitDirectory( sFilename );
+			pPref->setLastExportDrumkitDirectory( sFilename );
 		}
 	}
 }
