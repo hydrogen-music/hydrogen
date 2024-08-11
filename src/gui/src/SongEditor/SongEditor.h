@@ -275,11 +275,13 @@ class SongEditorPatternList :  public QWidget
 		void createBackground();
 		void invalidateBackground();
 		void movePatternLine( int, int );
-		void acceptPatternPropertiesDialogSettings( const QString& newPatternName,
+		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
+													const QString& newPatternName,
 													const QString& newPatternInfo,
 													const QString& newPatternCategory,
 													int patternNr );
-		void revertPatternPropertiesDialogSettings( const QString& oldPatternName,
+		void revertPatternPropertiesDialogSettings( const int nOldVersion,
+													const QString& oldPatternName,
 													const QString& oldPatternInfo,
 													const QString& oldPatternCategory,
 													int patternNr);
