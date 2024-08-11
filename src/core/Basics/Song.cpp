@@ -312,19 +312,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	pSong->setIsPatternEditorLocked( rootNode.read_bool( "isPatternEditorLocked",
 														   false, true, false, true ) );
 
-	bool bContainsIsTimelineActivated;
-	bool bIsTimelineActivated =
-		rootNode.read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, true, false, true );
-	if ( ! bContainsIsTimelineActivated ) {
-		// .h2song file was created in an older version of
-		// Hydrogen. Using the Timeline state in the
-		// Preferences as a fallback.
-		bIsTimelineActivated = pPreferences->getUseTimelineBpm();
-	} else {
-		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
-	}
-	pSong->setIsTimelineActivated( bIsTimelineActivated );
+	pSong->setIsTimelineActivated( rootNode.read_bool(
+									   "isTimelineActivated",
+									   pSong->getIsTimelineActivated(),
+									   true, false, true ) );
 
 	// pan law
 	QString sPanLawType( rootNode.read_string( "pan_law_type",
@@ -1270,20 +1261,101 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	return notes;
 }
 
+QString Song::ModeToQString( const Mode& mode ) {
+	switch( mode ) {
+	case Mode::Pattern:
+		return "Pattern";
+	case Mode::Song:
+		return "Song";
+	case Mode::None:
+		return "None";
+	default:
+		return QString( "Unknown mode [%1]" )
+			.arg( static_cast<int>(mode) );
+	}
+}
+
+QString Song::ActionModeToQString( const ActionMode& actionMode ) {
+	switch( actionMode ) {
+	case ActionMode::selectMode:
+		return "selectMode";
+	case ActionMode::drawMode:
+		return "drawMode";
+	case ActionMode::None:
+		return "None";
+	default:
+		return QString( "Unknown actionMode [%1]" )
+			.arg( static_cast<int>(actionMode) );
+	}
+}
+
+QString Song::LoopModeToQString( const LoopMode& loopMode ) {
+	switch( loopMode ) {
+	case LoopMode::Disabled:
+		return "Disabled";
+	case LoopMode::Enabled:
+		return "Enabled";
+	case LoopMode::Finishing:
+		return "Finishing";
+	default:
+		return QString( "Unknown loopMode [%1]" )
+			.arg( static_cast<int>(loopMode) );
+	}
+}
+
+QString Song::PatternModeToQString( const PatternMode& patternMode ) {
+	switch( patternMode ) {
+	case PatternMode::Stacked:
+		return "Stacked";
+	case PatternMode::Selected:
+		return "Selected";
+	case PatternMode::None:
+		return "None";
+	default:
+		return QString( "Unknown patternMode [%1]" )
+			.arg( static_cast<int>(patternMode) );
+	}
+}
+
+QString Song::PlaybackTrackToQString( const PlaybackTrack& playbackTrack ) {
+	switch( playbackTrack ) {
+	case PlaybackTrack::Unavailable:
+		return "Unavailable";
+	case PlaybackTrack::Muted:
+		return "Muted";
+	case PlaybackTrack::Enabled:
+		return "Enabled";
+	case PlaybackTrack::None:
+		return "None";
+	default:
+		return QString( "Unknown playbackTrack [%1]" )
+			.arg( static_cast<int>(playbackTrack) );
+	}
+}
+
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsTimelineActivated ) )
-			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
-			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
-			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
-			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
-			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
-			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
-			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
-			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
+			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsTimelineActivated ) )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_resolution ) )
+			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fBpm ) )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sName ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sAuthor ) )
+			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fVolume ) )
+			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fMetronomeVolume ) )
+			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& pp : *m_pPatternGroupSequence ) {
@@ -1291,34 +1363,59 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1" ).arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_loopMode) ) )
-			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
-			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
-			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
-			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
+		if ( m_pDrumkit != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2m_pDrumkit: nullptr\n" ).arg( sPrefix )
+							.arg( s ) );
+		}
+		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFilename ) )
+			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( LoopModeToQString( m_loopMode ) ) )
+			.append( QString( "%1%2m_patternMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( PatternModeToQString( m_patternMode ) ) )
+			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fHumanizeTimeValue ) )
+			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fHumanizeVelocityValue ) )
+			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fSwingFactor ) )
+			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsModified ) )
 			.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& mm : m_latestRoundRobins ) {
-			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
+			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s )
+					 .arg( mm.first ).arg( mm.second ) );
 		}
-		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( static_cast<int>(m_mode )) )
-			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPlaybackTrackFilename ) )
-			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
-			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
+		sOutput.append( QString( "%1%2m_mode: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( ModeToQString( m_mode ) ) )
+			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sPlaybackTrackFilename ) )
+			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bPlaybackTrackEnabled ) )
+			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<int>(m_actionMode) ) )
-			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
-			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) )
+					 .arg( ActionModeToQString( m_actionMode ) ) )
+			.append( QString( "%1%2m_bIsPatternEditorLocked: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsPatternEditorLocked ) )
+			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPanLawType ) )
+			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPanLawKNorm ) )
 			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
+			sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLastLoadedDrumkitPath ) );
 	} else {
 
 		sOutput = QString( "[Song]" )
@@ -1338,9 +1435,17 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1" ).arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_loopMode: %1" ).arg( static_cast<int>(m_loopMode) ) )
+		if ( m_pDrumkit != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( ", m_pDrumkit: nullptr" );
+		}
+		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_loopMode: %1" )
+					 .arg( LoopModeToQString( m_loopMode ) ) )
+			.append( QString( ", m_patternMode: %1" )
+					 .arg( PatternModeToQString( m_patternMode ) ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
@@ -1350,13 +1455,16 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( ", m_mode: %1" )
-						.arg( static_cast<int>(m_mode) ) )
+						.arg( ModeToQString( m_mode ) ) )
 			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_license: %1" ).arg( m_license.toQString( sPrefix, bShort ) ) )
-			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
+			.append( QString( ", m_actionMode: %1" ).
+					 arg( ActionModeToQString( m_actionMode ) ) )
+			.append( QString( ", m_bIsPatternEditorLocked: %1" )
+					 .arg( m_bIsPatternEditorLocked ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
 			.append( QString( ", m_pTimeline: " ) );
@@ -1365,6 +1473,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
+			sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
+							.arg( m_sLastLoadedDrumkitPath ) );
 	}
 
 	return sOutput;

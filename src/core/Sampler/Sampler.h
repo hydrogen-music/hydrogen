@@ -237,42 +237,18 @@ public:
 	void handleSongSizeChange();
 
 	const std::vector<Note*>& getPlayingNotesQueue() const;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	
 private:
-	std::vector<Note*> m_playingNotesQueue;
-	std::vector<Note*> m_queuedNoteOffs;
-	
-	/// Instrument used for the playback track feature.
-	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
-
-	/// Instrument used for the preview feature.
-	std::shared_ptr<Instrument> m_pPreviewInstrument;
-
-	/** Maximum number of layers to be used in the Instrument
-	    editor. It will be inferred from
-	    InstrumentComponent::m_nMaxLayers, which itself is
-	    inferred from Preferences::m_nMaxLayers. Default value
-	    assigned in Preferences::Preferences(): 16.*/
-	int m_nMaxLayers;
-	
-	int m_nPlayBackSamplePosition;
-	
 	/** function to direct the computation to the selected pan law function
 	 */
 	float panLaw( float fPan, std::shared_ptr<Song> pSong );
 
-
-
 	bool processPlaybackTrack(int nBufferSize);
 
-    /**
-	 * Render a note
-	 *
-	 * @return false - the note is not ended, true - the note is ended
-	 */
+    /** @return false - the note is not ended, true - the note is ended */
 	bool renderNote( Note* pNote, unsigned nBufferSize );
-
-	Interpolation::InterpolateMode m_interpolateMode;
 
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
@@ -288,6 +264,26 @@ private:
 		float cost_track_R,
 		float fLayerPitch
 	);
+
+	std::vector<Note*> m_playingNotesQueue;
+	std::vector<Note*> m_queuedNoteOffs;
+
+	/// Instrument used for the playback track feature.
+	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
+
+	/// Instrument used for the preview feature.
+	std::shared_ptr<Instrument> m_pPreviewInstrument;
+
+	/** Maximum number of layers to be used in the Instrument
+	    editor. It will be inferred from
+	    InstrumentComponent::m_nMaxLayers, which itself is
+	    inferred from Preferences::m_nMaxLayers. Default value
+	    assigned in Preferences::Preferences(): 16.*/
+	int m_nMaxLayers;
+
+	int m_nPlayBackSamplePosition;
+
+	Interpolation::InterpolateMode m_interpolateMode;
 };
 
 inline const std::vector<Note*>& Sampler::getPlayingNotesQueue() const {

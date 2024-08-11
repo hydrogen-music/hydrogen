@@ -124,6 +124,9 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
+		void registerUniqueLabel( const QString& sDrumkitPath,
+								  std::shared_ptr<Drumkit> pDrumkit );
+
 	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
 		/** The absolute path to a drumkit folder is not the most accessible way
 		 * to refer to a kit in the GUI. Instead, each kit will also have an
@@ -151,9 +154,6 @@ private:
 		/** Whole folders that will be scanned for drumkits in addition to the
 		 * system and user drumkti folder. */
 		QStringList m_customDrumkitFolders;
-
-		void registerUniqueLabel( const QString& sDrumkitPath,
-							  std::shared_ptr<Drumkit> pDrumkit );
 };
 }; // namespace H2Core
 

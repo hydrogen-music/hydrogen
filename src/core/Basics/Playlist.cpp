@@ -331,7 +331,6 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {
@@ -339,11 +338,11 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 								.arg( pEntry->toQString( s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
+		sOutput.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
+		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
 			.append( QString( " m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {
@@ -351,7 +350,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 								.arg( pEntry->toQString( "", bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
+		sOutput.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
+			.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
 	}
 
 	return sOutput;

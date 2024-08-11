@@ -61,6 +61,7 @@ public:
 	static QStringList getDevices( const QString& HostAPI );
 	static QStringList getHostAPIs();
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;

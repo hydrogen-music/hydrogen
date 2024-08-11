@@ -70,6 +70,67 @@ public:
 		Jack = 2
 	};
 
+	enum ErrorMessages {
+		/**
+		 * The provided input in createDriver() does not match any of the
+		 * choices for #H2Core::Preferences::AudioDriver.
+		 */
+		UNKNOWN_DRIVER,
+		/**
+		 * Unable to connect the audio driver stored in
+		 * #H2Core::AudioEngine::m_pAudioDriver in
+		 * audioEngine_startAudioDrivers(). The NullDriver
+		 * will be used as a fallback instead.
+		 */
+		ERROR_STARTING_DRIVER,
+		JACK_SERVER_SHUTDOWN,
+		JACK_CANNOT_ACTIVATE_CLIENT,
+		/**
+		 * Unable to connect either the
+		 * JackAudioDriver::output_port_1 and the
+		 * JackAudioDriver::output_port_name_1 as well as the
+		 * JackAudioDriver::output_port_2 and the
+		 * JackAudioDriver::output_port_name_2 port using
+		 * _jack_connect()_ (jack/jack.h) or the fallback
+		 * version using the first two input ports in
+		 * JackAudioDriver::connect().
+		 */
+		JACK_CANNOT_CONNECT_OUTPUT_PORT,
+		/**
+		 * The client of Hydrogen can not be disconnected from
+		 * the JACK server using _jack_client_close()_
+		 * (jack/jack.h). Used within JackAudioDriver::disconnect().
+		 */
+		JACK_CANNOT_CLOSE_CLIENT,
+		/**
+		 * Unable to register output ports for the JACK client
+		 * using _jack_port_register()_ (jack/jack.h) in
+		 * JackAudioDriver::init() or
+		 * JackAudioDriver::setTrackOutput().
+		 */
+		JACK_ERROR_IN_PORT_REGISTER,
+		/**
+		 * Unable to start the OSC server with the given
+		 * port number.
+		 */
+		OSC_CANNOT_CONNECT_TO_PORT,
+		PLAYBACK_TRACK_INVALID
+	};
+
+	/** Specifies the state of the Qt GUI*/
+	enum class GUIState {
+		/** Hydrogen is still starting up. Core maybe already somewhat ready but
+		 * GUI is most probably not.*/
+		startup = -1,
+		/** Hydrogen is up and running but there is no GUI available. */
+		headless = 0,
+		/** Hydrogen is up and running and there is a working GUI. */
+		ready = 1,
+		/** Teardown of Hydrogen was initialized and the Event handling system
+		 * might not work anymore. */
+		shutdown
+	};
+		static QString GUIStateToQString( const GUIState& state );
 
 	/**
 	 * Creates all the instances used within Hydrogen in the right
@@ -207,53 +268,6 @@ public:
 		song is set.*/
 	bool getIsModified() const;
 
-	enum ErrorMessages {
-		/**
-		 * The provided input in createDriver() does not match any of the
-		 * choices for #H2Core::Preferences::AudioDriver.
-		 */
-		UNKNOWN_DRIVER,
-		/**
-		 * Unable to connect the audio driver stored in
-		 * #H2Core::AudioEngine::m_pAudioDriver in
-		 * audioEngine_startAudioDrivers(). The NullDriver
-		 * will be used as a fallback instead.
-		 */
-		ERROR_STARTING_DRIVER,
-		JACK_SERVER_SHUTDOWN,
-		JACK_CANNOT_ACTIVATE_CLIENT,
-		/**
-		 * Unable to connect either the
-		 * JackAudioDriver::output_port_1 and the
-		 * JackAudioDriver::output_port_name_1 as well as the
-		 * JackAudioDriver::output_port_2 and the
-		 * JackAudioDriver::output_port_name_2 port using
-		 * _jack_connect()_ (jack/jack.h) or the fallback
-		 * version using the first two input ports in
-		 * JackAudioDriver::connect().
-		 */
-		JACK_CANNOT_CONNECT_OUTPUT_PORT,
-		/**
-		 * The client of Hydrogen can not be disconnected from
-		 * the JACK server using _jack_client_close()_
-		 * (jack/jack.h). Used within JackAudioDriver::disconnect().
-		 */
-		JACK_CANNOT_CLOSE_CLIENT,
-		/**
-		 * Unable to register output ports for the JACK client
-		 * using _jack_port_register()_ (jack/jack.h) in
-		 * JackAudioDriver::init() or
-		 * JackAudioDriver::setTrackOutput().
-		 */
-		JACK_ERROR_IN_PORT_REGISTER,
-		/**
-		 * Unable to start the OSC server with the given
-		 * port number. 
-		 */
-		OSC_CANNOT_CONNECT_TO_PORT,
-		PLAYBACK_TRACK_INVALID
-	};
-
 	void			onTapTempoAccelEvent();
 
 	void			restartLadspaFX();
@@ -351,20 +365,6 @@ public:
 	void			loadPlaybackTrack( const QString& sFilename );
 	/************************************************************/
 
-	/** Specifies the state of the Qt GUI*/
-	enum class		GUIState {
-		/** Hydrogen is still starting up. Core maybe already somewhat ready but
-		 * GUI is most probably not.*/
-		startup = -1,
-		/** Hydrogen is up and running but there is no GUI available. */
-		headless = 0,
-		/** Hydrogen is up and running and there is a working GUI. */
-		ready = 1,
-		/** Teardown of Hydrogen was initialized and the Event handling system
-		 * might not work anymore. */
-		shutdown
-	};
-	
 	/**\return #m_GUIState*/
 	const GUIState&	getGUIState() const;
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
@@ -446,6 +446,38 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
+
+	/**
+	 * Constructor, entry point, and initialization of the
+	 * Hydrogen application.
+	 *
+	 * It is called by the main() function after setting up a
+	 * bunch of Qt5 stuff and creating an instance of the Logger
+	 * and Preferences.
+	 *
+	 * Only one Hydrogen object is allowed to exist. If the
+	 * #__instance object is present, the constructor will throw
+	 * an error.
+	 */
+	Hydrogen();
+
+	void killInstruments();
+
+	void			midiNoteOn( Note *note );
+
+	/**
+	 * Auxiliary function setting a bunch of global variables.
+	 *
+	 * - #m_fTaktoMeterCompute = 1;
+	 * - #m_nBeatsToCount = 4;
+	 * - #m_nEventCount = 1;
+	 * - #m_nTempoChangeCounter = 0;
+	 * - #m_nBeatCount = 1;
+	 * - #m_nCountOffset = 0;
+	 * - #m_nStartOffset = 0;
+	 */
+	void initBeatcounter();
+
 	/**
 	 * Static reference to the Hydrogen singleton. 
 	 *
@@ -461,19 +493,6 @@ private:
 	 * via getSong().
 	 */
 	std::shared_ptr<Song>			m_pSong;
-
-	/**
-	 * Auxiliary function setting a bunch of global variables.
-	 *
-	 * - #m_fTaktoMeterCompute = 1;
-	 * - #m_nBeatsToCount = 4;
-	 * - #m_nEventCount = 1;
-	 * - #m_nTempoChangeCounter = 0;
-	 * - #m_nBeatCount = 1;
-	 * - #m_nCountOffset = 0;
-	 * - #m_nStartOffset = 0;
-	 */
-	void initBeatcounter();
 
 	// beatcounter
 	float			m_fTaktoMeterCompute;	///< beatcounter note length
@@ -551,24 +570,6 @@ private:
 
 		/** Controls the instrument selection within a hihat group. */
 		int m_nHihatOpenness;
-
-	/** 
-	 * Constructor, entry point, and initialization of the
-	 * Hydrogen application.
-	 *
-	 * It is called by the main() function after setting up a
-	 * bunch of Qt5 stuff and creating an instance of the Logger
-	 * and Preferences.
-	 *
-	 * Only one Hydrogen object is allowed to exist. If the
-	 * #__instance object is present, the constructor will throw
-	 * an error.
-	 */
-	Hydrogen();
-
-	void killInstruments();
-
-	void			midiNoteOn( Note *note );
 
 	/**
 	 * Cache last incoming MIDI event to be used in #MidiSenseWidget.

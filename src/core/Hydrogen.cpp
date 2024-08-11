@@ -1387,7 +1387,6 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 			// 		  .arg( bEnabled )
 			// 		  .arg( getSong()->getIsTimelineActivated()) );
 		
-			pPref->setUseTimelineBpm( bEnabled );
 			getSong()->setIsTimelineActivated( bEnabled );
 
 			if ( bEnabled ) {
@@ -1590,22 +1589,32 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_fTaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTaktoMeterCompute ) )
-			.append( QString( "%1%2m_nBeatsToCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatsToCount ) )
-			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nEventCount ) )
-			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatCount ) )
+		sOutput.append( QString( "%1%2m_fTaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTaktoMeterCompute ) )
+			.append( QString( "%1%2m_nBeatsToCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatsToCount ) )
+			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nEventCount ) )
+			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCount ) )
 			.append( QString( "%1%2m_fBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
-			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCountOffset ) )
-			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
+		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
+			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nCountOffset ) )
+			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nStartOffset ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<int>(m_oldEngineMode) ) )
-			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
-			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
-			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
+					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
+			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bOldLoopEnabled ) )
+			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bExportSessionIsActive ) )
+			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( GUIStateToQString( m_GUIState ) ) )
 			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
@@ -1620,7 +1629,17 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "nullptr\n" ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( "%1%2m_nSelectedPatternNumber: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSelectedPatternNumber ) )
+			.append( QString( "%1%2m_bSessionIsExported: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bSessionIsExported ) )
+			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nInstrumentLookupTable[ 0 ] )
+					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1628,13 +1647,20 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
+		sOutput.append(
+			QString( "%1%2m_pSoundLibraryDatabase: %3\n" )
+			.arg( sPrefix ).arg( s )
+			.arg( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+				  m_pSoundLibraryDatabase->toQString( sPrefix + s, bShort) ) )
+			.append( QString( "%1%2m_pPlaylist: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pPlaylist == nullptr ? "nullptr" :
+						   m_pPlaylist->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nHihatOpenness ) )
+			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
-			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nHihatOpenness ) )
-			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
+			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastMidiEventParameter ) );
 	}
 	else {
 		
@@ -1657,10 +1683,11 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nCountOffset: %1" ).arg( m_nCountOffset ) )
 			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
 			.append( QString( ", m_oldEngineMode: %1" )
-					 .arg( static_cast<int>(m_oldEngineMode) ) )
+					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
+			.append( QString( ", m_GUIState: %1" ).
+					 arg( GUIStateToQString( m_GUIState ) ) );
 		sOutput.append( QString( ", m_pTimeline: " ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
@@ -1675,7 +1702,17 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " nullptr" ) );
 			}
 		}
-		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" )
+						.arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( ", m_nSelectedPatternNumber: %1" )
+						.arg( m_nSelectedPatternNumber ) )
+			.append( QString( ", m_bSessionIsExported: %1" )
+						.arg( m_bSessionIsExported ) )
+			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
+						.arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
+					 .arg( m_nInstrumentLookupTable[ 0 ] )
+					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( ", m_pAudioEngine:" );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1683,16 +1720,36 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( " nullptr" ) );
 		}
-		sOutput.append( QString( ", lastMidiEvent: %1" )
-						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( ", lastMidiEventParameter: %1" )
-					 .arg( m_nLastMidiEventParameter ) )
+		sOutput.append( ", m_pSoundLibraryDatabase: %1" )
+			.append( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+					 m_pSoundLibraryDatabase->toQString( "", bShort) )
+			.append( QString( ", m_pPlaylist: %1" )
+					 .arg( m_pPlaylist == nullptr ? "nullptr" :
+						   m_pPlaylist->toQString( "", bShort ) ) )
 			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
-			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
+			.append( QString( ", lastMidiEvent: %1" )
+					 .arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
+			.append( QString( ", lastMidiEventParameter: %1" )
+					 .arg( m_nLastMidiEventParameter ) );
 	}
 		
 	return sOutput;
+}
+
+QString Hydrogen::GUIStateToQString( const GUIState& state ) {
+	switch( state ) {
+	case GUIState::startup:
+		return "startup";
+	case GUIState::headless:
+		return "headless";
+	case GUIState::ready:
+		return "ready";
+	case GUIState::shutdown:
+		return "shutdown";
+	default:
+		return QString( "Unknown GUIState [%1]" )
+			.arg( static_cast<int>(state) );
+	}
 }
 
 }; /* Namespace */

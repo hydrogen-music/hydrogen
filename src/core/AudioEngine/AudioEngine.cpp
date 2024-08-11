@@ -2766,34 +2766,27 @@ const PatternList* AudioEngine::getNextPatterns() const {
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 
+	std::stringstream threadIdStream;
+		threadIdStream << m_LockingThread;
+
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[AudioEngine]\n" ).arg( sPrefix )
-			.append( "%1%2m_pTransportPosition:\n").arg( sPrefix ).arg( s );
-		if ( m_pTransportPosition != nullptr ) {
-			sOutput.append( QString( "%1" )
-							.arg( m_pTransportPosition->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr\n" ) );
-		}
-		sOutput.append( QString( "%1%2m_pQueuingPosition:\n").arg( sPrefix ).arg( s ) );
-		if ( m_pQueuingPosition != nullptr ) {
-			sOutput.append( QString( "%1" )
-							.arg( m_pQueuingPosition->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr\n" ) );
-		}
-		sOutput.append( QString( "%1%2m_fNextBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNextBpm, 0, 'f' ) )
-			.append( QString( "%1%2m_state: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_state) ) )
-			.append( QString( "%1%2m_nextState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_nextState) ) )
-			.append( QString( "%1%2m_fSongSizeInTicks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( "%1%2m_fLastTickEnd: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLastTickEnd, 0, 'f' ) )
-			.append( QString( "%1%2m_bLookaheadApplied: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bLookaheadApplied ) )
-			.append( QString( "%1%2m_pSampler: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_pAudioDriver: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_pMidiDriver: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_pMidiDriverOut: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_pEventQueue: stringification not implemented\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_pSampler: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pSampler == nullptr ? "nullptr" :
+						   m_pSampler->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pAudioDriver: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pAudioDriver == nullptr ? "nullptr" :
+						   m_pAudioDriver->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiDriver: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
+						   m_pMidiDriver->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pMidiDriverOut: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
+						   m_pMidiDriverOut->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pEventQueue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pEventQueue == nullptr ? "nullptr" :
+						   m_pEventQueue->toQString( sPrefix + s, bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_fFXPeak_L ) {
@@ -2805,23 +2798,12 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( " ]\n" ) );
 #endif
-		sOutput.append( QString( "%1%2m_fMasterPeak_L: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMasterPeak_L ) )
-			.append( QString( "%1%2m_fMasterPeak_R: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMasterPeak_R ) )
-			.append( QString( "%1%2m_fProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fProcessTime ) )
-			.append( QString( "%1%2m_fMaxProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMaxProcessTime ) )
-			.append( QString( "%1%2m_fLadspaTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLadspaTime ) )
-			.append( QString( "%1%2m_nRealtimeFrame: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrame ) )
-			.append( QString( "%1%2m_AudioProcessCallback: stringification not implemented\n" ).arg( sPrefix ).arg( s ) )
-			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s ).arg( m_songNoteQueue.size() ) );
-		sOutput.append( QString( "%1%2m_midiNoteQueue: [" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
-		}
-		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::nMaxTimeHumanize ) )
-			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeVelocitySD ) )
-			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizePitchSD ) )
-			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::fHumanizeTimingSD ) );
+		sOutput.append( QString( "%1%2m_fMasterPeak_L: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fMasterPeak_L ) )
+			.append( QString( "%1%2m_fMasterPeak_R: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fMasterPeak_R ) )
+			.append( QString( "%1%2m_LockingThread: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( QString::fromStdString( threadIdStream.str() ) ) );
 		sOutput.append( QString( "%1%2m_pLocker: " ).arg( sPrefix ).arg( s ) );
 		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
 			sOutput.append( "was not locked yet\n" );
@@ -2836,62 +2818,96 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( m_pLocker.function ).arg( m_pLocker.line )
 							.arg( m_pLocker.file ) );
 		}
-	}
-	else {
-		sOutput = QString( "%1[AudioEngine]" ).arg( sPrefix )
-			.append( ", m_pTransportPosition:\n");
+		sOutput.append( QString( "%1%2m_fProcessTime: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fProcessTime ) )
+			.append( QString( "%1%2m_fMaxProcessTime: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fMaxProcessTime ) )
+			.append( QString( "%1%2m_fLadspaTime: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fLadspaTime ) )
+			.append( QString( "%1%2m_pTransportPosition:\n").arg( sPrefix ).arg( s ) );
 		if ( m_pTransportPosition != nullptr ) {
 			sOutput.append( QString( "%1" )
-							.arg( m_pTransportPosition->toQString( sPrefix, bShort ) ) );
+							.arg( m_pTransportPosition->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( ", m_pQueuingPosition:\n");
+		sOutput.append( QString( "%1%2m_pQueuingPosition:\n").arg( sPrefix ).arg( s ) );
 		if ( m_pQueuingPosition != nullptr ) {
 			sOutput.append( QString( "%1" )
-							.arg( m_pQueuingPosition->toQString( sPrefix, bShort ) ) );
+							.arg( m_pQueuingPosition->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( ", m_fNextBpm: %1" ).arg( m_fNextBpm, 0, 'f' ) )
-			.append( QString( ", m_state: %1" ).arg( static_cast<int>(m_state) ) )
-			.append( QString( ", m_nextState: %1" ).arg( static_cast<int>(m_nextState) ) )
-			.append( QString( ", m_fSongSizeInTicks: %1" ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( ", m_fLastTickEnd: %1" ).arg( m_fLastTickEnd, 0, 'f' ) )
-			.append( QString( ", m_bLookaheadApplied: %1" ).arg( m_bLookaheadApplied ) )
-			.append( QString( ", m_pSampler: ..." ) )
-			.append( QString( ", m_pAudioDriver: ..." ) )
-			.append( QString( ", m_pMidiDriver: ..." ) )
-			.append( QString( ", m_pMidiDriverOut: ..." ) )
-			.append( QString( ", m_pEventQueue: ..." ) );
+		sOutput.append( QString( "%1%2m_fSongSizeInTicks: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fSongSizeInTicks, 0, 'f' ) )
+			.append( QString( "%1%2m_nRealtimeFrame: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nRealtimeFrame ) )
+			.append( QString( "%1%2m_state: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( StateToQString( m_state ) ) )
+			.append( QString( "%1%2m_nextState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( StateToQString( m_nextState ) ) )
+			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_songNoteQueue.size() ) )
+			.append( QString( "%1%2m_midiNoteQueue: [" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& nn : m_midiNoteQueue ) {
+			if ( nn != nullptr ) {
+				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( "\n" );
+			}
+		}
+		sOutput.append( QString( "]\n%1%2m_pMetronomeInstrument: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pMetronomeInstrument == nullptr ? "nullptr" :
+						   m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_fNextBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fNextBpm, 0, 'f' ) )
+			.append( QString( "%1%2m_fLastTickEnd: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fLastTickEnd, 0, 'f' ) )
+			.append( QString( "%1%2m_bLookaheadApplied: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bLookaheadApplied ) )
+			.append( QString( "%1%2m_nLoopsDone: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLoopsDone ) )
+			.append( QString( "%1%2nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( "%1%2fHumanizeVelocitySD: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( "%1%2fHumanizePitchSD: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( "%1%2fHumanizeTimingSD: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( AudioEngine::fHumanizeTimingSD ) );
+	}
+	else {
+		sOutput = QString( "[AudioEngine] " )
+			.append( QString( "m_pSampler: %1" )
+					 .arg( m_pSampler == nullptr ? "nullptr" :
+						   m_pSampler->toQString( "", bShort ) ) )
+			.append( QString( ", m_pAudioDriver: %1" )
+					 .arg( m_pAudioDriver == nullptr ? "nullptr" :
+						   m_pAudioDriver->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiDriver: %1" )
+					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
+						   m_pMidiDriver->toQString( "", bShort ) ) )
+			.append( QString( ", m_pMidiDriverOut: %1" )
+					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
+						   m_pMidiDriverOut->toQString( "", bShort ) ) )
+			.append( QString( ", m_pEventQueue: %1" )
+					 .arg( m_pEventQueue == nullptr ? "nullptr" :
+						   m_pEventQueue->toQString( "", bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
-		sOutput.append( QString( ", m_fFXPeak_L: [" ) );
+		sOutput.append( ", m_fFXPeak_L: [" );
 		for ( const auto& ii : m_fFXPeak_L ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
-		sOutput.append( QString( "], m_fFXPeak_R: [" ) );
+		sOutput.append( "], m_fFXPeak_R: [" );
 		for ( const auto& ii : m_fFXPeak_R ) {
 			sOutput.append( QString( " %1" ).arg( ii ) );
 		}
-		sOutput.append( QString( " ]" ) );
+		sOutput.append( "]" );
 #endif
-		sOutput.append( QString( ", m_fMasterPeak_L: %1" ).arg( m_fMasterPeak_L ) )
-			.append( QString( ", m_fMasterPeak_R: %1" ).arg( m_fMasterPeak_R ) )
-			.append( QString( ", m_fProcessTime: %1" ).arg( m_fProcessTime ) )
-			.append( QString( ", m_fMaxProcessTime: %1" ).arg( m_fMaxProcessTime ) )
-			.append( QString( ", m_fLadspaTime: %1" ).arg( m_fLadspaTime ) )
-			.append( QString( ", m_nRealtimeFrame: %1" ).arg( m_nRealtimeFrame ) )
-			.append( QString( ", m_AudioProcessCallback: ..." ) )
-			.append( QString( ", m_songNoteQueue: length = %1" ).arg( m_songNoteQueue.size() ) );
-		sOutput.append( QString( ", m_midiNoteQueue: [" ) );
-		for ( const auto& nn : m_midiNoteQueue ) {
-			sOutput.append( nn->toQString( sPrefix + s, bShort ) );
-		}
-		sOutput.append( QString( "], m_pMetronomeInstrument: id = %1" ).arg( m_pMetronomeInstrument->get_id() ) )
-			.append( QString( ", nMaxTimeHumanize: id %1" ).arg( AudioEngine::nMaxTimeHumanize ) )
-			.append( QString( ", fHumanizeVelocitySD: id %1" ).arg( AudioEngine::fHumanizeVelocitySD ) )
-			.append( QString( ", fHumanizePitchSD: id %1" ).arg( AudioEngine::fHumanizePitchSD ) )
-			.append( QString( ", fHumanizeTimingSD: id %1" ).arg( AudioEngine::fHumanizeTimingSD ) );
+		sOutput.append( QString( ", m_fMasterPeak_L: %1" )
+					 .arg( m_fMasterPeak_L ) )
+			.append( QString( ", m_fMasterPeak_R: %1" )
+					 .arg( m_fMasterPeak_R ) )
+			.append( QString( ", m_LockingThread: %1" )
+					 .arg( QString::fromStdString( threadIdStream.str() ) ) );
 		sOutput.append( ", m_pLocker: " );
 		if ( m_pLocker.file == nullptr || m_pLocker.function == nullptr ){
 			sOutput.append( "was not locked yet" );
@@ -2906,9 +2922,84 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( m_pLocker.function ).arg( m_pLocker.line )
 							.arg( m_pLocker.file ) );
 		}
+		sOutput.append( QString( ", m_fProcessTime: %1" )
+					 .arg( m_fProcessTime ) )
+			.append( QString( ", m_fMaxProcessTime: %1" )
+					 .arg( m_fMaxProcessTime ) )
+			.append( QString( ", m_fLadspaTime: %1" )
+					 .arg( m_fLadspaTime ) )
+			.append( ", m_pTransportPosition: ");
+		if ( m_pTransportPosition != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pTransportPosition->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( "nullptr" );
+		}
+		sOutput.append( ", m_pQueuingPosition: " );
+		if ( m_pQueuingPosition != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pQueuingPosition->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( "nullptr" );
+		}
+		sOutput.append( QString( ", m_fSongSizeInTicks: %1" )
+					 .arg( m_fSongSizeInTicks, 0, 'f' ) )
+			.append( QString( ", m_nRealtimeFrame: %1" )
+					 .arg( m_nRealtimeFrame ) )
+			.append( QString( ", m_state: %1" )
+					 .arg( StateToQString( m_state ) ) )
+			.append( QString( ", m_nextState: %1" )
+					 .arg( StateToQString( m_nextState ) ) )
+			.append( QString( ", m_songNoteQueue: length = %1" )
+					 .arg( m_songNoteQueue.size() ) )
+			.append( ", m_midiNoteQueue: [" );
+		for ( const auto& nn : m_midiNoteQueue ) {
+			if ( nn != nullptr ) {
+				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( ", " );
+			}
+		}
+		sOutput.append( QString( "], m_pMetronomeInstrument: %1" )
+					 .arg( m_pMetronomeInstrument == nullptr ? "nullptr" :
+						   m_pMetronomeInstrument->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_fNextBpm: %1" )
+					 .arg( m_fNextBpm, 0, 'f' ) )
+			.append( QString( ", m_fLastTickEnd: %1" )
+					 .arg( m_fLastTickEnd, 0, 'f' ) )
+			.append( QString( ", m_bLookaheadApplied: %1" )
+					 .arg( m_bLookaheadApplied ) )
+			.append( QString( ", m_nLoopsDone: %1" )
+					 .arg( m_nLoopsDone ) )
+			.append( QString( ", nMaxTimeHumanize: %1" )
+					 .arg( AudioEngine::nMaxTimeHumanize ) )
+			.append( QString( ", fHumanizeVelocitySD: %1" )
+					 .arg( AudioEngine::fHumanizeVelocitySD ) )
+			.append( QString( ", fHumanizePitchSD: %1" )
+					 .arg( AudioEngine::fHumanizePitchSD ) )
+			.append( QString( ", fHumanizeTimingSD: %1" )
+					 .arg( AudioEngine::fHumanizeTimingSD ) );
 	}
 	
 	return sOutput;
+}
+
+QString AudioEngine::StateToQString( const State& state ) {
+	switch( state ) {
+	case State::Uninitialized:
+		return "Uninitialized";
+	case State::Initialized:
+		return "Initialized";
+	case State::Prepared:
+		return "Prepared";
+	case State::Ready:
+		return "Ready";
+	case State::Playing:
+		return "Playing";
+	case State::Testing:
+		return "Testing";
+	default:
+		return QString( "Unknown state [%1]" )
+			.arg( static_cast<int>(state) );
+	}
 }
 
 QString AudioEngine::getDriverNames() const {

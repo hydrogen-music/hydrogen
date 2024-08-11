@@ -67,6 +67,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 				editor are not ready to operate yet.*/
 			None = 2
 		};
+		static QString ModeToQString( const Mode& mode );
 
 		/** Defines the type of user interaction experienced in the 
 			SongEditor.*/
@@ -81,6 +82,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 				editor are not ready to operate yet.*/
 			None = 2
 		};
+		static QString ActionModeToQString( const ActionMode& actionMode );
 
 		enum class LoopMode {
 			Disabled = 0,
@@ -92,6 +94,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			 */
 			Finishing = 2
 		};
+		static QString LoopModeToQString( const LoopMode& loopMode );
 
 	/** Determines how patterns will be added to
 	 * AudioEngine::m_pPlayingPatterns if transport is in
@@ -108,6 +111,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 */
 		None = 2
 	};
+		static QString PatternModeToQString( const PatternMode& patternMode );
 
 	/** Determines the state of the Playback track with respect to
 		audio processing*/
@@ -122,6 +126,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * present*/
 		None = 3
 	};
+		static QString PlaybackTrackToQString( const PlaybackTrack& playbackTrack );
 
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members

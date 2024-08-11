@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <formatVersion>2</formatVersion>
  <mapping>
   <instrumentID>0</instrumentID>
   <type>Stick 2</type>

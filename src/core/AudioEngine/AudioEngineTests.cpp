@@ -312,7 +312,6 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 
 	// Activating the Timeline without requiring the AudioEngine to be locked.
 	auto activateTimeline = [&]( bool bEnabled ) {
-		pPref->setUseTimelineBpm( bEnabled );
 		pSong->setIsTimelineActivated( bEnabled );
 
 		if ( bEnabled ) {

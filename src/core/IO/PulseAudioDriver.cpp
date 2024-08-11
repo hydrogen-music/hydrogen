@@ -281,6 +281,30 @@ void PulseAudioDriver::pipe_callback(pa_mainloop_api*, pa_io_event*, int fd,
 	}
 }
 
+QString PulseAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PulseAudioDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_connected: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_connected ) )
+			.append( QString( "%1%2m_ready: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_ready ) )
+			.append( QString( "%1%2m_sample_rate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sample_rate ) )
+			.append( QString( "%1%2m_buffer_size: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_buffer_size ) );
+	} else {
+		sOutput = QString( "[PulseAudioDriver]" )
+			.append( QString( " m_connected: %1" ).arg( m_connected ) )
+			.append( QString( ", m_ready: %1" ).arg( m_ready ) )
+			.append( QString( ", m_sample_rate: %1" ).arg( m_sample_rate ) )
+			.append( QString( ", m_buffer_size: %1" ).arg( m_buffer_size ) );
+	}
+
+	return sOutput;
+}
+
 } //namespace H2Core
 
 #endif //H2CORE_HAVE_PULSEAUDIO

@@ -225,8 +225,6 @@ QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 					 .arg( __read_index ) )
 			.append( QString( "%1%2__write_index: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( __write_index ) )
-			.append( QString( "%1%2m_bSilent: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bSilent ) )
 			.append( QString( "%1%2__events_buffer: \n" ).arg( sPrefix ).arg( s ) );
 		for ( int ii = 0; ii < MAX_EVENTS; ii++ ) {
 			sIndexPrefix = "";
@@ -241,13 +239,13 @@ QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 							.arg( ii ).arg( sIndexPrefix )
 							.arg( __events_buffer[ ii ].toQString( "", true ) ) );
 		}
-		sOutput.append( "\n" );
+		sOutput.append( QString( "\n%1%2m_bSilent: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bSilent ) );
 	}
 	else {
 		sOutput = QString( "[EventQueue] " )
 			.append( QString( "__read_index: %1" ).arg( __read_index ) )
 			.append( QString( ", __write_index: %1" ).arg( __write_index ) )
-			.append( QString( ", m_bSilent: %1" ).arg( m_bSilent ) )
 			.append( QString( ", __events_buffer: [" ) );
 		for ( int ii = 0; ii < MAX_EVENTS; ii++ ) {
 			sIndexPrefix = "";
@@ -261,7 +259,7 @@ QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 			sOutput.append( QString( "%1: %2%3, " ).arg( ii ).arg( sIndexPrefix )
 							.arg( __events_buffer[ ii ].toQString( "", true ) ) );
 		}
-		sOutput.append( "]\n" );
+		sOutput.append( QString( "], m_bSilent: %1" ).arg( m_bSilent ) );
 	}
 
 	return sOutput;

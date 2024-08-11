@@ -128,6 +128,7 @@ public:
 		 */
 		Testing = 6
 	};
+		static QString StateToQString( const State& state );
 
 	/**
 	 * Maximum value the standard deviation of the Gaussian

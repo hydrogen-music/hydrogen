@@ -53,6 +53,9 @@ public:
 	static ColorTheme loadFrom( const XMLNode& parent,
 								const bool bSilent = false );
 
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
+
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
 	QColor m_songEditor_virtualRowColor;
@@ -153,22 +156,29 @@ public:
 		SinglePane = 0,
 		Tabbed = 1
 	};
+		static QString LayoutToQString( const Layout& layout );
 
 	enum class ScalingPolicy {
 		Smaller = 0,
 		System = 1,
 		Larger = 2
 	};
+		static QString ScalingPolicyToQString( const ScalingPolicy& policy );
 
 	enum class IconColor {
 		Black = 0,
 		White = 1
 	};
+		static QString IconColorToQString( const IconColor& color );
 
 	enum class ColoringMethod {
 		Automatic = 0,
 		Custom = 1
 	};
+		static QString ColoringMethodToQString( const ColoringMethod& method );
+
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 
 	QString m_sQTStyle;
 	float m_fMixerFalloffSpeed;
@@ -199,6 +209,10 @@ public:
 		Small = 1,
 		Large = 2
 	};
+		static QString FontSizeToQString( const FontSize& fontSize );
+
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 
 	QString	m_sApplicationFontFamily;
 	QString	m_sLevel2FontFamily;
@@ -222,6 +236,9 @@ public:
 
 	static std::unique_ptr<Theme> importFrom( const QString& sPath );
 	bool exportTo( const QString& sPath ) const;
+
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const override;
 
 	ColorTheme m_color;
 	InterfaceTheme m_interface;

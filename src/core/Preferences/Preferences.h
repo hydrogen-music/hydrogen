@@ -454,11 +454,6 @@ public:
 	const QString&	getH2ProcessName() const;
 	void			setH2ProcessName(const QString& processName);
 
-
-	/** Whether to use the bpm of the timeline.*/
-	bool			getUseTimelineBpm() const;
-	void			setUseTimelineBpm( bool val );
-
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
 
@@ -651,11 +646,6 @@ private:
 #endif
 		/** Name of hydrogen's main process */
 		QString			m_sH2ProcessName;
-
-	/** Whether to use local speeds specified along the Timeline or
-	 * a constant tempo for the whole Song in
-	 * Hydrogen::getTimelineBpm() and Hydrogen::getTimelineBpm(). */
-	bool				m_bUseTimelineBpm;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1189,13 +1179,6 @@ inline int Preferences::getOscServerPort() const {
 }
 inline void Preferences::setOscServerPort( int oscPort ){
 	m_nOscServerPort = oscPort;
-}
-
-inline bool Preferences::getUseTimelineBpm() const {
-	return m_bUseTimelineBpm;
-}
-inline void Preferences::setUseTimelineBpm( bool val ){
-	m_bUseTimelineBpm = val;
 }
 
 inline void Preferences::setShowPlaybackTrack( bool val ) {

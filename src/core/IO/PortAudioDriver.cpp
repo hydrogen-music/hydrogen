@@ -348,6 +348,27 @@ float* PortAudioDriver::getOut_R()
 	return m_pOut_R;
 }
 
+QString PortAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PortAudioDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleRate ) )
+			.append( QString( "%1%2m_sDevice: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sDevice ) )
+			.append( QString( "%1%2m_bInitialised: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bInitialised ) );
+	} else {
+		sOutput = QString( "[PortAudioDriver]" )
+			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
+			.append( QString( ", m_sDevice: %1" ).arg( m_sDevice ) )
+			.append( QString( ", m_bInitialised: %1" ).arg( m_bInitialised ) );
+	}
+
+	return sOutput;
+}
+
 };
 
 #endif

@@ -403,4 +403,34 @@ unsigned DiskWriterDriver::getSampleRate()
 {
 	return m_nSampleRate;
 }
+
+QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[DiskWriterDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleRate ) )
+			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFilename ) )
+			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBufferSize ) )
+			.append( QString( "%1%2m_nSampleDepth: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleDepth ) )
+			.append( QString( "%1%2m_bIsRunning: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsRunning ) )
+			.append( QString( "%1%2m_bDoneWriting: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bDoneWriting ) );
+	} else {
+		sOutput = QString( "[DiskWriterDriver]" )
+			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
+			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
+			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
+			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )
+			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) );
+	}
+
+	return sOutput;
+}
 };

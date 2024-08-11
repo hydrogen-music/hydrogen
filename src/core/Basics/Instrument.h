@@ -61,6 +61,7 @@ class Instrument : public H2Core::Object<Instrument>
 			ROUND_ROBIN,
 			RANDOM
 		};
+		static QString SampleSelectionAlgoToQString( const SampleSelectionAlgo& algo );
 
 		/**
 		 * constructor
@@ -330,6 +331,7 @@ class Instrument : public H2Core::Object<Instrument>
 	        /** Name of the Instrument. It is set by set_name()
 		    and accessed via get_name().*/
 		QString					__name;
+		DrumkitMap::Type m_type;
 	/** Path of the #Drumkit this #Instrument belongs to.
 	 *
 	 * An instrument belonging to a #Drumkit uses relative paths for
@@ -378,11 +380,10 @@ class Instrument : public H2Core::Object<Instrument>
 		int						__higher_cc;			///< higher cc level
 		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
 		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
-		DrumkitMap::Type m_type;
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;		///< InstrumentLayer array
 };
 
 // DEFINITIONS
