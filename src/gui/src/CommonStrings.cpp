@@ -404,6 +404,12 @@ CommonStrings::CommonStrings(){
 	/*: Label of the spin box in pattern/song/drumkit properties dialog to set
 	 *  the version of the particular artifact. */
 	m_sVersionDialog = tr( "Version" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the license of the particular artifact. */
+	m_sLicenseDialog = tr( "License" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the author of the particular artifact. */
+	m_sAuthorDialog = tr( "Author" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could

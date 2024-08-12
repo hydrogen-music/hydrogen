@@ -73,15 +73,12 @@
         <widget class="LCDSpinBox" name="versionSpinBox"/>
        </item>
        <item>
-        <widget class="QLabel" name="TextLabel1_2">
+        <widget class="QLabel" name="authorLabel">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>20</height>
           </size>
-         </property>
-         <property name="text">
-          <string>Author</string>
          </property>
         </widget>
        </item>
@@ -89,15 +86,12 @@
         <widget class="LCDDisplay" name="authorTxt"/>
        </item>
        <item>
-        <widget class="QLabel" name="TextLabel1_3">
+        <widget class="QLabel" name="licenseLabel">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>20</height>
           </size>
-         </property>
-         <property name="text">
-          <string>License</string>
          </property>
         </widget>
        </item>

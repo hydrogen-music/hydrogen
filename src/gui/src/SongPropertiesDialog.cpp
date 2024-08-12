@@ -55,6 +55,8 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
+	setupLicenseComboBox( licenseComboBox );
+
 	if ( pSong != nullptr ) {
 		versionSpinBox->setValue( pSong->getVersion() );
 		songNameTxt->setText( pSong->getName() );
@@ -69,11 +71,12 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 			licenseStringTxt->hide();
 		}
 	}
+
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
 
-	setupLicenseComboBox( licenseComboBox );
-
+	authorLabel->setText( pCommonStrings->getAuthorDialog() );
+	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
 

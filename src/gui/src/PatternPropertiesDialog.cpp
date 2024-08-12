@@ -57,6 +57,8 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	versionSpinBox->setMaximum( 300 );
 
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
+	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
+	authorLabel->setText( pCommonStrings->getAuthorDialog() );
 
 	patternNameTxt->selectAll();
 

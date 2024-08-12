@@ -116,7 +116,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 				setWindowTitle( tr( "Create New Drumkit" ) );
 			}
 		}
-		
+
+		authorLabel->setText( pCommonStrings->getAuthorDialog() );
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
 		infoTxt->append( QString( pDrumkit->getInfo() ) );
 

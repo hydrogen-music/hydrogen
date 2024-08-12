@@ -955,7 +955,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>ライセンス</translation>
     </message>
     <message>
@@ -1089,6 +1091,11 @@ Are you sure?</source>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>作者</translation>
     </message>
 </context>
 <context>
@@ -1265,10 +1272,6 @@ Are you sure?</source>
     <message>
         <source>Drumkit License</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>作者</translation>
     </message>
     <message>
         <source>Name</source>
@@ -5972,10 +5975,6 @@ Overwrite the existing pattern?</source>
         <translation>備考</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>作者</translation>
-    </message>
-    <message>
         <source>Song name</source>
         <translation>ソングの名前</translation>
     </message>
@@ -5998,10 +5997,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Alt+O</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>ライセンス</translation>
     </message>
 </context>
 <context>

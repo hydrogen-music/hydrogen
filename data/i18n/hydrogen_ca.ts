@@ -955,7 +955,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Llicència</translation>
     </message>
     <message>
@@ -1089,6 +1091,11 @@ Are you sure?</source>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>Autor</translation>
     </message>
 </context>
 <context>
@@ -1265,10 +1272,6 @@ Are you sure?</source>
     <message>
         <source>Drumkit License</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autor</translation>
     </message>
     <message>
         <source>Name</source>
@@ -5936,10 +5939,6 @@ Overwrite the existing pattern?</source>
         <translation>Notes</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
         <source>Song name</source>
         <translation>Títol de la cançó</translation>
     </message>
@@ -5962,10 +5961,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Llicència</translation>
     </message>
 </context>
 <context>
