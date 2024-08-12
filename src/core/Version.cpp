@@ -31,26 +31,6 @@ std::string get_version() {
 	return version;
 }
 
-bool version_older_than( int major, int minor, int patch ) {
-	if ( H2CORE_VERSION_MAJOR > major ) {
-		return true;
-	} else if ( H2CORE_VERSION_MAJOR < major ) {
-		return false;
-	} else {
-		if ( H2CORE_VERSION_MINOR > minor ) {
-			return true;
-		} else if ( H2CORE_VERSION_MINOR < minor ) {
-			return false;
-		} else {
-			if ( H2CORE_VERSION_PATCH > patch ) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-}
-
 QString getAboutText() {
 	return QString( "\nHydrogen %1 [%2]  [http://www.hydrogen-music.org]\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2024 The hydrogen development team\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" )
 		.arg( QString::fromStdString( H2Core::get_version() ) )
