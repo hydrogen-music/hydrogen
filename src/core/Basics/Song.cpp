@@ -398,7 +398,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	// Pattern list
 	auto pPatternList = PatternList::load_from(
-		rootNode, pDrumkit->getExportName(), sAuthor, license, bSilent );
+		rootNode, pDrumkit->getExportName(), bSilent );
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapTo( pDrumkit );
 	}

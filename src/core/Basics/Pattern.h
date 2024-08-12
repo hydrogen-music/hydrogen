@@ -89,16 +89,12 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param node the XMLDode to read from
 		 * \param sDrumkitName kit the pattern was created for (only used as
 		 *   fallback).
-		 * \param sAuthor who created the kit.
-		 * \param license under which license.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static Pattern* load_from( const XMLNode& node,
 							   const QString& sDrumkitName,
-							   const QString& sAuthor,
-							   const License& license,
 							   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
@@ -109,7 +105,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const;
+		bool save_file( const QString& drumkit_name, const QString& pattern_path, bool overwrite=false ) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;

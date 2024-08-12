@@ -71,7 +71,9 @@
 			<xsd:element name="userVersion" type="xsd:nonNegativeInteger"
 						 minOccurs="0"		maxOccurs="1"/>
 			<xsd:element name="name"		type="xsd:string"/>
+			<xsd:element name="author"		type="xsd:string"/>
 			<xsd:element name="info"		type="xsd:string"/>
+			<xsd:element name="license"		type="xsd:string"/>
 			<xsd:element name="category"	type="xsd:string"/>
 			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
 			<xsd:element name="denominator"	type="xsd:nonNegativeInteger" minOccurs="0"/>
@@ -92,8 +94,6 @@
 		<xsd:sequence>
 			<!-- Kept for backward compatibility to <= 1.X.X -->
 			<xsd:element name="drumkit_name"	type="xsd:string"/>
-			<xsd:element name="author"			type="xsd:string"/>
-			<xsd:element name="license"			type="xsd:string"/>
 			<xsd:element ref="h2:pattern" minOccurs="1" maxOccurs="1"/>
 		</xsd:sequence>
 	</xsd:complexType>

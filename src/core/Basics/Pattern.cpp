@@ -128,17 +128,11 @@ Pattern* Pattern::load_file( const QString& sPatternPath )
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	const QString sDrumkitName =
 		root.read_string( "drumkit_name", "", false, false, false );
-	const QString sAuthor =
-		root.read_string( "author", "", false, false, false );
-	const License license(
-		root.read_string( "license", "undefined license", false, false, false ) );
-;
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return load_from( pattern_node, sDrumkitName, sAuthor, license );
+	return load_from( pattern_node, sDrumkitName );
 }
 
 Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
-							 const QString& sAuthor, const License& license,
 							 bool bSilent )
 {
 	Pattern* pPattern = new Pattern(
@@ -149,10 +143,14 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	    node.read_int( "denominator", 4, false, false )
 	);
 
+	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->m_nVersion = node.read_int(
 		"userVersion", pPattern->m_nVersion, false, false, bSilent );
-	pPattern->setDrumkitName( sDrumkitName );
-	pPattern->setAuthor( sAuthor );
+	pPattern->m_sAuthor = node.read_string(
+		"author", pPattern->m_sAuthor, false, false, bSilent );
+	const License license( node.read_string(
+							   "license", pPattern->m_license.getLicenseString(),
+							   false, false, bSilent ) );
 	pPattern->setLicense( license );
 
 	XMLNode note_list_node = node.firstChildElement( "noteList" );
@@ -216,7 +214,7 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	return pPattern;
 }
 
-bool Pattern::save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite ) const
+bool Pattern::save_file( const QString& drumkit_name, const QString& pattern_path, bool overwrite ) const
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
 	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
@@ -226,9 +224,6 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	root.write_string( "drumkit_name", drumkit_name );
-	root.write_string( "author", author );							// FIXME this is never loaded back
-	root.write_string( "license", license.getLicenseString() );
-	// FIXME this is never loaded back
 	save_to( root );
 	return doc.write( pattern_path );
 }
@@ -239,7 +234,9 @@ void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrum
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
 	pattern_node.write_int( "userVersion", m_nVersion );
 	pattern_node.write_string( "name", __name );
+	pattern_node.write_string( "author", m_sAuthor );
 	pattern_node.write_string( "info", __info );
+	pattern_node.write_string( "license", m_license.getLicenseString() );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	pattern_node.write_int( "denominator", __denominator );

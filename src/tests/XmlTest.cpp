@@ -36,7 +36,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Xml.h>
-#include <core/License.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QDir>
@@ -526,13 +525,9 @@ void XmlTest::testPatternFormatIntegrity() {
 	const auto pPattern = H2Core::Pattern::load_file( sTestFile );
 	CPPUNIT_ASSERT( pPattern != nullptr );
 
-	H2Core::License license{};
-	license.setType( H2Core::License::LicenseType::CC_0 );
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save_file(
-						"GMRockKit", "Hydrogen dev team", license,
-						sTmpPattern, true ) );
+	CPPUNIT_ASSERT( pPattern->save_file( "GMRockKit", sTmpPattern, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -562,14 +557,8 @@ void XmlTest::testPattern()
 
 	pPatternLoaded = H2Core::Pattern::load_file(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
-	CPPUNIT_ASSERT( pPatternLoaded );
-
-	H2Core::License license{};
-	license.setType( H2Core::License::LicenseType::CC_0 );
-
-	CPPUNIT_ASSERT( pPatternLoaded->save_file(
-						"GMRockKit", "Hydrogen dev team", license, sPatternPath,
-						true ) );
+	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
+	CPPUNIT_ASSERT( pPatternLoaded->save_file( "GMRockKit", sPatternPath, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
@@ -581,9 +570,7 @@ void XmlTest::testPattern()
 	QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternNew->save_file(
-						"GMRockKit", "Hydrogen dev team", license, sPatternPath,
-						true ) );
+	CPPUNIT_ASSERT( pPatternNew->save_file( "GMRockKit", sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath,
 							  H2Core::Filesystem::pattern_xsd_path() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
@@ -631,9 +618,6 @@ void XmlTest::testPatternInstrumentTypes()
 		H2Core::Filesystem::rm( sTmpMismatch );
 	}
 
-	H2Core::License license{};
-	license.setType( H2Core::License::LicenseType::CC_0 );
-
 	// Check whether the reference pattern is valid.
 	const auto pPatternRef = H2Core::Pattern::load_file(
 		H2TEST_FILE( "pattern/pattern.h2pattern") );
@@ -645,8 +629,7 @@ void XmlTest::testPatternInstrumentTypes()
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
 	CPPUNIT_ASSERT( pPatternWithoutTypes->save_file(
-						"GMRockKit", "Hydrogen dev team", license,
-						sTmpWithoutTypes ) );
+						"GMRockKit", sTmpWithoutTypes ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
@@ -657,9 +640,7 @@ void XmlTest::testPatternInstrumentTypes()
 		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
 	// TODO switch back and forth
-	// CPPUNIT_ASSERT( pPatternMismatch->save_file(
-	// 					"GMRockKit", "Hydrogen dev team", license,
-	// 					sTmpMismatch ) );
+	// CPPUNIT_ASSERT( pPatternMismatch->save_file( "GMRockKit", sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
 
