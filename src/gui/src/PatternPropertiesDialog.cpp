@@ -21,12 +21,14 @@
  */
 
 #include "PatternPropertiesDialog.h"
+
 #include "HydrogenApp.h"
 #include "UndoActions.h"
 
-#include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Hydrogen.h>
+#include <core/License.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -35,6 +37,8 @@ using namespace H2Core;
 PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, int nselectedPattern, bool savepattern)
  : QDialog(parent)
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	setupUi( this );
 	setWindowTitle( tr( "Pattern properties" ) );
 
@@ -51,20 +55,35 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
-	versionLabel->setText(
-		HydrogenApp::get_instance()->getCommonStrings()->getVersionDialog() );
+
+	versionLabel->setText( pCommonStrings->getVersionDialog() );
 
 	patternNameTxt->selectAll();
+
+	setupLicenseComboBox( licenseComboBox );
 
 	QString sCategory;
 	if ( pattern != nullptr ) {
 		versionSpinBox->setValue( pattern->getVersion() );
+		authorTxt->setText( pattern->getAuthor() );
+		licenseComboBox->setCurrentIndex(
+			static_cast<int>( pattern->getLicense().getType() ) );
+		licenseStringTxt->setText( pattern->getLicense().getLicenseString() );
+		if ( pattern->getLicense().getType() == License::Unspecified ) {
+			licenseStringTxt->hide();
+		}
 		patternDescTxt->setText( pattern->get_info() );
 		patternNameTxt->setText( pattern->get_name() );
 		defaultNameCheck( pattern->get_name(), savepattern );
 
 		sCategory = pattern->get_category();
 	}
+
+	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( licenseComboBoxChanged( int ) ) );
+
+	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
 
 	__nselectedPattern = nselectedPattern;
 	__savepattern = savepattern;
@@ -95,6 +114,18 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 PatternPropertiesDialog::~PatternPropertiesDialog() {
 }
 
+void PatternPropertiesDialog::licenseComboBoxChanged( int ) {
+
+	licenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		licenseStringTxt->hide();
+	}
+	else {
+		licenseStringTxt->show();
+	}
+}
 
 void PatternPropertiesDialog::on_cancelBtn_clicked()
 {

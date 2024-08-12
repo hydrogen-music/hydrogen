@@ -26,6 +26,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include "Widgets/WidgetWithLicenseProperty.h"
 
 #include "ui_PatternPropertiesDialog_UI.h"
 
@@ -38,7 +39,9 @@ namespace H2Core
 ///Pattern Properties Dialog
 ///
 /** \ingroup docGUI*/
-class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialog_UI
+class PatternPropertiesDialog : public QDialog,
+								protected WidgetWithLicenseProperty,
+								public Ui_PatternPropertiesDialog_UI
 {
 	Q_OBJECT
 	public:
@@ -52,6 +55,7 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 	private slots:
 		void on_cancelBtn_clicked();
 		void on_okBtn_clicked();
+		void licenseComboBoxChanged( int );
 
 	private:
 		H2Core::Pattern *pattern;
