@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Général</translation>
     </message>
     <message>
@@ -1072,12 +1074,12 @@ Shown in table headers when referring to a license of an object.</extracomment>
     <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished">système</translation>
+        <translation>système</translation>
     </message>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished">session</translation>
+        <translation>session</translation>
     </message>
     <message>
         <source>The provided filename can not be handled by your current encoding</source>
@@ -1092,12 +1094,27 @@ Shown in table headers when referring to a license of an object.</extracomment>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished">Version</translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Author</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
         <translation>Auteur</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Notes</translation>
     </message>
 </context>
 <context>
@@ -1256,14 +1273,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>Général</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Information</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation>Licence de l&apos;image</translation>
     </message>
@@ -1276,24 +1285,8 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Licence du kit de batterie</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Image</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Enregistrer </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
     </message>
     <message>
         <source>Types</source>
@@ -3330,36 +3323,16 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuler</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Nom du nouveau motif</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Catégorie du motif</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>Description du motif</translation>
     </message>
 </context>
 <context>
@@ -6002,26 +5975,6 @@ Overwrite the existing pattern?</source>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Song name</source>
-        <translation>Nom du morceau</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Notes</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuler</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> &amp;OK</translation>
-    </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>

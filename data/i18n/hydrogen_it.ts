@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Generale</translation>
     </message>
     <message>
@@ -1089,12 +1091,27 @@ Shown in table headers when referring to a license of an object.</extracomment>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished">Versione</translation>
+        <translation>Versione</translation>
     </message>
     <message>
         <source>Author</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
         <translation>Autore</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Note</translation>
     </message>
 </context>
 <context>
@@ -1253,14 +1270,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>Generale</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informazioni</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation>Licenza immagine</translation>
     </message>
@@ -1273,24 +1282,8 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Licenza drumkit</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nome</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Immagine</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Salva</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annulla</translation>
     </message>
     <message>
         <source>Types</source>
@@ -3289,22 +3282,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annulla</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
-        <source>New Pattern Name</source>
-        <translation>Nuovo Nome Pattern</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation></translation>
     </message>
@@ -3315,10 +3292,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Pattern category</source>
         <translation>Categoria pattern</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5937,26 +5910,6 @@ Sovrascrivere il modello esistente?</translation>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
-    <message>
-        <source>Notes</source>
-        <translation>Note</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Titolo canzone</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annulla</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> &amp;Ok</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Alt+O</source>
         <translation></translation>

@@ -401,6 +401,15 @@ CommonStrings::CommonStrings(){
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog containing
+	 *  artifact parameters, like name or author. */
+	m_sTabGeneralDialog = tr( "General" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog holding a
+	 *  table of all contained licenses. */
+	m_sTabLicensesDialog = tr( "Licenses" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the name of the particular artifact. */
+	m_sNameDialog = tr( "Name" );
 	/*: Label of the spin box in pattern/song/drumkit properties dialog to set
 	 *  the version of the particular artifact. */
 	m_sVersionDialog = tr( "Version" );
@@ -410,6 +419,9 @@ CommonStrings::CommonStrings(){
 	/*: Label of the text input in pattern/song/drumkit properties dialog to set
 	 *  the author of the particular artifact. */
 	m_sAuthorDialog = tr( "Author" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to
+	 *  fill in notes about the particular artifact. */
+	m_sNotesDialog = tr( "Notes" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could

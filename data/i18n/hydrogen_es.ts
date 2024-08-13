@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>General</translation>
     </message>
     <message>
@@ -1093,12 +1095,27 @@ Shown in table headers when referring to a license of an object.</extracomment>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished">Versión</translation>
+        <translation>Versión</translation>
     </message>
     <message>
         <source>Author</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
         <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Notas</translation>
     </message>
 </context>
 <context>
@@ -1257,14 +1274,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>General</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Info</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation>Licencia Imagen</translation>
     </message>
@@ -1277,24 +1286,8 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Licencia Drumkit</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nombre</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Imagen</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Guardar </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Types</source>
@@ -3329,36 +3322,16 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Forma1</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Cancelar</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;Aceptar</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Nombre del patrón nuevo</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Categoría de patrón</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>Descripción patrón</translation>
     </message>
 </context>
 <context>
@@ -6003,28 +5976,8 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Notes</source>
-        <translation>Notas</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Título de la canción</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Forma1</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Cancelar</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> &amp;Aceptar</translation>
     </message>
     <message>
         <source>Alt+O</source>

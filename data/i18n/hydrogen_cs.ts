@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Hlavní</translation>
     </message>
     <message>
@@ -1096,6 +1098,21 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
         <translation>Autor</translation>
     </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Název</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Poznámky</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1253,14 +1270,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>Hlavní</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informace</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1273,24 +1282,8 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Uložit</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Storno</translation>
     </message>
     <message>
         <source>Types</source>
@@ -3286,36 +3279,16 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Storno</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Název nového paternu</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Kategorie paternu</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5933,28 +5906,8 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Poznámky</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Název skladby</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> &amp;OK</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Storno</translation>
     </message>
     <message>
         <source>Alt+C</source>

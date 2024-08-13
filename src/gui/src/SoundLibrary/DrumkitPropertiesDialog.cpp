@@ -73,7 +73,9 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
+	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
+	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
 	if ( bSaveToNsmSession &&
 		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
@@ -195,14 +197,20 @@ QTextEdit { \
 										
 	}
 
+	tabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
+	tabWidget->setTabText( 2, pCommonStrings->getTabLicensesDialog() );
+	tabWidget->setCurrentIndex( 0 );
+
 	saveBtn->setFixedFontSize( 12 );
 	saveBtn->setSize( QSize( 70, 23 ) );
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
+	saveBtn->setText( pCommonStrings->getButtonSave() );
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
 	m_cancelBtn->setType( Button::Type::Push );
+	m_cancelBtn->setText( pCommonStrings->getButtonCancel() );
 	imageBrowsePushButton->setFixedFontSize( 12 );
 	imageBrowsePushButton->setBorderRadius( 3 );
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );

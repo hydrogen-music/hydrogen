@@ -56,9 +56,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
 
+
+	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
 	authorLabel->setText( pCommonStrings->getAuthorDialog() );
+	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
 	patternNameTxt->selectAll();
 
@@ -107,10 +110,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	okBtn->setBorderRadius( 3 );
 	okBtn->setType( Button::Type::Push );
 	okBtn->setIsActive( true );
+	okBtn->setText( pCommonStrings->getButtonOk() );
 	cancelBtn->setFixedFontSize( 12 );
 	cancelBtn->setSize( QSize( 70, 23 ) );
 	cancelBtn->setBorderRadius( 3 );
 	cancelBtn->setType( Button::Type::Push );
+	cancelBtn->setText( pCommonStrings->getButtonCancel() );
 }
 
 PatternPropertiesDialog::~PatternPropertiesDialog() {

@@ -10,9 +10,6 @@
     <height>439</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form1</string>
-  </property>
   <layout class="QVBoxLayout" name="overallLayout">
    <property name="spacing">
     <number>0</number>
@@ -55,11 +52,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QLabel" name="TextLabel1">
-             <property name="text">
-              <string>New Pattern Name</string>
-             </property>
-            </widget>
+            <widget class="QLabel" name="nameLabel"/>
            </item>
            <item>
             <widget class="LCDDisplay" name="patternNameTxt"/>
@@ -100,11 +93,7 @@
             <widget class="LCDDisplay" name="licenseStringTxt"/>
            </item>
            <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Pattern description</string>
-             </property>
-            </widget>
+            <widget class="QLabel" name="notesLabel"/>
            </item>
            <item>
             <widget class="LCDTextEdit" name="patternDescTxt"/>
@@ -142,9 +131,6 @@
            </item>
            <item>
             <widget class="Button" name="cancelBtn">
-             <property name="text">
-              <string>&amp;Cancel</string>
-             </property>
              <property name="shortcut">
               <string>Alt+C</string>
              </property>
@@ -152,9 +138,6 @@
            </item>
            <item>
             <widget class="Button" name="okBtn">
-             <property name="text">
-              <string>&amp;OK</string>
-             </property>
              <property name="shortcut">
               <string>Alt+O</string>
              </property>
