@@ -47,6 +47,9 @@ class SongPropertiesDialog : public QDialog,
 		void on_okBtn_clicked();
 	void licenseComboBoxChanged( int );
 
+	private:
+		void updatePatternLicenseTable();
+
 };
 
 #endif

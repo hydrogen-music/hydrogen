@@ -23,6 +23,8 @@
 #include "CommonStrings.h"
 #include "SongPropertiesDialog.h"
 
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
@@ -75,23 +77,110 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
 
+	tabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
+	tabWidget->setTabText( 1, pCommonStrings->getTabLicensesDialog() );
+	tabWidget->setCurrentIndex( 0 );
+
+	nameLabel->setText( pCommonStrings->getNameDialog() );
 	authorLabel->setText( pCommonStrings->getAuthorDialog() );
 	licenseLabel->setText( pCommonStrings->getLicenseDialog() );
 	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
 	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
 	okBtn->setFixedFontSize( 12 );
 	okBtn->setSize( QSize( 70, 23 ) );
 	okBtn->setBorderRadius( 3 );
 	okBtn->setType( Button::Type::Push );
 	okBtn->setIsActive( true );
+	okBtn->setText( pCommonStrings->getButtonOk() );
 	cancelBtn->setFixedFontSize( 12 );
 	cancelBtn->setSize( QSize( 70, 23 ) );
 	cancelBtn->setBorderRadius( 3 );
 	cancelBtn->setType( Button::Type::Push );
+	cancelBtn->setText( pCommonStrings->getButtonCancel() );
+
+	updatePatternLicenseTable();
 }
 
 SongPropertiesDialog::~SongPropertiesDialog() {
+}
+
+void SongPropertiesDialog::updatePatternLicenseTable() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	const auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+
+	licensesTable->setColumnCount( 4 );
+	licensesTable->setHorizontalHeaderLabels(
+		QStringList() <<
+		pCommonStrings->getNameDialog() <<
+		pCommonStrings->getVersionDialog() <<
+		pCommonStrings->getAuthorDialog() <<
+		pCommonStrings->getLicenseDialog() );
+	licensesTable->verticalHeader()->hide();
+	licensesTable->horizontalHeader()->setStretchLastSection( true );
+	licensesTable->setColumnWidth( 0, 210 );
+	licensesTable->setColumnWidth( 1, 60 );
+	licensesTable->setColumnWidth( 2, 140 );
+
+	if ( pSong == nullptr ){
+		return;
+	}
+
+	const auto pPatternList = pSong->getPatternList();
+	licensesTable->setRowCount( pPatternList->size() );
+
+	int nFirstMismatchRow = -1;
+	int rrow = 0;
+	for ( const auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+
+			LCDDisplay* pNameItem = new LCDDisplay( nullptr );
+			pNameItem->setText( ppPattern->get_name());
+			pNameItem->setIsActive( false );
+			pNameItem->setToolTip( ppPattern->get_name() );
+			LCDDisplay* pVersionItem = new LCDDisplay( nullptr );
+			pVersionItem->setText( QString::number( ppPattern->getVersion() ) );
+			pVersionItem->setIsActive( false );
+			pVersionItem->setToolTip( QString::number( ppPattern->getVersion() ) );
+			LCDDisplay* pAuthorItem = new LCDDisplay( nullptr );
+			pAuthorItem->setText( ppPattern->getAuthor() );
+			pAuthorItem->setIsActive( false );
+			pAuthorItem->setToolTip( ppPattern->getAuthor() );
+			LCDDisplay* pLicenseItem = new LCDDisplay( nullptr );
+			pLicenseItem->setText( ppPattern->getLicense().getLicenseString() );
+			pLicenseItem->setIsActive( false );
+			pLicenseItem->setToolTip( ppPattern->getLicense().getLicenseString() );
+
+			// In case of a license mismatch we highlight the row
+			if ( ppPattern->getLicense() != pSong->getLicense() ) {
+				QString sHighlight = QString( "color: %1; background-color: %2" )
+					.arg( theme.m_color.m_buttonRedTextColor.name() )
+					.arg( theme.m_color.m_buttonRedColor.name() );
+				pNameItem->setStyleSheet( sHighlight );
+				pVersionItem->setStyleSheet( sHighlight );
+				pAuthorItem->setStyleSheet( sHighlight );
+				pLicenseItem->setStyleSheet( sHighlight );
+
+				if ( nFirstMismatchRow == -1 ) {
+					nFirstMismatchRow = rrow;
+				}
+			}
+
+			licensesTable->setCellWidget( rrow, 0, pNameItem );
+			licensesTable->setCellWidget( rrow, 1, pVersionItem );
+			licensesTable->setCellWidget( rrow, 2, pAuthorItem );
+			licensesTable->setCellWidget( rrow, 3, pLicenseItem );
+
+			++rrow;
+		}
+	}
+
+	// In case of a mismatch scroll into view
+	if ( nFirstMismatchRow != -1 ) {
+		licensesTable->showRow( nFirstMismatchRow );
+	}
 }
 
 void SongPropertiesDialog::licenseComboBoxChanged( int ) {
