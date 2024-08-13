@@ -24,18 +24,20 @@
 #include <algorithm>
 #include <memory>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/Hydrogen.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/License.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -1626,11 +1628,15 @@ void SongEditorPatternList::inlineEditingEntered()
 	SE_modifyPatternPropertiesAction *action =
 		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->getVersion(),
 											  m_pPatternBeingEdited->get_name(),
+											  m_pPatternBeingEdited->getAuthor(),
 											  m_pPatternBeingEdited->get_info(),
+											  m_pPatternBeingEdited->getLicense(),
 											  m_pPatternBeingEdited->get_category(),
 											  m_pPatternBeingEdited->getVersion(),
 											  patternName,
+											  m_pPatternBeingEdited->getAuthor(),
 											  m_pPatternBeingEdited->get_info(),
+											  m_pPatternBeingEdited->getLicense(),
 											  m_pPatternBeingEdited->get_category(),
 											  pPatternList->index( m_pPatternBeingEdited ) );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
@@ -2031,11 +2037,14 @@ void SongEditorPatternList::patternPopup_properties()
 }
 
 
-void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const int nNewVersion,
-																   const QString& newPatternName,
-																   const QString& newPatternInfo,
-																   const QString& newPatternCategory,
-																   int patternNr )
+void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
+	const int nNewVersion,
+	const QString& newPatternName,
+	const QString& sNewAuthor,
+	const QString& newPatternInfo,
+	const License& newLicense,
+	const QString& newPatternCategory,
+	int patternNr )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -2043,7 +2052,9 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const int nNe
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->setVersion( nNewVersion );
 	pattern->set_name( newPatternName );
+	pattern->setAuthor( sNewAuthor );
 	pattern->set_info( newPatternInfo );
+	pattern->setLicense( newLicense );
 	pattern->set_category( newPatternCategory );
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
@@ -2052,11 +2063,14 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const int nNe
 }
 
 
-void SongEditorPatternList::revertPatternPropertiesDialogSettings( const int nOldVersion,
-																   const QString& oldPatternName,
-																   const QString& oldPatternInfo,
-																   const QString& oldPatternCategory,
-																   int patternNr)
+void SongEditorPatternList::revertPatternPropertiesDialogSettings(
+	const int nOldVersion,
+	const QString& oldPatternName,
+	const QString& sOldAuthor,
+	const QString& oldPatternInfo,
+	const License& oldLicense,
+	const QString& oldPatternCategory,
+	int patternNr )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -2064,6 +2078,9 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings( const int nOl
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->setVersion( nOldVersion );
 	pattern->set_name( oldPatternName );
+	pattern->setAuthor( sOldAuthor );
+	pattern->set_info( oldPatternInfo );
+	pattern->setLicense( oldLicense );
 	pattern->set_category( oldPatternCategory );
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );

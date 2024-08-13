@@ -36,6 +36,7 @@
 #include <core/Basics/AutomationPath.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
@@ -161,21 +162,29 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand
 public:
 	SE_modifyPatternPropertiesAction( const int nOldVersion,
 									  const QString& oldPatternName,
+									  const QString& sOldAuthor,
 									  const QString& oldPatternInfo,
+									  const H2Core::License& oldLicense,
 									  const QString& oldPatternCategory,
 									  const int nNewVersion,
 									  const QString& newPatternName,
+									  const QString sNewAuthor,
 									  const QString& newPatternInfo,
+									  const H2Core::License& newLicense,
 									  const QString& newPatternCategory,
 									  int patternNr ){
 		setText( QObject::tr( "Modify pattern properties" ) );
 		m_nOldVersion =  nOldVersion;
 		__oldPatternName =  oldPatternName;
-		__oldPatternCategory = oldPatternCategory;
+		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
+		m_oldLicense = oldLicense;
+		__oldPatternCategory = oldPatternCategory;
 		m_nNewVersion =  nNewVersion;
 		__newPatternName = newPatternName;
+		m_sNewAuthor = sNewAuthor;
 		__newPatternInfo = newPatternInfo;
+		m_newLicense = newLicense;
 		__newPatternCategory = newPatternCategory;
 		__patternNr = patternNr;
 	}
@@ -185,8 +194,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()
 			->revertPatternPropertiesDialogSettings(
-				m_nOldVersion, __oldPatternName, __oldPatternInfo,
-				__oldPatternCategory, __patternNr );
+				m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
+				m_oldLicense, __oldPatternCategory, __patternNr );
 	}
 
 	virtual void redo()
@@ -195,18 +204,22 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()
 			->acceptPatternPropertiesDialogSettings(
-				m_nNewVersion, __newPatternName, __newPatternInfo,
-				__newPatternCategory, __patternNr );
+				m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
+				m_newLicense, __newPatternCategory, __patternNr );
 	}
 private:
 		int m_nOldVersion;
 	QString __oldPatternName;
+		QString m_sOldAuthor;
 	QString __oldPatternInfo;
+		H2Core::License m_oldLicense;
 	QString __oldPatternCategory;
 
 		int m_nNewVersion;
 	QString __newPatternName;
+		QString m_sNewAuthor;
 	QString __newPatternInfo;
+		H2Core::License m_newLicense;
 	QString __newPatternCategory;
 	int __patternNr;
 };

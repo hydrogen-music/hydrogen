@@ -138,7 +138,9 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
 	const int nVersion = versionSpinBox->value();
+	const QString sAuthor = authorTxt->text();
 	QString sPattName = patternNameTxt->text();
+	const License license( licenseStringTxt->text() );
 	const QString sPattCategory = categoryComboBox->currentText();
 	const QString sPattInfo = patternDescTxt->toPlainText();
 
@@ -165,9 +167,10 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			  pattern->get_info() != sPattInfo ||
 			  pattern->get_category() != sPattCategory ) {
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(
-			pattern->getVersion(), pattern->get_name(), pattern->get_info(),
-			pattern->get_category(), nVersion, sPattName, sPattInfo,
-			sPattCategory, __nselectedPattern );
+			pattern->getVersion(), pattern->get_name(), pattern->getAuthor(),
+			pattern->get_info(), pattern->getLicense(), pattern->get_category(),
+			nVersion, sPattName, sAuthor, sPattInfo, license, sPattCategory,
+			__nselectedPattern );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 	accept();
