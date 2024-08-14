@@ -332,6 +332,8 @@ void ExportSongDialog::on_okBtn_clicked()
 		bool bIsCopyleft = false;
 		QStringList licenses;
 		QString sLicense;
+
+		// Sample licenses
 		for ( const auto& ccontent : drumkitContent ) {
 			if ( ccontent->m_license.hasAttribution() ) {
 				sLicense = QString( "%1 (by %2)" )
@@ -351,6 +353,33 @@ void ExportSongDialog::on_okBtn_clicked()
 				}
 			}
 		}
+
+		// Pattern licenses
+		for ( const auto& ppPattern : *pSong->getPatternList() ) {
+			if ( ppPattern == nullptr ) {
+				continue;
+			}
+
+			const auto ppatternLicense = ppPattern->getLicense();
+			if ( ppatternLicense.hasAttribution() ) {
+				sLicense = QString( "%1 (by %2)" )
+					.arg( ppatternLicense.getLicenseString() )
+					.arg( ppatternLicense.getCopyrightHolder() );
+				bHasAttribution = true;
+			}
+			else {
+				sLicense = ppatternLicense.getLicenseString();
+			}
+
+			if ( ! licenses.contains( sLicense ) ) {
+				licenses << sLicense;
+
+				if ( ppatternLicense.isCopyleft() ) {
+					bIsCopyleft = true;
+				}
+			}
+		}
+
 		QString sMsg = QString( tr( "Your song uses samples of the following license:" ) )
 			.append( "<ul>" );
 		for ( const auto& llicense : licenses ) {
