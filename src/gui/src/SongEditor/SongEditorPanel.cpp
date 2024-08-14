@@ -618,8 +618,14 @@ void SongEditorPanel::newPatBtnClicked()
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	PatternList *pPatternList = pSong->getPatternList();
-	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
+	Pattern		*pNewPattern =
+		new Pattern( tr( "Pattern %1" ).arg( pPatternList->size() + 1 ) );
+	pNewPattern->setAuthor( pSong->getAuthor() );
+	pNewPattern->setLicense( pSong->getLicense() );
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
@@ -629,10 +635,8 @@ void SongEditorPanel::newPatBtnClicked()
 		} else {
 			nRow = pHydrogen->getSelectedPatternNumber() + 1;
 		}
-		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( nRow, new Pattern( pNewPattern->get_name(),
-															   pNewPattern->get_info(),
-															   pNewPattern->get_category() ) );
+		SE_insertPatternAction* pAction = new SE_insertPatternAction(
+			nRow, new Pattern( pNewPattern ) );
 		HydrogenApp::get_instance()->m_pUndoStack->push(  pAction );
 	}
 
