@@ -203,6 +203,7 @@ class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 	public:
 		/** basic constructor */
 		XMLDoc( );
+		XMLDoc( const QString& sSerialized );
 		/**
 		 * read the content of an xml file
 		 * \param filepath the path to the file to read from
