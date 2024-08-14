@@ -269,6 +269,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** #m_sName accessor */
 		const QString& getName() const;
 		/** #m_sAuthor setter */
+		int getVersion() const;
+		void setVersion( int nVersion );
 		void setAuthor( const QString& author );
 		/** #m_sAuthor accessor */
 		const QString& getAuthor() const;
@@ -357,6 +359,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		Context m_context;
 		QString m_sPath;					///< absolute drumkit path
 		QString m_sName;					///< drumkit name
+		int m_nVersion;
 		QString m_sAuthor;				///< drumkit author
 		QString m_sInfo;					///< drumkit free text
 		License m_license;				///< drumkit license description
@@ -443,6 +446,12 @@ inline void Drumkit::setName( const QString& name )
 inline const QString& Drumkit::getName() const
 {
 	return m_sName;
+}
+inline int Drumkit::getVersion() const {
+	return m_nVersion;
+}
+inline void Drumkit::setVersion( int nVersion ) {
+	m_nVersion = nVersion;
 }
 
 inline void Drumkit::setAuthor( const QString& author )

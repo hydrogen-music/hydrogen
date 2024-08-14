@@ -152,7 +152,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	 *
 	 * @param sFilename Absolute path to write the song to.
 	 * @param bLegacy Whether the current format containing a proper
-	 *   #H2Core::Drumkit or the legacy format (prior to version 1.3.0)
+	 *   #H2Core::Drumkit or the legacy format (prior to version 2.0.0)
 	 *   containing only selected drumkit parts should be used.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
@@ -175,6 +175,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		float getBpm() const;
 		void setBpm( float fBpm );
+
+		int getVersion() const;
+		void setVersion( int nVersion );
 
 		const QString& getName() const;
 		void setName( const QString& sName );
@@ -335,6 +338,8 @@ private:
 		 * different tempo instances work.
 		 */
 		float m_fBpm;
+
+		int m_nVersion;
 		
 		///< song name
 		QString m_sName;
@@ -497,6 +502,14 @@ inline float Song::getBpm() const
 {
 	return m_fBpm;
 }
+
+inline void Song::setVersion( int nVersion ) {
+	m_nVersion = nVersion;
+}
+inline int Song::getVersion() const {
+	return m_nVersion;
+}
+
 
 inline void Song::setName( const QString& sName )
 {

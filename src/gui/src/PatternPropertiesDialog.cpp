@@ -38,40 +38,61 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	setupUi( this );
 	setWindowTitle( tr( "Pattern properties" ) );
 
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
+
 	this->pattern = pattern;
 
-	patternNameTxt->setText( pattern->get_name() );
+	// Remove size constraints
+	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	// Arbitrary high number.
+	versionSpinBox->setMaximum( 300 );
+	versionLabel->setText(
+		HydrogenApp::get_instance()->getCommonStrings()->getVersionDialog() );
+
 	patternNameTxt->selectAll();
 
-	patternDescTxt->setText( pattern->get_info() );
+	QString sCategory;
+	if ( pattern != nullptr ) {
+		versionSpinBox->setValue( pattern->getVersion() );
+		patternDescTxt->setText( pattern->get_info() );
+		patternNameTxt->setText( pattern->get_name() );
+		defaultNameCheck( pattern->get_name(), savepattern );
 
-	QString sCategory = pattern->get_category();
+		sCategory = pattern->get_category();
+	}
+
 	__nselectedPattern = nselectedPattern;
-	__savepattern = savepattern;	
-	
+	__savepattern = savepattern;
+
 	if ( sCategory.isEmpty() ){
 		sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
 	}
 	categoryComboBox->addItem( sCategory );
 
 	const auto pPref = H2Core::Preferences::get_instance();
-
 	for ( const auto& ssCategory : pPref->m_patternCategories ) {
 		if ( categoryComboBox->currentText() != ssCategory ){
 			categoryComboBox->addItem( ssCategory );
 		}
 	}
 
-	defaultNameCheck( pattern->get_name(), savepattern );
-	okBtn->setEnabled(true);
+	okBtn->setFixedFontSize( 12 );
+	okBtn->setSize( QSize( 70, 23 ) );
+	okBtn->setBorderRadius( 3 );
+	okBtn->setType( Button::Type::Push );
+	okBtn->setIsActive( true );
+	cancelBtn->setFixedFontSize( 12 );
+	cancelBtn->setSize( QSize( 70, 23 ) );
+	cancelBtn->setBorderRadius( 3 );
+	cancelBtn->setType( Button::Type::Push );
 }
 
-
-/**
- * Destructor
- */
-PatternPropertiesDialog::~PatternPropertiesDialog()
-{
+PatternPropertiesDialog::~PatternPropertiesDialog() {
 }
 
 
@@ -83,6 +104,7 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
+	const int nVersion = versionSpinBox->value();
 	QString sPattName = patternNameTxt->text();
 	const QString sPattCategory = categoryComboBox->currentText();
 	const QString sPattInfo = patternDescTxt->toPlainText();
@@ -98,12 +120,21 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	}
 
 	if( __savepattern ){
+		if ( pattern->getVersion() != nVersion ) {
+			pattern->setVersion( nVersion );
+		}
 		pattern->set_name( sPattName );
 		pattern->set_info( sPattInfo );
 		pattern->set_category( sPattCategory );
-	} else if ( pattern->get_name() != sPattName || pattern->get_info() != sPattInfo || pattern->get_category() != sPattCategory) {
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
-												  sPattName, sPattInfo, sPattCategory, __nselectedPattern );
+	}
+	else if ( pattern->getVersion() != nVersion ||
+			  pattern->get_name() != sPattName ||
+			  pattern->get_info() != sPattInfo ||
+			  pattern->get_category() != sPattCategory ) {
+		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(
+			pattern->getVersion(), pattern->get_name(), pattern->get_info(),
+			pattern->get_category(), nVersion, sPattName, sPattInfo,
+			sPattCategory, __nselectedPattern );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 	accept();

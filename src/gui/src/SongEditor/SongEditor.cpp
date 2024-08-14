@@ -1624,9 +1624,11 @@ void SongEditorPatternList::inlineEditingEntered()
 	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text(), m_pPatternBeingEdited );
 
 	SE_modifyPatternPropertiesAction *action =
-		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->get_name(),
+		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->getVersion(),
+											  m_pPatternBeingEdited->get_name(),
 											  m_pPatternBeingEdited->get_info(),
 											  m_pPatternBeingEdited->get_category(),
+											  m_pPatternBeingEdited->getVersion(),
 											  patternName,
 											  m_pPatternBeingEdited->get_info(),
 											  m_pPatternBeingEdited->get_category(),
@@ -2029,7 +2031,8 @@ void SongEditorPatternList::patternPopup_properties()
 }
 
 
-void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const QString& newPatternName,
+void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const int nNewVersion,
+																   const QString& newPatternName,
 																   const QString& newPatternInfo,
 																   const QString& newPatternCategory,
 																   int patternNr )
@@ -2038,6 +2041,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const QString
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
+	pattern->setVersion( nNewVersion );
 	pattern->set_name( newPatternName );
 	pattern->set_info( newPatternInfo );
 	pattern->set_category( newPatternCategory );
@@ -2048,7 +2052,8 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings( const QString
 }
 
 
-void SongEditorPatternList::revertPatternPropertiesDialogSettings( const QString& oldPatternName,
+void SongEditorPatternList::revertPatternPropertiesDialogSettings( const int nOldVersion,
+																   const QString& oldPatternName,
 																   const QString& oldPatternInfo,
 																   const QString& oldPatternCategory,
 																   int patternNr)
@@ -2057,6 +2062,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings( const QString
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
+	pattern->setVersion( nOldVersion );
 	pattern->set_name( oldPatternName );
 	pattern->set_category( oldPatternCategory );
 	pHydrogen->setIsModified( true );

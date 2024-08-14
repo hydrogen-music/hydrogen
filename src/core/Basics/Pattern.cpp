@@ -37,7 +37,8 @@ namespace H2Core
 {
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& sCategory, int length, int denominator )
-	: __length( length )
+	: m_nVersion( 0 )
+	, __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
@@ -52,7 +53,8 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& sCate
 }
 
 Pattern::Pattern( Pattern* other )
-	: __length( other->get_length() )
+	: m_nVersion( other->m_nVersion )
+	, __length( other->get_length() )
 	, __denominator( other->get_denominator() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )
@@ -147,6 +149,8 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	    node.read_int( "denominator", 4, false, false )
 	);
 
+	pPattern->m_nVersion = node.read_int(
+		"userVersion", pPattern->m_nVersion, false, false, bSilent );
 	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->setAuthor( sAuthor );
 	pPattern->setLicense( license );
@@ -233,6 +237,7 @@ void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrum
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
+	pattern_node.write_int( "userVersion", m_nVersion );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
@@ -519,6 +524,8 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nVersion ) )
 			.append( QString( "%1%2m_sDrumkitName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sDrumkitName ) )
 			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
@@ -556,6 +563,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 
 		sOutput = QString( "[Pattern]" )
 			.append( QString( " name: %1" ).arg( __name ) )
+			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", m_license: %1" )

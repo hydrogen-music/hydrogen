@@ -159,17 +159,21 @@ private:
 class SE_modifyPatternPropertiesAction : public QUndoCommand
 {
 public:
-	SE_modifyPatternPropertiesAction( const QString& oldPatternName,
+	SE_modifyPatternPropertiesAction( const int nOldVersion,
+									  const QString& oldPatternName,
 									  const QString& oldPatternInfo,
 									  const QString& oldPatternCategory,
+									  const int nNewVersion,
 									  const QString& newPatternName,
 									  const QString& newPatternInfo,
 									  const QString& newPatternCategory,
 									  int patternNr ){
 		setText( QObject::tr( "Modify pattern properties" ) );
+		m_nOldVersion =  nOldVersion;
 		__oldPatternName =  oldPatternName;
 		__oldPatternCategory = oldPatternCategory;
 		__oldPatternInfo = oldPatternInfo;
+		m_nNewVersion =  nNewVersion;
 		__newPatternName = newPatternName;
 		__newPatternInfo = newPatternInfo;
 		__newPatternCategory = newPatternCategory;
@@ -179,20 +183,28 @@ public:
 	{
 		//qDebug() << "Modify pattern properties undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->revertPatternPropertiesDialogSettings( __oldPatternName, __oldPatternInfo, __oldPatternCategory, __patternNr );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()
+			->revertPatternPropertiesDialogSettings(
+				m_nOldVersion, __oldPatternName, __oldPatternInfo,
+				__oldPatternCategory, __patternNr );
 	}
 
 	virtual void redo()
 	{
 		//qDebug() << "Modify pattern properties redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->acceptPatternPropertiesDialogSettings( __newPatternName, __newPatternInfo, __newPatternCategory, __patternNr );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()
+			->acceptPatternPropertiesDialogSettings(
+				m_nNewVersion, __newPatternName, __newPatternInfo,
+				__newPatternCategory, __patternNr );
 	}
 private:
+		int m_nOldVersion;
 	QString __oldPatternName;
 	QString __oldPatternInfo;
 	QString __oldPatternCategory;
 
+		int m_nNewVersion;
 	QString __newPatternName;
 	QString __newPatternInfo;
 	QString __newPatternCategory;

@@ -6,113 +6,221 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>290</width>
-    <height>378</height>
+    <width>295</width>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form1</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="TextLabel1">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Song name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLineEdit" name="songNameTxt"/>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QLineEdit" name="authorTxt"/>
-   </item>
-   <item row="9" column="1">
-    <widget class="QPushButton" name="okBtn">
-     <property name="text">
-      <string> &amp;OK</string>
-     </property>
-     <property name="shortcut">
-      <string>Alt+O</string>
-     </property>
-     <property name="default">
+  <layout class="QVBoxLayout" name="overallLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
       <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QLabel" name="TextLabel1_3">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>License</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QLabel" name="TextLabel1_2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Author</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QTextEdit" name="notesTxt"/>
-   </item>
-   <item row="9" column="0">
-    <widget class="QPushButton" name="cancelBtn">
-     <property name="text">
-      <string>&amp;Cancel</string>
-     </property>
-     <property name="shortcut">
-      <string>Alt+C</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QLabel" name="TextLabel2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Notes</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QLineEdit" name="licenseStringTxt"/>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QComboBox" name="licenseComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+     <widget class="QWidget" name="scrollAreaContent">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>293</width>
+        <height>381</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>290</width>
+        <height>378</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="mainLayout">
+       <item>
+        <widget class="QLabel" name="TextLabel1">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Song name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LCDDisplay" name="songNameTxt"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="versionLabel"/>
+       </item>
+       <item>
+        <widget class="LCDSpinBox" name="versionSpinBox"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="TextLabel1_2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Author</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LCDDisplay" name="authorTxt"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="TextLabel1_3">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>License</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LCDCombo" name="licenseComboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LCDDisplay" name="licenseStringTxt"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="TextLabel2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Notes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LCDTextEdit" name="notesTxt"/>
+       </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <spacer>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>37</width>
+               <height>28</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="Button" name="cancelBtn">
+             <property name="text">
+              <string>&amp;Cancel</string>
+             </property>
+             <property name="shortcut">
+              <string>Alt+C</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Button" name="okBtn">
+             <property name="text">
+              <string> &amp;OK</string>
+             </property>
+             <property name="shortcut">
+              <string>Alt+O</string>
+             </property>
+             <property name="default">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>37</width>
+               <height>28</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDCombo</class>
+   <extends>QComboBox</extends>
+   <header location="global">../src/Widgets/LCDCombo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDDisplay</class>
+   <extends>QLineEdit</extends>
+   <header location="global">../src/Widgets/LCDDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header location="global">../src/Widgets/LCDSpinBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">../src/Widgets/LCDTextEdit.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>

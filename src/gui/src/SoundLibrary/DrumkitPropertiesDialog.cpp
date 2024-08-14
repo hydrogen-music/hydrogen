@@ -68,6 +68,13 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	setupLicenseComboBox( licenseComboBox );
 	setupLicenseComboBox( imageLicenseComboBox );
 
+	// Remove size constraints
+	versionSpinBox->setFixedSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	// Arbitrary high number.
+	versionSpinBox->setMaximum( 300 );
+	versionLabel->setText( pCommonStrings->getVersionDialog() );
+
 	if ( bSaveToNsmSession &&
 		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		ERRORLOG( "NSM session export request while there is no active NSM session. Saving to Sound Library instead." );
@@ -78,6 +85,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkit != nullptr ){
 
+		versionSpinBox->setValue( pDrumkit->getVersion() );
 		auto drumkitContext = pDrumkit->getContext();
 		if ( drumkitContext == Drumkit::Context::User ||
 			 drumkitContext == Drumkit::Context::SessionReadWrite ||
@@ -590,6 +598,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkit->setName( nameTxt->text() );
 		m_pDrumkit->setPath( H2Core::Filesystem::usr_drumkits_dir() +
 							  nameTxt->text() );
+	}
+	if ( m_pDrumkit->getVersion() != versionSpinBox->value() ) {
+		m_pDrumkit->setVersion( versionSpinBox->value() );
 	}
 	m_pDrumkit->setAuthor( authorTxt->text() );
 	m_pDrumkit->setInfo( infoTxt->toHtml() );
