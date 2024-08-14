@@ -117,9 +117,9 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 												 const QString& drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
-		void functionPasteNotesRedoAction( const std::list<H2Core::Pattern*>& changeList,
-										   std::list<H2Core::Pattern*>& appliedList);
-		void functionPasteNotesUndoAction( std::list<H2Core::Pattern*>& appliedList);
+		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
+										   H2Core::PatternList* pAppliedPatternList);
+		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);
 
 		// Synthetic UI events from selection manager
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
