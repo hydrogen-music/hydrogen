@@ -153,8 +153,11 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 			pLicenseItem->setIsActive( false );
 			pLicenseItem->setToolTip( ppPattern->getLicense().getLicenseString() );
 
-			// In case of a license mismatch we highlight the row
-			if ( ppPattern->getLicense() != pSong->getLicense() ) {
+			// In case the pattern features a dedicated license and this one
+			// does not match the one set for the whole song, we highlight the
+			// corresponding row.
+			if ( ! ppPattern->getLicense().isEmpty() &&
+				 ppPattern->getLicense() != pSong->getLicense() ) {
 				QString sHighlight = QString( "color: %1; background-color: %2" )
 					.arg( theme.m_color.m_buttonRedTextColor.name() )
 					.arg( theme.m_color.m_buttonRedColor.name() );
