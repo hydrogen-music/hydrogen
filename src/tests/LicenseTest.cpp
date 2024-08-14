@@ -25,6 +25,24 @@
 
 using namespace H2Core;
 
+void LicenseTest::testIsEmpty() {
+	___INFOLOG( "" );
+
+	License licenseCC0_0("cc0");
+	CPPUNIT_ASSERT( ! licenseCC0_0.isEmpty() );
+
+	License licenseNew;
+	CPPUNIT_ASSERT( licenseNew.isEmpty() );
+
+	licenseNew.setCopyrightHolder( "somebody" );
+	CPPUNIT_ASSERT( ! licenseNew.isEmpty() );
+
+	License licenseLegacy( "Unknown License" );
+	CPPUNIT_ASSERT( licenseLegacy.isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
 void LicenseTest::testParsing() {
 	___INFOLOG( "" );
 
