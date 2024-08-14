@@ -892,52 +892,43 @@ private:
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:
-	explicit SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
-	{
-		//qDebug() << "paste note sequence Create ";
+	explicit SE_pasteNotesPatternEditorAction( H2Core::PatternList* pPatternList ) :
+		m_pCopiedNotesPatternList( pPatternList ) {
 		setText( QObject::tr( "Paste instrument notes" ) );
 
-		std::list < H2Core::Pattern *>::const_iterator pos;
-		for ( pos = patternList.begin(); pos != patternList.end(); ++pos)
-		{
-			H2Core::Pattern *pPattern = *pos;
-			assert( pPattern );
-			__patternList.push_back(pPattern);
-		}
+		m_pAppliedNotesPatternList = new H2Core::PatternList();
 	}
 
-	~SE_pasteNotesPatternEditorAction()
-	{
-		//qDebug() << "paste note sequence Destroy ";
-		while ( __patternList.size() > 0)
-		{
-			delete __patternList.front();
-			__patternList.pop_front();
-		}
-		while ( __appliedList.size() > 0)
-		{
-			delete __appliedList.front();
-			__appliedList.pop_front();
-		}
+	~SE_pasteNotesPatternEditorAction() {
+		delete m_pCopiedNotesPatternList;
+		delete m_pAppliedNotesPatternList;
 	}
 
-	virtual void undo()
-	{
-		//qDebug() << "paste note sequence Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesUndoAction( __appliedList );
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionPasteNotesUndoAction(
+				m_pAppliedNotesPatternList );
+
+		// Discard temporary patterns.
+		for ( auto& ppPattern : *m_pAppliedNotesPatternList ) {
+			m_pAppliedNotesPatternList->del( ppPattern );
+		}
+		m_pAppliedNotesPatternList->clear();
 	}
 
-	virtual void redo()
-	{
-		//qDebug() << "paste note sequence Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesRedoAction( __patternList, __appliedList );
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionPasteNotesRedoAction(
+				m_pCopiedNotesPatternList, m_pAppliedNotesPatternList );
 	}
 
 private:
-	std::list< H2Core::Pattern* > __patternList;
-	std::list< H2Core::Pattern* > __appliedList;
+		/** Pattern list containing only the notes copied and waiting for being
+		 * pasted. */
+		H2Core::PatternList* m_pCopiedNotesPatternList;
+		/** Pattern list containing only those notes, which were actually added
+		 * to a pattern during the redo part of this class. */
+		H2Core::PatternList* m_pAppliedNotesPatternList;
 };
 
 
