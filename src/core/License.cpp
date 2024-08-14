@@ -37,6 +37,16 @@ void License::setType( const LicenseType& license ) {
 	m_sLicenseString = LicenseTypeToQString( license );
 }
 
+bool License::isEmpty() const {
+	if ( m_license == License::Unspecified &&
+		 ( m_sCopyrightHolder.isEmpty() ||
+		   m_sCopyrightHolder == "Unknown Author" ) ) {
+		return true;
+	}
+
+	return false;
+}
+
 void License::parse( const QString& sLicenseString ) {
 
 	m_sLicenseString = sLicenseString;
