@@ -50,10 +50,11 @@ void License::parse( const QString& sLicenseString ) {
 
 	m_sLicenseString = sLicenseString;
 
-	QString sUp = sLicenseString.toUpper();
+	const QString sUp = sLicenseString.toUpper();
 
-	if ( sLicenseString.isEmpty() ||
-		 sLicenseString == "undefined license" ) {
+	if ( sUp.isEmpty() ||
+		 sUp == "UNDEFINED LICENSE" ||
+		 sUp == "UNKNOWN LICENSE" ) {
 		m_sLicenseString = "undefined license";
 		m_license = License::Unspecified;
 	}
