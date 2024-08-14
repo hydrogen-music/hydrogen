@@ -1064,6 +1064,11 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	auto  pInstrList = pSong->getDrumkit()->getInstruments();
 
 	/*
@@ -1084,7 +1089,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		}
 		bool bIsForeground = ( pPattern == m_pPattern );
 
-		std::vector< int > noteCount; // instrument_id -> count
+		std::vector<int> noteCount; // instrument_id -> count
 		std::stack<std::shared_ptr<Instrument>> instruments;
 
 		// Process notes in batches by note position, counting the notes at each instrument so we can display
@@ -1097,12 +1102,24 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 				break;
 			}
 
+			// Notes not associated with any instrument can not be copied for
+			// now.
+			if ( posIt->second == nullptr || posIt->second->get_instrument() == nullptr ) {
+				continue;
+			}
+
 			int nPosition = posIt->second->get_position();
 
 			// Process all notes at this position
 			auto noteIt = posIt;
 			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
 				Note *pNote = noteIt->second;
+				// Notes not associated with any instrument can not be copied for
+				// now.
+				if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+					++noteIt;
+					continue;
+				}
 
 				int nInstrumentID = pNote->get_instrument_id();
 				// An ID of -1 corresponds to an empty instrument.
