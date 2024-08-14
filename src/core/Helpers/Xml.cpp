@@ -306,6 +306,10 @@ void XMLNode::write_bool( const QString& name, const bool value )
 
 XMLDoc::XMLDoc( ) { }
 
+XMLDoc::XMLDoc( const QString& sSerialized ) {
+	setContent( sSerialized );
+}
+
 bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath,
 				   bool bSilent )
 {
