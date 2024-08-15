@@ -2137,6 +2137,21 @@ void SongEditorPatternList::patternPopup_duplicate()
 	auto pPattern = pPatternList->get( m_nRowClicked );
 
 	H2Core::Pattern *pNewPattern = new Pattern( pPattern );
+
+	// In case the original pattern does not feature license and/or author, fall
+	// back to the ones set in the song. This way user can just set those
+	// parameters once in the SongPropertiesDialog and reuse those values in
+	// here.
+	if ( pNewPattern->getAuthor().isEmpty() &&
+		 pSong->getAuthor() != "hydrogen" &&
+		 pSong->getAuthor() != "Unknown Author" ) {
+		pNewPattern->setAuthor( pSong->getAuthor() );
+	}
+	if ( pNewPattern->getLicense().isEmpty() &&
+		 ! pSong->getLicense().isEmpty() ) {
+		pNewPattern->setLicense( pSong->getLicense() );
+	}
+
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, m_nRowClicked, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
