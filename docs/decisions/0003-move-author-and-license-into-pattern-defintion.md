@@ -42,6 +42,12 @@ will fall back to undefined license in case non is explicitly set. Author and
 license of a song will not automatically applied to all legacy patterns. We do
 not assume any knowledge about ownership. Instead, all new patterns will inherit author and license of a song.
 
+I (@phil) decided against a warning dialog on song save in case there are
+mismatching or copyleft licenses. It's not that intrusive when doing so on
+actions the user only perform occasionally, like drumkit export or song export.
+But saving a song is done really often. And since the drumkit with potential
+license mismatches is part of the song as well UX would be inconsistent.
+
 ### Consequences
 
 * `author` and `license` will moved from `<drumkit_pattern>` to `<pattern>` in
@@ -54,6 +60,4 @@ not assume any knowledge about ownership. Instead, all new patterns will inherit
   and license on a per-pattern base.
 * `SongPropertiesDialog` will get a table of all contained pattern licenses
   similar to the contained sample licenses in `DrumkitPropertiesDialog`.
-  Mismatching licenses will be highlighted and there will be warning dialog when
-  saving with a GPL-licensed pattern contained (similar to drumkit export with a
-  GPL-licensed sample).
+  Mismatching licenses will be highlighted.
