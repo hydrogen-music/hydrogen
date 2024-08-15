@@ -55,6 +55,12 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
+	// Allow to focus the widget using mouse wheel and tab
+	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	okBtn->setFocusPolicy( Qt::WheelFocus );
+	cancelBtn->setFocusPolicy( Qt::WheelFocus );
+
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();

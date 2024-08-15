@@ -73,6 +73,14 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
+	// Allow to focus the widget using mouse wheel and tab
+	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	imageLicenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	m_cancelBtn->setFocusPolicy( Qt::WheelFocus );
+	saveBtn->setFocusPolicy( Qt::WheelFocus );
+	imageBrowsePushButton->setFocusPolicy( Qt::WheelFocus );
+
 	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	notesLabel->setText( pCommonStrings->getNotesDialog() );

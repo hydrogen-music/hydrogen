@@ -55,7 +55,12 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
-
+	// Allow to focus the widget using mouse wheel and tab
+	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	categoryComboBox->setFocusPolicy( Qt::WheelFocus );
+	okBtn->setFocusPolicy( Qt::WheelFocus );
+	cancelBtn->setFocusPolicy( Qt::WheelFocus );
 
 	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
