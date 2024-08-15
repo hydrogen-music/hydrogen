@@ -184,12 +184,16 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			pattern->setVersion( nVersion );
 		}
 		pattern->set_name( sPattName );
+		pattern->setAuthor( sAuthor );
 		pattern->set_info( sPattInfo );
+		pattern->setLicense( license );
 		pattern->set_category( sPattCategory );
 	}
 	else if ( pattern->getVersion() != nVersion ||
-			  pattern->get_name() != sPattName ||
-			  pattern->get_info() != sPattInfo ||
+			  pattern->get_name() != sPattName  ||
+			  pattern->getAuthor() != sAuthor   ||
+			  pattern->get_info() != sPattInfo  ||
+			  pattern->getLicense() != license  ||
 			  pattern->get_category() != sPattCategory ) {
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(
 			pattern->getVersion(), pattern->get_name(), pattern->getAuthor(),
