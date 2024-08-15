@@ -702,18 +702,62 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	int nResolution;
 	bool bUseTriplets = false;
 
-	if ( nSelected == 11 ) {
-		nResolution = MAX_NOTES;
-	}
-	else if ( nSelected > 4 ) {
+	switch( nSelected ) {
+	case 0:
+		// 1/4
+		nResolution = 4;
+		bUseTriplets = false;
+		break;
+	case 1:
+		// 1/8
+		nResolution = 8;
+		bUseTriplets = false;
+		break;
+	case 2:
+		// 1/16
+		nResolution = 16;
+		bUseTriplets = false;
+		break;
+	case 3:
+		// 1/32
+		nResolution = 32;
+		bUseTriplets = false;
+		break;
+	case 4:
+		// 1/64
+		nResolution = 64;
+		bUseTriplets = false;
+		break;
+	case 6:
+		// 1/4T
+		nResolution = 8;
 		bUseTriplets = true;
-		nResolution = 0x1 << ( nSelected - 3 );
+		break;
+	case 7:
+		// 1/8T
+		nResolution = 16;
+		bUseTriplets = true;
+		break;
+	case 8:
+		// 1/16T
+		nResolution = 32;
+		bUseTriplets = true;
+		break;
+	case 9:
+		// 1/32T
+		nResolution = 64;
+		bUseTriplets = true;
+		break;
+	case 11:
+		// off
+		nResolution = MAX_NOTES;
+		bUseTriplets = false;
+		break;
+	default:
+		ERRORLOG( QString( "Invalid resolution selection [%1]" )
+				  .arg( nSelected ) );
+		return;
 	}
-	else {
-		nResolution = 0x1 << ( nSelected + 2 );
-	}
-
-	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
