@@ -20,8 +20,10 @@
  *
  */
 
-#include "CommonStrings.h"
 #include "SongPropertiesDialog.h"
+
+#include "CommonStrings.h"
+#include "HydrogenApp.h"
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -206,8 +208,27 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 
 void SongPropertiesDialog::on_okBtn_clicked()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+
+	// Sanity checks.
+	//
+	// Check whether the license strings from the line edits comply to
+	// the license types selected in the combo boxes.
+	License licenseCheck( licenseStringTxt->text() );
+	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+		if ( QMessageBox::warning(
+				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
+			 == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
+						.arg( licenseStringTxt->text() )
+						.arg( License::LicenseTypeToQString(
+						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+			return;
+		}
+	}
 
 	bool bIsModified = false;
 	if ( versionSpinBox->value() != pSong->getVersion() ) {

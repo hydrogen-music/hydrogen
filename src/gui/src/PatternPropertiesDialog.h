@@ -30,6 +30,8 @@
 
 #include "ui_PatternPropertiesDialog_UI.h"
 
+#include <core/Object.h>
+
 namespace H2Core
 {
 	class Pattern;
@@ -41,8 +43,11 @@ namespace H2Core
 /** \ingroup docGUI*/
 class PatternPropertiesDialog : public QDialog,
 								protected WidgetWithLicenseProperty,
-								public Ui_PatternPropertiesDialog_UI
+								public Ui_PatternPropertiesDialog_UI,
+								public H2Core::Object<PatternPropertiesDialog>
+
 {
+	H2_OBJECT(PatternPropertiesDialog)
 	Q_OBJECT
 	public:
 		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, int nselectedPattern, bool save );

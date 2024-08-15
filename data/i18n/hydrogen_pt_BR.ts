@@ -1116,6 +1116,11 @@ Are you sure?</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
         <translation>Notas</translation>
     </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1637,10 +1642,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Arquivos de Imagem (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>

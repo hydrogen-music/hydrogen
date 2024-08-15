@@ -534,10 +534,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// the license types selected in the combo boxes.
 	License licenseCheck( licenseStringTxt->text() );
 	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
-		if ( QMessageBox::warning( this, "Hydrogen",
-								   tr( "Specified drumkit License String does not comply with the license selected in the combo box." ),
-								   QMessageBox::Ok | QMessageBox::Cancel,
-								   QMessageBox::Cancel )
+		if ( QMessageBox::warning(
+				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
 			 == QMessageBox::Cancel ) {
 			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
 						.arg( licenseStringTxt->text() )

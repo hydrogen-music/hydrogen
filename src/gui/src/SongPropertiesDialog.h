@@ -25,8 +25,9 @@
 
 
 #include "ui_SongPropertiesDialog_UI.h"
-#include "HydrogenApp.h"
 #include "Widgets/WidgetWithLicenseProperty.h"
+
+#include <core/Object.h>
 
 /**
  * Song Properties Dialog
@@ -34,8 +35,10 @@
 /** \ingroup docGUI*/
 class SongPropertiesDialog : public QDialog,
 							 protected WidgetWithLicenseProperty,
-							 private Ui_SongPropertiesDialog_UI
+							 private Ui_SongPropertiesDialog_UI,
+							 public H2Core::Object<SongPropertiesDialog>
 {
+	H2_OBJECT(SongPropertiesDialog)
 	Q_OBJECT
 
 	public:

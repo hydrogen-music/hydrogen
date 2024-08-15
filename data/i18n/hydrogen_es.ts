@@ -1117,6 +1117,11 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
         <translation>Notas</translation>
     </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation>La Cadena de Licencia del drumkit especificado no cumple con la licencia elegida en el desplegable.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -1638,10 +1643,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Archivos de Imagen (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation>La Cadena de Licencia del drumkit especificado no cumple con la licencia elegida en el desplegable.</translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>

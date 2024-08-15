@@ -142,12 +142,32 @@ void PatternPropertiesDialog::on_cancelBtn_clicked()
 
 void PatternPropertiesDialog::on_okBtn_clicked()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const int nVersion = versionSpinBox->value();
 	const QString sAuthor = authorTxt->text();
 	QString sPattName = patternNameTxt->text();
 	const License license( licenseStringTxt->text() );
 	const QString sPattCategory = categoryComboBox->currentText();
 	const QString sPattInfo = patternDescTxt->toPlainText();
+
+	// Sanity checks.
+	//
+	// Check whether the license strings from the line edits comply to
+	// the license types selected in the combo boxes.
+	License licenseCheck( licenseStringTxt->text() );
+	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+		if ( QMessageBox::warning(
+				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
+			 == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
+						.arg( licenseStringTxt->text() )
+						.arg( License::LicenseTypeToQString(
+						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+			return;
+		}
+	}
+
 
 	// Ensure the pattern name is unique
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
