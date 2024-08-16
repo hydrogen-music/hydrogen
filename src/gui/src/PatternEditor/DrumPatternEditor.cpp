@@ -1322,7 +1322,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		painter.setPen( p );
 		painter.setBrush( Qt::NoBrush );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 ), 4, 4 );
+		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 
 }

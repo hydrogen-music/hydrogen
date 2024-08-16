@@ -175,8 +175,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-										m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
+		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 
