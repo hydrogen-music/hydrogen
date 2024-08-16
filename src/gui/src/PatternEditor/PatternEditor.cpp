@@ -695,8 +695,6 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 250 ) ),
 	};
 
-	int nGranularity = granularity() * m_nResolution;
-
 	if ( !m_bUseTriplets ) {
 
 		// Draw vertical lines. To minimise pen colour changes (and
@@ -713,7 +711,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// First, quarter note markers. All the quarter note markers must be
 		// drawn. These will be drawn on all resolutions.
 		const int nRes = 4;
-		float fStep = nGranularity / nRes * m_fGridWidth;
+		float fStep = MAX_NOTES / nRes * m_fGridWidth;
 		float x = PatternEditor::nMargin;
 		p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
 		while ( x < m_nActiveWidth ) {
@@ -739,7 +737,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 				break;
 			}
 
-			fStep = nGranularity / nnRes * m_fGridWidth;
+			fStep = MAX_NOTES / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
 							1, style ) );
