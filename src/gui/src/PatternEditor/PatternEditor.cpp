@@ -710,49 +710,81 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// |   :   |   :   |   :   |   :     - second pass, odd 1/8th notes
 		// | . : . | . : . | . : . | . : .   - third pass, odd 1/16th notes
 
-		uint nRes = 4;
+		// First, quarter note markers. All the quarter note markers must be
+		// drawn. These will be drawn on all resolutions.
+		const int nRes = 4;
 		float fStep = nGranularity / nRes * m_fGridWidth;
-
-		// First, quarter note markers. All the quarter note markers must be drawn.
-		if ( m_nResolution >= nRes ) {
-			float x = PatternEditor::nMargin;
-			p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
-			while ( x < m_nActiveWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep;
-			}
-			
-			p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
-			while ( x < m_nEditorWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep;
-			}
+		float x = PatternEditor::nMargin;
+		p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
+		while ( x < m_nActiveWidth ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			x += fStep;
 		}
-		nRes *= 2;
-		fStep /= 2;
+			
+		p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
+		while ( x < m_nEditorWidth ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			x += fStep;
+		}
+
+		// Resolution 4 was already taken into account above;
+		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
 
 		// For each successive set of finer-spaced lines, the even
 		// lines will have already been drawn at the previous coarser
 		// pitch, so only the odd numbered lines need to be drawn.
 		int nColour = 1;
-		while ( m_nResolution >= nRes ) {
-			nColour++;
+		for ( int nnRes : availableResolutions ) {
+			if ( nnRes > m_nResolution ) {
+				break;
+			}
+
+			fStep = nGranularity / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
 							1, style ) );
-			while ( x < m_nActiveWidth + fStep ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep * 2;
+
+			if ( nnRes != MAX_NOTES ) {
+				// With each increase of resolution 1/4 -> 1/8 -> 1/16 -> 1/32
+				// -> 1/64 the number of available notes doubles and all we need
+				// to do is to draw another grid line right between two existing
+				// ones.
+				while ( x < m_nActiveWidth + fStep ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
+			}
+			else {
+				// When turning resolution off, things get a bit more tricky.
+				// Between 1/64 -> 1/192 (1/MAX_NOTES) the space between
+				// existing grid line will be filled by two instead of one new
+				// line.
+				while ( x < m_nActiveWidth + fStep ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep;
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
 			}
 
 			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
 							1, style ) );
-			while ( x < m_nEditorWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep * 2;
+			if ( nnRes != MAX_NOTES ) {
+				while ( x < m_nEditorWidth ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
 			}
-			nRes *= 2;
-			fStep /= 2;
+			else {
+				while ( x < m_nEditorWidth ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep;
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
+			}
+
+			nColour++;
 		}
 
 	} else {
