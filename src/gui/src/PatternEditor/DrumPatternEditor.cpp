@@ -865,10 +865,21 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 QRect DrumPatternEditor::getKeyboardCursorRect()
 {
 
-	uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	uint y = nSelectedInstrument * m_nGridHeight;
-	return QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 );
+	const uint x = PatternEditor::nMargin +
+		m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+	const int nSelectedInstrument =
+		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	const uint y = nSelectedInstrument * m_nGridHeight;
+	float fHalfWidth;
+	if ( m_nResolution != MAX_NOTES ) {
+		// Corresponds to the distance between grid lines on 1/64 resolution.
+		fHalfWidth = m_fGridWidth * 3;
+	} else {
+		// Corresponds to the distance between grid lines set to resolution
+		// "off".
+		fHalfWidth = m_fGridWidth;
+	}
+	return QRect( x - fHalfWidth, y + 2, fHalfWidth * 2, m_nGridHeight - 3 );
 
 }
 
