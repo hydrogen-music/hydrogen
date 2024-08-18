@@ -175,8 +175,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-										m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
+		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 
@@ -1240,9 +1239,18 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 QRect PianoRollEditor::getKeyboardCursorRect()
 {
-	QPoint pos = cursorPosition();
-	return QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-				  m_fGridWidth*6, m_nGridHeight+3 );
+	const QPoint pos = cursorPosition();
+	float fHalfWidth;
+	if ( m_nResolution != MAX_NOTES ) {
+		// Corresponds to the distance between grid lines on 1/64 resolution.
+		fHalfWidth = m_fGridWidth * 3;
+	} else {
+		// Corresponds to the distance between grid lines set to resolution
+		// "off".
+		fHalfWidth = m_fGridWidth;
+	}
+	return QRect( pos.x() - fHalfWidth, pos.y()-2,
+				  fHalfWidth * 2, m_nGridHeight+3 );
 }
 
 void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
