@@ -65,6 +65,14 @@ By dropping `DrumkitComponent` we can put all the component handling into
 present a hierarchy `Instrument` > `InstrumentComponent` > `InstrumentLayer`
 where changes in a child do not cause changes on the parent-level.
 
+To keep the design clean and simple, `InstrumentComponent`s won't have a
+dedicated id and their name is just a human-readable attribute but no
+identifier. The component will, instead, be selected via its position in the
+vector of the parent `Instrument`. Adding, removing, and moving will create a
+different _copy_ of the parent `Instrument` in the redo/undo process and the
+`Instrument` embedded in a `Note` for rendering in `Sampler` does not notice any
+of those changes.
+
 ### Consequences
 
 * `DrumkitComponent` will be dropped.
