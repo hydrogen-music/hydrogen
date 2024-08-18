@@ -176,7 +176,7 @@ void MemoryLeakageTest::testConstructors() {
 	
 	pDrumkitProper->loadSamples();
 	
-	CPPUNIT_ASSERT( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->get_layer( 0 )->get_sample() != nullptr );
+	CPPUNIT_ASSERT( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 )->get_sample() != nullptr );
 	auto pSongProper = H2Core::Song::load( H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song" );
 	CPPUNIT_ASSERT( pSongProper != nullptr );
 
@@ -248,14 +248,14 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pInstrumentLayer = new H2Core::InstrumentLayer( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->get_layer( 0 ) );
+		auto pInstrumentLayer = new H2Core::InstrumentLayer( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 ) );
 		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
 		delete pInstrumentLayer;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto pSample = new H2Core::Sample( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->get_layer( 0 )->get_sample() );
+		auto pSample = new H2Core::Sample( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 )->get_sample() );
 		CPPUNIT_ASSERT( pSample != nullptr );
 		delete pSample;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
@@ -303,7 +303,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentComponent.xml" ) ) );
 		node = doc.firstChildElement( "instrumentComponent" );
-		auto pInstrumentComponent = H2Core::InstrumentComponent::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ) );
+		auto pInstrumentComponent = H2Core::InstrumentComponent::loadFrom( node, H2TEST_FILE( "/drumkits/baseKit" ) );
 		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
 		pInstrumentComponent = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

@@ -409,7 +409,7 @@ bool InstrumentList::isAnyInstrumentSampleLoaded() const {
 		if ( pInstrument != nullptr ) {
 			for ( const auto& pCompo : *pInstrument->get_components() ) {
 				if ( pCompo != nullptr ) {
-					for ( const auto& pLayer : pCompo->get_layers() ) {
+					for ( const auto& pLayer : pCompo->getLayers() ) {
 						if ( pLayer != nullptr &&
 							 pLayer->get_sample() != nullptr &&
 							 pLayer->get_sample()->isLoaded() ) {

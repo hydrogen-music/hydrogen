@@ -99,7 +99,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		if ( m_pInstrument != nullptr ) {
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( pComponent != nullptr ) {
-				auto pLayer = pComponent->get_layer( i );
+				auto pLayer = pComponent->getLayer( i );
 				if ( pLayer != nullptr ) {
 					nLayers++;
 				}
@@ -127,7 +127,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		if ( m_pInstrument != nullptr ) {
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( pComponent != nullptr ) {
-				auto pLayer = pComponent->get_layer( i );
+				auto pLayer = pComponent->getLayer( i );
 				
 				if ( pLayer != nullptr && nLayers > 0 ) {
 					auto pSample = pLayer->get_sample();
@@ -226,7 +226,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	if ( m_pInstrument != nullptr ) {
 		for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
-			if ( pComponent != nullptr && pComponent->get_layer( i ) ) {
+			if ( pComponent != nullptr && pComponent->getLayer( i ) ) {
 				m_nSelectedLayer = i;
 				bSelectedLayerChanged = true;
 				break;
@@ -264,7 +264,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	 */
 	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
-		auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+		auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 
 		if ( pLayer ) {
 			int x1 = (int)( pLayer->get_start_velocity() * width() );
@@ -301,7 +301,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if(pCompo){
-				auto pLayer = pCompo->get_layer( i );
+				auto pLayer = pCompo->getLayer( i );
 				if ( pLayer ) {
 					if ( ( fVelocity > pLayer->get_start_velocity()) && ( fVelocity < pLayer->get_end_velocity() ) ) {
 						if ( i != m_nSelectedLayer ) {
@@ -323,7 +323,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		
 		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if( pCompo != nullptr ) {
-			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				const float fVelocity = pLayer->get_end_velocity() - 0.01;
 				Note *note = new Note( m_pInstrument, nPosition, fVelocity );
@@ -375,7 +375,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 	if ( m_bMouseGrab ) {
-		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
+		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
 				bool bChanged = false;
@@ -406,7 +406,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		if ( m_nSelectedLayer < InstrumentComponent::getMaxLayers() ) {
 			auto pComponent = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pComponent ){
-				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
+				auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 				if ( pLayer ) {
 					int x1 = (int)( pLayer->get_start_velocity() * width() );
 					int x2 = (int)( pLayer->get_end_velocity() * width() );

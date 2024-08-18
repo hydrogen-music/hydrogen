@@ -225,7 +225,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 			auto pLayer = InstrumentLayer::load_from(
 				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
-				pCompo->set_layer( pLayer, nLayer );
+				pCompo->setLayer( pLayer, nLayer );
 				nLayer++;
 			}
 			layerNode = layerNode.nextSiblingElement( "layer" );
@@ -265,7 +265,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	
 		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 		auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-		pCompo->set_layer( pLayer, 0 );
+		pCompo->setLayer( pLayer, 0 );
 		return pCompo;
 	}
 }

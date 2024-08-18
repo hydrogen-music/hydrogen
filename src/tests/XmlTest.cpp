@@ -209,7 +209,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
 	
-	auto pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
+	auto pLayer = pFirstInstrument->get_components()->front()->getLayer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
 	auto pSample = pLayer->get_sample();
@@ -324,7 +324,7 @@ void XmlTest::testDrumkitUpgrade() {
 			auto pComponent = pComponents->at( 0 );
 			CPPUNIT_ASSERT( pComponent != nullptr );
 			
-			auto pLayers = pComponent->get_layers();
+			auto pLayers = pComponent->getLayers();
 			CPPUNIT_ASSERT( pLayers.size() == 2 );
 		}
 		
@@ -859,7 +859,7 @@ bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoad
 		auto pInstr = ( *instruments )[i];
 		for ( const auto& pComponent : *pInstr->get_components() ) {
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				auto pLayer = pComponent->get_layer( nLayer );
+				auto pLayer = pComponent->getLayer( nLayer );
 				if( pLayer ) {
 					auto pSample = pLayer->get_sample();
 					if ( pSample == nullptr ) {

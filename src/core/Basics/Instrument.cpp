@@ -383,7 +383,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		XMLNode componentNode = node.firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
 			pInstrument->get_components()->
-				push_back( InstrumentComponent::load_from(
+				push_back( InstrumentComponent::loadFrom(
 							   componentNode, pInstrument->get_drumkit_path(),
 							   sSongPath, instrumentLicense, bSilent ) );
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" ) ;
@@ -449,7 +449,7 @@ void Instrument::load_samples( float fBpm )
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if ( pLayer != nullptr ) {
 				pLayer->load_sample( fBpm );
 			}
@@ -461,7 +461,7 @@ void Instrument::unload_samples()
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if( pLayer ){
 				pLayer->unload_sample();
 			}
@@ -543,7 +543,7 @@ void Instrument::save_to( XMLNode& node,
 	for ( const auto& pComponent : *__components ) {
 		if ( component_id == -1 ||
 			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( InstrumentNode, bRecentVersion, bSongKit );
+			pComponent->saveTo( InstrumentNode, bRecentVersion, bSongKit );
 		}
 	}
 }

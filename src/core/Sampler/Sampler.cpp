@@ -63,7 +63,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
 	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 	
-	pComponent->set_layer( pLayer, 0 );
+	pComponent->setLayer( pLayer, 0 );
 	pInstrument->get_components()->push_back( pComponent );
 	return pInstrument;
 }
@@ -709,7 +709,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			returnValues[ ii ] = true;
 			continue;
 		}
-		auto pLayer = pCompo->get_layer( pSelectedLayer->nSelectedLayer );
+		auto pLayer = pCompo->getLayer( pSelectedLayer->nSelectedLayer );
 		float fLayerGain = pLayer->get_gain();
 		float fLayerPitch = pLayer->get_pitch();
 
@@ -766,7 +766,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 			fMonoGain *= fLayerGain;				// layer gain
 			fMonoGain *= pInstr->get_gain();		// instrument gain
-			fMonoGain *= pCompo->get_gain();		// Component gain
+			fMonoGain *= pCompo->getGain();	    	// Component gain
 			fMonoGain *= pMainCompo->get_volume();	// Component volument
 			fMonoGain *= pInstr->get_volume();		// instrument volume
 			fMonoGain *= pSong->getVolume();		// song volume
@@ -1014,7 +1014,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pSample = pCompo->get_layer(0)->get_sample();
+	auto pSample = pCompo->getLayer(0)->get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
 		EventQueue::get_instance()->push_event( EVENT_ERROR,
@@ -1381,7 +1381,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
-		auto pLayer = pComponent->get_layer( 0 );
+		auto pLayer = pComponent->getLayer( 0 );
 
 		pLayer->set_sample( pSample );
 
@@ -1454,7 +1454,7 @@ void Sampler::reinitializePlaybackTrack()
 	
 	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
-	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
+	m_pPlaybackTrackInstrument->get_components()->front()->setLayer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
 }
 

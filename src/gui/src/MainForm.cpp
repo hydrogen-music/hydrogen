@@ -2716,13 +2716,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureLayer(),
 										InputCaptureDialog::Type::Int, 0,
-										pComponent->get_layers().size() - 1);
+										pComponent->getLayers().size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nLayer = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pLayer = pComponent->get_layer( nLayer );
+			auto pLayer = pComponent->getLayer( nLayer );
 			if ( pLayer == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve layer [%1] of component [%2] of instrument [%3]" )
 						  .arg( nLayer ).arg( nComponent ).arg( nInstrument ) );

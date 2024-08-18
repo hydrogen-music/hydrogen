@@ -698,15 +698,15 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		if ( pComponent != nullptr ) {
 			m_pCompoNameLbl->setText( pComponent->getName() );
 			m_pCompoGainLCD->setText(
-				QString( "%1" ).arg( pComponent->get_gain(),
+				QString( "%1" ).arg( pComponent->getGain(),
 									 -2, 'f', 2, '0' ) );
-			m_pCompoGainRotary->setValue( pComponent->get_gain() );
+			m_pCompoGainRotary->setValue( pComponent->getGain() );
 			if ( ! m_pCompoGainRotary->getIsActive() ) {
 				m_pCompoGainRotary->setIsActive( true );
 			}
 
 			if ( m_nSelectedLayer >= 0 ) {
-				const auto pLayer = pComponent->get_layer( m_nSelectedLayer );
+				const auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 				if ( pLayer != nullptr ) {
 					m_pWaveDisplay->updateDisplay( pLayer );
 				} else {
@@ -881,7 +881,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 
 		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
-			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->set_gain( fVal );
 				m_pWaveDisplay->updateDisplay( pLayer );
@@ -894,14 +894,14 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			m_pCompoGainLCD->setText( tmp );
 
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-			pCompo->set_gain( fVal );
+			pCompo->setGain( fVal );
 	}
 	else if ( pRotary == m_pLayerPitchCoarseRotary ) {
 		m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) round( fVal ) ) );
 
 		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
-			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -913,7 +913,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal, 0, 'f', 0 ) );
 		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
-			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -953,7 +953,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		return;
 	}
 			
-	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 	if ( pLayer != nullptr ) {
 		auto pSample = pLayer->get_sample();
 		
@@ -975,7 +975,7 @@ void InstrumentEditor::showSampleEditor()
 
 	auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 	if ( pCompo != nullptr ) {
-		auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+		auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 		if ( pLayer != nullptr ) {
 			auto pSample = pLayer->get_sample();
 			if ( pSample != nullptr ) {
@@ -997,7 +997,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 
 	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo != nullptr ) {
-		pCompo->set_layer( nullptr, m_nSelectedLayer );
+		pCompo->setLayer( nullptr, m_nSelectedLayer );
 
 		pHydrogen->setIsModified( true );
 
@@ -1008,7 +1008,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 		int nNextLayerIndex = 0;
 		int nCount = 0;
 		for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-			auto pLayer = pCompo->get_layer( n );
+			auto pLayer = pCompo->getLayer( n );
 			if( pLayer != nullptr ){
 				nCount++;
 
@@ -1054,7 +1054,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 		auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 
 		if ( pComponent != nullptr ) {
-			auto pLayer = pComponent->get_layer( m_nSelectedLayer );
+			auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 
 			if ( pLayer != nullptr ) {
 				auto pSample = pLayer->get_sample();
@@ -1126,7 +1126,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 				m_pInstrument->get_components()->push_back( pCompo );
 			}
 
-			auto pLayer = pCompo->get_layer( selectedLayer );
+			auto pLayer = pCompo->getLayer( selectedLayer );
 
 			if ( pLayer != nullptr ) {
 				// insert new sample from newInstrument, old sample gets deleted by set_sample
@@ -1134,7 +1134,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 			}
 			else {
 				pLayer = std::make_shared<H2Core::InstrumentLayer>( pNewSample );
-				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
+				m_pInstrument->get_component(m_nSelectedComponent)->setLayer( pLayer, selectedLayer );
 			}
 
 			if ( fnc ){
@@ -1173,7 +1173,7 @@ void InstrumentEditor::setAutoVelocity()
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 
-		auto pLayer = pCompo->get_layer( i );
+		auto pLayer = pCompo->getLayer( i );
 		if ( pLayer != nullptr ) {
 			nLayers++;
 		}
@@ -1187,7 +1187,7 @@ void InstrumentEditor::setAutoVelocity()
 
 	int nLayer = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		auto pLayer = pCompo->get_layer( i );
+		auto pLayer = pCompo->getLayer( i );
 		if ( pLayer != nullptr ) {
 			pLayer->set_start_velocity( nLayer * velocityrange);
 			pLayer->set_end_velocity( nLayer * velocityrange + velocityrange );
@@ -1316,7 +1316,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 	auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 	if(pComponent && nLayer >= 0 ){
-		auto pLayer = pComponent->get_layer( nLayer );
+		auto pLayer = pComponent->getLayer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
 		if ( pLayer != nullptr ) {
 			char tmp[20];
@@ -1329,9 +1329,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 			//Component GAIN
 			char tmp2[20];
-			sprintf( tmp2, "%#.2f", pComponent->get_gain());
+			sprintf( tmp2, "%#.2f", pComponent->getGain());
 			m_pCompoGainRotary->setIsActive( true );
-			m_pCompoGainRotary->setValue( pComponent->get_gain());
+			m_pCompoGainRotary->setValue( pComponent->getGain());
 			m_pCompoGainLCD->setText( tmp2 );
 
 			// Layer PITCH

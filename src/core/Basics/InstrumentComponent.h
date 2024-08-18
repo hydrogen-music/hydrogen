@@ -50,10 +50,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-	void				save_to( XMLNode& node,
+	void				saveTo( XMLNode& node,
 								 bool bRecentVersion = true,
 								 bool bSongKit = false ) const;
-		static std::shared_ptr<InstrumentComponent> load_from( const XMLNode& pNode,
+		static std::shared_ptr<InstrumentComponent> loadFrom( const XMLNode& pNode,
 															   const QString& sDrumkitPath,
 															   const QString& sSongPath = "",
 															   const License& drumkitLicense = License(),
@@ -63,7 +63,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		const QString&		getName() const;
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
-		std::shared_ptr<InstrumentLayer>	get_layer( int idx ) const;
+		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
 	/**
 	 * Get all initialized layers.
 	 *
@@ -72,14 +72,14 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 	 * convenience function is used to query only those
 	 * #InstrumentLayer which were properly initialized.
 	 */
-	const std::vector<std::shared_ptr<InstrumentLayer>> get_layers() const;
-		void				set_layer( std::shared_ptr<InstrumentLayer> layer, int idx );
+	const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
+		void				setLayer( std::shared_ptr<InstrumentLayer> layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
 		int					get_drumkit_componentID() const;
 
-		void				set_gain( float gain );
-		float				get_gain() const;
+		void				setGain( float gain );
+		float				getGain() const;
 
 		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
@@ -106,7 +106,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		    set_drumkit_componentID() and
 		    accessed via get_drumkit_componentID(). */
 		int					__related_drumkit_componentID;
-		float				__gain;
+		float				m_fGain;
 		
 		/** Maximum number of layers to be used in the
 		 *  Instrument editor.
@@ -116,7 +116,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		 * Preferences::m_nMaxLayers. Default value assigned in
 		 * Preferences::Preferences(): 16. */
 		static int			m_nMaxLayers;
-		std::vector<std::shared_ptr<InstrumentLayer>>	__layers;
+		std::vector<std::shared_ptr<InstrumentLayer>>	m_layers;
 };
 
 // DEFINITIONS
@@ -139,26 +139,26 @@ inline int InstrumentComponent::get_drumkit_componentID() const
 	return __related_drumkit_componentID;
 }
 
-inline void InstrumentComponent::set_gain( float gain )
+inline void InstrumentComponent::setGain( float gain )
 {
-	__gain = gain;
+	m_fGain = gain;
 }
 
-inline float InstrumentComponent::get_gain() const
+inline float InstrumentComponent::getGain() const
 {
-	return __gain;
+	return m_fGain;
 }
 
 inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx ) const
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
-	return __layers[ idx ];
+	return m_layers[ idx ];
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::get_layer( int idx ) const
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::getLayer( int idx ) const
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
-	return __layers[ idx ];
+	return m_layers[ idx ];
 }
 };
 

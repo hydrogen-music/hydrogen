@@ -339,7 +339,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 						.arg( nSelectedLayer ) );
 		}
 		
-		auto pLayer = pInstrCompo->get_layer( nLayer );
+		auto pLayer = pInstrCompo->getLayer( nLayer );
 		if ( pLayer == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve layer [%1] selected for component [%2] of instrument [%3]" )
 					  .arg( nLayer )
@@ -356,7 +356,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		auto pSong = Hydrogen::get_instance()->getSong();
 		
 		for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ) {
-			auto pLayer = pInstrCompo->get_layer( nLayer );
+			auto pLayer = pInstrCompo->getLayer( nLayer );
 			if ( pLayer == nullptr ) {
 				continue;
 			}
@@ -387,7 +387,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 			float shortestDistance = 1.0f;
 			int nearestLayer = -1;
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ){
-				auto pLayer = pInstrCompo->get_layer( nLayer );
+				auto pLayer = pInstrCompo->getLayer( nLayer );
 				if ( pLayer == nullptr ){
 					continue;
 				}
@@ -407,7 +407,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 				possibleLayersVector.push_back( nearestLayer );
 				if ( __instrument->sample_selection_alg() == Instrument::ROUND_ROBIN ) {
 					fRoundRobinID =
-						pInstrCompo->get_layer( nearestLayer )->get_start_velocity();
+						pInstrCompo->getLayer( nearestLayer )->get_start_velocity();
 				}
 			} else {
 				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
@@ -449,7 +449,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 			} 
 
 			pSelectedLayer->nSelectedLayer = nLayerPicked;
-			auto pLayer = pInstrCompo->get_layer( nLayerPicked );
+			auto pLayer = pInstrCompo->getLayer( nLayerPicked );
 			pSample = pLayer->get_sample();
 
 		} else {

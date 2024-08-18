@@ -290,7 +290,8 @@ class Instrument : public H2Core::Object<Instrument>
 		bool is_metronome_instrument() const;
 
 		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
-		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID ) const;
+		/** Select a component via its index in the corresponding vector. */
+		std::shared_ptr<InstrumentComponent> get_component( int nIdx ) const;
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -383,7 +384,7 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;		///< InstrumentLayer array
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;
 };
 
 // DEFINITIONS

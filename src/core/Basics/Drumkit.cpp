@@ -532,26 +532,27 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
+			if ( pComponent != nullptr ) {
+				for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
+					auto pLayer = pComponent->getLayer( n );
+					if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
+						QString src = pLayer->get_sample()->get_filepath();
+						QString dst = sDrumkitFolder + "/" + pLayer->get_sample()->get_filename();
 
-			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-				auto pLayer = pComponent->get_layer( n );
-				if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
-					QString src = pLayer->get_sample()->get_filepath();
-					QString dst = sDrumkitFolder + "/" + pLayer->get_sample()->get_filename();
+						if ( src != dst ) {
+							QString original_dst = dst;
 
-					if ( src != dst ) {
-						QString original_dst = dst;
+							// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
+							int insertPosition = original_dst.length();
+							if ( original_dst.lastIndexOf(".") > 0 ) {
+								insertPosition = original_dst.lastIndexOf(".");
+							}
 
-						// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
-						int insertPosition = original_dst.length();
-						if ( original_dst.lastIndexOf(".") > 0 ) {
-							insertPosition = original_dst.lastIndexOf(".");
-						}
+							pLayer->get_sample()->set_filename( dst );
 
-						pLayer->get_sample()->set_filename( dst );
-
-						if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
-							return false;
+							if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
+								return false;
+							}
 						}
 					}
 				}
@@ -635,7 +636,7 @@ void Drumkit::removeInstrument( int nInstrumentNumber ) {
 	std::vector componentsWithSamplesIds = std::vector<int>();
 	for ( const auto& ppComponent : *pInstrument->get_components() ) {
 		if ( ppComponent != nullptr ) {
-			for ( const auto& ppLayer : ppComponent->get_layers() ) {
+			for ( const auto& ppLayer : ppComponent->getLayers() ) {
 				if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
 					componentsWithSamplesIds.push_back(
 						ppComponent->get_drumkit_componentID() );
@@ -654,7 +655,7 @@ void Drumkit::removeInstrument( int nInstrumentNumber ) {
 				 ppInstrument->get_id() != nInstrumentNumber ) {
 				for ( const auto& ppComponent : *ppInstrument->get_components() ) {
 					if ( ppComponent != nullptr ) {
-						for ( const auto& ppLayer : ppComponent->get_layers() ) {
+						for ( const auto& ppLayer : ppComponent->getLayers() ) {
 							if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
 								bOtherSamplesFound = true;
 								break;
@@ -733,7 +734,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 
 		// In case the instrument has no samples in this component, we skip it.
 		bool bSampleFound = false;
-		for ( const auto& ppLayer : ppInstrumentComponent->get_layers() ) {
+		for ( const auto& ppLayer : ppInstrumentComponent->getLayers() ) {
 			if ( ppLayer != nullptr && ppLayer->get_sample() != nullptr ) {
 				bSampleFound = true;
 				break;
@@ -1271,7 +1272,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 							 ( nComponentId == -1 ||
 							   pComponent->get_drumkit_componentID() == nComponentId ) ) {
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-								const auto pLayer = pComponent->get_layer( n );
+								const auto pLayer = pComponent->getLayer( n );
 								if( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
 									if( pLayer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
 										filesUsed << sourceDir.filePath( ssFile );
@@ -1598,7 +1599,7 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 					}
 
 					for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
-						auto pLayer = pInstrumentComponent->get_layer( nnLayer );
+						auto pLayer = pInstrumentComponent->getLayer( nnLayer );
 						if ( pLayer != nullptr ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {

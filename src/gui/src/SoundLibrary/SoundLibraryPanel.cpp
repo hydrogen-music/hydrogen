@@ -675,7 +675,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 			 ppInstrument->get_drumkit_path() == sDrumkitPath ) {
 			for ( const auto& ppComponent : *ppInstrument->get_components() ) {
 				if ( ppComponent != nullptr ) {
-					for ( const auto& ppLayer : ppComponent->get_layers() ) {
+					for ( const auto& ppLayer : ppComponent->getLayers() ) {
 						if ( ppLayer != nullptr &&
 							 ppLayer->get_sample() != nullptr &&
 							 ! ppLayer->get_sample()->get_filepath().isEmpty() &&
