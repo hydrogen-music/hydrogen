@@ -928,7 +928,7 @@ void Drumkit::propagateLicense(){
 }
 
 std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent() const {
-	return m_pInstruments->summarizeContent( m_pComponents );
+	return m_pInstruments->summarizeContent();
 }
 
 bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,

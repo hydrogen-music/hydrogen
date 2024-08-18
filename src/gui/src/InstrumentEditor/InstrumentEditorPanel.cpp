@@ -26,7 +26,6 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 
 #include "InstrumentEditorPanel.h"
 #include "../HydrogenApp.h"

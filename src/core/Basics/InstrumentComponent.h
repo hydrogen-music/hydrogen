@@ -27,6 +27,8 @@
 #include <vector>
 #include <memory>
 
+#include <QString>
+
 #include <core/Object.h>
 #include <core/License.h>
 
@@ -56,6 +58,9 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 															   const QString& sSongPath = "",
 															   const License& drumkitLicense = License(),
 															   bool bSilent = false );
+
+		void				setName( const QString& sName );
+		const QString&		getName() const;
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	get_layer( int idx ) const;
@@ -96,6 +101,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		QString 			m_sName;
 		/** Component ID of the drumkit. It is set by
 		    set_drumkit_componentID() and
 		    accessed via get_drumkit_componentID(). */
@@ -114,6 +120,12 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 };
 
 // DEFINITIONS
+inline void InstrumentComponent::setName( const QString& sName ) {
+	m_sName = sName;
+}
+inline const QString& InstrumentComponent::getName() const {
+	return m_sName;
+}
 /** Sets the component ID #__related_drumkit_componentID
  * \param related_drumkit_componentID New value for the component ID */
 inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_componentID )

@@ -325,8 +325,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		
 		QMessageBox licenseWarning( this );
 
-		auto drumkitContent =
-			pSong->getDrumkit()->getInstruments()->summarizeContent( pSong->getDrumkit()->getComponents() );
+		auto drumkitContent = pInstrumentList->summarizeContent();
 
 		bool bHasAttribution = false;
 		bool bIsCopyleft = false;

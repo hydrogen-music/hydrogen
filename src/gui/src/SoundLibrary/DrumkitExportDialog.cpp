@@ -30,7 +30,6 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Basics/DrumkitComponent.h>
 
 using namespace H2Core;
 

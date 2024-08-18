@@ -221,7 +221,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
+	std::vector<std::shared_ptr<Content>> summarizeContent() const;
 
 		/**
 		 * Check if all instruments have assigned the same
