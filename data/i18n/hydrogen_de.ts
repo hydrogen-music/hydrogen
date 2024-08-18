@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Übersicht</translation>
     </message>
     <message>
@@ -957,7 +959,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Lizenz</translation>
     </message>
     <message>
@@ -1070,12 +1074,12 @@ Are you sure?</source>
     <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished">Sitzung</translation>
+        <translation>Sitzung</translation>
     </message>
     <message>
         <source>The provided filename can not be handled by your current encoding</source>
@@ -1090,7 +1094,32 @@ Are you sure?</source>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished">Version</translation>
+        <translation>Version</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation>Lizenzen</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Notizen</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation>Gesetzte Lizenz Beschreibung stimmt nicht mit der Lizenz in der Auswahlbox überein.</translation>
     </message>
 </context>
 <context>
@@ -1249,14 +1278,6 @@ Are you sure?</source>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>Übersicht</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Information</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation>Bild-Lizenz</translation>
     </message>
@@ -1269,28 +1290,8 @@ Are you sure?</source>
         <translation>Schlagzeug-Lizenz</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Bild</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Speichern</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Types</source>
@@ -1639,10 +1640,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>Bilddatei (*.png *.jpg *.jpeg)</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation>Gesetzte Lizenz Beschreibung stimmt nicht mit der Lizenz in der Auswahlbox überein.</translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
@@ -3320,36 +3317,16 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Neuer Pattern-Name</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Pattern-Kategorie</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>Pattern-Beschreibung</translation>
     </message>
 </context>
 <context>
@@ -5988,40 +5965,12 @@ Soll sie überschrieben werden?</translation>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Formular 1</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Notizen</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Lied-Name</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Abbrechen</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
     <message>
-        <source> &amp;OK</source>
-        <translation> &amp;OK</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Lizenz</translation>
     </message>
 </context>
 <context>

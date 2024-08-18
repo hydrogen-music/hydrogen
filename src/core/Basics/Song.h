@@ -251,11 +251,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			loadTempPatternList( const QString& sFilename );
 		bool			saveTempPatternList( const QString& sFilename ) const;
 							
-		QString			copyInstrumentLineToString( int selectedInstrument ) const;
-		bool			pasteInstrumentLineFromString( const QString& sSerialized,
-													   int nSelectedInstrument,
-													   std::list<Pattern *>& patterns ) const;
-							
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFilename */

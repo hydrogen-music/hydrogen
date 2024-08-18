@@ -189,24 +189,25 @@ for:
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
-      mkdir build && cd build && \
-        cmake -DWANT_LASH=1 \
-              -DWANT_LRDF=1 \
-              -DWANT_PORTMIDI=1 \
-              -DWANT_PORTAUDIO=1 \
-              -DWANT_RUBBERBAND=1 \
-              -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. \
-          && \
-        make -j $CPUS
+      mkdir build || exit 1
+      cd build || exit 1
+      cmake -DWANT_LASH=1 \
+            -DWANT_LRDF=1 \
+            -DWANT_PORTMIDI=1 \
+            -DWANT_PORTAUDIO=1 \
+            -DWANT_RUBBERBAND=1 \
+            -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. || exit 1
+      make -j $CPUS || exit 1
 
-      ccache -s
+      ccache -s || exit 1
 
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
 
     test_script: |-
 
+      # Do not exit on test failure since we still need to upload artifacts.
       TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
 
       res=$?;

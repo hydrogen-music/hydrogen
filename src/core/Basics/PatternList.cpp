@@ -56,8 +56,6 @@ PatternList::~PatternList()
 
 PatternList* PatternList::load_from( const XMLNode& node,
 									 const QString& sDrumkitName,
-									 const QString& sAuthor,
-									 const License& license,
 									 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
@@ -72,8 +70,7 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
 		Pattern* pPattern =
-			Pattern::load_from( patternNode, sDrumkitName, sAuthor, license,
-								bSilent );
+			Pattern::load_from( patternNode, sDrumkitName, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}

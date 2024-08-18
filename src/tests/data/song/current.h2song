@@ -2419,7 +2419,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 1</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2521,7 +2523,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 2</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2531,7 +2535,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 3</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2541,7 +2547,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 4</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2551,7 +2559,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 5</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2561,7 +2571,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 6</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2571,7 +2583,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 7</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2581,7 +2595,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 8</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2591,7 +2607,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 9</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2601,7 +2619,9 @@ p, li { white-space: pre-wrap; }
    <formatVersion>2</formatVersion>
    <userVersion>0</userVersion>
    <name>Pattern 10</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>

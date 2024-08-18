@@ -271,12 +271,9 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 }
 
 Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
+	WARNINGLOG( QString( "loading pattern with legacy code" ) );
+
 	Pattern* pPattern = nullptr;
-	if ( version_older_than( 0, 9, 8 ) ) {
-		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
-	} else {
-		WARNINGLOG( QString( "loading pattern with legacy code" ) );
-	}
 	XMLDoc doc;
 	if( !doc.read( pattern_path ) ) {
 		return nullptr;
@@ -302,6 +299,16 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 		
 	//default nDenominator = 4 since old patterns have not <denominator> setting
 	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
+
+	// Try to load author and license present in .h2pattern created in Hydrogen
+	// version 1.0.0-beta till 1.2.X (within the <drumkit_pattern> element).
+	pPattern->setAuthor( root.read_string(
+							 "author", pPattern->getAuthor(),
+							 false, false, false ) );
+	const License license( root.read_string(
+							   "license", pPattern->getLicense().getLicenseString(),
+							   false, false, false ) );
+	pPattern->setLicense( license );
 
 	XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
 
@@ -381,11 +388,8 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 
 std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 {
-	if ( version_older_than( 0, 9, 8 ) ) {
-		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
-	} else {
-		WARNINGLOG( QString( "loading playlist with legacy code" ) );
-	}
+	WARNINGLOG( QString( "loading playlist with legacy code" ) );
+
 	XMLDoc doc;
 	if( !doc.read( pl_path ) ) {
 		return nullptr;

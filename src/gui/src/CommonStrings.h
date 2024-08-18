@@ -166,7 +166,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSavingChanges() const { return m_sSavingChanges; }
 
 	const QString& getMutableDialog() const { return m_sMutableDialog; }
+	const QString& getTabGeneralDialog() const { return m_sTabGeneralDialog; }
+	const QString& getTabLicensesDialog() const { return m_sTabLicensesDialog; }
+	const QString& getNameDialog() const { return m_sNameDialog; }
 	const QString& getVersionDialog() const { return m_sVersionDialog; }
+	const QString& getLicenseDialog() const { return m_sLicenseDialog; }
+	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
+	const QString& getNotesDialog() const { return m_sNotesDialog; }
 
 	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
 	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
@@ -179,6 +185,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseCopyleftWarning() const { return m_sLicenseCopyleftWarning; }
 	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
 	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
+	const QString& getLicenseMismatchingUserInput() const { return m_sLicenseMismatchingUserInput; }
 
 	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
 	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
@@ -356,7 +363,13 @@ private:
 	QString m_sSavingChanges;
 	
 	QString m_sMutableDialog;
+	QString m_sTabGeneralDialog;
+	QString m_sTabLicensesDialog;
+	QString m_sNameDialog;
 	QString m_sVersionDialog;
+	QString m_sLicenseDialog;
+	QString m_sAuthorDialog;
+	QString m_sNotesDialog;
 	
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
@@ -372,6 +385,7 @@ private:
 	QString m_sLicenseCopyleftWarning;
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
+	QString m_sLicenseMismatchingUserInput;
 	
 	QString m_sInputCaptureBpm;
 	QString m_sInputCaptureVolume;

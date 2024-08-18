@@ -60,7 +60,7 @@ namespace H2Core
 			return nullptr;
 		}
 
-		if ( !pPattern->save_file( drumkitName, pSong->getAuthor(), pSong->getLicense(), fileInfo.absoluteFilePath(), true ) ) {
+		if ( !pPattern->save_file( drumkitName, fileInfo.absoluteFilePath(), true ) ) {
 			return nullptr;
 		}
 

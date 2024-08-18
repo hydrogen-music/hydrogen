@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>常规</translation>
     </message>
     <message>
@@ -955,7 +957,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>许可协议</translation>
     </message>
     <message>
@@ -1088,7 +1092,32 @@ Are you sure?</source>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished">版本</translation>
+        <translation>版本</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>作者</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>音符</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1247,14 +1276,6 @@ Are you sure?</source>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>常规</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>信息</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation>图像许可协议</translation>
     </message>
@@ -1267,28 +1288,8 @@ Are you sure?</source>
         <translation>鼓组许可协议</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>作者</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>图像</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>保存 </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
     </message>
     <message>
         <source>Types</source>
@@ -1639,10 +1640,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
         <translation>图像文件（*.png *.jpg *.jpeg）</translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
@@ -3310,32 +3307,12 @@ LilyPond 导出是一项实验性功能。
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>表格1</translation>
-    </message>
-    <message>
-        <source>New Pattern Name</source>
-        <translation>新样式名称</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>样式说明</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>样式类别</translation>
     </message>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>确定(&amp;O)</translation>
     </message>
     <message>
         <source>Alt+O</source>
@@ -5984,40 +5961,12 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>表格1</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>作者</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>音符</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>乐曲名称</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> 确定(&amp;O)</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>取消(&amp;C)</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>许可协议</translation>
     </message>
 </context>
 <context>

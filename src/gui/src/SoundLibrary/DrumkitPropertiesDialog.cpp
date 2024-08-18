@@ -73,7 +73,17 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	versionSpinBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	// Arbitrary high number.
 	versionSpinBox->setMaximum( 300 );
+	// Allow to focus the widget using mouse wheel and tab
+	versionSpinBox->setFocusPolicy( Qt::WheelFocus );
+	licenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	imageLicenseComboBox->setFocusPolicy( Qt::WheelFocus );
+	m_cancelBtn->setFocusPolicy( Qt::WheelFocus );
+	saveBtn->setFocusPolicy( Qt::WheelFocus );
+	imageBrowsePushButton->setFocusPolicy( Qt::WheelFocus );
+
+	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
+	notesLabel->setText( pCommonStrings->getNotesDialog() );
 
 	if ( bSaveToNsmSession &&
 		 ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
@@ -116,7 +126,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 				setWindowTitle( tr( "Create New Drumkit" ) );
 			}
 		}
-		
+
+		authorLabel->setText( pCommonStrings->getAuthorDialog() );
 		authorTxt->setText( QString( pDrumkit->getAuthor() ) );
 		infoTxt->append( QString( pDrumkit->getInfo() ) );
 
@@ -194,14 +205,20 @@ QTextEdit { \
 										
 	}
 
+	tabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
+	tabWidget->setTabText( 2, pCommonStrings->getTabLicensesDialog() );
+	tabWidget->setCurrentIndex( 0 );
+
 	saveBtn->setFixedFontSize( 12 );
 	saveBtn->setSize( QSize( 70, 23 ) );
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
+	saveBtn->setText( pCommonStrings->getButtonSave() );
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
 	m_cancelBtn->setType( Button::Type::Push );
+	m_cancelBtn->setText( pCommonStrings->getButtonCancel() );
 	imageBrowsePushButton->setFixedFontSize( 12 );
 	imageBrowsePushButton->setBorderRadius( 3 );
 	imageBrowsePushButton->setSize( QSize( 70, 23 ) );
@@ -525,10 +542,9 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	// the license types selected in the combo boxes.
 	License licenseCheck( licenseStringTxt->text() );
 	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
-		if ( QMessageBox::warning( this, "Hydrogen",
-								   tr( "Specified drumkit License String does not comply with the license selected in the combo box." ),
-								   QMessageBox::Ok | QMessageBox::Cancel,
-								   QMessageBox::Cancel )
+		if ( QMessageBox::warning(
+				 this, "Hydrogen", pCommonStrings->getLicenseMismatchingUserInput(),
+				 QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel )
 			 == QMessageBox::Cancel ) {
 			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
 						.arg( licenseStringTxt->text() )

@@ -401,9 +401,27 @@ CommonStrings::CommonStrings(){
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog containing
+	 *  artifact parameters, like name or author. */
+	m_sTabGeneralDialog = tr( "General" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog holding a
+	 *  table of all contained licenses. */
+	m_sTabLicensesDialog = tr( "Licenses" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the name of the particular artifact. */
+	m_sNameDialog = tr( "Name" );
 	/*: Label of the spin box in pattern/song/drumkit properties dialog to set
 	 *  the version of the particular artifact. */
 	m_sVersionDialog = tr( "Version" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the license of the particular artifact. */
+	m_sLicenseDialog = tr( "License" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the author of the particular artifact. */
+	m_sAuthorDialog = tr( "Author" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to
+	 *  fill in notes about the particular artifact. */
+	m_sNotesDialog = tr( "Notes" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
@@ -429,6 +447,9 @@ CommonStrings::CommonStrings(){
 	/*: Shown as title in dialogs used to inform the user about
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
+	/*: Shown in a warning dialog in case the user inserted a license string
+	 *  which does not comply with her selected license (in the combo box). */
+	m_sLicenseMismatchingUserInput = tr( "Specified drumkit License String does not comply with the license selected in the combo box." );
 	
 	/*: Label shown in the input capture dialog for querying a new
 	  tempo value. */

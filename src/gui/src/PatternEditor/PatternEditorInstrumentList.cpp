@@ -468,16 +468,25 @@ void InstrumentLine::functionClearNotes()
 
 void InstrumentLine::functionCopyAllInstrumentPatterns()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		assert( pSong );
-		ERRORLOG( "No song present" );
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready" );
+		return;
+	}
+
+	const auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+	if ( pSelectedInstrument == nullptr ) {
+		WARNINGLOG( "No instrument selected" );
 		return;
 	}
 
 	// Serialize & put to clipboard
-	QString sSerialized = pSong->copyInstrumentLineToString( m_nInstrumentNumber );
+	H2Core::XMLDoc doc;
+	auto rootNode = doc.set_root( "serializedPatternList" );
+	pSong->getPatternList()->save_to( rootNode, pSelectedInstrument );
+
+	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
 		ERRORLOG( QString( "Unable to serialize instrument line [%1]" )
 				  .arg( m_nInstrumentNumber ) );
@@ -492,32 +501,62 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 void InstrumentLine::functionPasteAllInstrumentPatterns()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		assert( pSong );
-		ERRORLOG( "No song present" );
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready" );
 		return;
 	}
-
-	// This is a note list for pasted notes collection
-	std::list<Pattern*> patternList;
 
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
-	QString sSerialized = clipboard->text();
-	if ( ! pSong->pasteInstrumentLineFromString( sSerialized,
-												 m_nInstrumentNumber,
-												 patternList ) ) {
+	const QString sSerialized = clipboard->text();
+	if ( sSerialized.isEmpty() ) {
+		INFOLOG( "Serialized pattern list is empty" );
 		return;
 	}
 
+	const auto doc = H2Core::XMLDoc( sSerialized );
+	const auto rootNode = doc.firstChildElement( "serializedPatternList" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "Unable to parse serialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	const auto pPatternList = PatternList::load_from(
+		rootNode, pSong->getDrumkit()->getExportName() );
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+
+	// Those pattern contain only notes for a single instrument. This must be
+	// replaced with the one belonging to this InstrumentLine. Or notes will end
+	// up in the wrong row.
+	for ( auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+			for ( auto& [ _, ppNote ] : *ppPattern->get_notes() ) {
+				if ( ppNote != nullptr ) {
+					ppNote->set_instrument_id( m_nInstrumentNumber );
+					ppNote->setType(
+						pInstrumentList->get( m_nInstrumentNumber )->getType() );
+				}
+			}
+		}
+	}
+
 	// Ignore empty result
-	if (patternList.size() <= 0) {
+	if ( pPatternList->size() <= 0 ) {
+		INFOLOG( "Deserialized pattern list is empty" );
 		return;
 	}
 
 	// Create action
-	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
+	SE_pasteNotesPatternEditorAction *action =
+		new SE_pasteNotesPatternEditorAction( pPatternList );
 	HydrogenApp::get_instance()->m_pUndoStack->push(action);
 }
 

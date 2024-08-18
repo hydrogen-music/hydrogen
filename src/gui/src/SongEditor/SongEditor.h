@@ -41,8 +41,9 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
-	class Hydrogen;
 	class AudioEngine;
+	class Hydrogen;
+	class License;
 }
 
 class SongEditor;
@@ -277,12 +278,16 @@ class SongEditorPatternList :  public QWidget
 		void movePatternLine( int, int );
 		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
 													const QString& newPatternName,
+													const QString& sNewAuthor,
 													const QString& newPatternInfo,
+													const H2Core::License& newLicense,
 													const QString& newPatternCategory,
 													int patternNr );
 		void revertPatternPropertiesDialogSettings( const int nOldVersion,
 													const QString& oldPatternName,
+													const QString& sOldAuthor,
 													const QString& oldPatternInfo,
+													const H2Core::License& oldLicense,
 													const QString& oldPatternCategory,
 													int patternNr);
 		void fillRangeWithPattern(FillRange* r, int nPattern);

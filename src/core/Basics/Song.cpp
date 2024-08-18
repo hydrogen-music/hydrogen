@@ -398,7 +398,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	// Pattern list
 	auto pPatternList = PatternList::load_from(
-		rootNode, pDrumkit->getExportName(), sAuthor, license, bSilent );
+		rootNode, pDrumkit->getExportName(), bSilent );
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapTo( pDrumkit );
 	}
@@ -1055,133 +1055,6 @@ bool Song::saveTempPatternList( const QString& sFilename ) const
 
 	return doc.write( sFilename );
 }
-
-QString Song::copyInstrumentLineToString( int nSelectedInstrument ) const
-{
-	auto pInstrument = getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	if ( pInstrument == nullptr ) {
-		assert( pInstrument );
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return QString();
-	}
-
-	XMLDoc doc;
-	XMLNode rootNode = doc.set_root( "instrument_line" );
-	rootNode.write_string( "author", getAuthor() );
-	rootNode.write_string( "license", getLicense().getLicenseString() );
-
-	m_pPatternList->save_to( rootNode, pInstrument );
-
-	// Serialize document
-	return doc.toString();
-}
-
-bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
-										  int nSelectedInstrument,
-										  std::list<Pattern *>& patterns ) const
-{
-	XMLDoc doc;
-	if ( ! doc.setContent( sSerialized ) ) {
-		return false;
-	}
-
-	// Get current instrument
-	auto pInstr = getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	assert( pInstr );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return false;
-	}
-
-	// Get pattern list
-	PatternList *pList = getPatternList();
-	XMLNode patternNode;
-	bool bIsNoteSelection = false;
-	bool is_single = true;
-
-	// Check if document has correct structure
-	XMLNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
-	if ( ! rootNode.isNull() ) {
-		// Find pattern list
-		XMLNode patternList = rootNode.firstChildElement( "patternList" );
-		if ( patternList.isNull() ) {
-			return false;
-		}
-
-		// Parse each pattern if needed
-		patternNode = patternList.firstChildElement( "pattern" );
-		if ( ! patternNode.isNull() ) {
-			is_single = (( XMLNode )patternNode.nextSiblingElement( "pattern" )).isNull();
-		}
-	}
-	else {
-		rootNode = doc.firstChildElement( "noteSelection" );
-		if ( ! rootNode.isNull() ) {
-			// Found a noteSelection. This contains a noteList, as a <pattern> does, so treat this as an anonymous pattern.
-			bIsNoteSelection = true;
-			is_single = true;
-			patternNode = rootNode;
-
-		} else {
-			ERRORLOG( "Error pasting Clipboard:instrument_line or noteSelection node not found ");
-			return false;
-		}
-	}
-
-	while ( ! patternNode.isNull() )
-	{
-		QString patternName( patternNode.read_string( "name", "", false, false ) );
-
-		// Check if pattern name specified
-		if ( patternName.length() > 0 || bIsNoteSelection ) {
-			// Try to find pattern by name
-			Pattern* pat = pList->find(patternName);
-
-			// If OK - check if need to add this pattern to result
-			// If there is only one pattern, we always add it to list
-			// If there is no selected pattern, we add all existing patterns to list (match by name)
-			// Otherwise we add only existing selected pattern to list (match by name)
-			if ( is_single || pat != nullptr ) {
-
-				pat = new Pattern( patternName,
-								   patternNode.read_string( "info", "", true, false ),
-								   patternNode.read_string( "category", "unknown", true, false ),
-								   patternNode.read_int( "size", -1, true, false ),
-								   patternNode.read_int( "denominator", 4, true, false ) );
-
-				// Parse pattern data
-				XMLNode pNoteListNode = patternNode.firstChildElement( "noteList" );
-				if ( ! pNoteListNode.isNull() )
-				{
-					// Parse note-by-note
-					XMLNode noteNode = pNoteListNode.firstChildElement( "note" );
-					while ( ! noteNode.isNull() )
-					{
-						XMLNode instrument = noteNode.firstChildElement( "instrument" );
-						XMLNode instrumentText = instrument.firstChild();
-
-						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( noteNode );
-
-						pat->insert_note( pNote ); // Add note to created pattern
-
-						noteNode = noteNode.nextSiblingElement( "note" );
-					}
-				}
-
-				// Add loaded pattern to apply-list
-				patterns.push_back(pat);
-			}
-		}
-
-		patternNode = patternNode.nextSiblingElement( "pattern" );
-	}
-
-	return true;
-}
-
 
 void Song::setPanLawKNorm( float fKNorm ) {
 	if ( fKNorm >= 0. ) {

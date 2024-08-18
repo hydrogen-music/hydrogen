@@ -7,11 +7,8 @@
     <x>0</x>
     <y>0</y>
     <width>315</width>
-    <height>277</height>
+    <height>439</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Form1</string>
   </property>
   <layout class="QVBoxLayout" name="overallLayout">
    <property name="spacing">
@@ -40,13 +37,13 @@
         <x>0</x>
         <y>0</y>
         <width>313</width>
-        <height>275</height>
+        <height>437</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>311</width>
-        <height>274</height>
+        <height>434</height>
        </size>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -55,28 +52,48 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QLabel" name="TextLabel1">
-             <property name="text">
-              <string>New Pattern Name</string>
-             </property>
-            </widget>
+            <widget class="QLabel" name="nameLabel"/>
            </item>
            <item>
             <widget class="LCDDisplay" name="patternNameTxt"/>
            </item>
            <item>
-            <widget class="QLabel" name="versionLabel">
-            </widget>
+            <widget class="QLabel" name="versionLabel"/>
            </item>
            <item>
             <widget class="LCDSpinBox" name="versionSpinBox"/>
            </item>
            <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Pattern description</string>
+            <widget class="QLabel" name="authorLabel"/>
+           </item>
+           <item>
+            <widget class="LCDDisplay" name="authorTxt"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="licenseLabel">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="LCDCombo" name="licenseComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="LCDDisplay" name="licenseStringTxt"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="notesLabel"/>
            </item>
            <item>
             <widget class="LCDTextEdit" name="patternDescTxt"/>
@@ -114,9 +131,6 @@
            </item>
            <item>
             <widget class="Button" name="cancelBtn">
-             <property name="text">
-              <string>&amp;Cancel</string>
-             </property>
              <property name="shortcut">
               <string>Alt+C</string>
              </property>
@@ -124,9 +138,6 @@
            </item>
            <item>
             <widget class="Button" name="okBtn">
-             <property name="text">
-              <string>&amp;OK</string>
-             </property>
              <property name="shortcut">
               <string>Alt+O</string>
              </property>

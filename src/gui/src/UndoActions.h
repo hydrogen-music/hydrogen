@@ -36,6 +36,7 @@
 #include <core/Basics/AutomationPath.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
@@ -161,21 +162,29 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand
 public:
 	SE_modifyPatternPropertiesAction( const int nOldVersion,
 									  const QString& oldPatternName,
+									  const QString& sOldAuthor,
 									  const QString& oldPatternInfo,
+									  const H2Core::License& oldLicense,
 									  const QString& oldPatternCategory,
 									  const int nNewVersion,
 									  const QString& newPatternName,
+									  const QString sNewAuthor,
 									  const QString& newPatternInfo,
+									  const H2Core::License& newLicense,
 									  const QString& newPatternCategory,
 									  int patternNr ){
 		setText( QObject::tr( "Modify pattern properties" ) );
 		m_nOldVersion =  nOldVersion;
 		__oldPatternName =  oldPatternName;
-		__oldPatternCategory = oldPatternCategory;
+		m_sOldAuthor = sOldAuthor;
 		__oldPatternInfo = oldPatternInfo;
+		m_oldLicense = oldLicense;
+		__oldPatternCategory = oldPatternCategory;
 		m_nNewVersion =  nNewVersion;
 		__newPatternName = newPatternName;
+		m_sNewAuthor = sNewAuthor;
 		__newPatternInfo = newPatternInfo;
+		m_newLicense = newLicense;
 		__newPatternCategory = newPatternCategory;
 		__patternNr = patternNr;
 	}
@@ -185,8 +194,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()
 			->revertPatternPropertiesDialogSettings(
-				m_nOldVersion, __oldPatternName, __oldPatternInfo,
-				__oldPatternCategory, __patternNr );
+				m_nOldVersion, __oldPatternName, m_sOldAuthor, __oldPatternInfo,
+				m_oldLicense, __oldPatternCategory, __patternNr );
 	}
 
 	virtual void redo()
@@ -195,18 +204,22 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()
 			->acceptPatternPropertiesDialogSettings(
-				m_nNewVersion, __newPatternName, __newPatternInfo,
-				__newPatternCategory, __patternNr );
+				m_nNewVersion, __newPatternName, m_sNewAuthor, __newPatternInfo,
+				m_newLicense, __newPatternCategory, __patternNr );
 	}
 private:
 		int m_nOldVersion;
 	QString __oldPatternName;
+		QString m_sOldAuthor;
 	QString __oldPatternInfo;
+		H2Core::License m_oldLicense;
 	QString __oldPatternCategory;
 
 		int m_nNewVersion;
 	QString __newPatternName;
+		QString m_sNewAuthor;
 	QString __newPatternInfo;
+		H2Core::License m_newLicense;
 	QString __newPatternCategory;
 	int __patternNr;
 };
@@ -892,52 +905,43 @@ private:
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:
-	explicit SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
-	{
-		//qDebug() << "paste note sequence Create ";
+	explicit SE_pasteNotesPatternEditorAction( H2Core::PatternList* pPatternList ) :
+		m_pCopiedNotesPatternList( pPatternList ) {
 		setText( QObject::tr( "Paste instrument notes" ) );
 
-		std::list < H2Core::Pattern *>::const_iterator pos;
-		for ( pos = patternList.begin(); pos != patternList.end(); ++pos)
-		{
-			H2Core::Pattern *pPattern = *pos;
-			assert( pPattern );
-			__patternList.push_back(pPattern);
-		}
+		m_pAppliedNotesPatternList = new H2Core::PatternList();
 	}
 
-	~SE_pasteNotesPatternEditorAction()
-	{
-		//qDebug() << "paste note sequence Destroy ";
-		while ( __patternList.size() > 0)
-		{
-			delete __patternList.front();
-			__patternList.pop_front();
-		}
-		while ( __appliedList.size() > 0)
-		{
-			delete __appliedList.front();
-			__appliedList.pop_front();
-		}
+	~SE_pasteNotesPatternEditorAction() {
+		delete m_pCopiedNotesPatternList;
+		delete m_pAppliedNotesPatternList;
 	}
 
-	virtual void undo()
-	{
-		//qDebug() << "paste note sequence Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesUndoAction( __appliedList );
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionPasteNotesUndoAction(
+				m_pAppliedNotesPatternList );
+
+		// Discard temporary patterns.
+		for ( auto& ppPattern : *m_pAppliedNotesPatternList ) {
+			m_pAppliedNotesPatternList->del( ppPattern );
+		}
+		m_pAppliedNotesPatternList->clear();
 	}
 
-	virtual void redo()
-	{
-		//qDebug() << "paste note sequence Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionPasteNotesRedoAction( __patternList, __appliedList );
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionPasteNotesRedoAction(
+				m_pCopiedNotesPatternList, m_pAppliedNotesPatternList );
 	}
 
 private:
-	std::list< H2Core::Pattern* > __patternList;
-	std::list< H2Core::Pattern* > __appliedList;
+		/** Pattern list containing only the notes copied and waiting for being
+		 * pasted. */
+		H2Core::PatternList* m_pCopiedNotesPatternList;
+		/** Pattern list containing only those notes, which were actually added
+		 * to a pattern during the redo part of this class. */
+		H2Core::PatternList* m_pAppliedNotesPatternList;
 };
 
 

@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Algemeen</translation>
     </message>
     <message>
@@ -954,7 +956,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Licentie</translation>
     </message>
     <message>
@@ -1087,6 +1091,31 @@ Are you sure?</source>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>Auteur</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Naam</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Commentaar</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1246,14 +1275,6 @@ Are you sure?</source>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
     <message>
-        <source>General</source>
-        <translation>Algemeen</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informatie</translation>
-    </message>
-    <message>
         <source>Image License</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1266,28 +1287,8 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>Auteur</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Naam</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Opslaan</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuleren</translation>
     </message>
     <message>
         <source>Types</source>
@@ -1635,10 +1636,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3284,36 +3281,16 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuleren</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Patroon naam</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Patroon categorie</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5927,40 +5904,12 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Opname naam</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Auteur</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Commentaar</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Annuleren</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source> &amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Licentie</translation>
     </message>
 </context>
 <context>
