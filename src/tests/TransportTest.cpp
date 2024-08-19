@@ -20,11 +20,12 @@
  *
  */
 
-#include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/Basics/Drumkit.h>
+#include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Helpers/Filesystem.h>
 
 #include <iostream>
 
@@ -222,7 +223,9 @@ void TransportTest::testSampleConsistency() {
 	pHydrogen->setSong( pSong );
 
 	// Apply drumkit containing the long sample to be tested.
-	H2Core::CoreActionController::setDrumkit( sDrumkitDir );
+	const auto pDrumkit = H2Core::Drumkit::load( sDrumkitDir, false, true );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	H2Core::CoreActionController::setDrumkit( pDrumkit );
 
 	TestHelper::exportSong( sOutFile );
 	

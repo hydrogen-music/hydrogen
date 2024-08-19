@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <drumkit_info xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <formatVersion>2</formatVersion>
  <name>H2 test DK</name>
+ <userVersion>0</userVersion>
  <author>Zurcher Jérémy</author>
  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
@@ -21,6 +23,7 @@ p, li { white-space: pre-wrap; }
   <instrument>
    <id>0</id>
    <name>Crash</name>
+   <type></type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -50,7 +53,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>crash.wav</filename>
@@ -58,6 +61,16 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>crash.wav</filename>
@@ -65,12 +78,23 @@ p, li { white-space: pre-wrap; }
      <max>0.5</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>1</id>
    <name>Hi-Hat</name>
+   <type></type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -100,7 +124,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>hh.wav</filename>
@@ -108,12 +132,23 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>2</id>
    <name>Snare</name>
+   <type></type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -143,7 +178,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>snare.wav</filename>
@@ -151,12 +186,23 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>3</id>
    <name>Kick</name>
+   <type></type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -186,7 +232,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>kick.wav</filename>
@@ -194,6 +240,16 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>

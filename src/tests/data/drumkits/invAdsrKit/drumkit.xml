@@ -50,7 +50,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>snare.wav</filename>
@@ -93,7 +93,7 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
     <layer>
      <filename>kick.wav</filename>

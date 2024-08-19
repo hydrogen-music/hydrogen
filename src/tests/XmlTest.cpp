@@ -227,7 +227,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 
 	//1. Check, if the drumkit has been loaded
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
-									  false, true );
+									  true, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
