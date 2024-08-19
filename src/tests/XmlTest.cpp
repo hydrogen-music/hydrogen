@@ -478,13 +478,47 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 void XmlTest::testShippedDrumkits()
 {
 	___INFOLOG( "" );
-	H2Core::XMLDoc doc;
-	for ( const auto& ssKit : H2Core::Filesystem::sys_drumkit_list() ) {
-		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
-								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
-								  .arg( ssKit ),
-								  H2Core::Filesystem::drumkit_xsd_path() ) );
 
+	// Since there are also optional elements in our XSD definition, we load,
+	// save, and compare all shipped kit to ensure they are cutting edge.
+	for ( const auto& ssKit : H2Core::Filesystem::sys_drumkit_list() ) {
+		___INFOLOG( ssKit );
+
+		// Since kits are upgraded during startup of Hydrogen, all shipped kits
+		// will already comply with our XSD file. But we can check for the
+		// presence of backup files which indicate that an upgrade was
+		// required/took place.
+		const auto backupFiles =
+			TestHelper::get_instance()->findDrumkitBackupFiles(
+				QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
+				.arg( ssKit ) );
+		if ( backupFiles.size() > 0 ) {
+			___ERRORLOG( QString( "backup files found: %1" )
+						 .arg( backupFiles.join( ',' ) ) );
+			CPPUNIT_ASSERT( backupFiles.size() == 0 );
+		}
+
+		const auto pDrumkit = H2Core::Drumkit::load(
+			QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
+			.arg( ssKit ), false, true );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+
+		const QString sTmpDrumkitXml = H2Core::Filesystem::tmp_file_path(
+			QString( "newest-%1.xml" ).arg( ssKit ) );
+
+		H2Core::XMLDoc doc;
+		H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+		pDrumkit->saveTo( root, -1, true, false, false );
+
+		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
+
+		H2TEST_ASSERT_XML_FILES_EQUAL(
+			H2Core::Filesystem::drumkit_file(
+				QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
+				.arg( ssKit ) ), sTmpDrumkitXml );
+
+		// Cleanup
+		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpDrumkitXml ) );
 	}
 	___INFOLOG( "passed" );
 }
