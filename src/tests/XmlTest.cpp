@@ -117,12 +117,21 @@ void XmlTest::testDrumkit()
 	std::shared_ptr<H2Core::Drumkit> pDrumkitNew = nullptr;
 	H2Core::XMLDoc doc;
 
+	QFileInfo info( H2Core::Filesystem::drumkit_file(
+						H2TEST_FILE( "/drumkits/baseKit") ) );
+	const auto timestampStart = info.lastModified();
+
 	// load without samples
 	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
 	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->getInstruments()->size() );
+
+	// Check for side effect in the file read.
+	info.refresh();
+	const auto timestampLoaded = info.lastModified();
+	CPPUNIT_ASSERT( timestampLoaded == timestampStart );
 
 	// Check if drumkit was valid (what we assume in this test)
 	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles( "drumkits/baseKit/" )
@@ -132,6 +141,10 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded->loadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==true );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, true ) );
+
+	info.refresh();
+	const auto timestampSamplesLoaded = info.lastModified();
+	CPPUNIT_ASSERT( timestampSamplesLoaded == timestampStart );
 
 	pDrumkitLoaded = nullptr;
 	
@@ -147,6 +160,10 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded->unloadSamples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
+
+	info.refresh();
+	const auto timestampPreSave = info.lastModified();
+	CPPUNIT_ASSERT( timestampPreSave == timestampStart );
 	
 	// save drumkit elsewhere
 	pDrumkitLoaded->setName( "pDrumkitLoaded" );
@@ -157,6 +174,10 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/kick.wav" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
 
+	info.refresh();
+	const auto timestampSave = info.lastModified();
+	CPPUNIT_ASSERT( timestampSave == timestampStart );
+
 	// Check whether the generated drumkit is valid.
 	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
@@ -164,6 +185,10 @@ void XmlTest::testDrumkit()
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
+
+	info.refresh();
+	const auto timestampReloaded = info.lastModified();
+	CPPUNIT_ASSERT( timestampReloaded == timestampStart );
 	
 	// copy constructor
 	pDrumkitCopied = std::make_shared<H2Core::Drumkit>( pDrumkitReloaded );
