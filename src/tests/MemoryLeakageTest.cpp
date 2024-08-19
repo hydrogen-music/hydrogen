@@ -171,7 +171,7 @@ void MemoryLeakageTest::testConstructors() {
 	auto pDrumkitProper = H2Core::Drumkit::load(
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 												 H2Core::Filesystem::Lookup::system,
-												 true ) );
+												 true ), false, true );
 	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
 	
 	pDrumkitProper->loadSamples();
@@ -291,7 +291,8 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ) );
+		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ),
+											   false, true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 		pDrumkit->loadSamples();
@@ -440,13 +441,14 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ) );
+		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ),
+											   false, true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		pDrumkit->loadSamples();
 		auto pDrumkit2 = H2Core::Drumkit::load(
 			H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 													 H2Core::Filesystem::Lookup::system,
-													 true ) );
+													 true ), false, true );
 		CPPUNIT_ASSERT( pDrumkit2 != nullptr );
 		pDrumkit2->loadSamples();
 	

@@ -84,7 +84,7 @@ void XmlTest::tearDown() {
 void XmlTest::testDrumkitFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFolder = H2TEST_FILE( "/drumkits/format-integrity/");
-	const auto pDrumkit = H2Core::Drumkit::load( sTestFolder );
+	const auto pDrumkit = H2Core::Drumkit::load( sTestFolder, false, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	const QString sTmpDrumkitXml =
@@ -122,7 +122,8 @@ void XmlTest::testDrumkit()
 	const auto timestampStart = info.lastModified();
 
 	// load without samples
-	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
+	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit"),
+											false, true );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
@@ -149,7 +150,8 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded = nullptr;
 	
 	// load with samples
-	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
+	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
+											false, true );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 
 	pDrumkitLoaded->loadSamples();
@@ -183,7 +185,7 @@ void XmlTest::testDrumkit()
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
 	// load file
-	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath, false, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
 
 	info.refresh();
@@ -205,7 +207,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
 	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
-	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
+	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath, false, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup
@@ -224,7 +226,8 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
 
 	//1. Check, if the drumkit has been loaded
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
+									  false, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
@@ -251,7 +254,8 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	}
 
 	//4. Load the drumkit again to assure updated file is valid
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
+									  false, true );
 	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( backupFiles.size() == 1 );
@@ -444,9 +448,10 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
 	const QString sDuplicateFolder =
 		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
-	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder );
+	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder, false, true );
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
-	const auto pDrumkitDuplicates = H2Core::Drumkit::load( sDuplicateFolder );
+	const auto pDrumkitDuplicates = H2Core::Drumkit::load(
+		sDuplicateFolder, false, true );
 	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
 
 	H2TEST_ASSERT_XML_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
@@ -575,7 +580,8 @@ void XmlTest::testPattern()
 	std::shared_ptr<H2Core::InstrumentList> pInstrumentList = nullptr;
 	H2Core::XMLDoc doc;
 
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
+									  false, true );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
 	pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
