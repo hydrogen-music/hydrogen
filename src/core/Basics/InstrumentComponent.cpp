@@ -26,7 +26,6 @@
 
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Xml.h>
-#include <core/License.h>
 
 
 namespace H2Core
@@ -34,9 +33,11 @@ namespace H2Core
 
 int InstrumentComponent::m_nMaxLayers = 16;
 
-InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
+InstrumentComponent::InstrumentComponent( int related_drumkit_componentID,
+										  const QString& sName, float fGain )
 	: __related_drumkit_componentID( related_drumkit_componentID )
-	, m_fGain( 1.0 )
+	, m_sName( sName )
+	, m_fGain( fGain )
 {
 	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
@@ -46,6 +47,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
 	: __related_drumkit_componentID( other->__related_drumkit_componentID )
+	, m_sName( other->m_sName )
 	, m_fGain( other->m_fGain )
 {
 	m_layers.resize( m_nMaxLayers );
@@ -95,8 +97,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	bool bSilent )
 {
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( 0 );
-	pInstrumentComponent->setGain( node.read_float( "gain", 1.0f,
-													true, false, bSilent ) );
+	pInstrumentComponent->m_sName = node.read_string(
+		"name", pInstrumentComponent->m_sName, true, false, bSilent );
+	pInstrumentComponent->m_fGain = node.read_float(
+		"gain", pInstrumentComponent->m_fGain, true, false, bSilent );
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
@@ -125,7 +129,7 @@ void InstrumentComponent::saveTo( XMLNode& node,
 	XMLNode component_node;
 	if ( bRecentVersion ) {
 		component_node = node.createNode( "instrumentComponent" );
-		component_node.write_int( "component_id", __related_drumkit_componentID );
+		component_node.write_string( "name", m_sName );
 		component_node.write_float( "gain", m_fGain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
@@ -146,8 +150,12 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2related_drumkit_componentID: %3\n" ).arg( sPrefix ).arg( s ).arg( __related_drumkit_componentID ) )
-			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fGain ) )
-			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxLayers ) )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sName ) )
+			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fGain ) )
+			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_layers:\n" ).arg( sPrefix ).arg( s ) );
 	
 		for ( const auto& ll : m_layers ) {
@@ -158,6 +166,7 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	} else {
 		sOutput = QString( "[InstrumentComponent]" )
 			.append( QString( " related_drumkit_componentID: %1" ).arg( __related_drumkit_componentID ) )
+			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
 			.append( QString( ", m_layers: [" ) );

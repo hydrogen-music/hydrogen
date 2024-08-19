@@ -32,7 +32,7 @@
 <xsd:element name="instrumentComponent">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="component_id"	type="xsd:integer"/>
+			<xsd:element name="name"			type="xsd:string"/>
 			<xsd:element name="gain"			type="xsd:float"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>

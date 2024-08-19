@@ -81,7 +81,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
@@ -205,7 +205,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
@@ -329,7 +329,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Snare-Softest.wav</filename>
@@ -453,7 +453,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HandClap.wav</filename>
@@ -509,7 +509,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
@@ -633,7 +633,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
@@ -757,7 +757,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
@@ -881,7 +881,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
@@ -1005,7 +1005,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
@@ -1129,7 +1129,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
@@ -1253,7 +1253,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
@@ -1377,7 +1377,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
@@ -1501,7 +1501,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Ride-Softest.wav</filename>
@@ -1625,7 +1625,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Crash-Softest.wav</filename>
@@ -1749,7 +1749,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/24Ride-5.wav</filename>
@@ -1873,7 +1873,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Splash-Softest.wav</filename>
@@ -1997,7 +1997,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Softest.wav</filename>
@@ -2121,7 +2121,7 @@ p, li { white-space: pre-wrap; }
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
     <instrumentComponent>
-     <component_id>0</component_id>
+     <name>Main</name>
      <gain>1</gain>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Bell-Softest.wav</filename>

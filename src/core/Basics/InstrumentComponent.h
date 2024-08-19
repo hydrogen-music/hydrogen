@@ -35,18 +35,16 @@
 namespace H2Core
 {
 
-class XMLNode;
-class ADSR;
-class Drumkit;
 class InstrumentLayer;
-class DrumkitComponent;
+class XMLNode;
 
 /** \ingroup docCore docDataStructure */
 class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
 		H2_OBJECT(InstrumentComponent)
 	public:
-		InstrumentComponent( int related_drumkit_componentID );
+		InstrumentComponent( int related_drumkit_componentID,
+							 const QString& sName = "Main", float fGain = 1.0 );
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
