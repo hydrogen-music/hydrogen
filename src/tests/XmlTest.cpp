@@ -135,8 +135,8 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( timestampLoaded == timestampStart );
 
 	// Check if drumkit was valid (what we assume in this test)
-	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles( "drumkits/baseKit/" )
-					.size() == 0 );
+	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles(
+						H2TEST_FILE( "drumkits/baseKit/" ) ).size() == 0 );
 	
 	// manually load samples
 	pDrumkitLoaded->loadSamples();
@@ -248,7 +248,8 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	// 3. Make sure that the original (invalid) file has been saved as
 	// a backup.
 	if ( H2Core::Filesystem::dir_writable( H2TEST_FILE( "drumkits/invAdsrKit" ), true ) ) {
-		QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
+		QStringList backupFiles = pTestHelper->findDrumkitBackupFiles(
+			H2TEST_FILE( "drumkits/invAdsrKit" ) );
 		CPPUNIT_ASSERT( backupFiles.size() == 1 );
 		CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
 	}
@@ -256,7 +257,8 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	//4. Load the drumkit again to assure updated file is valid
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
 									  false, true );
-	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
+	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles(
+		H2TEST_FILE( "drumkits/invAdsrKit" ) );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( backupFiles.size() == 1 );
 	
