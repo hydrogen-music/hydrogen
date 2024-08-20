@@ -123,7 +123,39 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 			// Does not match. Let's compare it line by line to produce a more
 			// helpful assert message.
 			const QStringList expectedLines = sDocExpected.split( "\n" );
-			const QStringList actualLines = sDocActual.split( "\n" );
+			QStringList actualLines = sDocActual.split( "\n" );
+
+			if ( fileType == FileType::Preferences ) {
+				// In the preferences config files there are various elements
+				// `lastXXDirectory` used to cache last folders selected in
+				// various file browsers. These elements must not exist (to
+				// allow them to fallback to e.g. the users home directory).
+				QStringList linesToRemove;
+				for ( const auto& ssLine : actualLines ) {
+					if ( ssLine.contains( "<lastExportPatternAsDirectory>" ) ||
+						 ssLine.contains( "<lastExportSongDirectory>" ) ||
+						 ssLine.contains( "<lastSaveSongAsDirectory>" ) ||
+						 ssLine.contains( "<lastOpenSongDirectory>" ) ||
+						 ssLine.contains( "<lastOpenPatternDirectory>" ) ||
+						 ssLine.contains( "<lastExportLilypondDirectory>" ) ||
+						 ssLine.contains( "<lastExportMidiDirectory>" ) ||
+						 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
+						 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
+						 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
+						 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
+						 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||
+						 ssLine.contains( "<lastPlaylistDirectory>" ) ||
+						 ssLine.contains( "<lastPlaylistScriptDirectory>" ) ||
+						 ssLine.contains( "<lastImportThemeDirectory>" ) ||
+						 ssLine.contains( "<lastExportThemeDirectory>" ) ) {
+						linesToRemove << ssLine;
+					}
+				}
+				for ( const auto& ssRemoveLine : linesToRemove ) {
+					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
+				}
+			}
+
 			const int nMaxLines =
 				std::max( expectedLines.size(), actualLines.size() );
 
