@@ -915,6 +915,23 @@ void XmlTest::testPreferencesFormatIntegrity() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testShippedPreferences() {
+	___INFOLOG( "" );
+	const QString sDefaultConfigFile = H2Core::Filesystem::sys_config_path();
+	const auto pPreferences = H2Core::Preferences::load( sDefaultConfigFile );
+	CPPUNIT_ASSERT( pPreferences != nullptr );
+
+	const QString sTmpPreferences =
+		H2Core::Filesystem::tmp_file_path( "check-default-hydrogen.conf" );
+	CPPUNIT_ASSERT( pPreferences->saveCopyAs( sTmpPreferences ) );
+
+	H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( sDefaultConfigFile, sTmpPreferences );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPreferences ) );
+	___INFOLOG( "passed" );
+}
+
 
 bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoaded )
 {
