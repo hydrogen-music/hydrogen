@@ -33,7 +33,6 @@
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -459,6 +458,10 @@ void Sampler::handleTimelineOrTempoChange() {
 	for ( auto& ppNote : m_playingNotesQueue ) {
 		ppNote->computeNoteStart();
 
+		if ( ppNote->get_instrument() == nullptr ) {
+			continue;
+		}
+
 		// For notes of custom length we have to rescale the amount of the
 		// sample still left for rendering to properly adopt the tempo change.
 		//
@@ -477,9 +480,11 @@ void Sampler::handleTimelineOrTempoChange() {
 			double fTickMismatch;
 
 			// Do so for all layers of all components current processed.
-			for ( auto& [ nnCompo, ppLayer ] : ppNote->get_layers_selected() ) {
-				const auto pSample = ppNote->getSample( nnCompo,
-														ppLayer->nSelectedLayer );
+			for ( int ii = 0; ii <=
+					  ppNote->get_instrument()->get_components()->size(); ++ii ) {
+				const auto ppSelectedLayerInfo = ppNote->get_layer_selected( ii );
+				const auto pSample = ppNote->getSample(
+					ii, ppSelectedLayerInfo->nSelectedLayer );
 				const int nNewNoteLength =
 					TransportPosition::computeFrameFromTick(
 						ppNote->get_position() + ppNote->get_length(),
@@ -499,13 +504,13 @@ void Sampler::handleTimelineOrTempoChange() {
 				// change is required. But this is too much of an edge-case and
 				// won't be covered here.
 				const int nSamplePosition =
-					static_cast<int>(std::floor(ppLayer->fSamplePosition));
+					static_cast<int>(std::floor(ppSelectedLayerInfo->fSamplePosition));
 
-				ppLayer->nNoteLength = nSamplePosition +
+				ppSelectedLayerInfo->nNoteLength = nSamplePosition +
 					static_cast<int>(std::round(
-						static_cast<float>(ppLayer->nNoteLength - nSamplePosition) *
+						static_cast<float>(ppSelectedLayerInfo->nNoteLength - nSamplePosition) *
 						nNewNoteLength /
-						static_cast<float>(ppLayer->nNoteLength)));
+						static_cast<float>(ppSelectedLayerInfo->nNoteLength)));
 			}
 		}
 	}
@@ -660,37 +665,20 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			continue;
 		}
 
-		std::shared_ptr<DrumkitComponent> pMainCompo = nullptr;
-
-		if ( pNote->get_specific_compo_id() != -1 &&
-			 pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
+		// Check whether only a specific instrument component should be played
+		// back (layer preview and sample editor).
+		if ( pNote->getSpecificCompoIdx() != -1 &&
+			 pNote->getSpecificCompoIdx() != ii ) {
 			continue;
 		}
 
-		if ( pInstr->is_preview_instrument() ||
-			 pInstr->is_metronome_instrument() ){
-			pMainCompo = pSong->getDrumkit()->getComponents()->front();
-		} else {
-			int nComponentID = pCompo->get_drumkit_componentID();
-			if ( nComponentID >= 0 ) {
-				pMainCompo = pSong->getDrumkit()->getComponent( nComponentID );
-			} else {
-				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pSong->getDrumkit()->getComponents()->front();
-			}
-		}
-
-		assert(pMainCompo);
-
-		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
-										 nAlreadySelectedLayer );
+		auto pSample = pNote->getSample( ii, nAlreadySelectedLayer );
 		if ( pSample == nullptr ) {
 			returnValues[ ii ] = true;
 			continue;
 		}
 
-		auto pSelectedLayer =
-			pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+		auto pSelectedLayer = pNote->get_layer_selected( ii );
 		if ( pSelectedLayer == nullptr ) {
 			ERRORLOG( "Invalid selection layer." );
 			returnValues[ ii ] = true;
@@ -738,6 +726,17 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
+
+		// check wether another component of this instrument is muted
+		if ( ! bAnyInstrumentIsSoloed ) {
+			for ( int jj = 0; jj < pComponents->size(); ++jj ) {
+				if ( jj != ii && pComponents->at( ii ) != nullptr &&
+					 pComponents->at( ii )->getIsSoloed() ) {
+					bIsMutedBecauseOfSolo = true;
+					break;
+				}
+			}
+		}
 		
 		/*
 		 *  Is instrument muted?
@@ -746,10 +745,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		 *   - the song, instrument or component is muted 
 		 *   - if we're in an export session and we're doing per-instruments exports, 
 		 *       but this instrument is not currently being exported.
-		 *   - if at least one instrument is soloed (but not this instrument)
+		 *   - if another instrument or instrument component of the same
+		 *     instrument is soloed.
 		 */
 		if ( bIsMutedForExport || pInstr->is_muted() || pSong->getIsMuted() ||
-			 pMainCompo->is_muted() || bIsMutedBecauseOfSolo) {	
+			 pCompo->getIsMuted() || bIsMutedBecauseOfSolo) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
@@ -767,7 +767,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			fMonoGain *= fLayerGain;				// layer gain
 			fMonoGain *= pInstr->get_gain();		// instrument gain
 			fMonoGain *= pCompo->getGain();	    	// Component gain
-			fMonoGain *= pMainCompo->get_volume();	// Component volument
 			fMonoGain *= pInstr->get_volume();		// instrument volume
 			fMonoGain *= pSong->getVolume();		// song volume
 
@@ -810,7 +809,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		returnValues[ ii ] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
+		returnValues[ ii ] = renderNoteResample(
+			pSample, pNote, pSelectedLayer, pCompo, ii, nBufferSize,
+			nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R,
+			fLayerPitch );
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {
@@ -902,8 +904,9 @@ void resample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 	// Initial safe iterations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++) {
 		int nSamplePos = static_cast<int>(fSamplePos);
-		if (nSamplePos >= 1)
+		if ( nSamplePos >= 1 ) {
 			break;
+		}
 		double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( 0, l0, l1, l2, l3, r0, r1, r2, r3);
 
@@ -1081,7 +1084,7 @@ bool Sampler::renderNoteResample(
 	Note *pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
-	std::shared_ptr<DrumkitComponent> pDrumCompo,
+	int nComponentIdx,
 	int nBufferSize,
 	int nInitialBufferPos,
 	float fCost_L,
@@ -1217,8 +1220,10 @@ bool Sampler::renderNoteResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if ( pJackAudioDriver != nullptr ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L( pInstrument, pCompo );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R( pInstrument, pCompo );
+			pTrackOutL = pJackAudioDriver->getTrackOut_L(
+				pInstrument, nComponentIdx );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R(
+				pInstrument, nComponentIdx );
 		}
 	}
 #endif
@@ -1288,10 +1293,6 @@ bool Sampler::renderNoteResample(
 	// update instr peak
 	pInstrument->set_peak_l( std::max( pInstrument->get_peak_l(), fSamplePeak_L ) );
 	pInstrument->set_peak_r( std::max( pInstrument->get_peak_r(), fSamplePeak_R ) );
-
-	// Component peak
-	pDrumCompo->set_peak_l( std::max( pDrumCompo->get_peak_l(), fSamplePeak_L ) );
-	pDrumCompo->set_peak_r( std::max( pDrumCompo->get_peak_r(), fSamplePeak_R ) );
 
 	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.

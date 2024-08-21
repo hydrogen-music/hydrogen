@@ -221,35 +221,29 @@ public:
 	 */
 	float* getTrackOut_R( unsigned nTrack );
 	/** 
-	 * Convenience function looking up the track number of a component
-	 * of an instrument using in #m_trackMap using their IDs
-	 * Instrument::__id and
-	 * InstrumentComponent::__related_drumkit_componentID. Using the
-	 * track number it then calls getTrackOut_L( unsigned ) and
-	 * returns its result.
+	 * Convenience function looking up the track number of a component of an
+	 * instrument in #m_trackMap. Using the number it then calls
+	 * getTrackOut_L( unsigned ) and returns its result.
 	 *
 	 * \param instr Pointer to an Instrument
-	 * \param pCompo Pointer to one of the instrument's components.
+	 * \param nComponentIdx Component position in component vector.
 	 *
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_L( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
+	float* getTrackOut_L( std::shared_ptr<Instrument> instr, int nComponentIdx );
 	/** 
-	 * Convenience function looking up the track number of a component
-	 * of an instrument using in #m_trackMap using their IDs
-	 * Instrument::__id and
-	 * InstrumentComponent::__related_drumkit_componentID. Using the
-	 * track number it then calls getTrackOut_R( unsigned ) and
-	 * returns its result.
+	 * Convenience function looking up the track number of a component of an
+	 * instrument in #m_trackMap. Using the number it then calls
+	 * getTrackOut_R( unsigned ) and returns its result.
 	 *
 	 * \param instr Pointer to an Instrument
-	 * \param pCompo Pointer to one of the instrument's components.
+	 * \param nComponentIdx Component position in component vector.
 	 *
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_R( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
+	float* getTrackOut_R( std::shared_ptr<Instrument> instr, int nComponentIdx );
 
 	/**
 	 * Initializes the JACK audio driver.

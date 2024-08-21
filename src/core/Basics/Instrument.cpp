@@ -32,7 +32,6 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -78,24 +77,23 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples( false )
-	, __components( nullptr )
+	, __components( std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>() )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
 	}
 
     if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
-		__midi_out_note = MIDI_OUT_NOTE_MIN;	
+		__midi_out_note = MIDI_OUT_NOTE_MIN;
 	}
-	
+
 	if( __midi_out_note > MIDI_OUT_NOTE_MAX ){
-		__midi_out_note = MIDI_OUT_NOTE_MAX;	
+		__midi_out_note = MIDI_OUT_NOTE_MAX;
 	}
-	
+
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
@@ -562,15 +560,15 @@ void Instrument::set_pitch_offset( float fValue )
 	__pitch_offset = std::clamp( fValue, fPitchMin, fPitchMax );
 }
 
-std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID ) const
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const
 {
-	for ( const auto& pComponent : *get_components() ) {
-		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {
-			return pComponent;
-		}
+	if ( nIdx < 0 || nIdx > __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return nullptr;
 	}
 
-	return nullptr;
+	return __components->at( nIdx );
 }
 
 const QString& Instrument::get_drumkit_path() const

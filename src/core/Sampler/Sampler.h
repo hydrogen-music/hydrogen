@@ -38,7 +38,6 @@ namespace H2Core
 class Note;
 class Song;
 class Sample;
-class DrumkitComponent;
 class Instrument;
 struct SelectedLayerInfo;
 class InstrumentComponent;
@@ -255,7 +254,7 @@ private:
 		Note *pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
-		std::shared_ptr<DrumkitComponent> pDrumCompo,
+		int nComponentIdx,
 		int nBufferSize,
 		int nInitialBufferPos,
 		float cost_L,

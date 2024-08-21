@@ -628,7 +628,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 	Note *pNote = new Note( pInstr, 0, pLayer->get_end_velocity() - 0.01 );
-	pNote->set_specific_compo_id( m_nSelectedComponent );
+	pNote->setSpecificCompoIdx( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 
 	setSamplelengthFrames();

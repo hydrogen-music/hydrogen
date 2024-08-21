@@ -35,7 +35,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -819,14 +818,16 @@ float* JackAudioDriver::getTrackOut_R( unsigned nTrack )
 	return out;
 }
 
-float* JackAudioDriver::getTrackOut_L( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo)
+float* JackAudioDriver::getTrackOut_L( std::shared_ptr<Instrument> instr,
+									   int nComponentIdx )
 {
-	return getTrackOut_L(m_trackMap[instr->get_id()][pCompo->get_drumkit_componentID()]);
+	return getTrackOut_L(m_trackMap[instr->get_id()][ nComponentIdx ]);
 }
 
-float* JackAudioDriver::getTrackOut_R( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo)
+float* JackAudioDriver::getTrackOut_R( std::shared_ptr<Instrument> instr,
+									   int nComponentIdx )
 {
-	return getTrackOut_R(m_trackMap[instr->get_id()][pCompo->get_drumkit_componentID()]);
+	return getTrackOut_R(m_trackMap[instr->get_id()][ nComponentIdx ]);
 }
 
 
@@ -1081,13 +1082,17 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 	// Creates a new output track or reassigns an existing one for
 	// each component of each instrument and stores the result in
 	// the `m_trackMap'.
-	std::shared_ptr<InstrumentComponent> pInstrumentComponent;
+	std::shared_ptr<InstrumentComponent> ppComponent;
 	for ( int n = 0; n <= nInstruments - 1; n++ ) {
 		pInstrument = pInstrumentList->get( n );
-		for ( const auto& pInstrumentComponent : *pInstrument->get_components() ) {
-			setTrackOutput( nTrackCount, pInstrument, pInstrumentComponent, pSong);
-			m_trackMap[pInstrument->get_id()][pInstrumentComponent->get_drumkit_componentID()] =
-				nTrackCount;
+		for ( int ii = 0; ii < pInstrument->get_components()->size(); ++ii ) {
+			ppComponent = pInstrument->get_component( ii );
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+
+			setTrackOutput( nTrackCount, pInstrument, ppComponent, pSong);
+			m_trackMap[ pInstrument->get_id() ][ ii ] = nTrackCount;
 			nTrackCount++;
 		}
 	}
@@ -1126,14 +1131,6 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 		return;
 	}
 
-	auto pDrumkitComponent = pSong->getDrumkit()->getComponent(
-		pInstrumentComponent->get_drumkit_componentID() );
-	if ( pDrumkitComponent == nullptr ) {
-		ERRORLOG( QString( "Drumkit component of ID [%1] could not be found." )
-				  .arg( pInstrumentComponent->get_drumkit_componentID() ) );
-		return;
-	}
-
 	QString sComponentName;
 
 	// The function considers `m_nTrackPortCount' as the number of
@@ -1159,7 +1156,7 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 
 	// Now that we're sure there is an n'th port, rename it.
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
-		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
+		.arg( pInstrument->get_name() ).arg( pInstrumentComponent->getName() );
 
 	if ( jack_port_rename( m_pClient, m_pTrackOutputPortsL[n],
 						   ( sComponentName + "L" ).toLocal8Bit() ) != 0 ) {
