@@ -43,7 +43,6 @@ namespace H2Core
 class XMLNode;
 class ADSR;
 class Drumkit;
-class DrumkitComponent;
 class InstrumentLayer;
 class InstrumentComponent;
 

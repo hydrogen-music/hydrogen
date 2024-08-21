@@ -39,7 +39,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>

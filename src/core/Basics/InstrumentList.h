@@ -33,7 +33,6 @@ namespace H2Core
 
 class XMLNode;
 class Instrument;
-class DrumkitComponent;
 
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...

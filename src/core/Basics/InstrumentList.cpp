@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
