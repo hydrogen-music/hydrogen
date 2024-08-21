@@ -38,6 +38,8 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID,
 	: __related_drumkit_componentID( related_drumkit_componentID )
 	, m_sName( sName )
 	, m_fGain( fGain )
+	, m_bIsMuted( false )
+	, m_bIsSoloed( false )
 {
 	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
@@ -49,6 +51,8 @@ InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> o
 	: __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, m_sName( other->m_sName )
 	, m_fGain( other->m_fGain )
+	, m_bIsMuted( other->m_bIsMuted )
+	, m_bIsSoloed( other->m_bIsSoloed )
 {
 	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
@@ -101,6 +105,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 		"name", pInstrumentComponent->m_sName, true, false, bSilent );
 	pInstrumentComponent->m_fGain = node.read_float(
 		"gain", pInstrumentComponent->m_fGain, true, false, bSilent );
+	pInstrumentComponent->m_bIsMuted = node.read_bool(
+		"isMuted", pInstrumentComponent->m_bIsMuted, true, false, bSilent );
+	pInstrumentComponent->m_bIsSoloed = node.read_bool(
+		"isSoloed", pInstrumentComponent->m_bIsSoloed, true, false, bSilent );
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
@@ -131,6 +139,8 @@ void InstrumentComponent::saveTo( XMLNode& node,
 		component_node = node.createNode( "instrumentComponent" );
 		component_node.write_string( "name", m_sName );
 		component_node.write_float( "gain", m_fGain );
+		component_node.write_bool( "isMuted", m_bIsMuted );
+		component_node.write_bool( "isSoloed", m_bIsSoloed );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = getLayer( n );
@@ -154,6 +164,10 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 					 .arg( m_sName ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fGain ) )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_bIsSoloed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsSoloed ) )
 			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_layers:\n" ).arg( sPrefix ).arg( s ) );
@@ -168,6 +182,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			.append( QString( " related_drumkit_componentID: %1" ).arg( __related_drumkit_componentID ) )
 			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
+			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
+			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
 			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
 			.append( QString( ", m_layers: [" ) );
 	

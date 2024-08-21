@@ -34,6 +34,8 @@
 		<xsd:sequence>
 			<xsd:element name="name"			type="xsd:string"/>
 			<xsd:element name="gain"			type="xsd:float"/>
+			<xsd:element name="isMuted"			type="h2:bool"/>
+			<xsd:element name="isSoloed"		type="h2:bool"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -81,6 +83,8 @@
 			<xsd:element name="max"				type="xsd:float"/>
 			<xsd:element name="gain"			type="xsd:float"/>
 			<xsd:element name="pitch"			type="xsd:float"/>
+			<xsd:element name="isMuted"			type="h2:bool"/>
+			<xsd:element name="isSoloed"		type="h2:bool"/>
 			<xsd:element name="ismodified"		type="h2:bool" minOccurs="0"/>
 			<xsd:element name="smode"			type="xsd:string" minOccurs="0"/>
 			<xsd:element name="startframe"		type="xsd:nonNegativeInteger" minOccurs="0"/>

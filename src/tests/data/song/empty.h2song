@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.3.0-alpha-'d3404ea5e'</version>
+ <version>1.3.0-alpha-'8c60eb06f'</version>
  <formatVersion>2</formatVersion>
  <bpm>120</bpm>
  <volume>0.5</volume>
@@ -83,12 +83,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -106,6 +110,8 @@ p, li { white-space: pre-wrap; }
       <max>0.369565</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -123,6 +129,8 @@ p, li { white-space: pre-wrap; }
       <max>0.731884</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -140,6 +148,8 @@ p, li { white-space: pre-wrap; }
       <max>0.865942</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -157,6 +167,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -207,12 +219,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -230,6 +246,8 @@ p, li { white-space: pre-wrap; }
       <max>0.402174</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -247,6 +265,8 @@ p, li { white-space: pre-wrap; }
       <max>0.597826</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -264,6 +284,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -281,6 +303,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -331,12 +355,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Snare-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -354,6 +382,8 @@ p, li { white-space: pre-wrap; }
       <max>0.376812</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -371,6 +401,8 @@ p, li { white-space: pre-wrap; }
       <max>0.568841</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -388,6 +420,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -405,6 +439,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -455,12 +491,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HandClap.wav</filename>
       <min>0</min>
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -511,12 +551,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -534,6 +578,8 @@ p, li { white-space: pre-wrap; }
       <max>0.380435</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -551,6 +597,8 @@ p, li { white-space: pre-wrap; }
       <max>0.594203</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -568,6 +616,8 @@ p, li { white-space: pre-wrap; }
       <max>0.728261</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -585,6 +635,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -635,12 +687,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
       <min>0</min>
       <max>0.199275</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -658,6 +714,8 @@ p, li { white-space: pre-wrap; }
       <max>0.394928</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -675,6 +733,8 @@ p, li { white-space: pre-wrap; }
       <max>0.608696</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -692,6 +752,8 @@ p, li { white-space: pre-wrap; }
       <max>0.786232</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -709,6 +771,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -759,12 +823,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
       <min>0</min>
       <max>0.173913</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -782,6 +850,8 @@ p, li { white-space: pre-wrap; }
       <max>0.373188</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -799,6 +869,8 @@ p, li { white-space: pre-wrap; }
       <max>0.576087</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -816,6 +888,8 @@ p, li { white-space: pre-wrap; }
       <max>0.786232</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -833,6 +907,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -883,12 +959,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
       <min>0</min>
       <max>0.177536</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -906,6 +986,8 @@ p, li { white-space: pre-wrap; }
       <max>0.373188</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -923,6 +1005,8 @@ p, li { white-space: pre-wrap; }
       <max>0.576087</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -940,6 +1024,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -957,6 +1043,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1007,12 +1095,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
       <min>0</min>
       <max>0.210145</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1030,6 +1122,8 @@ p, li { white-space: pre-wrap; }
       <max>0.384058</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1047,6 +1141,8 @@ p, li { white-space: pre-wrap; }
       <max>0.594203</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1064,6 +1160,8 @@ p, li { white-space: pre-wrap; }
       <max>0.797101</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1081,6 +1179,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1131,12 +1231,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1154,6 +1258,8 @@ p, li { white-space: pre-wrap; }
       <max>0.394928</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1171,6 +1277,8 @@ p, li { white-space: pre-wrap; }
       <max>0.605072</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1188,6 +1296,8 @@ p, li { white-space: pre-wrap; }
       <max>0.786232</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1205,6 +1315,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1255,12 +1367,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
       <min>0</min>
       <max>0.202899</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1278,6 +1394,8 @@ p, li { white-space: pre-wrap; }
       <max>0.398551</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1295,6 +1413,8 @@ p, li { white-space: pre-wrap; }
       <max>0.605072</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1312,6 +1432,8 @@ p, li { white-space: pre-wrap; }
       <max>0.797101</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1329,6 +1451,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1379,12 +1503,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
       <min>0</min>
       <max>0.184783</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1402,6 +1530,8 @@ p, li { white-space: pre-wrap; }
       <max>0.384058</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1419,6 +1549,8 @@ p, li { white-space: pre-wrap; }
       <max>0.576087</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1436,6 +1568,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1453,6 +1587,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1503,12 +1639,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Ride-Softest.wav</filename>
       <min>0</min>
       <max>0.195652</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1526,6 +1666,8 @@ p, li { white-space: pre-wrap; }
       <max>0.376812</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1543,6 +1685,8 @@ p, li { white-space: pre-wrap; }
       <max>0.572464</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1560,6 +1704,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1577,6 +1723,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1627,12 +1775,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Crash-Softest.wav</filename>
       <min>0</min>
       <max>0.199275</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1650,6 +1802,8 @@ p, li { white-space: pre-wrap; }
       <max>0.384058</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1667,6 +1821,8 @@ p, li { white-space: pre-wrap; }
       <max>0.59058</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1684,6 +1840,8 @@ p, li { white-space: pre-wrap; }
       <max>0.789855</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1701,6 +1859,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1751,12 +1911,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/24Ride-5.wav</filename>
       <min>0.8</min>
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1774,6 +1938,8 @@ p, li { white-space: pre-wrap; }
       <max>0.8</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1791,6 +1957,8 @@ p, li { white-space: pre-wrap; }
       <max>0.6</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1808,6 +1976,8 @@ p, li { white-space: pre-wrap; }
       <max>0.4</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1825,6 +1995,8 @@ p, li { white-space: pre-wrap; }
       <max>0.2</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1875,12 +2047,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Splash-Softest.wav</filename>
       <min>0</min>
       <max>0.195652</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1898,6 +2074,8 @@ p, li { white-space: pre-wrap; }
       <max>0.362319</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1915,6 +2093,8 @@ p, li { white-space: pre-wrap; }
       <max>0.568841</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1932,6 +2112,8 @@ p, li { white-space: pre-wrap; }
       <max>0.75</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1949,6 +2131,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -1999,12 +2183,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/HatSemiOpen-Softest.wav</filename>
       <min>0</min>
       <max>0.188406</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2022,6 +2210,8 @@ p, li { white-space: pre-wrap; }
       <max>0.380435</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2039,6 +2229,8 @@ p, li { white-space: pre-wrap; }
       <max>0.57971</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2056,6 +2248,8 @@ p, li { white-space: pre-wrap; }
       <max>0.782609</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2073,6 +2267,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2123,12 +2319,16 @@ p, li { white-space: pre-wrap; }
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <layer>
       <filename>../../../../data/drumkits/GMRockKit/Bell-Softest.wav</filename>
       <min>0</min>
       <max>0.210145</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2146,6 +2346,8 @@ p, li { white-space: pre-wrap; }
       <max>0.405797</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2163,6 +2365,8 @@ p, li { white-space: pre-wrap; }
       <max>0.605072</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2180,6 +2384,8 @@ p, li { white-space: pre-wrap; }
       <max>0.786232</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>
@@ -2197,6 +2403,8 @@ p, li { white-space: pre-wrap; }
       <max>1</max>
       <gain>1</gain>
       <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
       <ismodified>false</ismodified>
       <smode>forward</smode>
       <startframe>0</startframe>

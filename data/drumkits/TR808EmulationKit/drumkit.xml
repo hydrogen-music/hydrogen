@@ -69,12 +69,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Kick_Long.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -123,12 +127,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Kick_Short.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -177,12 +185,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Snare_1.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -231,12 +243,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Snare_2.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -285,12 +301,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Clap.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -339,12 +359,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Low.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -393,12 +417,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Mid.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -447,12 +475,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Hi.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -501,12 +533,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Closed.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -555,12 +591,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Pedal.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -609,12 +649,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Open.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -663,12 +707,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Cymbal.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -717,12 +765,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Shaker.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -771,12 +823,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Conga.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -825,12 +881,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Clave.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -879,12 +939,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Cowbell.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>

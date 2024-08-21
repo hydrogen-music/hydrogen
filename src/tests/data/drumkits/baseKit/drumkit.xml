@@ -55,12 +55,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>crash.wav</filename>
      <min>0.5</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -78,6 +82,8 @@ p, li { white-space: pre-wrap; }
      <max>0.5</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -126,12 +132,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>hh.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -180,12 +190,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>snare.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -234,12 +248,16 @@ p, li { white-space: pre-wrap; }
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>kick.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>

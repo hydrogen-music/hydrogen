@@ -79,6 +79,12 @@ namespace H2Core
 		void set_end_velocity( float end );
 		/** get the end velocity of the layer */
 		float get_end_velocity() const;
+
+		void				setIsMuted( bool bIsMuted );
+		bool				getIsMuted() const;
+		void				setIsSoloed( bool bIsSoloed );
+		bool				getIsSoloed() const;
+
 		/** set the sample of the layer */
 		void set_sample( std::shared_ptr<Sample> sample );
 		/** get the sample of the layer */
@@ -144,6 +150,8 @@ namespace H2Core
 		float __pitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
 		float __start_velocity;     ///< the start velocity of the sample, 0.0 by default
 		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
+		bool				m_bIsMuted;
+		bool				m_bIsSoloed;
 		std::shared_ptr<Sample> __sample;           ///< the underlaying sample
 	};
 
@@ -183,6 +191,19 @@ namespace H2Core
 	{
 		return __end_velocity;
 	}
+
+inline void InstrumentLayer::setIsMuted( bool bIsMuted ) {
+	m_bIsMuted = bIsMuted;
+}
+inline bool InstrumentLayer::getIsMuted() const {
+	return m_bIsMuted;
+}
+inline void InstrumentLayer::setIsSoloed( bool bIsSoloed ) {
+	m_bIsSoloed = bIsSoloed;
+}
+inline bool InstrumentLayer::getIsSoloed() const {
+	return m_bIsSoloed;
+}
 
 	inline std::shared_ptr<Sample> InstrumentLayer::get_sample() const
 	{

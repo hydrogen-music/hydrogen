@@ -73,6 +73,13 @@ different _copy_ of the parent `Instrument` in the redo/undo process and the
 `Instrument` embedded in a `Note` for rendering in `Sampler` does not notice any
 of those changes.
 
+In an effort to both ease drumkit creation/modification as well as to drop as
+little features as possible, `InstrumentComponent` will get `isMuted` and
+`isSoloed` states (which previously resided in `DrumkitComponent`). The
+corresponding buttons, however, will be moved to the instrument editor. For
+consistency (and since I'm already at it) `InstrumentLayer` will an `isMuted`
+and `isSoloed` too.
+
 ### Consequences
 
 * `DrumkitComponent` will be dropped.

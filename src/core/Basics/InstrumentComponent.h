@@ -78,6 +78,11 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		void				setGain( float gain );
 		float				getGain() const;
+		
+		void				setIsMuted( bool bIsMuted );
+		bool				getIsMuted() const;
+		void				setIsSoloed( bool bIsSoloed );
+		bool				getIsSoloed() const;
 
 		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
@@ -105,7 +110,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		    accessed via get_drumkit_componentID(). */
 		int					__related_drumkit_componentID;
 		float				m_fGain;
-		
+
+		bool				m_bIsMuted;
+		bool				m_bIsSoloed;
+
 		/** Maximum number of layers to be used in the
 		 *  Instrument editor.
 		 *
@@ -145,6 +153,19 @@ inline void InstrumentComponent::setGain( float gain )
 inline float InstrumentComponent::getGain() const
 {
 	return m_fGain;
+}
+
+inline void InstrumentComponent::setIsMuted( bool bIsMuted ) {
+	m_bIsMuted = bIsMuted;
+}
+inline bool InstrumentComponent::getIsMuted() const {
+	return m_bIsMuted;
+}
+inline void InstrumentComponent::setIsSoloed( bool bIsSoloed ) {
+	m_bIsSoloed = bIsSoloed;
+}
+inline bool InstrumentComponent::getIsSoloed() const {
+	return m_bIsSoloed;
 }
 
 inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx ) const

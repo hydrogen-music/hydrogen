@@ -35,6 +35,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Patterns are now independent of Drumkits and the latter can switched
 			without the need to adjust the patterns. Mapping between the two will be
 			done using "instrument types".
+		- `<instrumentComponent>` and `<instrumentLayer>` elements in drumkit XML
+			definitions contain two new elements: `<isMuted>` and `<isSoloed>`.
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
