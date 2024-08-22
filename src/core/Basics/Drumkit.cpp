@@ -466,7 +466,9 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
-
+			if ( pComponent == nullptr ) {
+				continue;
+			}
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pComponent->get_layer( n );
 				if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
