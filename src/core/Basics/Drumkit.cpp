@@ -234,6 +234,13 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
 		pInstrumentList = std::make_shared<InstrumentList>();
 	}
+
+	// For kits created between 0.9.7 and 1.2.X, retrieve InstrumentComponent
+	// names from former DrumkitComponents.
+	XMLNode componentListNode = node.firstChildElement( "componentList" );
+	if ( ! componentListNode.isNull() ) {
+		Legacy::loadComponentNames( pInstrumentList, node );
+	}
 		
 	pDrumkit->setInstruments( pInstrumentList );
 

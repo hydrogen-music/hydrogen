@@ -45,6 +45,16 @@ class XMLNode;
 class Legacy : public H2Core::Object<Legacy> {
 		H2_OBJECT(Legacy)
 	public:
+
+		/** Backward compatibility for kits created between 0.9.7 and 1.2.X.
+		 * These included an element called `DrumkitComponent` holding some
+		 * parameters now included in `InstrumentComponent`. This function
+		 * searches for those parameters and assignes them to the components in
+		 * @a pInstrumentList. */
+		static void loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList,
+										const XMLNode& rootNode,
+										bool bSilent = false );
+
 	/** backward compatibility for loading the current drumkit from songs saved
 	 * prior to version 1.3.0.
 	 *

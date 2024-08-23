@@ -215,6 +215,37 @@ void XmlTest::testDrumkit()
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testDrumkitLegacy()
+{
+	___INFOLOG( "" );
+
+	QDir legacyDir( H2TEST_FILE( "drumkits/legacyKits" ) );
+
+	// Check whether all contained kits can be loaded.
+	for ( const auto& ssDir : legacyDir.entryList( QDir::Dirs |
+													QDir::NoDotAndDotDot ) ) {
+		___INFOLOG( ssDir );
+		const auto pDrumkit = H2Core::Drumkit::load(
+			legacyDir.filePath( ssDir ), false, false );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+	}
+
+	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
+	// 1.2.X are properly ported to InstrumentComponents.
+	const auto pDrumkit = H2Core::Drumkit::load(
+		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3" ), false, false );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getInstruments()->get( 0 ) != nullptr );
+	const auto pInstrument = pDrumkit->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrument->get_component( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrument->get_component( 1 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrument->get_component( 0 )->getName() == "Second" );
+	CPPUNIT_ASSERT( pInstrument->get_component( 1 )->getName() == "First" );
+
+
+	___INFOLOG( "passed" );
+}
+
 //Load drumkit which includes instrument with invalid ADSR values.
 // Expected behavior: The drumkit will be loaded successfully. 
 //					  In addition, the drumkit file will be saved with 

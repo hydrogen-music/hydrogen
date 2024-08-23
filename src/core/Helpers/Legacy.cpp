@@ -27,7 +27,6 @@
 
 #include <core/Helpers/Legacy.h>
 
-#include "Version.h"
 #include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Basics/Song.h>
@@ -46,6 +45,96 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
+
+void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList,
+								 const XMLNode &rootNode, bool bSilent ) {
+	if ( pInstrumentList == nullptr ) {
+		ERRORLOG( "Invalid instrument list" );
+	}
+
+	// Formerly `InstrumentComponent`s features an int parameter - called
+	// `component_id` - linking it with a `DrumkitComponent` of the same Id. The
+	// latter did hold the name of the component. The following map will search
+	// for all components and uses ID as key and name as value.
+	std::map<int, QString> componentMap;
+
+	XMLNode componentListNode = rootNode.firstChildElement( "componentList" );
+	if ( ! componentListNode.isNull() ) {
+		 XMLNode componentNode =
+			 componentListNode.firstChildElement( "drumkitComponent" );
+		 while ( ! componentNode.isNull()  ) {
+			 auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
+			 if ( pDrumkitComponent != nullptr ) {
+				 const int nId = componentNode.read_int(
+					 "id", -1, false, false, bSilent );
+				 if ( nId != -1 ) {
+					 // -1 was used as the null element.
+					 componentMap[ nId ] = componentNode.read_string(
+						 "name", "", false, false, bSilent );
+				 }
+			 }
+
+			 componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
+		 }
+	}
+
+	if ( componentMap.size() > 0 ) {
+		const XMLNode instrumentListNode =
+			rootNode.firstChildElement( "instrumentList" );
+		if ( instrumentListNode.isNull() ) {
+			ERRORLOG( "No <instrumentList> node found" );
+			return;
+		}
+
+		XMLNode instrumentNode =
+			instrumentListNode.firstChildElement( "instrument" );
+		while ( !instrumentNode.isNull() ) {
+
+
+			const int nInstrumentId = instrumentNode.read_int(
+				"id", -2, false, false, bSilent );
+			auto pInstrument = pInstrumentList->get( nInstrumentId );
+			if ( pInstrument == nullptr ) {
+				if ( ! bSilent ) {
+					WARNINGLOG( QString( "No instrument found for ID [%1]" )
+								.arg( nInstrumentId ) );
+				}
+				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
+				continue;
+			}
+
+			// In current versions of Hydrogen there is no dedicated ID but the
+			// component is defined by its position in the component vector.
+			int nnComponent = 0;
+
+			XMLNode instrumentComponentNode =
+				instrumentNode.firstChildElement( "instrumentComponent" );
+			while ( ! instrumentComponentNode.isNull() ) {
+				const int nComponentId = instrumentComponentNode.read_int(
+					"component_id", -1, false, false, bSilent );
+				if ( auto search = componentMap.find( nComponentId );
+					 search != componentMap.end() ){
+					// There is a name available for this instrument component.
+					auto pInstrumentComponent =
+						pInstrument->get_component( nnComponent );
+					if ( pInstrumentComponent != nullptr ) {
+						pInstrumentComponent->setName(
+							componentMap[ nComponentId ] );
+					}
+					else if ( ! bSilent ) {
+						WARNINGLOG( QString( "No InstrumentComponent found for [%1]" )
+									.arg( nnComponent ) );
+					}
+				}
+				++nnComponent;
+				instrumentComponentNode =
+					instrumentComponentNode.nextSiblingElement( "instrumentComponent" );
+			}
+
+			instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
+		}
+	}
+}
 
 std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	const XMLNode& node, const QString& sSongPath, bool bSilent )
