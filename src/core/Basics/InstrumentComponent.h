@@ -44,7 +44,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		H2_OBJECT(InstrumentComponent)
 	public:
 		InstrumentComponent( int related_drumkit_componentID,
-							 const QString& sName = "Main", float fGain = 1.0 );
+							 const QString& sName = "", float fGain = 1.0 );
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 

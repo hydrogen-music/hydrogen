@@ -41,6 +41,14 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID,
 	, m_bIsMuted( false )
 	, m_bIsSoloed( false )
 {
+	/*: Name assigned to an InstrumentComponent of a fresh instrument. */
+	const QString sComponentName =
+		QT_TRANSLATE_NOOP( "InstrumentComponent", "Main");
+
+	if ( sName.isEmpty() ) {
+		m_sName = sComponentName;
+	}
+
 	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
 		m_layers[i] = nullptr;
