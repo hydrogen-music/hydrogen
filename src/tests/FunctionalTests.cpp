@@ -29,7 +29,6 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>

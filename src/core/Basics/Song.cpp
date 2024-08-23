@@ -530,7 +530,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 }
 
 /// Save a song to file
-bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
+bool Song::save( const QString& sFilename, bool bSilent )
 {
 	QFileInfo fi( sFilename );
 	if ( ( Filesystem::file_exists( sFilename, true ) &&
@@ -557,7 +557,7 @@ bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	saveTo( rootNode, bLegacy, bSilent );
+	saveTo( rootNode, bSilent );
 
 	setFilename( sFilename );
 	setIsModified( false );
@@ -718,7 +718,7 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 	}
 }
 
-void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
+void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
