@@ -31,7 +31,6 @@
 #include <core/License.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -63,15 +62,12 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 		 XMLNode componentNode =
 			 componentListNode.firstChildElement( "drumkitComponent" );
 		 while ( ! componentNode.isNull()  ) {
-			 auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
-			 if ( pDrumkitComponent != nullptr ) {
-				 const int nId = componentNode.read_int(
-					 "id", -1, false, false, bSilent );
-				 if ( nId != -1 ) {
-					 // -1 was used as the null element.
-					 componentMap[ nId ] = componentNode.read_string(
-						 "name", "", false, false, bSilent );
-				 }
+			 const int nId = componentNode.read_int(
+				 "id", -1, false, false, bSilent );
+			 if ( nId != -1 ) {
+				 // -1 was used as the null element.
+				 componentMap[ nId ] = componentNode.read_string(
+					 "name", "", false, false, bSilent );
 			 }
 
 			 componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
@@ -140,33 +136,12 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	const XMLNode& node, const QString& sSongPath, bool bSilent )
 {
 
-	// These old kits contain only an instrument list and all instrument
-	// components and rely on sample loading per-instrument. How the kit itself
-	// is called was only introduced somewhere after 1.0.0 and might not be
-	// present at all. We try to determine the name and use all metadata of the
-	// kit in case it is installed. If not, we just fall back to sane defaults
-	// and a drumkit name indicating legacy loading.
-
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pComponents =
-		std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	XMLNode componentListNode = node.firstChildElement( "componentList" );
-	if ( ( ! componentListNode.isNull()  ) ) {
-		// Song was written after the introduction of components.
-		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
-		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
-			if ( pDrumkitComponent != nullptr ) {
-				pComponents->push_back( pDrumkitComponent );
-			}
-
-			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
-		}
-	}
-	else {
-		// No components here yet. Fall back to default one.
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-		pComponents->push_back( pDrumkitComponent );
-	}
+	// These old kits contain only an instrument list and former
+	// DrumkitComponent and rely on sample loading per-instrument. How the kit
+	// itself is called was only introduced somewhere after 1.0.0 and might not
+	// be present at all. We try to determine the name and use all metadata of
+	// the kit in case it is installed. If not, we just fall back to sane
+	// defaults and a drumkit name indicating legacy loading.
 
 	// Since drumkit parts were stored at root level, we have access to all
 	// other data in here too.
@@ -187,6 +162,8 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
+
+	Legacy::loadComponentNames( pInstrumentList, node );
 
 	QString sLastLoadedDrumkitPath =
 		node.read_string( "last_loaded_drumkit", "", true, false, true );
@@ -261,29 +238,11 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	}
 
 	// Assign the loaded parts and load samples.
-	pNewDrumkit->setComponents( pComponents );
 	pNewDrumkit->setInstruments( pInstrumentList );
 
 	pNewDrumkit->fixupTypes( bSilent );
 
 	return pNewDrumkit;
-}
-
-void Legacy::saveEmbeddedSongDrumkit( XMLNode& rootNode,
-									  std::shared_ptr<Drumkit> pDrumkit,
-									  bool bSilent ) {
-
-	rootNode.write_string( "last_loaded_drumkit", pDrumkit->getPath() );
-	rootNode.write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
-
-	XMLNode componentListNode = rootNode.createNode( "componentList" );
-	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
-		if ( ppComponent != nullptr ) {
-			ppComponent->save_to( componentListNode );
-		}
-	}
-
-	pDrumkit->getInstruments()->save_to( rootNode, -1, true, true );
 }
 
 std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(

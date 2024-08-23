@@ -37,7 +37,6 @@ namespace H2Core
 
 class XMLDoc;
 class XMLNode;
-class DrumkitComponent;
 
 /**
  * Drumkit info
@@ -298,21 +297,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
 
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> getComponents() const;
-	void setComponents( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
-		std::shared_ptr<DrumkitComponent> getComponent( int nId ) const;
-
-		/** Deletes a component from the kit and all included instruments. */
-		void removeComponent( int nId );
-
-		/** Adds a component to the kit and all included instruments. */
-		void addComponent( std::shared_ptr<DrumkitComponent> pComponent );
-		/** Creates a new component with a free ID and adds it to the kit as
-		 * well as all included instruments.
-		 *
-		 * @return the created component for further ues. */
-		std::shared_ptr<DrumkitComponent> addComponent();
-
 		/** Maps a compoment Id to an unique component label.*/
 		std::map<int, QString> generateUniqueComponentLabels() const;
 
@@ -368,7 +352,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> m_pComponents;  ///< list of drumkit component
 
 
 		/**
@@ -509,11 +492,6 @@ inline const License& Drumkit::getImageLicense() const
 inline const bool Drumkit::areSamplesLoaded() const
 {
 	return m_bSamplesLoaded;
-}
-
-inline std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> Drumkit::getComponents() const
-{
-	return m_pComponents;
 }
 
 };

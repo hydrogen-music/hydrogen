@@ -26,7 +26,6 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -72,14 +71,6 @@ void MemoryLeakageTest::testConstructors() {
 		auto pDrumkit2 = std::make_shared<H2Core::Drumkit>( pDrumkit );
 		pDrumkit = nullptr;
 		pDrumkit2 = nullptr;
-		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
-	}
-
-	{
-		auto pDrumkitComponent = std::make_shared<H2Core::DrumkitComponent>( 0, "ladida" );
-		auto pDrumkitComponent2 = std::make_shared<H2Core::DrumkitComponent>( pDrumkitComponent );
-		pDrumkitComponent = nullptr;
-		pDrumkitComponent2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -219,14 +210,6 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pDrumkitComponents = pSongProper->getDrumkit()->getComponents();
-		auto pDrumkitComponent = std::make_shared<H2Core::DrumkitComponent>( (*pDrumkitComponents)[0] );
-		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
-		pDrumkitComponent = nullptr;
-		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
-	}
-
-	{
 		auto pInstrument = new H2Core::Instrument( pDrumkitProper->getInstruments()->get( 0 ) );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		delete pInstrument;
@@ -280,15 +263,6 @@ void MemoryLeakageTest::testLoading() {
 	QString sDrumkitPath =
 		H2Core::Filesystem::drumkit_path_search( "GMRockKit",
 												 H2Core::Filesystem::Lookup::system );
-
-	{
-		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/drumkitComponent.xml" ) ) );
-		node = doc.firstChildElement( "drumkitComponent" );
-		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( node );
-		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
-		pDrumkitComponent = nullptr;
-		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
-	}
 
 	{
 		auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit/" ),

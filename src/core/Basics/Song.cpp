@@ -799,20 +799,14 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	rootNode.write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	rootNode.write_float( "swing_factor", m_fSwingFactor );
 
-	if ( !bLegacy ) {
-		// Current format
-		//
-		// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated
-		// by a ancient design desicion and we will stick to it.
-		auto drumkitNode = rootNode.createNode( "drumkit_info" );
-		m_pDrumkit->saveTo( drumkitNode,
-							-1, // All components
-							true, // Use the most-recent format
-							true, // Enable per-instrument sample loading
-							bSilent );
-	} else {
-		Legacy::saveEmbeddedSongDrumkit( rootNode, m_pDrumkit, bSilent );
-	}
+	// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated by a
+	// ancient design desicion and we will stick to it.
+	auto drumkitNode = rootNode.createNode( "drumkit_info" );
+	m_pDrumkit->saveTo( drumkitNode,
+						-1, // All components
+						true, // Use the most-recent format
+						true, // Enable per-instrument sample loading
+						bSilent );
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
