@@ -210,23 +210,6 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 						  pDrumkit->m_sAuthor );
 	pDrumkit->setImageLicense( imageLicense );
 
-	XMLNode componentListNode = node.firstChildElement( "componentList" );
-	if ( ! componentListNode.isNull() ) {
-		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
-		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
-			if ( pDrumkitComponent != nullptr ) {
-				pDrumkit->getComponents()->push_back(pDrumkitComponent);
-			}
-
-			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
-		}
-	} else {
-		WARNINGLOG( "componentList node not found" );
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-		pDrumkit->getComponents()->push_back(pDrumkitComponent);
-	}
-
 	auto pInstrumentList = InstrumentList::load_from(
 		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit, false );
 	// Required to assure backward compatibility.
@@ -471,49 +454,6 @@ void Drumkit::saveTo( XMLNode& node,
 	}
 	node.write_string( "image", sImage );
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
-
-	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
-	// have components. If the user decides to export the kit to
-	// legacy version, the components will be omitted and Instrument
-	// layers corresponding to component_id will be exported.
-	if ( bRecentVersion ) {
-		XMLNode components_node = node.createNode( "componentList" );
-		if ( component_id == -1 && m_pComponents->size() > 0 ) {
-			for ( const auto& pComponent : *m_pComponents ){
-				pComponent->save_to( components_node );
-			}
-		}
-		else {
-			bool bComponentFound = false;
-
-			if ( component_id != -1 ) {
-				for ( const auto& pComponent : *m_pComponents ){
-					if ( pComponent != nullptr &&
-						 pComponent->get_id() == component_id ) {
-						bComponentFound = true;
-						pComponent->save_to( components_node );
-					}
-				}
-			} else {
-				WARNINGLOG( "Drumkit has no components. Storing an empty one as fallback." );
-			}
-
-			if ( ! bComponentFound ) {
-				if ( component_id != -1 ) {
-					ERRORLOG( QString( "Unable to retrieve DrumkitComponent [%1]. Storing an empty one as fallback." )
-							  .arg( component_id ) );
-				}
-				auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-				pDrumkitComponent->save_to( components_node );
-			}
-		}
-	} else {
-		// Legacy export
-		if ( component_id == -1 ) {
-			ERRORLOG( "Exporting the full drumkit with all components is allowed when targeting the legacy versions >= 0.9.6" );
-			return;
-		}
-	}
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
 		m_pInstruments->save_to( node, component_id, bRecentVersion,

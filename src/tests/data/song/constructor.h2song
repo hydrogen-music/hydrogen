@@ -34,13 +34,6 @@
   <license>undefined license</license>
   <image></image>
   <imageLicense>undefined license</imageLicense>
-  <componentList>
-   <drumkitComponent>
-    <id>0</id>
-    <name>Main</name>
-    <volume>1</volume>
-   </drumkitComponent>
-  </componentList>
   <instrumentList>
    <instrument>
     <id>-1</id>
