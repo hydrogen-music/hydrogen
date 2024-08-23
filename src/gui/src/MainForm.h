@@ -85,6 +85,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
 
+		static void exportDrumkit( std::shared_ptr<H2Core::Drumkit> pDrumkit );
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;

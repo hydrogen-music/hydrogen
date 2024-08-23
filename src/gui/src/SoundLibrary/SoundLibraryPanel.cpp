@@ -28,7 +28,6 @@
 #include "SoundLibraryTree.h"
 
 #include "DrumkitPropertiesDialog.h"
-#include "DrumkitExportDialog.h"
 
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
@@ -737,9 +736,8 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-	
-	DrumkitExportDialog exportDialog( this, std::make_shared<Drumkit>(pDrumkit) );
-	exportDialog.exec();
+
+	MainForm::exportDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
 }
 
 void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {

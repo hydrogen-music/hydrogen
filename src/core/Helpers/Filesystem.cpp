@@ -100,6 +100,7 @@ const QString Filesystem::playlist_ext = ".h2playlist";
 const QString Filesystem::drumkit_ext = ".h2drumkit";
 const QString Filesystem::drumkit_map_ext = ".h2map";
 const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
+const QString Filesystem::drumkit_filter_name = "Hydrogen Drumkit (*.h2drumkit)";
 const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
 const QString Filesystem::themes_filter_name = "Hydrogen Theme (*.h2theme)";
 const QString Filesystem::patterns_filter_name = "Hydrogen Patterns (*.h2pattern)";

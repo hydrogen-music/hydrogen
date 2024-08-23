@@ -80,6 +80,7 @@ namespace H2Core
 		static const QString drumkit_ext;
 		static const QString drumkit_map_ext;
 		static const QString themes_ext;
+		static const QString drumkit_filter_name;
 		static const QString songs_filter_name;
 		static const QString themes_filter_name;
 		static const QString scripts_filter_name;

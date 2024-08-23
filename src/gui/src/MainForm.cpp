@@ -71,7 +71,6 @@
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryOnlineImportDialog.h"
 #include "SoundLibrary/DrumkitOpenDialog.h"
-#include "SoundLibrary/DrumkitExportDialog.h"
 #include "SoundLibrary/DrumkitPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistEditor.h"
 
@@ -1409,28 +1408,28 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 
 void MainForm::action_drumkit_export() {
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 	
-	auto pDrumkit = pSong->getDrumkit();
+	const auto pDrumkit = pSong->getDrumkit();
 	if ( pDrumkit == nullptr ){
 		return;
 	}
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	// The song drumkit we want to export is a somewhat floating one. It does
-	// not contain samples by itself but is composed by instrument that either
+	// not contain samples by itself but is composed of instruments that either
 	// borrow their samples from kits in the Sound Library or access them using
 	// absolute paths. To allow exporting it, we save it to a temporary folder
 	// and proceed with a regular export from there.
 	QTemporaryDir tmpDir;
     if ( ! tmpDir.isValid() ) {
 		ERRORLOG( "Unable to create tmp folder" );
-		QMessageBox::critical( this, "Hydrogen",
+		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getExportDrumkitFailure() );
 		return;
     }
@@ -1447,15 +1446,105 @@ void MainForm::action_drumkit_export() {
 		QApplication::restoreOverrideCursor();
 		ERRORLOG( QString( "Unable to save kit to tmp folder [%1]" )
 				  .arg( tmpDir.path() ) );
-		QMessageBox::critical( this, "Hydrogen",
+		QMessageBox::critical( nullptr, "Hydrogen",
 							   pCommonStrings->getExportDrumkitFailure() );
 		return;
 	}
 
 	QApplication::restoreOverrideCursor();
 
-	DrumkitExportDialog exportDialog( this, pNewDrumkit );
-	exportDialog.exec();
+	exportDrumkit( pNewDrumkit );
+}
+
+void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
+	if ( ! HydrogenApp::checkDrumkitLicense( pDrumkit ) ) {
+		ERRORLOG( "User cancelled dialog due to licensing issues." );
+		return;
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pPref = H2Core::Preferences::get_instance();
+
+	QString sPath = pPref->getLastExportDrumkitDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
+
+	const QString sTitle = QString( "%1 [%2]" )
+		.arg( tr( "Export Drumkit" ) )
+		.arg( pDrumkit != nullptr ? pDrumkit->getName() : tr( "invalid drumkit" ) );
+
+	FileDialog fd( nullptr );
+	fd.setWindowTitle( sTitle );
+	fd.setDirectory( sPath );
+	fd.selectFile( pDrumkit->getExportName() );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setNameFilter( Filesystem::drumkit_filter_name );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setDefaultSuffix( Filesystem::drumkit_ext );
+
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	QFileInfo fileInfo = fd.selectedFiles().first();
+	pPref->setLastExportDrumkitDirectory( fileInfo.path() );
+	QString sFilePath = fileInfo.absoluteFilePath();
+
+	if ( ! Filesystem::dir_writable(
+			 fileInfo.absoluteDir().absolutePath(), false ) ) {
+		QMessageBox::warning( nullptr, "Hydrogen",
+							  pCommonStrings->getFileDialogMissingWritePermissions(),
+							  QMessageBox::Ok );
+		return;
+	}
+
+	if ( Filesystem::file_exists( sFilePath, true ) ) {
+		QMessageBox msgBox;
+		msgBox.setWindowTitle("Hydrogen");
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.setText( tr( "The file [%1] does already exist and will be overwritten.")
+						.arg( sFilePath ) );
+
+		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
+		msgBox.setButtonText(QMessageBox::Ok,
+							 pCommonStrings->getButtonOk() );
+		msgBox.setButtonText(QMessageBox::Cancel,
+							 pCommonStrings->getButtonCancel());
+		msgBox.setDefaultButton(QMessageBox::Ok);
+
+		if ( msgBox.exec() == QMessageBox::Cancel ) {
+			return;
+		}
+	}
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	if ( ! pDrumkit->exportTo( sFilePath ) ) {
+		QApplication::restoreOverrideCursor();
+
+		// Check whether encoding might be the problem in here.
+		auto pCodec = QTextCodec::codecForLocale();
+		if ( ! pCodec->canEncode( sFilePath ) ) {
+			QMessageBox::critical(
+				nullptr, "Hydrogen", QString( "%1\n\n%2\n\n%3: [%4]" )
+				.arg( pCommonStrings->getExportDrumkitFailure() )
+				.arg( sFilePath )
+				.arg( pCommonStrings->getEncodingError() )
+				.arg( QString( pCodec->name() ) ) );
+		}
+		else {
+			QMessageBox::critical( nullptr, "Hydrogen",
+								   pCommonStrings->getExportDrumkitFailure() );
+		}
+
+		return;
+	}
+
+	QApplication::restoreOverrideCursor();
+	QMessageBox::information( nullptr, "Hydrogen",
+							  tr("Drumkit exported to") + "\n" +
+							  sFilePath );
 }
 
 bool MainForm::checkDrumkitPathEncoding( const QString& sPath,
