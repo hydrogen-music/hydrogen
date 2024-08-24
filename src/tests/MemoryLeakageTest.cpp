@@ -103,7 +103,7 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto InstrumentComponent = std::make_shared<H2Core::InstrumentComponent>( 0 );
+		auto InstrumentComponent = std::make_shared<H2Core::InstrumentComponent>();
 		auto InstrumentComponent2 = new H2Core::InstrumentComponent( InstrumentComponent );
 		InstrumentComponent = nullptr;
 		delete InstrumentComponent2;

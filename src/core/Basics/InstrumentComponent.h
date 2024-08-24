@@ -43,12 +43,11 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
 		H2_OBJECT(InstrumentComponent)
 	public:
-		InstrumentComponent( int related_drumkit_componentID,
-							 const QString& sName = "", float fGain = 1.0 );
+		InstrumentComponent( const QString& sName = "", float fGain = 1.0 );
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-	void				saveTo( XMLNode& node, bool bSongKit = false ) const;
+		void				saveTo( XMLNode& node, bool bSongKit = false ) const;
 		static std::shared_ptr<InstrumentComponent> loadFrom( const XMLNode& pNode,
 															   const QString& sDrumkitPath,
 															   const QString& sSongPath = "",
@@ -70,9 +69,6 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 	 */
 	const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
 		void				setLayer( std::shared_ptr<InstrumentLayer> layer, int idx );
-
-		void				set_drumkit_componentID( int related_drumkit_componentID );
-		int					get_drumkit_componentID() const;
 
 		void				setGain( float gain );
 		float				getGain() const;
@@ -103,10 +99,6 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 	private:
 		QString 			m_sName;
-		/** Component ID of the drumkit. It is set by
-		    set_drumkit_componentID() and
-		    accessed via get_drumkit_componentID(). */
-		int					__related_drumkit_componentID;
 		float				m_fGain;
 
 		bool				m_bIsMuted;
@@ -129,18 +121,6 @@ inline void InstrumentComponent::setName( const QString& sName ) {
 }
 inline const QString& InstrumentComponent::getName() const {
 	return m_sName;
-}
-/** Sets the component ID #__related_drumkit_componentID
- * \param related_drumkit_componentID New value for the component ID */
-inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_componentID )
-{
-	__related_drumkit_componentID = related_drumkit_componentID;
-}
-/** Returns the component ID of the drumkit.
- * \return #__related_drumkit_componentID */
-inline int InstrumentComponent::get_drumkit_componentID() const
-{
-	return __related_drumkit_componentID;
 }
 
 inline void InstrumentComponent::setGain( float gain )

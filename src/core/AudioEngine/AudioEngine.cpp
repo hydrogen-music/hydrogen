@@ -129,7 +129,7 @@ AudioEngine::AudioEngine()
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
-	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+	auto pCompo = std::make_shared<InstrumentComponent>();
 	pCompo->setLayer( pLayer, 0 );
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);

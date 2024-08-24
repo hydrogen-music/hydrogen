@@ -60,7 +60,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 	auto pInstrument = std::make_shared<Instrument>( id, filepath );
 	pInstrument->set_volume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
-	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
+	auto pComponent = std::make_shared<InstrumentComponent>();
 	
 	pComponent->setLayer( pLayer, 0 );
 	pInstrument->get_components()->push_back( pComponent );

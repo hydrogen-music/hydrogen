@@ -406,7 +406,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 	// There has to be at least one InstrumentComponent
 	if ( pInstrument->get_components()->size() == 0 ) {
 		pInstrument->get_components()->push_back(
-			std::make_shared<InstrumentComponent>( 0 ) );
+			std::make_shared<InstrumentComponent>() );
 	}
 
 	// Check whether there are missing samples
@@ -716,10 +716,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", components: [" ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
-				sOutput.append( QString( " %1" ).arg( cc->get_drumkit_componentID() ) );
+				sOutput.append( QString( " %1" ).arg( cc->getName() ) );
 			}
 		}
-		sOutput.append(" ]\n");
+		sOutput.append("]\n");
 	}
 		
 	return sOutput;

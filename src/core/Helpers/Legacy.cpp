@@ -258,7 +258,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 
 	if ( node.firstChildElement( "filename" ).isNull() ) {
 		// not that old but no component yet.
-		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		auto pCompo = std::make_shared<InstrumentComponent>();
 
 		XMLNode layerNode = node.firstChildElement( "layer" );
 		int nLayer = 0;
@@ -311,7 +311,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 			ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 		}
 	
-		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		auto pCompo = std::make_shared<InstrumentComponent>();
 		auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 		pCompo->setLayer( pLayer, 0 );
 		return pCompo;

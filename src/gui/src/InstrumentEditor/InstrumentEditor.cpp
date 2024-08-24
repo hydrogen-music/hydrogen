@@ -1122,7 +1122,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( !pCompo ) {
-				pCompo = std::make_shared<InstrumentComponent>( m_nSelectedComponent );
+				pCompo = std::make_shared<InstrumentComponent>();
 				m_pInstrument->get_components()->push_back( pCompo );
 			}
 

@@ -33,10 +33,8 @@ namespace H2Core
 
 int InstrumentComponent::m_nMaxLayers = 16;
 
-InstrumentComponent::InstrumentComponent( int related_drumkit_componentID,
-										  const QString& sName, float fGain )
-	: __related_drumkit_componentID( related_drumkit_componentID )
-	, m_sName( sName )
+InstrumentComponent::InstrumentComponent( const QString& sName, float fGain )
+	: m_sName( sName )
 	, m_fGain( fGain )
 	, m_bIsMuted( false )
 	, m_bIsSoloed( false )
@@ -56,8 +54,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID,
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
-	: __related_drumkit_componentID( other->__related_drumkit_componentID )
-	, m_sName( other->m_sName )
+	: m_sName( other->m_sName )
 	, m_fGain( other->m_fGain )
 	, m_bIsMuted( other->m_bIsMuted )
 	, m_bIsSoloed( other->m_bIsSoloed )
@@ -108,7 +105,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const License& drumkitLicense,
 	bool bSilent )
 {
-	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( 0 );
+	auto pInstrumentComponent = std::make_shared<InstrumentComponent>();
 	pInstrumentComponent->m_sName = node.read_string(
 		"name", pInstrumentComponent->m_sName, true, false, bSilent );
 	pInstrumentComponent->m_fGain = node.read_float(
@@ -160,7 +157,6 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
-			.append( QString( "%1%2related_drumkit_componentID: %3\n" ).arg( sPrefix ).arg( s ).arg( __related_drumkit_componentID ) )
 			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sName ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
@@ -179,9 +175,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			}
 		}
 	} else {
-		sOutput = QString( "[InstrumentComponent]" )
-			.append( QString( " related_drumkit_componentID: %1" ).arg( __related_drumkit_componentID ) )
-			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
+		sOutput = QString( "[InstrumentComponent] " )
+			.append( QString( "m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
