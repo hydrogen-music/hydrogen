@@ -27,7 +27,7 @@
 
 namespace H2Core {
 Shortcuts::Shortcuts() :
-	m_bRequiresDefaults( false ) {
+	m_bRequiresDefaults( true ) {
 }
 
 Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
@@ -78,6 +78,7 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilen
 	else {
 		XMLNode shortcutNode = shortcutsNode.firstChildElement( "shortcut" );
 
+		bool bShortcutsFound = false;
 		while ( ! shortcutNode.isNull() ) {
 			const auto keySequence = QKeySequence::fromString(
 				shortcutNode.read_string( "keySequence", "", false, false, bSilent ),
@@ -88,8 +89,15 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilen
 					keySequence,
 					static_cast<Action>(shortcutNode.read_int( "action", 0,
 															   false, false, bSilent )) );
+				bShortcutsFound = true;
 			}
 			shortcutNode = shortcutNode.nextSiblingElement( "shortcut" );
+		}
+
+		if ( bShortcutsFound ) {
+			// There was at least one valid shortcut. Make sure we do not
+			// replace it with teh default ones.
+			pShortcuts->m_bRequiresDefaults = false;
 		}
 	}
 
