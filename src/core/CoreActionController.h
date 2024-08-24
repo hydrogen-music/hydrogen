@@ -27,15 +27,16 @@
 #include <memory>
 
 #include <core/Object.h>
-#include <core/Basics/Song.h>
 
 namespace H2Core
 {
 	class Drumkit;
 	class Instrument;
+	class Pattern;
 	class Playlist;
 	struct PlaylistEntry;
 	class Preferences;
+	class Song;
 
 
 /** \ingroup docCore docAutomation */
@@ -315,6 +316,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * the drumkit will be installed to the users drumkit data folder.
 	 */
 	static bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
+
+		/** Adds @a pInstrument to the current drumkit. */
+		static bool addInstrument( std::shared_ptr<Instrument> pInstrument );
+		/** Removes @a pInstrument from the current drumkit and adds it to the
+		 * instrument death row. This way it is guarantueed that its samples
+		 * stay loaded until the last #H2Core::Note is done rendering it.
+		 * Afterwards, its samples will be unloaded. */
+		static bool removeInstrument( std::shared_ptr<Instrument> pInstrument );
+		/** Replaces @a pOldInstrument by @a pNewInstrument in the current
+		 * drumkit without clearing notes, changing the selected instrument
+		 * number, etc. */
+		static bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+									   std::shared_ptr<Instrument> pOldInstrument );
+
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 

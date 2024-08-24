@@ -537,37 +537,6 @@ void Drumkit::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	m_pInstruments->del( pInstrument );
 }
 
-void Drumkit::removeInstrument( int nInstrumentNumber ) {
-	auto pInstrument = m_pInstruments->get( nInstrumentNumber );
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( nInstrumentNumber ) );
-		return;
-	}
-
-	m_pInstruments->del( nInstrumentNumber );
-}
-
-void Drumkit::addInstrument() {
-	/*: Name assigned to an Instrument created either as part of a fresh kit
-	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
-	 *  action. */
-	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Drumkit", "New Instrument");
-
-	auto pNewInstrument = std::make_shared<Instrument>();
-	pNewInstrument->set_name( sInstrumentName );
-
-	// The new instrument is manually added to a floating song kit. It must not
-	// have a drumkit path or drumkit name set. All contained samples have to be
-	// referenced by absolute paths.
-	if ( m_context != Context::Song ) {
-		pNewInstrument->set_drumkit_name( m_sName );
-		pNewInstrument->set_drumkit_path( m_sPath );
-	}
-
-	addInstrument( pNewInstrument );
-}
-
 void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "invalid instrument" );

@@ -27,14 +27,16 @@
 #include <set>
 #include <memory>
 
-#include <core/Object.h>
-#include <core/License.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/CoreActionController.h>
+#include <core/License.h>
+#include <core/Object.h>
 
 namespace H2Core
 {
 
+class Instrument;
 class XMLDoc;
 class XMLNode;
 
@@ -221,15 +223,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	bool exportTo( const QString& sTargetDir, bool bSilent = false );
 
-		/** Removes an instrument from the drumkit. */
-		void removeInstrument( int nInstrumentNumber );
-		void removeInstrument( std::shared_ptr<Instrument> pInstrument );
-
-		/** Add an instrument to the kit*/
-		void addInstrument( std::shared_ptr<Instrument> pInstrument );
-		/** Create and add a new and empty instrument. */
-		void addInstrument();
-
 		/** set m_pInstruments, delete existing one */
 		void setInstruments( std::shared_ptr<InstrumentList> instruments );
 
@@ -313,6 +306,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
+		friend bool CoreActionController::addInstrument( std::shared_ptr<Instrument> );
+		friend bool CoreActionController::removeInstrument(
+			std::shared_ptr<Instrument> );
+		friend bool CoreActionController::replaceInstrument(
+			std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+
 	private:
 		/** Transient property neither written to a drumkit.xml nor to a .h2song
 		 * but determined when loading the kit. */
@@ -329,6 +328,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 
+
+		/** Add an instrument to the kit*/
+		void addInstrument( std::shared_ptr<Instrument> pInstrument );
+
+		/** Removes an instrument from the drumkit. */
+		void removeInstrument( std::shared_ptr<Instrument> pInstrument );
 
 		/**
 		 * save the drumkit image into the new directory

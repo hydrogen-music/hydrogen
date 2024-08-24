@@ -741,31 +741,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-void Hydrogen::removeInstrument( int nInstrumentNumber ) {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-
-		m_pAudioEngine->lock( RIGHT_HERE );
-
-		pSong->removeInstrument( nInstrumentNumber );
-		
-		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
-			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
-		} else if ( m_nSelectedInstrumentNumber >=
-					pSong->getDrumkit()->getInstruments()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->getInstruments()->size() - 1 ) );
-		}
-
-		if ( hasJackAudioDriver() ) {
-			renameJackPorts( m_pSong );
-		}
-
-		m_pAudioEngine->unlock();
-		
-		setIsModified( true );
-	}
-}
-
 void Hydrogen::onTapTempoAccelEvent()
 {
 #ifndef WIN32
@@ -1104,26 +1079,26 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 }
 
 void Hydrogen::killInstruments() {
-	if ( m_instrumentDeathRow.size() > 0 ) {
-		std::shared_ptr<Instrument> pInstr = nullptr;
-		while ( m_instrumentDeathRow.size()
-				&& m_instrumentDeathRow.front()->is_queued() == 0 ) {
-			pInstr = m_instrumentDeathRow.front();
-			m_instrumentDeathRow.pop_front();
-			INFOLOG( QString( "Deleting unused instrument (%1). "
-							  "%2 unused remain." )
-					 . arg( pInstr->get_name() )
-					 . arg( m_instrumentDeathRow.size() ) );
-			pInstr = nullptr;
-		}
-		if ( m_instrumentDeathRow.size() ) {
-			pInstr = m_instrumentDeathRow.front();
-			INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-							  "Delaying 'delete instrument' operation." )
-					 . arg( pInstr->get_name() )
-					 . arg( pInstr->is_queued() ) );
-		}
+	std::shared_ptr<Instrument> pInstr = nullptr;
+
+	while ( m_instrumentDeathRow.size() > 0
+			&& m_instrumentDeathRow.front()->is_queued() == 0 ) {
+		pInstr = m_instrumentDeathRow.front();
+		m_instrumentDeathRow.pop_front();
+		INFOLOG( QString( "Deleting unused instrument (%1). "
+						  "%2 unused remain." )
+				 .arg( pInstr->get_name() )
+				 .arg( m_instrumentDeathRow.size() ) );
+		pInstr->unload_samples();
+		pInstr = nullptr;
 	}
+
+	if ( m_instrumentDeathRow.size() > 0 ) {
+		pInstr = m_instrumentDeathRow.front();
+		INFOLOG( QString( "Instrument %1 still has %2 active notes. "
+						  "Delaying 'delete instrument' operation." )
+				 .arg( pInstr->get_name() ).arg( pInstr->is_queued() ) );
+		}
 }
 
 

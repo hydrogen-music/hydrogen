@@ -30,6 +30,8 @@
 #include <QPoint>
 #include <vector>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
@@ -1023,7 +1025,7 @@ public:
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, false );
 	}
 
 	virtual void redo()
@@ -1047,17 +1049,22 @@ public:
 	SE_deleteInstrumentAction( const std::list<  H2Core::Note* >& noteList,
 							   const QString& sDrumkitPath,
 							   const QString& sInstrumentName,
-							   int nSelectedInstrument ){
-		setText( QObject::tr( "Delete instrument " ) );
+							   int nSelectedInstrument,
+							   bool bReplace )
+		: __drumkitPath( sDrumkitPath )
+		, __instrumentName( sInstrumentName )
+		, __nSelectedInstrument( nSelectedInstrument)
+		, m_bReplace( bReplace )
+		{
+		setText( QString( "%1 [%2]" )
+				 .arg( QObject::tr( "Delete instrument " ) )
+				 .arg( sInstrumentName ) );
 
 		for ( const auto& ppNote : noteList ){
 			auto pNewNote = new H2Core::Note(*ppNote);
 			assert( pNewNote );
 			__noteList.push_back( pNewNote );
 		}
-		__drumkitPath = sDrumkitPath;
-		__instrumentName = sInstrumentName;
-		__nSelectedInstrument = nSelectedInstrument;
 	}
 
 	~SE_deleteInstrumentAction(){
@@ -1069,24 +1076,25 @@ public:
 
 	}
 
-	virtual void undo()
-	{
-		//qDebug() << "delete Instrument Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDeleteInstrumentUndoAction( __noteList, __nSelectedInstrument, __instrumentName, __drumkitPath );
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionDeleteInstrumentUndoAction(
+				__noteList, __nSelectedInstrument, __instrumentName,
+				__drumkitPath, m_bReplace );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "delete Instrument Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		//delete an instrument from list
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument );
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getDrumPatternEditor()->functionDropInstrumentUndoAction(
+				__nSelectedInstrument, m_bReplace );
 	}
 private:
 	std::list< H2Core::Note* > __noteList;
 	QString __instrumentName;
 	QString __drumkitPath;
 	int __nSelectedInstrument;
+		/** In case there is just a single instrument left in the drumkit, it
+		 * get's replaced with an empty one instead of removed. */
+		bool m_bReplace;
 };
 
 

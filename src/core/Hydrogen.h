@@ -258,8 +258,6 @@ public:
 		AudioOutput*		getAudioOutput() const;
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
-		/** Delete an #Instrument.*/
-		void			removeInstrument( int nInstrumentNumber );
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/

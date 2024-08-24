@@ -1057,36 +1057,6 @@ void Song::setPanLawKNorm( float fKNorm ) {
 	}
 }
 
-void Song::removeInstrument( int nInstrumentNumber ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pInstr = m_pDrumkit->getInstruments()->get( nInstrumentNumber );
-	if ( pInstr == nullptr ) {
-		// Error log is already printed by get().
-		return;
-	}
-
-	for ( const auto& pPattern : *m_pPatternList ) {
-		pPattern->purge_instrument( pInstr, false );
-	}
-
-	// delete the instrument from the instruments list
-	m_pDrumkit->removeInstrument( nInstrumentNumber );
-
-	// Ensure there is always one instrument left.
-	if ( m_pDrumkit->getInstruments()->size() < 1 ) {
-		m_pDrumkit->addInstrument( std::make_shared<Instrument>() );
-	}
-
-	// At this point the instrument has been removed from both the
-	// instrument list and every pattern in the song.  Hence there's no way
-	// (NOTE) to play on that instrument, and once all notes have stopped
-	// playing it will be save to delete.
-	// the ugly name is just for debugging...
-	QString xxx_name = QString( "XXX_%1" ).arg( pInstr->get_name() );
-	pInstr->set_name( xxx_name );
-	pHydrogen->addInstrumentToDeathRow( pInstr );
-}
-
 std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 
 	std::vector<std::shared_ptr<Note>> notes;

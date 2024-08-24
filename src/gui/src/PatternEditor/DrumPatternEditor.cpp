@@ -1829,14 +1829,44 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument )
+void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument,
+														   bool bReplace )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->removeInstrument( nTargetInstrument );
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
 
-	updateEditor();
+	const auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nTargetInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to obtain instrument [%1]" )
+				  .arg( nTargetInstrument ) );
+		return;
+	}
+
+	// In case the instrument about to be removed is the last one, we replace it
+	// with an empty one instead.
+	if ( bReplace ) {
+		const auto pEmptyInstrument = std::make_shared<Instrument>();
+
+		// Remove all notes in pattern corresponding to the provided instrument.
+		for ( const auto& pPattern : *pSong->getPatternList() ) {
+			pPattern->purge_instrument( pInstrument, true );
+		}
+
+		if ( ! CoreActionController::replaceInstrument(
+				 pEmptyInstrument, pInstrument ) ) {
+			ERRORLOG( "Unable to remove last instrument" );
+		}
+	}
+	else {
+		if ( ! CoreActionController::removeInstrument( pInstrument ) ) {
+			ERRORLOG( "Unable to remove instrument" );
+		}
+	}
 }
-
 
 void  DrumPatternEditor::functionDropInstrumentRedoAction( const QString& sDrumkitPath,
 														   const QString& sInstrumentName,
@@ -1874,30 +1904,27 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( const QString& sDrumk
 	pNewInstrument->load_samples(
 		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-	pDrumkit->addInstrument( pNewInstrument );
-	pHydrogen->renameJackPorts( pSong );
+	if ( ! CoreActionController::addInstrument( pNewInstrument ) ) {
+		ERRORLOG( "Unable to drop instrument" );
+		return;
+	}
 
-	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
-		
 	//move instrument to the position where it was dropped
 	functionMoveInstrumentAction(pSong->getDrumkit()->getInstruments()->size() - 1 , nTargetInstrument );
 
 	// select the new instrument
 	pHydrogen->setSelectedInstrumentNumber(nTargetInstrument);
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
 }
 
 void DrumPatternEditor::functionDeleteInstrumentUndoAction( const std::list< H2Core::Note* >& noteList,
 															int nSelectedInstrument,
 															const QString& sInstrumentName,
-															const QString& sDrumkitPath )
+															const QString& sDrumkitPath,
+															bool bReplace )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "No song set." );
 		return;
 	}
@@ -1926,13 +1953,23 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( const std::list< H2C
 
 	}
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-	pSong->getDrumkit()->addInstrument( pNewInstrument );
-
-	pHydrogen->renameJackPorts( pSong );
-
-	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();	// unlock the audio engine
+	// In case the instrument about to be removed is the last one, we replace it
+	// with an empty one instead.
+	if ( bReplace ) {
+		const auto pEmptyInstrument =
+			pSong->getDrumkit()->getInstruments()->get( 0 );
+		if ( ! CoreActionController::replaceInstrument(
+				 pNewInstrument, pEmptyInstrument ) ) {
+			ERRORLOG( "Unable to replace empty instrument" );
+			return;
+		}
+	}
+	else {
+		if ( ! CoreActionController::addInstrument( pNewInstrument ) ) {
+			ERRORLOG( "Unable to add instrument" );
+			return;
+		}
+	}
 
 	//move instrument to the position where it was dropped
 	functionMoveInstrumentAction(pSong->getDrumkit()->getInstruments()->size() - 1 , nSelectedInstrument );
@@ -1942,9 +1979,6 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( const std::list< H2C
 
 	H2Core::Pattern *pPattern;
 	PatternList *pPatternList = pSong->getPatternList();
-
-	updateEditor();
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 	//restore all deleted instrument notes
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -1974,24 +2008,22 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Invalid song" );
 		return;
 	}
-	
-	pHydrogen->removeInstrument( pSong->getDrumkit()->getInstruments()->size() -1 );
 
-	if ( pHydrogen->hasJackAudioDriver() ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
-		pHydrogen->renameJackPorts( pSong );
-		m_pAudioEngine->unlock();
+	const auto pInstrument = pSong->getDrumkit()->getInstruments()->get(
+		pSong->getDrumkit()->getInstruments()->size() - 1 );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "Unable to obtain bottom-most instrument" );
+		return;
 	}
-	
-	pHydrogen->setIsModified( true );
-	
-	updateEditor();
-}
 
+	if ( ! CoreActionController::removeInstrument( pInstrument ) ) {
+		ERRORLOG( "Unable to remove bottom-most instrument" );
+	}
+}
 
 void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 {
@@ -2006,15 +2038,13 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	if ( pDrumkit == nullptr ) {
 		return;
 	}
-	
-	m_pAudioEngine->lock( RIGHT_HERE );
 
-	pDrumkit->addInstrument();
+	const auto pInstrument = std::make_shared<Instrument>();
 
-	pHydrogen->renameJackPorts( pSong );
-
-	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
+	if ( ! CoreActionController::addInstrument( pInstrument ) ) {
+		ERRORLOG( "Unable to add empty instrument" );
+		return;
+	}
 
 	// Triggers an event which make the PatternEditor update itself.
 	pHydrogen->setSelectedInstrumentNumber(

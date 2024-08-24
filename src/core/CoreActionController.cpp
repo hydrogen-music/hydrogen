@@ -34,6 +34,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
+#include <core/Basics/Song.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -1571,7 +1572,156 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 
 	return true;
 }
-	
+
+bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pDrumkit->addInstrument( pInstrument );
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	const int nInstrumentNumber = pDrumkit->getInstruments()->index( pInstrument );
+	if ( nInstrumentNumber == -1 ) {
+		ERRORLOG( "Provided instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	if ( pDrumkit->getInstruments()->size() == 1 ) {
+		ERRORLOG( "This is the last instrument. It can not be removed." );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	// Remove all notes in pattern corresponding to the provided instrument.
+	for ( const auto& pPattern : *pSong->getPatternList() ) {
+		pPattern->purge_instrument( pInstrument, false );
+	}
+
+	pDrumkit->removeInstrument( pInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	QString sNewName = QString( "deathrow_%1" ).arg( pInstrument->get_name() );
+	pInstrument->set_name( sNewName );
+	pHydrogen->addInstrumentToDeathRow( pInstrument );
+
+	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	if ( nSelectedInstrument == nInstrumentNumber ||
+		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber(
+			std::clamp( nSelectedInstrument, 0,
+						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ) );
+	}
+
+	pHydrogen->renameJackPorts( pSong );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+											  std::shared_ptr<Instrument> pOldInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+	const int nOldInstrumentNumber = pDrumkit->getInstruments()->index(
+		pOldInstrument );
+	if ( nOldInstrumentNumber == -1 ) {
+		ERRORLOG( "Old instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	const auto fBpm = pAudioEngine->getTransportPosition()->getBpm();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pNewInstrument != nullptr && pNewInstrument->hasSamples() ) {
+		pNewInstrument->load_samples( fBpm );
+	}
+
+	pDrumkit->removeInstrument( pOldInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	QString sNewName = QString( "deathrow_%1" ).arg( pOldInstrument->get_name() );
+	pOldInstrument->set_name( sNewName );
+	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+
+	pDrumkit->addInstrument( pNewInstrument );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	// Unloading the samples of the old instrument will be done in the death
+	// row.
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN

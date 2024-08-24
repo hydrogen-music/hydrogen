@@ -1373,7 +1373,11 @@ void MainForm::action_drumkit_new()
 void MainForm::functionDeleteInstrument( int nInstrument )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
@@ -1398,10 +1402,14 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 			}
 		}
 	}
+
+	// If there is just a single instrument, we will replace it with an empty
+	// one instead of deleting it.
+	const bool bReplace = pSong->getDrumkit()->getInstruments()->size() == 1;
 	
 	SE_deleteInstrumentAction *pAction =
 		new SE_deleteInstrumentAction( noteList, sDrumkitPath,
-									   sInstrumentName, nInstrument );
+									   sInstrumentName, nInstrument, bReplace );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
