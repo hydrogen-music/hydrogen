@@ -1009,7 +1009,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 		int nCount = 0;
 		for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 			auto pLayer = pCompo->getLayer( n );
-			if( pLayer != nullptr ){
+			if ( pLayer != nullptr ){
 				nCount++;
 
 				if ( nNextLayerIndex <= m_nSelectedLayer &&
@@ -1019,9 +1019,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 			}
 		}
 
-		if ( nCount == 0 ){
-			m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
-		} else {
+		if ( nCount != 0 ){
 			m_pLayerPreview->setSelectedLayer( nNextLayerIndex );
 			InstrumentEditorPanel::get_instance()->selectLayer( nNextLayerIndex );
 		}
