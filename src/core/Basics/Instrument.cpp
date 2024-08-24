@@ -94,6 +94,8 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
+
+	__components->push_back( std::make_shared<InstrumentComponent>() );
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
@@ -376,14 +378,17 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		}
 	}
 
+	std::vector<std::shared_ptr<InstrumentComponent>> componentsLoaded;
 	if ( ! node.firstChildElement( "instrumentComponent" ).isNull() ) {
 		// current format
 		XMLNode componentNode = node.firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
-			pInstrument->get_components()->
-				push_back( InstrumentComponent::loadFrom(
-							   componentNode, pInstrument->get_drumkit_path(),
-							   sSongPath, instrumentLicense, bSilent ) );
+			auto ppComponent = InstrumentComponent::loadFrom(
+				componentNode, pInstrument->get_drumkit_path(),
+				sSongPath, instrumentLicense, bSilent );
+			if ( ppComponent != nullptr ) {
+				componentsLoaded.push_back( ppComponent );
+			}
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" ) ;
 		}
 	}
@@ -397,8 +402,16 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
+		componentsLoaded.push_back( pCompo );
+	}
 
-		pInstrument->get_components()->push_back( pCompo );
+	// Each new instrument comes with a fallback/default component. Only discard
+	// it in case we did successfully loaded components from file.
+	if ( componentsLoaded.size() > 0 ) {
+		pInstrument->__components->clear();
+		for ( const auto& ppComponent : componentsLoaded ) {
+			pInstrument->get_components()->push_back( ppComponent );
+		}
 	}
 
 	// Sanity checks
@@ -560,7 +573,7 @@ void Instrument::set_pitch_offset( float fValue )
 
 std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const
 {
-	if ( nIdx < 0 || nIdx > __components->size() ) {
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
 		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
 				  .arg( nIdx ).arg( __components->size() ) );
 		return nullptr;
