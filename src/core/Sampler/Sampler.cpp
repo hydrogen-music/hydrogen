@@ -60,10 +60,13 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 	auto pInstrument = std::make_shared<Instrument>( id, filepath );
 	pInstrument->set_volume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
-	auto pComponent = std::make_shared<InstrumentComponent>();
-	
-	pComponent->setLayer( pLayer, 0 );
-	pInstrument->get_components()->push_back( pComponent );
+	auto pComponent = pInstrument->get_component( 0 );
+	if ( pComponent != nullptr ) {
+		pComponent->setLayer( pLayer, 0 );
+	} else {
+		___ERRORLOG( "Invalid default component" );
+	}
+
 	return pInstrument;
 }
 
@@ -1400,6 +1403,10 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
+		if ( pComponent == nullptr ) {
+			ERRORLOG( "Invalid component" );
+			continue;
+		}
 		auto pLayer = pComponent->getLayer( 0 );
 
 		pLayer->set_sample( pSample );

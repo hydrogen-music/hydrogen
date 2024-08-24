@@ -129,9 +129,12 @@ AudioEngine::AudioEngine()
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
-	auto pCompo = std::make_shared<InstrumentComponent>();
-	pCompo->setLayer( pLayer, 0 );
-	m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	auto pComponent = m_pMetronomeInstrument->get_component( 0 );
+	if ( pComponent != nullptr ) {
+		pComponent->setLayer( pLayer, 0 );
+	} else {
+		___ERRORLOG( "Invalid default component" );
+	}
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
 	m_pMetronomeInstrument->set_volume(
 		Preferences::get_instance()->m_fMetronomeVolume );
