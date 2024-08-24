@@ -467,10 +467,7 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode& node,
-						  int component_id,
-						  bool bRecentVersion,
-						  bool bSongKit ) const
+void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
@@ -539,9 +536,10 @@ void Instrument::save_to( XMLNode& node,
 	}
 
 	for ( const auto& pComponent : *__components ) {
-		if ( component_id == -1 ||
-			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->saveTo( InstrumentNode, bRecentVersion, bSongKit );
+		if ( pComponent != nullptr ) {
+			pComponent->saveTo( InstrumentNode, bSongKit );
+		} else {
+			ERRORLOG( "Invalid component!" );
 		}
 	}
 }

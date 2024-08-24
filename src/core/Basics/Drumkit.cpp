@@ -312,7 +312,7 @@ void Drumkit::upgrade( bool bSilent ) {
 						   false, // do not overwrite existing files
 						   bSilent );
 
-	save( "", -1, true, bSilent);
+	save( "", bSilent);
 }
 
 void Drumkit::unloadSamples() {
@@ -323,25 +323,11 @@ void Drumkit::unloadSamples() {
 	}
 }
 
-QString Drumkit::getFolderName() const {
+QString Drumkit::getExportName() const {
 	return Filesystem::validateFilePath( m_sName );
 }
 
-QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersion ) const {
-	QString sExportName = getFolderName();
-	if ( ! sComponentName.isEmpty() ) {
-		sExportName.append( "_" +
-							Filesystem::validateFilePath( sComponentName ) );
-		if ( ! bRecentVersion ) {
-			sExportName.append( "_legacy" );
-		}
-	}
-	
-	return sExportName;
-}
-
-bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
-					bool bRecentVersion, bool bSilent )
+bool Drumkit::save( const QString& sDrumkitPath, bool bSilent )
 {
 	QString sDrumkitFolder( sDrumkitPath );
 	if ( sDrumkitPath.isEmpty() ) {
@@ -409,13 +395,11 @@ bool Drumkit::save( const QString& sDrumkitPath, int nComponentID,
 		root.appendChild( doc.createComment( License::getGPLLicenseNotice( m_sAuthor ) ) );
 	}
 	
-	saveTo( root, nComponentID, bRecentVersion, false, bSilent );
+	saveTo( root, false, bSilent );
 	return doc.write( Filesystem::drumkit_file( sDrumkitFolder ) );
 }
 
 void Drumkit::saveTo( XMLNode& node,
-					  int component_id,
-					  bool bRecentVersion,
 					  bool bSongKit,
 					  bool bSilent ) const
 {
@@ -441,15 +425,14 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->save_to( node, component_id, bRecentVersion,
-								 bSongKit );
-	} else {
+		m_pInstruments->save_to( node, bSongKit );
+	}
+	else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->save_to( node, component_id, bRecentVersion,
-								  bSongKit );
+		pInstrumentList->save_to( node, bSongKit );
 	}
 }
 
@@ -625,28 +608,6 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	pInstrument->set_id( nNewId );
 
 	m_pInstruments->add( pInstrument );
-}
-
-int Drumkit::findUnusedComponentId() const {
-	// temp placeholder. will be dropped soon.
-	return 5;
-	// int nNewId = m_pComponents->size();
-	// for ( int ii = 0; ii < m_pComponents->size(); ++ii ) {
-	// 	bool bIsPresent = false;
-	// 	for ( const auto& ppComp : *m_pComponents ) {
-	// 		if ( ppComp != nullptr && ppComp->get_id() == ii ) {
-	// 			bIsPresent = true;
-	// 			break;
-	// 		}
-	// 	}
-
-	// 	if ( ! bIsPresent ){
-	// 		nNewId = ii;
-	// 		break;
-	// 	}
-	// }
-
-	// return nNewId;
 }
 
 void Drumkit::propagateLicense(){
@@ -889,17 +850,11 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 #endif
 }
 
-bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
-						bool bRecentVersion, bool bSilent ) {
+bool Drumkit::exportTo( const QString& sTargetDir, bool bSilent ) {
 
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
 				  .arg( sTargetDir ) );
-		return false;
-	}
-
-	if ( ! bRecentVersion && nComponentId == -1 ) {
-		ERRORLOG( "A DrumkitComponent ID is required to exported a drumkit in a format similar to the one prior to version 0.9.7" );
 		return false;
 	}
 
@@ -909,76 +864,18 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		return false;
 	}
 
-	// Retrieve the component's name.
-	auto componentLabels = generateUniqueComponentLabels();
-	const QString sComponentName = componentLabels[ nComponentId ];
-
-	// When performing an export of a single component, the resulting
-	// file will be <DRUMKIT_NAME>_<COMPONENT_NAME>.h2drumkit. This
-	// itself is nice because the user can not choose the name of the
-	// resulting file and it would not be possible to store the export
-	// of multiple components in a single folder otherwise. But if all
-	// those different .h2drumkit would be extracted into the same
-	// folder there would be easily confusion or maybe even loss of
-	// data. We thus temporary rename the drumkit within this
-	// function.
-	// If a legacy export is asked for (!bRecentVersion) the suffix
-	// "_legacy" will be appended as well in order to provide unique
-	// filenames for all export options of a drumkit that can be
-	// selected in the GUI.
-	QString sOldDrumkitName = m_sName;
-	QString sDrumkitName = getExportName( sComponentName, bRecentVersion );
-	
-	QString sTargetName = sTargetDir + "/" + sDrumkitName +
+	const QString sOldDrumkitName = m_sName;
+	const QString sDrumkitName = getExportName();
+	const QString sTargetName = sTargetDir + "/" + sDrumkitName +
 		Filesystem::drumkit_ext;
 	
 	if ( ! bSilent ) {
-		QString sMsg( "Export ");
-		
-		if ( nComponentId == -1 && bRecentVersion ) {
-			sMsg.append( "drumkit " );
-		} else {
-			sMsg.append( QString( "component: [%1|%2] " )
-						 .arg( nComponentId ).arg( sComponentName ) );
-		}
-
-		sMsg.append( QString( "to [%1] " ).arg( sTargetName ) );
-
-		if ( bRecentVersion ) {
-			sMsg.append( "using the most recent format" );
-		} else {
-			sMsg.append( "using the legacy format supported by Hydrogen versions <= 0.9.6" );
-		}
-
-		INFOLOG( sMsg );
-	}
-	
-	// Unique temporary folder to save intermediate drumkit.xml and
-	// component files. The uniqueness is required in case several
-	// threads or instances of Hydrogen do export a drumkit at once.
-	QTemporaryDir tmpFolder( Filesystem::tmp_dir() + "/XXXXXX" );
-	if ( nComponentId != -1 ) {
-		tmpFolder.setAutoRemove( false );
-	}
-
-	// In case we just export a single component, we store a pruned
-	// version of the drumkit with all other DrumkitComponents removed
-	// from the Instruments in a temporary folder and use this one as
-	// a basis for further compression.
-	if ( nComponentId != -1 ) {
-		if ( ! save( tmpFolder.path(), nComponentId, bRecentVersion, bSilent ) ) {
-			ERRORLOG( QString( "Unable to save backup drumkit to [%1] using component [%2|%3]" )
-					  .arg( tmpFolder.path() ).arg( nComponentId )
-					  .arg( sComponentName ) );
-		}
+		INFOLOG( QString( "Export drumkit to [%1]") .arg( sTargetName ) );
 	}
 
 	QDir sourceDir( m_sPath );
 
 	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
-	// In case just a single component is exported, we only add
-	// samples associated with it to the .h2drumkit file.
-	QStringList filesUsed;
 
 	// List of formats libsndfile is able to import (see
 	// https://libsndfile.github.io/libsndfile/api.html#open).
@@ -996,54 +893,42 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
 					 << "mp1" << "mp2" << "mp3";
 
-	// We won't copy the original drumkit map (fallback) neither but write the
-	// current user-level one.
-	suffixBlacklist << "h2map";
-
+	QStringList filesUsed;
 	bool bSampleFound;
-	
 	for ( const auto& ssFile : sourceFilesList ) {
-		if( ssFile.compare( Filesystem::drumkit_xml() ) == 0 &&
-			nComponentId != -1 ) {
-			filesUsed << Filesystem::drumkit_file( tmpFolder.path() );
-		} else {
-
-			bSampleFound = false;
-			for( const auto& pInstr : *( getInstruments() ) ){
-				if( pInstr != nullptr ) {
-					for ( const auto& pComponent : *( pInstr->get_components() ) ) {
-						if ( pComponent != nullptr &&
-							 ( nComponentId == -1 ||
-							   pComponent->get_drumkit_componentID() == nComponentId ) ) {
-							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-								const auto pLayer = pComponent->getLayer( n );
-								if( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
-									if( pLayer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
-										filesUsed << sourceDir.filePath( ssFile );
-										bSampleFound = true;
-										break;
-									}
+		bSampleFound = false;
+		for ( const auto& pInstr : *( getInstruments() ) ) {
+			if ( pInstr != nullptr ) {
+				for ( const auto& pComponent : *( pInstr->get_components() ) ) {
+					if ( pComponent != nullptr ) {
+						for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
+							const auto pLayer = pComponent->getLayer( n );
+							if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
+								if ( pLayer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
+									filesUsed << sourceDir.filePath( ssFile );
+									bSampleFound = true;
+									break;
 								}
 							}
 						}
 					}
 				}
 			}
+		}
 
-			// Should we drop the file?
-			if ( ! bSampleFound ) {
-				QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
-				if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
-												 Qt::CaseInsensitive ) ) {
+		// Should we drop the file?
+		if ( ! bSampleFound ) {
+			QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
+			if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
+											 Qt::CaseInsensitive ) ) {
 
-					// We do not want to export any old backups created during
-					// the upgrade process of the drumkits. As these were
-					// introduced using suffixes, like .bak.1, .bak.2, etc,
-					// adding `bak` to the blacklist will not work.
-					if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
-							 ssFile.contains( ".bak" ) ) ) {
-						filesUsed << sourceDir.filePath( ssFile );
-					}
+				// We do not want to export any old backups created during
+				// the upgrade process of the drumkits. As these were
+				// introduced using suffixes, like .bak.1, .bak.2, etc,
+				// adding `bak` to the blacklist will not work.
+				if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
+						 ssFile.contains( ".bak" ) ) ) {
+					filesUsed << sourceDir.filePath( ssFile );
 				}
 			}
 		}
@@ -1194,58 +1079,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 	sourceFilesList.clear();
 
-	// Only clean up the temp folder when everything was
-	// working. Else, it's probably worth inspecting its content (and
-	// the system will clean it up anyway).
-	Filesystem::rm( tmpFolder.path(), true, true );
-	
 	setName( sOldDrumkitName );
 
 	return true;
 #else // No LIBARCHIVE
 
 #ifndef WIN32
-	if ( nComponentId != -1 ) {
-		// In order to add components name to the folder name we have
-		// to copy _all_ files to a temporary folder holding the same
-		// name. This is unarguably a quite expensive operation. But
-		// exporting is only down sparsely and almost all versions of
-		// Hydrogen should come with libarchive support anyway. On the
-		// other hand, being consistent and prevent confusion and loss
-		// of data beats sparsely excessive copying.
-		QString sDirName = getFolderName();
-
-		QDir sTmpSourceDir( tmpFolder.path() + "/" + sDirName );
-		if ( sTmpSourceDir.exists() ) {
-			sTmpSourceDir.removeRecursively();
-		}
-		if ( ! Filesystem::path_usable( tmpFolder.path() + "/" + sDirName,
-									  true, true ) ) {
-			ERRORLOG( QString( "Unable to create tmp folder [%1]" )
-					  .arg( tmpFolder.path() + "/" + sDirName ) );
-			setName( sOldDrumkitName );
-			return false;
-		}
-
-		QString sNewFilePath;
-		QStringList copiedFiles;
-		for ( const auto& ssFile : filesUsed ) {
-			QString sNewFilePath( ssFile );
-			sNewFilePath.replace( sNewFilePath.left( sNewFilePath.lastIndexOf( "/" ) ),
-								  tmpFolder.path() + "/" + sDirName );
-			if ( ! Filesystem::file_copy( ssFile, sNewFilePath, true, true ) ) {
-				ERRORLOG( QString( "Unable to copy file [%1] to [%2]." )
-						  .arg( ssFile ).arg( sNewFilePath ) );
-				setName( sOldDrumkitName );
-				return false;
-			}
-
-			copiedFiles << sNewFilePath;
-		}
-
-		filesUsed = copiedFiles;
-		sourceDir = QDir( tmpFolder.path() + "/" + sDirName );
-	}
 
 	// Since there is no way to alter the target names of the files
 	// provided to command line `tar` and we want the output to be
@@ -1269,11 +1108,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 		return false;
 	}
 
-	// Only clean up the temp folder when everything was
-	// working. Else, it's probably worth inspecting its content (and
-	// the system will clean it up anyway).
-	Filesystem::rm( tmpFolder.path(), true, true );
-
 	setName( sOldDrumkitName );
 			
 	return true;
@@ -1288,28 +1122,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 
 const QString& Drumkit::getPath() const {
 	return m_sPath;
-}
-
-std::map<int,QString> Drumkit::generateUniqueComponentLabels() const {
-	std::map<int, QString> labelMap;
-
-	// temp. placeholder. will be removed soon.
-	QStringList uniqueLabels;
-	for ( const auto& ppInstrument : *m_pInstruments ) {
-		if ( ppInstrument != nullptr ) {
-			const auto sName = ppInstrument->get_name();
-			const int nId = ppInstrument->get_id();
-			if ( uniqueLabels.contains( sName ) ) {
-				labelMap[ nId ] = QString( "%1 (%2)" ).arg( sName ).arg( nId );
-			}
-			else {
-				labelMap[ nId ] = sName;
-				uniqueLabels << sName;
-			}
-		}
-	}
-
-	return std::move( labelMap );
 }
 
 void Drumkit::recalculateRubberband( float fBpm ) {

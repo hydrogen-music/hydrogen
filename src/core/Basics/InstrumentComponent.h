@@ -48,9 +48,7 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-	void				saveTo( XMLNode& node,
-								 bool bRecentVersion = true,
-								 bool bSongKit = false ) const;
+	void				saveTo( XMLNode& node, bool bSongKit = false ) const;
 		static std::shared_ptr<InstrumentComponent> loadFrom( const XMLNode& pNode,
 															   const QString& sDrumkitPath,
 															   const QString& sSongPath = "",

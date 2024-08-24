@@ -138,26 +138,19 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::saveTo( XMLNode& node,
-								  bool bRecentVersion,
-								  bool bSongKit ) const
+void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode component_node;
-	if ( bRecentVersion ) {
-		component_node = node.createNode( "instrumentComponent" );
-		component_node.write_string( "name", m_sName );
-		component_node.write_float( "gain", m_fGain );
-		component_node.write_bool( "isMuted", m_bIsMuted );
-		component_node.write_bool( "isSoloed", m_bIsSoloed );
-	}
+	component_node = node.createNode( "instrumentComponent" );
+	component_node.write_string( "name", m_sName );
+	component_node.write_float( "gain", m_fGain );
+	component_node.write_bool( "isMuted", m_bIsMuted );
+	component_node.write_bool( "isSoloed", m_bIsSoloed );
+
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = getLayer( n );
 		if ( pLayer != nullptr ) {
-			if ( bRecentVersion ) {
-				pLayer->save_to( component_node, bSongKit );
-			} else {
-				pLayer->save_to( node, bSongKit );
-			}
+			pLayer->save_to( component_node, bSongKit );
 		}
 	}
 }

@@ -133,10 +133,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * save the drumkit within the given XMLNode
 		 *
 		 * \param pNode the XMLNode to feed
-		 * \param nComponent_id to chose the component to save or -1 for all
-		 * \param bRecentVersion Whether the drumkit format should be
-		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
-		 *   composed of DrumkitComponents).
 		 * \param bSongKit Whether the instruments are part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and are referenced by
@@ -145,8 +141,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   samples are stored on a per-instrument basis.
 		 */
 		void saveTo( XMLNode& pNode,
-					 int nComponent_id = -1,
-					 bool bRecentVersion = true,
 					 bool bSongKit = false,
 					 bool bSilent = false ) const;
 
@@ -161,15 +155,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param sDrumkitDir the path (folder) to save the #Drumkit
 		 * into. If left empty, the path stored in #m_sPath will be
 		 * used instead.
-		 * \param nComponentID to chose the component to save or -1 for all
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 *
 		 * \return true on success
 		 */
 		bool save( const QString& sDrumkitDir = "",
-				   int nComponentID = -1,
-				   bool bRecentVersion = true,
 				   bool bSilent = false );
 
 
@@ -185,14 +176,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 	/**
 	 * Returns the base name used when exporting the drumkit.
 	 *
-	 * \param sComponentName Name of a particular component used in
-	 * case just a single component should be exported.
-	 * \param bRecentVersion Whether the drumkit format should be
-	 * supported by Hydrogen 0.9.7 or higher (whether it should be
-	 * composed of DrumkitComponents).
+	 * This is a version of #m_sName stripped of all whitespaces and other
+	 * characters which would prevent its use as a valid filename.
+	 *
+	 * Attention: The returned string might be used as the name for
+	 * the associated drumkit folder but it does not have to.
 	 */
-	QString getExportName( const QString& sComponentName = "",
-						   bool bRecentVersion = true ) const;
+	QString getExportName() const;
 
 		/**
 		 * Extract a .h2drumkit file.
@@ -224,18 +214,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 *
 	 * \param sTargetDir Folder which will contain the resulting
 	 *   .h2drumkit file.
-	 * \param nComponentId ID of a particular component used in
-	 *   case just a single component should be exported.
-	 * \param bRecentVersion Whether the drumkit format should be
-	 *   supported by Hydrogen 0.9.7 or higher (whether it should be
-	 *   composed of DrumkitComponents).
 	 * \param bSilent Whether debug and info messages should be
 	 *   logged.
 	 *
 	 * \return true on success
 	 */
-	bool exportTo( const QString& sTargetDir, int nComponentId = -1,
-				   bool bRecentVersion = true, bool bSilent = false );
+	bool exportTo( const QString& sTargetDir, bool bSilent = false );
 
 		/** Removes an instrument from the drumkit and cleans up its
 		 * components.
@@ -296,9 +280,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		const License& getImageLicense() const;
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
-
-		/** Maps a compoment Id to an unique component label.*/
-		std::map<int, QString> generateUniqueComponentLabels() const;
 
 	/**
 	 * Returns vector of lists containing instrument name, component
@@ -371,16 +352,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 	bool saveSamples( const QString& dk_dir, bool bSilent = false ) const;
 
-	/**
-	 * Returns a version of #m_sName stripped of all whitespaces and
-	 * other characters which would prevent its use as a valid
-	 * filename.
-	 *
-	 * Attention: The returned string might be used as the name for
-	 * the associated drumkit folder but it does not have to.
-	 */
-	QString getFolderName() const;
-
 		/**
 		 * Upgrades the drumkit by saving the latest version.
 		 *
@@ -394,8 +365,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * contained in the kit.
 	 */
 	void propagateLicense();
-
-		int findUnusedComponentId() const;
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;

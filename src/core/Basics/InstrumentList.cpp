@@ -116,18 +116,15 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode& node,
-							  int component_id,
-							  bool bRecentVersion,
-							  bool bSongKit ) const
+void InstrumentList::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
-		assert( pInstrument );
-		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( instruments_node, component_id, bRecentVersion,
-								  bSongKit );
+			pInstrument->save_to( instruments_node, bSongKit );
+		}
+		else {
+			ERRORLOG( "Invalid instrument!" );
 		}
 	}
 }

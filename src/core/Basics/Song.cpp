@@ -803,8 +803,6 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	// ancient design desicion and we will stick to it.
 	auto drumkitNode = rootNode.createNode( "drumkit_info" );
 	m_pDrumkit->saveTo( drumkitNode,
-						-1, // All components
-						true, // Use the most-recent format
 						true, // Enable per-instrument sample loading
 						bSilent );
 

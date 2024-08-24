@@ -94,7 +94,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 	// function.
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	pDrumkit->saveTo( root, -1, true, false, false );
+	pDrumkit->saveTo( root, false, false );
 
 	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
@@ -169,7 +169,7 @@ void XmlTest::testDrumkit()
 	
 	// save drumkit elsewhere
 	pDrumkitLoaded->setName( "pDrumkitLoaded" );
-	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath, true ) );
+	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/drumkit.xml" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/crash.wav" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/hh.wav" ) );
@@ -542,7 +542,7 @@ void XmlTest::testShippedDrumkits()
 		root.appendChild( doc.createComment(
 							  H2Core::License::getGPLLicenseNotice(
 								  pDrumkit->getAuthor() ) ) );
-		pDrumkit->saveTo( root, -1, true, false, false );
+		pDrumkit->saveTo( root, false, false );
 
 		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
