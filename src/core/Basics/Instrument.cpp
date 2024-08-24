@@ -79,6 +79,15 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, m_bHasMissingSamples( false )
 	, __components( std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>() )
 {
+	/*: Name assigned to an Instrument created either as part of a fresh kit
+	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
+	 *  action. */
+	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Instrument", "New Instrument");
+
+	if ( name.isEmpty() ) {
+		__name = sInstrumentName;
+	}
+
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
 	}

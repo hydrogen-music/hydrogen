@@ -68,7 +68,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param name the name of the instrument
 		 * \param adsr attack decay sustain release instance
 		 */
-		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", std::shared_ptr<ADSR> adsr=nullptr );
+		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="", std::shared_ptr<ADSR> adsr=nullptr );
 		/** copy constructor */
 		Instrument( std::shared_ptr<Instrument> other );
 		/** destructor */

@@ -96,14 +96,10 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 	/*: Name assigned to a fresh Drumkit created via the Main Menu > Drumkit >
 	 *  New. */
 	const QString sDrumkitName = QT_TRANSLATE_NOOP( "Drumkit", "New Drumkit");
-	/*: Name assigned to an Instrument created either as part of a fresh kit
-	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
-	 *  action. */
-	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Drumkit", "New Instrument");
 
 	auto pDrumkit = std::make_shared<Drumkit>();
 	auto pInstrList = std::make_shared<InstrumentList>();
-	auto pNewInstr = std::make_shared<Instrument>( 1, sInstrumentName );
+	auto pNewInstr = std::make_shared<Instrument>( 1 );
 	pInstrList->add( pNewInstr );
 	pDrumkit->setInstruments( pInstrList );
 	pDrumkit->setName( sDrumkitName );
