@@ -569,6 +569,29 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const
 	return __components->at( nIdx );
 }
 
+void Instrument::addComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	__components->push_back( pComponent );
+}
+
+void Instrument::removeComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	for ( int ii = 0; ii < __components->size(); ++ii ) {
+		if ( pComponent == __components->at( ii ) ) {
+			__components->erase( __components->begin() + ii );
+			return;
+		}
+	}
+}
+
+void Instrument::removeComponent( int nIdx ) {
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return;
+	}
+
+	__components->erase( __components->begin() + nIdx );
+}
+
 const QString& Instrument::get_drumkit_path() const
 {
 	return __drumkit_path;

@@ -285,6 +285,9 @@ class Instrument : public H2Core::Object<Instrument>
 		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
 		/** Select a component via its index in the corresponding vector. */
 		std::shared_ptr<InstrumentComponent> get_component( int nIdx ) const;
+		void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
+		void removeComponent( std::shared_ptr<InstrumentComponent> pComponent );
+		void removeComponent( int nIdx );
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
