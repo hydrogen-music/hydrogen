@@ -52,7 +52,6 @@ using namespace H2Core;
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LCDCombo.h"
-#include "../Widgets/Fader.h"
 #include "InstrumentEditor.h"
 #include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
@@ -461,7 +460,6 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	//component handling
 	m_pComponentMenu = new QMenu( this );
-	updateComponentLabels();
 	populateComponentMenu();
 	// ~ component handling
 
@@ -479,7 +477,6 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 InstrumentEditor::~InstrumentEditor()
 {
-	//INFOLOG( "DESTROY" );
 }
 
 void InstrumentEditor::activate( bool bActivate ) {
@@ -600,7 +597,6 @@ void InstrumentEditor::activate( bool bActivate ) {
 void InstrumentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
-		updateComponentLabels();
 		selectedInstrumentChangedEvent();
 
 		// The function call above sets some spurious isModified when
@@ -611,7 +607,6 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 }
 
 void InstrumentEditor::drumkitLoadedEvent() {
-	updateComponentLabels();
 	selectedInstrumentChangedEvent();
 }
 
@@ -623,12 +618,17 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	// For now we always auto-select the first InstrumentComponent on switching
-	// as we can be sure it does exist.
-	m_nSelectedComponent = 0;
 
 	// update layer list
 	if ( pSong != nullptr && m_pInstrument != nullptr ) {
+
+		// As each instrument can have an arbitrary compoments, we have to
+		// ensure to select a valid one.
+		if ( m_nSelectedComponent >= m_pInstrument->get_components()->size() ) {
+			m_nSelectedComponent = std::clamp(
+				m_nSelectedComponent, 0,
+				static_cast<int>(m_pInstrument->get_components()->size()) - 1 );
+		}
 
 		activate( true );
 
@@ -734,6 +734,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pCompoGainRotary->setIsActive( false );
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
+		m_nSelectedComponent = 0;
 	}
 
 	selectLayer( m_nSelectedLayer );
@@ -894,7 +895,9 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			m_pCompoGainLCD->setText( tmp );
 
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-			pCompo->setGain( fVal );
+			if ( pCompo != nullptr ) {
+				pCompo->setGain( fVal );
+			}
 	}
 	else if ( pRotary == m_pLayerPitchCoarseRotary ) {
 		m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) round( fVal ) ) );
@@ -949,7 +952,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 	}
 	
 	auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-	if( !pCompo ) {
+	if ( pCompo != nullptr ) {
 		return;
 	}
 			
@@ -1197,66 +1200,49 @@ void InstrumentEditor::setAutoVelocity()
 
 void InstrumentEditor::renameComponentAction()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
+	if ( m_pInstrument == nullptr ) {
 		return;
 	}
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
+	const auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve selected component [%1]" )
+				  .arg( m_nSelectedComponent ) );
 		return;
 	}
 
-	// auto pComponent = pDrumkit->getComponent( m_nSelectedComponent );
-	// if ( pComponent == nullptr ) {
-	// 	ERRORLOG( QString( "Unable to retrieve selected component [%1]" )
-	// 			  .arg( m_nSelectedComponent ) );
-	// 	return;
-	// }
+	const QString sOldName = pComponent->getName();
+	bool bIsOkPressed;
+	const QString sNewName = QInputDialog::getText(
+		this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal,
+		sOldName, &bIsOkPressed );
 
-	// QString sOldName = pComponent->get_name();
-	// bool bIsOkPressed;
-	// QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
-
-	// if ( bIsOkPressed && sOldName != sNewName ) {
-	// 	 auto pAction = new SE_renameComponentAction(
-	// 		 sNewName, sOldName, m_nSelectedComponent );
-	// 	 HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-	// }
+	if ( bIsOkPressed && sOldName != sNewName ) {
+		 auto pAction = new SE_renameComponentAction(
+			 sNewName, sOldName, m_nSelectedComponent );
+		 HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	}
 }
 
 void InstrumentEditor::renameComponent( int nComponentId, const QString& sNewName ) {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
+	if ( m_pInstrument == nullptr ) {
 		return;
 	}
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
+	auto pComponent = m_pInstrument->get_component( nComponentId );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1]" )
+				  .arg( nComponentId ) );
 		return;
 	}
 
-	// auto pComponent = pDrumkit->getComponent( nComponentId );
-	// if ( pComponent == nullptr ) {
-	// 	ERRORLOG( QString( "Unable to retrieve component [%1]" )
-	// 			  .arg( nComponentId ) );
-	// 	return;
-	// }
+	pComponent->setName( sNewName );
+	m_pCompoNameLbl->setText( sNewName );
+	populateComponentMenu();
 
-	// pComponent->set_name( sNewName );
-	// m_pCompoNameLbl->setText( sNewName );
-	// updateComponentLabels();
-	// populateComponentMenu();
+	Hydrogen::get_instance()->setIsModified( true );
 
-	// Hydrogen::get_instance()->setIsModified( true );
-
-	// EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void InstrumentEditor::selectComponent( int nComponent )
@@ -1465,69 +1451,39 @@ void InstrumentEditor::onDropDownCompoClicked()
 	m_pComponentMenu->popup( m_pCompoNameLbl->mapToGlobal( QPoint( m_pCompoNameLbl->width() - 40, m_pCompoNameLbl->height() / 2 ) ) );
 }
 
-void InstrumentEditor::populateComponentMenu()
-{
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "invalid song" );
-		return;
-	}
-
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "invalid drumkit" );
-		return;
-	}
-
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	m_pComponentMenu->clear();
-
-	// // Actions to switch between the drumkits
-	// for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
-	// 	if ( ppComponent != nullptr ) {
-	// 		auto pAction = m_pComponentMenu->addAction(
-	// 			m_uniqueComponentLabels[ ppComponent->get_id() ], this,
-	// 			[=](){ switchComponentAction( ppComponent->get_id() ); } );;
-	// 		if ( ppComponent->get_id() == m_nSelectedComponent ) {
-	// 			m_pComponentMenu->setDefaultAction( pAction );
-	// 		}
-	// 	}
-	// }
-	// m_pComponentMenu->addSeparator();
-	// m_pComponentMenu->addAction( pCommonStrings->getMenuActionAdd(), this,
-	// 							 SLOT( addComponentAction() ) );
-	// auto pDeleteAction = m_pComponentMenu->addAction(
-	// 	pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponentAction() ) );
-	// if ( pDrumkit->getComponents()->size() < 2 ) {
-	// 	// If there is just a single component present, it must not be removed.
-	// 	pDeleteAction->setEnabled( false );
-	// }
-
-	// m_pComponentMenu->addAction( pCommonStrings->getMenuActionRename(), this,
-	// 							 SLOT( renameComponentAction() ) );
-}
-
-void InstrumentEditor::updateComponentLabels() {
+void InstrumentEditor::populateComponentMenu() {
 	if ( m_pInstrument == nullptr ) {
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		return;
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	m_pComponentMenu->clear();
+
+	// Actions to switch between the drumkits
+	for ( int ii = 0; ii < m_pInstrument->get_components()->size(); ++ii ) {
+		const auto ppComponent = m_pInstrument->get_component( ii );
+		if ( ppComponent != nullptr ) {
+			auto pAction = m_pComponentMenu->addAction(
+				ppComponent->getName(), this,
+				[=](){ switchComponentAction( ii ); } );;
+			if ( ii == m_nSelectedComponent ) {
+				m_pComponentMenu->setDefaultAction( pAction );
+			}
+		}
+	}
+	m_pComponentMenu->addSeparator();
+	m_pComponentMenu->addAction( pCommonStrings->getMenuActionAdd(), this,
+								 SLOT( addComponentAction() ) );
+	auto pDeleteAction = m_pComponentMenu->addAction(
+		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponentAction() ) );
+	if ( m_pInstrument->get_components()->size() < 2 ) {
+		// If there is just a single component present, it must not be removed.
+		pDeleteAction->setEnabled( false );
 	}
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
-		return;
-	}
-
-	// m_uniqueComponentLabels = pDrumkit->generateUniqueComponentLabels();
-
+	m_pComponentMenu->addAction( pCommonStrings->getMenuActionRename(), this,
+								 SLOT( renameComponentAction() ) );
 }
 
 void InstrumentEditor::addComponentAction() {
@@ -1535,40 +1491,27 @@ void InstrumentEditor::addComponentAction() {
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
-		return;
-	}
-
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
-		return;
-	}
-
 	bool bIsOkPressed;
-	QString sNewName =
-		QInputDialog::getText( this, "Hydrogen", tr( "Component name" ),
-							   QLineEdit::Normal, "New Component",
-							   &bIsOkPressed );
+	const QString sNewName = QInputDialog::getText(
+		this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal,
+		"New Component", &bIsOkPressed );
 	if ( ! bIsOkPressed ) {
 		// Dialog closed using cancel
 		return;
 	}
 
-	// TODO
-	// auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	// auto pNewDrumkitComponent = pNewDrumkit->addComponent();
-	// pNewDrumkitComponent->set_name( sNewName );
+	auto pNewInstrument = std::make_shared<Instrument>( m_pInstrument );
 
-	// selectComponent( pNewDrumkitComponent->get_id() );
+	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
+	pNewInstrument->addComponent( pNewComponent );
 
-	// auto pAction = new SE_switchDrumkitAction(
-	// 	pNewDrumkit, pDrumkit,
-	// 	SE_switchDrumkitAction::Type::AddComponent, sNewName );
-	// HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	auto pAction = new SE_replaceInstrumentAction(
+		pNewInstrument, m_pInstrument,
+		SE_replaceInstrumentAction::Type::AddComponent, sNewName );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+
+	// New components will be appended.
+	selectComponent( m_pInstrument->get_components()->size() - 1 );
 }
 
 void InstrumentEditor::deleteComponentAction() {
@@ -1576,46 +1519,33 @@ void InstrumentEditor::deleteComponentAction() {
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
+	if ( m_pInstrument->get_components()->size() <= 1 ) {
+		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 		return;
 	}
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
+	auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to find selected component [%1]" )
+				  .arg( m_nSelectedComponent ) );
 		return;
 	}
 
-	// if ( pDrumkit->getComponents()->size() == 1 ) {
-	// 	ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
-	// 	return;
-	// }
+	const auto sName = pComponent->getName();
 
-	// auto pComponent = pDrumkit->getComponent( m_nSelectedComponent );
-	// if ( pComponent == nullptr ) {
-	// 	ERRORLOG( QString( "Unable to find selected component [%1]" )
-	// 			  .arg( m_nSelectedComponent ) );
-	// 	return;
-	// }
+	auto pNewInstrument = std::make_shared<Instrument>( m_pInstrument );
 
-	// auto sOldName = pComponent->get_name();
+	const auto pNewComponent = std::make_shared<InstrumentComponent>( sName );
+	pNewInstrument->removeComponent( m_nSelectedComponent );
 
-	// auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
-	// pNewDrumkit->removeComponent( m_nSelectedComponent );
+	auto pAction = new SE_replaceInstrumentAction(
+		pNewInstrument, m_pInstrument,
+		SE_replaceInstrumentAction::Type::DeleteComponent, sName );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
-	// // Fall back to the first component.
-	// selectComponent( pDrumkit->getComponents()->front()->get_id() );
-
-	// // Undoing the deletion of a drumkit component is a rather difficult path as
-	// // it also involves all associated instrument components and their samples.
-	// // It's both more easy and clean to just switch between the entire drumkits.
-	// auto pAction = new SE_switchDrumkitAction(
-	// 	pNewDrumkit, pDrumkit,
-	// 	SE_switchDrumkitAction::Type::DeleteComponent, sOldName );
-	// HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	selectComponent(
+		std::clamp( m_nSelectedComponent, 0,
+					static_cast<int>(m_pInstrument->get_components()->size()) - 2 ) );
 }
 
 void InstrumentEditor::switchComponentAction( int nId ) {
@@ -1623,43 +1553,21 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 		return;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "Invalid song" );
+	const auto pComponent = m_pInstrument->get_component( nId );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1]" )
+				  .arg( nId ) );
 		return;
 	}
 
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
-		return;
-	}
+	m_pCompoNameLbl->setText( pComponent->getName() );
 
-	// int nSelectedComponent = -1;
-	// auto pDrumkitComponents = pDrumkit->getComponents();
-	// for ( const auto& pComponent : *pDrumkitComponents ) {
-	// 	if ( pComponent->get_id() == nId ) {
-	// 		nSelectedComponent = pComponent->get_id();
-	// 		break;
-	// 	}
-	// }
+	selectComponent( nId );
 
-	// auto pComponent = pDrumkit->getComponent( nId );
-	// if ( pComponent == nullptr ) {
-	// 	ERRORLOG( QString( "Unable to retrieve component [%1]" )
-	// 			  .arg( nId ) );
-	// 	return;
-	// }
+	selectedInstrumentChangedEvent();
 
-	// m_pCompoNameLbl->setText( m_uniqueComponentLabels[ nId ] );
-
-	// selectComponent( nId );
-
-	// selectedInstrumentChangedEvent();
-
-	// // this will force an update...
-	// EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	// this will force an update...
+	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void InstrumentEditor::sampleSelectionChanged( int selected )

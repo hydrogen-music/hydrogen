@@ -1134,14 +1134,8 @@ class SE_switchDrumkitAction : public QUndoCommand {
 			SwitchDrumkit = 0,
 			/** Replace the current kit with an empty one */
 			NewDrumkit = 1,
-			/** Replace the current kit with a copy containing an additional
-			 * component */
-			AddComponent = 2,
-			/** Replace the current kit with a copy from which one component was
-			 * removed. */
-			DeleteComponent = 3,
 			/** Editing properties of the current song's kit. */
-			EditProperties = 4
+			EditProperties = 2
 		};
 
 		SE_switchDrumkitAction( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
@@ -1160,16 +1154,6 @@ class SE_switchDrumkitAction : public QUndoCommand {
 				break;
 			case Type::NewDrumkit:
 				setText( QObject::tr( "Replace song drumkit with new and empty one" ) );
-				break;
-			case Type::AddComponent:
-				setText( QString( "%1 [%2]" )
-						 .arg( QObject::tr( "Adding component" ) )
-						 .arg( sComponentName ) );
-				break;
-			case Type::DeleteComponent:
-				setText( QString( "%1 [%2]" )
-						 .arg( QObject::tr( "Remove component" ) )
-						 .arg( sComponentName ) );
 				break;
 			case Type::EditProperties:
 				setText( HydrogenApp::get_instance()->getCommonStrings()
@@ -1191,6 +1175,59 @@ class SE_switchDrumkitAction : public QUndoCommand {
 	private:
 		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
 		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
+};
+
+/** Instruments are self-contained units within a #H2Core::Drumkit. Each
+ * #H2Core::Note carries a shared pointer to the #H2Core::Instrument used to
+ * render it. Due to the latter we have to be careful when changing members an
+ * instrument, like adding/moving/removing #H2Core::InstrumentComponent or
+ * #H2Core::InstrumentLayer. Instead, we just replace the instrument as a whole
+ * in the drumkit. This way the one stored in the #H2Core::Note within the queue
+ * of #H2Core::AudioEngine and #H2Core::Sampler is still valid. */
+class SE_replaceInstrumentAction : public QUndoCommand {
+	public:
+		enum class Type {
+			/** Replace the instrument with a copy containing an additional
+			 * component */
+			AddComponent = 0,
+			/** Replace the instrument with a copy from which one component was
+			 * removed. */
+			DeleteComponent = 1
+		};
+
+		SE_replaceInstrumentAction( std::shared_ptr<H2Core::Instrument> pNew,
+									std::shared_ptr<H2Core::Instrument> pOld,
+									SE_replaceInstrumentAction::Type type,
+									const QString& sComponentName ) :
+			m_pNew( pNew ),
+			m_pOld( pOld )
+		{
+			switch ( type ) {
+			case Type::AddComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Adding component" ) )
+						 .arg( sComponentName ) );
+				break;
+			case Type::DeleteComponent:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Remove component" ) )
+						 .arg( sComponentName ) );
+				break;
+			default:
+				___ERRORLOG( QString( "Unknown type [%1]" )
+							 .arg( static_cast<int>(type) ) );
+			}
+		}
+		virtual void undo() {
+			H2Core::CoreActionController::replaceInstrument( m_pOld, m_pNew );
+		}
+		virtual void redo() {
+			H2Core::CoreActionController::replaceInstrument( m_pNew, m_pOld );
+		}
+
+	private:
+		std::shared_ptr<H2Core::Instrument> m_pNew;
+		std::shared_ptr<H2Core::Instrument> m_pOld;
 };
 
 class SE_renameComponentAction : public QUndoCommand {
