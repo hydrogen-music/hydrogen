@@ -1948,19 +1948,24 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( const std::list< H2C
 
 	//restore all deleted instrument notes
 	m_pAudioEngine->lock( RIGHT_HERE );
-	if(noteList.size() > 0 ){
-		std::list < H2Core::Note *>::const_iterator pos;
-		for ( const auto& ppNote : noteList ){
-			assert( ppNote );
-			Note *pNewNote = new Note( *pos, pNewInstrument );
-			assert( pNewNote );
-			pPattern = pPatternList->get( pNewNote->get_pattern_idx() );
-			assert (pPattern);
-			pPattern->insert_note( pNewNote );
-			//delete pNote;
+	for ( const auto& ppNote : noteList ) {
+		if ( ppNote == nullptr ) {
+			continue;
 		}
+		Note *pNewNote = new Note( ppNote, pNewInstrument );
+		pPattern = pPatternList->get( pNewNote->get_pattern_idx() );
+		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve pattern [%1] for note [%2]" )
+					  .arg( pNewNote->get_pattern_idx() )
+					  .arg( pNewNote->toQString() ) );
+			continue;
+		}
+
+		pPattern->insert_note( pNewNote );
 	}
-	m_pAudioEngine->unlock();	// unlock the audio engine
+	m_pAudioEngine->unlock();
+
+	EventQueue::get_instance()->push_event(H2Core::EVENT_PATTERN_MODIFIED, 0 );
 }
 
 void DrumPatternEditor::functionAddEmptyInstrumentUndo()
