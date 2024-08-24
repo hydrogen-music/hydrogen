@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.3.0-alpha-'d3404ea5e'</version>
+ <version>1.3.0-alpha-'d19d5a2d6'</version>
  <formatVersion>2</formatVersion>
  <bpm>120</bpm>
  <volume>0.5</volume>
@@ -37,7 +37,7 @@
   <instrumentList>
    <instrument>
     <id>-1</id>
-    <name>Empty Instrument</name>
+    <name>New Instrument</name>
     <type></type>
     <drumkitPath></drumkitPath>
     <drumkit></drumkit>
@@ -69,6 +69,12 @@
     <FX2Level>0</FX2Level>
     <FX3Level>0</FX3Level>
     <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
+     <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+    </instrumentComponent>
    </instrument>
   </instrumentList>
  </drumkit_info>
