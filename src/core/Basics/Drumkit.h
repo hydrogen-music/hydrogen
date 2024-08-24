@@ -221,16 +221,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	bool exportTo( const QString& sTargetDir, bool bSilent = false );
 
-		/** Removes an instrument from the drumkit and cleans up its
-		 * components.
-		 *
-		 * In case the instrument @a nInstrumentNumber was the only one holding
-		 * samples in a component, this component will be removed from the
-		 * drumkit. */
+		/** Removes an instrument from the drumkit. */
 		void removeInstrument( int nInstrumentNumber );
+		void removeInstrument( std::shared_ptr<Instrument> pInstrument );
 
-		/** Add an instrument to the kit and takes care of registering its
-		 * components.*/
+		/** Add an instrument to the kit*/
 		void addInstrument( std::shared_ptr<Instrument> pInstrument );
 		/** Create and add a new and empty instrument. */
 		void addInstrument();

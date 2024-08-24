@@ -537,6 +537,10 @@ void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments )
 }
 
 
+void Drumkit::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	m_pInstruments->del( pInstrument );
+}
+
 void Drumkit::removeInstrument( int nInstrumentNumber ) {
 	auto pInstrument = m_pInstruments->get( nInstrumentNumber );
 	if ( pInstrument == nullptr ) {
