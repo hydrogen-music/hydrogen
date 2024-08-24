@@ -698,6 +698,12 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			continue;
 		}
 		auto pLayer = pCompo->getLayer( pSelectedLayer->nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve layer [%1]" )
+					  .arg( pSelectedLayer->nSelectedLayer ) );
+			returnValues[ ii ] = true;
+			continue;
+		}
 		float fLayerGain = pLayer->get_gain();
 		float fLayerPitch = pLayer->get_pitch();
 
@@ -721,14 +727,25 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		float fCostTrack_L = 1.0f;
 		float fCostTrack_R = 1.0f;
 		
+		/*
+		 *  Is instrument/component/sample muted?
+		 *
+		 *  This can be the case either if:
+		 *   - the song, instrument, component, or layer is muted
+		 *   - if we're in an export session and we're doing per-instruments
+		 *     exports but this instrument is not currently being exported.
+		 *   - if another instrument  or component/layer of the same
+		 *     instrument is soloed.
+		 */
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
 								 ! pInstr->is_currently_exported() );
-		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
+		bool bAnyInstrumentIsSoloed =
+			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
 
 		// check wether another component of this instrument is muted
-		if ( ! bAnyInstrumentIsSoloed ) {
+		if ( ! bIsMutedBecauseOfSolo ) {
 			for ( int jj = 0; jj < pComponents->size(); ++jj ) {
 				if ( jj != ii && pComponents->at( ii ) != nullptr &&
 					 pComponents->at( ii )->getIsSoloed() ) {
@@ -737,19 +754,20 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 				}
 			}
 		}
-		
-		/*
-		 *  Is instrument muted?
-		 *
-		 *  This can be the case either if: 
-		 *   - the song, instrument or component is muted 
-		 *   - if we're in an export session and we're doing per-instruments exports, 
-		 *       but this instrument is not currently being exported.
-		 *   - if another instrument or instrument component of the same
-		 *     instrument is soloed.
-		 */
+
+		// check whether another sample of the same component is soloed
+		if ( ! bIsMutedBecauseOfSolo ) {
+			for ( const auto& ppLayer : pCompo->getLayers() ) {
+				if ( ppLayer != nullptr && ppLayer != pLayer &&
+					 ppLayer->getIsSoloed() ) {
+					bIsMutedBecauseOfSolo = true;
+					break;
+				}
+			}
+		}
+
 		if ( bIsMutedForExport || pInstr->is_muted() || pSong->getIsMuted() ||
-			 pCompo->getIsMuted() || bIsMutedBecauseOfSolo) {
+			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
