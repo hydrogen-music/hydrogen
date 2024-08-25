@@ -557,25 +557,42 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 		}
 	}
 
-	// create a new valid ID for this instrument
-	int nNewId = m_pInstruments->size();
-	for ( int ii = 0; ii < m_pInstruments->size(); ++ii ) {
-		bool bIsPresent = false;
+	// Check whether the instrument's id is valid and not present yet.
+	bool bIdValid = true;
+	if ( pInstrument->get_id() >= 0 ) {
 		for ( const auto& ppInstrument : *m_pInstruments ) {
 			if ( ppInstrument != nullptr &&
-				 ppInstrument->get_id() == ii ) {
-				bIsPresent = true;
+				 ppInstrument->get_id() == pInstrument->get_id() ) {
+				bIdValid = false;
+				break;
+			}
+		}
+	}
+	else {
+		bIdValid = false;
+	}
+
+	if ( ! bIdValid ) {
+		// create a new valid ID for this instrument
+		int nNewId = m_pInstruments->size();
+		for ( int ii = 0; ii < m_pInstruments->size(); ++ii ) {
+			bool bIsPresent = false;
+			for ( const auto& ppInstrument : *m_pInstruments ) {
+				if ( ppInstrument != nullptr &&
+					 ppInstrument->get_id() == ii ) {
+					bIsPresent = true;
+					break;
+				}
+			}
+
+			if ( ! bIsPresent ) {
+				nNewId = ii;
 				break;
 			}
 		}
 
-		if ( ! bIsPresent ) {
-			nNewId = ii;
-			break;
-		}
+		pInstrument->set_id( nNewId );
 	}
-
-	pInstrument->set_id( nNewId );
 
 	if ( nIndex > -1 && nIndex < m_pInstruments->size() ) {
 		m_pInstruments->insert( nIndex, pInstrument );
