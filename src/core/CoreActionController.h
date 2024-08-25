@@ -317,8 +317,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	static bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
 
-		/** Adds @a pInstrument to the current drumkit. */
-		static bool addInstrument( std::shared_ptr<Instrument> pInstrument );
+		/** Adds @a pInstrument to the current drumkit.
+		 *
+		 * In case @a nIndex is `-1` @a pInstrument will be appended to the
+		 * instrument list.*/
+		static bool addInstrument( std::shared_ptr<Instrument> pInstrument,
+								   int nIndex = -1 );
 		/** Removes @a pInstrument from the current drumkit and adds it to the
 		 * instrument death row. This way it is guarantueed that its samples
 		 * stay loaded until the last #H2Core::Note is done rendering it.

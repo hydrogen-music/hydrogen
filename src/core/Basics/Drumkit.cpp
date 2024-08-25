@@ -537,7 +537,8 @@ void Drumkit::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
 	m_pInstruments->del( pInstrument );
 }
 
-void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
+void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
+							 int nIndex ) {
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "invalid instrument" );
 		return;
@@ -576,7 +577,11 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
 
 	pInstrument->set_id( nNewId );
 
-	m_pInstruments->add( pInstrument );
+	if ( nIndex > -1 && nIndex < m_pInstruments->size() ) {
+		m_pInstruments->insert( nIndex, pInstrument );
+	} else {
+		m_pInstruments->add( pInstrument );
+	}
 }
 
 void Drumkit::propagateLicense(){

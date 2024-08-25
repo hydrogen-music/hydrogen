@@ -306,7 +306,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-		friend bool CoreActionController::addInstrument( std::shared_ptr<Instrument> );
+		friend bool CoreActionController::addInstrument(
+			std::shared_ptr<Instrument>, int );
 		friend bool CoreActionController::removeInstrument(
 			std::shared_ptr<Instrument> );
 		friend bool CoreActionController::replaceInstrument(
@@ -330,7 +331,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 
 		/** Add an instrument to the kit*/
-		void addInstrument( std::shared_ptr<Instrument> pInstrument );
+		void addInstrument( std::shared_ptr<Instrument> pInstrument,
+							int nIndex = -1 );
 
 		/** Removes an instrument from the drumkit. */
 		void removeInstrument( std::shared_ptr<Instrument> pInstrument );

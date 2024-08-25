@@ -1571,7 +1571,8 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 	return true;
 }
 
-bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
+bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrument,
+										  int nIndex ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -1586,7 +1587,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pDrumkit->addInstrument( pInstrument );
+	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
 	pSong->getPatternList()->mapTo( pDrumkit );
 
