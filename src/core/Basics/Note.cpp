@@ -253,7 +253,6 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 				  .arg( m_sType ).arg( __instrument_id ) );
 		__instrument = nullptr;
 		__adsr = nullptr;
-		__instrument_id = -2;
 		__layers_selected.clear();
 	}
 }
