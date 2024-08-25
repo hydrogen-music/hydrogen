@@ -30,7 +30,7 @@
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
-QString Reporter::m_sLogFile = H2Core::Filesystem::log_file_path();
+QString Reporter::m_sLogFile;
 
 std::set<QProcess *> Reporter::m_children;
 
@@ -67,6 +67,10 @@ Reporter::Reporter( QProcess *pChild )
 	assert( pChild != nullptr );
 	this->m_pChild = pChild;
 	m_children.insert( pChild );
+
+	if ( m_sLogFile.isEmpty() ) {
+		m_sLogFile = H2Core::Filesystem::log_file_path();
+	}
 
 	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
