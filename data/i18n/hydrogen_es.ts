@@ -1124,33 +1124,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
 </context>
 <context>
-    <name>ComponentMixerLine</name>
-    <message>
-        <source>Mute</source>
-        <translation>Silencio</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation>Solo</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Nombre componente</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volumen</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Pico</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of component</source>
-        <translation>Establecer volumen [%1] del componente</translation>
-    </message>
-</context>
-<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1191,82 +1164,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>New Drumkit</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main</source>
-        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation>&amp;Exportar</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation>Exportar Drumkit</translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation>Drumkit no válido</translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation>El archivo [%1] ya existe y será sobreescrito.</translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation>Drumkit exportado a</translation>
-    </message>
-    <message>
-        <source>Directory</source>
-        <translation>Directorio</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Todo</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Exportar</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Ruta</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Examinar...</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Versión</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 y siguientes</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 y anteriores</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Componente</translation>
     </message>
 </context>
 <context>
@@ -1826,6 +1723,22 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
+    <name>Instrument</name>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentComponent</name>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -1866,10 +1779,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Layer pitch (Fine)</source>
         <translation>Afinación de capa (fina)</translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Nombre nuevo componente</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1953,6 +1862,10 @@ Valor</translation>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
         <translation>Azar</translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>Nombre nuevo componente</translation>
     </message>
 </context>
 <context>
@@ -2541,10 +2454,6 @@ MIDI = %2</translation>
         <translation>Añadir &amp;Instrumento</translation>
     </message>
     <message>
-        <source>Add &amp;Component</source>
-        <translation>Añadir &amp;Componente</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>Editor &amp;Lista de Reproducción</translation>
     </message>
@@ -2747,6 +2656,22 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation>Exportar Drumkit</translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation>Drumkit no válido</translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation>El archivo [%1] ya existe y será sobreescrito.</translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation>Drumkit exportado a</translation>
     </message>
 </context>
 <context>
@@ -5449,10 +5374,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add component to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show playlist editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5734,6 +5655,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -1123,33 +1123,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
 </context>
 <context>
-    <name>ComponentMixerLine</name>
-    <message>
-        <source>Mute</source>
-        <translation>Muet</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation>Solo</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Nom du composant</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volume</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Pic</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of component</source>
-        <translation>Régler le volume [%1] du composant</translation>
-    </message>
-</context>
-<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1190,82 +1163,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>New Drumkit</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main</source>
-        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation>&amp;Exporter</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation>Exporter un kit de batterie</translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation>kit de batterie invalide</translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation>Le fichier [%1] existe déjà et sera écrasé.</translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation>Kit de batterie exporté vers</translation>
-    </message>
-    <message>
-        <source>Directory</source>
-        <translation>Répertoire</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Tous</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Exporter</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Chemin</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Explorer...</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Version</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 et supérieur</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 et inférieur</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Composant</translation>
     </message>
 </context>
 <context>
@@ -1827,6 +1724,22 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
+    <name>Instrument</name>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentComponent</name>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
@@ -1867,10 +1780,6 @@ Overwrite the existing file?</source>
     <message>
         <source>New instrument name</source>
         <translation>Nouveau nom de l&apos;instrument</translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Nom du nouveau composant</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1954,6 +1863,10 @@ Valeur</translation>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
         <translation>Hasard</translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>Nom du nouveau composant</translation>
     </message>
 </context>
 <context>
@@ -2594,10 +2507,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Ajouter un &amp;instrument</translation>
     </message>
     <message>
-        <source>Add &amp;Component</source>
-        <translation>Ajouter un &amp;composant</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>Éditeur de &amp;liste de lecture</translation>
     </message>
@@ -2748,6 +2657,22 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Save &amp;To Session</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation>Exporter un kit de batterie</translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation>kit de batterie invalide</translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation>Le fichier [%1] existe déjà et sera écrasé.</translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation>Kit de batterie exporté vers</translation>
     </message>
 </context>
 <context>
@@ -5450,10 +5375,6 @@ p, li { white-space: pre-wrap; }
         <translation>Nettoyer tous les instruments dans le kit de batterie actuel</translation>
     </message>
     <message>
-        <source>Add component to current drumkit</source>
-        <translation>Ajouter un composant au kit de batterie actuel</translation>
-    </message>
-    <message>
         <source>Show playlist editor</source>
         <translation>Afficher l&apos;éditeur de liste de lecture</translation>
     </message>
@@ -5735,6 +5656,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
