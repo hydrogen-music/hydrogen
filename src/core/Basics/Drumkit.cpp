@@ -962,7 +962,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool bSilent ) {
 		return false;
 	}
 
-	bool bFoundFileInRightComponent;
 	for ( const auto& sFilename : filesUsed ) {
 		QFileInfo ffileInfo( sFilename );
 		QString sTargetFilename = sDrumkitName + "/" + ffileInfo.fileName();
@@ -1110,7 +1109,7 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 					  ++nnComponent ) {
 					auto pInstrumentComponent = pInstr->get_component( nnComponent );
 					if ( pInstrumentComponent == nullptr ) {
-						continue; // regular case when you have a new component empty
+						continue;
 					}
 
 					for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {

@@ -554,7 +554,7 @@ void Shortcuts::createActionInfoMap() {
 										 "Clear all instruments in current drumkit" ) );
 	insertActionInfo( Shortcuts::Action::AddComponent, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Add component to current drumkit" ) );
+										 "Add component to current instrument" ) );
 
 	insertActionInfo( Shortcuts::Action::ShowPlaylist, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",

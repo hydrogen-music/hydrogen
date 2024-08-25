@@ -1140,8 +1140,6 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 
 	pSong->setDrumkit( pNewDrumkit );
 
-	// Remap instruments in pattern list to ensure component indices for
-	// SelectedLayerInfo's are up to date for the current kit.
 	for ( auto& pPattern : *pSong->getPatternList() ) {
 		for ( auto& pNote : *pPattern->get_notes() ) {
 			pNote.second->mapTo( pNewDrumkit );
