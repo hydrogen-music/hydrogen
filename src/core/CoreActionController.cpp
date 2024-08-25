@@ -1626,11 +1626,6 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	// Remove all notes in pattern corresponding to the provided instrument.
-	for ( const auto& pPattern : *pSong->getPatternList() ) {
-		pPattern->purge_instrument( pInstrument, false );
-	}
-
 	pDrumkit->removeInstrument( pInstrument );
 
 	// At this point the instrument has been removed from both the current

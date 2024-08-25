@@ -1046,55 +1046,25 @@ private:
 class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
-	SE_deleteInstrumentAction( const std::list<  H2Core::Note* >& noteList,
-							   const QString& sDrumkitPath,
-							   const QString& sInstrumentName,
-							   int nSelectedInstrument,
-							   bool bReplace )
-		: __drumkitPath( sDrumkitPath )
-		, __instrumentName( sInstrumentName )
-		, __nSelectedInstrument( nSelectedInstrument)
-		, m_bReplace( bReplace )
-		{
+	SE_deleteInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
+							   int nIndex )
+		: m_pInstrument( pInstrument )
+		, m_nIndex( nIndex ) {
 		setText( QString( "%1 [%2]" )
-				 .arg( QObject::tr( "Delete instrument " ) )
-				 .arg( sInstrumentName ) );
-
-		for ( const auto& ppNote : noteList ){
-			auto pNewNote = new H2Core::Note(*ppNote);
-			assert( pNewNote );
-			__noteList.push_back( pNewNote );
-		}
+				 .arg( QObject::tr( "Delete instrument" ) )
+				 .arg( pInstrument->get_name() ) );
 	}
-
-	~SE_deleteInstrumentAction(){
-		//qDebug() << "delete left notes ";
-		while ( __noteList.size() ) {
-			delete __noteList.front();
-			__noteList.pop_front();
-		}
-
-	}
+	~SE_deleteInstrumentAction(){}
 
 	virtual void undo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->
-			getDrumPatternEditor()->functionDeleteInstrumentUndoAction(
-				__noteList, __nSelectedInstrument, __instrumentName,
-				__drumkitPath, m_bReplace );
+		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
 	}
 	virtual void redo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->
-			getDrumPatternEditor()->functionDropInstrumentUndoAction(
-				__nSelectedInstrument, m_bReplace );
+		H2Core::CoreActionController::removeInstrument( m_pInstrument );
 	}
-private:
-	std::list< H2Core::Note* > __noteList;
-	QString __instrumentName;
-	QString __drumkitPath;
-	int __nSelectedInstrument;
-		/** In case there is just a single instrument left in the drumkit, it
-		 * get's replaced with an empty one instead of removed. */
-		bool m_bReplace;
+	private:
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
+		int m_nIndex;
 };
 
 
@@ -1192,13 +1162,17 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			AddComponent = 0,
 			/** Replace the instrument with a copy from which one component was
 			 * removed. */
-			DeleteComponent = 1
+			DeleteComponent = 1,
+			/** There must be at least one instrument in a drumkit. Instead of
+			 * the deleting the last one, it will be replaced by an empty
+			 * one. */
+			DeleteLastInstrument = 2
 		};
 
 		SE_replaceInstrumentAction( std::shared_ptr<H2Core::Instrument> pNew,
 									std::shared_ptr<H2Core::Instrument> pOld,
 									SE_replaceInstrumentAction::Type type,
-									const QString& sComponentName ) :
+									const QString& sName ) :
 			m_pNew( pNew ),
 			m_pOld( pOld )
 		{
@@ -1206,12 +1180,17 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			case Type::AddComponent:
 				setText( QString( "%1 [%2]" )
 						 .arg( QObject::tr( "Adding component" ) )
-						 .arg( sComponentName ) );
+						 .arg( sName ) );
 				break;
 			case Type::DeleteComponent:
 				setText( QString( "%1 [%2]" )
 						 .arg( QObject::tr( "Remove component" ) )
-						 .arg( sComponentName ) );
+						 .arg( sName ) );
+				break;
+			case Type::DeleteLastInstrument:
+				setText( QString( "%1 [%2]" )
+						 .arg( QObject::tr( "Delete instrument" ) )
+						 .arg( sName ) );
 				break;
 			default:
 				___ERRORLOG( QString( "Unknown type [%1]" )

@@ -1377,33 +1377,20 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 		return;
 	}
 
-	std::list< Note* > noteList;
-	PatternList *pPatternList = pSong->getPatternList();
-
-	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitPath = pSelectedInstrument->get_drumkit_path();
-
-	for ( int i = 0; i < pPatternList->size(); i++ ) {
-		const H2Core::Pattern *pPattern = pPatternList->get(i);
-		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				pNote->set_pattern_idx( i );
-				noteList.push_back( pNote );
-			}
-		}
-	}
-
 	// If there is just a single instrument, we will replace it with an empty
 	// one instead of deleting it.
-	const bool bReplace = pSong->getDrumkit()->getInstruments()->size() == 1;
-	
-	SE_deleteInstrumentAction *pAction =
-		new SE_deleteInstrumentAction( noteList, sDrumkitPath,
-									   sInstrumentName, nInstrument, bReplace );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	if ( pSong->getDrumkit()->getInstruments()->size() == 1 ) {
+		auto pAction = new SE_replaceInstrumentAction(
+			std::make_shared<Instrument>(), pSelectedInstrument,
+			SE_replaceInstrumentAction::Type::DeleteLastInstrument,
+			pSelectedInstrument->get_name() );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	}
+	else {
+		auto pAction = new SE_deleteInstrumentAction(
+			pSelectedInstrument, nInstrument );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	}
 }
 
 
