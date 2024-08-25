@@ -401,11 +401,6 @@ void MainForm::createMenuBar()
 	m_pDrumkitMenu->addAction( tr( "Add &Instrument" ), this,
 							   SLOT( action_drumkit_addInstrument() ),
 							   pShortcuts->getKeySequence( Shortcuts::Action::AddInstrument ) );
-	m_pDrumkitMenu->addAction(
-		tr( "Add &Component" ),
-		InstrumentEditorPanel::get_instance()->getInstrumentEditor(),
-		SLOT( addComponentAction() ),
-		pShortcuts->getKeySequence( Shortcuts::Action::AddComponent ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
