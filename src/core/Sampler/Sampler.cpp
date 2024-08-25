@@ -246,8 +246,8 @@ void Sampler::noteOn(Note *pNote )
 		}
 	}
 
-	pInstr->enqueue( pNote );
 	if ( ! pNote->get_note_off() ){
+		pInstr->enqueue( pNote );
 		m_playingNotesQueue.push_back( pNote );
 	}
 }
