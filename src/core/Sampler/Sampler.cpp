@@ -133,7 +133,7 @@ void Sampler::process( uint32_t nFrames )
 			WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
 						.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
 						.arg( pOldNote->toQString() ) );
-			delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
+			delete pOldNote;
 		}
 		else {
 			ERRORLOG( QString( "Old note in Sampler has no instrument! [%1]" )
@@ -154,7 +154,7 @@ void Sampler::process( uint32_t nFrames )
 				pNote->get_instrument()->dequeue();
 			} else {
 				ERRORLOG( QString( "Playing note in sampler does not have instrument! [%1]" )
-						  .arg( pNote->toQString() ) );
+						  .arg( pNote->prettyName() ) );
 			}
 			m_queuedNoteOffs.push_back( pNote );
 		} else {
