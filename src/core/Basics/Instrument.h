@@ -248,6 +248,7 @@ class Instrument : public H2Core::Object<Instrument>
 		void dequeue( Note* pNote );
 		/** get the queued status of the instrument */
 		bool is_queued() const;
+		const QStringList& getEnqueuedBy() const;
 
 		/** set the stop notes status of the instrument */
 		void set_stop_notes( bool stopnotes );
@@ -609,6 +610,10 @@ inline bool Instrument::is_soloed() const
 inline bool Instrument::is_queued() const
 {
 	return ( __queued > 0 );
+}
+
+inline const QStringList& Instrument::getEnqueuedBy() const {
+	return m_enqueuedBy;
 }
 
 inline void Instrument::set_stop_notes( bool stopnotes )

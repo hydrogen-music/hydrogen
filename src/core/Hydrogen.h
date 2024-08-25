@@ -414,14 +414,14 @@ public:
 	bool			getSessionIsExported() const;
 
 	/**
-	 * Add @a pInstr to m_instrumentDeathRow and triggers
-	 * killInstruments().
+	 * Add @a pInstr to death row.
 	 *
-	 * Since there might still be some notes of @a pInstr left in one
-	 * of the note queues, the instrument can not be deleted right
-	 * away. Instead, this function will add it to a list of
-	 * instruments marked for deletion and it will be dealt with at a
-	 * later time.
+	 * Since there might still be some notes using @a pInstr left in one of the
+	 * note queues, the instrument's samples must not be unloaded right away
+	 * (the instrumet's destructor might not be called after deleting it since
+	 * it might live on in the undo/redo stack of the GUI). Instead, this
+	 * function will add it to a list of instruments marked for deletion and it
+	 * will be dealt with at a later time (after audio rendering was stopped).
 	 */
 	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
 

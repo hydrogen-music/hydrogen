@@ -1079,26 +1079,31 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 }
 
 void Hydrogen::killInstruments() {
-	std::shared_ptr<Instrument> pInstr = nullptr;
+	std::shared_ptr<Instrument> pInstr;
 
-	while ( m_instrumentDeathRow.size() > 0
-			&& m_instrumentDeathRow.front()->is_queued() == 0 ) {
+	while ( m_instrumentDeathRow.size() > 0 &&
+			( m_instrumentDeathRow.front() == nullptr ||
+			  ( m_instrumentDeathRow.front() != nullptr &&
+				m_instrumentDeathRow.front()->is_queued() == 0 ) ) ) {
 		pInstr = m_instrumentDeathRow.front();
 		m_instrumentDeathRow.pop_front();
-		INFOLOG( QString( "Deleting unused instrument (%1). "
-						  "%2 unused remain." )
-				 .arg( pInstr->get_name() )
-				 .arg( m_instrumentDeathRow.size() ) );
-		pInstr->unload_samples();
-		pInstr = nullptr;
+
+		if ( pInstr != nullptr  ) {
+			INFOLOG( QString( "Unloading samples of instrument [%1]. [%2] left." )
+					 .arg( pInstr->get_name() )
+					 .arg( m_instrumentDeathRow.size() ) );
+			pInstr->unload_samples();
+		}
 	}
 
 	if ( m_instrumentDeathRow.size() > 0 ) {
 		pInstr = m_instrumentDeathRow.front();
-		INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-						  "Delaying 'delete instrument' operation." )
-				 .arg( pInstr->get_name() ).arg( pInstr->is_queued() ) );
+		if ( pInstr != nullptr ) {
+			INFOLOG( QString( "Instrument [%1] still has active notes:\n\t%2 " )
+					 .arg( pInstr->get_name() )
+					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
 		}
+	}
 }
 
 
