@@ -74,6 +74,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- `formatVersion` element was added to `.h2song`, `.h2pattern`, `.h2playlist`,
 			drumkit and config files. This integer will be increment each time the
 			format will be changed.
+		- pre-fader gain does now include component gain as well.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.

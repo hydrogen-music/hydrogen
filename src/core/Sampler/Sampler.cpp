@@ -807,6 +807,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 				fCostTrack_L *= pNote->get_velocity();
 			}
 			fCostTrack_L *= fLayerGain;
+			fCostTrack_L *= pCompo->getGain();
 			
 			fCostTrack_R = fCostTrack_L;
 
